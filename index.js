@@ -342,7 +342,7 @@ function publicUser(u) {
 
 
 /* â”€â”€ START â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-app.listen(PORT, () => {
+app.use(express.static(__dirname)); // MODIFIÉ — sert index.html app.listen(PORT, () => {
   console.log(`âœ… REGUL ARENA API â€” port ${PORT}`);
   console.log(`   DB : regularena.db`);
   console.log(`   JWT_SECRET : ${JWT_SECRET === 'changez-moi-en-production' ? 'âš  PAR DÃ‰FAUT â€” Ã  changer' : 'âœ“ configurÃ©'}`);
