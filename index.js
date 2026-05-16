@@ -106,7 +106,7 @@ function err(res, status, message) {
 const app = express();
 
 app.set('trust proxy', 1);
-app.use(helmet(app.options('*', cors()); // MODIFIÉ — preflight CORS));
+app.use(helmet());
 app.use((req, res, next) => {
   const allowed = ['https://www.regularena.com','https://regularena.com','https://endregularena.up.railway.app'];
   if (allowed.includes(req.headers.origin)) res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
