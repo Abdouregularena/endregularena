@@ -106,13 +106,14 @@ function err(res, status, message) {
 const app = express();
 
 app.set('trust proxy', 1);
-app.use(helmet());
+app.use(helmet(app.options('*', cors()); // MODIFIÉ — preflight CORS));
 app.use(cors({
   origin: [FRONTEND_URL,'https://endregularena.up.railway.app', 'https://www.regularena.com', 'https://regularena.com'],
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
-app.use(express.json({ limit: '32kb' }));
+app.use(express.json({ limit: '32kb' })); 
+app.options('*', cors()); // MODIFIÉ — preflight CORS
 
 const limiterStrict = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, standardHeaders: true, legacyHeaders: false });
 const limiterLoose  = rateLimit({ windowMs: 15 * 60 * 1000, max: 60, standardHeaders: true, legacyHeaders: false });
