@@ -108,7 +108,7 @@ const app = express();
 app.set('trust proxy', 1);
 app.use(helmet());
 app.use(cors({
-  origin: [FRONTEND_URL, 'https://endregularena.up.railway.app'],
+  origin: [FRONTEND_URL, 'https://endregularena.up.railway.app', 'https://www.regularena.com', 'https://regularena.com'],
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
