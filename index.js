@@ -107,13 +107,14 @@ const app = express();
 
 app.set('trust proxy', 1);
 app.use(helmet(app.options('*', cors()); // MODIFIÉ — preflight CORS));
-app.use(cors({
-  origin: [FRONTEND_URL,'https://endregularena.up.railway.app', 'https://www.regularena.com', 'https://regularena.com'],
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
-app.use(express.json({ limit: '32kb' })); 
-app.options('*', cors()); // MODIFIÉ — preflight CORS
+app.use((req, res, next) => {
+  const allowed = ['https://www.regularena.com','https://regularena.com','https://endregularena.up.railway.app'];
+  if (allowed.includes(req.headers.origin)) res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  next();
+}); // MODIFIÉ — CORS manuel
 
 const limiterStrict = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, standardHeaders: true, legacyHeaders: false });
 const limiterLoose  = rateLimit({ windowMs: 15 * 60 * 1000, max: 60, standardHeaders: true, legacyHeaders: false });
