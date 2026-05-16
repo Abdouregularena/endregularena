@@ -2702,9 +2702,7 @@ function resetInviteMsg(){const msg=document.getElementById('invite-message');if
 const RAGate = (() => {
   const KEY_COUNT='ra_quiz_count', KEY_REG='ra_gate_registered', KEY_USER='ra_gate_user_data';
   const MAX_FREE=3;
-  const BLOCKED=['gmail.com','yahoo.com','hotmail.com','outlook.com','live.com','orange.sn','free.fr'];
   let state={count:0,registered:false,user:null,emailValid:false,loginMode:false};
-
   function init(){
     try{state.count=parseInt(localStorage.getItem(KEY_COUNT)||'0');state.registered=localStorage.getItem(KEY_REG)==='true';state.user=JSON.parse(localStorage.getItem(KEY_USER)||'null');}catch(e){}
     renderPill();
@@ -2889,7 +2887,7 @@ document.addEventListener('input', e => {
 const RAAuth = (() => {
   const KEY_REG  = 'ra_auth_registered';
   const KEY_USER = 'ra_auth_user_data';
-  const BLOCKED  = ['gmail.com','yahoo.com','hotmail.com','outlook.com','live.com','yopmail.com','orange.sn','free.fr','icloud.com','protonmail.com'];
+  const BLOCKED  = ['yahoo.com','hotmail.com','outlook.com','live.com','yopmail.com','orange.sn','free.fr','icloud.com','protonmail.com'];
 
   let _pendingPage = null;
   let _emailValid  = false;
