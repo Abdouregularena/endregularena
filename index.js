@@ -299,7 +299,7 @@ app.post('/feedback/notify', limiterLoose, (req, res) => {
 
 
 /* â”€â”€ HEALTH CHECK â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-app.get('/', (req, res) => res.json({ status: 'ok', app: 'REGUL ARENA API', version: '2.0.0' }));
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/api', (req, res) => res.json({ status: 'ok', message: 'API REGUL ARENA en ligne âœ…' }));
 
 
