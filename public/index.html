@@ -581,6 +581,42 @@ footer{display:flex;align-items:center;justify-content:space-between;border-top:
   from{height:4px}to{height:16px}
 }
 
+/* ── NOTIFICATIONS BADGE & PANEL ────────────────────────── */
+.ra-notif-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:16px;height:16px;padding:0 4px;
+  background:#e53935;color:#fff;
+  border-radius:8px;font-size:.6rem;font-weight:700;
+  margin-left:5px;vertical-align:middle;line-height:1;
+}
+#ra-notif-panel{
+  position:fixed;top:62px;right:12px;z-index:400;
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  box-shadow:0 8px 32px rgba(0,0,0,.5);
+  width:340px;max-width:calc(100vw - 24px);
+  display:none;flex-direction:column;overflow:hidden;
+}
+#ra-notif-panel.open{display:flex;}
+.ra-notif-panel-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;border-bottom:1px solid var(--border);
+}
+.ra-notif-panel-header span{font-family:'Bebas Neue',cursive;font-size:1rem;letter-spacing:2px;color:var(--gold);}
+.ra-notif-panel-header button{background:none;border:none;cursor:pointer;color:var(--muted);font-size:.72rem;font-family:'JetBrains Mono',monospace;letter-spacing:1px;}
+.ra-notif-panel-header button:hover{color:var(--cyan);}
+#ra-notif-list{max-height:360px;overflow-y:auto;}
+.ra-notif-item{
+  padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;
+  display:flex;gap:10px;align-items:flex-start;transition:background .15s;
+}
+.ra-notif-item:hover{background:rgba(255,255,255,.04);}
+.ra-notif-item.unread{background:rgba(0,212,255,.05);}
+.ra-notif-item.unread::before{content:'';display:block;width:6px;height:6px;border-radius:50%;background:var(--cyan);flex-shrink:0;margin-top:5px;}
+.ra-notif-item:not(.unread)::before{content:'';display:block;width:6px;height:6px;flex-shrink:0;}
+.ra-notif-msg{font-size:.8rem;color:var(--fg);line-height:1.4;}
+.ra-notif-time{font-size:.65rem;color:var(--muted);margin-top:3px;font-family:'JetBrains Mono',monospace;}
+.ra-notif-empty{padding:24px;text-align:center;color:var(--muted);font-size:.8rem;}
+
 /* ── BANDEAU DISCLAIMER ──────────────────────────────────── */
 .ra-disclaimer-band{
   position:fixed;top:0;left:0;right:0;z-index:300;
@@ -979,8 +1015,8 @@ footer{display:flex;align-items:center;justify-content:space-between;border-top:
   <ul class="nav-links" role="menubar">
     <li role="none"><button id="nav-landing" onclick="showPage('landing')" class="active" role="menuitem" aria-current="page">Accueil</button></li>
     <li role="none"><button id="nav-classement" onclick="showPage('classement')" role="menuitem">Classement</button></li>
-    <li role="none"><button id="nav-tournois" onclick="showPage('tournois')" role="menuitem">Tournois</button></li>
-    <li role="none"><button id="nav-duel" onclick="showPage('duel')" role="menuitem">Duel</button></li>
+    <li role="none"><button id="nav-tournois" onclick="showPage('tournois')" role="menuitem">Tournois<span id="notif-badge-tournois" class="ra-notif-badge" style="display:none" onclick="event.stopPropagation();RANotif.toggle()"></span></button></li>
+    <li role="none"><button id="nav-duel" onclick="showPage('duel')" role="menuitem">Duel<span id="notif-badge-duel" class="ra-notif-badge" style="display:none" onclick="event.stopPropagation();RANotif.toggle()"></span></button></li>
     <li role="none"><button id="nav-premium" onclick="showPage('premium')" role="menuitem">Top Scoreurs</button></li>
     <li role="none"><button id="nav-invitation" onclick="showPage('invitation')" role="menuitem">Inviter</button></li>
     <li role="none"><button onclick="document.querySelector('.feedback-section').scrollIntoView({behavior:'smooth'})" role="menuitem">💬 Feedback</button></li>
@@ -3377,6 +3413,7 @@ const RAGate = (() => {
       if(!r.ok){gToast('⚠ '+(r.data?.error||'Lien invalide ou expiré'));return;}
       const {token:jwt,user}=r.data;
       try{localStorage.setItem('ra_jwt',jwt);localStorage.setItem(KEY_REG,'true');localStorage.setItem(KEY_USER,JSON.stringify(user));}catch(e){}
+      try{document.dispatchEvent(new Event('ra:login'));}catch(e){}
       state.registered=true;state.user=user;
       const wn=document.getElementById('ra-welcome-name');if(wn)wn.textContent=user?.name||'champion';
       const o=document.getElementById('ra-gate-overlay');
@@ -3638,6 +3675,7 @@ const RAAuth = (() => {
         localStorage.setItem(KEY_REG, 'true');
         localStorage.setItem(KEY_USER, JSON.stringify(user));
       } catch(e) {}
+      try { document.dispatchEvent(new Event('ra:login')); } catch(e) {}
       const overlay = document.getElementById('ra-auth-overlay');
       if (overlay) { overlay.classList.add('visible'); document.body.style.overflow = 'hidden'; }
       confirmEmail();
@@ -3820,6 +3858,20 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <!-- ================================================================
+     PANNEAU NOTIFICATIONS
+================================================================ -->
+<div id="ra-notif-panel" role="dialog" aria-label="Notifications">
+  <div class="ra-notif-panel-header">
+    <span>NOTIFICATIONS</span>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <button onclick="RANotif.markAllSeen()">Tout marquer lu</button>
+      <button onclick="RANotif.close()" aria-label="Fermer">✕</button>
+    </div>
+  </div>
+  <div id="ra-notif-list"><div class="ra-notif-empty">Aucune notification</div></div>
+</div>
+
+<!-- ================================================================
      AUDIO PLAYER FLOTTANT — Sélection Musicale REGUL ARENA
 ================================================================ -->
 <div id="ra-audio-player" role="region" aria-label="Lecteur audio">
@@ -3863,121 +3915,47 @@ const RAPlayer = (() => {
   const header    = document.getElementById('ra-ap-header');
   const player    = document.getElementById('ra-audio-player');
 
-  let ctx = null, masterGain = null, playing = false, expanded = false;
-  let _muted = false, _volume = 0.7;
-  let _startTime = 0, _elapsed = 0, _tickId = null;
-  let _nodes = [];
+  let playing = false, expanded = false, _muted = false, _volume = 0.7;
+  let _tickId = null;
 
-  const fmt = s => { const m = Math.floor(s/60); return m+':'+(Math.floor(s%60)<10?'0':'')+Math.floor(s%60); };
+  const audio = new Audio('/assets/audio/REGUL_ARENA_SONG.aac');
+  audio.loop = true;
+  audio.volume = _volume;
+  audio.preload = 'none';
 
-  function _initCtx() {
-    if (ctx) return;
-    ctx = new (window.AudioContext || window.webkitAudioContext)();
-
-    masterGain = ctx.createGain();
-    masterGain.gain.value = 0;
-    masterGain.connect(ctx.destination);
-
-    // Delay pour pseudo-reverb
-    const delay = ctx.createDelay(2.0);
-    delay.delayTime.value = 0.35;
-    const delayGain = ctx.createGain();
-    delayGain.gain.value = 0.22;
-    masterGain.connect(delay);
-    delay.connect(delayGain);
-    delayGain.connect(delay);
-    delayGain.connect(ctx.destination);
-
-    // Drone de base A2 (110Hz) — sine
-    const makeOsc = (freq, type, vol, detune) => {
-      const osc = ctx.createOscillator();
-      const g   = ctx.createGain();
-      osc.type = type;
-      osc.frequency.value = freq;
-      if (detune) osc.detune.value = detune;
-      g.gain.value = vol;
-      osc.connect(g);
-      g.connect(masterGain);
-      osc.start();
-      _nodes.push(osc, g);
-      return osc;
-    };
-
-    // LFO tremolo lent
-    const lfo = ctx.createOscillator();
-    const lfoGain = ctx.createGain();
-    lfo.frequency.value = 0.18;
-    lfoGain.gain.value = 3;
-    lfo.connect(lfoGain);
-    lfo.start();
-    _nodes.push(lfo, lfoGain);
-
-    const bass   = makeOsc(110,   'sine',     0.35, 0);
-    const fifth  = makeOsc(165,   'sine',     0.22, 0);
-    const octave = makeOsc(220,   'sine',     0.15, 0);
-    const pad    = makeOsc(330,   'sine',     0.08, 0);
-    const air    = makeOsc(440,   'sine',     0.04, 0);
-    const sub    = makeOsc(55,    'sine',     0.18, 0);
-
-    // Légère modulation de fréquence sur le bass pour mouvement
-    lfoGain.connect(bass.frequency);
-    lfoGain.connect(fifth.frequency);
-
-    // LFO lent sur pad pour chorus
-    const lfo2 = ctx.createOscillator();
-    const lfo2g = ctx.createGain();
-    lfo2.frequency.value = 0.07;
-    lfo2g.gain.value = 1.5;
-    lfo2.connect(lfo2g);
-    lfo2g.connect(pad.frequency);
-    lfo2.start();
-    _nodes.push(lfo2, lfo2g);
-  }
+  const fmt = s => { if (!isFinite(s)) return '0:00'; const m = Math.floor(s/60); return m+':'+(Math.floor(s%60)<10?'0':'')+Math.floor(s%60); };
 
   function _tick() {
-    _elapsed = ctx ? (ctx.currentTime - _startTime) : 0;
-    if (timeEl) timeEl.textContent = fmt(_elapsed);
-    // animation progress bar simulée (cycle 120s)
-    const cycle = 120;
-    const pct = (_elapsed % cycle) / cycle * 100;
-    if (progressBar) progressBar.style.width = pct + '%';
-    if (progressThumb) progressThumb.style.left = pct + '%';
+    if (timeEl) timeEl.textContent = fmt(audio.currentTime);
+    if (audio.duration && isFinite(audio.duration)) {
+      const pct = (audio.currentTime / audio.duration) * 100;
+      if (progressBar) progressBar.style.width = pct + '%';
+      if (progressThumb) progressThumb.style.left = pct + '%';
+    }
     _tickId = requestAnimationFrame(_tick);
   }
 
   function _setPlaying(val) {
     playing = val;
-    playBtn.textContent = val ? '⏸' : '▶';
+    if (playBtn) playBtn.textContent = val ? '⏸' : '▶';
     eqBars.forEach(b => b.classList.toggle('paused', !val));
     if (status) status.textContent = val ? '♪ En lecture' : 'En pause';
   }
 
   function togglePlay() {
-    _initCtx();
-    if (ctx.state === 'suspended') {
-      ctx.resume().then(() => {
-        if (!playing) _startPlaying();
+    if (!playing) {
+      audio.play().then(() => {
+        _setPlaying(true);
+        if (!expanded) toggleExpand();
+        _tickId = requestAnimationFrame(_tick);
+      }).catch(() => {
+        if (status) status.textContent = 'Cliquer pour jouer';
       });
-      return;
+    } else {
+      audio.pause();
+      _setPlaying(false);
+      cancelAnimationFrame(_tickId);
     }
-    if (!playing) { _startPlaying(); }
-    else { _stopPlaying(); }
-  }
-
-  function _startPlaying() {
-    if (!ctx) return;
-    _startTime = ctx.currentTime - _elapsed;
-    masterGain.gain.cancelScheduledValues(ctx.currentTime);
-    masterGain.gain.setTargetAtTime(_muted ? 0 : _volume, ctx.currentTime, 0.8);
-    _setPlaying(true);
-    if (!expanded) toggleExpand();
-    _tickId = requestAnimationFrame(_tick);
-  }
-
-  function _stopPlaying() {
-    masterGain.gain.setTargetAtTime(0, ctx.currentTime, 0.4);
-    _setPlaying(false);
-    cancelAnimationFrame(_tickId);
   }
 
   function toggleExpand() {
@@ -3989,21 +3967,20 @@ const RAPlayer = (() => {
   function setVolume(val) {
     _volume = parseFloat(val);
     _muted = false;
-    if (masterGain && playing) masterGain.gain.setTargetAtTime(_volume, ctx.currentTime, 0.1);
+    audio.volume = _volume;
     const muteBtn = document.getElementById('ra-ap-mutebtn');
     if (muteBtn) muteBtn.textContent = _volume === 0 ? '🔇' : _volume < 0.5 ? '🔉' : '🔊';
   }
 
   function toggleMute() {
     _muted = !_muted;
+    audio.muted = _muted;
     const vol = document.getElementById('ra-ap-vol');
-    if (masterGain && playing) masterGain.gain.setTargetAtTime(_muted ? 0 : _volume, ctx.currentTime, 0.1);
     const muteBtn = document.getElementById('ra-ap-mutebtn');
     if (muteBtn) muteBtn.textContent = _muted ? '🔇' : '🔊';
     if (vol) vol.value = _muted ? 0 : _volume;
   }
 
-  // skip n'a pas de sens sur audio infini — on garde l'API compatible
   function seek() {}
   function skip() {}
 
@@ -4301,6 +4278,154 @@ window.addEventListener('load', function() {
       }
     }
   }
+})();
+</script>
+
+<script>
+/* ── NOTIFICATIONS SYSTEM ────────────────────────────────── */
+const RANotif = (() => {
+  let _pollTimer = null;
+  let _panel = null;
+  let _list  = null;
+  let _badgeDuel = null;
+  let _badgeTour = null;
+  let _open = false;
+
+  const _fmt = iso => {
+    try {
+      const d = new Date(iso.replace(' ','T')+'Z');
+      const now = Date.now();
+      const diff = Math.floor((now - d.getTime()) / 1000);
+      if (diff < 60) return 'à l\'instant';
+      if (diff < 3600) return Math.floor(diff/60) + ' min';
+      if (diff < 86400) return Math.floor(diff/3600) + 'h';
+      return Math.floor(diff/86400) + 'j';
+    } catch(e) { return ''; }
+  };
+
+  function _getJwt() {
+    try { return localStorage.getItem('ra_jwt'); } catch(e) {}
+    try { return sessionStorage.getItem('ra_jwt'); } catch(e) {}
+    return null;
+  }
+
+  function _authHeader() {
+    const t = _getJwt();
+    return t ? { 'Authorization': 'Bearer ' + t } : null;
+  }
+
+  function _updateBadges(unread, notifications) {
+    if (!_badgeDuel) _badgeDuel = document.getElementById('notif-badge-duel');
+    if (!_badgeTour) _badgeTour = document.getElementById('notif-badge-tournois');
+
+    const duelCount = notifications.filter(n => !n.seen && (n.type === 'duel_created' || n.type === 'duel_joined')).length;
+    const tourCount = notifications.filter(n => !n.seen && n.type === 'tournament_created').length;
+
+    if (_badgeDuel) {
+      if (duelCount > 0) { _badgeDuel.textContent = duelCount > 9 ? '9+' : duelCount; _badgeDuel.style.display = 'inline-flex'; }
+      else { _badgeDuel.style.display = 'none'; }
+    }
+    if (_badgeTour) {
+      if (tourCount > 0) { _badgeTour.textContent = tourCount > 9 ? '9+' : tourCount; _badgeTour.style.display = 'inline-flex'; }
+      else { _badgeTour.style.display = 'none'; }
+    }
+  }
+
+  function _renderList(notifications) {
+    if (!_list) _list = document.getElementById('ra-notif-list');
+    if (!_list) return;
+    if (!notifications || !notifications.length) {
+      _list.innerHTML = '<div class="ra-notif-empty">Aucune notification</div>';
+      return;
+    }
+    _list.innerHTML = notifications.map(n => `
+      <div class="ra-notif-item ${n.seen ? '' : 'unread'}" data-id="${n.id}" onclick="RANotif.markSeen(${n.id}, this)">
+        <div style="flex:1">
+          <div class="ra-notif-msg">${n.message}</div>
+          <div class="ra-notif-time">${_fmt(n.created_at)}</div>
+        </div>
+      </div>`).join('');
+  }
+
+  async function poll() {
+    const headers = _authHeader();
+    if (!headers) return;
+    try {
+      const r = await fetch('/notifications', { headers });
+      if (!r.ok) return;
+      const data = await r.json();
+      if (!data.success) return;
+      _updateBadges(data.unread, data.notifications);
+      if (_open) _renderList(data.notifications);
+    } catch(e) {}
+  }
+
+  function start() {
+    if (_pollTimer) return;
+    poll();
+    _pollTimer = setInterval(poll, 15000);
+  }
+
+  function stop() {
+    if (_pollTimer) { clearInterval(_pollTimer); _pollTimer = null; }
+  }
+
+  function toggle() {
+    if (!_panel) _panel = document.getElementById('ra-notif-panel');
+    if (!_panel) return;
+    _open = !_open;
+    _panel.classList.toggle('open', _open);
+    if (_open) poll();
+    // Close on outside click
+    if (_open) {
+      setTimeout(() => {
+        document.addEventListener('click', _outsideClose, { once: true });
+      }, 10);
+    }
+  }
+
+  function close() {
+    if (!_panel) _panel = document.getElementById('ra-notif-panel');
+    _open = false;
+    if (_panel) _panel.classList.remove('open');
+  }
+
+  function _outsideClose(e) {
+    if (!_panel) return;
+    if (!_panel.contains(e.target)) close();
+  }
+
+  async function markSeen(id, el) {
+    const headers = _authHeader();
+    if (!headers) return;
+    if (el) el.classList.remove('unread');
+    try {
+      await fetch('/notifications/' + id + '/seen', { method: 'PATCH', headers });
+      poll();
+    } catch(e) {}
+  }
+
+  async function markAllSeen() {
+    const headers = _authHeader();
+    if (!headers) return;
+    try {
+      await fetch('/notifications/seen-all', { method: 'POST', headers });
+      poll();
+      if (!_list) _list = document.getElementById('ra-notif-list');
+      if (_list) _list.querySelectorAll('.ra-notif-item.unread').forEach(el => el.classList.remove('unread'));
+    } catch(e) {}
+  }
+
+  // Auto-start when user is logged in
+  document.addEventListener('DOMContentLoaded', () => {
+    if (_getJwt()) start();
+  });
+
+  // Also start after login event
+  document.addEventListener('ra:login', () => { stop(); start(); });
+  document.addEventListener('ra:logout', () => { stop(); _updateBadges(0, []); });
+
+  return { start, stop, toggle, close, markSeen, markAllSeen, poll };
 })();
 </script>
 </body>

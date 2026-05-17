@@ -142,6 +142,15 @@ db.exec(`
     content TEXT    NOT NULL,
     sent_at TEXT    NOT NULL DEFAULT (datetime('now'))
   );
+
+  CREATE TABLE IF NOT EXISTS notifications (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER NOT NULL REFERENCES users(id),
+    type       TEXT    NOT NULL,
+    message    TEXT    NOT NULL,
+    seen       INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
 `);
 
 /* ALTER TABLE migrations — colonnes ajoutées après le déploiement initial */
@@ -151,6 +160,15 @@ db.exec(`
  'ALTER TABLE duel_scores ADD COLUMN finished INTEGER NOT NULL DEFAULT 0',
 ].forEach(sql => { try { db.exec(sql); } catch(_) {} });
 try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_duel_scores_uq ON duel_scores (duel_id, user_id)'); } catch(_) {}
+try { db.exec('CREATE INDEX IF NOT EXISTS idx_notif_user ON notifications (user_id, seen, created_at DESC)'); } catch(_) {}
+
+/* ── NOTIFICATIONS HELPER ──────────────────────────────────────────── */
+function notifyAllExcept(excludeUserId, type, message) {
+  const users = db.prepare('SELECT id FROM users WHERE email_verified = 1 AND id != ?').all(excludeUserId);
+  const insert = db.prepare('INSERT INTO notifications (user_id, type, message) VALUES (?, ?, ?)');
+  const tx = db.transaction(() => { users.forEach(u => insert.run(u.id, type, message)); });
+  tx();
+}
 
 /* â”€â”€ HELPERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function genToken(bytes = 32) {
@@ -536,6 +554,25 @@ app.get('/leaderboard', (req, res) => {
   return ok(res, { leaderboard: rows, my_rank: myRank });
 });
 
+/* ── NOTIFICATIONS ──────────────────────────────────────────────── */
+app.get('/notifications', requireAuth, (req, res) => {
+  const rows = db.prepare(
+    'SELECT id, type, message, seen, created_at FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT 50'
+  ).all(req.user.id);
+  const unread = rows.filter(r => !r.seen).length;
+  return ok(res, { notifications: rows, unread });
+});
+
+app.patch('/notifications/:id/seen', requireAuth, (req, res) => {
+  db.prepare('UPDATE notifications SET seen = 1 WHERE id = ? AND user_id = ?').run(Number(req.params.id), req.user.id);
+  return ok(res, { message: 'Lu' });
+});
+
+app.post('/notifications/seen-all', requireAuth, (req, res) => {
+  db.prepare('UPDATE notifications SET seen = 1 WHERE user_id = ?').run(req.user.id);
+  return ok(res, { message: 'Tout marqué comme lu' });
+});
+
 /* ── DUELS ──────────────────────────────────────────────────────── */
 function _duelFull(code) {
   const duel = db.prepare('SELECT * FROM duels WHERE code = ?').get(code);
@@ -555,6 +592,7 @@ app.post('/duels', requireAuth, (req, res) => {
   }
   db.prepare('INSERT INTO duels (code, creator_id, pack_id, num_questions, timer_sec) VALUES (?, ?, ?, ?, ?)')
     .run(code, req.user.id, pack_id || 'general', Math.min(20, Math.max(5, Number(num_questions))), Math.min(60, Math.max(15, Number(timer_sec))));
+  notifyAllExcept(req.user.id, 'duel_created', `🥊 ${req.user.name} vous défie en duel ! Code : ${code}`);
   return ok(res, { code, duel: _duelFull(code) });
 });
 
@@ -575,6 +613,7 @@ app.post('/duels/:code/join', requireAuth, (req, res) => {
   if (duel.status !== 'waiting') return err(res, 400, 'Duel terminé');
   if (duel.creator_id === req.user.id) return ok(res, { message: 'Tu es le créateur', duel: _duelFull(req.params.code) });
   db.prepare('UPDATE duels SET joiner_id = ?, status = ? WHERE code = ?').run(req.user.id, 'joined', req.params.code);
+  db.prepare('INSERT INTO notifications (user_id, type, message) VALUES (?, ?, ?)').run(duel.creator_id, 'duel_joined', `⚔️ ${req.user.name} a rejoint votre duel (code : ${req.params.code})`);
   return ok(res, { message: 'Rejoint', duel: _duelFull(req.params.code) });
 });
 
@@ -626,6 +665,7 @@ app.post('/tournaments', requireAuth, (req, res) => {
   }
   db.prepare('INSERT INTO tournaments (code, creator_id, pack_id, max_players) VALUES (?, ?, ?, ?)').run(code, req.user.id, pack_id || 'general', Number(max_players) || 8);
   db.prepare('INSERT INTO tournament_participants (tournament_id, user_id) VALUES ((SELECT id FROM tournaments WHERE code = ?), ?)').run(code, req.user.id);
+  notifyAllExcept(req.user.id, 'tournament_created', `🏆 ${req.user.name} crée un tournoi ! Rejoignez avec le code : ${code}`);
   return ok(res, { code });
 });
 
