@@ -116,6 +116,8 @@ app.use((req, res, next) => {
   next();
 }); // MODIFIÉ — CORS manuel
 
+app.use(express.json());
+
 const limiterStrict = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, standardHeaders: true, legacyHeaders: false });
 const limiterLoose  = rateLimit({ windowMs: 15 * 60 * 1000, max: 60, standardHeaders: true, legacyHeaders: false });
 
@@ -141,14 +143,7 @@ function requireAuth(req, res, next) {
    â†’ crÃ©e ou retrouve l'utilisateur, envoie email de confirmation
 */
 app.post('/auth/register', limiterStrict, async (req, res) => {
-  let body = req.body || {};
-  if (!body.name) {
-    try {
-      const raw = await new Promise(r => { let d=''; req.on('data',c=>d+=c); req.on('end',()=>r(d)); });
-      body = raw ? JSON.parse(raw) : {};
-    } catch(e) { body = {}; }
-  }
-  const { name, email, profile, country, etablissement = '' } = body;
+  const { name, email, profile, country, etablissement = '' } = req.body || {};
    
   if (!name || !email) return err(res, 400, 'Nom et email requis');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return err(res, 400, 'Email invalide');
