@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="description" content="REGUL ARENA — Plateforme de formation gamifiée sur la réglementation bancaire BCEAO, BEAC & COBAC. UEMOA & CEMAC. 100% gratuit — inscription avec email institutionnel.">
 <meta property="og:title" content="REGUL ARENA — Maîtrise Réglementaire Bancaire UEMOA & CEMAC">
 <meta property="og:description" content="La première plateforme de formation gamifiée sur la réglementation bancaire pour les 14 pays UEMOA & CEMAC. Quiz, duels, tournois — 100% gratuit.">
@@ -1121,9 +1121,161 @@ input,select,textarea{font-size:max(16px,.84rem)!important}
 .rat-chat-msg{font-size:.8rem;color:var(--light)}.rat-chat-msg span{color:var(--gold);font-weight:700;margin-right:6px}
 .rat-chat-input-row{display:flex;gap:8px;padding:10px 0}
 /* ── FIN TOURNOI AJOUT styles ────────────────────────────── */
+
+/* ── LOGO AJOUT ──────────────────────────────────────────── */
+#ra-topbar { /* LOGO AJOUT */
+  position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+  background: #002B5C; height: 52px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px; box-shadow: 0 2px 8px rgba(0,0,0,.4);
+} /* LOGO AJOUT */
+#ra-topbar-logo { height: 40px; width: auto; object-fit: contain; } /* LOGO AJOUT */
+#ra-topbar-stats { display: flex; gap: 16px; font-family: 'Inter',sans-serif; font-size: 12px; color: #F5F3EE; } /* LOGO AJOUT */
+#ra-topbar-stats strong { color: #C9991A; } /* LOGO AJOUT */
+
+#ra-ticker-wrap { /* LOGO AJOUT */
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999;
+  background: #002B5C; height: 32px; overflow: hidden;
+  border-top: 2px solid #C9991A;
+} /* LOGO AJOUT */
+#ra-ticker { /* LOGO AJOUT */
+  display: flex; gap: 80px; white-space: nowrap;
+  font-family: 'Inter',sans-serif; font-size: 12px; color: #E8B520;
+  animation: ra-scroll 40s linear infinite;
+  padding-top: 8px;
+} /* LOGO AJOUT */
+#ra-ticker span::before { content: '◆ '; color: #C9991A; } /* LOGO AJOUT */
+@keyframes ra-scroll { from { transform: translateX(100vw); } to { transform: translateX(-100%); } } /* LOGO AJOUT */
+
+body { padding-top: 52px !important; padding-bottom: 32px !important; } /* LOGO AJOUT */
+
+@media (orientation: landscape) and (max-height: 500px) { /* LOGO AJOUT */
+  #ra-topbar { height: 36px; } /* LOGO AJOUT */
+  #ra-topbar-logo { height: 28px; } /* LOGO AJOUT */
+  body { padding-top: 36px !important; } /* LOGO AJOUT */
+  #ra-topbar-stats span:nth-child(3) { display: none; } /* LOGO AJOUT */
+} /* LOGO AJOUT */
+/* ── FIN LOGO AJOUT ──────────────────────────────────────── */
+
+/* ── ORIENTATION AJOUT — gestion landscape/portrait mobile ── */
+
+/* Classe utilitaire : cacher les décorations en landscape mobile */
+@media (orientation: landscape) and (max-height: 500px) {
+  .hide-landscape { display: none !important; } /* ORIENTATION AJOUT */
+
+  /* Orbes décoratifs — masqués pour libérer GPU */ /* ORIENTATION AJOUT */
+  .orb { display: none !important; } /* ORIENTATION AJOUT */
+
+  /* Hero section compacte */ /* ORIENTATION AJOUT */
+  .hero { min-height: auto; padding: 60px 20px 40px; } /* ORIENTATION AJOUT */
+  .hero-eyebrow { display: none; } /* ORIENTATION AJOUT */
+  .hero-grid { display: none; } /* ORIENTATION AJOUT */
+
+  /* Section labels moins hauts */ /* ORIENTATION AJOUT */
+  .section-label { margin-bottom: 6px; } /* ORIENTATION AJOUT */
+  .section-title { font-size: clamp(1.6rem, 4vw, 2.4rem); margin-bottom: 8px; } /* ORIENTATION AJOUT */
+
+  /* Solo quiz overlay — layout 2 colonnes en landscape */ /* ORIENTATION AJOUT */
+  #solo-quiz-overlay > div { /* ORIENTATION AJOUT */
+    max-width: 100%;
+    padding: 12px 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+    gap: 0 20px;
+    align-items: start;
+  } /* ORIENTATION AJOUT */
+  #solo-quiz-overlay > div > div:first-child { /* titre + bouton */
+    grid-column: 1 / -1; /* ORIENTATION AJOUT */
+    margin-bottom: 8px;
+  } /* ORIENTATION AJOUT */
+  #solo-quiz-overlay > div > div:nth-child(2) { /* compteur question/score */
+    grid-column: 1 / -1; /* ORIENTATION AJOUT */
+    margin-bottom: 8px;
+  } /* ORIENTATION AJOUT */
+  #solo-q-text { /* ORIENTATION AJOUT */
+    grid-column: 1;
+    margin-bottom: 0;
+    font-size: .88rem;
+    padding: 12px;
+  } /* ORIENTATION AJOUT */
+  #solo-choices { /* ORIENTATION AJOUT */
+    grid-column: 2;
+    gap: 6px;
+  } /* ORIENTATION AJOUT */
+
+  /* Duel — réduire hauteurs et font-sizes */ /* ORIENTATION AJOUT */
+  .duel-header { padding: 8px 16px; } /* ORIENTATION AJOUT */
+  .duel-timer { font-size: 1.2rem !important; gap: 4px; } /* ORIENTATION AJOUT */
+  .duel-round { font-size: .6rem; } /* ORIENTATION AJOUT */
+  .duel-cat { display: none; } /* ORIENTATION AJOUT */
+  .player-panel { padding: 10px 12px; } /* ORIENTATION AJOUT */
+  .q-text { font-size: .85rem; margin-bottom: 10px; } /* ORIENTATION AJOUT */
+  .q-choices { gap: 6px; } /* ORIENTATION AJOUT */
+  .score-display { font-size: 1.6rem; } /* ORIENTATION AJOUT */
+
+  /* Tournoi qualify — compact */ /* ORIENTATION AJOUT */
+  #t-screen-ra-qualify > div { /* ORIENTATION AJOUT */
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0 20px;
+    align-items: start;
+  } /* ORIENTATION AJOUT */
+  #t-screen-ra-qualify > div > div:first-child { /* header timer */
+    grid-column: 1 / -1;
+    margin-bottom: 10px;
+  } /* ORIENTATION AJOUT */
+  .rat-qualify-q { /* ORIENTATION AJOUT */
+    grid-column: 1 / -1;
+    padding: 12px;
+  } /* ORIENTATION AJOUT */
+  .rat-qualify-q-text { font-size: .85rem; margin-bottom: 10px; } /* ORIENTATION AJOUT */
+  .rat-qualify-opt { padding: 7px 10px; margin-bottom: 5px; font-size: .8rem; } /* ORIENTATION AJOUT */
+
+  /* Bracket tournoi — pleine largeur scrollable */ /* ORIENTATION AJOUT */
+  .rat-bracket { width: 100vw; margin-left: calc(-50vw + 50%); overflow-x: auto; } /* ORIENTATION AJOUT */
+  .rat-bracket-wrap { min-width: max-content; padding: 10px 16px; } /* ORIENTATION AJOUT */
+
+  /* Écrans screen-t — réduire padding */ /* ORIENTATION AJOUT */
+  .screen-t { padding: 56px 16px 20px; min-height: auto; } /* ORIENTATION AJOUT */
+
+  /* Cards génériques */ /* ORIENTATION AJOUT */
+  .card { padding: 12px 14px !important; } /* ORIENTATION AJOUT */
+} /* ORIENTATION AJOUT */
+
+/* Portrait mobile — renforcements */ /* ORIENTATION AJOUT */
+@media (orientation: portrait) and (max-width: 768px) {
+  .rat-bracket-wrap { gap: 24px; } /* ORIENTATION AJOUT */
+  .rat-match-card { min-width: 160px; } /* ORIENTATION AJOUT */
+  .duel-split { flex-direction: column; } /* ORIENTATION AJOUT */
+  #solo-q-text { font-size: .93rem; padding: 14px; } /* ORIENTATION AJOUT */
+} /* ORIENTATION AJOUT */
+
+/* ── FIN ORIENTATION AJOUT ───────────────────────────────── */
 </style>
 </head>
 <body>
+
+<!-- LOGO AJOUT — barre supérieure fixe -->
+<div id="ra-topbar"><!-- LOGO AJOUT -->
+  <img src="https://endregularena-production.up.railway.app/logo.png" alt="REGUL ARENA" id="ra-topbar-logo"><!-- LOGO AJOUT -->
+  <div id="ra-topbar-stats"><!-- LOGO AJOUT -->
+    <span>📚 <strong id="stat-packs">22</strong> Packs</span><!-- LOGO AJOUT -->
+    <span>❓ <strong id="stat-questions">550+</strong> Questions</span><!-- LOGO AJOUT -->
+    <span>🌍 <strong id="stat-countries">14</strong> Pays</span><!-- LOGO AJOUT -->
+  </div><!-- LOGO AJOUT -->
+</div><!-- LOGO AJOUT -->
+
+<!-- LOGO AJOUT — bandeau défilant bas -->
+<div id="ra-ticker-wrap"><!-- LOGO AJOUT -->
+  <div id="ra-ticker"><!-- LOGO AJOUT -->
+    <span>🏆 REGUL ARENA — La plateforme réglementaire de référence UEMOA &amp; CEMAC</span><!-- LOGO AJOUT -->
+    <span>📜 Quiz officiels BCEAO · CIMA · UEMOA · CEMAC</span><!-- LOGO AJOUT -->
+    <span>🤝 Partenaires &amp; Sponsors — contact@regularena.com</span><!-- LOGO AJOUT -->
+    <span>🎓 Étudiants · Professionnels · Banque · Assurance</span><!-- LOGO AJOUT -->
+  </div><!-- LOGO AJOUT -->
+</div><!-- LOGO AJOUT -->
+<!-- FIN LOGO AJOUT HTML -->
 
 <!-- Orbes -->
 <div class="orb orb-g" aria-hidden="true"></div>
@@ -5586,6 +5738,39 @@ function _esc(s){
 
 })();
 /* FIN TOURNOI AJOUT — module raT */
+</script>
+
+<!-- LOGO AJOUT — stats dynamiques topbar -->
+<script>
+// LOGO AJOUT
+(function() {
+  var packCount = typeof PACKS !== 'undefined' ? PACKS.length : 22; // LOGO AJOUT
+  var qCount = typeof PACKS !== 'undefined' ? PACKS.reduce(function(a,p){ return a + (p.questions ? p.questions.length : 0); }, 0) : 550; // LOGO AJOUT
+  var el = document.getElementById('stat-packs'); // LOGO AJOUT
+  if (el) { // LOGO AJOUT
+    el.textContent = packCount; // LOGO AJOUT
+    document.getElementById('stat-questions').textContent = qCount + '+'; // LOGO AJOUT
+  } // LOGO AJOUT
+})(); // LOGO AJOUT
+</script>
+<!-- FIN LOGO AJOUT JS -->
+
+<!-- ORIENTATION AJOUT — handler changement d'orientation -->
+<script>
+// ORIENTATION AJOUT
+window.addEventListener('orientationchange', function() { // ORIENTATION AJOUT
+  setTimeout(function() { // ORIENTATION AJOUT
+    // Recalculer SVG timer si quiz actif // ORIENTATION AJOUT
+    if (document.querySelector('.quiz-timer-svg')) { // ORIENTATION AJOUT
+      window.dispatchEvent(new Event('resize')); // ORIENTATION AJOUT
+    } // ORIENTATION AJOUT
+    // Déclencher resize pour les éléments qui écoutent (bracket, duel timer SVG) // ORIENTATION AJOUT
+    window.dispatchEvent(new Event('resize')); // ORIENTATION AJOUT
+    // Scroll top sur changement d'orientation // ORIENTATION AJOUT
+    window.scrollTo(0, 0); // ORIENTATION AJOUT
+  }, 300); // ORIENTATION AJOUT
+}); // ORIENTATION AJOUT
+// FIN ORIENTATION AJOUT
 </script>
 </body>
 </html>
