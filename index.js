@@ -74,6 +74,71 @@ db.exec(`
     email      TEXT NOT NULL UNIQUE,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
+
+  CREATE TABLE IF NOT EXISTS user_scores (
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id   INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    pack_id   TEXT    NOT NULL,
+    score     INTEGER NOT NULL DEFAULT 0,
+    total     INTEGER NOT NULL DEFAULT 0,
+    played_at TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS duels (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    code        TEXT    NOT NULL UNIQUE,
+    creator_id  INTEGER NOT NULL REFERENCES users(id),
+    joiner_id   INTEGER REFERENCES users(id),
+    pack_id     TEXT    NOT NULL DEFAULT 'general',
+    status      TEXT    NOT NULL DEFAULT 'waiting',
+    created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS duel_scores (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    duel_id     INTEGER NOT NULL REFERENCES duels(id) ON DELETE CASCADE,
+    user_id     INTEGER NOT NULL REFERENCES users(id),
+    score       INTEGER NOT NULL DEFAULT 0,
+    total       INTEGER NOT NULL DEFAULT 0,
+    finished_at TEXT
+  );
+
+  CREATE TABLE IF NOT EXISTS tournaments (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    code         TEXT    NOT NULL UNIQUE,
+    creator_id   INTEGER NOT NULL REFERENCES users(id),
+    name         TEXT    NOT NULL DEFAULT '',
+    pack_id      TEXT    NOT NULL DEFAULT 'general',
+    max_players  INTEGER NOT NULL DEFAULT 8,
+    status       TEXT    NOT NULL DEFAULT 'waiting',
+    created_at   TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS tournament_participants (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    tournament_id INTEGER NOT NULL REFERENCES tournaments(id) ON DELETE CASCADE,
+    user_id       INTEGER NOT NULL REFERENCES users(id),
+    score         INTEGER NOT NULL DEFAULT 0,
+    total         INTEGER NOT NULL DEFAULT 0,
+    rank          INTEGER,
+    UNIQUE(tournament_id, user_id)
+  );
+
+  CREATE TABLE IF NOT EXISTS messages (
+    id      INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    zone    TEXT    NOT NULL DEFAULT 'general',
+    content TEXT    NOT NULL,
+    sent_at TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS dm (
+    id      INTEGER PRIMARY KEY AUTOINCREMENT,
+    from_id INTEGER NOT NULL REFERENCES users(id),
+    to_id   INTEGER NOT NULL REFERENCES users(id),
+    content TEXT    NOT NULL,
+    sent_at TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
 `);
 
 /* â”€â”€ HELPERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
@@ -385,6 +450,193 @@ app.post('/feedback/notify', limiterLoose, (req, res) => {
   return ok(res, { message: 'Inscrit &#224; la liste d\'alerte' });
 });
 
+
+/* ── HELPERS ────────────────────────────────────────────────────── */
+function genCode(prefix) {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const rand = (n) => Array.from({length:n}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
+  return `${prefix}-${rand(3)}-${rand(3)}`;
+}
+
+/* ── SCORES ─────────────────────────────────────────────────────── */
+app.post('/scores', requireAuth, (req, res) => {
+  const { pack_id, score, total } = req.body || {};
+  if (!pack_id || score == null || total == null) return err(res, 400, 'pack_id, score, total requis');
+  db.prepare('INSERT INTO user_scores (user_id, pack_id, score, total) VALUES (?, ?, ?, ?)')
+    .run(req.user.id, pack_id, Number(score), Number(total));
+  return ok(res, { message: 'Score enregistré' });
+});
+
+app.get('/scores/me', requireAuth, (req, res) => {
+  const rows = db.prepare('SELECT * FROM user_scores WHERE user_id = ? ORDER BY played_at DESC LIMIT 100').all(req.user.id);
+  return ok(res, { scores: rows });
+});
+
+app.delete('/scores/me', requireAuth, (req, res) => {
+  db.prepare('DELETE FROM user_scores WHERE user_id = ?').run(req.user.id);
+  return ok(res, { message: 'Historique supprimé' });
+});
+
+app.get('/leaderboard', (req, res) => {
+  const rows = db.prepare(`
+    SELECT u.name, u.country, u.etablissement,
+           COUNT(s.id) AS games,
+           SUM(s.score) AS total_score,
+           ROUND(AVG(CAST(s.score AS REAL)/NULLIF(s.total,0))*100, 1) AS avg_pct
+    FROM users u
+    JOIN user_scores s ON s.user_id = u.id
+    GROUP BY u.id
+    ORDER BY total_score DESC
+    LIMIT 50
+  `).all();
+  return ok(res, { leaderboard: rows });
+});
+
+/* ── DUELS ──────────────────────────────────────────────────────── */
+app.post('/duels', requireAuth, (req, res) => {
+  const { pack_id } = req.body || {};
+  let code;
+  for (let i = 0; i < 10; i++) {
+    code = genCode('D');
+    const existing = db.prepare('SELECT id FROM duels WHERE code = ?').get(code);
+    if (!existing) break;
+  }
+  db.prepare('INSERT INTO duels (code, creator_id, pack_id) VALUES (?, ?, ?)').run(code, req.user.id, pack_id || 'general');
+  return ok(res, { code });
+});
+
+app.get('/duels/:code', requireAuth, (req, res) => {
+  const duel = db.prepare('SELECT * FROM duels WHERE code = ?').get(req.params.code);
+  if (!duel) return err(res, 404, 'Duel introuvable');
+  return ok(res, { duel });
+});
+
+app.post('/duels/:code/join', requireAuth, (req, res) => {
+  const duel = db.prepare('SELECT * FROM duels WHERE code = ?').get(req.params.code);
+  if (!duel) return err(res, 404, 'Duel introuvable');
+  if (duel.status !== 'waiting') return err(res, 400, 'Duel déjà commencé ou terminé');
+  if (duel.creator_id === req.user.id) return err(res, 400, 'Tu es déjà le créateur');
+  db.prepare('UPDATE duels SET joiner_id = ?, status = ? WHERE code = ?').run(req.user.id, 'active', req.params.code);
+  return ok(res, { message: 'Rejoint le duel' });
+});
+
+app.post('/duels/:code/score', requireAuth, (req, res) => {
+  const { score, total } = req.body || {};
+  if (score == null || total == null) return err(res, 400, 'score et total requis');
+  const duel = db.prepare('SELECT * FROM duels WHERE code = ?').get(req.params.code);
+  if (!duel) return err(res, 404, 'Duel introuvable');
+  db.prepare('INSERT OR REPLACE INTO duel_scores (duel_id, user_id, score, total) VALUES (?, ?, ?, ?)')
+    .run(duel.id, req.user.id, Number(score), Number(total));
+  const scores = db.prepare('SELECT * FROM duel_scores WHERE duel_id = ?').all(duel.id);
+  if (scores.length >= 2) db.prepare('UPDATE duels SET status = ? WHERE id = ?').run('finished', duel.id);
+  return ok(res, { message: 'Score enregistré', scores });
+});
+
+/* ── TOURNOIS ────────────────────────────────────────────────────── */
+app.post('/tournaments', requireAuth, (req, res) => {
+  const { pack_id, max_players } = req.body || {};
+  let code;
+  for (let i = 0; i < 10; i++) {
+    code = genCode('T');
+    const existing = db.prepare('SELECT id FROM tournaments WHERE code = ?').get(code);
+    if (!existing) break;
+  }
+  db.prepare('INSERT INTO tournaments (code, creator_id, pack_id, max_players) VALUES (?, ?, ?, ?)').run(code, req.user.id, pack_id || 'general', Number(max_players) || 8);
+  db.prepare('INSERT INTO tournament_participants (tournament_id, user_id) VALUES ((SELECT id FROM tournaments WHERE code = ?), ?)').run(code, req.user.id);
+  return ok(res, { code });
+});
+
+app.get('/tournaments/:code', requireAuth, (req, res) => {
+  const t = db.prepare('SELECT * FROM tournaments WHERE code = ?').get(req.params.code);
+  if (!t) return err(res, 404, 'Tournoi introuvable');
+  const participants = db.prepare(`
+    SELECT u.name, u.country, tp.score, tp.rank
+    FROM tournament_participants tp JOIN users u ON u.id = tp.user_id
+    WHERE tp.tournament_id = ?
+  `).all(t.id);
+  return ok(res, { tournament: t, participants });
+});
+
+app.post('/tournaments/:code/join', requireAuth, (req, res) => {
+  const t = db.prepare('SELECT * FROM tournaments WHERE code = ?').get(req.params.code);
+  if (!t) return err(res, 404, 'Tournoi introuvable');
+  if (t.status !== 'waiting') return err(res, 400, 'Tournoi déjà commencé');
+  const already = db.prepare('SELECT id FROM tournament_participants WHERE tournament_id = ? AND user_id = ?').get(t.id, req.user.id);
+  if (already) return ok(res, { message: 'Déjà inscrit' });
+  const count = db.prepare('SELECT COUNT(*) AS n FROM tournament_participants WHERE tournament_id = ?').get(t.id).n;
+  if (count >= t.max_players) return err(res, 400, 'Tournoi complet');
+  db.prepare('INSERT INTO tournament_participants (tournament_id, user_id) VALUES (?, ?)').run(t.id, req.user.id);
+  return ok(res, { message: 'Inscrit au tournoi' });
+});
+
+app.post('/tournaments/:code/start', requireAuth, (req, res) => {
+  const t = db.prepare('SELECT * FROM tournaments WHERE code = ?').get(req.params.code);
+  if (!t) return err(res, 404, 'Tournoi introuvable');
+  if (t.creator_id !== req.user.id) return err(res, 403, 'Seul le créateur peut démarrer');
+  db.prepare('UPDATE tournaments SET status = ? WHERE code = ?').run('active', req.params.code);
+  return ok(res, { message: 'Tournoi démarré' });
+});
+
+app.post('/tournaments/:code/score', requireAuth, (req, res) => {
+  const { score, total } = req.body || {};
+  if (score == null || total == null) return err(res, 400, 'score et total requis');
+  const t = db.prepare('SELECT * FROM tournaments WHERE code = ?').get(req.params.code);
+  if (!t) return err(res, 404, 'Tournoi introuvable');
+  db.prepare('UPDATE tournament_participants SET score = ?, total = ? WHERE tournament_id = ? AND user_id = ?')
+    .run(Number(score), Number(total), t.id, req.user.id);
+  const participants = db.prepare('SELECT * FROM tournament_participants WHERE tournament_id = ? ORDER BY score DESC').all(t.id);
+  participants.forEach((p, i) => db.prepare('UPDATE tournament_participants SET rank = ? WHERE id = ?').run(i + 1, p.id));
+  return ok(res, { message: 'Score enregistré' });
+});
+
+/* ── CHAT ────────────────────────────────────────────────────────── */
+const VALID_ZONES = ['uemoa', 'cemac', 'general'];
+
+app.get('/chat/:zone', requireAuth, (req, res) => {
+  const zone = req.params.zone;
+  if (!VALID_ZONES.includes(zone)) return err(res, 400, 'Zone invalide');
+  const msgs = db.prepare(`
+    SELECT m.id, m.content, m.sent_at, u.name, u.country
+    FROM messages m JOIN users u ON u.id = m.user_id
+    WHERE m.zone = ? ORDER BY m.sent_at DESC LIMIT 50
+  `).all(zone).reverse();
+  return ok(res, { messages: msgs });
+});
+
+app.post('/chat/:zone', requireAuth, (req, res) => {
+  const zone = req.params.zone;
+  if (!VALID_ZONES.includes(zone)) return err(res, 400, 'Zone invalide');
+  const { content } = req.body || {};
+  if (!content || !content.trim()) return err(res, 400, 'Message vide');
+  const clean = content.trim().slice(0, 500);
+  db.prepare('INSERT INTO messages (user_id, zone, content) VALUES (?, ?, ?)').run(req.user.id, zone, clean);
+  return ok(res, { message: 'Message envoyé' });
+});
+
+/* ── DM ──────────────────────────────────────────────────────────── */
+app.get('/dm/:userId', requireAuth, (req, res) => {
+  const otherId = Number(req.params.userId);
+  if (!otherId) return err(res, 400, 'userId invalide');
+  const msgs = db.prepare(`
+    SELECT d.id, d.content, d.sent_at, u.name,
+           CASE WHEN d.sender_id = ? THEN 1 ELSE 0 END AS is_mine
+    FROM dm d JOIN users u ON u.id = d.sender_id
+    WHERE (d.sender_id = ? AND d.receiver_id = ?) OR (d.sender_id = ? AND d.receiver_id = ?)
+    ORDER BY d.sent_at ASC LIMIT 100
+  `).all(req.user.id, req.user.id, otherId, otherId, req.user.id);
+  return ok(res, { messages: msgs });
+});
+
+app.post('/dm/:userId', requireAuth, (req, res) => {
+  const receiverId = Number(req.params.userId);
+  if (!receiverId) return err(res, 400, 'userId invalide');
+  const { content } = req.body || {};
+  if (!content || !content.trim()) return err(res, 400, 'Message vide');
+  const receiver = db.prepare('SELECT id FROM users WHERE id = ?').get(receiverId);
+  if (!receiver) return err(res, 404, 'Destinataire introuvable');
+  db.prepare('INSERT INTO dm (sender_id, receiver_id, content) VALUES (?, ?, ?)').run(req.user.id, receiverId, content.trim().slice(0, 500));
+  return ok(res, { message: 'Message envoyé' });
+});
 
 /* â”€â”€ STATIC + HEALTH CHECK â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 app.use(express.static(path.join(__dirname, 'public')));
