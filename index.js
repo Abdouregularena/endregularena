@@ -419,17 +419,37 @@ app.get('/auth/me', requireAuth, (req, res) => {
 ================================================================ */
 
 /* POST /feedback
-   Body : { type, content, email? }
+   Body : { type, message|content, email?, name?, stars? }
 */
-app.post('/feedback', limiterLoose, (req, res) => {
-  const { type = 'general', content, email = '' } = req.body || {};
-  if (!content || content.length < 2) return err(res, 400, 'Contenu requis');
+app.post('/feedback', limiterLoose, async (req, res) => {
+  const { type = 'general', message, content, email = '', name = '', stars = 5 } = req.body || {};
+  const text = (message || content || '').trim();
+  if (!text || text.length < 2) return err(res, 400, 'Contenu requis');
 
   db.prepare(
     'INSERT INTO feedback (type, content, email) VALUES (?, ?, ?)'
-  ).run(type, content.slice(0, 2000), email.slice(0, 120));
+  ).run(type, text.slice(0, 2000), email.slice(0, 120));
 
-  return ok(res, { message: 'Feedback enregistr&#233;' });
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: 'contact@regularena.com',
+      subject: `[REGUL ARENA] Feedback — ${type} (${stars}★)`,
+      html: `<div style="font-family:sans-serif;max-width:600px">
+        <h2 style="color:#C9991A">Nouveau feedback REGUL ARENA</h2>
+        <table style="width:100%;border-collapse:collapse">
+          <tr><td style="padding:6px 0;color:#888;width:120px">Type</td><td><strong>${type}</strong></td></tr>
+          <tr><td style="padding:6px 0;color:#888">Note</td><td>${'⭐'.repeat(Math.min(5, Number(stars)||0))}</td></tr>
+          ${name ? `<tr><td style="padding:6px 0;color:#888">Nom</td><td>${name}</td></tr>` : ''}
+          ${email ? `<tr><td style="padding:6px 0;color:#888">Email</td><td>${email}</td></tr>` : ''}
+        </table>
+        <hr style="margin:16px 0;border-color:#333">
+        <div style="background:#111;padding:16px;border-radius:4px;white-space:pre-wrap;color:#EEF0F5">${text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+      </div>`,
+    });
+  } catch (_) { /* non-bloquant */ }
+
+  return ok(res, { message: 'Feedback enregistre' });
 });
 
 
