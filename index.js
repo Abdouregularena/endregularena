@@ -171,18 +171,22 @@ app.post('/auth/register', limiterStrict, async (req, res) => {
   // Envoyer email via Resend
   const confirmUrl = `${FRONTEND_URL}?token=${token}`;
   try {
-    await resend.emails.send({
+    const sendResult = await resend.emails.send({
       from: `REGUL ARENA <${FROM_EMAIL}>`,
       to:   cleanEmail,
-      subject: 'Confirme ton inscription â€” REGUL ARENA',
+      subject: 'Confirme ton inscription — REGUL ARENA',
       html: emailConfirmHTML(cleanName, confirmUrl),
     });
+    if (sendResult.error) {
+      console.error('Resend error:', JSON.stringify(sendResult.error));
+      return err(res, 500, 'Erreur envoi email — réessaie dans quelques instants');
+    }
   } catch (e) {
-    console.error('Resend error:', e.message);
-    return err(res, 500, 'Erreur envoi email â€” rÃ©essaie dans quelques instants');
+    console.error('Resend exception:', e.message);
+    return err(res, 500, 'Erreur envoi email — réessaie dans quelques instants');
   }
 
-  return ok(res, { message: 'Email de confirmation envoyÃ©' });
+  return ok(res, { message: 'Email de confirmation envoyé' });
 });
 
 
@@ -205,17 +209,22 @@ app.post('/auth/resend', limiterStrict, async (req, res) => {
 
   const confirmUrl = `${FRONTEND_URL}?token=${token}`;
   try {
-    await resend.emails.send({
+    const sendResult = await resend.emails.send({
       from: `REGUL ARENA <${FROM_EMAIL}>`,
       to:   cleanEmail,
-      subject: 'Nouveau lien de confirmation â€” REGUL ARENA',
+      subject: 'Nouveau lien de confirmation — REGUL ARENA',
       html: emailConfirmHTML(user.name, confirmUrl),
     });
+    if (sendResult.error) {
+      console.error('Resend error:', JSON.stringify(sendResult.error));
+      return err(res, 500, 'Erreur envoi email');
+    }
   } catch (e) {
+    console.error('Resend exception:', e.message);
     return err(res, 500, 'Erreur envoi email');
   }
 
-  return ok(res, { message: 'Email renvoyÃ©' });
+  return ok(res, { message: 'Email renvoyé' });
 });
 
 
