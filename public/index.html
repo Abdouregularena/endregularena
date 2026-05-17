@@ -421,6 +421,12 @@ nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;backg
 .nav-links button[data-auth-locked]::after{content:'🔒';font-size:.6rem;margin-left:4px;opacity:.6}
 
 
+/* ── NAV USER CHIP ───────────────────────────────────────── */
+.ra-nav-user-chip{display:flex;align-items:center;gap:7px;background:var(--gold-dim);border:1px solid var(--border);border-radius:20px;padding:4px 12px 4px 4px;cursor:default}
+.ra-nav-user-av{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-l));color:var(--bg);font-family:'Bebas Neue',cursive;font-size:.72rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ra-nav-user-name{font-family:'Inter',sans-serif;font-size:.72rem;font-weight:600;color:var(--gold);letter-spacing:.5px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:480px){.ra-nav-user-name{display:none}.ra-nav-user-chip{padding:4px}}
+
 /* ── PRICING RESPONSIVE ≤ 768px ─────────────────────────── */
 @media(max-width:768px){
   .pricing-section{padding:60px 16px}
@@ -1336,6 +1342,10 @@ input,select,textarea{font-size:max(16px,.84rem)!important}
   </ul>
   <div class="nav-right">
     <div id="ra-quiz-pill" role="status" aria-label="Compteur quiz"><span id="ra-pill-count">0</span>/3 quiz</div>
+    <div id="ra-nav-user" class="ra-nav-user-chip" style="display:none" aria-label="Utilisateur connecté">
+      <div id="ra-nav-user-av" class="ra-nav-user-av" aria-hidden="true">?</div>
+      <span id="ra-nav-user-name" class="ra-nav-user-name"></span>
+    </div>
     <button class="nav-cta" onclick="showPage('solo')" aria-label="Jouer maintenant">⚔ Jouer</button>
     <button class="nav-hamburger" id="nav-hamburger" onclick="toggleMobileNav()" aria-label="Menu" aria-expanded="false" aria-controls="mobile-nav-menu">
       <span></span><span></span><span></span>
@@ -4133,12 +4143,34 @@ document.addEventListener('DOMContentLoaded', () => {
   // Marquer visuellement les pages qui requièrent l'auth (sync)
   const _duelBtn = document.getElementById('nav-duel');
   const _tourBtn = document.getElementById('nav-tournois');
-  function _unlockAuthUI() {
+  function _unlockAuthUI(user) {
     if (_duelBtn) _duelBtn.removeAttribute('data-auth-locked');
     if (_tourBtn) _tourBtn.removeAttribute('data-auth-locked');
     try { const pill = document.getElementById('ra-quiz-pill'); if (pill) pill.style.display = 'none'; } catch(e) {}
+    // Afficher le nom de l'utilisateur dans le chip nav
+    try {
+      let name = user && user.name;
+      if (!name) {
+        const tok = (function(){ try{return localStorage.getItem('ra_jwt');}catch(e){} try{return sessionStorage.getItem('ra_jwt');}catch(e){} return null; })();
+        if (tok) { try { const b64 = tok.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'); name = JSON.parse(atob(b64)).name; } catch(e) {} }
+      }
+      if (name) {
+        const chip = document.getElementById('ra-nav-user');
+        const av   = document.getElementById('ra-nav-user-av');
+        const nm   = document.getElementById('ra-nav-user-name');
+        const initials = name.trim().split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0,2);
+        if (av) av.textContent = initials;
+        if (nm) nm.textContent = name.split(/\s+/)[0];
+        if (chip) chip.style.display = 'flex';
+      }
+    } catch(e) {}
+    // Démarrer le polling notifications si pas encore actif
+    try { if (typeof RANotif !== 'undefined') RANotif.start(); } catch(e) {}
     console.log('[RA] UI auth déverrouillée — tous les boutons actifs');
   }
+
+  // Réagir à un login live (inscription/connexion sans rechargement de page)
+  document.addEventListener('ra:login', () => { _unlockAuthUI(); });
 
   // Vérification synchrone : JWT déjà en storage → unlock immédiat
   if (RAAuth.isAuthenticated()) {
@@ -4157,7 +4189,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.success && data.user && data.user.is_verified) {
           console.log('[RA] Session restaurée :', data.user.email);
           try { localStorage.setItem('ra_gate_registered', 'true'); localStorage.setItem('ra_auth_registered', 'true'); } catch(e) {}
-          _unlockAuthUI();
+          _unlockAuthUI(data.user);
         } else {
           console.warn('[RA] /auth/me : JWT invalide — nettoyage session');
           try { localStorage.removeItem('ra_jwt'); localStorage.removeItem('ra_auth_registered'); localStorage.removeItem('ra_gate_registered'); } catch(e) {}
@@ -4230,20 +4262,51 @@ const RAPlayer = (() => {
 
   let playing = false, expanded = false, _muted = false, _volume = 0.7;
   let _tickId = null;
+  let _useSynth = false; // bascule vers Web Audio si AAC indisponible
 
+  // ── Piste AAC ────────────────────────────────────────────────
   const audio = new Audio('/assets/audio/REGUL_ARENA_SONG.aac');
   audio.loop = true;
   audio.volume = _volume;
   audio.preload = 'none';
+  // Si le fichier échoue à charger, on passera automatiquement au synthétiseur
+  audio.onerror = () => { _useSynth = true; };
+
+  // ── Synthétiseur Web Audio (fallback) ────────────────────────
+  let _ctx = null, _masterGain = null;
+  function _initSynth() {
+    if (_ctx) return;
+    _ctx = new (window.AudioContext || window.webkitAudioContext)();
+    _masterGain = _ctx.createGain();
+    _masterGain.gain.value = 0;
+    _masterGain.connect(_ctx.destination);
+    // Pseudo-reverb delay
+    const delay = _ctx.createDelay(2.0); delay.delayTime.value = 0.35;
+    const dg = _ctx.createGain(); dg.gain.value = 0.22;
+    _masterGain.connect(delay); delay.connect(dg); dg.connect(delay); dg.connect(_ctx.destination);
+    // LFO lent
+    const lfo = _ctx.createOscillator(); const lfoG = _ctx.createGain();
+    lfo.frequency.value = 0.18; lfoG.gain.value = 3;
+    lfo.connect(lfoG); lfo.start();
+    // Oscillateurs
+    const mkOsc = (freq, type, vol) => {
+      const o = _ctx.createOscillator(), g = _ctx.createGain();
+      o.type = type; o.frequency.value = freq; g.gain.value = vol;
+      o.connect(g); g.connect(_masterGain); o.start(); return o;
+    };
+    const bass = mkOsc(110,'sine',0.35), fifth = mkOsc(165,'sine',0.22);
+    mkOsc(220,'sine',0.15); mkOsc(330,'sine',0.08); mkOsc(440,'sine',0.04); mkOsc(55,'sine',0.18);
+    lfoG.connect(bass.frequency); lfoG.connect(fifth.frequency);
+  }
 
   const fmt = s => { if (!isFinite(s)) return '0:00'; const m = Math.floor(s/60); return m+':'+(Math.floor(s%60)<10?'0':'')+Math.floor(s%60); };
 
   function _tick() {
-    if (timeEl) timeEl.textContent = fmt(audio.currentTime);
-    if (audio.duration && isFinite(audio.duration)) {
+    if (!_useSynth && audio.duration && isFinite(audio.duration)) {
       const pct = (audio.currentTime / audio.duration) * 100;
       if (progressBar) progressBar.style.width = pct + '%';
       if (progressThumb) progressThumb.style.left = pct + '%';
+      if (timeEl) timeEl.textContent = fmt(audio.currentTime);
     }
     _tickId = requestAnimationFrame(_tick);
   }
@@ -4252,17 +4315,39 @@ const RAPlayer = (() => {
     playing = val;
     if (playBtn) playBtn.textContent = val ? '⏸' : '▶';
     eqBars.forEach(b => b.classList.toggle('paused', !val));
-    if (status) status.textContent = val ? '♪ En lecture' : 'En pause';
+    if (status) status.textContent = val ? '♪ En lecture' : (_useSynth ? '♪ Ambiance sonore' : 'En pause');
+  }
+
+  function _startSynth() {
+    _initSynth();
+    if (_ctx.state === 'suspended') { _ctx.resume(); }
+    _masterGain.gain.setTargetAtTime(_muted ? 0 : _volume, _ctx.currentTime, 0.8);
+    _setPlaying(true);
+    if (!expanded) toggleExpand();
+    _tickId = requestAnimationFrame(_tick);
+  }
+  function _stopSynth() {
+    if (_masterGain) _masterGain.gain.setTargetAtTime(0, _ctx.currentTime, 0.4);
+    _setPlaying(false);
+    cancelAnimationFrame(_tickId);
   }
 
   function togglePlay() {
+    // Chemin synthétiseur (fallback ou forcé)
+    if (_useSynth) {
+      if (!playing) _startSynth(); else _stopSynth();
+      return;
+    }
+    // Chemin AAC (prioritaire) — geste utilisateur requis par navigateur
     if (!playing) {
       audio.play().then(() => {
         _setPlaying(true);
         if (!expanded) toggleExpand();
         _tickId = requestAnimationFrame(_tick);
-      }).catch(() => {
-        if (status) status.textContent = 'Cliquer pour jouer';
+      }).catch(err => {
+        console.warn('[RAPlayer] AAC play() refusé, bascule synthétiseur :', err.message);
+        _useSynth = true;
+        _startSynth();
       });
     } else {
       audio.pause();
@@ -4280,14 +4365,22 @@ const RAPlayer = (() => {
   function setVolume(val) {
     _volume = parseFloat(val);
     _muted = false;
-    audio.volume = _volume;
+    if (_useSynth && _masterGain && _ctx) {
+      _masterGain.gain.setTargetAtTime(_volume, _ctx.currentTime, 0.1);
+    } else {
+      audio.volume = _volume;
+    }
     const muteBtn = document.getElementById('ra-ap-mutebtn');
     if (muteBtn) muteBtn.textContent = _volume === 0 ? '🔇' : _volume < 0.5 ? '🔉' : '🔊';
   }
 
   function toggleMute() {
     _muted = !_muted;
-    audio.muted = _muted;
+    if (_useSynth && _masterGain && _ctx) {
+      _masterGain.gain.setTargetAtTime(_muted ? 0 : _volume, _ctx.currentTime, 0.1);
+    } else {
+      audio.muted = _muted;
+    }
     const vol = document.getElementById('ra-ap-vol');
     const muteBtn = document.getElementById('ra-ap-mutebtn');
     if (muteBtn) muteBtn.textContent = _muted ? '🔇' : '🔊';
