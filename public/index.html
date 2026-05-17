@@ -3167,12 +3167,22 @@ document.addEventListener('DOMContentLoaded', () => {
   // Marquer visuellement les pages qui requièrent l'auth (sync)
   const _duelBtn = document.getElementById('nav-duel');
   const _tourBtn = document.getElementById('nav-tournois');
-  if (!RAAuth.isAuthenticated()) {
+  function _unlockAuthUI() {
+    if (_duelBtn) _duelBtn.removeAttribute('data-auth-locked');
+    if (_tourBtn) _tourBtn.removeAttribute('data-auth-locked');
+    try { const pill = document.getElementById('ra-quiz-pill'); if (pill) pill.style.display = 'none'; } catch(e) {}
+    console.log('[RA] UI auth déverrouillée — tous les boutons actifs');
+  }
+
+  // Vérification synchrone : JWT déjà en storage → unlock immédiat
+  if (RAAuth.isAuthenticated()) {
+    _unlockAuthUI();
+  } else {
     if (_duelBtn) _duelBtn.setAttribute('data-auth-locked','true');
     if (_tourBtn) _tourBtn.setAttribute('data-auth-locked','true');
   }
 
-  // Session restore : valider JWT côté serveur au chargement
+  // Session restore : valider JWT côté serveur au chargement (async)
   const _savedJwt = (function(){ try{return localStorage.getItem('ra_jwt');}catch(e){} try{return sessionStorage.getItem('ra_jwt');}catch(e){} return null; })();
   if (_savedJwt) {
     fetch('/auth/me', { headers: { 'Authorization': 'Bearer ' + _savedJwt } })
@@ -3180,16 +3190,12 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(data => {
         if (data.success && data.user && data.user.is_verified) {
           console.log('[RA] Session restaurée :', data.user.email);
-          localStorage.setItem('ra_gate_registered', 'true');
-          localStorage.setItem('ra_auth_registered', 'true');
-          // Unlock nav buttons si pas encore fait
-          if (_duelBtn) _duelBtn.removeAttribute('data-auth-locked');
-          if (_tourBtn) _tourBtn.removeAttribute('data-auth-locked');
+          try { localStorage.setItem('ra_gate_registered', 'true'); localStorage.setItem('ra_auth_registered', 'true'); } catch(e) {}
+          _unlockAuthUI();
         } else {
-          console.warn('[RA] /auth/me : JWT rejeté côté serveur — nettoyage session');
-          localStorage.removeItem('ra_jwt');
-          localStorage.removeItem('ra_auth_registered');
-          localStorage.removeItem('ra_gate_registered');
+          console.warn('[RA] /auth/me : JWT invalide — nettoyage session');
+          try { localStorage.removeItem('ra_jwt'); localStorage.removeItem('ra_auth_registered'); localStorage.removeItem('ra_gate_registered'); } catch(e) {}
+          try { sessionStorage.removeItem('ra_jwt'); sessionStorage.removeItem('ra_auth_registered'); sessionStorage.removeItem('ra_gate_registered'); } catch(e) {}
         }
       })
       .catch(e => console.warn('[RA] /auth/me erreur réseau :', e.message));
@@ -3567,7 +3573,8 @@ window.addEventListener('load', function() {
     icon.textContent  = '&#x1F3C6;';
     title.textContent = 'Compte confirm&#xe9; !';
     msg.innerHTML     = '&#x2705; Ton compte est confirm&#xe9; ! Bienvenue sur REGUL ARENA.<br><br>Toutes les fonctionnalit&#xe9;s sont d&#xe9;bloqu&#xe9;es&nbsp;: quiz, duels, tournois.';
-    if (btn) btn.onclick = function() { window.location.reload(); };
+    if (btn) btn.onclick = function() { window.location.href = '/'; };
+    setTimeout(function() { window.location.href = '/'; }, 1500);
   } else {
     var msgs = { expired: 'Ce lien a expir&#xe9; (valable 24h). Demande un nouveau lien depuis la page d\'inscription.', invalid: 'Ce lien est invalide ou d&#xe9;j&#xe0; utilis&#xe9;. Demande un nouveau lien.', missing: 'Lien incomplet. Utilise le bouton dans l\'email de confirmation.' };
     icon.textContent  = '&#x274C;';
