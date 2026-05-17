@@ -2168,7 +2168,7 @@ const pageInits = {};
 function showPage(id) {
   if (!PAGES.includes(id)) return;
   // Pages nécessitant une authentification confirmée
-  const AUTH_PAGES = ['duel','tournois','solo'];
+  const AUTH_PAGES = ['duel','tournois'];
   if (AUTH_PAGES.includes(id) && !RAAuth.isAuthenticated()) {
     RAAuth.showAuthWall(id);
     return;
@@ -2182,12 +2182,12 @@ function showPage(id) {
   const btn = document.getElementById('nav-' + id);
   if (btn) { btn.classList.add('active'); btn.setAttribute('aria-current','page'); }
   window.scrollTo(0, 0);
+  if (id === 'solo') { initSolo(); return; }
   if (!pageInits[id]) { pageInits[id] = true; initPage(id); }
 }
 
 function initPage(id) {
   if (id === 'classement') renderLeaderboard();
-  if (id === 'solo') initSolo();
   if (id === 'tournois') { renderBracket(); renderParticipants(); renderMatchs(); renderNotifs(); _startChatPolling(); renderScoreBars(); renderPerfList(); }
   if (id === 'premium')  { renderAdvantages(); renderHOF(); }
   if (id === 'invitation') { initQR(); renderInviteList(); renderAmbassadors(); }
@@ -2393,8 +2393,9 @@ const PACKS = [
 let _soloState = { pack: null, qIndex: 0, score: 0, answered: false };
 
 function initSolo() {
+  console.log('[RA] Solo init — packs:', PACKS.length);
   const grid = document.getElementById('solo-pack-grid');
-  if (!grid) return;
+  if (!grid) { console.warn('[RA] Solo : #solo-pack-grid introuvable'); return; }
   grid.innerHTML = PACKS.map(p => `
     <div onclick="startSoloPack('${p.id}')" style="cursor:pointer;padding:18px 16px;background:var(--bg2);border:1px solid var(--sep);border-radius:4px;transition:all .2s;position:relative;overflow:hidden"
          onmouseover="this.style.borderColor='var(--gold)';this.style.transform='translateY(-2px)'"
