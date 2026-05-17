@@ -1649,10 +1649,10 @@ footer{display:flex;align-items:center;justify-content:space-between;border-top:
           <div style="font-family:'Bebas Neue',cursive;font-size:1.3rem;letter-spacing:2px;color:var(--gold);margin-bottom:6px">Créer un duel</div>
           <div style="font-size:.76rem;color:var(--muted);line-height:1.5">Invitez un adversaire et configurez votre défi.</div>
         </div>
-        <div class="card" style="padding:24px;cursor:pointer;transition:all .3s" onclick="dGoTo('duel')" onmouseenter="this.style.background='var(--bg3)'" onmouseleave="this.style.background=''">
-          <div style="font-size:1.8rem;margin-bottom:12px">🎮</div>
-          <div style="font-family:'Bebas Neue',cursive;font-size:1.3rem;letter-spacing:2px;color:var(--cyan);margin-bottom:6px">Démo duel live</div>
-          <div style="font-size:.76rem;color:var(--muted);line-height:1.5">Simulez un duel en temps réel avec un adversaire IA.</div>
+        <div class="card" style="padding:24px;cursor:pointer;transition:all .3s" onclick="dGoTo('join')" onmouseenter="this.style.background='var(--bg3)'" onmouseleave="this.style.background=''">
+          <div style="font-size:1.8rem;margin-bottom:12px">🔑</div>
+          <div style="font-family:'Bebas Neue',cursive;font-size:1.3rem;letter-spacing:2px;color:var(--cyan);margin-bottom:6px">Rejoindre par code</div>
+          <div style="font-size:.76rem;color:var(--muted);line-height:1.5">Entrez le code d'un duel pour rejoindre l'adversaire.</div>
         </div>
       </div>
     </div>
@@ -1698,58 +1698,106 @@ footer{display:flex;align-items:center;justify-content:space-between;border-top:
         <div class="form-group">
           <label class="form-label" for="d-pack">Pack réglementaire</label>
           <select id="d-pack" class="form-select">
-            <option>Réglementation prudentielle BCEAO</option>
-            <option>LBC-FT &amp; Conformité</option>
-            <option>Monnaie électronique</option>
-            <option>Supervision COBAC</option>
+            <option value="bceao-politique-monetaire">Politique monétaire BCEAO</option>
+            <option value="bceao-supervision">Supervision bancaire BCEAO</option>
+            <option value="bceao-change">Réglementation des changes BCEAO</option>
+            <option value="bceao-microfinance">Microfinance UEMOA</option>
+            <option value="bceao-systeme-paiement">Systèmes de paiement BCEAO</option>
+            <option value="bceao-comptabilite">Comptabilité bancaire UEMOA</option>
+            <option value="beac-politique">Politique monétaire BEAC</option>
+            <option value="beac-supervision">Supervision bancaire BEAC/COBAC</option>
+            <option value="beac-change">Réglementation des changes CEMAC</option>
+            <option value="beac-microfinance">Microfinance CEMAC</option>
+            <option value="cobac-prudentiel">Normes prudentielles COBAC</option>
+            <option value="cobac-comptabilite">Comptabilité bancaire CEMAC</option>
+            <option value="umoa-droit-bancaire">Droit bancaire UMOA</option>
+            <option value="umoa-marche-financier">Marché financier UEMOA (BRVM)</option>
+            <option value="umoa-inclusion">Inclusion financière UEMOA</option>
+            <option value="lbc-ft-uemoa">LBC/FT UEMOA</option>
+            <option value="lbc-ft-cemac">LBC/FT CEMAC</option>
+            <option value="lbc-ft-gafi">Normes GAFI &amp; évaluations mutuelles</option>
+            <option value="lbc-ft-compliance">Conformité LBC/FT en pratique</option>
+            <option value="lbc-ft-financement-terrorisme">Financement du terrorisme</option>
           </select>
         </div>
         <div class="form-group">
           <div class="form-label">Questions</div>
           <div class="param-opts" id="d-q-opts">
-            <button class="popt" onclick="setOpt(this,'d-q-opts')">10</button>
-            <button class="popt active" onclick="setOpt(this,'d-q-opts')">15</button>
-            <button class="popt" onclick="setOpt(this,'d-q-opts')">20</button>
+            <button class="popt active" onclick="setOpt(this,'d-q-opts')" data-val="5">5</button>
+            <button class="popt" onclick="setOpt(this,'d-q-opts')" data-val="10">10</button>
           </div>
         </div>
         <div class="form-group">
           <div class="form-label">Chrono par question</div>
           <div class="param-opts" id="d-timer-opts">
-            <button class="popt active" onclick="setOpt(this,'d-timer-opts')">30s</button>
-            <button class="popt" onclick="setOpt(this,'d-timer-opts')">45s</button>
-            <button class="popt" onclick="setOpt(this,'d-timer-opts')">60s</button>
-          </div>
-        </div>
-        <div class="form-group">
-          <div class="form-label">Secteur</div>
-          <div class="param-opts" id="d-sec-opts">
-            <button class="popt active" onclick="setOpt(this,'d-sec-opts')">UEMOA</button>
-            <button class="popt" onclick="setOpt(this,'d-sec-opts')">CEMAC</button>
+            <button class="popt active" onclick="setOpt(this,'d-timer-opts')" data-val="30">30s</button>
+            <button class="popt" onclick="setOpt(this,'d-timer-opts')" data-val="45">45s</button>
+            <button class="popt" onclick="setOpt(this,'d-timer-opts')" data-val="60">60s</button>
           </div>
         </div>
         <div class="divider"></div>
         <div style="background:var(--navy-dim);border:1px solid rgba(0,43,92,.4);border-radius:2px;padding:14px;font-size:.78rem;color:var(--muted)">🏆 Points ×2 en mode duel · Mise à jour classement immédiate</div>
-        <button class="btn-gold" style="width:100%;justify-content:center;margin-top:14px" onclick="dGoTo('wait')">Envoyer le défi →</button>
+        <button class="btn-gold" style="width:100%;justify-content:center;margin-top:14px" onclick="createDuel()">Créer le duel →</button>
       </div>
     </div>
   </div>
 
-  <!-- Screen : Salle d'attente -->
+  <!-- Screen : Salle d'attente (créateur) -->
   <div id="d-screen-wait" class="screen-d" style="display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 100px);padding:60px 20px">
-    <div class="card" style="width:100%;max-width:460px;padding:48px 38px;text-align:center">
-      <div style="font-size:2rem;margin-bottom:18px">⏳</div>
-      <div style="font-family:'Bebas Neue',cursive;font-size:1.6rem;letter-spacing:3px;margin-bottom:6px;color:var(--gold)">En attente...</div>
-      <div style="position:relative;width:100px;height:100px;margin:22px auto">
-        <svg width="100" height="100" viewBox="0 0 100 100" aria-hidden="true">
-          <circle cx="50" cy="50" r="44" fill="none" stroke="var(--gb)" stroke-width="6"/>
-          <circle id="countdown-ring" cx="50" cy="50" r="44" fill="none" stroke="var(--gold)" stroke-width="6" stroke-linecap="round" stroke-dasharray="276.46" stroke-dashoffset="0" transform="rotate(-90 50 50)" style="transition:stroke-dashoffset .9s linear"/>
-        </svg>
-        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',cursive;font-size:1.8rem;letter-spacing:2px" id="countdown-num" aria-live="polite">30</div>
+    <div class="card" style="width:100%;max-width:480px;padding:42px 36px;text-align:center">
+      <div style="font-size:2rem;margin-bottom:14px">⏳</div>
+      <div style="font-family:'Bebas Neue',cursive;font-size:1.6rem;letter-spacing:3px;margin-bottom:6px;color:var(--gold)">Duel créé !</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted);margin-bottom:22px">En attente d'un adversaire...</div>
+      <!-- Code duel -->
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:16px 20px;margin-bottom:18px">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Code du duel</div>
+        <div id="wait-duel-code" style="font-family:'Bebas Neue',cursive;font-size:2rem;letter-spacing:6px;color:var(--gold)">—</div>
       </div>
-      <div id="wait-opponent-avatar" style="width:56px;height:56px;border-radius:3px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',cursive;font-size:1.4rem;background:rgba(201,153,26,.15);color:var(--gold);border:2px solid var(--border)">KD</div>
-      <div id="wait-opponent-name" style="font-weight:700;font-size:.95rem;margin-bottom:4px">KofiDansso</div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted)">a reçu ton défi...</div>
-      <button class="btn-gold" style="margin-top:22px;width:100%;justify-content:center" onclick="dGoTo('duel')">▶ Simuler le début (démo)</button>
+      <!-- Lien d'invitation -->
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <div id="wait-link-display" class="inv-link-box" style="flex:1;font-size:.7rem;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">
+          <div class="inv-link-text" id="wait-link-text" style="overflow:hidden;text-overflow:ellipsis">—</div>
+          <button class="inv-link-copy" onclick="copyWaitLink()">Copier</button>
+        </div>
+      </div>
+      <button class="btn-ghost" style="width:100%;justify-content:center;margin-bottom:18px" onclick="openWaitWA()">📱 Partager sur WhatsApp</button>
+      <!-- Indicateur polling -->
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);margin-bottom:22px">
+        <span class="live-dot" style="width:6px;height:6px"></span>
+        <span id="wait-poll-status">En attente d'un joueur...</span>
+      </div>
+      <!-- Bouton lancer (caché jusqu'à ce que quelqu'un rejoigne) -->
+      <button id="btn-lancer-duel" class="btn-gold" style="width:100%;justify-content:center;display:none" onclick="lancerDuel()">⚔ Lancer le duel →</button>
+      <button class="btn-ghost" style="width:100%;justify-content:center;margin-top:10px" onclick="dGoTo('menu')">Annuler</button>
+    </div>
+  </div>
+
+  <!-- Screen : Rejoindre par code (invité) -->
+  <div id="d-screen-join" class="screen-d" style="display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 100px);padding:60px 20px">
+    <div class="card" style="width:100%;max-width:420px;padding:42px 36px;text-align:center">
+      <div style="font-size:2rem;margin-bottom:14px">🔑</div>
+      <div style="font-family:'Bebas Neue',cursive;font-size:1.6rem;letter-spacing:3px;margin-bottom:6px">Rejoindre un duel</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted);margin-bottom:28px">Entrez le code reçu de votre adversaire</div>
+      <input type="text" id="join-code-input" class="form-input" placeholder="Ex : D-ABC-XY7" maxlength="12" style="text-align:center;font-family:'Bebas Neue',cursive;font-size:1.4rem;letter-spacing:4px;text-transform:uppercase;margin-bottom:16px" oninput="this.value=this.value.toUpperCase()">
+      <button class="btn-gold" style="width:100%;justify-content:center" onclick="joinDuelByCode()">Rejoindre →</button>
+      <button class="btn-ghost" style="width:100%;justify-content:center;margin-top:10px" onclick="dGoTo('menu')">Retour</button>
+    </div>
+  </div>
+
+  <!-- Screen : Attente lancement (invité après avoir rejoint) -->
+  <div id="d-screen-waiting-start" class="screen-d" style="display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 100px);padding:60px 20px">
+    <div class="card" style="width:100%;max-width:420px;padding:42px 36px;text-align:center">
+      <div style="font-size:2rem;margin-bottom:14px">🎮</div>
+      <div style="font-family:'Bebas Neue',cursive;font-size:1.6rem;letter-spacing:3px;margin-bottom:6px;color:var(--cyan)">Duel rejoint !</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted);margin-bottom:28px">En attente que le créateur lance le duel...</div>
+      <div id="ws-creator-info" style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:24px">
+        <div id="ws-creator-av" style="width:52px;height:52px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',cursive;font-size:1.2rem;background:rgba(201,153,26,.15);color:var(--gold);border:2px solid var(--border)">?</div>
+        <div style="text-align:left"><div id="ws-creator-name" style="font-weight:700;font-size:.92rem">...</div><div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted)">Créateur du duel</div></div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted)">
+        <span class="live-dot" style="width:6px;height:6px"></span>
+        <span>Connexion établie · Attente du lancement...</span>
+      </div>
     </div>
   </div>
 
@@ -1758,7 +1806,7 @@ footer{display:flex;align-items:center;justify-content:space-between;border-top:
     <div style="display:flex;flex-direction:column">
       <div class="duel-header" role="banner">
         <div>
-          <div class="duel-round">Manche 1 · Question <span id="q-current" aria-live="polite">1</span>/15</div>
+          <div class="duel-round">Question <span id="q-current" aria-live="polite">1</span>/<span id="q-total">5</span></div>
           <div class="duel-cat">BCEAO — Réglementation prudentielle</div>
         </div>
         <div class="duel-timer" id="duel-timer" role="timer" aria-label="Temps restant">
@@ -2885,93 +2933,165 @@ const D_QUESTIONS = [
     source:"BRVM — Bourse Régionale des Valeurs Mobilières, siège à Abidjan (Côte d'Ivoire), créée en 1998"
   },
 ];
-const dState = {scores:{me:0,them:0},streaks:{me:0,them:0},qIndex:0,answered:false,timerVal:30,timerInt:null,theirInt:null};
+const dState = {scores:{me:0,them:0},streaks:{me:0,them:0},qIndex:0,answered:false,timerVal:30,timerInt:null,liveInt:null};
+const _duelLive = {code:null,packId:null,numQuestions:5,timerSec:30,isCreator:false,questions:[],pollInt:null};
+
+function _getJwt(){try{return localStorage.getItem('ra_jwt');}catch(e){}try{return sessionStorage.getItem('ra_jwt');}catch(e){}return null;}
+function _clearDuelPolls(){if(_duelLive.pollInt){clearInterval(_duelLive.pollInt);_duelLive.pollInt=null;}if(dState.liveInt){clearInterval(dState.liveInt);dState.liveInt=null;}}
 
 function dGoTo(screen) {
-  // Auth requise pour toute action duel sauf menu
   if (!RAAuth.isAuthenticated()) { RAAuth.showAuthWall('duel'); return; }
+  _clearDuelPolls();
   document.querySelectorAll('.screen-d').forEach(s=>{s.classList.remove('active');s.style.display='none';});
   const t=document.getElementById('d-screen-'+screen);if(!t)return;t.style.display='';t.classList.add('active');
-  if(screen==='wait') startCountdown();
-  if(screen==='duel') startDuel();
+  if(screen==='duel') _startDuelQuiz();
 }
-function showSuggestions(val) {
-  const list=document.getElementById('suggestions-list');if(!val||val.length<1){list.style.display='none';return;}
-  const f=D_OPPONENTS.filter(o=>o.name.toLowerCase().includes(val.toLowerCase())||o.inst.toLowerCase().includes(val.toLowerCase()));
-  list.style.display=f.length?'block':'none';
-  list.innerHTML=f.map(o=>`<div class="suggestion-item" onclick="selectOpponent(${o.id})" role="option"><div style="width:34px;height:34px;border-radius:2px;background:${o.col};display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',cursive;font-size:.9rem;color:${o.tc}">${o.init}</div><div style="flex:1"><div style="font-size:.83rem;font-weight:600">${o.name}</div><div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted)">${o.rank} · ${o.inst}</div></div></div>`).join('');
-}
-function hideSuggestions(){const l=document.getElementById('suggestions-list');if(l)l.style.display='none';}
-function selectOpponent(id){
-  const opp=D_OPPONENTS.find(o=>o.id===id);if(!opp)return;
-  const el=document.getElementById('selected-opp');el.style.display='flex';
-  document.getElementById('sel-av').textContent=opp.init;document.getElementById('sel-av').style.background=opp.col;document.getElementById('sel-av').style.color=opp.tc;
-  document.getElementById('sel-name').textContent=opp.name;document.getElementById('sel-stats').textContent=opp.rank+' · '+opp.inst;
-  document.getElementById('opp-search').value='';hideSuggestions();
-  document.getElementById('wait-opponent-avatar').textContent=opp.init;document.getElementById('wait-opponent-avatar').style.background=opp.col;
-  document.getElementById('wait-opponent-name').textContent=opp.name;
-  showToast('✓ Défi envoyé à '+opp.name);
-}
-function clearOpponent(){document.getElementById('selected-opp').style.display='none';document.getElementById('opp-search').value='';}
-function setInvite(btn,method){document.querySelectorAll('.invite-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.getElementById('invite-link-box').style.display=method==='link'?'flex':'none';document.getElementById('whatsapp-box').style.display=method==='whatsapp'?'block':'none';}
-function _ensureDuelCode(cb) {
-  if (window._duelCode) { cb(window._duelCode); return; }
-  const jwt = (function(){ try{return localStorage.getItem('ra_jwt');}catch(e){} try{return sessionStorage.getItem('ra_jwt');}catch(e){} return null; })();
-  if (!jwt) { cb('ABC-XY7-2026'); return; }
-  const pack = document.getElementById('d-pack')?.value || 'general';
-  fetch('/duels', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt}, body: JSON.stringify({pack_id: pack}) })
-    .then(r => r.json())
-    .then(d => {
-      if (d.success && d.code) {
-        window._duelCode = d.code;
-        document.querySelectorAll('.inv-link-text').forEach(el => el.textContent = location.origin+'/duel/'+d.code);
-        cb(d.code);
-      } else { cb('ABC-XY7-2026'); }
+/* ── CRÉER un duel ────────────────────────────────────────── */
+function createDuel(){
+  const jwt=_getJwt();if(!jwt){RAAuth.showAuthWall('duel');return;}
+  const packId=document.getElementById('d-pack')?.value||'bceao-politique-monetaire';
+  const numQ=parseInt(document.querySelector('#d-q-opts .popt.active')?.dataset?.val||'5');
+  const timerS=parseInt(document.querySelector('#d-timer-opts .popt.active')?.dataset?.val||'30');
+  fetch('/duels',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt},
+    body:JSON.stringify({pack_id:packId,num_questions:numQ,timer_sec:timerS})})
+    .then(r=>r.json())
+    .then(d=>{
+      if(!d.success||!d.code){showToast('❌ Erreur création duel');return;}
+      _duelLive.code=d.code;_duelLive.packId=packId;_duelLive.numQuestions=numQ;_duelLive.timerSec=timerS;_duelLive.isCreator=true;
+      const pack=PACKS.find(p=>p.id===packId);_duelLive.questions=pack?pack.questions:[];
+      _showWaitScreen(d.code);_pollForJoiner();
     })
-    .catch(() => cb('ABC-XY7-2026'));
+    .catch(()=>showToast('❌ Connexion impossible'));
 }
-function copyDuelLink(){ _ensureDuelCode(code => { navigator.clipboard.writeText(location.origin+'/duel/'+code).catch(()=>{}); showToast('🔗 Lien copié !'); }); }
-function openDuelWA(){ _ensureDuelCode(code => { window.open('https://wa.me/?text='+encodeURIComponent('⚔️ Défi REGUL ARENA !\n🔗 '+location.origin+'/duel/'+code),'_blank'); }); }
-function startCountdown(){
-  let count=30;const numEl=document.getElementById('countdown-num'),ring=document.getElementById('countdown-ring');
-  const t=setInterval(()=>{count--;if(numEl)numEl.textContent=count;if(ring)ring.style.strokeDashoffset=276.46*(1-count/30);if(count<=10&&ring)ring.style.stroke='var(--red)';if(count<=0){clearInterval(t);dGoTo('duel');}},1000);
+function _showWaitScreen(code){
+  _clearDuelPolls();
+  document.querySelectorAll('.screen-d').forEach(s=>{s.classList.remove('active');s.style.display='none';});
+  const t=document.getElementById('d-screen-wait');t.style.display='';t.classList.add('active');
+  const codeEl=document.getElementById('wait-duel-code');if(codeEl)codeEl.textContent=code;
+  const linkEl=document.getElementById('wait-link-text');if(linkEl)linkEl.textContent=location.origin+'/?code='+code;
+  const btnL=document.getElementById('btn-lancer-duel');if(btnL)btnL.style.display='none';
+  const ps=document.getElementById('wait-poll-status');if(ps)ps.textContent="En attente d'un joueur...";
 }
-function startDuel(){
+function _pollForJoiner(){
+  _duelLive.pollInt=setInterval(()=>{
+    const jwt=_getJwt();if(!jwt)return;
+    fetch('/duels/'+_duelLive.code,{headers:{'Authorization':'Bearer '+jwt}})
+      .then(r=>r.json()).then(d=>{
+        if(!d.success||!d.duel)return;
+        const duel=d.duel;
+        if(duel.joiner_id){
+          const ps=document.getElementById('wait-poll-status');
+          if(ps)ps.textContent=(duel.joiner?.name||'Un joueur')+' a rejoint !';
+          const btnL=document.getElementById('btn-lancer-duel');if(btnL)btnL.style.display='flex';
+        }
+        if(duel.status==='active'){clearInterval(_duelLive.pollInt);_duelLive.pollInt=null;dGoTo('duel');}
+      }).catch(()=>{});
+  },3000);
+}
+function lancerDuel(){
+  const jwt=_getJwt();if(!jwt)return;
+  fetch('/duels/'+_duelLive.code+'/start',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt}})
+    .then(r=>r.json()).then(d=>{
+      if(d.success){clearInterval(_duelLive.pollInt);_duelLive.pollInt=null;dGoTo('duel');}
+      else showToast('❌ '+(d.error||'Erreur lancement'));
+    }).catch(()=>showToast('❌ Connexion impossible'));
+}
+function copyWaitLink(){navigator.clipboard.writeText(location.origin+'/?code='+_duelLive.code).catch(()=>{});showToast('🔗 Lien copié !');}
+function openWaitWA(){window.open('https://wa.me/?text='+encodeURIComponent('⚔️ Défi REGUL ARENA !\n🔗 '+location.origin+'/?code='+_duelLive.code),'_blank');}
+
+/* ── REJOINDRE un duel ────────────────────────────────────── */
+function joinDuelByCode(){
+  const jwt=_getJwt();if(!jwt){RAAuth.showAuthWall('duel');return;}
+  const rawCode=(document.getElementById('join-code-input')?.value||'').trim().toUpperCase();
+  if(!rawCode){showToast('⚠ Entrez un code de duel');return;}
+  fetch('/duels/'+rawCode+'/join',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt}})
+    .then(r=>r.json()).then(d=>{
+      if(!d.success){showToast('❌ '+(d.error||'Code invalide'));return;}
+      _duelLive.code=rawCode;_duelLive.isCreator=false;
+      if(d.duel){
+        _duelLive.packId=d.duel.pack_id;_duelLive.numQuestions=d.duel.num_questions||5;_duelLive.timerSec=d.duel.timer_sec||30;
+        const pack=PACKS.find(p=>p.id===_duelLive.packId);_duelLive.questions=pack?pack.questions:[];
+        const crName=d.duel.creator?.name||'Créateur';
+        const avEl=document.getElementById('ws-creator-av');if(avEl)avEl.textContent=crName.slice(0,2).toUpperCase();
+        const nmEl=document.getElementById('ws-creator-name');if(nmEl)nmEl.textContent=crName;
+      }
+      _clearDuelPolls();
+      document.querySelectorAll('.screen-d').forEach(s=>{s.classList.remove('active');s.style.display='none';});
+      const t=document.getElementById('d-screen-waiting-start');t.style.display='';t.classList.add('active');
+      _pollForStart();
+    }).catch(()=>showToast('❌ Connexion impossible'));
+}
+function _pollForStart(){
+  _duelLive.pollInt=setInterval(()=>{
+    const jwt=_getJwt();if(!jwt)return;
+    fetch('/duels/'+_duelLive.code,{headers:{'Authorization':'Bearer '+jwt}})
+      .then(r=>r.json()).then(d=>{
+        if(!d.success||!d.duel)return;
+        if(d.duel.status==='active'){
+          _duelLive.packId=d.duel.pack_id||_duelLive.packId;_duelLive.numQuestions=d.duel.num_questions||_duelLive.numQuestions;_duelLive.timerSec=d.duel.timer_sec||_duelLive.timerSec;
+          const pack=PACKS.find(p=>p.id===_duelLive.packId);_duelLive.questions=pack?pack.questions:[];
+          clearInterval(_duelLive.pollInt);_duelLive.pollInt=null;dGoTo('duel');
+        }
+      }).catch(()=>{});
+  },3000);
+}
+
+/* ── QUIZ en duel ─────────────────────────────────────────── */
+function _startDuelQuiz(){
   dState.scores={me:0,them:0};dState.streaks={me:0,them:0};dState.qIndex=0;dState.answered=false;
-  loadQ(); startDuelTimer(); simulateOpp();
+  const pack=PACKS.find(p=>p.id===_duelLive.packId);
+  const catEl=document.querySelector('.duel-cat');if(catEl&&pack)catEl.textContent=pack.label;
+  const totalEl=document.getElementById('q-total');if(totalEl)totalEl.textContent=_duelLive.numQuestions;
+  _loadDuelQ();_startDuelTimer();_pollLiveDuel();
 }
-function loadQ(){
-  const q=D_QUESTIONS[dState.qIndex%D_QUESTIONS.length];
+function _pollLiveDuel(){
+  dState.liveInt=setInterval(()=>{
+    if(!document.getElementById('d-screen-duel').classList.contains('active')){clearInterval(dState.liveInt);return;}
+    const jwt=_getJwt();if(!jwt||!_duelLive.code)return;
+    fetch('/duels/'+_duelLive.code+'/live',{headers:{'Authorization':'Bearer '+jwt}})
+      .then(r=>r.json()).then(d=>{
+        if(!d.success||!d.duel)return;
+        const scores=d.duel.scores||[];
+        const themScore=scores.find(s=>_duelLive.isCreator?s.user_id===d.duel.joiner_id:s.user_id===d.duel.creator_id);
+        if(themScore&&themScore.score!==dState.scores.them){
+          const diff=themScore.score-dState.scores.them;dState.scores.them=themScore.score;
+          if(diff>0)showDelta('them','+'+diff);updateDuelUI();
+        }
+        if(d.duel.status==='finished'){
+          clearInterval(dState.liveInt);dState.liveInt=null;
+          showResult(dState.scores.me>=dState.scores.them);
+        }
+      }).catch(()=>{});
+  },2000);
+}
+function _loadDuelQ(){
+  const qs=_duelLive.questions;const numQ=_duelLive.numQuestions;
+  if(!qs||qs.length===0||dState.qIndex>=numQ){showResult(dState.scores.me>=dState.scores.them);return;}
+  const q=qs[dState.qIndex%qs.length];
   const qEl=document.getElementById('q-text');if(qEl)qEl.textContent=q.q;
   const curEl=document.getElementById('q-current');if(curEl)curEl.textContent=dState.qIndex+1;
-  const cEl=document.getElementById('q-choices');if(cEl)cEl.innerHTML=q.choices.map((c,i)=>`<button class="q-choice" onclick="answer(${i})">${String.fromCharCode(65+i)}. ${c}</button>`).join('');
+  const cEl=document.getElementById('q-choices');
+  if(cEl)cEl.innerHTML=q.choices.map((c,i)=>`<button class="q-choice" onclick="duelAnswer(${i})">${String.fromCharCode(65+i)}. ${escapeHtml(c)}</button>`).join('');
   dState.answered=false;
 }
-function answer(idx){
+function duelAnswer(idx){
   if(dState.answered)return;dState.answered=true;
-  const q=D_QUESTIONS[dState.qIndex%D_QUESTIONS.length];const ok=idx===q.correct;
+  const q=_duelLive.questions[dState.qIndex%_duelLive.questions.length];const ok=idx===q.correct;
   document.querySelectorAll('.q-choice').forEach((c,i)=>{if(i===q.correct)c.classList.add('correct');else if(i===idx&&!ok)c.classList.add('wrong');else c.classList.add('disabled');});
-  // Afficher la source réglementaire sous les choix
   const choicesEl=document.getElementById('q-choices');
-  if(choicesEl&&q.source){
-    const srcEl=document.createElement('div');
-    srcEl.style.cssText='margin-top:12px;font-family:JetBrains Mono,monospace;font-size:.58rem;letter-spacing:1px;color:var(--muted);border-top:1px solid var(--gb);padding-top:9px;line-height:1.5';
-    srcEl.innerHTML='📋 <span style="color:var(--gold)">Source :</span> '+q.source;
-    choicesEl.appendChild(srcEl);
-  }
+  if(choicesEl&&q.source){const srcEl=document.createElement('div');srcEl.style.cssText='margin-top:12px;font-family:JetBrains Mono,monospace;font-size:.58rem;letter-spacing:1px;color:var(--muted);border-top:1px solid var(--gb);padding-top:9px;line-height:1.5';srcEl.innerHTML='📋 <span style="color:var(--gold)">Source :</span> '+escapeHtml(q.source);choicesEl.appendChild(srcEl);}
   if(ok){const pts=100+dState.streaks.me*10;dState.scores.me+=pts;dState.streaks.me++;showDelta('me','+'+pts);showToast('✓ Correct ! +'+pts+' pts');}
   else{dState.streaks.me=0;showToast('✗ Réponse : '+q.choices[q.correct]);}
-  updateDuelUI(); setTimeout(nextQ,2400);
+  updateDuelUI();
+  const jwt=_getJwt();
+  if(jwt&&_duelLive.code){fetch('/duels/'+_duelLive.code+'/answer',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt},body:JSON.stringify({q_index:dState.qIndex,correct:ok,score:dState.scores.me})}).catch(()=>{});}
+  setTimeout(_duelNextQ,2400);
 }
-function nextQ(){dState.qIndex++;if(dState.qIndex>=15){showResult(dState.scores.me>=dState.scores.them);return;}resetDuelTimer();loadQ();}
-function simulateOpp(){
-  dState.theirInt=setInterval(()=>{
-    if(!document.getElementById('d-screen-duel').classList.contains('active'))return;
-    if(Math.random()>0.35){const p=100+dState.streaks.them*10;dState.scores.them+=p;dState.streaks.them++;showDelta('them','+'+p);}
-    else dState.streaks.them=0;
-    updateDuelUI();
-  },Math.random()*4000+3000);
-}
+function _duelNextQ(){dState.qIndex++;if(dState.qIndex>=_duelLive.numQuestions){showResult(dState.scores.me>=dState.scores.them);return;}_resetDuelTimer();_loadDuelQ();}
+function showSuggestions(){}
+function hideSuggestions(){const l=document.getElementById('suggestions-list');if(l)l.style.display='none';}
+function clearOpponent(){document.getElementById('selected-opp').style.display='none';document.getElementById('opp-search').value='';}
+function setInvite(btn,method){document.querySelectorAll('.invite-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.getElementById('invite-link-box').style.display=method==='link'?'flex':'none';document.getElementById('whatsapp-box').style.display=method==='whatsapp'?'block':'none';}
 function showDelta(who,text){const el=document.getElementById('delta-'+who);if(!el)return;el.textContent=text;el.classList.remove('show');void el.offsetWidth;el.classList.add('show');}
 function animNum(id,target){
   const el=document.getElementById(id);if(!el)return;const cur=parseInt(el.textContent.replace(/[\s\u202F\u00A0]/g,''))||0;if(cur===target)return;
@@ -2989,30 +3109,41 @@ function updateDuelUI(){
   else if(dState.scores.them>dState.scores.me){if(lead){lead.textContent='IL MÈNE';lead.style.color='var(--red)';}if(tp){tp.classList.add('leading');tp.classList.remove('trailing');}if(mp){mp.classList.remove('leading');mp.classList.add('trailing');}}
   else{if(lead){lead.textContent='ÉGALITÉ';lead.style.color='var(--muted)';}[mp,tp].forEach(p=>{if(p)p.classList.remove('leading','trailing');});}
 }
-function startDuelTimer(){
-  dState.timerVal=30;const disp=document.getElementById('timer-display'),timerEl=document.getElementById('duel-timer');
+function _startDuelTimer(){
+  dState.timerVal=_duelLive.timerSec||30;
+  const disp=document.getElementById('timer-display'),timerEl=document.getElementById('duel-timer');
+  if(disp)disp.textContent=dState.timerVal;
+  if(dState.timerInt)clearInterval(dState.timerInt);
   dState.timerInt=setInterval(()=>{
     dState.timerVal--;if(disp)disp.textContent=dState.timerVal;
     if(timerEl){if(dState.timerVal<=10)timerEl.classList.add('urgent');else timerEl.classList.remove('urgent');}
-    if(dState.timerVal<=0){clearInterval(dState.timerInt);if(!dState.answered){dState.answered=true;document.querySelectorAll('.q-choice').forEach(c=>c.classList.add('disabled'));const q=D_QUESTIONS[dState.qIndex%D_QUESTIONS.length];const cs=document.querySelectorAll('.q-choice');if(cs[q.correct])cs[q.correct].classList.add('correct');showToast('⏱ Temps écoulé !');setTimeout(nextQ,1500);}}
+    if(dState.timerVal<=0){
+      clearInterval(dState.timerInt);
+      if(!dState.answered){
+        dState.answered=true;document.querySelectorAll('.q-choice').forEach(c=>c.classList.add('disabled'));
+        const q=_duelLive.questions[dState.qIndex%_duelLive.questions.length];
+        const cs=document.querySelectorAll('.q-choice');if(cs[q.correct])cs[q.correct].classList.add('correct');
+        showToast('⏱ Temps écoulé !');
+        const jwt=_getJwt();
+        if(jwt&&_duelLive.code){fetch('/duels/'+_duelLive.code+'/answer',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt},body:JSON.stringify({q_index:dState.qIndex,correct:false,score:dState.scores.me})}).catch(()=>{});}
+        setTimeout(_duelNextQ,1500);
+      }
+    }
   },1000);
 }
-function resetDuelTimer(){clearInterval(dState.timerInt);dState.timerVal=30;const d=document.getElementById('timer-display');if(d)d.textContent='30';const t=document.getElementById('duel-timer');if(t)t.classList.remove('urgent');startDuelTimer();}
+function _resetDuelTimer(){clearInterval(dState.timerInt);_startDuelTimer();}
 function showResult(iWin){
-  clearInterval(dState.timerInt);clearInterval(dState.theirInt);
-  const meS=dState.scores.me||1450,thS=dState.scores.them||1200;
+  clearInterval(dState.timerInt);clearInterval(dState.liveInt);dState.liveInt=null;
+  const meS=dState.scores.me,thS=dState.scores.them;
   const fme=document.getElementById('final-score-me'),fth=document.getElementById('final-score-them');
   if(fme)fme.textContent=meS.toLocaleString('fr-FR');if(fth)fth.textContent=thS.toLocaleString('fr-FR');
   const trophy=document.getElementById('winner-trophy'),wname=document.getElementById('winner-name'),ptsEl=document.getElementById('pts-gain');
   if(iWin){if(trophy)trophy.textContent='🏆';if(wname)wname.textContent='Toi';if(ptsEl){ptsEl.textContent='+120';ptsEl.className='pts-value gain';}launchConfetti();}
   else{if(trophy)trophy.textContent='😤';if(wname)wname.textContent='Adversaire';if(ptsEl){ptsEl.textContent='-40';ptsEl.className='pts-value loss';}}
-  dGoTo('result');
-  const jwt=(function(){try{return localStorage.getItem('ra_jwt');}catch(e){}try{return sessionStorage.getItem('ra_jwt');}catch(e){}return null;})();
-  if(jwt){
-    const pack=document.getElementById('d-pack')?.value||'duel';
-    fetch('/scores',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt},body:JSON.stringify({pack_id:pack,score:meS,total:meS+thS})}).catch(()=>{});
-    if(window._duelCode){fetch('/duels/'+window._duelCode+'/score',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt},body:JSON.stringify({score:meS,total:meS+thS})}).catch(()=>{});}
-  }
+  document.querySelectorAll('.screen-d').forEach(s=>{s.classList.remove('active');s.style.display='none';});
+  const t=document.getElementById('d-screen-result');if(t){t.style.display='';t.classList.add('active');}
+  const jwt=_getJwt();
+  if(jwt&&_duelLive.packId){fetch('/scores',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt},body:JSON.stringify({pack_id:_duelLive.packId,score:meS,total:meS+thS})}).catch(()=>{});}
 }
 function launchConfetti(){
   const c=document.getElementById('confetti');if(!c)return;c.innerHTML='';
@@ -3559,6 +3690,35 @@ const RAAuth = (() => {
 })();
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Gérer lien d'invitation duel : /?code=D-ABC-XY7
+  (function(){
+    try{
+      const urlCode=new URLSearchParams(location.search).get('code');
+      if(urlCode){
+        if(RAAuth.isAuthenticated()){
+          showPage('duel');
+          setTimeout(()=>{
+            document.getElementById('join-code-input').value=urlCode.toUpperCase();
+            dGoTo('join');
+          },300);
+        } else {
+          try{sessionStorage.setItem('ra_pending_duel_code',urlCode);}catch(e){}
+          RAAuth.showAuthWall('duel');
+        }
+      } else {
+        const pending=sessionStorage.getItem('ra_pending_duel_code');
+        if(pending&&RAAuth.isAuthenticated()){
+          sessionStorage.removeItem('ra_pending_duel_code');
+          showPage('duel');
+          setTimeout(()=>{
+            document.getElementById('join-code-input').value=pending.toUpperCase();
+            dGoTo('join');
+          },300);
+        }
+      }
+    }catch(e){}
+  })();
+
   // Vérifier retour depuis lien email de confirmation
   if(RAAuth && RAAuth.checkURLConfirmation) RAAuth.checkURLConfirmation();
   if(RAGate && RAGate.checkURLConfirmation) RAGate.checkURLConfirmation();
