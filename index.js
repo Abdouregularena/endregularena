@@ -1,9 +1,9 @@
-'use strict';
+﻿'use strict';
 
 /* ================================================================
    REGUL ARENA â€” Backend API
-   Stack : Express Â· better-sqlite3 Â· JWT Â· Resend Â· Helmet
-   Routes : /auth/* Â· /feedback Â· /feedback/notify
+   Stack : Express &#183; better-sqlite3 &#183; JWT &#183; Resend &#183; Helmet
+   Routes : /auth/* &#183; /feedback &#183; /feedback/notify
 ================================================================ */
 
 require('dotenv').config();
@@ -23,7 +23,7 @@ const JWT_SECRET   = process.env.JWT_SECRET || 'changez-moi-en-production';
 const RESEND_KEY   = process.env.RESEND_API_KEY || '';
 const FROM_EMAIL   = process.env.FROM_EMAIL   || 'noreply@regularena.com';
 const FRONTEND_URL = process.env.FRONTEND_URL  || 'https://regularena.com';
-const TOKEN_TTL_H  = 24; // heures de validitÃ© du lien email
+const TOKEN_TTL_H  = 24; // heures de validit&#233; du lien email
 
 const resend = new Resend(RESEND_KEY);
 
@@ -121,16 +121,16 @@ app.use(express.json());
 const limiterStrict = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, standardHeaders: true, legacyHeaders: false });
 const limiterLoose  = rateLimit({ windowMs: 15 * 60 * 1000, max: 60, standardHeaders: true, legacyHeaders: false });
 
-/* â”€â”€ AUTH MIDDLEWARE (routes protÃ©gÃ©es futures) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* â”€â”€ AUTH MIDDLEWARE (routes prot&#233;g&#233;es futures) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function requireAuth(req, res, next) {
   const header = req.headers['authorization'] || '';
   const token  = header.startsWith('Bearer ') ? header.slice(7) : null;
-  if (!token) return err(res, 401, 'Non authentifiÃ©');
+  if (!token) return err(res, 401, 'Non authentifi&#233;');
   try {
     req.user = jwt.verify(token, JWT_SECRET);
     next();
   } catch {
-    return err(res, 401, 'Token invalide ou expirÃ©');
+    return err(res, 401, 'Token invalide ou expir&#233;');
   }
 }
 
@@ -140,7 +140,7 @@ function requireAuth(req, res, next) {
 
 /* POST /auth/register
    Body : { name, email, profile, country, etablissement }
-   â†’ crÃ©e ou retrouve l'utilisateur, envoie email de confirmation
+   &#8594; cr&#233;e ou retrouve l'utilisateur, envoie email de confirmation
 */
 app.post('/auth/register', limiterStrict, async (req, res) => {
   const { name, email, profile, country, etablissement = '' } = req.body || {};
@@ -162,7 +162,7 @@ app.post('/auth/register', limiterStrict, async (req, res) => {
     user = db.prepare('SELECT * FROM users WHERE id = ?').get(result.lastInsertRowid);
   }
 
-  // GÃ©nÃ©rer token de confirmation
+  // G&#233;n&#233;rer token de confirmation
   const token = genToken();
   db.prepare(
     'INSERT INTO confirm_tokens (user_id, token, expires_at) VALUES (?, ?, ?)'
@@ -192,7 +192,7 @@ app.post('/auth/register', limiterStrict, async (req, res) => {
 
 /* POST /auth/resend
    Body : { email }
-   â†’ renvoie le dernier lien de confirmation
+   &#8594; renvoie le dernier lien de confirmation
 */
 app.post('/auth/resend', limiterStrict, async (req, res) => {
   const { email } = req.body || {};
@@ -200,7 +200,7 @@ app.post('/auth/resend', limiterStrict, async (req, res) => {
 
   const cleanEmail = email.trim().toLowerCase();
   const user = db.prepare('SELECT * FROM users WHERE email = ?').get(cleanEmail);
-  if (!user) return err(res, 404, 'Aucun compte trouvÃ© pour cet email');
+  if (!user) return err(res, 404, 'Aucun compte trouv&#233; pour cet email');
 
   const token = genToken();
   db.prepare(
@@ -229,7 +229,7 @@ app.post('/auth/resend', limiterStrict, async (req, res) => {
 
 
 /* GET /auth/verify?token=xxx
-   â†’ vÃ©rifie le token, marque email comme confirmÃ©, retourne JWT + user
+   &#8594; v&#233;rifie le token, marque email comme confirm&#233;, retourne JWT + user
 */
 app.get('/auth/verify', limiterLoose, (req, res) => {
   const { token } = req.query;
@@ -239,10 +239,10 @@ app.get('/auth/verify', limiterLoose, (req, res) => {
     'SELECT * FROM confirm_tokens WHERE token = ? AND used = 0'
   ).get(token);
 
-  if (!row) return err(res, 400, 'Lien invalide ou dÃ©jÃ  utilisÃ©');
-  if (new Date(row.expires_at) < new Date()) return err(res, 400, 'Lien expirÃ© â€” demande un nouveau');
+  if (!row) return err(res, 400, 'Lien invalide ou d&#233;j&#224; utilis&#233;');
+  if (new Date(row.expires_at) < new Date()) return err(res, 400, 'Lien expir&#233; â€” demande un nouveau');
 
-  // Marquer token utilisÃ© + email vÃ©rifiÃ©
+  // Marquer token utilis&#233; + email v&#233;rifi&#233;
   db.prepare('UPDATE confirm_tokens SET used = 1 WHERE id = ?').run(row.id);
   db.prepare('UPDATE users SET email_verified = 1 WHERE id = ?').run(row.user_id);
 
@@ -252,7 +252,7 @@ app.get('/auth/verify', limiterLoose, (req, res) => {
 
 
 /* GET /auth/login-verify?login_token=xxx
-   â†’ connexion magique (lien email)
+   &#8594; connexion magique (lien email)
 */
 app.get('/auth/login-verify', limiterLoose, (req, res) => {
   const { login_token } = req.query;
@@ -262,8 +262,8 @@ app.get('/auth/login-verify', limiterLoose, (req, res) => {
     'SELECT * FROM login_tokens WHERE token = ? AND used = 0'
   ).get(login_token);
 
-  if (!row) return err(res, 400, 'Lien invalide ou dÃ©jÃ  utilisÃ©');
-  if (new Date(row.expires_at) < new Date()) return err(res, 400, 'Lien expirÃ©');
+  if (!row) return err(res, 400, 'Lien invalide ou d&#233;j&#224; utilis&#233;');
+  if (new Date(row.expires_at) < new Date()) return err(res, 400, 'Lien expir&#233;');
 
   db.prepare('UPDATE login_tokens SET used = 1 WHERE id = ?').run(row.id);
 
@@ -289,13 +289,13 @@ app.post('/feedback', limiterLoose, (req, res) => {
     'INSERT INTO feedback (type, content, email) VALUES (?, ?, ?)'
   ).run(type, content.slice(0, 2000), email.slice(0, 120));
 
-  return ok(res, { message: 'Feedback enregistrÃ©' });
+  return ok(res, { message: 'Feedback enregistr&#233;' });
 });
 
 
 /* POST /feedback/notify
    Body : { email }
-   â†’ liste d'attente tournoi 2027
+   &#8594; liste d'attente tournoi 2027
 */
 app.post('/feedback/notify', limiterLoose, (req, res) => {
   const { email } = req.body || {};
@@ -304,10 +304,10 @@ app.post('/feedback/notify', limiterLoose, (req, res) => {
   try {
     db.prepare('INSERT INTO notify_list (email) VALUES (?)').run(email.trim().toLowerCase());
   } catch {
-    // email dÃ©jÃ  dans la liste â€” silencieux
+    // email d&#233;j&#224; dans la liste â€” silencieux
   }
 
-  return ok(res, { message: 'Inscrit Ã  la liste d\'alerte' });
+  return ok(res, { message: 'Inscrit &#224; la liste d\'alerte' });
 });
 
 
@@ -329,18 +329,18 @@ function emailConfirmHTML(name, url) {
 <table width="560" cellpadding="0" cellspacing="0" style="background:#080C14;border:1px solid rgba(201,153,26,.2);border-radius:4px;overflow:hidden">
   <tr><td style="background:linear-gradient(135deg,#002B5C,#001a3a);padding:32px 40px;text-align:center">
     <div style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:26px;font-weight:900;letter-spacing:6px;color:#C9991A">REGUL ARENA</div>
-    <div style="font-size:11px;letter-spacing:3px;color:rgba(201,153,26,.6);margin-top:4px">MAÃŽTRISE RÃ‰GLEMENTAIRE BANCAIRE</div>
+    <div style="font-size:11px;letter-spacing:3px;color:rgba(201,153,26,.6);margin-top:4px">MA&#206;TRISE R&#201;GLEMENTAIRE BANCAIRE</div>
   </td></tr>
   <tr><td style="padding:40px 40px 24px">
     <p style="color:#EEF0F5;font-size:16px;margin:0 0 12px">Bonjour <strong style="color:#C9991A">${escEmail(name)}</strong>,</p>
-    <p style="color:#7A8499;font-size:14px;line-height:1.7;margin:0 0 32px">Ton compte REGUL ARENA est prÃªt. Clique sur le bouton ci-dessous pour confirmer ton adresse email et accÃ©der Ã  la plateforme.</p>
+    <p style="color:#7A8499;font-size:14px;line-height:1.7;margin:0 0 32px">Ton compte REGUL ARENA est pr&#234;t. Clique sur le bouton ci-dessous pour confirmer ton adresse email et acc&#233;der &#224; la plateforme.</p>
     <div style="text-align:center;margin-bottom:32px">
-      <a href="${url}" style="display:inline-block;background:linear-gradient(135deg,#C9991A,#E8B520);color:#03050A;font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;text-decoration:none;padding:16px 40px;border-radius:2px">Confirmer mon compte â†’</a>
+      <a href="${url}" style="display:inline-block;background:linear-gradient(135deg,#C9991A,#E8B520);color:#03050A;font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;text-decoration:none;padding:16px 40px;border-radius:2px">Confirmer mon compte &#8594;</a>
     </div>
-    <p style="color:#4a5568;font-size:12px;line-height:1.6;margin:0">Ce lien est valable 24 heures. Si tu n'es pas Ã  l'origine de cette demande, ignore cet email.</p>
+    <p style="color:#4a5568;font-size:12px;line-height:1.6;margin:0">Ce lien est valable 24 heures. Si tu n'es pas &#224; l'origine de cette demande, ignore cet email.</p>
   </td></tr>
   <tr><td style="border-top:1px solid rgba(255,255,255,.06);padding:20px 40px;text-align:center">
-    <p style="color:#4a5568;font-size:11px;letter-spacing:1px;margin:0">Â© 2026 REGUL ARENA Â· Initiative privÃ©e Â· Abdou NDAO Â· Dakar, SÃ©nÃ©gal</p>
+    <p style="color:#4a5568;font-size:11px;letter-spacing:1px;margin:0">&#169; 2026 REGUL ARENA &#183; Initiative priv&#233;e &#183; Abdou NDAO &#183; Dakar, S&#233;n&#233;gal</p>
   </td></tr>
 </table></td></tr></table>
 </body></html>`;
@@ -359,6 +359,6 @@ function publicUser(u) {
 app.listen(PORT, () => {
   console.log(`âœ… REGUL ARENA API â€” port ${PORT}`);
   console.log(`   DB : regularena.db`);
-  console.log(`   JWT_SECRET : ${JWT_SECRET === 'changez-moi-en-production' ? 'âš  PAR DÃ‰FAUT â€” Ã  changer' : 'âœ“ configurÃ©'}`);
-  console.log(`   RESEND_KEY : ${RESEND_KEY ? 'âœ“ configurÃ©' : 'âš  manquant â€” emails dÃ©sactivÃ©s'}`);
+  console.log(`   JWT_SECRET : ${JWT_SECRET === 'changez-moi-en-production' ? 'âš  PAR DÃ‰FAUT â€” &#224; changer' : 'âœ“ configur&#233;'}`);
+  console.log(`   RESEND_KEY : ${RESEND_KEY ? 'âœ“ configur&#233;' : 'âš  manquant â€” emails d&#233;sactiv&#233;s'}`);
 });
