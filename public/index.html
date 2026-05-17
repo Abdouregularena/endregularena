@@ -1124,19 +1124,21 @@ input,select,textarea{font-size:max(16px,.84rem)!important}
 
 /* ── LOGO AJOUT ──────────────────────────────────────────── */
 #ra-topbar { /* LOGO AJOUT */
-  position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
-  background: #002B5C; height: 52px;
+  position: fixed; top: 52px; left: 0; right: 0; z-index: 150; /* MODIFIÉ — top:52px = hauteur exacte du nav (padding:14px×2 + logo:24px), z-index:150 < nav:200 */
+  background: #002B5C; height: 32px; /* MODIFIÉ — réduit à 32px max comme demandé */
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 16px; box-shadow: 0 2px 8px rgba(0,0,0,.4);
+  overflow: hidden; /* MODIFIÉ — empêche tout débordement vertical du logo/texte */
 } /* LOGO AJOUT */
-#ra-topbar-logo { height: 40px; width: auto; object-fit: contain; } /* LOGO AJOUT */
-#ra-topbar-stats { display: flex; gap: 16px; font-family: 'Inter',sans-serif; font-size: 12px; color: #F5F3EE; } /* LOGO AJOUT */
+#ra-topbar-logo { height: 24px; width: auto; object-fit: contain; flex-shrink: 0; } /* MODIFIÉ — 24px pour tenir dans 32px sans débordement */
+#ra-topbar-stats { display: flex; gap: 14px; font-family: 'Inter',sans-serif; font-size: 11px; color: #F5F3EE; line-height: 1; } /* MODIFIÉ — line-height:1 évite tout débordement vertical */
 #ra-topbar-stats strong { color: #C9991A; } /* LOGO AJOUT */
 
 #ra-ticker-wrap { /* LOGO AJOUT */
-  position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999;
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; /* MODIFIÉ — z-index abaissé à 100, sous nav (200) et modales, ne bloque plus les boutons */
   background: #002B5C; height: 32px; overflow: hidden;
   border-top: 2px solid #C9991A;
+  pointer-events: none; /* MODIFIÉ — les clics passent à travers la bande basse */
 } /* LOGO AJOUT */
 #ra-ticker { /* LOGO AJOUT */
   display: flex; gap: 80px; white-space: nowrap;
@@ -1147,12 +1149,12 @@ input,select,textarea{font-size:max(16px,.84rem)!important}
 #ra-ticker span::before { content: '◆ '; color: #C9991A; } /* LOGO AJOUT */
 @keyframes ra-scroll { from { transform: translateX(100vw); } to { transform: translateX(-100%); } } /* LOGO AJOUT */
 
-body { padding-top: 52px !important; padding-bottom: 32px !important; } /* LOGO AJOUT */
+body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIFIÉ — 52px nav + 32px topbar = 84px exact, zéro superposition */
 
 @media (orientation: landscape) and (max-height: 500px) { /* LOGO AJOUT */
-  #ra-topbar { height: 36px; } /* LOGO AJOUT */
-  #ra-topbar-logo { height: 28px; } /* LOGO AJOUT */
-  body { padding-top: 36px !important; } /* LOGO AJOUT */
+  #ra-topbar { height: 28px; top: 40px; } /* MODIFIÉ — nav ~40px en landscape + topbar 28px */
+  #ra-topbar-logo { height: 20px; } /* MODIFIÉ */
+  body { padding-top: 68px !important; } /* MODIFIÉ — 40px nav + 28px topbar = 68px */
   #ra-topbar-stats span:nth-child(3) { display: none; } /* LOGO AJOUT */
 } /* LOGO AJOUT */
 /* ── FIN LOGO AJOUT ──────────────────────────────────────── */
@@ -5772,5 +5774,85 @@ window.addEventListener('orientationchange', function() { // ORIENTATION AJOUT
 }); // ORIENTATION AJOUT
 // FIN ORIENTATION AJOUT
 </script>
+
+<!-- MODIFIÉ — branchement boutons pricing cards + step cards -->
+<script>
+(function () {
+  'use strict';
+
+  /* ── helper : ouvre RAGate directement sur le formulaire avec profil pré-sélectionné ── */
+  function _openGateWithProfile(profile) { // MODIFIÉ
+    if (typeof RAGate === 'undefined') return; // MODIFIÉ
+    // showGate() déjà appelé par onclick — ne pas rappeler ici
+    setTimeout(function () { // MODIFIÉ
+      var overlay = document.getElementById('ra-gate-overlay'); // MODIFIÉ
+      if (!overlay) return; // MODIFIÉ
+      // Scoper à #ra-gate-overlay uniquement — RAGate.goStep() sélecteur global cible aussi #ra-auth-overlay
+      overlay.querySelectorAll('.ra-gate-step').forEach(function (s, i) { // MODIFIÉ
+        s.classList.toggle('active', i === 1); // MODIFIÉ — index 1 = step 2 (formulaire)
+      }); // MODIFIÉ
+      overlay.querySelectorAll('.ra-sdot').forEach(function (d, i) { // MODIFIÉ
+        d.classList.toggle('active', i === 1); // MODIFIÉ
+      }); // MODIFIÉ
+      var sel = document.getElementById('ra-profile'); // MODIFIÉ
+      if (sel) { // MODIFIÉ
+        sel.value = profile; // MODIFIÉ — pré-sélectionner étudiant ou professionnel
+        sel.dispatchEvent(new Event('change')); // MODIFIÉ — déclencher onchange (affiche/masque établissement)
+      } // MODIFIÉ
+    }, 80); // MODIFIÉ
+  } // MODIFIÉ
+
+  document.addEventListener('DOMContentLoaded', function () { // MODIFIÉ
+
+    /* ── Bouton "Commencer →" carte Étudiant ── */
+    var btnEtudiant = document.querySelector('.price-card:not(.featured) .btn-gold'); // MODIFIÉ
+    if (btnEtudiant) { // MODIFIÉ
+      btnEtudiant.addEventListener('click', function () { // MODIFIÉ
+        _openGateWithProfile('etudiant'); // MODIFIÉ
+      }); // MODIFIÉ
+    } // MODIFIÉ
+
+    /* ── Bouton "S'inscrire gratuitement →" carte Professionnel ── */
+    var btnPro = document.querySelector('.price-card.featured .btn-gold'); // MODIFIÉ
+    if (btnPro) { // MODIFIÉ
+      btnPro.addEventListener('click', function () { // MODIFIÉ
+        _openGateWithProfile('professionnel'); // MODIFIÉ
+      }); // MODIFIÉ
+    } // MODIFIÉ
+
+    /* ── Blocs "Comment démarrer" — 3 step cards ── */
+    var steps = document.querySelectorAll('.ra-step-card'); // MODIFIÉ
+
+    // Step 1 : Choisissez un pack → page Solo
+    if (steps[0]) { // MODIFIÉ
+      steps[0].style.cursor = 'pointer'; // MODIFIÉ
+      steps[0].addEventListener('click', function () { // MODIFIÉ
+        if (typeof showPage === 'function') showPage('solo'); // MODIFIÉ
+      }); // MODIFIÉ
+    } // MODIFIÉ
+
+    // Step 2 : Jouez & challengez → section #modes (scroll)
+    if (steps[1]) { // MODIFIÉ
+      steps[1].style.cursor = 'pointer'; // MODIFIÉ
+      steps[1].addEventListener('click', function () { // MODIFIÉ
+        var target = document.getElementById('modes'); // MODIFIÉ
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' }); // MODIFIÉ
+      }); // MODIFIÉ
+    } // MODIFIÉ
+
+    // Step 3 : Certifiez-vous → section badges (scroll)
+    if (steps[2]) { // MODIFIÉ
+      steps[2].style.cursor = 'pointer'; // MODIFIÉ
+      steps[2].addEventListener('click', function () { // MODIFIÉ
+        var target = document.getElementById('badges-title'); // MODIFIÉ
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' }); // MODIFIÉ
+      }); // MODIFIÉ
+    } // MODIFIÉ
+
+  }); // MODIFIÉ
+
+})();
+</script>
+<!-- FIN MODIFIÉ -->
 </body>
 </html>
