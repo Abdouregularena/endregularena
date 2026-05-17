@@ -89,7 +89,8 @@ function expiresAt(hours = TOKEN_TTL_H) {
 
 function signJWT(user) {
   return jwt.sign(
-    { id: user.id, email: user.email, name: user.name, profile: user.profile },
+    { id: user.id, email: user.email, name: user.name, profile: user.profile,
+      is_verified: user.email_verified === 1 },
     JWT_SECRET,
     { expiresIn: '30d' }
   );
@@ -248,7 +249,9 @@ app.get('/auth/verify', limiterLoose, (req, res) => {
   db.prepare('UPDATE confirm_tokens SET used = 1 WHERE id = ?').run(row.id);
   db.prepare('UPDATE users SET email_verified = 1 WHERE id = ?').run(row.user_id);
 
-  return res.redirect(302, `${FRONTEND_URL}/?confirmed=true`);
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(row.user_id);
+  const jwtToken = signJWT(user);
+  return res.redirect(302, `${FRONTEND_URL}/?confirmed=true&jwt=${encodeURIComponent(jwtToken)}`);
 });
 
 
