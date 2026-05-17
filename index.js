@@ -232,6 +232,46 @@ app.post('/auth/resend', limiterStrict, async (req, res) => {
 });
 
 
+/* POST /auth/resend-verification
+   Body : { email }
+   → génère un nouveau token et renvoie l'email de confirmation
+   Utilisé par le frontend quand le lien est expiré ou déjà utilisé
+*/
+app.post('/auth/resend-verification', limiterStrict, async (req, res) => {
+  const { email } = req.body || {};
+  if (!email) return err(res, 400, 'Email requis');
+
+  const cleanEmail = email.trim().toLowerCase();
+  const user = db.prepare('SELECT * FROM users WHERE email = ?').get(cleanEmail);
+  if (!user) return err(res, 404, 'Aucun compte trouvé pour cet email');
+
+  const token = genToken();
+  db.prepare(
+    'INSERT INTO confirm_tokens (user_id, token, expires_at) VALUES (?, ?, ?)'
+  ).run(user.id, token, expiresAt(TOKEN_TTL_H));
+
+  const confirmUrl = `${BASE_URL}/auth/verify?token=${token}`;
+  try {
+    const sendResult = await resend.emails.send({
+      from: `REGUL ARENA <${FROM_EMAIL}>`,
+      to:   cleanEmail,
+      subject: 'Nouveau lien de confirmation — REGUL ARENA',
+      html: emailConfirmHTML(user.name, confirmUrl),
+      headers: { 'X-Entity-Ref-ID': crypto.randomUUID() },
+    });
+    if (sendResult.error) {
+      console.error('Resend error:', JSON.stringify(sendResult.error));
+      return err(res, 500, 'Erreur envoi email — réessaie dans quelques instants');
+    }
+  } catch (e) {
+    console.error('Resend exception:', e.message);
+    return err(res, 500, 'Erreur envoi email — réessaie dans quelques instants');
+  }
+
+  return ok(res, { message: 'Nouveau lien envoyé' });
+});
+
+
 /* GET /auth/verify?token=xxx
    &#8594; v&#233;rifie le token, marque email comme confirm&#233;, retourne JWT + user
 */
@@ -239,11 +279,19 @@ app.get('/auth/verify', limiterLoose, (req, res) => {
   const { token } = req.query;
   if (!token) return res.redirect(302, `${BASE_URL}/?confirm_error=missing`);
 
-  const row = db.prepare(
-    'SELECT * FROM confirm_tokens WHERE token = ? AND used = 0'
-  ).get(token);
+  // Cherche le token sans filtre used=0 pour détecter les clics doubles
+  const row = db.prepare('SELECT * FROM confirm_tokens WHERE token = ?').get(token);
 
   if (!row) return res.redirect(302, `${BASE_URL}/?confirm_error=invalid`);
+
+  // Si l'utilisateur est déjà vérifié (clic double sur le lien), on le connecte directement
+  const existingUser = db.prepare('SELECT * FROM users WHERE id = ?').get(row.user_id);
+  if (existingUser && existingUser.email_verified === 1) {
+    const jwtToken = signJWT(existingUser);
+    return res.redirect(302, `${BASE_URL}/?confirmed=true&jwt=${encodeURIComponent(jwtToken)}`);
+  }
+
+  if (row.used === 1) return res.redirect(302, `${BASE_URL}/?confirm_error=invalid`);
   if (new Date(row.expires_at) < new Date()) return res.redirect(302, `${BASE_URL}/?confirm_error=expired`);
 
   db.prepare('UPDATE confirm_tokens SET used = 1 WHERE id = ?').run(row.id);

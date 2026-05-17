@@ -3576,11 +3576,52 @@ window.addEventListener('load', function() {
     if (btn) btn.onclick = function() { window.location.href = '/'; };
     setTimeout(function() { window.location.href = '/'; }, 1500);
   } else {
-    var msgs = { expired: 'Ce lien a expir&#xe9; (valable 24h). Demande un nouveau lien depuis la page d\'inscription.', invalid: 'Ce lien est invalide ou d&#xe9;j&#xe0; utilis&#xe9;. Demande un nouveau lien.', missing: 'Lien incomplet. Utilise le bouton dans l\'email de confirmation.' };
-    icon.textContent  = '&#x274C;';
-    title.textContent = 'Lien invalide';
-    msg.textContent   = msgs[error] || 'Une erreur est survenue. Demande un nouveau lien.';
-    if (btn) btn.onclick = function() { overlay.style.display = 'none'; };
+    icon.textContent = '❌';
+    if (error === 'missing') {
+      title.textContent = 'Lien incomplet';
+      msg.textContent   = 'Lien incomplet. Utilise le bouton dans l\'email de confirmation.';
+      if (btn) btn.onclick = function() { overlay.style.display = 'none'; };
+    } else {
+      title.textContent = error === 'expired' ? 'Lien expiré' : 'Lien déjà utilisé';
+      msg.innerHTML = (error === 'expired'
+        ? 'Ce lien a expiré (valable 24h).'
+        : 'Ce lien a déjà été utilisé.')
+        + ' Saisis ton email pour recevoir un nouveau lien.<br><br>'
+        + '<input id="ra-resend-email" type="email" placeholder="Ton adresse email" autocomplete="email"'
+        + ' style="width:100%;box-sizing:border-box;padding:10px 14px;background:#0D1420;border:1px solid rgba(201,153,26,.3);border-radius:2px;color:#EEF0F5;font-size:.85rem">'
+        + '<span id="ra-resend-err" style="display:none;color:#e53e3e;font-size:.78rem;margin-top:6px"></span>';
+      if (btn) {
+        btn.textContent = 'Renvoyer un lien';
+        btn.onclick = function() {
+          var inp = document.getElementById('ra-resend-email');
+          var errSpan = document.getElementById('ra-resend-err');
+          var email = inp ? inp.value.trim() : '';
+          if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+            if (inp) inp.style.borderColor = '#e53e3e';
+            if (errSpan) { errSpan.style.display = 'block'; errSpan.textContent = 'Entre une adresse email valide.'; }
+            return;
+          }
+          btn.disabled = true; btn.textContent = 'Envoi…';
+          fetch('/auth/resend-verification', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email })
+          }).then(function(r) { return r.json(); }).then(function(data) {
+            if (data.success) {
+              icon.textContent  = '✉';
+              title.textContent = 'Email envoyé !';
+              msg.textContent   = 'Nouveau lien envoyé. Vérifie ta boîte mail (et les spams).';
+              btn.style.display = 'none';
+            } else {
+              btn.disabled = false; btn.textContent = 'Renvoyer un lien';
+              if (errSpan) { errSpan.style.display = 'block'; errSpan.textContent = data.error || 'Erreur — vérifie ton email.'; }
+            }
+          }).catch(function() {
+            btn.disabled = false; btn.textContent = 'Renvoyer un lien';
+          });
+        };
+      }
+    }
   }
 })();
 </script>
