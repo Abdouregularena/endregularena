@@ -2714,7 +2714,7 @@ const RAGate = (() => {
     pill.style.display='flex';if(pct)pct.textContent=state.count;
   }
   function quizCompleted(){
-    if(state.registered)return;
+    if(state.registered||(window.RAAuth&&RAAuth.isAuthenticated()))return;
     try{state.count=parseInt(localStorage.getItem(KEY_COUNT)||'0')+1;localStorage.setItem(KEY_COUNT,state.count);}catch(e){state.count++;}
     renderPill();
     const remaining=MAX_FREE-state.count;
@@ -2895,17 +2895,15 @@ const RAAuth = (() => {
 
   function isAuthenticated() {
     try {
-      if (localStorage.getItem(KEY_REG) !== 'true') return false;
       const jwt = localStorage.getItem('ra_jwt');
       if (!jwt) return false;
-      // Vérification expiration côté client (payload base64)
       const payload = JSON.parse(atob(jwt.split('.')[1]));
       if (payload.exp && payload.exp * 1000 < Date.now()) {
         localStorage.removeItem(KEY_REG);
         localStorage.removeItem('ra_jwt');
         return false;
       }
-      return true;
+      return payload.is_verified === true;
     } catch(e) { return false; }
   }
   function getUser() {
@@ -3137,7 +3135,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const pill = document.getElementById('ra-quiz-pill');
       const pct = document.getElementById('ra-pill-count');
       if (pill && !registered) { pill.style.display='flex'; if(pct)pct.textContent=count; }
-      if (count >= 3 && !registered) setTimeout(() => RAGate.showGate(), 400);
+      if (count >= 3 && !registered && !RAAuth.isAuthenticated()) setTimeout(() => RAGate.showGate(), 400);
     } catch(e) {}
   })();
 
@@ -3485,7 +3483,7 @@ window.addEventListener('load', function() {
 
 <script>
 (function() {
-  var params = new URLSearchParams(window.location.search);
+  var params    = new URLSearchParams(window.location.search);
   var confirmed = params.get('confirmed');
   var error     = params.get('confirm_error');
   if (!confirmed && !error) return;
@@ -3494,19 +3492,30 @@ window.addEventListener('load', function() {
   var icon    = document.getElementById('ra-verify-icon');
   var title   = document.getElementById('ra-verify-title');
   var msg     = document.getElementById('ra-verify-msg');
+  var btn     = document.getElementById('ra-verify-btn');
 
   history.replaceState(null, '', window.location.pathname);
   overlay.style.display = 'flex';
 
   if (confirmed === 'true') {
-    icon.textContent  = '🏆';
-    title.textContent = 'Compte confirmé !';
-    msg.innerHTML     = '&#x2705; Ton compte est confirm&#xe9; ! Bienvenue sur REGUL ARENA.';
+    var jwtToken = params.get('jwt');
+    if (jwtToken) {
+      try {
+        localStorage.setItem('ra_jwt', jwtToken);
+        localStorage.setItem('ra_auth_registered', 'true');
+        localStorage.setItem('ra_gate_registered', 'true');
+      } catch(e) {}
+    }
+    icon.textContent  = '&#x1F3C6;';
+    title.textContent = 'Compte confirm&#xe9; !';
+    msg.innerHTML     = '&#x2705; Ton compte est confirm&#xe9; ! Bienvenue sur REGUL ARENA.<br><br>Toutes les fonctionnalit&#xe9;s sont d&#xe9;bloqu&#xe9;es&nbsp;: quiz, duels, tournois.';
+    if (btn) btn.onclick = function() { window.location.reload(); };
   } else {
     var msgs = { expired: 'Ce lien a expir&#xe9; (valable 24h). Demande un nouveau lien depuis la page d\'inscription.', invalid: 'Ce lien est invalide ou d&#xe9;j&#xe0; utilis&#xe9;. Demande un nouveau lien.', missing: 'Lien incomplet. Utilise le bouton dans l\'email de confirmation.' };
     icon.textContent  = '&#x274C;';
     title.textContent = 'Lien invalide';
-    msg.textContent   = msgs[error] || 'Une erreur est survenue. Demande un nouveau lien depuis la page d\'inscription.';
+    msg.textContent   = msgs[error] || 'Une erreur est survenue. Demande un nouveau lien.';
+    if (btn) btn.onclick = function() { overlay.style.display = 'none'; };
   }
 })();
 </script>
