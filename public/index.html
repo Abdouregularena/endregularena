@@ -1070,6 +1070,57 @@ input,select,textarea{font-size:max(16px,.84rem)!important}
 }
 
 /* ── RESPONSIVE ──────────────────────────────────────────── */
+
+/* ── TOURNOI AJOUT — styles module tournoi ───────────────── */
+.rat-card{background:var(--card);border:1px solid var(--border);border-radius:3px;padding:18px 20px;margin-bottom:12px;transition:border-color .2s}
+.rat-card:hover{border-color:rgba(201,153,26,.35)}
+.rat-card-header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.rat-card-title{font-family:'Bebas Neue',cursive;font-size:1.15rem;letter-spacing:2px;color:var(--light)}
+.rat-badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:1.5px;padding:3px 8px;border-radius:2px;text-transform:uppercase;font-weight:700}
+.rat-badge.waiting{background:rgba(100,120,200,.15);color:#8899dd;border:1px solid rgba(100,120,200,.3)}
+.rat-badge.qualif{background:rgba(201,153,26,.15);color:var(--gold);border:1px solid rgba(201,153,26,.3)}
+.rat-badge.elim{background:rgba(220,80,60,.15);color:#e06050;border:1px solid rgba(220,80,60,.3)}
+.rat-badge.finished{background:rgba(60,180,80,.15);color:#5dca70;border:1px solid rgba(60,180,80,.3)}
+.rat-badge.zone-uemoa{background:rgba(0,43,92,.3);color:#7da8e8;border:1px solid rgba(0,43,92,.5)}
+.rat-badge.zone-cemac{background:rgba(40,80,40,.3);color:#7dce8a;border:1px solid rgba(40,80,40,.5)}
+.rat-meta{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap;margin-top:4px}
+.rat-tabs{display:flex;gap:0;border-bottom:1px solid var(--sep);margin-bottom:20px}
+.rat-tab{background:none;border:none;border-bottom:2px solid transparent;padding:10px 18px;font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:1.5px;color:var(--muted);cursor:pointer;text-transform:uppercase;transition:all .2s;margin-bottom:-1px}
+.rat-tab.active{border-bottom-color:var(--gold);color:var(--gold)}
+.rat-tab:hover:not(.active){color:var(--light)}
+.rat-empty{text-align:center;padding:40px 20px;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--muted);letter-spacing:1px}
+.rat-form-label{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:5px;display:block}
+.rat-input{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--sep);border-radius:2px;padding:10px 12px;color:var(--light);font-size:.88rem;outline:none;box-sizing:border-box}
+.rat-input:focus{border-color:rgba(201,153,26,.5)}
+.rat-select{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--sep);border-radius:2px;padding:10px 12px;color:var(--light);font-size:.88rem;outline:none;box-sizing:border-box}
+.rat-field{margin-bottom:16px}
+.rat-rank-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--sep)}
+.rat-rank-num{font-family:'Bebas Neue',cursive;font-size:1.2rem;color:var(--muted);width:28px;text-align:center}
+.rat-rank-num.top{color:var(--gold)}
+.rat-rank-name{flex:1;font-size:.88rem;color:var(--light)}
+.rat-rank-score{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--gold);text-align:right}
+.rat-rank-badge{font-family:'JetBrains Mono',monospace;font-size:.5rem;padding:2px 6px;border-radius:2px;background:rgba(60,180,80,.15);color:#5dca70;border:1px solid rgba(60,180,80,.3)}
+/* Bracket SVG-free */
+.rat-bracket{overflow-x:auto;padding-bottom:10px}
+.rat-bracket-round{display:flex;flex-direction:column;gap:16px;min-width:220px}
+.rat-bracket-wrap{display:flex;gap:40px;align-items:flex-start;padding:10px 0}
+.rat-match-card{background:rgba(255,255,255,.04);border:1px solid var(--sep);border-radius:3px;padding:10px 14px;min-width:200px}
+.rat-match-player{display:flex;align-items:center;justify-content:space-between;padding:4px 0;font-size:.82rem}
+.rat-match-player.winner{color:var(--gold);font-weight:700}
+.rat-match-player.loser{color:var(--muted);text-decoration:line-through}
+.rat-match-sep{border:none;border-top:1px solid var(--sep);margin:4px 0}
+.rat-match-status{font-family:'JetBrains Mono',monospace;font-size:.52rem;letter-spacing:1px;color:var(--muted);margin-top:6px;text-align:right}
+.rat-qualify-q{background:var(--card);border:1px solid var(--sep);border-radius:3px;padding:18px;margin-bottom:14px}
+.rat-qualify-q-text{font-size:.95rem;color:var(--light);margin-bottom:14px;line-height:1.55}
+.rat-qualify-opt{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--sep);border-radius:2px;padding:10px 14px;color:var(--light);font-size:.85rem;text-align:left;cursor:pointer;margin-bottom:7px;transition:all .2s}
+.rat-qualify-opt:hover:not([disabled]){border-color:rgba(201,153,26,.5);background:rgba(201,153,26,.08)}
+.rat-qualify-opt.correct{background:rgba(60,180,80,.12);border-color:#5dca70;color:#5dca70}
+.rat-qualify-opt.wrong{background:rgba(220,80,60,.1);border-color:#e06050;color:#e06050}
+.rat-chat-wrap{border-top:1px solid var(--sep);margin-top:16px}
+.rat-chat-msgs{height:180px;overflow-y:auto;padding:12px 0;display:flex;flex-direction:column;gap:6px}
+.rat-chat-msg{font-size:.8rem;color:var(--light)}.rat-chat-msg span{color:var(--gold);font-weight:700;margin-right:6px}
+.rat-chat-input-row{display:flex;gap:8px;padding:10px 0}
+/* ── FIN TOURNOI AJOUT styles ────────────────────────────── */
 </style>
 </head>
 <body>
@@ -1942,6 +1993,172 @@ input,select,textarea{font-size:max(16px,.84rem)!important}
     </div>
   </div>
 </div>
+
+<!-- TOURNOI AJOUT — 5 nouveaux écrans réels module tournoi -->
+
+<!-- ── t-screen-ra-home : liste ouverts / mes tournois ── -->
+<div id="t-screen-ra-home" class="screen-t" style="display:none"><!-- TOURNOI AJOUT -->
+  <div style="max-width:780px;margin:0 auto"><!-- TOURNOI AJOUT -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px"><!-- TOURNOI AJOUT -->
+      <div><!-- TOURNOI AJOUT -->
+        <div class="section-label">MODULE TOURNOI</div><!-- TOURNOI AJOUT -->
+        <h1 class="section-title" style="margin-bottom:0">TOURNOIS <span class="g">RÉGIONAUX</span></h1><!-- TOURNOI AJOUT -->
+      </div><!-- TOURNOI AJOUT -->
+      <div style="display:flex;gap:8px"><!-- TOURNOI AJOUT -->
+        <button class="btn-ghost" onclick="raT_goTo('ra-join')" style="font-size:.78rem;padding:8px 14px">Rejoindre par code</button><!-- TOURNOI AJOUT -->
+        <button class="btn-primary" onclick="raT_goTo('ra-create')">+ Créer</button><!-- TOURNOI AJOUT -->
+      </div><!-- TOURNOI AJOUT -->
+    </div><!-- TOURNOI AJOUT -->
+    <div class="rat-tabs"><!-- TOURNOI AJOUT -->
+      <button class="rat-tab active" id="rat-tab-open" onclick="raT_switchTab('open')">Tournois ouverts</button><!-- TOURNOI AJOUT -->
+      <button class="rat-tab" id="rat-tab-mine" onclick="raT_switchTab('mine')">Mes tournois</button><!-- TOURNOI AJOUT -->
+    </div><!-- TOURNOI AJOUT -->
+    <div id="rat-list-open"></div><!-- TOURNOI AJOUT -->
+    <div id="rat-list-mine" style="display:none"></div><!-- TOURNOI AJOUT -->
+  </div><!-- TOURNOI AJOUT -->
+</div><!-- TOURNOI AJOUT -->
+
+<!-- ── t-screen-ra-create : formulaire création ── -->
+<div id="t-screen-ra-create" class="screen-t" style="display:none"><!-- TOURNOI AJOUT -->
+  <div style="max-width:520px;margin:0 auto"><!-- TOURNOI AJOUT -->
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:28px"><!-- TOURNOI AJOUT -->
+      <button class="btn-ghost" onclick="raT_goTo('ra-home')" style="padding:8px 14px">← Retour</button><!-- TOURNOI AJOUT -->
+      <div><div class="section-label">NOUVEAU TOURNOI</div><h1 class="section-title" style="margin-bottom:0">CRÉER UN <span class="g">TOURNOI</span></h1></div><!-- TOURNOI AJOUT -->
+    </div><!-- TOURNOI AJOUT -->
+    <div class="card" style="padding:24px"><!-- TOURNOI AJOUT -->
+      <div class="rat-field"><!-- TOURNOI AJOUT -->
+        <label class="rat-form-label" for="rat-c-name">Nom du tournoi</label><!-- TOURNOI AJOUT -->
+        <input class="rat-input" id="rat-c-name" type="text" maxlength="80" placeholder="ex: BCEAO Masters 2026"><!-- TOURNOI AJOUT -->
+      </div><!-- TOURNOI AJOUT -->
+      <div class="rat-field"><!-- TOURNOI AJOUT -->
+        <label class="rat-form-label" for="rat-c-zone">Zone géographique</label><!-- TOURNOI AJOUT -->
+        <select class="rat-select" id="rat-c-zone"><!-- TOURNOI AJOUT -->
+          <option value="uemoa">UEMOA (zone entière)</option><!-- TOURNOI AJOUT -->
+          <option value="cemac">CEMAC (zone entière)</option><!-- TOURNOI AJOUT -->
+          <option value="country">Mon pays uniquement</option><!-- TOURNOI AJOUT -->
+        </select><!-- TOURNOI AJOUT -->
+      </div><!-- TOURNOI AJOUT -->
+      <div class="rat-field"><!-- TOURNOI AJOUT -->
+        <label class="rat-form-label" for="rat-c-pack">Pack de questions</label><!-- TOURNOI AJOUT -->
+        <select class="rat-select" id="rat-c-pack"><!-- TOURNOI AJOUT -->
+          <option value="general">Général</option><!-- TOURNOI AJOUT -->
+          <option value="lbc">LBC-FT</option><!-- TOURNOI AJOUT -->
+          <option value="bceao">BCEAO</option><!-- TOURNOI AJOUT -->
+          <option value="cemac">CEMAC/BEAC</option><!-- TOURNOI AJOUT -->
+          <option value="digital">Banque digitale</option><!-- TOURNOI AJOUT -->
+        </select><!-- TOURNOI AJOUT -->
+      </div><!-- TOURNOI AJOUT -->
+      <div class="rat-field"><!-- TOURNOI AJOUT -->
+        <label class="rat-form-label" for="rat-c-players">Nombre de participants</label><!-- TOURNOI AJOUT -->
+        <select class="rat-select" id="rat-c-players"><!-- TOURNOI AJOUT -->
+          <option value="8">8 participants</option><!-- TOURNOI AJOUT -->
+          <option value="16" selected>16 participants</option><!-- TOURNOI AJOUT -->
+          <option value="32">32 participants</option><!-- TOURNOI AJOUT -->
+        </select><!-- TOURNOI AJOUT -->
+      </div><!-- TOURNOI AJOUT -->
+      <div class="rat-field"><!-- TOURNOI AJOUT -->
+        <label class="rat-form-label" for="rat-c-date">Date de début (optionnel)</label><!-- TOURNOI AJOUT -->
+        <input class="rat-input" id="rat-c-date" type="datetime-local"><!-- TOURNOI AJOUT -->
+      </div><!-- TOURNOI AJOUT -->
+      <div id="rat-c-err" style="display:none;color:#e06050;font-size:.78rem;margin-bottom:12px;font-family:'JetBrains Mono',monospace"></div><!-- TOURNOI AJOUT -->
+      <button class="btn-primary" style="width:100%" onclick="raT_create()">Créer le tournoi</button><!-- TOURNOI AJOUT -->
+    </div><!-- TOURNOI AJOUT -->
+  </div><!-- TOURNOI AJOUT -->
+</div><!-- TOURNOI AJOUT -->
+
+<!-- ── t-screen-ra-join : rejoindre par code ── -->
+<div id="t-screen-ra-join" class="screen-t" style="display:none"><!-- TOURNOI AJOUT -->
+  <div style="max-width:440px;margin:0 auto"><!-- TOURNOI AJOUT -->
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:28px"><!-- TOURNOI AJOUT -->
+      <button class="btn-ghost" onclick="raT_goTo('ra-home')" style="padding:8px 14px">← Retour</button><!-- TOURNOI AJOUT -->
+      <div><div class="section-label">REJOINDRE</div><h1 class="section-title" style="margin-bottom:0">CODE <span class="g">TOURNOI</span></h1></div><!-- TOURNOI AJOUT -->
+    </div><!-- TOURNOI AJOUT -->
+    <div class="card" style="padding:24px"><!-- TOURNOI AJOUT -->
+      <div class="rat-field"><!-- TOURNOI AJOUT -->
+        <label class="rat-form-label" for="rat-j-code">Code du tournoi (format T-XXXX)</label><!-- TOURNOI AJOUT -->
+        <input class="rat-input" id="rat-j-code" type="text" maxlength="10" placeholder="T-A1B2" style="text-transform:uppercase;letter-spacing:3px;font-family:'JetBrains Mono',monospace;font-size:1.1rem;text-align:center"><!-- TOURNOI AJOUT -->
+      </div><!-- TOURNOI AJOUT -->
+      <div id="rat-j-err" style="display:none;color:#e06050;font-size:.78rem;margin-bottom:12px;font-family:'JetBrains Mono',monospace"></div><!-- TOURNOI AJOUT -->
+      <button class="btn-primary" style="width:100%" onclick="raT_joinByCode()">Rejoindre</button><!-- TOURNOI AJOUT -->
+    </div><!-- TOURNOI AJOUT -->
+    <div style="text-align:center;margin-top:18px;font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted)">Obtenez le code via WhatsApp auprès du créateur du tournoi</div><!-- TOURNOI AJOUT -->
+  </div><!-- TOURNOI AJOUT -->
+</div><!-- TOURNOI AJOUT -->
+
+<!-- ── t-screen-ra-view : détail tournoi ── -->
+<div id="t-screen-ra-view" class="screen-t" style="display:none"><!-- TOURNOI AJOUT -->
+  <div style="max-width:780px;margin:0 auto"><!-- TOURNOI AJOUT -->
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;flex-wrap:wrap"><!-- TOURNOI AJOUT -->
+      <button class="btn-ghost" onclick="raT_goTo('ra-home')" style="padding:8px 14px">← Retour</button><!-- TOURNOI AJOUT -->
+      <div style="flex:1"><!-- TOURNOI AJOUT -->
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><!-- TOURNOI AJOUT -->
+          <h1 class="section-title" style="margin-bottom:0" id="rat-v-name">—</h1><!-- TOURNOI AJOUT -->
+          <span id="rat-v-status-badge" class="rat-badge waiting">—</span><!-- TOURNOI AJOUT -->
+          <span id="rat-v-zone-badge" class="rat-badge zone-uemoa">—</span><!-- TOURNOI AJOUT -->
+        </div><!-- TOURNOI AJOUT -->
+        <div class="rat-meta" id="rat-v-meta"></div><!-- TOURNOI AJOUT -->
+      </div><!-- TOURNOI AJOUT -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap" id="rat-v-actions"></div><!-- TOURNOI AJOUT -->
+    </div><!-- TOURNOI AJOUT -->
+
+    <!-- Progression participants -->
+    <div class="card" style="padding:16px 20px;margin-bottom:14px"><!-- TOURNOI AJOUT -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><!-- TOURNOI AJOUT -->
+        <div style="font-family:'Bebas Neue',cursive;font-size:.9rem;letter-spacing:2px;color:var(--gold)">PARTICIPANTS</div><!-- TOURNOI AJOUT -->
+        <div id="rat-v-count" style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted)">—</div><!-- TOURNOI AJOUT -->
+      </div><!-- TOURNOI AJOUT -->
+      <div style="background:rgba(255,255,255,.06);border-radius:2px;height:6px;overflow:hidden"><!-- TOURNOI AJOUT -->
+        <div id="rat-v-progress" style="height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-l));border-radius:2px;transition:width .4s;width:0%"></div><!-- TOURNOI AJOUT -->
+      </div><!-- TOURNOI AJOUT -->
+    </div><!-- TOURNOI AJOUT -->
+
+    <!-- Tabs : Classement / Bracket / Chat -->
+    <div class="rat-tabs"><!-- TOURNOI AJOUT -->
+      <button class="rat-tab active" onclick="raT_viewTab('ranking')">Classement</button><!-- TOURNOI AJOUT -->
+      <button class="rat-tab" onclick="raT_viewTab('bracket')">Bracket</button><!-- TOURNOI AJOUT -->
+      <button class="rat-tab" onclick="raT_viewTab('chat')">Chat</button><!-- TOURNOI AJOUT -->
+    </div><!-- TOURNOI AJOUT -->
+
+    <div id="rat-vt-ranking"><!-- TOURNOI AJOUT -->
+      <div id="rat-v-ranking-list"></div><!-- TOURNOI AJOUT -->
+    </div><!-- TOURNOI AJOUT -->
+    <div id="rat-vt-bracket" style="display:none"><!-- TOURNOI AJOUT -->
+      <div class="rat-bracket"><div class="rat-bracket-wrap" id="rat-v-bracket"></div></div><!-- TOURNOI AJOUT -->
+    </div><!-- TOURNOI AJOUT -->
+    <div id="rat-vt-chat" style="display:none"><!-- TOURNOI AJOUT -->
+      <div class="rat-chat-wrap card" style="padding:16px 20px"><!-- TOURNOI AJOUT -->
+        <div class="rat-chat-msgs" id="rat-v-chat-msgs"></div><!-- TOURNOI AJOUT -->
+        <div class="rat-chat-input-row"><!-- TOURNOI AJOUT -->
+          <input class="rat-input" id="rat-v-chat-inp" type="text" placeholder="Message..." maxlength="400" style="flex:1" onkeydown="if(event.key==='Enter')raT_sendChat()"><!-- TOURNOI AJOUT -->
+          <button class="btn-primary" onclick="raT_sendChat()" style="padding:9px 16px">↑</button><!-- TOURNOI AJOUT -->
+        </div><!-- TOURNOI AJOUT -->
+      </div><!-- TOURNOI AJOUT -->
+    </div><!-- TOURNOI AJOUT -->
+  </div><!-- TOURNOI AJOUT -->
+</div><!-- TOURNOI AJOUT -->
+
+<!-- ── t-screen-ra-qualify : quiz de qualification ── -->
+<div id="t-screen-ra-qualify" class="screen-t" style="display:none"><!-- TOURNOI AJOUT -->
+  <div style="max-width:620px;margin:0 auto"><!-- TOURNOI AJOUT -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px"><!-- TOURNOI AJOUT -->
+      <div><!-- TOURNOI AJOUT -->
+        <div class="section-label">QUALIFICATION</div><!-- TOURNOI AJOUT -->
+        <h1 class="section-title" style="margin-bottom:0">QUIZ <span class="g">ÉLIMINATOIRE</span></h1><!-- TOURNOI AJOUT -->
+      </div><!-- TOURNOI AJOUT -->
+      <div style="text-align:right"><!-- TOURNOI AJOUT -->
+        <div style="font-family:'Bebas Neue',cursive;font-size:1.5rem;letter-spacing:2px;color:var(--gold)" id="rat-q-timer">—</div><!-- TOURNOI AJOUT -->
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted)" id="rat-q-progress">Q 0 / 10</div><!-- TOURNOI AJOUT -->
+      </div><!-- TOURNOI AJOUT -->
+    </div><!-- TOURNOI AJOUT -->
+    <div id="rat-q-body"></div><!-- TOURNOI AJOUT -->
+    <div id="rat-q-result" style="display:none;text-align:center;padding:40px 20px"><!-- TOURNOI AJOUT -->
+      <div style="font-family:'Bebas Neue',cursive;font-size:2.5rem;letter-spacing:3px;color:var(--gold)" id="rat-q-final-score"></div><!-- TOURNOI AJOUT -->
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted);margin:8px 0 24px" id="rat-q-final-rank"></div><!-- TOURNOI AJOUT -->
+      <button class="btn-primary" onclick="raT_goTo('ra-view')">Voir le classement</button><!-- TOURNOI AJOUT -->
+    </div><!-- TOURNOI AJOUT -->
+  </div><!-- TOURNOI AJOUT -->
+</div><!-- TOURNOI AJOUT -->
+<!-- FIN TOURNOI AJOUT — nouveaux écrans -->
 
 
 <!-- ================================================================
@@ -4833,6 +5050,542 @@ const RANotif = (() => {
 
   return { start, stop, toggle, close, markSeen, markAllSeen, poll };
 })();
+</script>
+
+<!-- TOURNOI AJOUT — module raT : logique réelle tournoi -->
+<script>
+/* ── raT : module tournoi réel ─────────────────────────────
+   Convention : toutes les fonctions préfixées raT_
+   Injection additive uniquement — zéro modification existant
+   ─────────────────────────────────────────────────────────── */
+(function(){
+'use strict';
+
+/* ── état interne ───────────────────────────────────────── */
+var _ratCode = null;      // code tournoi courant (vue détail)
+var _ratId   = null;      // id tournoi courant
+var _ratData = null;      // objet tournoi courant complet
+var _ratChatPoll   = null; // intervalId chat
+var _ratStatusPoll = null; // intervalId statut tournoi
+var _ratTab  = 'open';    // onglet liste actif
+var _ratViewTab = 'ranking'; // onglet vue actif
+var _ratQS = null;         // état quiz qualification
+
+/* ── helper JWT ─────────────────────────────────────────── */
+function _jwt(){
+  try{return localStorage.getItem('ra_jwt');}catch(e){}
+  try{return sessionStorage.getItem('ra_jwt');}catch(e){}
+  return null;
+}
+
+/* ── fetch helper ───────────────────────────────────────── */
+function _apiFetch(url, opts){
+  opts = opts || {};
+  opts.headers = opts.headers || {};
+  var jwt = _jwt();
+  if(jwt) opts.headers['Authorization'] = 'Bearer ' + jwt;
+  if(opts.body && typeof opts.body === 'object'){
+    opts.headers['Content-Type'] = 'application/json';
+    opts.body = JSON.stringify(opts.body);
+  }
+  return fetch(url, opts).then(function(r){ return r.json(); });
+}
+
+/* ── navigation interne ─────────────────────────────────── */
+window.raT_goTo = function(screen){
+  document.querySelectorAll('.screen-t').forEach(function(s){
+    s.style.display = 'none';
+    s.classList.remove('active');
+  });
+  var el = document.getElementById('t-screen-' + screen);
+  if(el){ el.style.display = 'block'; el.classList.add('active'); }
+  // stopper les polls si on quitte la vue
+  if(screen !== 'ra-view'){
+    if(_ratChatPoll){ clearInterval(_ratChatPoll); _ratChatPoll = null; }
+    if(_ratStatusPoll){ clearInterval(_ratStatusPoll); _ratStatusPoll = null; }
+  }
+  if(screen === 'ra-home'){ raT_loadList(); }
+};
+
+/* ── override initPage pour la page tournois ────────────── */
+(function(){
+  var _orig = window.initPage;
+  window.initPage = function(id){
+    if(id === 'tournois'){
+      // appeler l'original pour peupler les écrans mock existants
+      if(typeof _orig === 'function') _orig(id);
+      // puis basculer vers l'écran réel
+      raT_goTo('ra-home');
+      return;
+    }
+    if(typeof _orig === 'function') _orig(id);
+  };
+  // si la page tournois est déjà initialisée (pageInits), rediriger quand même
+  document.addEventListener('DOMContentLoaded', function(){
+    if(window.pageInits && window.pageInits['tournois']){
+      raT_goTo('ra-home');
+    }
+  });
+})();
+
+/* ── switcher onglet liste ──────────────────────────────── */
+window.raT_switchTab = function(tab){
+  _ratTab = tab;
+  document.getElementById('rat-tab-open').classList.toggle('active', tab === 'open');
+  document.getElementById('rat-tab-mine').classList.toggle('active', tab === 'mine');
+  document.getElementById('rat-list-open').style.display = tab === 'open' ? '' : 'none';
+  document.getElementById('rat-list-mine').style.display = tab === 'mine' ? '' : 'none';
+};
+
+/* ── charger liste tournois ─────────────────────────────── */
+window.raT_loadList = function(){
+  var elOpen = document.getElementById('rat-list-open');
+  var elMine = document.getElementById('rat-list-mine');
+  if(!elOpen) return;
+  elOpen.innerHTML = '<div class="rat-empty">Chargement…</div>';
+  elMine.innerHTML = '<div class="rat-empty">Chargement…</div>';
+  _apiFetch('/tournament/list').then(function(r){
+    if(!r.ok){ elOpen.innerHTML = '<div class="rat-empty">Erreur chargement</div>'; return; }
+    _renderList(elOpen, r.open || []);
+    _renderList(elMine, r.mine || []);
+  }).catch(function(){
+    elOpen.innerHTML = '<div class="rat-empty">Erreur réseau</div>';
+  });
+};
+
+function _statusLabel(s){
+  var m = {waiting:'En attente',qualif:'Qualifications',elim:'Éliminations',finished:'Terminé'};
+  return m[s] || s;
+}
+function _zoneLabel(z){ return z === 'cemac' ? 'CEMAC' : z === 'uemoa' ? 'UEMOA' : 'Mon pays'; }
+
+function _renderList(el, list){
+  if(!list.length){ el.innerHTML = '<div class="rat-empty">Aucun tournoi disponible</div>'; return; }
+  el.innerHTML = list.map(function(t){
+    var pct = t.max_players ? Math.round((t.nb||0)/t.max_players*100) : 0;
+    return '<div class="rat-card" onclick="raT_loadView(\''+t.code+'\')" style="cursor:pointer">'
+      +'<div class="rat-card-header">'
+      +'<span class="rat-card-title">'+_esc(t.name)+'</span>'
+      +'<span class="rat-badge '+t.status+'">'+_statusLabel(t.status)+'</span>'
+      +'</div>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">'
+      +'<span class="rat-badge zone-'+t.zone+'">'+_zoneLabel(t.zone)+'</span>'
+      +'<span class="rat-badge waiting" style="color:var(--muted)">Pack : '+_esc(t.pack_id)+'</span>'
+      +'</div>'
+      +'<div class="rat-meta">'
+      +'<span>Créateur : '+_esc(t.creator_name)+'</span>'
+      +'<span>'+( t.nb||0)+'/'+t.max_players+' joueurs</span>'
+      +(t.start_date ? '<span>Début : '+t.start_date.replace('T',' ').slice(0,16)+'</span>' : '')
+      +'</div>'
+      +'<div style="background:rgba(255,255,255,.06);border-radius:2px;height:4px;overflow:hidden;margin-top:10px">'
+      +'<div style="height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-l));width:'+pct+'%"></div>'
+      +'</div>'
+      +'<div style="margin-top:10px;font-family:\'JetBrains Mono\',monospace;font-size:.58rem;letter-spacing:1.5px;color:var(--muted)">CODE : '+_esc(t.code)+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+/* ── créer un tournoi ───────────────────────────────────── */
+window.raT_create = function(){
+  var name    = (document.getElementById('rat-c-name')||{}).value||'';
+  var zone    = (document.getElementById('rat-c-zone')||{}).value||'uemoa';
+  var pack_id = (document.getElementById('rat-c-pack')||{}).value||'general';
+  var max     = Number((document.getElementById('rat-c-players')||{}).value||16);
+  var sdate   = (document.getElementById('rat-c-date')||{}).value||'';
+  var errEl   = document.getElementById('rat-c-err');
+  if(errEl){ errEl.style.display='none'; }
+  if(!name.trim()){ if(errEl){errEl.textContent='Le nom est requis';errEl.style.display='block';} return; }
+  _apiFetch('/tournament/create',{method:'POST',body:{name:name.trim(),zone:zone,pack_id:pack_id,max_players:max,start_date:sdate}})
+    .then(function(r){
+      if(!r.ok){ if(errEl){errEl.textContent=r.error||'Erreur création';errEl.style.display='block';} return; }
+      showToast('Tournoi créé ! Code : ' + r.code);
+      raT_loadView(r.code);
+    }).catch(function(){
+      if(errEl){errEl.textContent='Erreur réseau';errEl.style.display='block';}
+    });
+};
+
+/* ── rejoindre par code ─────────────────────────────────── */
+window.raT_joinByCode = function(){
+  var code  = ((document.getElementById('rat-j-code')||{}).value||'').trim().toUpperCase();
+  var errEl = document.getElementById('rat-j-err');
+  if(errEl){ errEl.style.display='none'; }
+  if(!code){ if(errEl){errEl.textContent='Code requis';errEl.style.display='block';} return; }
+  _apiFetch('/tournament/join',{method:'POST',body:{code:code}})
+    .then(function(r){
+      if(!r.ok){ if(errEl){errEl.textContent=r.error||'Code invalide ou accès refusé';errEl.style.display='block';} return; }
+      showToast('Inscrit au tournoi !');
+      if(r.tournament){ raT_loadView(r.tournament.code); }
+      else { raT_loadView(code); }
+    }).catch(function(){
+      if(errEl){errEl.textContent='Erreur réseau';errEl.style.display='block';}
+    });
+};
+
+/* ── charger vue détail tournoi ─────────────────────────── */
+window.raT_loadView = function(code){
+  _ratCode = code;
+  raT_goTo('ra-view');
+  // reset onglets
+  _ratViewTab = 'ranking';
+  raT_viewTab('ranking');
+  document.getElementById('rat-v-name').textContent = '…';
+  document.getElementById('rat-v-ranking-list').innerHTML = '<div class="rat-empty">Chargement…</div>';
+  document.getElementById('rat-v-actions').innerHTML = '';
+
+  _apiFetch('/tournament/' + code).then(function(r){
+    if(!r.ok){ showToast(r.error||'Tournoi introuvable'); raT_goTo('ra-home'); return; }
+    _ratData = r;
+    _ratId   = r.tournament.id;
+    _renderView(r);
+    _startStatusPoll(code);
+    _startChatPoll(_ratId);
+  }).catch(function(){ showToast('Erreur réseau'); });
+};
+
+function _renderView(r){
+  var t = r.tournament;
+  var parts = r.participants || [];
+  var myPart = r.my_participant;
+  var isCreator = r.creator && (_jwt() ? true : false); // approx — sera affiné via myPart
+
+  document.getElementById('rat-v-name').textContent = t.name;
+
+  var sb = document.getElementById('rat-v-status-badge');
+  sb.textContent = _statusLabel(t.status);
+  sb.className = 'rat-badge ' + t.status;
+
+  var zb = document.getElementById('rat-v-zone-badge');
+  zb.textContent = _zoneLabel(t.zone);
+  zb.className = 'rat-badge zone-' + (t.zone === 'cemac' ? 'cemac' : 'uemoa');
+
+  var count = parts.length;
+  document.getElementById('rat-v-count').textContent = count + ' / ' + t.max_players + ' participants';
+  var pct = t.max_players ? Math.round(count/t.max_players*100) : 0;
+  document.getElementById('rat-v-progress').style.width = pct + '%';
+
+  var meta = document.getElementById('rat-v-meta');
+  meta.innerHTML = '<span>Code : <strong style="color:var(--light)">' + _esc(t.code) + '</strong></span>'
+    + '<span>Pack : ' + _esc(t.pack_id) + '</span>'
+    + (r.creator ? '<span>Créateur : ' + _esc(r.creator.name) + '</span>' : '')
+    + (t.start_date ? '<span>Début : ' + t.start_date.replace('T',' ').slice(0,16) + '</span>' : '');
+
+  // actions
+  var actions = document.getElementById('rat-v-actions');
+  var btns = '';
+  btns += '<button class="btn-ghost" style="font-size:.72rem;padding:7px 12px" onclick="raT_copyCode(\''+_esc(t.code)+'\')">📋 Copier code</button>';
+  btns += '<button class="btn-ghost" style="font-size:.72rem;padding:7px 12px" onclick="raT_shareWA(\''+_esc(t.code)+'\',\''+_esc(t.name)+'\')">📱 WhatsApp</button>';
+
+  // boutons créateur
+  if(myPart && myPart.user_id === (r.creator && r.creator.id)){
+    if(t.status === 'waiting'){
+      btns += '<button class="btn-primary" style="font-size:.78rem" onclick="raT_startQualif(\''+t.code+'\')">▶ Lancer qualifs</button>';
+    } else if(t.status === 'qualif'){
+      btns += '<button class="btn-primary" style="font-size:.78rem" onclick="raT_generateBracket(\''+t.code+'\')">⚡ Générer bracket</button>';
+    }
+  }
+  // bouton qualifier (si inscrit + qualif ouverte + pas encore qualifié)
+  if(myPart && t.status === 'qualif' && !(myPart.score > 0)){
+    btns += '<button class="btn-primary" style="font-size:.78rem" onclick="raT_startQualify('+t.id+',\''+_esc(t.pack_id)+'\')">🎯 Me qualifier</button>';
+  }
+  actions.innerHTML = btns;
+
+  // ranking
+  _renderRanking(parts, t.status);
+}
+
+function _renderRanking(parts, status){
+  var el = document.getElementById('rat-v-ranking-list');
+  if(!parts.length){ el.innerHTML = '<div class="rat-empty">Aucun participant encore</div>'; return; }
+  var html = '';
+  parts.forEach(function(p, i){
+    var isTop = p.qualified || (i < Math.ceil(parts.length/2));
+    html += '<div class="rat-rank-row">'
+      +'<div class="rat-rank-num'+(isTop ? ' top' : '')+'">'+(p.rank||i+1)+'</div>'
+      +'<div class="rat-rank-name">'+_esc(p.name)+'<span style="font-size:.62rem;color:var(--muted);margin-left:6px">'+_esc(p.country||'')+'</span></div>'
+      +'<div style="text-align:right">'
+      +(p.score > 0 ? '<div class="rat-rank-score">'+p.score+' pts</div>' : '')
+      +(p.qualified ? '<div class="rat-rank-badge" style="margin-top:2px">QUALIFIÉ</div>' : '')
+      +'</div>'
+      +'</div>';
+  });
+  el.innerHTML = html;
+}
+
+/* ── switcher onglet vue ────────────────────────────────── */
+window.raT_viewTab = function(tab){
+  _ratViewTab = tab;
+  ['ranking','bracket','chat'].forEach(function(t){
+    var el = document.getElementById('rat-vt-' + t);
+    if(el) el.style.display = t === tab ? '' : 'none';
+  });
+  // mettre à jour classes tabs
+  document.querySelectorAll('#t-screen-ra-view .rat-tab').forEach(function(b, i){
+    var tabs = ['ranking','bracket','chat'];
+    b.classList.toggle('active', tabs[i] === tab);
+  });
+  if(tab === 'bracket' && _ratId){ raT_loadBracket(_ratId); }
+  if(tab === 'chat' && _ratId){ _loadChatMsgs(_ratId); }
+};
+
+/* ── bracket ────────────────────────────────────────────── */
+window.raT_loadBracket = function(id){
+  _apiFetch('/tournament/' + id + '/bracket').then(function(r){
+    if(!r.ok) return;
+    _renderBracket(r.matches||[], r.participants||[]);
+  });
+};
+
+function _renderBracket(matches, participants){
+  var el = document.getElementById('rat-v-bracket');
+  if(!el) return;
+  if(!matches.length){
+    el.innerHTML = '<div class="rat-empty">Bracket non encore généré</div>';
+    return;
+  }
+  // regrouper par round
+  var rounds = {};
+  matches.forEach(function(m){
+    if(!rounds[m.round]) rounds[m.round] = [];
+    rounds[m.round].push(m);
+  });
+  var html = '';
+  Object.keys(rounds).sort(function(a,b){return a-b;}).forEach(function(r){
+    html += '<div class="rat-bracket-round">'
+      +'<div style="font-family:\'Bebas Neue\',cursive;font-size:.75rem;letter-spacing:2px;color:var(--muted);margin-bottom:8px">ROUND '+r+'</div>';
+    rounds[r].forEach(function(m){
+      var p1win = m.winner_id && m.winner_id === m.player1_id;
+      var p2win = m.winner_id && m.winner_id === m.player2_id;
+      html += '<div class="rat-match-card">'
+        +'<div class="rat-match-player'+(p1win?' winner':p2win?' loser':'')+'">'
+        +'<span>'+(m.p1_name||'TBD')+'</span>'
+        +(p1win?'<span style="font-size:.65rem">✓</span>':'')
+        +'</div>'
+        +'<hr class="rat-match-sep">'
+        +'<div class="rat-match-player'+(p2win?' winner':p1win?' loser':'')+'">'
+        +'<span>'+(m.p2_name||'TBD')+'</span>'
+        +(p2win?'<span style="font-size:.65rem">✓</span>':'')
+        +'</div>'
+        +'<div class="rat-match-status">'
+        +(m.duel_code ? 'Code duel : '+m.duel_code : 'En attente')
+        +'</div>'
+        +'</div>';
+    });
+    html += '</div>';
+  });
+  el.innerHTML = html;
+}
+
+/* ── chat tournoi ───────────────────────────────────────── */
+function _loadChatMsgs(tId){
+  _apiFetch('/tournament-chat/' + tId).then(function(r){
+    if(!r.ok) return;
+    var el = document.getElementById('rat-v-chat-msgs');
+    if(!el) return;
+    el.innerHTML = (r.messages||[]).map(function(m){
+      return '<div class="rat-chat-msg"><span>'+_esc(m.name)+'</span>'+_esc(m.content)+'</div>';
+    }).join('');
+    el.scrollTop = el.scrollHeight;
+  });
+}
+
+function _startChatPoll(tId){
+  if(_ratChatPoll) clearInterval(_ratChatPoll);
+  _ratChatPoll = setInterval(function(){ if(_ratViewTab==='chat') _loadChatMsgs(tId); }, 3000);
+}
+
+window.raT_sendChat = function(){
+  var inp = document.getElementById('rat-v-chat-inp');
+  if(!inp || !inp.value.trim() || !_ratId) return;
+  var txt = inp.value.trim();
+  inp.value = '';
+  _apiFetch('/tournament-chat/' + _ratId, {method:'POST', body:{content:txt}}).then(function(){
+    _loadChatMsgs(_ratId);
+  });
+};
+
+/* ── polling statut tournoi ─────────────────────────────── */
+function _startStatusPoll(code){
+  if(_ratStatusPoll) clearInterval(_ratStatusPoll);
+  _ratStatusPoll = setInterval(function(){
+    if(_ratCode !== code) { clearInterval(_ratStatusPoll); return; }
+    _apiFetch('/tournament/' + code).then(function(r){
+      if(!r.ok) return;
+      // si le statut a changé, re-rendre
+      if(_ratData && r.tournament && r.tournament.status !== _ratData.tournament.status){
+        _ratData = r;
+        _renderView(r);
+        showToast('Statut tournoi mis à jour : ' + _statusLabel(r.tournament.status));
+      }
+    });
+  }, 5000);
+}
+
+/* ── actions créateur ───────────────────────────────────── */
+window.raT_startQualif = function(code){
+  _apiFetch('/tournament/' + code + '/start-qualif', {method:'POST'}).then(function(r){
+    if(!r.ok){ showToast(r.error||'Erreur'); return; }
+    showToast('Phase de qualification lancée !');
+    raT_loadView(code);
+  });
+};
+
+window.raT_generateBracket = function(code){
+  _apiFetch('/tournament/' + code + '/generate-bracket', {method:'POST'}).then(function(r){
+    if(!r.ok){ showToast(r.error||'Erreur génération bracket'); return; }
+    showToast('Bracket généré ! Les matchs d\'élimination débutent.');
+    raT_loadView(code);
+  });
+};
+
+/* ── qualification quiz ─────────────────────────────────── */
+window.raT_startQualify = function(tournamentId, packId){
+  // trouver les questions du pack
+  var pack = (typeof PACKS !== 'undefined') ? PACKS.find(function(p){ return p.id === packId; }) : null;
+  var allQ = pack && pack.questions ? pack.questions : [];
+  if(!allQ.length){
+    // fallback : chercher n'importe quel pack non vide
+    var fb = (typeof PACKS !== 'undefined') ? PACKS.find(function(p){ return p.questions && p.questions.length; }) : null;
+    allQ = fb ? fb.questions : [];
+  }
+  // sélectionner 10 questions aléatoires
+  var shuffled = allQ.slice().sort(function(){ return Math.random()-.5; }).slice(0, 10);
+  if(!shuffled.length){ showToast('Aucune question disponible pour ce pack'); return; }
+
+  _ratQS = {
+    tournamentId: tournamentId,
+    packId: packId,
+    questions: shuffled,
+    current: 0,
+    score: 0,
+    answers: [],
+    timer: null,
+    timeLeft: 30,
+    answered: false
+  };
+
+  raT_goTo('ra-qualify');
+  _ratQS_showQuestion();
+};
+
+function _ratQS_showQuestion(){
+  var qs = _ratQS;
+  if(!qs) return;
+  var q = qs.questions[qs.current];
+  if(!q){ _ratQS_finish(); return; }
+
+  document.getElementById('rat-q-progress').textContent = 'Q ' + (qs.current+1) + ' / ' + qs.questions.length;
+  qs.answered = false;
+  qs.timeLeft = 30;
+  _ratQS_updateTimer();
+  if(qs.timer) clearInterval(qs.timer);
+  qs.timer = setInterval(function(){
+    qs.timeLeft--;
+    _ratQS_updateTimer();
+    if(qs.timeLeft <= 0){ clearInterval(qs.timer); if(!qs.answered) _ratQS_select(null); }
+  }, 1000);
+
+  var optsHtml = (q.options||[]).map(function(opt, i){
+    return '<button class="rat-qualify-opt" onclick="raT_QS_select('+i+')" id="rat-q-opt-'+i+'">'+_esc(opt)+'</button>';
+  }).join('');
+
+  document.getElementById('rat-q-body').innerHTML =
+    '<div class="rat-qualify-q">'
+    +'<div class="rat-qualify-q-text">'+_esc(q.question||q.text||'')+'</div>'
+    +optsHtml
+    +'<div id="rat-q-source" style="display:none;font-family:\'JetBrains Mono\',monospace;font-size:.6rem;color:var(--muted);margin-top:10px;padding-top:8px;border-top:1px solid var(--sep)"></div>'
+    +'</div>'
+    +'<button class="btn-ghost" style="width:100%;font-size:.78rem" id="rat-q-next" onclick="raT_QS_next()" style="display:none">Question suivante →</button>';
+
+  document.getElementById('rat-q-result').style.display = 'none';
+  document.getElementById('rat-q-body').style.display = '';
+}
+
+window.raT_QS_select = function(idx){ _ratQS_select(idx); };
+
+function _ratQS_select(idx){
+  var qs = _ratQS;
+  if(!qs || qs.answered) return;
+  qs.answered = true;
+  if(qs.timer) clearInterval(qs.timer);
+  var q = qs.questions[qs.current];
+  var correct = q.answer !== undefined ? q.answer : (q.correct !== undefined ? q.correct : -1);
+  var isCorrect = idx !== null && idx === correct;
+  if(isCorrect) qs.score++;
+  qs.answers.push({question: q.question||q.text||'', userIdx: idx, correct: correct, isCorrect: isCorrect, source: q.source||''});
+
+  // colorier les options
+  (q.options||[]).forEach(function(_, i){
+    var btn = document.getElementById('rat-q-opt-'+i);
+    if(!btn) return;
+    btn.disabled = true;
+    if(i === correct) btn.classList.add('correct');
+    else if(i === idx) btn.classList.add('wrong');
+  });
+  var srcEl = document.getElementById('rat-q-source');
+  if(srcEl && q.source){ srcEl.textContent = 'Source : ' + q.source; srcEl.style.display = ''; }
+  var nextBtn = document.getElementById('rat-q-next');
+  if(nextBtn) nextBtn.style.display = '';
+}
+
+window.raT_QS_next = function(){
+  var qs = _ratQS;
+  if(!qs) return;
+  qs.current++;
+  if(qs.current >= qs.questions.length){ _ratQS_finish(); return; }
+  _ratQS_showQuestion();
+};
+
+function _ratQS_updateTimer(){
+  var el = document.getElementById('rat-q-timer');
+  if(el) el.textContent = _ratQS.timeLeft + 's';
+}
+
+function _ratQS_finish(){
+  var qs = _ratQS;
+  if(!qs) return;
+  if(qs.timer) clearInterval(qs.timer);
+  document.getElementById('rat-q-body').style.display = 'none';
+  document.getElementById('rat-q-result').style.display = '';
+  var total = qs.questions.length;
+  document.getElementById('rat-q-final-score').textContent = qs.score + ' / ' + total + ' pts';
+  document.getElementById('rat-q-final-rank').textContent = 'Soumission en cours…';
+  _apiFetch('/tournament/qualify',{method:'POST',body:{
+    tournament_id: qs.tournamentId,
+    score: qs.score,
+    total: total,
+    questions_json: qs.answers
+  }}).then(function(r){
+    var rankEl = document.getElementById('rat-q-final-rank');
+    if(!rankEl) return;
+    if(r.ok){ rankEl.textContent = 'Score enregistré — classement #' + (r.rank||'?'); }
+    else { rankEl.textContent = r.error || 'Erreur soumission'; }
+  }).catch(function(){
+    var rankEl = document.getElementById('rat-q-final-rank');
+    if(rankEl) rankEl.textContent = 'Erreur réseau';
+  });
+}
+
+/* ── partage WhatsApp ───────────────────────────────────── */
+window.raT_shareWA = function(code, name){
+  var txt = encodeURIComponent('Rejoins-moi sur REGUL ARENA ! 🏆\nTournoi : ' + name + '\nCode : ' + code + '\nInscris-toi sur regulareena.up.railway.app');
+  window.open('https://wa.me/?text=' + txt, '_blank');
+};
+
+/* ── copier le code ─────────────────────────────────────── */
+window.raT_copyCode = function(code){
+  if(navigator.clipboard){ navigator.clipboard.writeText(code).then(function(){ showToast('Code copié : ' + code); }); }
+  else { showToast('Code : ' + code); }
+};
+
+/* ── escape HTML ────────────────────────────────────────── */
+function _esc(s){
+  if(!s && s !== 0) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+})();
+/* FIN TOURNOI AJOUT — module raT */
 </script>
 </body>
 </html>
