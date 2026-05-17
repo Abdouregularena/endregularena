@@ -2898,14 +2898,20 @@ const RAAuth = (() => {
     const b64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
     return JSON.parse(atob(b64));
   }
+  function _getStoredJwt() {
+    // localStorage d'abord, sessionStorage en fallback (Edge Tracking Prevention)
+    try { const t = localStorage.getItem('ra_jwt'); if (t) return t; } catch(e) {}
+    try { return sessionStorage.getItem('ra_jwt'); } catch(e) {}
+    return null;
+  }
   function isAuthenticated() {
     try {
-      const token = localStorage.getItem('ra_jwt');
+      const token = _getStoredJwt();
       if (!token) return false;
       const payload = _decodeJWT(token);
       if (payload.exp && payload.exp * 1000 < Date.now()) {
-        localStorage.removeItem(KEY_REG);
-        localStorage.removeItem('ra_jwt');
+        try { localStorage.removeItem(KEY_REG); localStorage.removeItem('ra_jwt'); } catch(e) {}
+        try { sessionStorage.removeItem('ra_jwt'); } catch(e) {}
         console.log('[RA] JWT expiré — session effacée');
         return false;
       }
@@ -3167,7 +3173,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Session restore : valider JWT côté serveur au chargement
-  const _savedJwt = localStorage.getItem('ra_jwt');
+  const _savedJwt = (function(){ try{return localStorage.getItem('ra_jwt');}catch(e){} try{return sessionStorage.getItem('ra_jwt');}catch(e){} return null; })();
   if (_savedJwt) {
     fetch('/auth/me', { headers: { 'Authorization': 'Bearer ' + _savedJwt } })
       .then(r => r.json())
@@ -3535,13 +3541,25 @@ window.addEventListener('load', function() {
     var jwtToken = params.get('jwt');
     console.log('[RA] Confirmation email — JWT reçu :', !!jwtToken, jwtToken ? jwtToken.substring(0,30)+'...' : 'ABSENT');
     if (jwtToken) {
+      // Fallback sessionStorage si localStorage bloqué (Edge Tracking Prevention)
+      var _stored = false;
       try {
         localStorage.setItem('ra_jwt', jwtToken);
         localStorage.setItem('ra_auth_registered', 'true');
         localStorage.setItem('ra_gate_registered', 'true');
+        _stored = true;
         console.log('[RA] JWT stocké en localStorage ✓');
       } catch(e) {
-        console.error('[RA] Erreur stockage localStorage :', e.message);
+        console.warn('[RA] localStorage bloqué (' + e.message + ') — fallback sessionStorage');
+        try {
+          sessionStorage.setItem('ra_jwt', jwtToken);
+          sessionStorage.setItem('ra_auth_registered', 'true');
+          sessionStorage.setItem('ra_gate_registered', 'true');
+          _stored = true;
+          console.log('[RA] JWT stocké en sessionStorage ✓');
+        } catch(e2) {
+          console.error('[RA] Storage totalement bloqué :', e2.message);
+        }
       }
     } else {
       console.error('[RA] JWT absent de l\'URL — vérifier la route /auth/verify côté serveur');
