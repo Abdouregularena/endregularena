@@ -1287,12 +1287,12 @@ footer{display:flex;align-items:center;justify-content:space-between;border-top:
   <div class="live-ticker page-top">
     <div class="ticker-track" aria-hidden="true">
       <span class="ticker-item"><span class="live-dot"></span>Classement mis à jour en temps réel</span>
-      <span class="ticker-item">KofiDansso en tête · 5 850 pts</span>
-      <span class="ticker-item">OumarBalde gagne 2 places cette semaine</span>
+      <span class="ticker-item">Top scoreurs UEMOA &amp; CEMAC — Jouez pour apparaître ici</span>
+      <span class="ticker-item">BCEAO · BEAC · COBAC · UMOA · LBC-FT — 20 packs disponibles</span>
       <span class="ticker-item">BCEAO Masters 2026 — Inscriptions ouvertes</span>
       <span class="ticker-item"><span class="live-dot"></span>Classement mis à jour en temps réel</span>
-      <span class="ticker-item">KofiDansso en tête · 5 850 pts</span>
-      <span class="ticker-item">OumarBalde gagne 2 places cette semaine</span>
+      <span class="ticker-item">Top scoreurs UEMOA &amp; CEMAC — Jouez pour apparaître ici</span>
+      <span class="ticker-item">BCEAO · BEAC · COBAC · UMOA · LBC-FT — 20 packs disponibles</span>
       <span class="ticker-item">BCEAO Masters 2026 — Inscriptions ouvertes</span>
     </div>
   </div>
@@ -1340,6 +1340,12 @@ footer{display:flex;align-items:center;justify-content:space-between;border-top:
         <span role="columnheader">Série</span>
       </div>
       <div id="leaderboard-rows" role="rowgroup"></div>
+    </div>
+    <!-- Mon rang (visible si connecté et classé) -->
+    <div id="lb-my-rank-block" style="display:none;align-items:center;gap:14px;margin-top:12px;padding:14px 22px;background:rgba(34,211,238,.06);border:1px solid rgba(34,211,238,.2);border-radius:2px">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:3px;color:var(--cyan);text-transform:uppercase">Mon rang</span>
+      <span id="lb-my-rank" style="font-family:'Bebas Neue',cursive;font-size:1.8rem;letter-spacing:3px;color:var(--cyan)">—</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted)">dans ce filtre</span>
     </div>
     <!-- Gate accès Top 10 -->
     <div class="top10-gate reveal" style="text-align:center;margin-top:16px">
@@ -2593,70 +2599,61 @@ const LB_DATA = [
 function renderLeaderboard(filter = 'all') {
   const container = document.getElementById('leaderboard-rows');
   if (!container) return;
-  const jwt = (function(){ try{return localStorage.getItem('ra_jwt');}catch(e){} try{return sessionStorage.getItem('ra_jwt');}catch(e){} return null; })();
-  if (jwt) {
-    fetch('/leaderboard', { headers: { 'Authorization': 'Bearer ' + jwt } })
-      .then(r => r.json())
-      .then(data => {
-        if (!data.success || !data.leaderboard) { _renderLBFallback(filter); return; }
-        const myName = (function(){ try{ const p=JSON.parse(atob(jwt.split('.')[1])); return p.name||''; }catch(e){return '';} })();
-        let html = '';
-        data.leaderboard.forEach((p, i) => {
-          const rank = i + 1;
-          const rClass = rank===1?'rank-gold-text':rank===2?'rank-silver-text':rank===3?'rank-bronze-text':'';
-          const isMe = p.name === myName;
-          const init = (p.name||'?').slice(0,2).toUpperCase();
-          html += `<div class="lb-row${rank<=3?' top3-row':''}${isMe?' is-me':''}" role="row">
-            <span class="lb-rank-num ${rClass}" style="${!rClass&&!isMe?'color:var(--muted)':''}" role="cell">${String(rank).padStart(2,'0')}</span>
-            <div class="lb-player" role="cell">
-              <div class="lb-av" aria-hidden="true">${escapeHtml(init)}</div>
-              <div><div class="lb-name-main">${escapeHtml(p.name)}${isMe?' <span style="font-family:\'JetBrains Mono\',monospace;font-size:.6rem;color:var(--cyan)">(Moi)</span>':''}</div>
-              <div class="lb-name-sub">${escapeHtml(p.etablissement||p.country||'')}</div></div>
+  container.innerHTML = '<div style="color:var(--muted);text-align:center;padding:40px;font-family:\'JetBrains Mono\',monospace;font-size:.72rem;letter-spacing:2px">Chargement...</div>';
+  const jwt = _getJwt();
+  // Construire les query params selon le filtre
+  const params = new URLSearchParams();
+  if (filter === 'uemoa') params.set('zone','uemoa');
+  else if (filter === 'cemac') params.set('zone','cemac');
+  else if (filter === 'pro') params.set('profile','professionnel');
+  else if (filter === 'student') params.set('profile','etudiant');
+  const url = '/leaderboard' + (params.toString() ? '?' + params.toString() : '');
+  const headers = jwt ? { 'Authorization': 'Bearer ' + jwt } : {};
+  fetch(url, { headers })
+    .then(r => r.json())
+    .then(data => {
+      if (!data.success || !data.leaderboard) { _renderLBEmpty(); return; }
+      const myId = jwt ? (function(){ try{return JSON.parse(atob(jwt.split('.')[1])).id;}catch(e){return null;} })() : null;
+      const rows = data.leaderboard;
+      if (!rows.length) { _renderLBEmpty(); return; }
+      let html = '';
+      rows.forEach((p, i) => {
+        const rank = i + 1;
+        const rClass = rank===1?'rank-gold-text':rank===2?'rank-silver-text':rank===3?'rank-bronze-text':'';
+        const isMe = myId && p.id === myId;
+        const init = (p.name||'?').slice(0,2).toUpperCase();
+        html += `<div class="lb-row${rank<=3?' top3-row':''}${isMe?' is-me':''}" role="row">
+          <span class="lb-rank-num ${rClass}" style="${!rClass&&!isMe?'color:var(--muted)':''}" role="cell">${String(rank).padStart(2,'0')}</span>
+          <div class="lb-player" role="cell">
+            <div class="lb-av" aria-hidden="true">${escapeHtml(init)}</div>
+            <div>
+              <div class="lb-name-main">${escapeHtml(p.name)}${isMe?' <span style="font-family:\'JetBrains Mono\',monospace;font-size:.6rem;color:var(--cyan)">(Moi)</span>':''}</div>
+              <div class="lb-name-sub">${escapeHtml(p.etablissement||'')}${p.etablissement&&p.country?' · ':''}${escapeHtml(p.country||'')}</div>
             </div>
-            <span class="lb-score-val" role="cell">${(p.total_score||0).toLocaleString('fr-FR')}</span>
-            <span class="lb-country" role="cell">${escapeHtml(p.country||'')}</span>
-            <span class="lb-streak" role="cell">${p.games||0} partie(s)</span>
-          </div>`;
-        });
-        container.innerHTML = html || '<div style="color:var(--muted);text-align:center;padding:40px">Aucun score enregistré pour l\'instant.</div>';
-      })
-      .catch(() => _renderLBFallback(filter));
-  } else {
-    _renderLBFallback(filter);
-  }
+          </div>
+          <span class="lb-score-val" role="cell">${(p.total_score||0).toLocaleString('fr-FR')}</span>
+          <span class="lb-country" role="cell">${escapeHtml(p.country||'')}</span>
+          <span class="lb-streak" role="cell">${p.games||0} partie(s)</span>
+        </div>`;
+      });
+      // Mon rang si connecté et dans le classement
+      const rankBlock = document.getElementById('lb-my-rank-block');
+      const rankEl = document.getElementById('lb-my-rank');
+      if (myId && data.my_rank && rankBlock && rankEl) {
+        rankEl.textContent = '#' + data.my_rank;
+        rankBlock.style.display = 'flex';
+      } else if (rankBlock) {
+        rankBlock.style.display = 'none';
+      }
+      container.innerHTML = html;
+    })
+    .catch(() => _renderLBEmpty());
 }
 
-function _renderLBFallback(filter) {
+function _renderLBEmpty() {
   const container = document.getElementById('leaderboard-rows');
   if (!container) return;
-  const data = LB_DATA.filter(p => {
-    if (filter === 'uemoa') return p.zone === 'uemoa';
-    if (filter === 'cemac') return p.zone === 'cemac';
-    if (filter === 'pro')   return p.type === 'pro';
-    if (filter === 'student') return p.type === 'student';
-    return true;
-  });
-  let html = '';
-  data.forEach((p, i) => {
-    const rClass = p.rank===1?'rank-gold-text':p.rank===2?'rank-silver-text':p.rank===3?'rank-bronze-text':'';
-    const diff = p.prev - p.rank;
-    const dEl = diff>0?`<span style="color:var(--green);font-size:.62rem">▲${diff}</span>`:diff<0?`<span style="color:var(--red);font-size:.62rem">▼${Math.abs(diff)}</span>`:'';
-    if (i > 0 && p.me && data[i-1] && data[i-1].rank < p.rank - 1) {
-      html += `<div class="lb-sep">⋯ ${p.rank - data[i-1].rank - 1} joueurs ⋯</div>`;
-    }
-    html += `<div class="lb-row${p.rank<=3?' top3-row':''}${p.me?' is-me':''}" role="row">
-      <span class="lb-rank-num ${rClass}" style="${!rClass&&!p.me?'color:var(--muted)':''}" role="cell">${String(p.rank).padStart(2,'0')}</span>
-      <div class="lb-player" role="cell">
-        <div class="lb-av" style="background:${p.col};color:${p.tc}" aria-hidden="true">${p.init}</div>
-        <div><div class="lb-name-main">${p.name}${p.me?' <span style="font-family:\'JetBrains Mono\',monospace;font-size:.6rem;color:var(--cyan)">(Moi)</span>':''} ${dEl}</div>
-        <div class="lb-name-sub">${p.inst}</div></div>
-      </div>
-      <span class="lb-score-val" role="cell">${p.score.toLocaleString('fr-FR')}</span>
-      <span class="lb-country" role="cell">${p.country}</span>
-      <span class="lb-streak${p.streak.includes('🔥')?'':' cold'}" role="cell">${p.streak}</span>
-    </div>`;
-  });
-  container.innerHTML = html;
+  container.innerHTML = '<div style="color:var(--muted);text-align:center;padding:60px 20px"><div style="font-size:2rem;margin-bottom:12px">🏆</div><div style="font-family:\'JetBrains Mono\',monospace;font-size:.72rem;letter-spacing:2px">Aucun score enregistré pour l\'instant.<br>Jouez un quiz pour apparaître ici !</div></div>';
 }
 
 function filterLB(btn, f) {
@@ -2937,6 +2934,8 @@ const dState = {scores:{me:0,them:0},streaks:{me:0,them:0},qIndex:0,answered:fal
 const _duelLive = {code:null,packId:null,numQuestions:5,timerSec:30,isCreator:false,questions:[],pollInt:null};
 
 function _getJwt(){try{return localStorage.getItem('ra_jwt');}catch(e){}try{return sessionStorage.getItem('ra_jwt');}catch(e){}return null;}
+function _getMyUserId(){const jwt=_getJwt();if(!jwt)return null;try{const p=JSON.parse(atob(jwt.split('.')[1]));return p.id||null;}catch(e){return null;}}
+function _getMyName(){const jwt=_getJwt();if(!jwt)return null;try{const p=JSON.parse(atob(jwt.split('.')[1]));return p.name||null;}catch(e){return null;}}
 function _clearDuelPolls(){if(_duelLive.pollInt){clearInterval(_duelLive.pollInt);_duelLive.pollInt=null;}if(dState.liveInt){clearInterval(dState.liveInt);dState.liveInt=null;}}
 
 function dGoTo(screen) {
@@ -2958,6 +2957,7 @@ function createDuel(){
     .then(d=>{
       if(!d.success||!d.code){showToast('❌ Erreur création duel');return;}
       _duelLive.code=d.code;_duelLive.packId=packId;_duelLive.numQuestions=numQ;_duelLive.timerSec=timerS;_duelLive.isCreator=true;
+      _duelLive.myUserId=_getMyUserId();_duelLive.myName=_getMyName()||'Moi';_duelLive.oppName='En attente...';
       const pack=PACKS.find(p=>p.id===packId);_duelLive.questions=pack?pack.questions:[];
       _showWaitScreen(d.code);_pollForJoiner();
     })
@@ -2980,8 +2980,10 @@ function _pollForJoiner(){
         if(!d.success||!d.duel)return;
         const duel=d.duel;
         if(duel.joiner_id){
+          const joinerName=duel.joiner?.name||'Un joueur';
+          _duelLive.oppName=joinerName;
           const ps=document.getElementById('wait-poll-status');
-          if(ps)ps.textContent=(duel.joiner?.name||'Un joueur')+' a rejoint !';
+          if(ps)ps.textContent=joinerName+' a rejoint !';
           const btnL=document.getElementById('btn-lancer-duel');if(btnL)btnL.style.display='flex';
         }
         if(duel.status==='active'){clearInterval(_duelLive.pollInt);_duelLive.pollInt=null;dGoTo('duel');}
@@ -3008,10 +3010,12 @@ function joinDuelByCode(){
     .then(r=>r.json()).then(d=>{
       if(!d.success){showToast('❌ '+(d.error||'Code invalide'));return;}
       _duelLive.code=rawCode;_duelLive.isCreator=false;
+      _duelLive.myUserId=_getMyUserId();_duelLive.myName=_getMyName()||'Moi';
       if(d.duel){
         _duelLive.packId=d.duel.pack_id;_duelLive.numQuestions=d.duel.num_questions||5;_duelLive.timerSec=d.duel.timer_sec||30;
         const pack=PACKS.find(p=>p.id===_duelLive.packId);_duelLive.questions=pack?pack.questions:[];
         const crName=d.duel.creator?.name||'Créateur';
+        _duelLive.oppName=crName;
         const avEl=document.getElementById('ws-creator-av');if(avEl)avEl.textContent=crName.slice(0,2).toUpperCase();
         const nmEl=document.getElementById('ws-creator-name');if(nmEl)nmEl.textContent=crName;
       }
@@ -3042,6 +3046,17 @@ function _startDuelQuiz(){
   const pack=PACKS.find(p=>p.id===_duelLive.packId);
   const catEl=document.querySelector('.duel-cat');if(catEl&&pack)catEl.textContent=pack.label;
   const totalEl=document.getElementById('q-total');if(totalEl)totalEl.textContent=_duelLive.numQuestions;
+  // Noms réels des joueurs
+  const myName=_duelLive.myName||_getMyName()||'Moi';
+  const oppName=_duelLive.oppName||'Adversaire';
+  const meNameEl=document.querySelector('#player-me .lb-name-main, #player-me [style*="font-weight:700"]');
+  if(meNameEl)meNameEl.textContent=myName;
+  const meAvEl=document.querySelector('#player-me .player-av');
+  if(meAvEl)meAvEl.textContent=myName.slice(0,2).toUpperCase();
+  const themNameEl=document.querySelector('#player-them [style*="font-weight:700"]');
+  if(themNameEl)themNameEl.textContent=oppName;
+  const themAvEl=document.querySelector('#player-them .player-av');
+  if(themAvEl)themAvEl.textContent=oppName.slice(0,2).toUpperCase();
   _loadDuelQ();_startDuelTimer();_pollLiveDuel();
 }
 function _pollLiveDuel(){
@@ -3052,14 +3067,37 @@ function _pollLiveDuel(){
       .then(r=>r.json()).then(d=>{
         if(!d.success||!d.duel)return;
         const scores=d.duel.scores||[];
-        const themScore=scores.find(s=>_duelLive.isCreator?s.user_id===d.duel.joiner_id:s.user_id===d.duel.creator_id);
-        if(themScore&&themScore.score!==dState.scores.them){
-          const diff=themScore.score-dState.scores.them;dState.scores.them=themScore.score;
-          if(diff>0)showDelta('them','+'+diff);updateDuelUI();
+        const myId=_duelLive.myUserId;
+        // Trouver le score adverse : l'entrée dont user_id != myId
+        const myScore=scores.find(s=>s.user_id===myId);
+        const themScore=scores.find(s=>s.user_id!==myId);
+        // Mettre à jour le score adverse affiché
+        if(themScore){
+          const newThemScore=themScore.score||0;
+          if(newThemScore!==dState.scores.them){
+            const diff=newThemScore-dState.scores.them;
+            dState.scores.them=newThemScore;
+            if(diff>0)showDelta('them','+'+diff);
+            updateDuelUI();
+          }
+        }
+        // Mettre à jour le nom adverse si pas encore défini
+        if(themScore&&themScore.user_id){
+          const oppObj=d.duel.creator_id===themScore.user_id?d.duel.creator:d.duel.joiner;
+          if(oppObj?.name&&_duelLive.oppName!==oppObj.name){
+            _duelLive.oppName=oppObj.name;
+            const el=document.querySelector('#player-them [style*="font-weight:700"]');
+            if(el)el.textContent=oppObj.name;
+            const av=document.querySelector('#player-them .player-av');
+            if(av)av.textContent=oppObj.name.slice(0,2).toUpperCase();
+          }
         }
         if(d.duel.status==='finished'){
           clearInterval(dState.liveInt);dState.liveInt=null;
-          showResult(dState.scores.me>=dState.scores.them);
+          const myFinal=myScore?myScore.score:dState.scores.me;
+          const thFinal=themScore?themScore.score:dState.scores.them;
+          dState.scores.me=myFinal;dState.scores.them=thFinal;
+          showResult(myFinal>=thFinal);
         }
       }).catch(()=>{});
   },2000);

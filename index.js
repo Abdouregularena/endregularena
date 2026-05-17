@@ -85,22 +85,25 @@ db.exec(`
   );
 
   CREATE TABLE IF NOT EXISTS duels (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    code        TEXT    NOT NULL UNIQUE,
-    creator_id  INTEGER NOT NULL REFERENCES users(id),
-    joiner_id   INTEGER REFERENCES users(id),
-    pack_id     TEXT    NOT NULL DEFAULT 'general',
-    status      TEXT    NOT NULL DEFAULT 'waiting',
-    created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    code          TEXT    NOT NULL UNIQUE,
+    creator_id    INTEGER NOT NULL REFERENCES users(id),
+    joiner_id     INTEGER REFERENCES users(id),
+    pack_id       TEXT    NOT NULL DEFAULT 'general',
+    num_questions INTEGER NOT NULL DEFAULT 10,
+    timer_sec     INTEGER NOT NULL DEFAULT 30,
+    status        TEXT    NOT NULL DEFAULT 'waiting',
+    created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
   );
 
   CREATE TABLE IF NOT EXISTS duel_scores (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    duel_id     INTEGER NOT NULL REFERENCES duels(id) ON DELETE CASCADE,
-    user_id     INTEGER NOT NULL REFERENCES users(id),
-    score       INTEGER NOT NULL DEFAULT 0,
-    total       INTEGER NOT NULL DEFAULT 0,
-    finished_at TEXT
+    id                 INTEGER PRIMARY KEY AUTOINCREMENT,
+    duel_id            INTEGER NOT NULL REFERENCES duels(id) ON DELETE CASCADE,
+    user_id            INTEGER NOT NULL REFERENCES users(id),
+    score              INTEGER NOT NULL DEFAULT 0,
+    questions_answered INTEGER NOT NULL DEFAULT 0,
+    finished           INTEGER NOT NULL DEFAULT 0,
+    UNIQUE(duel_id, user_id)
   );
 
   CREATE TABLE IF NOT EXISTS tournaments (
@@ -140,6 +143,14 @@ db.exec(`
     sent_at TEXT    NOT NULL DEFAULT (datetime('now'))
   );
 `);
+
+/* ALTER TABLE migrations — colonnes ajoutées après le déploiement initial */
+['ALTER TABLE duels ADD COLUMN num_questions INTEGER NOT NULL DEFAULT 10',
+ 'ALTER TABLE duels ADD COLUMN timer_sec INTEGER NOT NULL DEFAULT 30',
+ 'ALTER TABLE duel_scores ADD COLUMN questions_answered INTEGER NOT NULL DEFAULT 0',
+ 'ALTER TABLE duel_scores ADD COLUMN finished INTEGER NOT NULL DEFAULT 0',
+].forEach(sql => { try { db.exec(sql); } catch(_) {} });
+try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_duel_scores_uq ON duel_scores (duel_id, user_id)'); } catch(_) {}
 
 /* â”€â”€ HELPERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function genToken(bytes = 32) {
@@ -498,58 +509,110 @@ app.delete('/scores/me', requireAuth, (req, res) => {
 });
 
 app.get('/leaderboard', (req, res) => {
+  const { zone, profile } = req.query;
+  const UEMOA = ['SN','CI','BF','ML','BJ','NE','TG','GW'];
+  const CEMAC  = ['CM','GA','CG','CF','GQ','TD'];
+  const conditions = ['u.email_verified = 1'];
+  const params = [];
+  if (zone === 'uemoa') { conditions.push(`u.country IN (${UEMOA.map(()=>'?').join(',')})`); params.push(...UEMOA); }
+  else if (zone === 'cemac') { conditions.push(`u.country IN (${CEMAC.map(()=>'?').join(',')})`); params.push(...CEMAC); }
+  if (profile === 'professionnel' || profile === 'etudiant') { conditions.push('u.profile = ?'); params.push(profile); }
   const rows = db.prepare(`
-    SELECT u.name, u.country, u.etablissement,
+    SELECT u.id, u.name, u.country, u.etablissement, u.profile,
            COUNT(s.id) AS games,
-           SUM(s.score) AS total_score,
-           ROUND(AVG(CAST(s.score AS REAL)/NULLIF(s.total,0))*100, 1) AS avg_pct
+           COALESCE(SUM(s.score), 0) AS total_score
     FROM users u
-    JOIN user_scores s ON s.user_id = u.id
+    LEFT JOIN user_scores s ON s.user_id = u.id
+    WHERE ${conditions.join(' AND ')}
     GROUP BY u.id
+    HAVING total_score > 0
     ORDER BY total_score DESC
     LIMIT 50
-  `).all();
-  return ok(res, { leaderboard: rows });
+  `).all(...params);
+  let myRank = null;
+  const hdr = req.headers['authorization'] || '';
+  const tok = hdr.startsWith('Bearer ') ? hdr.slice(7) : null;
+  if (tok) { try { const p = jwt.verify(tok, JWT_SECRET); const idx = rows.findIndex(r => r.id === p.id); if (idx !== -1) myRank = idx + 1; } catch(e) {} }
+  return ok(res, { leaderboard: rows, my_rank: myRank });
 });
 
 /* ── DUELS ──────────────────────────────────────────────────────── */
+function _duelFull(code) {
+  const duel = db.prepare('SELECT * FROM duels WHERE code = ?').get(code);
+  if (!duel) return null;
+  const creator = db.prepare('SELECT id, name, country FROM users WHERE id = ?').get(duel.creator_id);
+  const joiner  = duel.joiner_id ? db.prepare('SELECT id, name, country FROM users WHERE id = ?').get(duel.joiner_id) : null;
+  const scores  = db.prepare('SELECT user_id, score, questions_answered, finished FROM duel_scores WHERE duel_id = ?').all(duel.id);
+  return { ...duel, creator, joiner, scores };
+}
+
 app.post('/duels', requireAuth, (req, res) => {
-  const { pack_id } = req.body || {};
+  const { pack_id, num_questions = 10, timer_sec = 30 } = req.body || {};
   let code;
   for (let i = 0; i < 10; i++) {
     code = genCode('D');
-    const existing = db.prepare('SELECT id FROM duels WHERE code = ?').get(code);
-    if (!existing) break;
+    if (!db.prepare('SELECT id FROM duels WHERE code = ?').get(code)) break;
   }
-  db.prepare('INSERT INTO duels (code, creator_id, pack_id) VALUES (?, ?, ?)').run(code, req.user.id, pack_id || 'general');
-  return ok(res, { code });
+  db.prepare('INSERT INTO duels (code, creator_id, pack_id, num_questions, timer_sec) VALUES (?, ?, ?, ?, ?)')
+    .run(code, req.user.id, pack_id || 'general', Math.min(20, Math.max(5, Number(num_questions))), Math.min(60, Math.max(15, Number(timer_sec))));
+  return ok(res, { code, duel: _duelFull(code) });
 });
 
 app.get('/duels/:code', requireAuth, (req, res) => {
-  const duel = db.prepare('SELECT * FROM duels WHERE code = ?').get(req.params.code);
-  if (!duel) return err(res, 404, 'Duel introuvable');
-  return ok(res, { duel });
+  const d = _duelFull(req.params.code);
+  if (!d) return err(res, 404, 'Duel introuvable');
+  return ok(res, { duel: d });
 });
 
 app.post('/duels/:code/join', requireAuth, (req, res) => {
   const duel = db.prepare('SELECT * FROM duels WHERE code = ?').get(req.params.code);
   if (!duel) return err(res, 404, 'Duel introuvable');
-  if (duel.status !== 'waiting') return err(res, 400, 'Duel déjà commencé ou terminé');
-  if (duel.creator_id === req.user.id) return err(res, 400, 'Tu es déjà le créateur');
-  db.prepare('UPDATE duels SET joiner_id = ?, status = ? WHERE code = ?').run(req.user.id, 'active', req.params.code);
-  return ok(res, { message: 'Rejoint le duel' });
+  if (duel.status === 'active' || duel.status === 'finished') {
+    if (duel.joiner_id === req.user.id || duel.creator_id === req.user.id)
+      return ok(res, { message: 'Déjà dans le duel', duel: _duelFull(req.params.code) });
+    return err(res, 400, 'Duel déjà commencé');
+  }
+  if (duel.status !== 'waiting') return err(res, 400, 'Duel terminé');
+  if (duel.creator_id === req.user.id) return ok(res, { message: 'Tu es le créateur', duel: _duelFull(req.params.code) });
+  db.prepare('UPDATE duels SET joiner_id = ?, status = ? WHERE code = ?').run(req.user.id, 'joined', req.params.code);
+  return ok(res, { message: 'Rejoint', duel: _duelFull(req.params.code) });
 });
 
-app.post('/duels/:code/score', requireAuth, (req, res) => {
-  const { score, total } = req.body || {};
-  if (score == null || total == null) return err(res, 400, 'score et total requis');
+app.post('/duels/:code/start', requireAuth, (req, res) => {
   const duel = db.prepare('SELECT * FROM duels WHERE code = ?').get(req.params.code);
   if (!duel) return err(res, 404, 'Duel introuvable');
-  db.prepare('INSERT OR REPLACE INTO duel_scores (duel_id, user_id, score, total) VALUES (?, ?, ?, ?)')
-    .run(duel.id, req.user.id, Number(score), Number(total));
-  const scores = db.prepare('SELECT * FROM duel_scores WHERE duel_id = ?').all(duel.id);
-  if (scores.length >= 2) db.prepare('UPDATE duels SET status = ? WHERE id = ?').run('finished', duel.id);
-  return ok(res, { message: 'Score enregistré', scores });
+  if (duel.creator_id !== req.user.id) return err(res, 403, 'Seul le créateur peut démarrer');
+  if (!duel.joiner_id) return err(res, 400, 'Personne n\'a encore rejoint');
+  if (duel.status === 'active') return ok(res, { message: 'Déjà actif', duel: _duelFull(req.params.code) });
+  db.prepare('UPDATE duels SET status = ? WHERE code = ?').run('active', req.params.code);
+  return ok(res, { message: 'Duel lancé', duel: _duelFull(req.params.code) });
+});
+
+app.post('/duels/:code/answer', requireAuth, (req, res) => {
+  const { q_index, correct, score } = req.body || {};
+  if (q_index == null) return err(res, 400, 'q_index requis');
+  const duel = db.prepare('SELECT * FROM duels WHERE code = ?').get(req.params.code);
+  if (!duel) return err(res, 404, 'Duel introuvable');
+  if (duel.status !== 'active') return err(res, 400, 'Duel non actif');
+  const existing = db.prepare('SELECT * FROM duel_scores WHERE duel_id = ? AND user_id = ?').get(duel.id, req.user.id);
+  if (!existing) {
+    db.prepare('INSERT INTO duel_scores (duel_id, user_id, score, questions_answered) VALUES (?, ?, ?, ?)').run(duel.id, req.user.id, Number(score) || 0, 1);
+  } else {
+    const finished = existing.questions_answered + 1 >= duel.num_questions ? 1 : 0;
+    db.prepare('UPDATE duel_scores SET score = ?, questions_answered = ?, finished = ? WHERE duel_id = ? AND user_id = ?')
+      .run(Number(score) || 0, existing.questions_answered + 1, finished, duel.id, req.user.id);
+    if (finished) {
+      const allDone = db.prepare('SELECT COUNT(*) AS n FROM duel_scores WHERE duel_id = ? AND finished = 1').get(duel.id).n;
+      if (allDone >= 2) db.prepare('UPDATE duels SET status = ? WHERE id = ?').run('finished', duel.id);
+    }
+  }
+  return ok(res, { live: _duelFull(req.params.code) });
+});
+
+app.get('/duels/:code/live', requireAuth, (req, res) => {
+  const d = _duelFull(req.params.code);
+  if (!d) return err(res, 404, 'Duel introuvable');
+  return ok(res, { duel: d });
 });
 
 /* ── TOURNOIS ────────────────────────────────────────────────────── */
