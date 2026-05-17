@@ -108,7 +108,20 @@ function err(res, status, message) {
 const app = express();
 
 app.set('trust proxy', 1);
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc:    ["'self'"],
+      scriptSrc:     ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"],
+      scriptSrcAttr: ["'unsafe-inline'"],   // autorise onclick= et autres event handlers inline
+      styleSrc:      ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc:       ["'self'", "https://fonts.gstatic.com"],
+      connectSrc:    ["'self'"],
+      imgSrc:        ["'self'", "data:"],
+      frameAncestors:["'none'"],
+    },
+  },
+}));
 app.use((req, res, next) => {
   const allowed = ['https://www.regularena.com','https://regularena.com','https://endregularena.up.railway.app'];
   if (allowed.includes(req.headers.origin)) res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
