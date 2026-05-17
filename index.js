@@ -22,7 +22,7 @@ const PORT         = process.env.PORT || 3000;
 const JWT_SECRET   = process.env.JWT_SECRET || 'changez-moi-en-production';
 const RESEND_KEY   = process.env.RESEND_API_KEY || '';
 const FROM_EMAIL   = process.env.FROM_EMAIL   || 'noreply@regularena.com';
-const FRONTEND_URL = process.env.FRONTEND_URL  || 'https://www.regularena.com';
+const FRONTEND_URL = process.env.FRONTEND_URL  || 'https://endregularena-production.up.railway.app';
 const API_URL      = process.env.API_URL       || 'https://endregularena-production.up.railway.app';
 const TOKEN_TTL_H  = 24; // heures de validit&#233; du lien email
 
@@ -177,6 +177,7 @@ app.post('/auth/register', limiterStrict, async (req, res) => {
       to:   cleanEmail,
       subject: 'Confirme ton inscription — REGUL ARENA',
       html: emailConfirmHTML(cleanName, confirmUrl),
+      headers: { 'X-Entity-Ref-ID': crypto.randomUUID() },
     });
     if (sendResult.error) {
       console.error('Resend error:', JSON.stringify(sendResult.error));
@@ -215,6 +216,7 @@ app.post('/auth/resend', limiterStrict, async (req, res) => {
       to:   cleanEmail,
       subject: 'Nouveau lien de confirmation — REGUL ARENA',
       html: emailConfirmHTML(user.name, confirmUrl),
+      headers: { 'X-Entity-Ref-ID': crypto.randomUUID() },
     });
     if (sendResult.error) {
       console.error('Resend error:', JSON.stringify(sendResult.error));
@@ -311,9 +313,9 @@ app.post('/feedback/notify', limiterLoose, (req, res) => {
 
 
 /* â”€â”€ STATIC + HEALTH CHECK â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-app.use(express.static(__dirname));
-app.get("/", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
-app.get("/api", (req, res) => res.json({ status: "ok", message: "API REGUL ARENA en ligne" }));
+app.use(express.static(path.join(__dirname, 'public')));
+app.get('/api', (req, res) => res.json({ status: 'ok', message: 'API REGUL ARENA en ligne' }));
+app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 
 /* ================================================================
