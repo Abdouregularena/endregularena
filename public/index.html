@@ -1602,12 +1602,19 @@ footer{display:flex;align-items:center;justify-content:space-between;border-top:
       <div id="solo-q-text" style="font-size:1rem;font-weight:600;line-height:1.6;margin-bottom:22px;padding:18px;background:var(--bg2);border-radius:4px;border-left:3px solid var(--gold)"></div>
       <div id="solo-choices" style="display:flex;flex-direction:column;gap:10px"></div>
       <div id="solo-source" style="display:none;margin-top:16px;font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);padding:10px;border-top:1px solid var(--sep)"></div>
-      <div id="solo-result" style="display:none;text-align:center;padding:40px 20px">
-        <div id="solo-result-trophy" style="font-size:3rem;margin-bottom:12px"></div>
-        <div id="solo-result-score" style="font-family:'Bebas Neue',cursive;font-size:2.5rem;letter-spacing:3px;color:var(--gold)"></div>
-        <div id="solo-result-msg" style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--muted);margin:8px 0 24px"></div>
-        <button onclick="closeSoloQuiz()" class="btn-gold" style="margin-right:10px">← Retour aux packs</button>
-        <button onclick="replaySolo()" class="btn-ghost">🔄 Rejouer</button>
+      <div id="solo-result" style="display:none;padding:32px 0">
+        <div style="text-align:center;margin-bottom:28px">
+          <div id="solo-result-trophy" style="font-size:3rem;margin-bottom:12px"></div>
+          <div id="solo-result-score" style="font-family:'Bebas Neue',cursive;font-size:2.5rem;letter-spacing:3px;color:var(--gold)"></div>
+          <div id="solo-result-msg" style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--muted);margin:8px 0 20px"></div>
+          <button onclick="closeSoloQuiz()" class="btn-gold" style="margin-right:10px">← Choisir un autre pack</button>
+          <button onclick="replaySolo()" class="btn-ghost">🔄 Rejouer</button>
+        </div>
+        <!-- Feuille de match -->
+        <div style="border-top:1px solid var(--sep);padding-top:24px">
+          <div style="font-family:'Bebas Neue',cursive;font-size:1rem;letter-spacing:2px;color:var(--gold);margin-bottom:16px">📋 FEUILLE DE MATCH</div>
+          <div id="solo-recap" style="display:flex;flex-direction:column;gap:14px"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -2390,27 +2397,35 @@ const PACKS = [
   ]},
 ];
 
-let _soloState = { pack: null, qIndex: 0, score: 0, answered: false };
+let _soloState = { pack: null, qIndex: 0, score: 0, answered: false, answers: [] };
 
 function initSolo() {
   console.log('[RA] Solo init — packs:', PACKS.length);
   const grid = document.getElementById('solo-pack-grid');
   if (!grid) { console.warn('[RA] Solo : #solo-pack-grid introuvable'); return; }
-  grid.innerHTML = PACKS.map(p => `
-    <div onclick="startSoloPack('${p.id}')" style="cursor:pointer;padding:18px 16px;background:var(--bg2);border:1px solid var(--sep);border-radius:4px;transition:all .2s;position:relative;overflow:hidden"
+  const packCard = p => `
+    <div onclick="startSoloPack('${p.id}')" style="cursor:pointer;padding:18px 16px;background:var(--bg2);border:1px solid var(--sep);border-radius:4px;transition:all .2s"
          onmouseover="this.style.borderColor='var(--gold)';this.style.transform='translateY(-2px)'"
          onmouseout="this.style.borderColor='var(--sep)';this.style.transform='none'">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:2px;color:${p.tc};margin-bottom:6px;text-transform:uppercase">${p.zone}</div>
       <div style="font-size:.85rem;font-weight:700;line-height:1.3;margin-bottom:8px">${p.label}</div>
       <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted)">${p.questions.length} questions</div>
-    </div>
-  `).join('');
+    </div>`;
+  const zoneHeader = (zone, color) => `
+    <div style="grid-column:1/-1;display:flex;align-items:center;gap:14px;margin-top:8px;margin-bottom:2px">
+      <div style="font-family:'Bebas Neue',cursive;font-size:1.1rem;letter-spacing:3px;color:${color}">🌍 Zone ${zone}</div>
+      <div style="flex:1;height:1px;background:var(--sep)"></div>
+    </div>`;
+  const uemoa = PACKS.filter(p => p.zone === 'UEMOA');
+  const cemac = PACKS.filter(p => p.zone === 'CEMAC');
+  grid.innerHTML =
+    zoneHeader('UEMOA', 'var(--gold)') + uemoa.map(packCard).join('') +
+    zoneHeader('CEMAC', 'var(--cyan)') + cemac.map(packCard).join('');
 }
 
 function startSoloPack(packId) {
   const pack = PACKS.find(p => p.id === packId);
   if (!pack) return;
-  _soloState = { pack, qIndex: 0, score: 0, answered: false };
+  _soloState = { pack, qIndex: 0, score: 0, answered: false, answers: [] };
   const overlay = document.getElementById('solo-quiz-overlay');
   overlay.style.display = 'block';
   document.getElementById('solo-pack-title').textContent = pack.label;
@@ -2419,6 +2434,8 @@ function startSoloPack(packId) {
   document.getElementById('solo-choices').style.display = 'flex';
   document.getElementById('solo-q-text').style.display = 'block';
   document.getElementById('solo-source').style.display = 'none';
+  const hdr = document.getElementById('solo-q-num');
+  if (hdr) hdr.closest('div').style.display = '';
   _soloLoadQ();
 }
 
@@ -2449,6 +2466,7 @@ function soloAnswer(idx) {
   });
   if (ok) { _soloState.score += 100; showToast('✓ Correct ! +100 pts'); }
   else showToast('✗ ' + q.choices[q.correct]);
+  _soloState.answers.push({ q: q.q, choices: q.choices, userIdx: idx, correctIdx: q.correct, ok, source: q.source || '' });
   if (q.source) {
     const src = document.getElementById('solo-source');
     src.style.display = 'block';
@@ -2458,18 +2476,38 @@ function soloAnswer(idx) {
 }
 
 function _soloShowResult() {
-  const { pack, score } = _soloState;
+  const { pack, score, answers } = _soloState;
   const total = pack.questions.length * 100;
   const pct = Math.round(score / total * 100);
   document.getElementById('solo-choices').style.display = 'none';
   document.getElementById('solo-q-text').style.display = 'none';
   document.getElementById('solo-source').style.display = 'none';
+  document.getElementById('solo-q-num').closest('div').style.display = 'none';
   const res = document.getElementById('solo-result');
   res.style.display = 'block';
   document.getElementById('solo-result-trophy').textContent = pct >= 80 ? '🏆' : pct >= 50 ? '👍' : '📚';
-  document.getElementById('solo-result-score').textContent = score.toLocaleString('fr-FR') + ' / ' + total.toLocaleString('fr-FR');
+  document.getElementById('solo-result-score').textContent = score.toLocaleString('fr-FR') + ' / ' + total.toLocaleString('fr-FR') + ' pts — ' + pct + '%';
   document.getElementById('solo-result-msg').textContent = pct >= 80 ? 'Excellent ! Maîtrise confirmée.' : pct >= 50 ? 'Bon résultat. Continuez !' : 'À retravailler. La réglementation n\'a pas de secrets pour qui persiste !';
-  if (pct >= 80) launchConfetti && launchConfetti();
+  if (pct >= 80) typeof launchConfetti === 'function' && launchConfetti();
+
+  const recap = document.getElementById('solo-recap');
+  if (recap) {
+    recap.innerHTML = answers.map((a, i) => `
+      <div style="background:var(--bg2);border:1px solid ${a.ok ? 'rgba(16,185,129,.3)' : 'rgba(239,68,68,.3)'};border-radius:4px;padding:14px 16px">
+        <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px">
+          <span style="font-size:1.1rem;line-height:1;flex-shrink:0">${a.ok ? '✅' : '❌'}</span>
+          <div style="font-size:.85rem;font-weight:600;line-height:1.5">${escapeHtml(a.q)}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px;font-size:.78rem;padding-left:28px">
+          <div style="color:${a.ok ? 'var(--green)' : 'var(--red)'}">
+            Votre réponse : ${escapeHtml(a.choices[a.userIdx])}
+          </div>
+          ${!a.ok ? `<div style="color:var(--green)">Bonne réponse : ${escapeHtml(a.choices[a.correctIdx])}</div>` : ''}
+          ${a.source ? `<div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);margin-top:4px;padding-top:6px;border-top:1px solid var(--sep)">📋 ${escapeHtml(a.source)}</div>` : ''}
+        </div>
+      </div>`).join('');
+  }
+
   const jwt = (function(){ try{return localStorage.getItem('ra_jwt');}catch(e){} try{return sessionStorage.getItem('ra_jwt');}catch(e){} return null; })();
   if (jwt) {
     fetch('/scores', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt}, body: JSON.stringify({pack_id: pack.id, score, total}) }).catch(()=>{});
@@ -3226,9 +3264,12 @@ function submitFeedback() {
   }).then(r => {
     if (btn) { btn.disabled = false; btn.textContent = '📨 Envoyer mon feedback'; }
     if (r.ok) {
-      document.getElementById('feedback-form').style.display = 'none';
-      document.getElementById('feedback-success').classList.add('show');
-      showToast('🎉 Feedback envoyé — Merci !');
+      resetFeedback();
+      const inlineMsg = document.createElement('div');
+      inlineMsg.textContent = '✅ Feedback envoyé !';
+      inlineMsg.style.cssText = 'color:var(--green);font-family:"JetBrains Mono",monospace;font-size:.8rem;text-align:center;padding:12px;margin-top:8px';
+      const form = document.getElementById('feedback-form');
+      if (form) { form.appendChild(inlineMsg); setTimeout(() => inlineMsg.remove(), 3000); }
     } else {
       showToast('⚠ ' + (r.data?.error || 'Erreur — réessaie'));
     }
