@@ -21,9 +21,9 @@ const path         = require('path');
 const PORT         = process.env.PORT || 3000;
 const JWT_SECRET   = process.env.JWT_SECRET || 'changez-moi-en-production';
 const RESEND_KEY   = process.env.RESEND_API_KEY || '';
-const FROM_EMAIL   = process.env.FROM_EMAIL   || 'noreply@regularena.com';
-const FRONTEND_URL = process.env.FRONTEND_URL  || 'https://endregularena-production.up.railway.app';
-const API_URL      = process.env.API_URL       || 'https://endregularena-production.up.railway.app';
+const FROM_EMAIL   = process.env.FROM_EMAIL || 'noreply@regularena.com';
+// SOURCE DE VERITE UNIQUE — frontend servi par Railway, meme origine que l'API
+const BASE_URL     = process.env.BASE_URL || 'https://endregularena-production.up.railway.app';
 const TOKEN_TTL_H  = 24; // heures de validit&#233; du lien email
 
 const resend = new Resend(RESEND_KEY);
@@ -171,7 +171,7 @@ app.post('/auth/register', limiterStrict, async (req, res) => {
   ).run(user.id, token, expiresAt(TOKEN_TTL_H));
 
   // Envoyer email via Resend
-  const confirmUrl = `${API_URL}/auth/verify?token=${token}`;
+  const confirmUrl = `${BASE_URL}/auth/verify?token=${token}`;
   try {
     const sendResult = await resend.emails.send({
       from: `REGUL ARENA <${FROM_EMAIL}>`,
@@ -210,7 +210,7 @@ app.post('/auth/resend', limiterStrict, async (req, res) => {
     'INSERT INTO confirm_tokens (user_id, token, expires_at) VALUES (?, ?, ?)'
   ).run(user.id, token, expiresAt(TOKEN_TTL_H));
 
-  const confirmUrl = `${API_URL}/auth/verify?token=${token}`;
+  const confirmUrl = `${BASE_URL}/auth/verify?token=${token}`;
   try {
     const sendResult = await resend.emails.send({
       from: `REGUL ARENA <${FROM_EMAIL}>`,
@@ -237,21 +237,21 @@ app.post('/auth/resend', limiterStrict, async (req, res) => {
 */
 app.get('/auth/verify', limiterLoose, (req, res) => {
   const { token } = req.query;
-  if (!token) return res.redirect(302, `${FRONTEND_URL}/?confirm_error=missing`);
+  if (!token) return res.redirect(302, `${BASE_URL}/?confirm_error=missing`);
 
   const row = db.prepare(
     'SELECT * FROM confirm_tokens WHERE token = ? AND used = 0'
   ).get(token);
 
-  if (!row) return res.redirect(302, `${FRONTEND_URL}/?confirm_error=invalid`);
-  if (new Date(row.expires_at) < new Date()) return res.redirect(302, `${FRONTEND_URL}/?confirm_error=expired`);
+  if (!row) return res.redirect(302, `${BASE_URL}/?confirm_error=invalid`);
+  if (new Date(row.expires_at) < new Date()) return res.redirect(302, `${BASE_URL}/?confirm_error=expired`);
 
   db.prepare('UPDATE confirm_tokens SET used = 1 WHERE id = ?').run(row.id);
   db.prepare('UPDATE users SET email_verified = 1 WHERE id = ?').run(row.user_id);
 
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(row.user_id);
   const jwtToken = signJWT(user);
-  return res.redirect(302, `${FRONTEND_URL}/?confirmed=true&jwt=${encodeURIComponent(jwtToken)}`);
+  return res.redirect(302, `${BASE_URL}/?confirmed=true&jwt=${encodeURIComponent(jwtToken)}`);
 });
 
 
