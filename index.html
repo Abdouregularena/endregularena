@@ -3469,5 +3469,60 @@ window.addEventListener('load', function() {
   });
 });
 </script>
+
+<!-- ================================================================
+     TOKEN VERIFICATION — gère ?token= dans l'URL (lien email)
+================================================================ -->
+<div id="ra-verify-overlay" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(3,5,10,.92);backdrop-filter:blur(12px);align-items:center;justify-content:center;padding:20px">
+  <div style="background:#080C14;border:1px solid rgba(201,153,26,.25);border-radius:4px;width:100%;max-width:420px;padding:40px 36px;text-align:center;box-shadow:0 0 80px rgba(201,153,26,.15);position:relative">
+    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#C9991A,transparent)"></div>
+    <div id="ra-verify-icon" style="font-size:2.8rem;margin-bottom:16px">⏳</div>
+    <div id="ra-verify-title" style="font-family:'Bebas Neue',cursive;font-size:1.8rem;letter-spacing:3px;color:#EEF0F5;margin-bottom:10px">Vérification en cours…</div>
+    <div id="ra-verify-msg" style="font-size:.9rem;color:#7A8499;line-height:1.6"></div>
+    <button id="ra-verify-btn" onclick="document.getElementById('ra-verify-overlay').style.display='none'" style="display:none;margin-top:24px;background:linear-gradient(135deg,#C9991A,#E8B520);color:#03050A;border:none;font-size:.8rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:12px 32px;border-radius:2px;cursor:pointer">Continuer →</button>
+  </div>
+</div>
+
+<script>
+(function() {
+  var params = new URLSearchParams(window.location.search);
+  var token = params.get('token');
+  if (!token) return;
+
+  var overlay = document.getElementById('ra-verify-overlay');
+  var icon    = document.getElementById('ra-verify-icon');
+  var title   = document.getElementById('ra-verify-title');
+  var msg     = document.getElementById('ra-verify-msg');
+  var btn     = document.getElementById('ra-verify-btn');
+
+  overlay.style.display = 'flex';
+  history.replaceState(null, '', window.location.pathname);
+
+  fetch('/auth/verify?token=' + encodeURIComponent(token))
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.success) {
+        icon.textContent  = '🏆';
+        title.textContent = 'Compte confirmé !';
+        msg.innerHTML     = 'Bienvenue, <strong style="color:#C9991A">' +
+          (data.user && data.user.name ? data.user.name : '') +
+          '</strong> !<br><br>Ton compte REGUL ARENA est actif. Tu peux maintenant accéder aux duels et tournois.';
+        btn.style.display = 'inline-block';
+        if (data.token) localStorage.setItem('ra_jwt', data.token);
+      } else {
+        icon.textContent  = '❌';
+        title.textContent = 'Lien invalide';
+        msg.textContent   = data.error || 'Ce lien est expiré ou déjà utilisé. Demande un nouveau lien depuis la page d\'inscription.';
+        btn.style.display = 'inline-block';
+      }
+    })
+    .catch(function() {
+      icon.textContent  = '⚠️';
+      title.textContent = 'Erreur réseau';
+      msg.textContent   = 'Impossible de contacter le serveur. Vérifie ta connexion et réessaie.';
+      btn.style.display = 'inline-block';
+    });
+})();
+</script>
 </body>
 </html>
