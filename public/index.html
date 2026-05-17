@@ -2893,18 +2893,29 @@ const RAAuth = (() => {
   let _emailValid  = false;
   let _loginMode   = false;
 
+  function _decodeJWT(token) {
+    // base64url → base64 standard (JWT utilise - et _ au lieu de + et /)
+    const b64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(atob(b64));
+  }
   function isAuthenticated() {
     try {
-      const jwt = localStorage.getItem('ra_jwt');
-      if (!jwt) return false;
-      const payload = JSON.parse(atob(jwt.split('.')[1]));
+      const token = localStorage.getItem('ra_jwt');
+      if (!token) return false;
+      const payload = _decodeJWT(token);
       if (payload.exp && payload.exp * 1000 < Date.now()) {
         localStorage.removeItem(KEY_REG);
         localStorage.removeItem('ra_jwt');
+        console.log('[RA] JWT expiré — session effacée');
         return false;
       }
-      return payload.is_verified === true;
-    } catch(e) { return false; }
+      const ok = payload.is_verified === true;
+      console.log('[RA] isAuthenticated:', ok, '| email:', payload.email, '| is_verified:', payload.is_verified);
+      return ok;
+    } catch(e) {
+      console.warn('[RA] isAuthenticated erreur décodage JWT:', e.message);
+      return false;
+    }
   }
   function getUser() {
     try { return JSON.parse(localStorage.getItem(KEY_USER) || 'null'); } catch(e) { return null; }
@@ -3147,12 +3158,35 @@ document.addEventListener('DOMContentLoaded', () => {
   const invMsg = document.getElementById('invite-message');
   if (invMsg && !invMsg.value) invMsg.value = 'Salut ! 👋\n\nJe t\'invite à rejoindre REGUL ARENA, la plateforme de quiz réglementaire BCEAO, BEAC & COBAC.\n\n🔗 ' + MY_LINK;
 
-  // Marquer visuellement les pages qui requièrent l'auth
+  // Marquer visuellement les pages qui requièrent l'auth (sync)
+  const _duelBtn = document.getElementById('nav-duel');
+  const _tourBtn = document.getElementById('nav-tournois');
   if (!RAAuth.isAuthenticated()) {
-    const duelBtn = document.getElementById('nav-duel');
-    const tourBtn = document.getElementById('nav-tournois');
-    if (duelBtn) duelBtn.setAttribute('data-auth-locked','true');
-    if (tourBtn) tourBtn.setAttribute('data-auth-locked','true');
+    if (_duelBtn) _duelBtn.setAttribute('data-auth-locked','true');
+    if (_tourBtn) _tourBtn.setAttribute('data-auth-locked','true');
+  }
+
+  // Session restore : valider JWT côté serveur au chargement
+  const _savedJwt = localStorage.getItem('ra_jwt');
+  if (_savedJwt) {
+    fetch('/auth/me', { headers: { 'Authorization': 'Bearer ' + _savedJwt } })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success && data.user && data.user.is_verified) {
+          console.log('[RA] Session restaurée :', data.user.email);
+          localStorage.setItem('ra_gate_registered', 'true');
+          localStorage.setItem('ra_auth_registered', 'true');
+          // Unlock nav buttons si pas encore fait
+          if (_duelBtn) _duelBtn.removeAttribute('data-auth-locked');
+          if (_tourBtn) _tourBtn.removeAttribute('data-auth-locked');
+        } else {
+          console.warn('[RA] /auth/me : JWT rejeté côté serveur — nettoyage session');
+          localStorage.removeItem('ra_jwt');
+          localStorage.removeItem('ra_auth_registered');
+          localStorage.removeItem('ra_gate_registered');
+        }
+      })
+      .catch(e => console.warn('[RA] /auth/me erreur réseau :', e.message));
   }
 });
 
@@ -3499,12 +3533,18 @@ window.addEventListener('load', function() {
 
   if (confirmed === 'true') {
     var jwtToken = params.get('jwt');
+    console.log('[RA] Confirmation email — JWT reçu :', !!jwtToken, jwtToken ? jwtToken.substring(0,30)+'...' : 'ABSENT');
     if (jwtToken) {
       try {
         localStorage.setItem('ra_jwt', jwtToken);
         localStorage.setItem('ra_auth_registered', 'true');
         localStorage.setItem('ra_gate_registered', 'true');
-      } catch(e) {}
+        console.log('[RA] JWT stocké en localStorage ✓');
+      } catch(e) {
+        console.error('[RA] Erreur stockage localStorage :', e.message);
+      }
+    } else {
+      console.error('[RA] JWT absent de l\'URL — vérifier la route /auth/verify côté serveur');
     }
     icon.textContent  = '&#x1F3C6;';
     title.textContent = 'Compte confirm&#xe9; !';
