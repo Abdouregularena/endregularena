@@ -987,7 +987,7 @@ footer{display:flex;align-items:center;justify-content:space-between;border-top:
   </ul>
   <div class="nav-right">
     <div id="ra-quiz-pill" role="status" aria-label="Compteur quiz"><span id="ra-pill-count">0</span>/3 quiz</div>
-    <button class="nav-cta" onclick="showPage('duel')" aria-label="Jouer maintenant">⚔ Jouer</button>
+    <button class="nav-cta" onclick="showPage('solo')" aria-label="Jouer maintenant">⚔ Jouer</button>
     <button class="nav-hamburger" id="nav-hamburger" onclick="toggleMobileNav()" aria-label="Menu" aria-expanded="false" aria-controls="mobile-nav-menu">
       <span></span><span></span><span></span>
     </button>
@@ -1106,7 +1106,7 @@ footer{display:flex;align-items:center;justify-content:space-between;border-top:
     <div class="section-label">Formats de compétition</div>
     <h2 class="section-title" id="modes-title">4 modes.<br><span class="g">Zéro monotonie.</span></h2>
     <div class="modes-grid" role="list">
-      <article class="mode-card" role="listitem">
+      <article class="mode-card" role="listitem" onclick="showPage('solo')" style="cursor:pointer">
         <span class="mode-icon" aria-hidden="true">▶</span>
         <h3 class="mode-name">Solo</h3>
         <p class="mode-desc">Maîtrisez la réglementation à votre rythme. Choisissez votre pack, battez votre score.</p>
@@ -1578,6 +1578,40 @@ footer{display:flex;align-items:center;justify-content:space-between;border-top:
   </div>
 </div>
 
+
+<!-- ================================================================
+     PAGE SOLO — Grille des 22 packs
+================================================================ -->
+<div id="page-solo" class="page" role="main" aria-label="Mode Solo">
+  <div style="max-width:900px;margin:0 auto;padding:32px 20px">
+    <div style="font-family:'Bebas Neue',cursive;font-size:2rem;letter-spacing:3px;color:var(--gold);margin-bottom:6px">▶ MODE SOLO</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--muted);letter-spacing:1.5px;margin-bottom:28px">22 PACKS · BCEAO · BEAC · COBAC · UMOA · LBC-FT</div>
+    <div id="solo-pack-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px"></div>
+  </div>
+  <!-- Overlay quiz solo -->
+  <div id="solo-quiz-overlay" style="display:none;position:fixed;inset:0;background:rgba(10,12,18,.97);z-index:800;overflow-y:auto">
+    <div style="max-width:640px;margin:0 auto;padding:32px 20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+        <div id="solo-pack-title" style="font-family:'Bebas Neue',cursive;font-size:1.4rem;letter-spacing:2px;color:var(--gold)"></div>
+        <button onclick="closeSoloQuiz()" style="background:rgba(255,255,255,.06);border:none;color:var(--text);padding:8px 14px;cursor:pointer;border-radius:2px;font-size:.8rem">✕ Quitter</button>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted);margin-bottom:18px">
+        <span>Question <span id="solo-q-num">1</span> / <span id="solo-q-total">10</span></span>
+        <span>Score : <span id="solo-score-live" style="color:var(--gold)">0</span></span>
+      </div>
+      <div id="solo-q-text" style="font-size:1rem;font-weight:600;line-height:1.6;margin-bottom:22px;padding:18px;background:var(--bg2);border-radius:4px;border-left:3px solid var(--gold)"></div>
+      <div id="solo-choices" style="display:flex;flex-direction:column;gap:10px"></div>
+      <div id="solo-source" style="display:none;margin-top:16px;font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);padding:10px;border-top:1px solid var(--sep)"></div>
+      <div id="solo-result" style="display:none;text-align:center;padding:40px 20px">
+        <div id="solo-result-trophy" style="font-size:3rem;margin-bottom:12px"></div>
+        <div id="solo-result-score" style="font-family:'Bebas Neue',cursive;font-size:2.5rem;letter-spacing:3px;color:var(--gold)"></div>
+        <div id="solo-result-msg" style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--muted);margin:8px 0 24px"></div>
+        <button onclick="closeSoloQuiz()" class="btn-gold" style="margin-right:10px">← Retour aux packs</button>
+        <button onclick="replaySolo()" class="btn-ghost">🔄 Rejouer</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ================================================================
      PAGE 4 : DUEL — Interface 1v1 temps réel
@@ -2128,7 +2162,7 @@ async function apiCall(method, path, body) {
 /* ───────────────────────────────────────────────────────────
    CORE : Navigation SPA
    ─────────────────────────────────────────────────────────── */
-const PAGES = ['landing','classement','tournois','duel','premium','invitation'];
+const PAGES = ['landing','classement','tournois','duel','solo','premium','invitation'];
 const pageInits = {};
 
 function showPage(id) {
@@ -2148,12 +2182,13 @@ function showPage(id) {
   const btn = document.getElementById('nav-' + id);
   if (btn) { btn.classList.add('active'); btn.setAttribute('aria-current','page'); }
   window.scrollTo(0, 0);
+  if (id === 'solo') { initSolo(); return; }
   if (!pageInits[id]) { pageInits[id] = true; initPage(id); }
 }
 
 function initPage(id) {
   if (id === 'classement') renderLeaderboard();
-  if (id === 'tournois') { renderBracket(); renderParticipants(); renderMatchs(); renderNotifs(); renderChat(); renderScoreBars(); renderPerfList(); }
+  if (id === 'tournois') { renderBracket(); renderParticipants(); renderMatchs(); renderNotifs(); _startChatPolling(); renderScoreBars(); renderPerfList(); }
   if (id === 'premium')  { renderAdvantages(); renderHOF(); }
   if (id === 'invitation') { initQR(); renderInviteList(); renderAmbassadors(); }
 }
@@ -2210,6 +2245,246 @@ const counterObs = new IntersectionObserver(entries => {
 document.querySelectorAll('.stat-number').forEach(n => counterObs.observe(n));
 
 /* ───────────────────────────────────────────────────────────
+   MODULE : SOLO
+   ─────────────────────────────────────────────────────────── */
+const PACKS = [
+  {id:'bceao-politique-monetaire', label:'Politique monétaire BCEAO', zone:'UEMOA', color:'rgba(201,153,26,.18)', tc:'var(--gold)', questions:[
+    {q:'Quel est le taux directeur de la BCEAO actuellement ?',choices:['2,50%','3,00%','3,50%','4,00%'],correct:1,source:'Circulaire BCEAO n°003-03-2024'},
+    {q:'Quels instruments la BCEAO utilise-t-elle pour la politique monétaire ?',choices:['Taux directeur, réserves obligatoires, opérations d\'open market','Seulement le taux directeur','Seulement les réserves obligatoires','Taux de change et inflation'],correct:0,source:'Statuts BCEAO, Art. 12'},
+    {q:'La BCEAO est la banque centrale de combien de pays ?',choices:['6','7','8','9'],correct:2,source:'Traité UMOA révisé, Art. 1'},
+    {q:'Quelle est la monnaie commune des pays UEMOA ?',choices:['Euro','Franc CFA BCEAO','Dollar US','Franc CFA BEAC'],correct:1,source:'Traité UMOA'},
+    {q:'Le Comité de Politique Monétaire de la BCEAO se réunit combien de fois par an ?',choices:['2 fois','4 fois','6 fois','12 fois'],correct:1,source:'Règlement BCEAO CPM'},
+  ]},
+  {id:'bceao-supervision', label:'Supervision bancaire BCEAO', zone:'UEMOA', color:'rgba(201,153,26,.15)', tc:'var(--gold)', questions:[
+    {q:'Quel texte régit la supervision bancaire dans l\'UEMOA ?',choices:['Loi bancaire UEMOA 2010','Instruction BCEAO 026-11-2016','Règlement COBAC','Directive CEMAC'],correct:1,source:'Instruction BCEAO 026-11-2016'},
+    {q:'Le ratio de solvabilité minimum dans l\'UEMOA est fixé à :',choices:['6%','8%','10%','12%'],correct:1,source:'Instruction BCEAO sur les fonds propres'},
+    {q:'Quelle institution assure la supervision des banques dans l\'UEMOA ?',choices:['COBAC','Commission Bancaire UMOA','Banque Mondiale','FMI'],correct:1,source:'Traité UMOA, Art. 50'},
+    {q:'Le ratio de liquidité à court terme (LCR) exigé dans l\'UEMOA est de :',choices:['70%','80%','100%','120%'],correct:2,source:'Règlement BCEAO LCR'},
+    {q:'Les établissements de crédit dans l\'UEMOA sont agréés par :',choices:['Le Ministère des Finances','La BCEAO','La Commission Bancaire UMOA','La BRVM'],correct:2,source:'Loi bancaire UEMOA'},
+  ]},
+  {id:'bceao-change', label:'Réglementation des changes BCEAO', zone:'UEMOA', color:'rgba(201,153,26,.12)', tc:'var(--gold)', questions:[
+    {q:'Quel texte régit la réglementation des changes dans l\'UEMOA ?',choices:['Règlement 09/2010/CM/UEMOA','Directive 02/2019/CM/UEMOA','Règlement BCEAO 2016','Circulaire 001/2020'],correct:0,source:'Règlement 09/2010/CM/UEMOA'},
+    {q:'Le seuil de déclaration des transferts vers l\'extérieur est de :',choices:['500 000 FCFA','1 000 000 FCFA','5 000 000 FCFA','10 000 000 FCFA'],correct:1,source:'Instruction BCEAO sur les transferts'},
+    {q:'Les comptes en devises dans l\'UEMOA sont régis par :',choices:['Instruction BCEAO 94-05','Règlement 05/2002/CM','Directive 06/2008','Circulaire 002/2015'],correct:0,source:'Instruction BCEAO 94-05'},
+    {q:'La liberté des transferts courants dans l\'UEMOA est garantie par :',choices:['L\'UEMOA uniquement','Le FMI - Art. VIII','La BCEAO','La Commission bancaire'],correct:1,source:'Statuts FMI, Art. VIII'},
+    {q:'Les exportations de capitaux vers les pays tiers sont soumises à :',choices:['Aucune restriction','Déclaration simple','Autorisation préalable','Interdiction totale'],correct:2,source:'Règlement 09/2010/CM/UEMOA'},
+  ]},
+  {id:'bceao-microfinance', label:'Microfinance UEMOA', zone:'UEMOA', color:'rgba(16,185,129,.15)', tc:'var(--green)', questions:[
+    {q:'Quel texte régit la microfinance dans l\'UEMOA ?',choices:['Loi n°2008-47','Règlement 15/2002/CM/UEMOA','Instruction BCEAO 016-12-2010','Directive 06/2017/CM/UEMOA'],correct:1,source:'Règlement 15/2002/CM/UEMOA'},
+    {q:'Le capital minimum d\'un SFD de premier niveau dans l\'UEMOA est de :',choices:['5 millions FCFA','10 millions FCFA','20 millions FCFA','50 millions FCFA'],correct:1,source:'Règlement 15/2002/CM/UEMOA, Art. 15'},
+    {q:'Les SFD dans l\'UEMOA sont supervisés par :',choices:['La BCEAO seule','Le Ministère des Finances seul','La BCEAO et le Ministère des Finances','La Commission Bancaire'],correct:2,source:'Règlement 15/2002/CM/UEMOA'},
+    {q:'Le taux d\'usure dans la microfinance UEMOA est fixé par :',choices:['Chaque État','La BCEAO','Le BSTP','L\'UEMOA'],correct:1,source:'Instruction BCEAO sur les taux'},
+    {q:'Un SFD peut collecter de l\'épargne auprès du public à partir de quel niveau ?',choices:['Niveau 1','Niveau 2','Niveau 3','Tous les niveaux'],correct:1,source:'Règlement 15/2002/CM/UEMOA'},
+  ]},
+  {id:'bceao-systeme-paiement', label:'Systèmes de paiement BCEAO', zone:'UEMOA', color:'rgba(79,142,247,.15)', tc:'var(--blue)', questions:[
+    {q:'Quel est le système de règlement brut en temps réel de l\'UEMOA ?',choices:['SICA','STAR-UEMOA','SWIFT','RIM'],correct:1,source:'Règlement BCEAO STAR'},
+    {q:'Le SICA-UEMOA traite les paiements de :',choices:['Gros montants uniquement','Petit montant et masse','Tous montants','Virements internationaux'],correct:1,source:'Règlement BCEAO SICA'},
+    {q:'La surveillance des systèmes de paiement dans l\'UEMOA est assurée par :',choices:['La Commission Bancaire','La BCEAO','L\'État','La BRVM'],correct:1,source:'Loi uniforme sur les systèmes de paiement'},
+    {q:'Le GIM-UEMOA est :',choices:['Un système de règlement','Un groupement interbancaire monétique','Une banque','Un fonds de garantie'],correct:1,source:'Statuts GIM-UEMOA'},
+    {q:'La monnaie électronique dans l\'UEMOA est régie par :',choices:['Instruction BCEAO 008-05-2015','Règlement 15/2002','Directive 09/2010','Circulaire 2018'],correct:0,source:'Instruction BCEAO 008-05-2015'},
+  ]},
+  {id:'bceao-comptabilite', label:'Comptabilité bancaire UEMOA', zone:'UEMOA', color:'rgba(168,85,247,.12)', tc:'var(--purple)', questions:[
+    {q:'Le plan comptable bancaire en vigueur dans l\'UEMOA est issu de :',choices:['L\'OHADA','La BCEAO','La Commission Bancaire','Les normes IFRS'],correct:1,source:'Plan Comptable Bancaire BCEAO révisé'},
+    {q:'La fréquence de transmission des états financiers à la Commission Bancaire est :',choices:['Mensuelle','Trimestrielle','Semestrielle','Annuelle'],correct:3,source:'Instruction BCEAO sur les états financiers'},
+    {q:'Les provisions pour créances douteuses sont réglementées par :',choices:['L\'OHADA seul','La BCEAO seule','La Commission Bancaire','L\'IPSAS'],correct:2,source:'Instruction Commission Bancaire sur les provisions'},
+    {q:'Le ratio de couverture des emplois à moyen et long terme est de :',choices:['50%','75%','100%','150%'],correct:2,source:'Règlement prudentiel UEMOA'},
+    {q:'La durée de conservation des documents comptables bancaires est de :',choices:['5 ans','7 ans','10 ans','15 ans'],correct:2,source:'Règlement OHADA sur la comptabilité'},
+  ]},
+  {id:'beac-politique', label:'Politique monétaire BEAC', zone:'CEMAC', color:'rgba(239,68,68,.15)', tc:'var(--red)', questions:[
+    {q:'Combien de pays composent la CEMAC ?',choices:['4','5','6','7'],correct:2,source:'Traité CEMAC, Art. 1'},
+    {q:'Le siège de la BEAC est situé à :',choices:['Brazzaville','Libreville','Yaoundé','Bangui'],correct:2,source:'Statuts BEAC'},
+    {q:'Le Comité de Politique Monétaire de la BEAC est présidé par :',choices:['Le Président de la Commission CEMAC','Le Gouverneur de la BEAC','Le Chef d\'État du pays siège','Le Ministre des Finances'],correct:1,source:'Statuts BEAC, Art. 23'},
+    {q:'Quel est le taux des appels d\'offres de la BEAC ?',choices:['2,45%','3,25%','3,75%','4,50%'],correct:1,source:'Décision BEAC CPM 2024'},
+    {q:'Le franc CFA en zone CEMAC est émis par :',choices:['La BCEAO','La BEAC','La BdF','La BCE'],correct:1,source:'Statuts BEAC, Art. 5'},
+  ]},
+  {id:'beac-supervision', label:'Supervision bancaire BEAC/COBAC', zone:'CEMAC', color:'rgba(239,68,68,.12)', tc:'var(--red)', questions:[
+    {q:'La supervision bancaire dans la CEMAC est assurée par :',choices:['La BEAC','La COBAC','Le MINFI','La CEMAC'],correct:1,source:'Convention COBAC'},
+    {q:'Le ratio Cooke (solvabilité) minimal imposé en zone CEMAC est de :',choices:['6%','8%','10%','12%'],correct:1,source:'Règlement COBAC R-93/02'},
+    {q:'La COBAC a été créée par le règlement de :',choices:['1990','1992','1994','2000'],correct:0,source:'Convention COBAC 1990'},
+    {q:'Les sanctions de la COBAC peuvent aller jusqu\'à :',choices:['Avertissement seul','Blâme','Retrait d\'agrément','Fermeture et retrait d\'agrément'],correct:3,source:'Convention COBAC, Art. 15'},
+    {q:'Le secrétariat général de la COBAC est basé à :',choices:['Yaoundé','Libreville','Brazzaville','Bangui'],correct:0,source:'Convention COBAC'},
+  ]},
+  {id:'beac-change', label:'Réglementation des changes CEMAC', zone:'CEMAC', color:'rgba(205,127,50,.15)', tc:'var(--bronze)', questions:[
+    {q:'Le règlement des changes CEMAC est le :',choices:['Règlement n°01/00/CEMAC/UMAC/CM','Règlement 09/2010','Instruction BEAC 2015','Directive COBAC 2012'],correct:0,source:'Règlement n°01/00/CEMAC/UMAC/CM'},
+    {q:'Les résidents CEMAC peuvent détenir des comptes en devises :',choices:['Librement','Avec autorisation BEAC','Avec déclaration au Trésor','C\'est interdit'],correct:1,source:'Règlement change CEMAC, Art. 12'},
+    {q:'Le seuil de déclaration des exportations en CEMAC est de :',choices:['1 million FCFA','5 millions FCFA','10 millions FCFA','Toutes les exportations'],correct:3,source:'Règlement change CEMAC'},
+    {q:'La cession obligatoire des recettes d\'exportation en CEMAC est de :',choices:['25%','50%','75%','100%'],correct:3,source:'Instruction BEAC sur les exportations'},
+    {q:'Les investissements directs étrangers en CEMAC sont soumis à :',choices:['Aucune formalité','Déclaration à la BEAC','Autorisation du Ministère','Déclaration et rapatriement'],correct:3,source:'Règlement change CEMAC, Art. 25'},
+  ]},
+  {id:'beac-microfinance', label:'Microfinance CEMAC', zone:'CEMAC', color:'rgba(16,185,129,.12)', tc:'var(--green)', questions:[
+    {q:'Le règlement régissant les EMF en CEMAC est :',choices:['Règlement COBAC EMF-2002','Règlement n°1/03/CEMAC/UMAC','Convention COBAC 1995','Directive BEAC 2010'],correct:1,source:'Règlement n°1/03/CEMAC/UMAC/CM/COBAC'},
+    {q:'La COBAC classe les EMF en combien de catégories ?',choices:['2','3','4','5'],correct:1,source:'Règlement COBAC EMF, Art. 5'},
+    {q:'Le capital minimum d\'un EMF de 1ère catégorie en CEMAC est de :',choices:['5 millions','25 millions','50 millions','100 millions'],correct:1,source:'Règlement COBAC EMF, Art. 20'},
+    {q:'Les EMF de 2ème catégorie peuvent :',choices:['Collecter l\'épargne seulement','Octroyer du crédit seulement','Collecter l\'épargne et octroyer du crédit','Opérer en devises'],correct:2,source:'Règlement COBAC EMF, Art. 8'},
+    {q:'La supervision des EMF en CEMAC est exercée par :',choices:['La BEAC seule','La COBAC','Le Ministère des Finances','La CEMAC'],correct:1,source:'Règlement COBAC EMF'},
+  ]},
+  {id:'cobac-prudentiel', label:'Normes prudentielles COBAC', zone:'CEMAC', color:'rgba(34,211,238,.12)', tc:'var(--cyan)', questions:[
+    {q:'Le règlement COBAC R-2016/04 porte sur :',choices:['Les fonds propres','La liquidité','Les grands risques','Le gouvernance'],correct:0,source:'Règlement COBAC R-2016/04'},
+    {q:'Le ratio de grands risques COBAC limite l\'exposition individuelle à :',choices:['15% des FP','25% des FP','45% des FP','75% des FP'],correct:2,source:'Règlement COBAC sur les grands risques'},
+    {q:'Le LCR (ratio de liquidité à court terme) imposé par la COBAC est de :',choices:['70%','80%','100%','110%'],correct:2,source:'Règlement COBAC R-2018/01'},
+    {q:'Les règles de gouvernance bancaire COBAC sont issues du règlement :',choices:['R-2016/02','R-2010/01','R-2018/02','R-2005/01'],correct:0,source:'Règlement COBAC R-2016/02'},
+    {q:'Le ratio de levier imposé par la COBAC est de :',choices:['2%','3%','5%','8%'],correct:1,source:'Règlement COBAC R-2016/04'},
+  ]},
+  {id:'cobac-comptabilite', label:'Comptabilité bancaire CEMAC', zone:'CEMAC', color:'rgba(168,85,247,.1)', tc:'var(--purple)', questions:[
+    {q:'Le plan comptable des établissements de crédit CEMAC est issu de :',choices:['L\'OHADA','La COBAC/BEAC','L\'IASB','Le Ministère des Finances'],correct:1,source:'Plan Comptable CEMAC'},
+    {q:'La classification des créances en souffrance COBAC distingue :',choices:['2 catégories','3 catégories','4 catégories','5 catégories'],correct:1,source:'Règlement COBAC sur les créances en souffrance'},
+    {q:'Les provisions minimales sur créances irrécouvrables COBAC sont de :',choices:['50%','75%','100%','Selon évaluation'],correct:2,source:'Règlement COBAC R-93/02'},
+    {q:'La durée d\'amortissement maximale des immobilisations bancaires en CEMAC est de :',choices:['5 ans','10 ans','20 ans','Selon OHADA'],correct:3,source:'Plan Comptable CEMAC'},
+    {q:'La COBAC peut exiger la certification des comptes par :',choices:['Un auditeur interne','Un commissaire aux comptes agréé','Le Ministère des Finances','La BEAC'],correct:1,source:'Convention COBAC, Art. 12'},
+  ]},
+  {id:'umoa-droit-bancaire', label:'Droit bancaire UMOA', zone:'UEMOA', color:'rgba(79,142,247,.12)', tc:'var(--blue)', questions:[
+    {q:'La loi portant réglementation bancaire dans l\'UMOA date de :',choices:['1990','2010','2017','2020'],correct:1,source:'Loi bancaire UMOA 2010'},
+    {q:'Le capital minimum d\'une banque universelle dans l\'UMOA est de :',choices:['1 milliard FCFA','5 milliards FCFA','10 milliards FCFA','20 milliards FCFA'],correct:2,source:'Loi bancaire UMOA 2010, Art. 25'},
+    {q:'La durée maximale d\'agrément provisoire d\'une banque dans l\'UMOA est de :',choices:['3 mois','6 mois','1 an','2 ans'],correct:2,source:'Loi bancaire UMOA 2010'},
+    {q:'Le secret bancaire dans l\'UMOA peut être levé au profit :',choices:['De toute personne','Des seules autorités judiciaires','Des autorités judiciaires, fiscales et prudentielles','De toute autorité publique'],correct:2,source:'Loi bancaire UMOA 2010, Art. 53'},
+    {q:'En cas de faillite d\'une banque UMOA, le FGDB indemnise les dépôts jusqu\'à :',choices:['1 million FCFA','3 millions FCFA','5 millions FCFA','10 millions FCFA'],correct:3,source:'Règlement FGDB-UMOA'},
+  ]},
+  {id:'umoa-marche-financier', label:'Marché financier UEMOA (BRVM)', zone:'UEMOA', color:'rgba(201,153,26,.1)', tc:'var(--gold-l)', questions:[
+    {q:'La BRVM est basée à :',choices:['Dakar','Abidjan','Cotonou','Lomé'],correct:1,source:'Règlement général BRVM'},
+    {q:'L\'autorité de régulation du marché financier UEMOA est :',choices:['La BCEAO','Le CMF','L\'UMOA','La BRVM'],correct:1,source:'Règlement général CREPMF'},
+    {q:'Le CREPMF a été créé par :',choices:['La Convention de 1996','Le Traité UEMOA de 1994','Le Règlement de 2000','La Directive de 2008'],correct:0,source:'Convention portant création du CREPMF'},
+    {q:'La compensation à la BRVM se fait sur :',choices:['T+1','T+2','T+3','T+5'],correct:2,source:'Règlement général BRVM'},
+    {q:'Les émissions obligataires sur le marché UEMOA doivent être visées par :',choices:['La BCEAO','Le CREPMF','L\'État émetteur','La Banque Mondiale'],correct:1,source:'Règlement général CREPMF'},
+  ]},
+  {id:'umoa-inclusion', label:'Inclusion financière UEMOA', zone:'UEMOA', color:'rgba(16,185,129,.1)', tc:'var(--green)', questions:[
+    {q:'La Stratégie Régionale d\'Inclusion Financière (SRIF) de l\'UEMOA couvre la période :',choices:['2016-2020','2020-2025','2022-2026','2025-2030'],correct:1,source:'SRIF UEMOA 2020-2025'},
+    {q:'Le taux d\'inclusion financière cible de l\'UEMOA à horizon 2025 est de :',choices:['50%','65%','75%','85%'],correct:2,source:'SRIF UEMOA 2020-2025'},
+    {q:'L\'interopérabilité des services de monnaie électronique en UEMOA est assurée par :',choices:['La BCEAO','Le GIM-UEMOA','Chaque opérateur','L\'Union'],correct:1,source:'Instruction BCEAO sur l\'interopérabilité'},
+    {q:'Le compte de dépôt de base (CDB) en UEMOA a été instauré par :',choices:['Instruction BCEAO 007-08-2016','Règlement 15/2002','Directive 06/2017','Circulaire 2019'],correct:0,source:'Instruction BCEAO 007-08-2016'},
+    {q:'L\'agent bancaire dans l\'UEMOA est régi par :',choices:['Instruction BCEAO 008-05-2015','Règlement COBAC','Directive UEMOA','Loi bancaire 2010'],correct:0,source:'Instruction BCEAO 008-05-2015'},
+  ]},
+  {id:'lbc-ft-uemoa', label:'LBC/FT UEMOA', zone:'UEMOA', color:'rgba(239,68,68,.1)', tc:'var(--red)', questions:[
+    {q:'La directive LBC/FT en vigueur dans l\'UEMOA est la :',choices:['Directive 04/2007/CM/UEMOA','Directive 02/2015/CM/UEMOA','Directive 07/2009/CM/UEMOA','Directive 01/2016/CM/UEMOA'],correct:1,source:'Directive 02/2015/CM/UEMOA'},
+    {q:'Le seuil de déclaration de soupçon dans l\'UEMOA est :',choices:['Au-dessus d\'1 million FCFA','Au-dessus de 5 millions FCFA','Toute opération suspecte quelle que soit la valeur','Au-dessus de 10 millions FCFA'],correct:2,source:'Directive 02/2015/CM/UEMOA, Art. 26'},
+    {q:'La cellule nationale de renseignement financier en Côte d\'Ivoire est :',choices:['CENTIF','GIABA','ANIF','CORF'],correct:2,source:'Dispositif LBC-FT Côte d\'Ivoire'},
+    {q:'Le GIABA est :',choices:['Une cellule nationale de renseignement','Un organisme régional de lutte contre le BC/FT','Une juridiction spécialisée','Une unité de la BCEAO'],correct:1,source:'Statuts GIABA'},
+    {q:'L\'approche par les risques (APR) en LBC/FT implique :',choices:['Des contrôles uniformes pour tous les clients','Une intensité des contrôles proportionnelle au risque','L\'exemption des clients à faible risque','Des contrôles renforcés pour tous'],correct:1,source:'Recommandations GAFI'},
+  ]},
+  {id:'lbc-ft-cemac', label:'LBC/FT CEMAC', zone:'CEMAC', color:'rgba(239,68,68,.12)', tc:'var(--red)', questions:[
+    {q:'Le règlement LBC/FT en vigueur dans la CEMAC est :',choices:['Règlement n°01/03/CEMAC/UMAC','Règlement n°01/21/CEMAC/UMAC','Règlement COBAC 2015','Directive BEAC 2018'],correct:1,source:'Règlement n°01/21/CEMAC/UMAC/CM'},
+    {q:'Le GABAC est :',choices:['Un groupe d\'action contre le blanchiment en Afrique Centrale','Une cellule nationale','Un tribunal spécialisé','Une unité BEAC'],correct:0,source:'Statuts GABAC'},
+    {q:'Les Personnes Politiquement Exposées (PPE) nécessitent :',choices:['Un traitement standard','Des mesures de vigilance renforcée','Une exemption de vigilance','Un refus systématique'],correct:1,source:'Règlement CEMAC LBC/FT, Art. 20'},
+    {q:'Le gel des avoirs dans le cadre du financement du terrorisme en CEMAC est régi par :',choices:['Le Règlement 01/21','La Résolution ONU 1267','Les deux textes conjointement','Le Code pénal CEMAC'],correct:2,source:'Règlement CEMAC LBC/FT et Résolutions ONU'},
+    {q:'La conservation des documents LBC/FT dans la CEMAC est obligatoire pendant :',choices:['3 ans','5 ans','7 ans','10 ans'],correct:3,source:'Règlement n°01/21/CEMAC/UMAC/CM, Art. 35'},
+  ]},
+  {id:'lbc-ft-gafi', label:'Normes GAFI & évaluations mutuelles', zone:'UEMOA', color:'rgba(34,211,238,.1)', tc:'var(--cyan)', questions:[
+    {q:'Le GAFI a publié ses 40 recommandations révisées en :',choices:['2003','2012','2016','2020'],correct:1,source:'40 Recommandations GAFI 2012'},
+    {q:'Le risque de blanchiment est évalué selon combien de critères GAFI ?',choices:['3 (menace, vulnérabilité, conséquences)','4','5','6'],correct:0,source:'Guidance GAFI sur l\'ANR'},
+    {q:'La liste noire du GAFI désigne les pays soumis à :',choices:['Surveillance renforcée','Contre-mesures','Exclusion du système SWIFT','Sanctions ONU'],correct:1,source:'Processus GAFI ICRG'},
+    {q:'L\'évaluation mutuelle du Sénégal (GIABA) la plus récente date de :',choices:['2012','2018','2021','2024'],correct:2,source:'Rapport évaluation mutuelle Sénégal 2021'},
+    {q:'La Recommandation 10 du GAFI porte sur :',choices:['La vigilance à l\'égard de la clientèle','Le gel des avoirs','Les PPE','Les déclarations de soupçon'],correct:0,source:'Recommandation 10 GAFI'},
+  ]},
+  {id:'lbc-ft-compliance', label:'Conformité LBC/FT en pratique', zone:'UEMOA', color:'rgba(168,85,247,.1)', tc:'var(--purple)', questions:[
+    {q:'Le responsable de la conformité LBC/FT (RCLCB) doit rendre compte à :',choices:['La direction générale','Le conseil d\'administration','Les deux','L\'auditeur externe'],correct:2,source:'Directive UEMOA LBC/FT, Art. 12'},
+    {q:'Le KYC (Know Your Customer) comprend au minimum :',choices:['Nom et adresse','Identité, activité et source de revenus','Identité uniquement','Adresse et revenus'],correct:1,source:'Directive 02/2015/CM/UEMOA'},
+    {q:'La vigilance simplifiée peut s\'appliquer à :',choices:['Tout client','Les clients à faible risque identifiés','Les comptes dormants','Les PPE'],correct:1,source:'Directive 02/2015/CM/UEMOA, Art. 20'},
+    {q:'Une déclaration de soupçon (DS) doit être transmise à :',choices:['La police','La CENTIF/ANIF compétente','La BCEAO','Le parquet'],correct:1,source:'Directive UEMOA LBC/FT'},
+    {q:'Le délit de blanchiment est constitué même si :',choices:['L\'auteur connaît l\'origine des fonds','L\'infraction sous-jacente est commise à l\'étranger','L\'auteur est une personne morale seulement','Le montant est inférieur à 1 million FCFA'],correct:1,source:'Droit pénal UEMOA LBC/FT'},
+  ]},
+  {id:'lbc-ft-financement-terrorisme', label:'Financement du terrorisme', zone:'UEMOA', color:'rgba(239,68,68,.08)', tc:'var(--red)', questions:[
+    {q:'La résolution ONU de référence sur le gel des avoirs liés au terrorisme est :',choices:['Résolution 1267 (1999)','Résolution 1373 (2001)','Les deux résolutions','Résolution 2462 (2019)'],correct:2,source:'Résolutions ONU 1267 et 1373'},
+    {q:'Le financement du terrorisme (FT) diffère du blanchiment en ce que :',choices:['Les fonds FT peuvent être d\'origine licite','Le FT est moins grave','Le FT ne nécessite pas de déclaration','Le FT n\'est pas un crime'],correct:0,source:'Recommandation 5 GAFI'},
+    {q:'La prolifération des armes de destruction massive (PADM) est couverte par :',choices:['La Recommandation 7 GAFI','La Recommandation 5 GAFI','La Résolution ONU 1267','La Directive UEMOA'],correct:0,source:'Recommandation 7 GAFI'},
+    {q:'Un établissement financier doit geler les avoirs d\'une personne listée :',choices:['Après notification de la CENTIF','Sans délai','Dans les 24h','Dans les 5 jours ouvrables'],correct:1,source:'Résolution ONU 1267 - obligation de gel immédiat'},
+    {q:'Le non-report de transaction suspecte liée au FT est sanctionné :',choices:['Par une amende administrative uniquement','Par des sanctions pénales et administratives','Par la fermeture de l\'établissement','Par aucune sanction spécifique'],correct:1,source:'Directive UEMOA LBC/FT, Art. 42'},
+  ]},
+];
+
+let _soloState = { pack: null, qIndex: 0, score: 0, answered: false };
+
+function initSolo() {
+  console.log('[RA] Solo init — packs:', PACKS.length);
+  const grid = document.getElementById('solo-pack-grid');
+  if (!grid) { console.warn('[RA] Solo : #solo-pack-grid introuvable'); return; }
+  grid.innerHTML = PACKS.map(p => `
+    <div onclick="startSoloPack('${p.id}')" style="cursor:pointer;padding:18px 16px;background:var(--bg2);border:1px solid var(--sep);border-radius:4px;transition:all .2s;position:relative;overflow:hidden"
+         onmouseover="this.style.borderColor='var(--gold)';this.style.transform='translateY(-2px)'"
+         onmouseout="this.style.borderColor='var(--sep)';this.style.transform='none'">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:2px;color:${p.tc};margin-bottom:6px;text-transform:uppercase">${p.zone}</div>
+      <div style="font-size:.85rem;font-weight:700;line-height:1.3;margin-bottom:8px">${p.label}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted)">${p.questions.length} questions</div>
+    </div>
+  `).join('');
+}
+
+function startSoloPack(packId) {
+  const pack = PACKS.find(p => p.id === packId);
+  if (!pack) return;
+  _soloState = { pack, qIndex: 0, score: 0, answered: false };
+  const overlay = document.getElementById('solo-quiz-overlay');
+  overlay.style.display = 'block';
+  document.getElementById('solo-pack-title').textContent = pack.label;
+  document.getElementById('solo-q-total').textContent = pack.questions.length;
+  document.getElementById('solo-result').style.display = 'none';
+  document.getElementById('solo-choices').style.display = 'flex';
+  document.getElementById('solo-q-text').style.display = 'block';
+  document.getElementById('solo-source').style.display = 'none';
+  _soloLoadQ();
+}
+
+function _soloLoadQ() {
+  const { pack, qIndex } = _soloState;
+  if (qIndex >= pack.questions.length) { _soloShowResult(); return; }
+  const q = pack.questions[qIndex];
+  document.getElementById('solo-q-num').textContent = qIndex + 1;
+  document.getElementById('solo-score-live').textContent = _soloState.score;
+  document.getElementById('solo-q-text').textContent = q.q;
+  document.getElementById('solo-source').style.display = 'none';
+  _soloState.answered = false;
+  const el = document.getElementById('solo-choices');
+  el.innerHTML = q.choices.map((c, i) =>
+    `<button class="q-choice" onclick="soloAnswer(${i})" style="text-align:left">${String.fromCharCode(65+i)}. ${escapeHtml(c)}</button>`
+  ).join('');
+}
+
+function soloAnswer(idx) {
+  if (_soloState.answered) return;
+  _soloState.answered = true;
+  const q = _soloState.pack.questions[_soloState.qIndex];
+  const ok = idx === q.correct;
+  document.querySelectorAll('#solo-choices .q-choice').forEach((c, i) => {
+    if (i === q.correct) c.classList.add('correct');
+    else if (i === idx && !ok) c.classList.add('wrong');
+    else c.classList.add('disabled');
+  });
+  if (ok) { _soloState.score += 100; showToast('✓ Correct ! +100 pts'); }
+  else showToast('✗ ' + q.choices[q.correct]);
+  if (q.source) {
+    const src = document.getElementById('solo-source');
+    src.style.display = 'block';
+    src.innerHTML = '📋 <span style="color:var(--gold)">Source :</span> ' + escapeHtml(q.source);
+  }
+  setTimeout(() => { _soloState.qIndex++; _soloLoadQ(); }, 2000);
+}
+
+function _soloShowResult() {
+  const { pack, score } = _soloState;
+  const total = pack.questions.length * 100;
+  const pct = Math.round(score / total * 100);
+  document.getElementById('solo-choices').style.display = 'none';
+  document.getElementById('solo-q-text').style.display = 'none';
+  document.getElementById('solo-source').style.display = 'none';
+  const res = document.getElementById('solo-result');
+  res.style.display = 'block';
+  document.getElementById('solo-result-trophy').textContent = pct >= 80 ? '🏆' : pct >= 50 ? '👍' : '📚';
+  document.getElementById('solo-result-score').textContent = score.toLocaleString('fr-FR') + ' / ' + total.toLocaleString('fr-FR');
+  document.getElementById('solo-result-msg').textContent = pct >= 80 ? 'Excellent ! Maîtrise confirmée.' : pct >= 50 ? 'Bon résultat. Continuez !' : 'À retravailler. La réglementation n\'a pas de secrets pour qui persiste !';
+  if (pct >= 80) launchConfetti && launchConfetti();
+  const jwt = (function(){ try{return localStorage.getItem('ra_jwt');}catch(e){} try{return sessionStorage.getItem('ra_jwt');}catch(e){} return null; })();
+  if (jwt) {
+    fetch('/scores', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt}, body: JSON.stringify({pack_id: pack.id, score, total}) }).catch(()=>{});
+  }
+}
+
+function closeSoloQuiz() {
+  document.getElementById('solo-quiz-overlay').style.display = 'none';
+}
+
+function replaySolo() {
+  if (_soloState.pack) startSoloPack(_soloState.pack.id);
+}
+
+/* ───────────────────────────────────────────────────────────
    MODULE : CLASSEMENT
    ─────────────────────────────────────────────────────────── */
 const LB_DATA = [
@@ -2230,6 +2505,44 @@ const LB_DATA = [
 ];
 
 function renderLeaderboard(filter = 'all') {
+  const container = document.getElementById('leaderboard-rows');
+  if (!container) return;
+  const jwt = (function(){ try{return localStorage.getItem('ra_jwt');}catch(e){} try{return sessionStorage.getItem('ra_jwt');}catch(e){} return null; })();
+  if (jwt) {
+    fetch('/leaderboard', { headers: { 'Authorization': 'Bearer ' + jwt } })
+      .then(r => r.json())
+      .then(data => {
+        if (!data.success || !data.leaderboard) { _renderLBFallback(filter); return; }
+        const myName = (function(){ try{ const p=JSON.parse(atob(jwt.split('.')[1])); return p.name||''; }catch(e){return '';} })();
+        let html = '';
+        data.leaderboard.forEach((p, i) => {
+          const rank = i + 1;
+          const rClass = rank===1?'rank-gold-text':rank===2?'rank-silver-text':rank===3?'rank-bronze-text':'';
+          const isMe = p.name === myName;
+          const init = (p.name||'?').slice(0,2).toUpperCase();
+          html += `<div class="lb-row${rank<=3?' top3-row':''}${isMe?' is-me':''}" role="row">
+            <span class="lb-rank-num ${rClass}" style="${!rClass&&!isMe?'color:var(--muted)':''}" role="cell">${String(rank).padStart(2,'0')}</span>
+            <div class="lb-player" role="cell">
+              <div class="lb-av" aria-hidden="true">${escapeHtml(init)}</div>
+              <div><div class="lb-name-main">${escapeHtml(p.name)}${isMe?' <span style="font-family:\'JetBrains Mono\',monospace;font-size:.6rem;color:var(--cyan)">(Moi)</span>':''}</div>
+              <div class="lb-name-sub">${escapeHtml(p.etablissement||p.country||'')}</div></div>
+            </div>
+            <span class="lb-score-val" role="cell">${(p.total_score||0).toLocaleString('fr-FR')}</span>
+            <span class="lb-country" role="cell">${escapeHtml(p.country||'')}</span>
+            <span class="lb-streak" role="cell">${p.games||0} partie(s)</span>
+          </div>`;
+        });
+        container.innerHTML = html || '<div style="color:var(--muted);text-align:center;padding:40px">Aucun score enregistré pour l\'instant.</div>';
+      })
+      .catch(() => _renderLBFallback(filter));
+  } else {
+    _renderLBFallback(filter);
+  }
+}
+
+function _renderLBFallback(filter) {
+  const container = document.getElementById('leaderboard-rows');
+  if (!container) return;
   const data = LB_DATA.filter(p => {
     if (filter === 'uemoa') return p.zone === 'uemoa';
     if (filter === 'cemac') return p.zone === 'cemac';
@@ -2237,7 +2550,6 @@ function renderLeaderboard(filter = 'all') {
     if (filter === 'student') return p.type === 'student';
     return true;
   });
-  const container = document.getElementById('leaderboard-rows');
   let html = '';
   data.forEach((p, i) => {
     const rClass = p.rank===1?'rank-gold-text':p.rank===2?'rank-silver-text':p.rank===3?'rank-bronze-text':'';
@@ -2331,8 +2643,19 @@ function shareWAT() { window.open('https://wa.me/?text='+encodeURIComponent('�
 function setPart(btn,n) { document.getElementById('part-opts').querySelectorAll('.popt').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
 function createTournament() {
   const name = document.getElementById('t-name').value || 'Tournoi REGUL ARENA';
-  showToast('🏟 '+name+' créé ! Code : '+tCode);
-  setTimeout(()=>tGoTo('dashboard'), 500);
+  const jwt = (function(){ try{return localStorage.getItem('ra_jwt');}catch(e){} try{return sessionStorage.getItem('ra_jwt');}catch(e){} return null; })();
+  if (!jwt) { showToast('⚠️ Connecte-toi pour créer un tournoi'); return; }
+  fetch('/tournaments', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt}, body: JSON.stringify({pack_id: document.getElementById('t-pack')?.value || 'general', max_players: 8}) })
+    .then(r => r.json())
+    .then(d => {
+      if (d.success) {
+        tCode = d.code;
+        document.querySelectorAll('.t-code-display').forEach(el => el.textContent = tCode);
+        showToast('🏟 '+name+' créé ! Code : '+tCode);
+        setTimeout(()=>tGoTo('dashboard'), 500);
+      } else { showToast('❌ '+(d.error||'Erreur création tournoi')); }
+    })
+    .catch(() => { showToast('🏟 '+name+' créé ! Code : '+tCode); setTimeout(()=>tGoTo('dashboard'), 500); });
 }
 function renderBracket() {
   const svg = document.getElementById('bracket-svg'), lines = document.getElementById('bracket-lines'), slots = document.getElementById('bracket-slots');
@@ -2397,16 +2720,47 @@ function renderNotifs() {
   if(cnt) cnt.textContent=T_NOTIFS.filter(n=>!n.read).length;
 }
 function clearNotifs(){T_NOTIFS.forEach(n=>n.read=true);renderNotifs();}
+let _chatZone = 'general';
+let _chatPollInterval = null;
+let _chatLastId = 0;
+
 function renderChat() {
   const el=document.getElementById('chat-messages'); if(!el)return;
   el.innerHTML=chatMsgsMain.map(m=>`<div class="msg ${m.me?'me':'them'}">${!m.me?`<div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);margin-bottom:2px">${escapeHtml(m.name)}</div>`:''}<div class="msg-bubble">${escapeHtml(m.text)}</div><div class="msg-meta">${escapeHtml(m.time)}</div></div>`).join('');
   el.scrollTop=el.scrollHeight;
 }
+
+function _fetchChat() {
+  const jwt=(function(){try{return localStorage.getItem('ra_jwt');}catch(e){}try{return sessionStorage.getItem('ra_jwt');}catch(e){}return null;})();
+  if(!jwt)return;
+  fetch('/chat/'+_chatZone,{headers:{'Authorization':'Bearer '+jwt}})
+    .then(r=>r.json())
+    .then(d=>{
+      if(!d.success||!d.messages)return;
+      const myName=(function(){try{const p=JSON.parse(atob(jwt.split('.')[1]));return p.name||'';}catch(e){return '';}})();
+      const newMsgs=d.messages.filter(m=>m.id>_chatLastId);
+      if(newMsgs.length){
+        newMsgs.forEach(m=>{chatMsgsMain.push({name:m.name,text:m.content,time:m.sent_at?m.sent_at.slice(11,16):'',me:m.name===myName});});
+        _chatLastId=newMsgs[newMsgs.length-1].id;
+        renderChat();
+      }
+    }).catch(()=>{});
+}
+
+function _startChatPolling() {
+  chatMsgsMain.length=0; _chatLastId=0;
+  _fetchChat();
+  if(_chatPollInterval) clearInterval(_chatPollInterval);
+  _chatPollInterval=setInterval(_fetchChat,10000);
+}
+
 function sendChat() {
   const input=document.getElementById('chat-input'),text=input.value.trim(); if(!text)return;
-  const time=new Date().toTimeString().slice(0,5);
-  chatMsgsMain.push({name:'Abdou N.',text,time,me:true}); renderChat(); input.value='';
-  setTimeout(()=>{const bots=[{name:'KofiDansso',text:'👍'},{name:'AïchaTraoré',text:'Merci !'},{name:'OumarBalde',text:'🔥'}];const b=bots[Math.floor(Math.random()*bots.length)];chatMsgsMain.push({...b,time,me:false});renderChat();},1500+Math.random()*1500);
+  input.value='';
+  const jwt=(function(){try{return localStorage.getItem('ra_jwt');}catch(e){}try{return sessionStorage.getItem('ra_jwt');}catch(e){}return null;})();
+  if(!jwt){const time=new Date().toTimeString().slice(0,5);chatMsgsMain.push({name:'Moi',text,time,me:true});renderChat();return;}
+  fetch('/chat/'+_chatZone,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt},body:JSON.stringify({content:text})})
+    .then(()=>_fetchChat()).catch(()=>{});
 }
 function renderPerfList() {
   const el=document.getElementById('perf-list'); if(!el)return;
@@ -2522,8 +2876,24 @@ function selectOpponent(id){
 }
 function clearOpponent(){document.getElementById('selected-opp').style.display='none';document.getElementById('opp-search').value='';}
 function setInvite(btn,method){document.querySelectorAll('.invite-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.getElementById('invite-link-box').style.display=method==='link'?'flex':'none';document.getElementById('whatsapp-box').style.display=method==='whatsapp'?'block':'none';}
-function copyDuelLink(){navigator.clipboard.writeText('https://regularena.com/duel/ABC-XY7-2026').catch(()=>{});showToast('🔗 Lien copié !');}
-function openDuelWA(){window.open('https://wa.me/?text='+encodeURIComponent('⚔️ Défi REGUL ARENA !\n🔗 regularena.com/duel/ABC-XY7-2026'),'_blank');}
+function _ensureDuelCode(cb) {
+  if (window._duelCode) { cb(window._duelCode); return; }
+  const jwt = (function(){ try{return localStorage.getItem('ra_jwt');}catch(e){} try{return sessionStorage.getItem('ra_jwt');}catch(e){} return null; })();
+  if (!jwt) { cb('ABC-XY7-2026'); return; }
+  const pack = document.getElementById('d-pack')?.value || 'general';
+  fetch('/duels', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt}, body: JSON.stringify({pack_id: pack}) })
+    .then(r => r.json())
+    .then(d => {
+      if (d.success && d.code) {
+        window._duelCode = d.code;
+        document.querySelectorAll('.inv-link-text').forEach(el => el.textContent = location.origin+'/duel/'+d.code);
+        cb(d.code);
+      } else { cb('ABC-XY7-2026'); }
+    })
+    .catch(() => cb('ABC-XY7-2026'));
+}
+function copyDuelLink(){ _ensureDuelCode(code => { navigator.clipboard.writeText(location.origin+'/duel/'+code).catch(()=>{}); showToast('🔗 Lien copié !'); }); }
+function openDuelWA(){ _ensureDuelCode(code => { window.open('https://wa.me/?text='+encodeURIComponent('⚔️ Défi REGUL ARENA !\n🔗 '+location.origin+'/duel/'+code),'_blank'); }); }
 function startCountdown(){
   let count=30;const numEl=document.getElementById('countdown-num'),ring=document.getElementById('countdown-ring');
   const t=setInterval(()=>{count--;if(numEl)numEl.textContent=count;if(ring)ring.style.strokeDashoffset=276.46*(1-count/30);if(count<=10&&ring)ring.style.stroke='var(--red)';if(count<=0){clearInterval(t);dGoTo('duel');}},1000);
@@ -2596,9 +2966,15 @@ function showResult(iWin){
   const fme=document.getElementById('final-score-me'),fth=document.getElementById('final-score-them');
   if(fme)fme.textContent=meS.toLocaleString('fr-FR');if(fth)fth.textContent=thS.toLocaleString('fr-FR');
   const trophy=document.getElementById('winner-trophy'),wname=document.getElementById('winner-name'),ptsEl=document.getElementById('pts-gain');
-  if(iWin){if(trophy)trophy.textContent='🏆';if(wname)wname.textContent='Abdou N.';if(ptsEl){ptsEl.textContent='+120';ptsEl.className='pts-value gain';}launchConfetti();}
-  else{if(trophy)trophy.textContent='😤';if(wname)wname.textContent='KofiDansso';if(ptsEl){ptsEl.textContent='-40';ptsEl.className='pts-value loss';}}
+  if(iWin){if(trophy)trophy.textContent='🏆';if(wname)wname.textContent='Toi';if(ptsEl){ptsEl.textContent='+120';ptsEl.className='pts-value gain';}launchConfetti();}
+  else{if(trophy)trophy.textContent='😤';if(wname)wname.textContent='Adversaire';if(ptsEl){ptsEl.textContent='-40';ptsEl.className='pts-value loss';}}
   dGoTo('result');
+  const jwt=(function(){try{return localStorage.getItem('ra_jwt');}catch(e){}try{return sessionStorage.getItem('ra_jwt');}catch(e){}return null;})();
+  if(jwt){
+    const pack=document.getElementById('d-pack')?.value||'duel';
+    fetch('/scores',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt},body:JSON.stringify({pack_id:pack,score:meS,total:meS+thS})}).catch(()=>{});
+    if(window._duelCode){fetch('/duels/'+window._duelCode+'/score',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt},body:JSON.stringify({score:meS,total:meS+thS})}).catch(()=>{});}
+  }
 }
 function launchConfetti(){
   const c=document.getElementById('confetti');if(!c)return;c.innerHTML='';
