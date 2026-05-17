@@ -278,6 +278,16 @@ app.get('/auth/login-verify', limiterLoose, (req, res) => {
 });
 
 
+/* GET /auth/me   Header : Authorization: Bearer <jwt>
+   &#8594; valide le JWT, retourne user + is_verified pour restaurer la session
+*/
+app.get('/auth/me', requireAuth, (req, res) => {
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id);
+  if (!user) return err(res, 404, 'Compte introuvable');
+  return ok(res, { user: { ...publicUser(user), is_verified: user.email_verified === 1 } });
+});
+
+
 /* ================================================================
    ROUTES FEEDBACK
 ================================================================ */
