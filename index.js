@@ -162,6 +162,44 @@ db.exec(`
 try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_duel_scores_uq ON duel_scores (duel_id, user_id)'); } catch(_) {}
 try { db.exec('CREATE INDEX IF NOT EXISTS idx_notif_user ON notifications (user_id, seen, created_at DESC)'); } catch(_) {}
 
+// TOURNOI AJOUT — migrations nouvelles colonnes tables existantes
+['ALTER TABLE tournaments ADD COLUMN country TEXT NOT NULL DEFAULT ""',   // TOURNOI AJOUT
+ 'ALTER TABLE tournaments ADD COLUMN zone TEXT NOT NULL DEFAULT "uemoa"', // TOURNOI AJOUT
+ 'ALTER TABLE tournaments ADD COLUMN start_date TEXT NOT NULL DEFAULT ""',// TOURNOI AJOUT
+ 'ALTER TABLE tournament_participants ADD COLUMN qualified INTEGER NOT NULL DEFAULT 0', // TOURNOI AJOUT
+].forEach(sql => { try { db.exec(sql); } catch(_) {} }); // TOURNOI AJOUT
+
+// TOURNOI AJOUT — nouvelles tables module tournoi
+db.exec(`
+  CREATE TABLE IF NOT EXISTS tournament_matches (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    tournament_id INTEGER NOT NULL REFERENCES tournaments(id) ON DELETE CASCADE,
+    round         INTEGER NOT NULL DEFAULT 1,
+    player1_id    INTEGER REFERENCES users(id),
+    player2_id    INTEGER REFERENCES users(id),
+    winner_id     INTEGER REFERENCES users(id),
+    duel_code     TEXT,
+    status        TEXT NOT NULL DEFAULT 'pending',
+    created_at    TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+  CREATE TABLE IF NOT EXISTS tournament_match_sheets (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    tournament_id INTEGER REFERENCES tournaments(id) ON DELETE CASCADE,
+    match_id      INTEGER,
+    player_id     INTEGER NOT NULL REFERENCES users(id),
+    questions_json TEXT NOT NULL DEFAULT '[]',
+    score         INTEGER NOT NULL DEFAULT 0,
+    created_at    TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+  CREATE TABLE IF NOT EXISTS tournament_chat (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    tournament_id INTEGER NOT NULL REFERENCES tournaments(id) ON DELETE CASCADE,
+    user_id       INTEGER NOT NULL REFERENCES users(id),
+    content       TEXT NOT NULL,
+    sent_at       TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+`); // TOURNOI AJOUT
+
 /* ── NOTIFICATIONS HELPER ──────────────────────────────────────────── */
 function notifyAllExcept(excludeUserId, type, message) {
   const users = db.prepare('SELECT id FROM users WHERE email_verified = 1 AND id != ?').all(excludeUserId);
@@ -711,6 +749,251 @@ app.post('/tournaments/:code/score', requireAuth, (req, res) => {
   participants.forEach((p, i) => db.prepare('UPDATE tournament_participants SET rank = ? WHERE id = ?').run(i + 1, p.id));
   return ok(res, { message: 'Score enregistré' });
 });
+
+/* ================================================================
+   ROUTES TOURNOI AVANCÉ — /tournament/* (TOURNOI AJOUT)
+================================================================ */
+
+const UEMOA_PAYS = ['SN','CI','BF','ML','BJ','NE','TG','GW']; // TOURNOI AJOUT
+const CEMAC_PAYS = ['CM','GA','CG','CF','GQ','TD']; // TOURNOI AJOUT
+
+function _zoneOf(country) { // TOURNOI AJOUT
+  if (UEMOA_PAYS.includes(country)) return 'uemoa'; // TOURNOI AJOUT
+  if (CEMAC_PAYS.includes(country)) return 'cemac'; // TOURNOI AJOUT
+  return null; // TOURNOI AJOUT
+} // TOURNOI AJOUT
+
+function _peutRejoindre(userCountry, tCountry, tZone) { // TOURNOI AJOUT
+  if (!userCountry) return false; // TOURNOI AJOUT
+  if (tZone === 'uemoa') return UEMOA_PAYS.includes(userCountry); // TOURNOI AJOUT
+  if (tZone === 'cemac') return CEMAC_PAYS.includes(userCountry); // TOURNOI AJOUT
+  if (tZone === 'country') return tCountry === userCountry; // TOURNOI AJOUT
+  return false; // TOURNOI AJOUT
+} // TOURNOI AJOUT
+
+function _tFull(code) { // TOURNOI AJOUT
+  const t = db.prepare('SELECT * FROM tournaments WHERE code = ?').get(code); // TOURNOI AJOUT
+  if (!t) return null; // TOURNOI AJOUT
+  const participants = db.prepare( // TOURNOI AJOUT
+    'SELECT tp.*, u.name, u.country, u.etablissement FROM tournament_participants tp JOIN users u ON u.id = tp.user_id WHERE tp.tournament_id = ? ORDER BY tp.score DESC, COALESCE(tp.rank,9999) ASC' // TOURNOI AJOUT
+  ).all(t.id); // TOURNOI AJOUT
+  const matches = db.prepare( // TOURNOI AJOUT
+    'SELECT tm.*, u1.name AS p1_name, u1.country AS p1_country, u2.name AS p2_name, u2.country AS p2_country, uw.name AS winner_name FROM tournament_matches tm LEFT JOIN users u1 ON u1.id = tm.player1_id LEFT JOIN users u2 ON u2.id = tm.player2_id LEFT JOIN users uw ON uw.id = tm.winner_id WHERE tm.tournament_id = ? ORDER BY tm.round, tm.id' // TOURNOI AJOUT
+  ).all(t.id); // TOURNOI AJOUT
+  const creator = db.prepare('SELECT id, name, country FROM users WHERE id = ?').get(t.creator_id); // TOURNOI AJOUT
+  return { ...t, participants, matches, creator }; // TOURNOI AJOUT
+} // TOURNOI AJOUT
+
+/* POST /tournament/create */
+app.post('/tournament/create', requireAuth, (req, res) => { // TOURNOI AJOUT
+  const { name, zone, pack_id, max_players, start_date } = req.body || {}; // TOURNOI AJOUT
+  if (!name || !zone) return err(res, 400, 'name et zone requis'); // TOURNOI AJOUT
+  const mp = Number(max_players); // TOURNOI AJOUT
+  if (![8,16,32].includes(mp)) return err(res, 400, 'max_players doit être 8, 16 ou 32'); // TOURNOI AJOUT
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id); // TOURNOI AJOUT
+  if (!_peutRejoindre(user.country, user.country, zone)) { // TOURNOI AJOUT
+    return err(res, 403, 'Vous ne pouvez pas créer un tournoi hors de votre zone'); // TOURNOI AJOUT
+  } // TOURNOI AJOUT
+  let code; // TOURNOI AJOUT
+  for (let i = 0; i < 10; i++) { // TOURNOI AJOUT
+    const rand = crypto.randomBytes(2).toString('hex').toUpperCase(); // TOURNOI AJOUT
+    code = 'T-' + rand; // TOURNOI AJOUT
+    if (!db.prepare('SELECT id FROM tournaments WHERE code = ?').get(code)) break; // TOURNOI AJOUT
+  } // TOURNOI AJOUT
+  const result = db.prepare( // TOURNOI AJOUT
+    'INSERT INTO tournaments (code, creator_id, name, pack_id, max_players, status, country, zone, start_date) VALUES (?,?,?,?,?,?,?,?,?)' // TOURNOI AJOUT
+  ).run(code, req.user.id, name.trim().slice(0,80), pack_id || 'general', mp, 'waiting', user.country || '', zone, start_date || ''); // TOURNOI AJOUT
+  db.prepare('INSERT INTO tournament_participants (tournament_id, user_id) VALUES (?,?)').run(result.lastInsertRowid, req.user.id); // TOURNOI AJOUT
+  notifyAllExcept(req.user.id, 'tournament_created', '🏆 ' + user.name + ' crée le tournoi "' + name.trim() + '" ! Code : ' + code); // TOURNOI AJOUT
+  return ok(res, { code, id: result.lastInsertRowid }); // TOURNOI AJOUT
+}); // TOURNOI AJOUT
+
+/* POST /tournament/join */
+app.post('/tournament/join', requireAuth, (req, res) => { // TOURNOI AJOUT
+  const { code } = req.body || {}; // TOURNOI AJOUT
+  if (!code) return err(res, 400, 'code requis'); // TOURNOI AJOUT
+  const t = db.prepare('SELECT * FROM tournaments WHERE code = ?').get(code.trim().toUpperCase()); // TOURNOI AJOUT
+  if (!t) return err(res, 404, 'Tournoi introuvable'); // TOURNOI AJOUT
+  if (!['waiting','qualif'].includes(t.status)) return err(res, 400, 'Inscriptions fermées pour ce tournoi'); // TOURNOI AJOUT
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id); // TOURNOI AJOUT
+  if (!_peutRejoindre(user.country, t.country, t.zone)) { // TOURNOI AJOUT
+    const z = t.zone === 'country' ? ('pays ' + t.country) : ('zone ' + t.zone.toUpperCase()); // TOURNOI AJOUT
+    return err(res, 403, 'Ce tournoi est réservé à la ' + z + '. Votre pays (' + (user.country || '?') + ') n\'est pas éligible.'); // TOURNOI AJOUT
+  } // TOURNOI AJOUT
+  const already = db.prepare('SELECT id FROM tournament_participants WHERE tournament_id = ? AND user_id = ?').get(t.id, req.user.id); // TOURNOI AJOUT
+  if (already) return ok(res, { message: 'Déjà inscrit', tournament: _tFull(t.code) }); // TOURNOI AJOUT
+  const count = db.prepare('SELECT COUNT(*) AS n FROM tournament_participants WHERE tournament_id = ?').get(t.id).n; // TOURNOI AJOUT
+  if (count >= t.max_players) return err(res, 400, 'Tournoi complet (' + count + '/' + t.max_players + ')'); // TOURNOI AJOUT
+  db.prepare('INSERT INTO tournament_participants (tournament_id, user_id) VALUES (?,?)').run(t.id, req.user.id); // TOURNOI AJOUT
+  db.prepare('INSERT INTO notifications (user_id, type, message) VALUES (?,?,?)').run(t.creator_id, 'tournament_joined', '🏟 ' + user.name + ' a rejoint "' + t.name + '" ! (' + (count+1) + '/' + t.max_players + ')'); // TOURNOI AJOUT
+  return ok(res, { message: 'Inscrit au tournoi', tournament: _tFull(t.code) }); // TOURNOI AJOUT
+}); // TOURNOI AJOUT
+
+/* GET /tournament/list */
+app.get('/tournament/list', requireAuth, (req, res) => { // TOURNOI AJOUT
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id); // TOURNOI AJOUT
+  const uZone = _zoneOf(user.country); // TOURNOI AJOUT
+  const zoneCond = uZone ? `AND t.zone = '${uZone}'` : ''; // TOURNOI AJOUT
+  const open = db.prepare( // TOURNOI AJOUT
+    `SELECT t.*, u.name AS creator_name, (SELECT COUNT(*) FROM tournament_participants tp WHERE tp.tournament_id = t.id) AS nb FROM tournaments t JOIN users u ON u.id = t.creator_id WHERE t.status IN ('waiting','qualif','elim') ${zoneCond} ORDER BY t.created_at DESC LIMIT 30` // TOURNOI AJOUT
+  ).all(); // TOURNOI AJOUT
+  const mine = db.prepare( // TOURNOI AJOUT
+    'SELECT t.*, u.name AS creator_name, (SELECT COUNT(*) FROM tournament_participants tp WHERE tp.tournament_id = t.id) AS nb FROM tournaments t JOIN users u ON u.id = t.creator_id JOIN tournament_participants tp2 ON tp2.tournament_id = t.id AND tp2.user_id = ? ORDER BY t.created_at DESC LIMIT 20' // TOURNOI AJOUT
+  ).all(req.user.id); // TOURNOI AJOUT
+  return ok(res, { open, mine }); // TOURNOI AJOUT
+}); // TOURNOI AJOUT
+
+/* POST /tournament/qualify */
+app.post('/tournament/qualify', requireAuth, (req, res) => { // TOURNOI AJOUT
+  const { tournament_id, score, total, questions_json } = req.body || {}; // TOURNOI AJOUT
+  if (!tournament_id || score == null || total == null) return err(res, 400, 'tournament_id, score, total requis'); // TOURNOI AJOUT
+  const t = db.prepare('SELECT * FROM tournaments WHERE id = ?').get(Number(tournament_id)); // TOURNOI AJOUT
+  if (!t) return err(res, 404, 'Tournoi introuvable'); // TOURNOI AJOUT
+  if (!['qualif','waiting'].includes(t.status)) return err(res, 400, 'Phase de qualification non active'); // TOURNOI AJOUT
+  const part = db.prepare('SELECT * FROM tournament_participants WHERE tournament_id = ? AND user_id = ?').get(t.id, req.user.id); // TOURNOI AJOUT
+  if (!part) return err(res, 403, 'Non inscrit à ce tournoi'); // TOURNOI AJOUT
+  if (part.score > 0) return err(res, 400, 'Qualification déjà soumise (score : ' + part.score + ')'); // TOURNOI AJOUT
+  db.prepare('UPDATE tournament_participants SET score = ?, total = ? WHERE tournament_id = ? AND user_id = ?') // TOURNOI AJOUT
+    .run(Number(score), Number(total), t.id, req.user.id); // TOURNOI AJOUT
+  const allPart = db.prepare('SELECT * FROM tournament_participants WHERE tournament_id = ? ORDER BY score DESC').all(t.id); // TOURNOI AJOUT
+  const qualifN = Math.floor(t.max_players / 2); // TOURNOI AJOUT
+  allPart.forEach((p, i) => { // TOURNOI AJOUT
+    db.prepare('UPDATE tournament_participants SET rank = ?, qualified = ? WHERE id = ?').run(i + 1, i < qualifN ? 1 : 0, p.id); // TOURNOI AJOUT
+  }); // TOURNOI AJOUT
+  try { // TOURNOI AJOUT
+    db.prepare('INSERT INTO tournament_match_sheets (tournament_id, match_id, player_id, questions_json, score) VALUES (?,?,?,?,?)') // TOURNOI AJOUT
+      .run(t.id, null, req.user.id, JSON.stringify(questions_json || []), Number(score)); // TOURNOI AJOUT
+  } catch(_) {} // TOURNOI AJOUT
+  const myRank = allPart.findIndex(p => p.user_id === req.user.id) + 1; // TOURNOI AJOUT
+  const user = db.prepare('SELECT name FROM users WHERE id = ?').get(req.user.id); // TOURNOI AJOUT
+  if (t.creator_id !== req.user.id) { // TOURNOI AJOUT
+    db.prepare('INSERT INTO notifications (user_id, type, message) VALUES (?,?,?)') // TOURNOI AJOUT
+      .run(t.creator_id, 'tournament_qualified', '⚡ ' + user.name + ' — qualification : ' + score + '/' + total + ' pts (#' + myRank + ')'); // TOURNOI AJOUT
+  } // TOURNOI AJOUT
+  return ok(res, { message: 'Score de qualification enregistré', rank: myRank }); // TOURNOI AJOUT
+}); // TOURNOI AJOUT
+
+/* GET /tournament/match-sheet/:matchId */
+app.get('/tournament/match-sheet/:matchId', requireAuth, (req, res) => { // TOURNOI AJOUT
+  const midRaw = req.params.matchId; // TOURNOI AJOUT
+  let sheets; // TOURNOI AJOUT
+  if (midRaw === 'qualify') { // TOURNOI AJOUT
+    const tId = Number(req.query.tournament_id); // TOURNOI AJOUT
+    sheets = db.prepare('SELECT tms.*, u.name FROM tournament_match_sheets tms JOIN users u ON u.id = tms.player_id WHERE tms.tournament_id = ? AND tms.match_id IS NULL').all(tId); // TOURNOI AJOUT
+  } else { // TOURNOI AJOUT
+    sheets = db.prepare('SELECT tms.*, u.name FROM tournament_match_sheets tms JOIN users u ON u.id = tms.player_id WHERE tms.match_id = ?').all(Number(midRaw)); // TOURNOI AJOUT
+  } // TOURNOI AJOUT
+  return ok(res, { sheets }); // TOURNOI AJOUT
+}); // TOURNOI AJOUT
+
+/* GET /tournament/:code */
+app.get('/tournament/:code', requireAuth, (req, res) => { // TOURNOI AJOUT
+  const t = _tFull(req.params.code); // TOURNOI AJOUT
+  if (!t) return err(res, 404, 'Tournoi introuvable'); // TOURNOI AJOUT
+  const myPart = t.participants.find(p => p.user_id === req.user.id) || null; // TOURNOI AJOUT
+  return ok(res, { tournament: t, participants: t.participants, matches: t.matches, creator: t.creator, my_participant: myPart }); // TOURNOI AJOUT
+}); // TOURNOI AJOUT
+
+/* GET /tournament/:id/bracket */
+app.get('/tournament/:id/bracket', requireAuth, (req, res) => { // TOURNOI AJOUT
+  const id = Number(req.params.id); // TOURNOI AJOUT
+  if (!id) return err(res, 400, 'id numérique requis'); // TOURNOI AJOUT
+  const t = db.prepare('SELECT * FROM tournaments WHERE id = ?').get(id); // TOURNOI AJOUT
+  if (!t) return err(res, 404, 'Tournoi introuvable'); // TOURNOI AJOUT
+  const matches = db.prepare( // TOURNOI AJOUT
+    'SELECT tm.*, u1.name AS p1_name, u1.country AS p1_country, u2.name AS p2_name, u2.country AS p2_country, uw.name AS winner_name FROM tournament_matches tm LEFT JOIN users u1 ON u1.id = tm.player1_id LEFT JOIN users u2 ON u2.id = tm.player2_id LEFT JOIN users uw ON uw.id = tm.winner_id WHERE tm.tournament_id = ? ORDER BY tm.round, tm.id' // TOURNOI AJOUT
+  ).all(id); // TOURNOI AJOUT
+  const participants = db.prepare( // TOURNOI AJOUT
+    'SELECT tp.*, u.name, u.country FROM tournament_participants tp JOIN users u ON u.id = tp.user_id WHERE tp.tournament_id = ? ORDER BY COALESCE(tp.rank,9999) ASC, tp.score DESC' // TOURNOI AJOUT
+  ).all(id); // TOURNOI AJOUT
+  return ok(res, { tournament: t, matches, participants }); // TOURNOI AJOUT
+}); // TOURNOI AJOUT
+
+/* POST /tournament/:code/start-qualif */
+app.post('/tournament/:code/start-qualif', requireAuth, (req, res) => { // TOURNOI AJOUT
+  const t = db.prepare('SELECT * FROM tournaments WHERE code = ?').get(req.params.code); // TOURNOI AJOUT
+  if (!t) return err(res, 404, 'Tournoi introuvable'); // TOURNOI AJOUT
+  if (t.creator_id !== req.user.id) return err(res, 403, 'Seul le créateur peut lancer les qualifications'); // TOURNOI AJOUT
+  if (t.status !== 'waiting') return err(res, 400, 'Statut invalide — attendu: waiting'); // TOURNOI AJOUT
+  db.prepare('UPDATE tournaments SET status = ? WHERE code = ?').run('qualif', req.params.code); // TOURNOI AJOUT
+  const parts = db.prepare('SELECT user_id FROM tournament_participants WHERE tournament_id = ?').all(t.id); // TOURNOI AJOUT
+  const ins = db.prepare('INSERT INTO notifications (user_id, type, message) VALUES (?,?,?)'); // TOURNOI AJOUT
+  const tx = db.transaction(() => parts.forEach(p => { // TOURNOI AJOUT
+    if (p.user_id !== req.user.id) ins.run(p.user_id, 'tournament_qualif_start', '⚡ Qualifications ouvertes pour "' + t.name + '" ! Code : ' + t.code); // TOURNOI AJOUT
+  })); // TOURNOI AJOUT
+  tx(); // TOURNOI AJOUT
+  return ok(res, { message: 'Phase de qualification lancée' }); // TOURNOI AJOUT
+}); // TOURNOI AJOUT
+
+/* POST /tournament/:code/generate-bracket */
+app.post('/tournament/:code/generate-bracket', requireAuth, (req, res) => { // TOURNOI AJOUT
+  const t = db.prepare('SELECT * FROM tournaments WHERE code = ?').get(req.params.code); // TOURNOI AJOUT
+  if (!t) return err(res, 404, 'Tournoi introuvable'); // TOURNOI AJOUT
+  if (t.creator_id !== req.user.id) return err(res, 403, 'Seul le créateur peut générer le bracket'); // TOURNOI AJOUT
+  if (!['qualif','waiting'].includes(t.status)) return err(res, 400, 'Phase invalide pour générer un bracket'); // TOURNOI AJOUT
+  const participants = db.prepare('SELECT * FROM tournament_participants WHERE tournament_id = ? ORDER BY score DESC').all(t.id); // TOURNOI AJOUT
+  if (participants.length < 2) return err(res, 400, 'Minimum 2 participants requis'); // TOURNOI AJOUT
+  db.prepare('DELETE FROM tournament_matches WHERE tournament_id = ?').run(t.id); // TOURNOI AJOUT
+  const mIns = db.prepare('INSERT INTO tournament_matches (tournament_id, round, player1_id, player2_id, duel_code, status) VALUES (?,?,?,?,?,?)'); // TOURNOI AJOUT
+  const dIns = db.prepare('INSERT INTO duels (code, creator_id, pack_id, num_questions, timer_sec) VALUES (?,?,?,?,?)'); // TOURNOI AJOUT
+  const tx = db.transaction(() => { // TOURNOI AJOUT
+    const pairs = Math.floor(participants.length / 2); // TOURNOI AJOUT
+    for (let i = 0; i < pairs; i++) { // TOURNOI AJOUT
+      const p1 = participants[i * 2]; // TOURNOI AJOUT
+      const p2 = participants[i * 2 + 1]; // TOURNOI AJOUT
+      let dCode; // TOURNOI AJOUT
+      for (let j = 0; j < 10; j++) { // TOURNOI AJOUT
+        dCode = genCode('D'); // TOURNOI AJOUT
+        if (!db.prepare('SELECT id FROM duels WHERE code = ?').get(dCode)) break; // TOURNOI AJOUT
+      } // TOURNOI AJOUT
+      dIns.run(dCode, p1.user_id, t.pack_id || 'general', 10, 30); // TOURNOI AJOUT
+      mIns.run(t.id, 1, p1.user_id, p2.user_id, dCode, 'pending'); // TOURNOI AJOUT
+    } // TOURNOI AJOUT
+  }); // TOURNOI AJOUT
+  tx(); // TOURNOI AJOUT
+  db.prepare('UPDATE tournaments SET status = ? WHERE code = ?').run('elim', req.params.code); // TOURNOI AJOUT
+  const allParts = db.prepare('SELECT user_id FROM tournament_participants WHERE tournament_id = ?').all(t.id); // TOURNOI AJOUT
+  const nIns = db.prepare('INSERT INTO notifications (user_id, type, message) VALUES (?,?,?)'); // TOURNOI AJOUT
+  const nTx = db.transaction(() => allParts.forEach(p => nIns.run(p.user_id, 'tournament_bracket', '🏆 Bracket généré pour "' + t.name + '" ! Les matchs d\'élimination débutent.'))); // TOURNOI AJOUT
+  nTx(); // TOURNOI AJOUT
+  return ok(res, { message: 'Bracket généré', tournament: _tFull(req.params.code) }); // TOURNOI AJOUT
+}); // TOURNOI AJOUT
+
+/* POST /tournament/match/:matchId/record */
+app.post('/tournament/match/:matchId/record', requireAuth, (req, res) => { // TOURNOI AJOUT
+  const matchId = Number(req.params.matchId); // TOURNOI AJOUT
+  const { winner_id, duel_code } = req.body || {}; // TOURNOI AJOUT
+  if (!winner_id) return err(res, 400, 'winner_id requis'); // TOURNOI AJOUT
+  const match = db.prepare('SELECT * FROM tournament_matches WHERE id = ?').get(matchId); // TOURNOI AJOUT
+  if (!match) return err(res, 404, 'Match introuvable'); // TOURNOI AJOUT
+  const wId = Number(winner_id); // TOURNOI AJOUT
+  if (match.player1_id !== wId && match.player2_id !== wId) return err(res, 400, 'winner_id doit être player1_id ou player2_id'); // TOURNOI AJOUT
+  db.prepare('UPDATE tournament_matches SET winner_id = ?, status = ? WHERE id = ?').run(wId, 'done', matchId); // TOURNOI AJOUT
+  return ok(res, { message: 'Résultat enregistré' }); // TOURNOI AJOUT
+}); // TOURNOI AJOUT
+
+/* GET /tournament-chat/:tournamentId */
+app.get('/tournament-chat/:tournamentId', requireAuth, (req, res) => { // TOURNOI AJOUT
+  const tId = Number(req.params.tournamentId); // TOURNOI AJOUT
+  if (!tId) return err(res, 400, 'tournamentId invalide'); // TOURNOI AJOUT
+  const msgs = db.prepare( // TOURNOI AJOUT
+    'SELECT tc.id, tc.content, tc.sent_at, u.name, u.country FROM tournament_chat tc JOIN users u ON u.id = tc.user_id WHERE tc.tournament_id = ? ORDER BY tc.sent_at DESC LIMIT 60' // TOURNOI AJOUT
+  ).all(tId).reverse(); // TOURNOI AJOUT
+  return ok(res, { messages: msgs }); // TOURNOI AJOUT
+}); // TOURNOI AJOUT
+
+/* POST /tournament-chat/:tournamentId */
+app.post('/tournament-chat/:tournamentId', requireAuth, (req, res) => { // TOURNOI AJOUT
+  const tId = Number(req.params.tournamentId); // TOURNOI AJOUT
+  if (!tId) return err(res, 400, 'tournamentId invalide'); // TOURNOI AJOUT
+  const { content } = req.body || {}; // TOURNOI AJOUT
+  if (!content || !content.trim()) return err(res, 400, 'Message vide'); // TOURNOI AJOUT
+  const t = db.prepare('SELECT id FROM tournaments WHERE id = ?').get(tId); // TOURNOI AJOUT
+  if (!t) return err(res, 404, 'Tournoi introuvable'); // TOURNOI AJOUT
+  db.prepare('INSERT INTO tournament_chat (tournament_id, user_id, content) VALUES (?,?,?)') // TOURNOI AJOUT
+    .run(tId, req.user.id, content.trim().slice(0, 500)); // TOURNOI AJOUT
+  return ok(res, { message: 'Message envoyé' }); // TOURNOI AJOUT
+}); // TOURNOI AJOUT
 
 /* ── CHAT ────────────────────────────────────────────────────────── */
 const VALID_ZONES = ['uemoa', 'cemac', 'general'];
