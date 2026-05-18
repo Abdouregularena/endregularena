@@ -1255,29 +1255,51 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
 
 /* ── FIN ORIENTATION AJOUT ───────────────────────────────── */
 
-/* ── MODIFIÉ — Responsive écran création duel ───────────── */
+/* ── MODIFIÉ — Layout flex Duel + Tournoi (remplace les grids inline) ── */
+
+/* Conteneurs principaux */
 #d-screen-create{overflow-y:auto;} /* MODIFIÉ */
-.d-pack-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-height:260px;overflow-y:auto;border:1px solid var(--gb);border-radius:3px;padding:8px;background:var(--bg2);} /* MODIFIÉ */
+#t-screen-create{overflow-y:auto;} /* MODIFIÉ */
+
+/* Flex-wrap layout commun — colonnes gauche/droite s'empilent automatiquement */
+.duel-layout,.tournoi-layout{ /* MODIFIÉ */
+  display:flex!important;flex-direction:row;flex-wrap:wrap;align-items:flex-start; /* MODIFIÉ */
+} /* MODIFIÉ */
+.duel-col,.tournoi-col{ /* MODIFIÉ */
+  flex:1 1 280px;min-width:280px;box-sizing:border-box; /* MODIFIÉ */
+} /* MODIFIÉ */
+
+/* Grille de cartes packs */
+.d-pack-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-height:300px;overflow-y:auto;border:1px solid var(--gb);border-radius:3px;padding:8px;background:var(--bg2);} /* MODIFIÉ */
 .d-pack-card{background:var(--bg3);border:1px solid var(--gb);border-radius:3px;padding:10px 12px;cursor:pointer;transition:border-color .2s,background .2s;min-height:56px;display:flex;flex-direction:column;justify-content:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent;} /* MODIFIÉ */
 .d-pack-card:hover,.d-pack-card.active{border-color:var(--gold);background:var(--gold-dim);} /* MODIFIÉ */
 .d-pack-card.active .d-pack-name{color:var(--gold);} /* MODIFIÉ */
 .d-pack-name{font-size:.78rem;font-weight:600;color:var(--text);line-height:1.3;} /* MODIFIÉ */
 .d-pack-zone{font-family:'JetBrains Mono',monospace;font-size:.52rem;letter-spacing:1px;color:var(--muted);margin-top:3px;text-transform:uppercase;} /* MODIFIÉ */
+
+/* ── Mobile ≤768px ── */ /* MODIFIÉ */
 @media (max-width:768px){ /* MODIFIÉ */
-  #d-screen-create{padding:84px 12px 80px!important;} /* MODIFIÉ — 52nav+32topbar, safe bottom */
-  #d-screen-create-grid{grid-template-columns:1fr!important;} /* MODIFIÉ — colonne unique */
-  .d-pack-cards{grid-template-columns:1fr!important;max-height:none;} /* MODIFIÉ — cartes empilées */
-  .d-pack-card{min-height:60px!important;font-size:14px;} /* MODIFIÉ — touch target ≥44px garanti */
+  #d-screen-create{padding:84px 12px 80px!important;} /* MODIFIÉ */
+  #t-screen-create{padding:84px 12px 80px!important;} /* MODIFIÉ */
+  .duel-layout,.tournoi-layout{flex-direction:column!important;} /* MODIFIÉ */
+  .duel-col,.tournoi-col{width:100%!important;min-width:0!important;flex-basis:auto!important;} /* MODIFIÉ */
+  .d-pack-cards{grid-template-columns:1fr!important;max-height:none!important;} /* MODIFIÉ — cartes empilées */
+  .d-pack-card{min-height:60px!important;} /* MODIFIÉ — touch target */
   .d-pack-name{font-size:14px!important;} /* MODIFIÉ */
-  .d-create-btn{width:100%!important;padding:16px!important;font-size:16px!important;justify-content:center;position:sticky;bottom:16px;z-index:5;box-shadow:0 -4px 16px rgba(0,0,0,.4);} /* MODIFIÉ — sticky bottom, toujours visible */
+  .d-create-btn{width:100%!important;padding:16px!important;font-size:16px!important;justify-content:center;position:sticky;bottom:16px;z-index:5;box-shadow:0 -4px 16px rgba(0,0,0,.4);} /* MODIFIÉ */
+  .form-select,.form-input{min-height:48px!important;font-size:16px!important;} /* MODIFIÉ — touch targets iOS/Android */
+  .param-opts .popt{min-height:48px!important;font-size:14px!important;flex:1;} /* MODIFIÉ */
 } /* MODIFIÉ */
+
+/* ── Tablette 769–1024px ── */ /* MODIFIÉ */
 @media (min-width:769px) and (max-width:1024px){ /* MODIFIÉ */
   #d-screen-create{padding:84px 20px 60px!important;} /* MODIFIÉ */
-  #d-screen-create-grid{grid-template-columns:1fr 1fr!important;} /* MODIFIÉ */
-  .d-pack-cards{grid-template-columns:1fr 1fr!important;} /* MODIFIÉ */
+  #t-screen-create{padding:84px 20px 60px!important;} /* MODIFIÉ */
+  .duel-col,.tournoi-col{flex:1 1 340px;} /* MODIFIÉ */
+  .d-pack-cards{grid-template-columns:1fr 1fr!important;} /* MODIFIÉ — 2 colonnes sur tablette */
   .d-create-btn{width:100%!important;justify-content:center;} /* MODIFIÉ */
 } /* MODIFIÉ */
-/* ── FIN MODIFIÉ — Responsive écran création duel ────────── */
+/* ── FIN MODIFIÉ — Layout flex Duel + Tournoi ────────────── */
 </style>
 </head>
 <body>
@@ -1993,9 +2015,9 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
         <button class="btn-ghost" onclick="tGoTo('menu')" style="padding:8px 14px">← Retour</button>
         <div><div class="section-label">Tournoi Privé</div><h1 class="section-title" style="margin-bottom:0">Créer l'<span class="g">arène</span></h1></div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+      <div id="t-screen-create-grid" class="tournoi-layout" style="gap:24px"><!-- MODIFIÉ — flex-wrap remplace grid 2 colonnes -->
         <!-- Col gauche -->
-        <div>
+        <div class="tournoi-col"><!-- MODIFIÉ -->
           <div class="card" style="padding:24px;margin-bottom:14px">
             <div style="font-family:'Bebas Neue',cursive;font-size:1rem;letter-spacing:3px;color:var(--gold);margin-bottom:16px">📋 Informations</div>
             <div class="form-group">
@@ -2032,7 +2054,7 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
           </div>
         </div>
         <!-- Col droite -->
-        <div>
+        <div class="tournoi-col"><!-- MODIFIÉ — flex:1 1 280px, s'empile sur mobile -->
           <div class="card" style="padding:24px;margin-bottom:14px">
             <div style="font-family:'Bebas Neue',cursive;font-size:1rem;letter-spacing:3px;color:var(--gold);margin-bottom:16px">⚙️ Format du tournoi</div>
             <div class="form-group">
@@ -2424,8 +2446,8 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
       <button class="btn-ghost" onclick="dGoTo('menu')" style="padding:8px 14px">← Retour</button>
       <div><div class="section-label">Défi direct</div><h1 class="section-title" style="margin-bottom:0">Créer un <span class="g">duel</span></h1></div>
     </div>
-    <div id="d-screen-create-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:20px"><!-- MODIFIÉ — id pour media queries responsive -->
-      <div>
+    <div id="d-screen-create-grid" class="duel-layout" style="gap:20px"><!-- MODIFIÉ — flex-wrap remplace grid, colonnes s'empilent automatiquement sur mobile -->
+      <div class="duel-col"><!-- MODIFIÉ -->
         <div class="card" style="padding:22px;margin-bottom:14px">
           <div style="font-family:'Bebas Neue',cursive;font-size:.95rem;letter-spacing:2px;color:var(--gold);margin-bottom:14px">⚔️ Adversaire</div>
           <div style="position:relative">
@@ -2453,7 +2475,7 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
           </div>
         </div>
       </div>
-      <div class="card" style="padding:22px">
+      <div class="card duel-col" style="padding:22px"><!-- MODIFIÉ — classe duel-col : flex:1 1 280px, s'empile en colonne sur mobile -->
         <div style="font-family:'Bebas Neue',cursive;font-size:.95rem;letter-spacing:2px;color:var(--gold);margin-bottom:16px">⚙️ Paramètres</div>
         <div class="form-group"><!-- MODIFIÉ — select remplacé par card picker dynamique -->
           <label class="form-label">Pack réglementaire</label><!-- MODIFIÉ -->
