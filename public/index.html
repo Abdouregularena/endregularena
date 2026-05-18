@@ -2421,7 +2421,7 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
             <button class="popt invite-btn" onclick="setInvite(this,'whatsapp')">WhatsApp</button>
           </div>
           <div id="invite-link-box" class="inv-link-box">
-            <div class="inv-link-text">https://regularena.com/duel/ABC-XY7-2026</div>
+            <div class="inv-link-text" id="invite-link-url">—</div><!-- MODIFIÉ — URL dynamique injectée par _showWaitScreen -->
             <button class="inv-link-copy" onclick="copyDuelLink()">Copier</button>
           </div>
           <div id="whatsapp-box" style="display:none">
@@ -3251,11 +3251,12 @@ function soloAnswer(idx) {
   if (ok) { _soloState.score += 100; showToast('✓ Correct ! +100 pts'); }
   else showToast('✗ ' + q.choices[q.correct]);
   _soloState.answers.push({ q: q.q, choices: q.choices, userIdx: idx, correctIdx: q.correct, ok, source: q.source || '' });
-  if (q.source) {
-    const src = document.getElementById('solo-source');
-    src.style.display = 'block';
-    src.innerHTML = '📋 <span style="color:var(--gold)">Source :</span> ' + escapeHtml(q.source);
-  }
+  { // MODIFIÉ — afficher référence officielle (q.reference en priorité, fallback source puis défaut)
+    const refVal = q.reference || q.source || 'BCEAO/CIMA 2026'; // MODIFIÉ
+    const src = document.getElementById('solo-source'); // MODIFIÉ
+    src.style.display = 'block'; // MODIFIÉ
+    src.innerHTML = '<em style="color:#C9991A">📌 Réf. : ' + escapeHtml(refVal) + '</em>'; // MODIFIÉ
+  } // MODIFIÉ
   setTimeout(() => { _soloState.qIndex++; _soloLoadQ(); }, 2000);
 }
 
@@ -3699,6 +3700,7 @@ function _showWaitScreen(code){
   const t=document.getElementById('d-screen-wait');t.style.display='';t.classList.add('active');
   const codeEl=document.getElementById('wait-duel-code');if(codeEl)codeEl.textContent=code;
   const linkEl=document.getElementById('wait-link-text');if(linkEl)linkEl.textContent=location.origin+'/?code='+code;
+  const urlEl=document.getElementById('invite-link-url');if(urlEl)urlEl.textContent=location.origin+'/?code='+code; // MODIFIÉ — sync lien copier sur d-screen-create
   const btnL=document.getElementById('btn-lancer-duel');if(btnL)btnL.style.display='none';
   const ps=document.getElementById('wait-poll-status');if(ps)ps.textContent="En attente d'un joueur...";
 }
@@ -3730,6 +3732,8 @@ function lancerDuel(){
 }
 function copyWaitLink(){navigator.clipboard.writeText(location.origin+'/?code='+_duelLive.code).catch(()=>{});showToast('🔗 Lien copié !');}
 function openWaitWA(){window.open('https://wa.me/?text='+encodeURIComponent('⚔️ Défi REGUL ARENA !\n🔗 '+location.origin+'/?code='+_duelLive.code),'_blank');}
+function copyDuelLink(){var url=_duelLive.code?location.origin+'/?code='+_duelLive.code:(document.getElementById('invite-link-url')||{}).textContent||location.origin;navigator.clipboard.writeText(url).catch(function(){});showToast('🔗 Lien copié !');} // MODIFIÉ — copyDuelLink était undefined
+function openDuelWA(){var url=_duelLive.code?location.origin+'/?code='+_duelLive.code:location.origin;window.open('https://wa.me/?text='+encodeURIComponent('⚔️ Défi REGUL ARENA !\n🔗 '+url),'_blank');} // MODIFIÉ — openDuelWA était undefined
 
 /* ── REJOINDRE un duel ────────────────────────────────────── */
 function joinDuelByCode(){
@@ -3847,7 +3851,7 @@ function duelAnswer(idx){
   const q=_duelLive.questions[dState.qIndex%_duelLive.questions.length];const ok=idx===q.correct;
   document.querySelectorAll('.q-choice').forEach((c,i)=>{if(i===q.correct)c.classList.add('correct');else if(i===idx&&!ok)c.classList.add('wrong');else c.classList.add('disabled');});
   const choicesEl=document.getElementById('q-choices');
-  if(choicesEl&&q.source){const srcEl=document.createElement('div');srcEl.style.cssText='margin-top:12px;font-family:JetBrains Mono,monospace;font-size:.58rem;letter-spacing:1px;color:var(--muted);border-top:1px solid var(--gb);padding-top:9px;line-height:1.5';srcEl.innerHTML='📋 <span style="color:var(--gold)">Source :</span> '+escapeHtml(q.source);choicesEl.appendChild(srcEl);}
+  if(choicesEl){var refVal=q.reference||q.source||'BCEAO/CIMA 2026';var srcEl=document.createElement('div');srcEl.style.cssText='margin-top:12px;font-family:JetBrains Mono,monospace;font-size:.58rem;letter-spacing:1px;border-top:1px solid var(--gb);padding-top:9px;line-height:1.5';srcEl.innerHTML='<em style="color:#C9991A">📌 Réf. : '+escapeHtml(refVal)+'</em>';choicesEl.appendChild(srcEl);} // MODIFIÉ
   if(ok){const pts=100+dState.streaks.me*10;dState.scores.me+=pts;dState.streaks.me++;showDelta('me','+'+pts);showToast('✓ Correct ! +'+pts+' pts');}
   else{dState.streaks.me=0;showToast('✗ Réponse : '+q.choices[q.correct]);}
   updateDuelUI();
@@ -4488,6 +4492,22 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }catch(e){}
   })();
+
+  // MODIFIÉ — après login (sans rechargement), reprendre le code duel stocké en session
+  document.addEventListener('ra:login', function(){ // MODIFIÉ
+    try{ // MODIFIÉ
+      var pending=sessionStorage.getItem('ra_pending_duel_code'); // MODIFIÉ
+      if(pending){ // MODIFIÉ
+        sessionStorage.removeItem('ra_pending_duel_code'); // MODIFIÉ
+        showPage('duel'); // MODIFIÉ
+        setTimeout(function(){ // MODIFIÉ
+          var inp=document.getElementById('join-code-input'); // MODIFIÉ
+          if(inp)inp.value=pending.toUpperCase(); // MODIFIÉ
+          if(typeof dGoTo==='function')dGoTo('join'); // MODIFIÉ
+        },500); // MODIFIÉ
+      } // MODIFIÉ
+    }catch(e){} // MODIFIÉ
+  }); // MODIFIÉ
 
   // Vérifier retour depuis lien email de confirmation
   if(RAAuth && RAAuth.checkURLConfirmation) RAAuth.checkURLConfirmation();
@@ -5247,6 +5267,10 @@ function _apiFetch(url, opts){
 
 /* ── navigation interne ─────────────────────────────────── */
 window.raT_goTo = function(screen){
+  // MODIFIÉ — auth requise pour créer ou rejoindre un tournoi
+  if((screen==='ra-create'||screen==='ra-join')&&typeof RAAuth!=='undefined'&&!RAAuth.isAuthenticated()){ // MODIFIÉ
+    RAAuth.showAuthWall('tournois'); return; // MODIFIÉ
+  } // MODIFIÉ
   document.querySelectorAll('.screen-t').forEach(function(s){
     s.style.display = 'none';
     s.classList.remove('active');
@@ -5259,7 +5283,55 @@ window.raT_goTo = function(screen){
     if(_ratStatusPoll){ clearInterval(_ratStatusPoll); _ratStatusPoll = null; }
   }
   if(screen === 'ra-home'){ raT_loadList(); }
+  if(screen === 'ra-create'){ _rat_initPackSelect(); } // MODIFIÉ — peupler pack depuis PACKS global
 };
+
+/* ── init select pack depuis PACKS global ───────────────── */ // MODIFIÉ
+function _rat_initPackSelect(){ // MODIFIÉ
+  var sel = document.getElementById('rat-c-pack'); // MODIFIÉ
+  if(!sel || typeof PACKS === 'undefined' || !PACKS.length) return; // MODIFIÉ
+  if(sel.getAttribute('data-rat-populated')) return; // MODIFIÉ — init une seule fois
+  sel.innerHTML = PACKS.map(function(p){ // MODIFIÉ
+    return '<option value="'+_esc(p.id)+'">'+_esc(p.label)+(p.zone?' ('+_esc(p.zone)+')':'')+'</option>'; // MODIFIÉ
+  }).join(''); // MODIFIÉ
+  sel.setAttribute('data-rat-populated','1'); // MODIFIÉ
+} // MODIFIÉ
+
+/* ── modal planification manche suivante ────────────────── */ // MODIFIÉ
+window.raT_promptNextRound = function(tournamentId, round){ // MODIFIÉ
+  var modal = document.getElementById('rat-next-round-modal'); // MODIFIÉ
+  if(!modal) return; // MODIFIÉ
+  modal.setAttribute('data-tid', tournamentId); // MODIFIÉ
+  modal.setAttribute('data-round', round||''); // MODIFIÉ
+  var lbl = modal.querySelector('#rat-nr-round-label'); // MODIFIÉ
+  if(lbl) lbl.textContent = round ? 'Round '+round : 'Manche suivante'; // MODIFIÉ
+  // pré-remplir avec J+3
+  var inp = document.getElementById('rat-nr-date'); // MODIFIÉ
+  if(inp){ var d=new Date(); d.setDate(d.getDate()+3); d.setHours(18,0,0,0); inp.value=d.toISOString().slice(0,16); } // MODIFIÉ
+  modal.style.display = 'flex'; // MODIFIÉ
+}; // MODIFIÉ
+
+window.raT_closeNextRound = function(){ // MODIFIÉ
+  var modal = document.getElementById('rat-next-round-modal'); // MODIFIÉ
+  if(modal) modal.style.display = 'none'; // MODIFIÉ
+}; // MODIFIÉ
+
+window.raT_confirmNextRound = function(){ // MODIFIÉ
+  var modal = document.getElementById('rat-next-round-modal'); // MODIFIÉ
+  if(!modal) return; // MODIFIÉ
+  var tId   = modal.getAttribute('data-tid'); // MODIFIÉ
+  var round = modal.getAttribute('data-round'); // MODIFIÉ
+  var dt    = (document.getElementById('rat-nr-date')||{}).value||''; // MODIFIÉ
+  if(!dt){ showToast('⚠ Choisissez une date'); return; } // MODIFIÉ
+  _apiFetch('/tournament/'+tId+'/schedule-round',{method:'POST',body:{round:round,scheduled_at:dt}}) // MODIFIÉ
+    .then(function(r){ // MODIFIÉ
+      if(r.ok){ // MODIFIÉ
+        showToast('✅ Manche planifiée — invitations envoyées !'); // MODIFIÉ
+        raT_closeNextRound(); // MODIFIÉ
+        if(_ratCode) raT_loadView(_ratCode); // MODIFIÉ — rafraîchir la vue tournoi
+      } else { showToast('❌ '+(r.error||'Erreur planification')); } // MODIFIÉ
+    }).catch(function(){ showToast('❌ Erreur réseau'); }); // MODIFIÉ
+}; // MODIFIÉ
 
 /* ── override initPage pour la page tournois ────────────── */
 (function(){
@@ -5676,8 +5748,8 @@ function _ratQS_select(idx){
     if(i === correct) btn.classList.add('correct');
     else if(i === idx) btn.classList.add('wrong');
   });
-  var srcEl = document.getElementById('rat-q-source');
-  if(srcEl && q.source){ srcEl.textContent = 'Source : ' + q.source; srcEl.style.display = ''; }
+  var srcEl = document.getElementById('rat-q-source'); // MODIFIÉ
+  if(srcEl){ var refVal=q.reference||q.source||'BCEAO/CIMA 2026'; srcEl.innerHTML='<em style="color:#C9991A">📌 Réf. : '+_esc(refVal)+'</em>'; srcEl.style.display=''; } // MODIFIÉ
   var nextBtn = document.getElementById('rat-q-next');
   if(nextBtn) nextBtn.style.display = '';
 }
@@ -5712,7 +5784,13 @@ function _ratQS_finish(){
   }}).then(function(r){
     var rankEl = document.getElementById('rat-q-final-rank');
     if(!rankEl) return;
-    if(r.ok){ rankEl.textContent = 'Score enregistré — classement #' + (r.rank||'?'); }
+    if(r.ok){
+      rankEl.textContent = 'Score enregistré — classement #' + (r.rank||'?');
+      // MODIFIÉ — si vainqueur de manche (rank 1), inviter à planifier le tour suivant
+      if(r.rank === 1 && r.next_round && typeof raT_promptNextRound === 'function'){ // MODIFIÉ
+        setTimeout(function(){ raT_promptNextRound(qs.tournamentId, r.next_round); }, 1500); // MODIFIÉ
+      } // MODIFIÉ
+    }
     else { rankEl.textContent = r.error || 'Erreur soumission'; }
   }).catch(function(){
     var rankEl = document.getElementById('rat-q-final-rank');
@@ -5854,5 +5932,22 @@ window.addEventListener('orientationchange', function() { // ORIENTATION AJOUT
 })();
 </script>
 <!-- FIN MODIFIÉ -->
+
+<!-- MODIFIÉ — Modal planification manche suivante (post-manche vainqueur) -->
+<div id="rat-next-round-modal" style="display:none;position:fixed;inset:0;z-index:1200;background:rgba(0,0,0,.75);align-items:center;justify-content:center;padding:20px"> <!-- MODIFIÉ -->
+  <div style="background:#0A1628;border:1px solid #C9991A;border-radius:6px;padding:32px;max-width:420px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.6)"> <!-- MODIFIÉ -->
+    <div style="font-family:'Bebas Neue',cursive;font-size:.65rem;letter-spacing:3px;color:#C9991A;margin-bottom:6px">🏆 VICTOIRE — PLANIFIER LA SUITE</div> <!-- MODIFIÉ -->
+    <h2 style="font-family:'Bebas Neue',cursive;font-size:1.4rem;letter-spacing:2px;color:#F5F3EE;margin:0 0 20px">PLANIFIER LA <span style="color:#C9991A" id="rat-nr-round-label">MANCHE SUIVANTE</span></h2> <!-- MODIFIÉ -->
+    <p style="font-family:'Inter',sans-serif;font-size:.82rem;color:#8899AA;margin-bottom:20px;line-height:1.5">Choisissez la date et l'heure de la prochaine manche. Les participants seront notifiés automatiquement.</p> <!-- MODIFIÉ -->
+    <div style="margin-bottom:20px"> <!-- MODIFIÉ -->
+      <label style="display:block;font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:2px;color:#C9991A;text-transform:uppercase;margin-bottom:8px">Date &amp; heure de la manche</label> <!-- MODIFIÉ -->
+      <input id="rat-nr-date" type="datetime-local" style="width:100%;background:#0D1F3C;border:1px solid #1E3A5F;border-radius:4px;padding:12px 14px;color:#F5F3EE;font-family:'JetBrains Mono',monospace;font-size:.82rem;box-sizing:border-box"> <!-- MODIFIÉ -->
+    </div> <!-- MODIFIÉ -->
+    <div style="display:flex;gap:10px"> <!-- MODIFIÉ -->
+      <button onclick="raT_closeNextRound()" style="flex:1;background:none;border:1px solid #1E3A5F;color:#8899AA;font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:1px;padding:12px;border-radius:4px;cursor:pointer">Annuler</button> <!-- MODIFIÉ -->
+      <button onclick="raT_confirmNextRound()" style="flex:2;background:#C9991A;border:none;color:#0A1628;font-family:'Bebas Neue',cursive;font-size:1rem;letter-spacing:2px;padding:12px;border-radius:4px;cursor:pointer">✅ CONFIRMER &amp; INVITER</button> <!-- MODIFIÉ -->
+    </div> <!-- MODIFIÉ -->
+  </div> <!-- MODIFIÉ -->
+</div> <!-- MODIFIÉ -->
 </body>
 </html>
