@@ -56,15 +56,15 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .orb-c{width:400px;height:400px;top:30%;right:-80px;background:radial-gradient(circle,rgba(34,211,238,.04),transparent 70%);animation-delay:-5s}
 
 /* ── NAV ─────────────────────────────────────────────────── */
-nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:14px 40px;background:rgba(3,5,10,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--gb)}
-nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-f),var(--navy-dim),var(--gold-f),transparent)}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:14px 40px;background:#001E42;backdrop-filter:blur(20px);border-bottom:2px solid #C9991A} /* MODIFIÉ — #001E42 plus profond, border-bottom gold */
+nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:0} /* MODIFIÉ — ligne décorative supprimée, remplacée par border-bottom gold */
 .nav-logo{font-family:'Bebas Neue',cursive;font-size:1.5rem;letter-spacing:3px;color:var(--gold);text-decoration:none;flex-shrink:0;cursor:pointer}
 .nav-logo span{color:var(--text)}
 .nav-links{display:flex;gap:4px;list-style:none}
-.nav-links button{background:none;border:none;cursor:pointer;color:var(--muted);font-family:'Inter',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:8px 12px;border-radius:2px;transition:all .2s}
+.nav-links button{background:none;border:none;cursor:pointer;color:#FFFFFF;font-family:'Inter',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:8px 12px;border-radius:2px;transition:all .2s} /* MODIFIÉ — texte nav #FFFFFF font-weight 600 */
 .nav-links button:hover,.nav-links button.active{color:var(--gold);background:var(--gold-dim)}
 .nav-right{display:flex;align-items:center;gap:10px}
-#ra-quiz-pill{display:none;align-items:center;gap:7px;background:var(--gold-dim);border:1px solid var(--border);border-radius:20px;padding:5px 13px;font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase}
+#ra-quiz-pill{display:none;align-items:center;gap:7px;background:#C9991A;border:none;border-radius:12px;padding:2px 10px;font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:1.5px;color:#001E42;font-weight:700;text-transform:uppercase} /* MODIFIÉ — fond #C9991A, texte #001E42, border-radius 12px, font-weight 700 */
 .nav-cta{background:linear-gradient(135deg,var(--gold),var(--gold-l));color:var(--bg) !important;font-family:'Montserrat',sans-serif;font-weight:800;font-size:.75rem;letter-spacing:1px;padding:9px 18px;border:none;cursor:pointer;border-radius:2px;clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);transition:all .2s}
 .nav-cta:hover{box-shadow:0 4px 20px var(--gold-glow);transform:translateY(-1px)}
 
@@ -496,29 +496,33 @@ footer{display:flex;align-items:center;justify-content:space-between;border-top:
 
 /* ── AUDIO PLAYER FLOTTANT ───────────────────────────────── */
 #ra-audio-player{
-  position:fixed;bottom:28px;right:28px;z-index:500;
-  background:var(--glass);backdrop-filter:blur(20px);
-  border:1px solid var(--border);border-radius:3px;
-  box-shadow:0 8px 40px var(--gold-glow);
+  position:fixed;bottom:80px;right:16px;z-index:900; /* MODIFIÉ — fixed bottom-right, plus de chevauchement texte hero */
+  background:#C9991A; /* MODIFIÉ — fond doré, cercle compact */
+  border:none;border-radius:50%; /* MODIFIÉ — bouton circulaire */
+  box-shadow:0 2px 8px rgba(0,0,0,.35); /* MODIFIÉ — shadow légère */
   overflow:hidden;transition:all .35s cubic-bezier(.4,0,.2,1);
-  width:52px;
+  width:36px;height:36px; /* MODIFIÉ — réduit à 36px */
+  opacity:.75; /* MODIFIÉ — discret au repos sur hero */
 }
-#ra-audio-player.expanded{width:300px;}
+#ra-audio-player.expanded{width:300px;height:auto;border-radius:12px;background:var(--glass);backdrop-filter:blur(20px);border:1px solid var(--border);} /* MODIFIÉ — panneau expansé */
 #ra-audio-player::before{
   content:'';position:absolute;top:0;left:0;right:0;height:2px;
   background:linear-gradient(90deg,transparent,var(--gold),var(--navy),var(--gold),transparent);
 }
 .ra-ap-header{
-  display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;
+  display:flex;align-items:center;gap:10px;padding:8px;cursor:pointer; /* MODIFIÉ — padding réduit pour cercle 44px (8+28+8=44) */
 }
+#ra-audio-player.expanded .ra-ap-header{padding:12px 14px;} /* MODIFIÉ — padding normal en mode expansé */
 .ra-ap-toggle{
   width:28px;height:28px;border-radius:50%;flex-shrink:0;
-  background:linear-gradient(135deg,var(--gold),var(--gold-l));
+  background:transparent; /* MODIFIÉ — transparent, parent #C9991A fournit le fond */
   border:none;cursor:pointer;color:var(--bg);font-size:1rem;
   display:flex;align-items:center;justify-content:center;
-  transition:all .2s;box-shadow:0 2px 10px var(--gold-dim);
+  transition:all .2s;
 }
+#ra-audio-player.expanded .ra-ap-toggle{background:linear-gradient(135deg,var(--gold),var(--gold-l));box-shadow:0 2px 10px var(--gold-dim);} /* MODIFIÉ — gradient visible en mode expansé */
 .ra-ap-toggle:hover{box-shadow:0 4px 18px var(--gold-glow);transform:scale(1.08);}
+#ra-audio-player:hover,#ra-audio-player:focus-within{opacity:1;} /* MODIFIÉ — opaque au hover/focus */
 .ra-ap-info{flex:1;min-width:0;opacity:0;transition:opacity .25s .1s;}
 #ra-audio-player.expanded .ra-ap-info{opacity:1;}
 .ra-ap-title{
@@ -817,7 +821,7 @@ footer{display:flex;align-items:center;justify-content:space-between;border-top:
   #d-screen-result [style*="font-size:2.5rem"]{font-size:1.9rem!important}
 
   /* Audio player — repositionné pour éviter l'UI OS */
-  #ra-audio-player{bottom:16px;right:14px}
+  #ra-audio-player{bottom:80px;right:14px} /* MODIFIÉ — cohérent avec position fixe */
   #ra-audio-player.expanded{width:260px}
 
   /* Section solo */
@@ -914,7 +918,7 @@ footer{display:flex;align-items:center;justify-content:space-between;border-top:
   .feedback-section{padding:48px 16px}
 
   /* Tablette nav: audio repositionné */
-  #ra-audio-player{bottom:14px;right:10px}
+  #ra-audio-player{bottom:80px;right:10px} /* MODIFIÉ — cohérent avec position fixe */
   #ra-audio-player.expanded{width:calc(100vw - 20px);right:10px}
 }
 
@@ -983,7 +987,7 @@ footer{display:flex;align-items:center;justify-content:space-between;border-top:
   .popt{font-size:.58rem;padding:10px 10px;flex:1;min-width:56px;text-align:center}
 
   /* Audio player mobile S — plein bas */
-  #ra-audio-player{bottom:10px;right:8px}
+  #ra-audio-player{bottom:80px;right:8px} /* MODIFIÉ — cohérent avec position fixe */
   #ra-audio-player.expanded{width:calc(100vw - 16px);right:8px}
 
   /* Notification panel */
@@ -1415,7 +1419,7 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
         <div style="width:8px;height:8px;border-radius:50%;background:var(--gold);animation:pulse 1.5s ease-in-out infinite"></div>
         <span style="font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase">En attente de confirmation...</span>
       </div>
-      <button class="ra-btn-main" onclick="RAAuth.resendEmail()" style="background:var(--glass);border:1px solid var(--gb);color:var(--muted);box-shadow:none">📨 Renvoyer l'email</button>
+      <button id="ra-auth-resend-btn" class="ra-btn-main" onclick="RAAuth.resendEmail()" style="background:var(--glass);border:1px solid var(--gb);color:var(--muted);box-shadow:none">📨 Renvoyer l'email</button>
       <div style="text-align:center;margin-top:8px"><span style="font-size:.72rem;color:var(--muted);cursor:pointer" onclick="RAAuth.loginMode()">← Modifier mon email</span></div>
     </div>
 
@@ -1511,7 +1515,7 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
         <div style="width:8px;height:8px;border-radius:50%;background:var(--gold);animation:pulse 1.5s ease-in-out infinite"></div>
         <span style="font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase">En attente de confirmation...</span>
       </div>
-      <button class="ra-btn-main" onclick="RAGate.resendEmail()" style="background:var(--glass);border:1px solid var(--gb);color:var(--muted);box-shadow:none">📨 Renvoyer l'email</button>
+      <button id="ra-gate-resend-btn" class="ra-btn-main" onclick="RAGate.resendEmail()" style="background:var(--glass);border:1px solid var(--gb);color:var(--muted);box-shadow:none">📨 Renvoyer l'email</button>
       <div style="text-align:center;margin-top:8px"><span style="font-size:.72rem;color:var(--muted);cursor:pointer" onclick="RAGate.goStep(2)">← Modifier mon email</span></div>
     </div>
     <!-- Étape 4 : Succès -->
@@ -3278,8 +3282,8 @@ function soloAnswer(idx) {
     else if (i === idx && !ok) c.classList.add('wrong');
     else c.classList.add('disabled');
   });
-  if (ok) { _soloState.score += 100; showToast('✓ Correct ! +100 pts'); }
-  else showToast('✗ ' + q.choices[q.correct]);
+  if (ok) { _soloState.score += 100; RA_SFX.correct(); showToast('✓ Correct ! +100 pts'); } // MODIFIÉ
+  else { RA_SFX.error(); showToast('✗ ' + q.choices[q.correct]); } // MODIFIÉ
   _soloState.answers.push({ q: q.q, choices: q.choices, userIdx: idx, correctIdx: q.correct, ok, source: q.source || '' });
   { // MODIFIÉ — afficher référence officielle (q.reference en priorité, fallback source puis défaut)
     const refVal = q.reference || q.source || 'BCEAO/CIMA 2026'; // MODIFIÉ
@@ -3303,7 +3307,7 @@ function _soloShowResult() {
   document.getElementById('solo-result-trophy').textContent = pct >= 80 ? '🏆' : pct >= 50 ? '👍' : '📚';
   document.getElementById('solo-result-score').textContent = score.toLocaleString('fr-FR') + ' / ' + total.toLocaleString('fr-FR') + ' pts — ' + pct + '%';
   document.getElementById('solo-result-msg').textContent = pct >= 80 ? 'Excellent ! Maîtrise confirmée.' : pct >= 50 ? 'Bon résultat. Continuez !' : 'À retravailler. La réglementation n\'a pas de secrets pour qui persiste !';
-  if (pct >= 80) typeof launchConfetti === 'function' && launchConfetti();
+  if (pct >= 80) { typeof launchConfetti === 'function' && launchConfetti(); RA_SFX.victory(); RA_FX.confetti(); RA_SFX.applause(); RA_FX.bravo(); } // MODIFIÉ
 
   const recap = document.getElementById('solo-recap');
   if (recap) {
@@ -3765,6 +3769,7 @@ function _showWaitScreen(code){
   const urlEl=document.getElementById('invite-link-url');if(urlEl)urlEl.textContent=location.origin+'/?code='+code; // MODIFIÉ — sync lien copier sur d-screen-create
   const btnL=document.getElementById('btn-lancer-duel');if(btnL)btnL.style.display='none';
   const ps=document.getElementById('wait-poll-status');if(ps)ps.textContent="En attente d'un joueur...";
+  RA_SFX.waiting(); // MODIFIÉ — boucle d'attente pendant écran wait créateur
 }
 function _pollForJoiner(){
   _duelLive.pollInt=setInterval(()=>{
@@ -3784,11 +3789,24 @@ function _pollForJoiner(){
       }).catch(()=>{});
   },3000);
 }
+// MODIFIÉ — récupère le code pays du profil JWT ou localStorage
+function _getPlayerCountry(){
+  try{const jwt=(function(){try{return localStorage.getItem('ra_jwt');}catch(e){}try{return sessionStorage.getItem('ra_jwt');}catch(e){}return null;})();if(jwt){const p=JSON.parse(atob(jwt.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));if(p.country)return p.country;}}catch(e){}
+  try{const u=JSON.parse(localStorage.getItem('ra_auth_user_data')||localStorage.getItem('ra_gate_user_data')||'null');if(u&&u.country)return u.country;}catch(e){}
+  return 'SN';
+}
+const _INTRO_DELAY=10000;
+function _duelIntroThenStart(){
+  RA_SFX.stopWaiting();
+  RA_SFX.anthem(_getPlayerCountry());
+  setTimeout(function(){ RA_SFX.arenaIntro(); }, 3400);
+  setTimeout(function(){ dGoTo('duel'); }, _INTRO_DELAY);
+}
 function lancerDuel(){
   const jwt=_getJwt();if(!jwt)return;
   fetch('/duels/'+_duelLive.code+'/start',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt}})
     .then(r=>r.json()).then(d=>{
-      if(d.success){clearInterval(_duelLive.pollInt);_duelLive.pollInt=null;dGoTo('duel');}
+      if(d.success){clearInterval(_duelLive.pollInt);_duelLive.pollInt=null;_duelIntroThenStart();} // MODIFIÉ — intro anthem+arenaIntro avant duel
       else showToast('❌ '+(d.error||'Erreur lancement'));
     }).catch(()=>showToast('❌ Connexion impossible'));
 }
@@ -3818,6 +3836,7 @@ function joinDuelByCode(){
       _clearDuelPolls();
       document.querySelectorAll('.screen-d').forEach(s=>{s.classList.remove('active');s.style.display='none';});
       const t=document.getElementById('d-screen-waiting-start');t.style.display='';t.classList.add('active');
+      RA_SFX.waiting(); // MODIFIÉ — boucle d'attente pendant écran wait rejoignant
       _pollForStart();
     }).catch(()=>showToast('❌ Connexion impossible'));
 }
@@ -3830,7 +3849,7 @@ function _pollForStart(){
         if(d.duel.status==='active'){
           _duelLive.packId=d.duel.pack_id||_duelLive.packId;_duelLive.numQuestions=d.duel.num_questions||_duelLive.numQuestions;_duelLive.timerSec=d.duel.timer_sec||_duelLive.timerSec;
           const pack=PACKS.find(p=>p.id===_duelLive.packId);_duelLive.questions=pack?pack.questions:[];
-          clearInterval(_duelLive.pollInt);_duelLive.pollInt=null;dGoTo('duel');
+          clearInterval(_duelLive.pollInt);_duelLive.pollInt=null;_duelIntroThenStart(); // MODIFIÉ — intro anthem+arenaIntro avant duel
         }
       }).catch(()=>{});
   },3000);
@@ -3914,8 +3933,8 @@ function duelAnswer(idx){
   document.querySelectorAll('.q-choice').forEach((c,i)=>{if(i===q.correct)c.classList.add('correct');else if(i===idx&&!ok)c.classList.add('wrong');else c.classList.add('disabled');});
   const choicesEl=document.getElementById('q-choices');
   if(choicesEl){var refVal=q.reference||q.source||'BCEAO/CIMA 2026';var srcEl=document.createElement('div');srcEl.style.cssText='margin-top:12px;font-family:JetBrains Mono,monospace;font-size:.58rem;letter-spacing:1px;border-top:1px solid var(--gb);padding-top:9px;line-height:1.5';srcEl.innerHTML='<em style="color:#C9991A">📌 Réf. : '+escapeHtml(refVal)+'</em>';choicesEl.appendChild(srcEl);} // MODIFIÉ
-  if(ok){const pts=100+dState.streaks.me*10;dState.scores.me+=pts;dState.streaks.me++;showDelta('me','+'+pts);showToast('✓ Correct ! +'+pts+' pts');}
-  else{dState.streaks.me=0;showToast('✗ Réponse : '+q.choices[q.correct]);}
+  if(ok){const pts=100+dState.streaks.me*10;dState.scores.me+=pts;dState.streaks.me++;RA_SFX.correct();showDelta('me','+'+pts);showToast('✓ Correct ! +'+pts+' pts');} // MODIFIÉ
+  else{dState.streaks.me=0;RA_SFX.error();showToast('✗ Réponse : '+q.choices[q.correct]);} // MODIFIÉ
   updateDuelUI();
   const jwt=_getJwt();
   if(jwt&&_duelLive.code){fetch('/duels/'+_duelLive.code+'/answer',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt},body:JSON.stringify({q_index:dState.qIndex,correct:ok,score:dState.scores.me})}).catch(()=>{});}
@@ -3950,7 +3969,7 @@ function _startDuelTimer(){
   if(dState.timerInt)clearInterval(dState.timerInt);
   dState.timerInt=setInterval(()=>{
     dState.timerVal--;if(disp)disp.textContent=dState.timerVal;
-    if(timerEl){if(dState.timerVal<=10)timerEl.classList.add('urgent');else timerEl.classList.remove('urgent');}
+    if(timerEl){if(dState.timerVal<=10){timerEl.classList.add('urgent');RA_SFX.timer();}else timerEl.classList.remove('urgent');} // MODIFIÉ
     if(dState.timerVal<=0){
       clearInterval(dState.timerInt);
       if(!dState.answered){
@@ -3972,7 +3991,7 @@ function showResult(iWin){
   const fme=document.getElementById('final-score-me'),fth=document.getElementById('final-score-them');
   if(fme)fme.textContent=meS.toLocaleString('fr-FR');if(fth)fth.textContent=thS.toLocaleString('fr-FR');
   const trophy=document.getElementById('winner-trophy'),wname=document.getElementById('winner-name'),ptsEl=document.getElementById('pts-gain');
-  if(iWin){if(trophy)trophy.textContent='🏆';if(wname)wname.textContent='Toi';if(ptsEl){ptsEl.textContent='+120';ptsEl.className='pts-value gain';}launchConfetti();}
+  if(iWin){if(trophy)trophy.textContent='🏆';if(wname)wname.textContent='Toi';if(ptsEl){ptsEl.textContent='+120';ptsEl.className='pts-value gain';}launchConfetti();RA_FX.fireworks();RA_SFX.bravo();} // MODIFIÉ
   else{if(trophy)trophy.textContent='😤';if(wname)wname.textContent='Adversaire';if(ptsEl){ptsEl.textContent='-40';ptsEl.className='pts-value loss';}}
   document.querySelectorAll('.screen-d').forEach(s=>{s.classList.remove('active');s.style.display='none';});
   const t=document.getElementById('d-screen-result');if(t){t.style.display='';t.classList.add('active');}
@@ -4080,10 +4099,16 @@ function resetInviteMsg(){const msg=document.getElementById('invite-message');if
    ─────────────────────────────────────────────────────────── */
 const RAGate = (() => {
   const KEY_COUNT='ra_quiz_count', KEY_REG='ra_gate_registered', KEY_USER='ra_gate_user_data';
+  const KEY_SESSION='ra_session', SALT='RA2025'; // MODIFIÉ — anti-cheat
+  // MODIFIÉ — blacklist emails jetables + personnels (était undefined → bug silencieux)
+  const BLOCKED=['yahoo.com','hotmail.com','outlook.com','live.com','yopmail.com','orange.sn','free.fr','icloud.com','protonmail.com','mailinator.com','guerrillamail.com','tempmail.com','throwam.com','sharklasers.com','trashmail.com','dispostable.com','maildrop.cc','getnada.com','fakeinbox.com','spamgourmet.com','mailnull.com','spamex.com','spamfree24.org','anonaddy.com','simplelogin.io','tutanota.com','cock.li'];
   const MAX_FREE=3;
   let state={count:0,registered:false,user:null,emailValid:false,loginMode:false};
+  // MODIFIÉ — stocke le compteur avec un hash d'intégrité pour détecter la triche DevTools
+  function _saveSession(count){try{localStorage.setItem(KEY_COUNT,count);localStorage.setItem(KEY_SESSION,btoa(JSON.stringify({count,timestamp:Date.now(),salt:SALT})));}catch(e){}}
+  function _loadSession(){try{const raw=localStorage.getItem(KEY_SESSION);const stored=parseInt(localStorage.getItem(KEY_COUNT)||'0');if(!raw){_saveSession(stored);return stored;}const s=JSON.parse(atob(raw));if(s.salt!==SALT||s.count!==stored){_saveSession(0);try{gToast('⚠ Session invalide détectée — réinitialisation.');}catch(e){}return 0;}return s.count;}catch(e){return 0;}}
   function init(){
-    try{state.count=parseInt(localStorage.getItem(KEY_COUNT)||'0');state.registered=localStorage.getItem(KEY_REG)==='true';state.user=JSON.parse(localStorage.getItem(KEY_USER)||'null');}catch(e){}
+    try{state.count=_loadSession();state.registered=localStorage.getItem(KEY_REG)==='true';state.user=JSON.parse(localStorage.getItem(KEY_USER)||'null');}catch(e){} // MODIFIÉ
     renderPill();
     if(state.count>=MAX_FREE&&!state.registered)setTimeout(showGate,400);
   }
@@ -4094,7 +4119,7 @@ const RAGate = (() => {
   }
   function quizCompleted(){
     if(state.registered||(window.RAAuth&&RAAuth.isAuthenticated()))return;
-    try{state.count=parseInt(localStorage.getItem(KEY_COUNT)||'0')+1;localStorage.setItem(KEY_COUNT,state.count);}catch(e){state.count++;}
+    try{state.count=_loadSession()+1;_saveSession(state.count);}catch(e){state.count++;} // MODIFIÉ — anti-cheat
     renderPill();
     const remaining=MAX_FREE-state.count;
     if(remaining>0)gToast('Quiz '+(state.count)+'/'+MAX_FREE+' — '+remaining+' quiz gratuits restants');
@@ -4124,7 +4149,7 @@ const RAGate = (() => {
     const ok=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
     const dom=v.split('@')[1]?.toLowerCase();const blocked=ok&&BLOCKED.some(d=>dom===d||dom?.endsWith('.'+d));
     if(!ok){if(hint)hint.className='ra-email-hint invalid show';if(icon)icon.textContent='✗';if(txt)txt.textContent='Format invalide';if(input)input.className='ra-input error';state.emailValid=false;}
-    else if(blocked){if(hint)hint.className='ra-email-hint invalid show';if(icon)icon.textContent='✗';if(txt)txt.textContent='Email personnel non accepté — utilise ton email institutionnel';if(input)input.className='ra-input error';state.emailValid=false;}
+    else if(blocked){if(hint)hint.className='ra-email-hint invalid show';if(icon)icon.textContent='✗';if(txt)txt.textContent='Email jetable détecté. Utilisez votre email institutionnel.';if(input)input.className='ra-input error';state.emailValid=false;} // MODIFIÉ — message blacklist
     else{if(hint)hint.className='ra-email-hint valid show';if(icon)icon.textContent='✓';if(txt)txt.textContent='Email institutionnel valide ('+dom+')';if(input)input.className='ra-input success';state.emailValid=true;}
     updateSubmitBtn();
   }
@@ -4156,6 +4181,7 @@ const RAGate = (() => {
   function resendEmail(){
     const email=document.getElementById('ra-confirm-email')?.textContent;
     if(!email)return;
+    if(!_startResendCooldown('ra-gate-resend-btn',60))return; // MODIFIÉ — rate-limit 60s
     apiCall('POST','/auth/resend',{email}).then(r=>{
       gToast(r.ok?'📧 Email renvoyé à '+email:'⚠ '+(r.data?.error||'Erreur'));
     });
@@ -4190,7 +4216,7 @@ const RAGate = (() => {
     setTimeout(()=>{if(c)c.innerHTML='';},6000);
   }
   function gToast(msg){const t=document.getElementById('ra-toast');if(!t)return;t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),3200);}
-  function reset(){try{localStorage.removeItem(KEY_COUNT);localStorage.removeItem(KEY_REG);localStorage.removeItem(KEY_USER);}catch(e){}state={count:0,registered:false,user:null,emailValid:false,loginMode:false};renderPill();const o=document.getElementById('ra-gate-overlay');if(o){o.classList.remove('visible');document.body.style.overflow='';}gToast('↺ Réinitialisé');}
+  function reset(){try{localStorage.removeItem(KEY_COUNT);localStorage.removeItem(KEY_REG);localStorage.removeItem(KEY_USER);localStorage.removeItem(KEY_SESSION);}catch(e){}state={count:0,registered:false,user:null,emailValid:false,loginMode:false};renderPill();const o=document.getElementById('ra-gate-overlay');if(o){o.classList.remove('visible');document.body.style.overflow='';}gToast('↺ Réinitialisé');} // MODIFIÉ — anti-cheat : purge ra_session
 
   return {quizCompleted,showGate,close,goStep,loginMode,validateEmail,updateSubmitBtn,submit,resendEmail,checkURLConfirmation,reset};
 })();
@@ -4270,7 +4296,7 @@ document.addEventListener('input', e => {
 const RAAuth = (() => {
   const KEY_REG  = 'ra_auth_registered';
   const KEY_USER = 'ra_auth_user_data';
-  const BLOCKED  = ['yahoo.com','hotmail.com','outlook.com','live.com','yopmail.com','orange.sn','free.fr','icloud.com','protonmail.com'];
+  const BLOCKED  = ['yahoo.com','hotmail.com','outlook.com','live.com','yopmail.com','orange.sn','free.fr','icloud.com','protonmail.com','mailinator.com','guerrillamail.com','tempmail.com','throwam.com','sharklasers.com','trashmail.com','dispostable.com','maildrop.cc','getnada.com','fakeinbox.com','spamgourmet.com','mailnull.com','spamex.com','spamfree24.org','anonaddy.com','simplelogin.io','tutanota.com','cock.li']; // MODIFIÉ — blacklist étendue
 
   let _pendingPage = null;
   let _emailValid  = false;
@@ -4469,6 +4495,7 @@ const RAAuth = (() => {
   function resendEmail() {
     const email = document.getElementById('ra-auth-confirm-email')?.textContent;
     if (!email) return;
+    if (!_startResendCooldown('ra-auth-resend-btn', 60)) return; // MODIFIÉ — rate-limit 60s
     apiCall('POST','/auth/resend',{email}).then(r=>{
       _toast(r.ok?'📧 Email renvoyé à '+email:'⚠ '+(r.data?.error||'Erreur'));
     });
@@ -4713,19 +4740,10 @@ const RAPlayer = (() => {
   const header    = document.getElementById('ra-ap-header');
   const player    = document.getElementById('ra-audio-player');
 
-  let playing = false, expanded = false, _muted = false, _volume = 0.7;
+  let playing = false, expanded = false, _muted = false, _volume = 0.7; // MODIFIÉ
   let _tickId = null;
-  let _useSynth = false; // bascule vers Web Audio si AAC indisponible
 
-  // ── Piste AAC ────────────────────────────────────────────────
-  const audio = new Audio('/assets/audio/REGUL_ARENA_SONG.aac');
-  audio.loop = true;
-  audio.volume = _volume;
-  audio.preload = 'none';
-  // Si le fichier échoue à charger, on passera automatiquement au synthétiseur
-  audio.onerror = () => { _useSynth = true; };
-
-  // ── Synthétiseur Web Audio (fallback) ────────────────────────
+  // ── Synthétiseur Web Audio (100% natif, aucun fichier externe) ── // MODIFIÉ
   let _ctx = null, _masterGain = null;
   function _initSynth() {
     if (_ctx) return;
@@ -4754,56 +4772,25 @@ const RAPlayer = (() => {
 
   const fmt = s => { if (!isFinite(s)) return '0:00'; const m = Math.floor(s/60); return m+':'+(Math.floor(s%60)<10?'0':'')+Math.floor(s%60); };
 
-  function _tick() {
-    if (!_useSynth && audio.duration && isFinite(audio.duration)) {
-      const pct = (audio.currentTime / audio.duration) * 100;
-      if (progressBar) progressBar.style.width = pct + '%';
-      if (progressThumb) progressThumb.style.left = pct + '%';
-      if (timeEl) timeEl.textContent = fmt(audio.currentTime);
-    }
-    _tickId = requestAnimationFrame(_tick);
-  }
+  function _tick() { _tickId = requestAnimationFrame(_tick); } // MODIFIÉ — synth infini, pas de durée native
 
-  function _setPlaying(val) {
+  function _setPlaying(val) { // MODIFIÉ
     playing = val;
     if (playBtn) playBtn.textContent = val ? '⏸' : '▶';
     eqBars.forEach(b => b.classList.toggle('paused', !val));
-    if (status) status.textContent = val ? '♪ En lecture' : (_useSynth ? '♪ Ambiance sonore' : 'En pause');
+    if (status) status.textContent = val ? '♪ En lecture' : '♪ Ambiance sonore'; // MODIFIÉ
   }
 
-  function _startSynth() {
-    _initSynth();
-    if (_ctx.state === 'suspended') { _ctx.resume(); }
-    _masterGain.gain.setTargetAtTime(_muted ? 0 : _volume, _ctx.currentTime, 0.8);
-    _setPlaying(true);
-    if (!expanded) toggleExpand();
-    _tickId = requestAnimationFrame(_tick);
-  }
-  function _stopSynth() {
-    if (_masterGain) _masterGain.gain.setTargetAtTime(0, _ctx.currentTime, 0.4);
-    _setPlaying(false);
-    cancelAnimationFrame(_tickId);
-  }
-
-  function togglePlay() {
-    // Chemin synthétiseur (fallback ou forcé)
-    if (_useSynth) {
-      if (!playing) _startSynth(); else _stopSynth();
-      return;
-    }
-    // Chemin AAC (prioritaire) — geste utilisateur requis par navigateur
+  function togglePlay() { // MODIFIÉ — 100% Web Audio, aucun fichier AAC
     if (!playing) {
-      audio.play().then(() => {
-        _setPlaying(true);
-        if (!expanded) toggleExpand();
-        _tickId = requestAnimationFrame(_tick);
-      }).catch(err => {
-        console.warn('[RAPlayer] AAC play() refusé, bascule synthétiseur :', err.message);
-        _useSynth = true;
-        _startSynth();
-      });
+      _initSynth();
+      if (_ctx.state === 'suspended') { _ctx.resume(); }
+      _masterGain.gain.setTargetAtTime(_muted ? 0 : _volume, _ctx.currentTime, 0.8);
+      _setPlaying(true);
+      if (!expanded) toggleExpand();
+      _tickId = requestAnimationFrame(_tick);
     } else {
-      audio.pause();
+      if (_masterGain) _masterGain.gain.setTargetAtTime(0, _ctx.currentTime, 0.4);
       _setPlaying(false);
       cancelAnimationFrame(_tickId);
     }
@@ -4815,28 +4802,20 @@ const RAPlayer = (() => {
     if (header) header.setAttribute('aria-expanded', expanded);
   }
 
-  function setVolume(val) {
+  function setVolume(val) { // MODIFIÉ
     _volume = parseFloat(val);
     _muted = false;
-    if (_useSynth && _masterGain && _ctx) {
-      _masterGain.gain.setTargetAtTime(_volume, _ctx.currentTime, 0.1);
-    } else {
-      audio.volume = _volume;
-    }
+    if (_masterGain && _ctx) _masterGain.gain.setTargetAtTime(_volume, _ctx.currentTime, 0.1);
     const muteBtn = document.getElementById('ra-ap-mutebtn');
     if (muteBtn) muteBtn.textContent = _volume === 0 ? '🔇' : _volume < 0.5 ? '🔉' : '🔊';
   }
 
-  function toggleMute() {
+  function toggleMute() { // MODIFIÉ
     _muted = !_muted;
-    if (_useSynth && _masterGain && _ctx) {
-      _masterGain.gain.setTargetAtTime(_muted ? 0 : _volume, _ctx.currentTime, 0.1);
-    } else {
-      audio.muted = _muted;
-    }
-    const vol = document.getElementById('ra-ap-vol');
+    if (_masterGain && _ctx) _masterGain.gain.setTargetAtTime(_muted ? 0 : _volume, _ctx.currentTime, 0.1);
     const muteBtn = document.getElementById('ra-ap-mutebtn');
     if (muteBtn) muteBtn.textContent = _muted ? '🔇' : '🔊';
+    const vol = document.getElementById('ra-ap-vol');
     if (vol) vol.value = _muted ? 0 : _volume;
   }
 
@@ -4943,6 +4922,298 @@ function escapeHtml(str) {
     .replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;')
     .replace(/'/g,'&#x27;');
+}
+
+/* ── RA_SFX : effets sonores 100% Web Audio API ─────────── */ // MODIFIÉ
+const RA_SFX = (() => {
+  let _ctx = null;
+  function _getCtx() { // MODIFIÉ
+    if (!_ctx) _ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (_ctx.state === 'suspended') _ctx.resume();
+    return _ctx;
+  }
+  function _tone(freq, duration, type, freqEnd, gain) { // MODIFIÉ
+    try {
+      const ctx = _getCtx();
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type = type || 'sine';
+      o.frequency.setValueAtTime(freq, ctx.currentTime);
+      if (freqEnd !== undefined) o.frequency.linearRampToValueAtTime(freqEnd, ctx.currentTime + duration);
+      const vol = gain || 0.35;
+      g.gain.setValueAtTime(0, ctx.currentTime);
+      g.gain.linearRampToValueAtTime(vol, ctx.currentTime + 0.01);
+      g.gain.linearRampToValueAtTime(0, ctx.currentTime + duration);
+      o.start(ctx.currentTime);
+      o.stop(ctx.currentTime + duration + 0.01);
+    } catch(e) {}
+  }
+  function correct() { _tone(880, 0.3, 'sine'); } // MODIFIÉ — 880 Hz, 0.3 s
+  function error()   { _tone(220, 0.5, 'sawtooth', 110); } // MODIFIÉ — 220→110 Hz, 0.5 s
+  function victory() { // MODIFIÉ — arpège montant C5 E5 G5
+    [[523, 0], [659, 180], [784, 360]].forEach(([f, delay]) =>
+      setTimeout(() => _tone(f, 0.22, 'sine', undefined, 0.3), delay)
+    );
+  }
+  function timer()    { _tone(440, 0.08, 'sine', undefined, 0.25); } // MODIFIÉ — bip court 440 Hz
+  function click()    { _tone(600, 0.05, 'sine', undefined, 0.18); } // MODIFIÉ — feedback bouton 600 Hz
+  function applause() { // MODIFIÉ — bruit blanc filtré 1.5s fade out
+    try {
+      const ctx = _getCtx();
+      const sr = ctx.sampleRate, len = sr * 1.5;
+      const buf = ctx.createBuffer(1, len, sr);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+      const src = ctx.createBufferSource(); src.buffer = buf;
+      const bpf = ctx.createBiquadFilter(); bpf.type = 'bandpass';
+      bpf.frequency.value = 3000; bpf.Q.value = 0.6;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.28, ctx.currentTime);
+      g.gain.linearRampToValueAtTime(0, ctx.currentTime + 1.5);
+      src.connect(bpf); bpf.connect(g); g.connect(ctx.destination);
+      src.start(ctx.currentTime);
+    } catch(e) {}
+  }
+  function bravo() { // MODIFIÉ — fanfare arpège C4 E4 G4 C5
+    [[261, 0], [329, 150], [392, 300], [523, 450]].forEach(([f, d]) =>
+      setTimeout(() => _tone(f, 0.22, 'sine', undefined, 0.35), d)
+    );
+  }
+  let _waitInt = null; // MODIFIÉ — état boucle waiting
+
+  // ── Séquenceur mélodique (planifié sur la timeline Web Audio) ── // MODIFIÉ
+  function _playNotes(notes) {
+    try {
+      const ctx = _getCtx();
+      let t = ctx.currentTime + 0.05;
+      notes.forEach(function([f, d]) {
+        if (f > 0) {
+          const o = ctx.createOscillator(), g = ctx.createGain();
+          o.type = 'sine'; o.frequency.value = f;
+          g.gain.setValueAtTime(0, t);
+          g.gain.linearRampToValueAtTime(0.28, t + 0.01);
+          g.gain.linearRampToValueAtTime(0.2,  t + d * 0.75);
+          g.gain.linearRampToValueAtTime(0,    t + d - 0.02);
+          o.connect(g); g.connect(ctx.destination);
+          o.start(t); o.stop(t + d);
+        }
+        t += d;
+      });
+    } catch(e) {}
+  }
+  function _kickSynth() { // MODIFIÉ — kick synthétique 60Hz
+    try {
+      const ctx = _getCtx(), now = ctx.currentTime;
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(120, now);
+      o.frequency.exponentialRampToValueAtTime(60, now + 0.15);
+      g.gain.setValueAtTime(0.5, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(now); o.stop(now + 0.35);
+    } catch(e) {}
+  }
+  function _hihatSynth() { // MODIFIÉ — hihat bruit blanc filtré 8kHz
+    try {
+      const ctx = _getCtx(), now = ctx.currentTime;
+      const buf = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * 0.04), ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      const src = ctx.createBufferSource(); src.buffer = buf;
+      const hpf = ctx.createBiquadFilter(); hpf.type = 'highpass'; hpf.frequency.value = 8000;
+      const g = ctx.createGain(); g.gain.setValueAtTime(0.12, now); g.gain.linearRampToValueAtTime(0, now + 0.04);
+      src.connect(hpf); hpf.connect(g); g.connect(ctx.destination);
+      src.start(now);
+    } catch(e) {}
+  }
+
+  // ── Hymnes nationaux — intro ≤4s, notes approx. reconstituées ── // MODIFIÉ
+  const _HYMNES = {
+    SN:[[392,.3],[392,.2],[392,.3],[329,.3],[261,.5],[293,.3],[293,.2],[293,.3],[246,.3],[196,.6]],
+    CI:[[261,.35],[293,.2],[329,.35],[392,.4],[329,.3],[293,.3],[261,.6],[329,.4],[392,.7]],
+    BF:[[392,.4],[440,.4],[392,.4],[349,.35],[392,.7],[329,.4],[293,.35],[261,.7]],
+    ML:[[392,.3],[440,.3],[523,.5],[440,.3],[392,.5],[329,.3],[261,.7]],
+    BJ:[[261,.3],[261,.1],[293,.3],[329,.3],[261,.3],[293,.5],[329,.3],[392,.6]],
+    NE:[[392,.4],[392,.2],[440,.4],[392,.4],[349,.35],[329,.7],[261,.6]],
+    TG:[[329,.3],[349,.3],[392,.3],[440,.3],[392,.3],[349,.3],[329,.7],[261,.6]],
+    GW:[[261,.4],[293,.4],[329,.4],[261,.4],[293,.4],[349,.7],[329,.3],[261,.7]],
+    CM:[[261,.35],[329,.35],[392,.35],[440,.35],[523,.6],[440,.3],[392,.3],[329,.5],[261,.6]],
+    GA:[[329,.35],[329,.2],[392,.4],[329,.3],[261,.6],[329,.3],[392,.5],[329,.6]],
+    CG:[[392,.3],[349,.3],[329,.3],[293,.3],[261,.3],[293,.3],[329,.6],[261,.6]],
+    CF:[[261,.4],[293,.4],[329,.4],[392,.7],[329,.4],[261,.4],[293,.7]],
+    GQ:[[329,.4],[392,.4],[392,.1],[440,.4],[392,.3],[329,.5],[261,.4],[293,.7]],
+    TD:[[261,.35],[293,.35],[329,.35],[293,.35],[261,.35],[329,.4],[392,.7]]
+  };
+  function anthem(code) { _playNotes(_HYMNES[code] || _HYMNES['SN']); } // MODIFIÉ
+
+  function arenaIntro() { // MODIFIÉ — foule · gong · countdown 5→1 · fanfare (~7s total)
+    try {
+      const ctx = _getCtx(), t0 = ctx.currentTime + 0.05;
+      // Foule synthétique modulée (1.8s) // MODIFIÉ
+      const cLen = Math.ceil(ctx.sampleRate * 1.8);
+      const cBuf = ctx.createBuffer(1, cLen, ctx.sampleRate);
+      const cd = cBuf.getChannelData(0);
+      for (let i = 0; i < cLen; i++) cd[i] = Math.random() * 2 - 1;
+      const crowd = ctx.createBufferSource(); crowd.buffer = cBuf;
+      const bpf = ctx.createBiquadFilter(); bpf.type = 'bandpass'; bpf.frequency.value = 2500; bpf.Q.value = 0.4;
+      const lfo = ctx.createOscillator(), lfoG = ctx.createGain();
+      lfo.frequency.value = 3.5; lfoG.gain.value = 1200;
+      lfo.connect(lfoG); lfoG.connect(bpf.frequency);
+      lfo.start(t0); lfo.stop(t0 + 1.8);
+      const cg = ctx.createGain();
+      cg.gain.setValueAtTime(0.12, t0);
+      cg.gain.linearRampToValueAtTime(0.38, t0 + 0.6);
+      cg.gain.linearRampToValueAtTime(0, t0 + 1.8);
+      crowd.connect(bpf); bpf.connect(cg); cg.connect(ctx.destination);
+      crowd.start(t0);
+      // Gong grave 80Hz decay 3s (t=0.3) // MODIFIÉ
+      const tg = t0 + 0.3;
+      const gong = ctx.createOscillator(), gg = ctx.createGain();
+      gong.type = 'sine'; gong.frequency.value = 80;
+      gg.gain.setValueAtTime(0.55, tg); gg.gain.exponentialRampToValueAtTime(0.001, tg + 3.0);
+      gong.connect(gg); gg.connect(ctx.destination);
+      gong.start(tg); gong.stop(tg + 3.2);
+      // Countdown bips 5→1 · 440Hz · espacés 1s (t=1.5→5.5) // MODIFIÉ
+      for (let i = 0; i < 5; i++) {
+        const tb = t0 + 1.5 + i;
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.type = 'sine'; o.frequency.value = i === 4 ? 660 : 440;
+        g.gain.setValueAtTime(0, tb); g.gain.linearRampToValueAtTime(0.3, tb + 0.01); g.gain.linearRampToValueAtTime(0, tb + 0.12);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(tb); o.stop(tb + 0.15);
+      }
+      // Fanfare C4+E4+G4 simultané (t=6.8, 0.5s) // MODIFIÉ
+      const tf = t0 + 6.8;
+      [261, 329, 392].forEach(function(f) {
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.type = 'sine'; o.frequency.value = f;
+        g.gain.setValueAtTime(0, tf); g.gain.linearRampToValueAtTime(0.22, tf + 0.02); g.gain.linearRampToValueAtTime(0, tf + 0.5);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(tf); o.stop(tf + 0.55);
+      });
+    } catch(e) {}
+  }
+
+  function waiting() { // MODIFIÉ — boucle kick+hihat BPM 90 pendant attente adversaire
+    if (_waitInt) return;
+    let beat = 0;
+    function _tick() { (beat++ % 2 === 0) ? _kickSynth() : _hihatSynth(); }
+    _tick();
+    _waitInt = setInterval(_tick, Math.round(60000 / 90));
+  }
+  function stopWaiting() { // MODIFIÉ — arrête la boucle waiting
+    if (_waitInt) { clearInterval(_waitInt); _waitInt = null; }
+  }
+
+  return { correct, error, victory, timer, click, applause, bravo, anthem, arenaIntro, waiting, stopWaiting }; // MODIFIÉ
+})();
+
+// MODIFIÉ — click feedback sur tous les boutons principaux (délégation globale)
+document.addEventListener('click', function(e) {
+  const el = e.target.closest('.btn-gold, .ra-btn-main, .btn-ghost, .btn-navy, .nav-cta');
+  if (el && !el.disabled) RA_SFX.click();
+}, { passive: true });
+
+/* ── RA_FX : animations visuelles CSS/JS pures ──────────── */ // MODIFIÉ
+const RA_FX = (() => {
+  // Injection keyframes une seule fois // MODIFIÉ
+  (function() {
+    const s = document.createElement('style');
+    s.textContent = [
+      '@keyframes _ra_fall{0%{transform:translateY(-12px) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}',
+      '@keyframes _ra_fw{0%{transform:translate(-50%,-50%) scale(0);opacity:1}100%{transform:translate(-50%,-50%) scale(3);opacity:0}}',
+      '@keyframes _ra_pop{0%{transform:translate(-50%,-50%) scale(0)}70%{transform:translate(-50%,-50%) scale(1.2)}100%{transform:translate(-50%,-50%) scale(1)}}'
+    ].join('');
+    document.head.appendChild(s);
+  })();
+
+  function confetti() { // MODIFIÉ — 30 divs colorés chute 2s auto-supprimés
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:9999';
+    const cols = ['#002B5C','#C9991A','#E8B520','#ffffff'];
+    for (let i = 0; i < 30; i++) {
+      const d = document.createElement('div');
+      const dur = (1.5 + Math.random() * 0.5).toFixed(2);
+      const delay = (Math.random() * 0.4).toFixed(2);
+      d.style.cssText = 'position:absolute'
+        + ';left:' + (Math.random() * 100).toFixed(1) + '%'
+        + ';top:0'
+        + ';width:' + (5 + Math.random() * 7).toFixed(0) + 'px'
+        + ';height:' + (7 + Math.random() * 10).toFixed(0) + 'px'
+        + ';background:' + cols[i % cols.length]
+        + ';border-radius:' + (Math.random() > .5 ? '50%' : '2px')
+        + ';animation:_ra_fall ' + dur + 's ' + delay + 's linear forwards';
+      wrap.appendChild(d);
+    }
+    document.body.appendChild(wrap);
+    setTimeout(() => wrap.remove(), 2200); // MODIFIÉ
+  }
+
+  function fireworks() { // MODIFIÉ — 5 cercles expansifs centre scale 0→3 opacity 1→0 1s
+    const cols = ['#C9991A','#E8B520','#002B5C','#22D3EE','#ffffff'];
+    for (let i = 0; i < 5; i++) {
+      setTimeout(() => {
+        const d = document.createElement('div');
+        const sz = 60 + i * 22;
+        d.style.cssText = 'position:fixed;left:50%;top:50%'
+          + ';width:' + sz + 'px;height:' + sz + 'px'
+          + ';border:3px solid ' + cols[i]
+          + ';border-radius:50%'
+          + ';pointer-events:none;z-index:9998'
+          + ';animation:_ra_fw 1s ease-out forwards';
+        document.body.appendChild(d);
+        setTimeout(() => d.remove(), 1100); // MODIFIÉ
+      }, i * 110);
+    }
+  }
+
+  function bravo() { // MODIFIÉ — badge centré scale bounce 0.6s, auto-supprimé 2s
+    const d = document.createElement('div');
+    d.style.cssText = 'position:fixed;left:50%;top:50%'
+      + ';transform:translate(-50%,-50%) scale(0)'
+      + ';background:#002B5C;border:2px solid #C9991A'
+      + ';color:#C9991A;font-family:\'Bebas Neue\',cursive'
+      + ';font-size:2.4rem;letter-spacing:5px'
+      + ';padding:20px 48px;border-radius:4px'
+      + ';z-index:10000;pointer-events:none'
+      + ';animation:_ra_pop 0.6s ease-out forwards'
+      + ';box-shadow:0 8px 40px rgba(201,153,26,.45)';
+    d.textContent = '🏆 BRAVO !';
+    document.body.appendChild(d);
+    setTimeout(() => { // MODIFIÉ — fade puis suppression
+      d.style.transition = 'opacity 0.4s';
+      d.style.opacity = '0';
+      setTimeout(() => d.remove(), 420);
+    }, 1600);
+  }
+
+  return { confetti, fireworks, bravo };
+})();
+
+/* ── RATE-LIMIT : cooldown bouton "Renvoyer l'email" ────── */
+function _startResendCooldown(btnId, seconds) {
+  const btn = document.getElementById(btnId);
+  if (!btn || btn.disabled) return false; // déjà en cooldown
+  let remaining = seconds;
+  const origHTML = btn.innerHTML;
+  btn.disabled = true;
+  btn.style.opacity = '.5';
+  btn.style.cursor = 'not-allowed';
+  btn.innerHTML = '⏳ Renvoyer dans <strong>' + remaining + 's</strong>';
+  const iv = setInterval(function() {
+    remaining--;
+    if (remaining <= 0) {
+      clearInterval(iv);
+      btn.disabled = false;
+      btn.style.opacity = '';
+      btn.style.cursor = '';
+      btn.innerHTML = origHTML;
+    } else {
+      btn.innerHTML = '⏳ Renvoyer dans <strong>' + remaining + 's</strong>';
+    }
+  }, 1000);
+  return true;
 }
 
 /* ── MOBILE NAV ─────────────────────────────────────────── */
@@ -5198,12 +5469,12 @@ const RANotif = (() => {
       return;
     }
     _list.innerHTML = notifications.map(n => `
-      <div class="ra-notif-item ${n.seen ? '' : 'unread'}" data-id="${n.id}" onclick="RANotif.markSeen(${n.id}, this)">
+      <div class="ra-notif-item ${n.seen ? '' : 'unread'}" data-id="${escapeHtml(String(n.id))}" onclick="RANotif.markSeen(${parseInt(n.id)||0}, this)">
         <div style="flex:1">
-          <div class="ra-notif-msg">${n.message}</div>
-          <div class="ra-notif-time">${_fmt(n.created_at)}</div>
+          <div class="ra-notif-msg">${escapeHtml(n.message)}</div>
+          <div class="ra-notif-time">${escapeHtml(_fmt(n.created_at))}</div>
         </div>
-      </div>`).join('');
+      </div>`).join(''); // MODIFIÉ — XSS : escapeHtml sur données serveur
   }
 
   async function poll() {
@@ -5752,6 +6023,9 @@ window.raT_startQualify = function(tournamentId, packId){
     answered: false
   };
 
+  // MODIFIÉ — intro musicale non-bloquante avant qualification tournoi
+  RA_SFX.anthem(_getPlayerCountry());
+  setTimeout(function(){ RA_SFX.arenaIntro(); }, 3400);
   raT_goTo('ra-qualify');
   _ratQS_showQuestion();
 };
@@ -5827,6 +6101,7 @@ window.raT_QS_next = function(){
 function _ratQS_updateTimer(){
   var el = document.getElementById('rat-q-timer');
   if(el) el.textContent = _ratQS.timeLeft + 's';
+  if(_ratQS && _ratQS.timeLeft <= 5 && _ratQS.timeLeft > 0) RA_SFX.timer(); // MODIFIÉ
 }
 
 function _ratQS_finish(){
@@ -5848,6 +6123,7 @@ function _ratQS_finish(){
     if(!rankEl) return;
     if(r.ok){
       rankEl.textContent = 'Score enregistré — classement #' + (r.rank||'?');
+      if(r.rank === 1){ RA_FX.fireworks(); RA_SFX.bravo(); } // MODIFIÉ — victoire tournoi
       // MODIFIÉ — si vainqueur de manche (rank 1), inviter à planifier le tour suivant
       if(r.rank === 1 && r.next_round && typeof raT_promptNextRound === 'function'){ // MODIFIÉ
         setTimeout(function(){ raT_promptNextRound(qs.tournamentId, r.next_round); }, 1500); // MODIFIÉ
