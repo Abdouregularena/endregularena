@@ -1254,6 +1254,30 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
 } /* ORIENTATION AJOUT */
 
 /* ── FIN ORIENTATION AJOUT ───────────────────────────────── */
+
+/* ── MODIFIÉ — Responsive écran création duel ───────────── */
+#d-screen-create{overflow-y:auto;} /* MODIFIÉ */
+.d-pack-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-height:260px;overflow-y:auto;border:1px solid var(--gb);border-radius:3px;padding:8px;background:var(--bg2);} /* MODIFIÉ */
+.d-pack-card{background:var(--bg3);border:1px solid var(--gb);border-radius:3px;padding:10px 12px;cursor:pointer;transition:border-color .2s,background .2s;min-height:56px;display:flex;flex-direction:column;justify-content:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent;} /* MODIFIÉ */
+.d-pack-card:hover,.d-pack-card.active{border-color:var(--gold);background:var(--gold-dim);} /* MODIFIÉ */
+.d-pack-card.active .d-pack-name{color:var(--gold);} /* MODIFIÉ */
+.d-pack-name{font-size:.78rem;font-weight:600;color:var(--text);line-height:1.3;} /* MODIFIÉ */
+.d-pack-zone{font-family:'JetBrains Mono',monospace;font-size:.52rem;letter-spacing:1px;color:var(--muted);margin-top:3px;text-transform:uppercase;} /* MODIFIÉ */
+@media (max-width:768px){ /* MODIFIÉ */
+  #d-screen-create{padding:84px 12px 80px!important;} /* MODIFIÉ — 52nav+32topbar, safe bottom */
+  #d-screen-create-grid{grid-template-columns:1fr!important;} /* MODIFIÉ — colonne unique */
+  .d-pack-cards{grid-template-columns:1fr!important;max-height:none;} /* MODIFIÉ — cartes empilées */
+  .d-pack-card{min-height:60px!important;font-size:14px;} /* MODIFIÉ — touch target ≥44px garanti */
+  .d-pack-name{font-size:14px!important;} /* MODIFIÉ */
+  .d-create-btn{width:100%!important;padding:16px!important;font-size:16px!important;justify-content:center;position:sticky;bottom:16px;z-index:5;box-shadow:0 -4px 16px rgba(0,0,0,.4);} /* MODIFIÉ — sticky bottom, toujours visible */
+} /* MODIFIÉ */
+@media (min-width:769px) and (max-width:1024px){ /* MODIFIÉ */
+  #d-screen-create{padding:84px 20px 60px!important;} /* MODIFIÉ */
+  #d-screen-create-grid{grid-template-columns:1fr 1fr!important;} /* MODIFIÉ */
+  .d-pack-cards{grid-template-columns:1fr 1fr!important;} /* MODIFIÉ */
+  .d-create-btn{width:100%!important;justify-content:center;} /* MODIFIÉ */
+} /* MODIFIÉ */
+/* ── FIN MODIFIÉ — Responsive écran création duel ────────── */
 </style>
 </head>
 <body>
@@ -2395,12 +2419,12 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
   </div>
 
   <!-- Screen : Configurer un duel -->
-  <div id="d-screen-create" class="screen-d" style="padding:80px 20px 60px;max-width:900px;margin:0 auto">
+  <div id="d-screen-create" class="screen-d" style="padding:84px 20px 60px;max-width:900px;margin:0 auto"><!-- MODIFIÉ — padding top 84px (52nav+32topbar) -->
     <div style="display:flex;align-items:center;gap:14px;margin-bottom:28px">
       <button class="btn-ghost" onclick="dGoTo('menu')" style="padding:8px 14px">← Retour</button>
       <div><div class="section-label">Défi direct</div><h1 class="section-title" style="margin-bottom:0">Créer un <span class="g">duel</span></h1></div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+    <div id="d-screen-create-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:20px"><!-- MODIFIÉ — id pour media queries responsive -->
       <div>
         <div class="card" style="padding:22px;margin-bottom:14px">
           <div style="font-family:'Bebas Neue',cursive;font-size:.95rem;letter-spacing:2px;color:var(--gold);margin-bottom:14px">⚔️ Adversaire</div>
@@ -2431,31 +2455,15 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
       </div>
       <div class="card" style="padding:22px">
         <div style="font-family:'Bebas Neue',cursive;font-size:.95rem;letter-spacing:2px;color:var(--gold);margin-bottom:16px">⚙️ Paramètres</div>
-        <div class="form-group">
-          <label class="form-label" for="d-pack">Pack réglementaire</label>
-          <select id="d-pack" class="form-select">
+        <div class="form-group"><!-- MODIFIÉ — select remplacé par card picker dynamique -->
+          <label class="form-label">Pack réglementaire</label><!-- MODIFIÉ -->
+          <select id="d-pack" style="display:none" aria-hidden="true"><!-- MODIFIÉ — valeur cachée, lue par createDuel() -->
             <option value="bceao-politique-monetaire">Politique monétaire BCEAO</option>
-            <option value="bceao-supervision">Supervision bancaire BCEAO</option>
-            <option value="bceao-change">Réglementation des changes BCEAO</option>
-            <option value="bceao-microfinance">Microfinance UEMOA</option>
-            <option value="bceao-systeme-paiement">Systèmes de paiement BCEAO</option>
-            <option value="bceao-comptabilite">Comptabilité bancaire UEMOA</option>
-            <option value="beac-politique">Politique monétaire BEAC</option>
-            <option value="beac-supervision">Supervision bancaire BEAC/COBAC</option>
-            <option value="beac-change">Réglementation des changes CEMAC</option>
-            <option value="beac-microfinance">Microfinance CEMAC</option>
-            <option value="cobac-prudentiel">Normes prudentielles COBAC</option>
-            <option value="cobac-comptabilite">Comptabilité bancaire CEMAC</option>
-            <option value="umoa-droit-bancaire">Droit bancaire UMOA</option>
-            <option value="umoa-marche-financier">Marché financier UEMOA (BRVM)</option>
-            <option value="umoa-inclusion">Inclusion financière UEMOA</option>
-            <option value="lbc-ft-uemoa">LBC/FT UEMOA</option>
-            <option value="lbc-ft-cemac">LBC/FT CEMAC</option>
-            <option value="lbc-ft-gafi">Normes GAFI &amp; évaluations mutuelles</option>
-            <option value="lbc-ft-compliance">Conformité LBC/FT en pratique</option>
-            <option value="lbc-ft-financement-terrorisme">Financement du terrorisme</option>
-          </select>
-        </div>
+          </select><!-- MODIFIÉ -->
+          <div id="d-pack-cards" class="d-pack-cards"><!-- MODIFIÉ — grille de cartes, peuplée par _duel_initPacks() -->
+            <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);padding:12px;text-align:center">Chargement des packs…</div><!-- MODIFIÉ -->
+          </div><!-- MODIFIÉ -->
+        </div><!-- MODIFIÉ -->
         <div class="form-group">
           <div class="form-label">Questions</div>
           <div class="param-opts" id="d-q-opts">
@@ -2473,7 +2481,7 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
         </div>
         <div class="divider"></div>
         <div style="background:var(--navy-dim);border:1px solid rgba(0,43,92,.4);border-radius:2px;padding:14px;font-size:.78rem;color:var(--muted)">🏆 Points ×2 en mode duel · Mise à jour classement immédiate</div>
-        <button class="btn-gold" style="width:100%;justify-content:center;margin-top:14px" onclick="createDuel()">Créer le duel →</button>
+        <button class="btn-gold d-create-btn" style="width:100%;justify-content:center;margin-top:14px" onclick="createDuel()">Créer le duel →</button><!-- MODIFIÉ — class d-create-btn pour sticky bottom mobile -->
       </div>
     </div>
   </div>
@@ -3672,10 +3680,42 @@ function _clearDuelPolls(){if(_duelLive.pollInt){clearInterval(_duelLive.pollInt
 function dGoTo(screen) {
   if (!RAAuth.isAuthenticated()) { RAAuth.showAuthWall('duel'); return; }
   _clearDuelPolls();
+  if(screen==='create') _duel_initPacks(); // MODIFIÉ — peupler les cartes avant affichage
   document.querySelectorAll('.screen-d').forEach(s=>{s.classList.remove('active');s.style.display='none';});
   const t=document.getElementById('d-screen-'+screen);if(!t)return;t.style.display='';t.classList.add('active');
   if(screen==='duel') _startDuelQuiz();
 }
+
+/* MODIFIÉ — initialise la grille de cartes pack sur l'écran de création duel */
+function _duel_initPacks(){ // MODIFIÉ
+  var grid=document.getElementById('d-pack-cards'); // MODIFIÉ
+  var sel=document.getElementById('d-pack'); // MODIFIÉ
+  if(!grid||typeof PACKS==='undefined'||!PACKS.length) return; // MODIFIÉ
+  if(grid.getAttribute('data-duel-populated')) return; // MODIFIÉ — init une seule fois
+  var firstId=PACKS[0].id; // MODIFIÉ
+  // peupler le select caché
+  sel.innerHTML=PACKS.map(function(p){ // MODIFIÉ
+    return '<option value="'+p.id+'">'+p.label+'</option>'; // MODIFIÉ
+  }).join(''); // MODIFIÉ
+  sel.value=firstId; // MODIFIÉ
+  // construire les cartes visuelles
+  grid.innerHTML=PACKS.map(function(p,i){ // MODIFIÉ
+    var zoneLabel=p.zone||''; // MODIFIÉ
+    var active=i===0?' active':''; // MODIFIÉ — première carte sélectionnée par défaut
+    return '<div class="d-pack-card'+active+'" onclick="_duel_selectPack(this,\''+p.id+'\')" data-pack="'+p.id+'">' // MODIFIÉ
+      +'<div class="d-pack-name">'+escapeHtml(p.label)+'</div>' // MODIFIÉ
+      +(zoneLabel?'<div class="d-pack-zone">'+escapeHtml(zoneLabel)+'</div>':'') // MODIFIÉ
+      +'</div>'; // MODIFIÉ
+  }).join(''); // MODIFIÉ
+  grid.setAttribute('data-duel-populated','1'); // MODIFIÉ
+} // MODIFIÉ
+
+function _duel_selectPack(card,packId){ // MODIFIÉ
+  document.querySelectorAll('#d-pack-cards .d-pack-card').forEach(function(c){ c.classList.remove('active'); }); // MODIFIÉ
+  card.classList.add('active'); // MODIFIÉ
+  var sel=document.getElementById('d-pack'); // MODIFIÉ
+  if(sel) sel.value=packId; // MODIFIÉ — sync valeur lue par createDuel()
+} // MODIFIÉ
 /* ── CRÉER un duel ────────────────────────────────────────── */
 function createDuel(){
   const jwt=_getJwt();if(!jwt){RAAuth.showAuthWall('duel');return;}
