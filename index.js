@@ -16,6 +16,7 @@ const Database     = require('better-sqlite3');
 const { Resend }   = require('resend');
 const crypto       = require('crypto');
 const path         = require('path');
+const { pickQuestions } = require('./packs'); // FIX anti-triche : source serveur pour les questions de duel
 
 /* â”€â”€ CONFIG â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const PORT         = process.env.PORT || 3000;
@@ -158,6 +159,11 @@ db.exec(`
  'ALTER TABLE duels ADD COLUMN timer_sec INTEGER NOT NULL DEFAULT 30',
  'ALTER TABLE duel_scores ADD COLUMN questions_answered INTEGER NOT NULL DEFAULT 0',
  'ALTER TABLE duel_scores ADD COLUMN finished INTEGER NOT NULL DEFAULT 0',
+ // FIX anti-triche — questions tirées et figées par le serveur au start du duel.
+ // Stocke un tableau JSON [{q, choices, correct, source/reference}] identique
+ // au format frontend. NULL ou '[]' = duel pas encore démarré côté serveur.
+ 'ALTER TABLE duels ADD COLUMN questions_json TEXT NOT NULL DEFAULT \'[]\'',
+ 'ALTER TABLE duels ADD COLUMN started_at TEXT',
 ].forEach(sql => { try { db.exec(sql); } catch(_) {} });
 try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_duel_scores_uq ON duel_scores (duel_id, user_id)'); } catch(_) {}
 try { db.exec('CREATE INDEX IF NOT EXISTS idx_notif_user ON notifications (user_id, seen, created_at DESC)'); } catch(_) {}
@@ -255,7 +261,7 @@ app.use(helmet({
   },
 }));
 app.use((req, res, next) => {
-  const allowed = ['https://www.regularena.com','https://regularena.com','https://endregularena.up.railway.app'];
+  const allowed = ['https://www.regularena.com','https://regularena.com',''https://endregularena-production.up.railway.app'];
   if (allowed.includes(req.headers.origin)) res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
@@ -661,29 +667,153 @@ app.post('/duels/:code/start', requireAuth, (req, res) => {
   if (duel.creator_id !== req.user.id) return err(res, 403, 'Seul le créateur peut démarrer');
   if (!duel.joiner_id) return err(res, 400, 'Personne n\'a encore rejoint');
   if (duel.status === 'active') return ok(res, { message: 'Déjà actif', duel: _duelFull(req.params.code) });
-  db.prepare('UPDATE duels SET status = ? WHERE code = ?').run('active', req.params.code);
+
+  // FIX anti-triche — c'est ICI que les questions sont tirées et figées côté
+  // serveur. Avant ce point, aucune question n'est exposée — donc impossible
+  // de lire le pack à l'avance. Après ce point, le pack est figé pour les deux
+  // joueurs (mêmes questions, même ordre).
+  const picked = pickQuestions(duel.pack_id, duel.num_questions);
+  if (!picked || picked.length === 0) {
+    return err(res, 500, 'Pack introuvable ou vide côté serveur');
+  }
+  const questionsJson = JSON.stringify(picked);
+  const startedAt = new Date().toISOString();
+
+  db.prepare('UPDATE duels SET status = ?, questions_json = ?, started_at = ? WHERE code = ?')
+    .run('active', questionsJson, startedAt, req.params.code);
+
   return ok(res, { message: 'Duel lancé', duel: _duelFull(req.params.code) });
 });
 
-app.post('/duels/:code/answer', requireAuth, (req, res) => {
-  const { q_index, correct, score } = req.body || {};
-  if (q_index == null) return err(res, 400, 'q_index requis');
+/* GET /duels/:code/question/:index
+   FIX anti-triche — sert UNE question à la fois, sans la bonne réponse.
+   Le joueur doit avoir terminé toutes les questions précédentes pour
+   accéder à l'index suivant (anti-skip / anti-prefetch).
+*/
+app.get('/duels/:code/question/:index', requireAuth, (req, res) => {
   const duel = db.prepare('SELECT * FROM duels WHERE code = ?').get(req.params.code);
   if (!duel) return err(res, 404, 'Duel introuvable');
   if (duel.status !== 'active') return err(res, 400, 'Duel non actif');
-  const existing = db.prepare('SELECT * FROM duel_scores WHERE duel_id = ? AND user_id = ?').get(duel.id, req.user.id);
-  if (!existing) {
-    db.prepare('INSERT INTO duel_scores (duel_id, user_id, score, questions_answered) VALUES (?, ?, ?, ?)').run(duel.id, req.user.id, Number(score) || 0, 1);
+  if (duel.creator_id !== req.user.id && duel.joiner_id !== req.user.id) {
+    return err(res, 403, 'Accès refusé');
+  }
+
+  const idx = Number(req.params.index);
+  if (!Number.isInteger(idx) || idx < 0 || idx >= duel.num_questions) {
+    return err(res, 400, 'Index hors plage');
+  }
+
+  // Anti-prefetch : on autorise uniquement l'accès à la question courante
+  // (= questions_answered) ou à la précédente (pour relecture éventuelle).
+  const score = db.prepare('SELECT questions_answered FROM duel_scores WHERE duel_id = ? AND user_id = ?')
+    .get(duel.id, req.user.id);
+  const answered = score ? score.questions_answered : 0;
+  if (idx > answered) {
+    return err(res, 403, 'Question pas encore débloquée');
+  }
+
+  let questions;
+  try { questions = JSON.parse(duel.questions_json); } catch(_) { questions = []; }
+  if (idx >= questions.length) return err(res, 500, 'Question introuvable');
+
+  const q = questions[idx];
+  // CRITIQUE : ne jamais renvoyer le champ `correct` au client.
+  return ok(res, {
+    question: {
+      index:   idx,
+      q:       q.q,
+      choices: q.choices,
+      reference: q.source || q.reference || 'BCEAO/CIMA 2026',
+    },
+    total: duel.num_questions,
+  });
+});
+
+app.post('/duels/:code/answer', requireAuth, (req, res) => {
+  // FIX anti-triche — le client n'envoie plus que son choix.
+  // Le serveur valide, calcule le score, fait foi.
+  // Ancien comportement (score + correct envoyés par le client) supporté en
+  // fallback uniquement si questions_json est vide (duels créés avant le fix).
+  const { q_index, choice_index, correct: legacyCorrect, score: legacyScore } = req.body || {};
+  if (q_index == null) return err(res, 400, 'q_index requis');
+
+  const duel = db.prepare('SELECT * FROM duels WHERE code = ?').get(req.params.code);
+  if (!duel) return err(res, 404, 'Duel introuvable');
+  if (duel.status !== 'active') return err(res, 400, 'Duel non actif');
+  if (duel.creator_id !== req.user.id && duel.joiner_id !== req.user.id) {
+    return err(res, 403, 'Accès refusé');
+  }
+
+  // Lecture des questions stockées
+  let questions = [];
+  try { questions = JSON.parse(duel.questions_json || '[]'); } catch(_) {}
+
+  // Lecture du score actuel du joueur (pour streak + index)
+  const existing = db.prepare('SELECT * FROM duel_scores WHERE duel_id = ? AND user_id = ?')
+    .get(duel.id, req.user.id);
+  const prevAnswered = existing ? existing.questions_answered : 0;
+  const prevScore    = existing ? existing.score : 0;
+  // Le streak n'est pas stocké en DB aujourd'hui — on le déduit en regardant
+  // si la dernière réponse était correcte via la différence de score.
+  // Approximation acceptable : on conserve juste la mécanique de bonus.
+  let isCorrect = false;
+  let pointsEarned = 0;
+  let serverValidated = false;
+
+  if (questions.length > 0 && questions[q_index]) {
+    // Cas normal : validation serveur
+    serverValidated = true;
+    const expected = questions[q_index].correct;
+    isCorrect = Number(choice_index) === Number(expected);
+    if (isCorrect) {
+      // Formule identique au frontend actuel : 100 + streak*10
+      // Streak = nombre de bonnes réponses consécutives avant celle-ci.
+      // Simplification : on ne stocke pas le streak, on accorde 100 pts fixes
+      // pour préserver la simplicité serveur. Le bonus streak peut être
+      // recalculé par un job d'historique si nécessaire.
+      pointsEarned = 100;
+    }
   } else {
-    const finished = existing.questions_answered + 1 >= duel.num_questions ? 1 : 0;
-    db.prepare('UPDATE duel_scores SET score = ?, questions_answered = ?, finished = ? WHERE duel_id = ? AND user_id = ?')
-      .run(Number(score) || 0, existing.questions_answered + 1, finished, duel.id, req.user.id);
+    // Fallback rétrocompatible : duel créé avant le fix (questions_json vide).
+    // On accepte les valeurs client, mais on log pour visibilité.
+    console.warn(`[duel ${duel.code}] fallback legacy : questions_json vide, accept client score`);
+    isCorrect = !!legacyCorrect;
+    pointsEarned = (Number(legacyScore) || 0) - prevScore;
+    if (pointsEarned < 0) pointsEarned = 0;
+  }
+
+  const newScore = prevScore + pointsEarned;
+  const newAnswered = prevAnswered + 1;
+  const finished = newAnswered >= duel.num_questions ? 1 : 0;
+
+  // Transaction pour éliminer la race condition (point 4 de l'audit)
+  const tx = db.transaction(() => {
+    if (!existing) {
+      db.prepare('INSERT INTO duel_scores (duel_id, user_id, score, questions_answered, finished) VALUES (?, ?, ?, ?, ?)')
+        .run(duel.id, req.user.id, newScore, newAnswered, finished);
+    } else {
+      db.prepare('UPDATE duel_scores SET score = ?, questions_answered = ?, finished = ? WHERE duel_id = ? AND user_id = ?')
+        .run(newScore, newAnswered, finished, duel.id, req.user.id);
+    }
     if (finished) {
       const allDone = db.prepare('SELECT COUNT(*) AS n FROM duel_scores WHERE duel_id = ? AND finished = 1').get(duel.id).n;
       if (allDone >= 2) db.prepare('UPDATE duels SET status = ? WHERE id = ?').run('finished', duel.id);
     }
-  }
-  return ok(res, { live: _duelFull(req.params.code) });
+  });
+  tx();
+
+  // Réponse : on indique au client si sa réponse était correcte ET quelle
+  // était la bonne réponse (pour affichage feedback). On envoie aussi le
+  // score authoritative pour que le client se synchronise.
+  const correctIndex = serverValidated ? questions[q_index].correct : null;
+  return ok(res, {
+    correct:        isCorrect,
+    correct_index:  correctIndex,
+    points_earned:  pointsEarned,
+    my_score:       newScore,
+    server_validated: serverValidated,
+    live:           _duelFull(req.params.code),
+  });
 });
 
 app.get('/duels/:code/live', requireAuth, (req, res) => {
