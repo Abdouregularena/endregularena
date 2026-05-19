@@ -23,9 +23,9 @@ const PORT         = process.env.PORT || 3000;
 const JWT_SECRET   = process.env.JWT_SECRET || 'changez-moi-en-production';
 const RESEND_KEY   = process.env.RESEND_API_KEY || '';
 const FROM_EMAIL   = process.env.FROM_EMAIL || 'noreply@regularena.com';
-// SOURCE DE VERITE UNIQUE — frontend servi par Railway, meme origine que l'API
-const BASE_URL     = process.env.BASE_URL || 'https://endregularena-production.up.railway.app';
-const TOKEN_TTL_H  = 24; // heures de validit&#233; du lien email
+// SOURCE DE VERITE UNIQUE
+const BASE_URL = process.env.BASE_URL || 'https://endregularena-production.up.railway.app';
+const TOKEN_TTL_H = 24;
 
 const resend = new Resend(RESEND_KEY);
 
