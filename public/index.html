@@ -2250,7 +2250,7 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
       </div><!-- TOURNOI AJOUT -->
       <div class="rat-field"><!-- TOURNOI AJOUT -->
         <label class="rat-form-label" for="rat-c-zone">Zone géographique</label><!-- TOURNOI AJOUT -->
-        <select class="rat-select" id="rat-c-zone"><!-- TOURNOI AJOUT -->
+        <select class="rat-select" id="rat-c-zone" onchange="_rat_initPackSelect()"><!-- TOURNOI AJOUT -->
           <option value="uemoa">UEMOA (zone entière)</option><!-- TOURNOI AJOUT -->
           <option value="cemac">CEMAC (zone entière)</option><!-- TOURNOI AJOUT -->
           <option value="inter">UEMOA + CEMAC (Inter-zones)</option><!-- TOURNOI AJOUT -->
@@ -5498,11 +5498,16 @@ window.raT_goTo = function(screen){
 function _rat_initPackSelect(){ // MODIFIÉ
   var sel = document.getElementById('rat-c-pack'); // MODIFIÉ
   if(!sel || typeof PACKS === 'undefined' || !PACKS.length) return; // MODIFIÉ
-  if(sel.getAttribute('data-rat-populated')) return; // MODIFIÉ — init une seule fois
-  sel.innerHTML = PACKS.map(function(p){ // MODIFIÉ
+  var selectedZone = ((document.getElementById('rat-c-zone')||{}).value || 'uemoa').toLowerCase();
+  var filteredPacks = PACKS.filter(function(p){
+    if(selectedZone === 'inter') return true;
+    if(selectedZone === 'uemoa') return p.zone === 'UEMOA';
+    if(selectedZone === 'cemac') return p.zone === 'CEMAC';
+    return true;
+  });
+  sel.innerHTML = filteredPacks.map(function(p){ // MODIFIÉ
     return '<option value="'+_esc(p.id)+'">'+_esc(p.label)+(p.zone?' ('+_esc(p.zone)+')':'')+'</option>'; // MODIFIÉ
   }).join(''); // MODIFIÉ
-  sel.setAttribute('data-rat-populated','1'); // MODIFIÉ
 } // MODIFIÉ
 
 /* ── modal planification manche suivante ────────────────── */ // MODIFIÉ
