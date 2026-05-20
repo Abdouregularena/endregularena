@@ -254,7 +254,7 @@ app.use(helmet({
       scriptSrcAttr: ["'unsafe-inline'"],   // autorise onclick= et autres event handlers inline
       styleSrc:      ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc:       ["'self'", "https://fonts.gstatic.com"],
-      connectSrc:    ["'self'", 'https://www.regularena.com', 'https://regularena.com'],
+      connectSrc: ["'self'", "https://www.regularena.com", "https://regularena.com", "https://endregularena-production.up.railway.app"],
       imgSrc:        ["'self'", "data:"],
       frameAncestors:["'none'"],
     },
