@@ -270,6 +270,23 @@ nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;backg
 .chat-input:focus{border-color:var(--border)}
 .chat-send{background:var(--gold);color:var(--bg);border:none;padding:9px 14px;cursor:pointer;border-radius:2px;font-size:.9rem;transition:background .2s}
 .chat-send:hover{background:var(--gold-l)}
+/* ── CHAT GÉNÉRAL FLOTTANT ───────────────────────────────── */
+#gchat-widget{position:fixed;bottom:80px;right:20px;width:320px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;z-index:500;display:none;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+#gchat-widget.open{display:flex}
+.gchat-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--sep);font-family:'Bebas Neue',cursive;font-size:.85rem;letter-spacing:2px;color:var(--gold)}
+.gchat-close{background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;line-height:1;transition:color .2s}
+.gchat-close:hover{color:var(--text)}
+#gchat-messages{height:220px;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:7px}
+#gchat-messages::-webkit-scrollbar{width:4px}
+#gchat-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+#gchat-input-wrap{display:flex;gap:7px;padding:11px;border-top:1px solid var(--sep)}
+#gchat-input{flex:1;background:var(--bg);border:1px solid var(--gb);color:var(--text);font-family:'Inter',sans-serif;font-size:.8rem;padding:9px 13px;border-radius:2px;outline:none;transition:border-color .2s}
+#gchat-input:focus{border-color:var(--border)}
+.gchat-send-btn{background:var(--gold);color:var(--bg);border:none;padding:9px 14px;cursor:pointer;border-radius:2px;font-size:.9rem;transition:background .2s}
+.gchat-send-btn:hover{background:var(--gold-l)}
+#gchat-toggle-btn{position:fixed;bottom:20px;right:20px;width:50px;height:50px;border-radius:50%;background:var(--gold);color:var(--bg);border:none;font-size:1.3rem;cursor:pointer;z-index:501;box-shadow:0 4px 16px rgba(0,0,0,.4);transition:background .2s;display:none;align-items:center;justify-content:center}
+#gchat-toggle-btn.visible{display:flex}
+#gchat-toggle-btn:hover{background:var(--gold-l)}
 .notif-item{display:flex;align-items:flex-start;gap:11px;padding:13px 15px;border-bottom:1px solid var(--sep);transition:background .2s;cursor:pointer}
 .notif-item:hover{background:var(--gold-dim)}
 .notif-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
@@ -1590,6 +1607,7 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
     <li role="none"><button id="nav-premium" onclick="showPage('premium')" role="menuitem">Top Scoreurs</button></li>
     <li role="none"><button id="nav-invitation" onclick="showPage('invitation')" role="menuitem">Inviter</button></li>
     <li role="none"><button onclick="document.querySelector('.feedback-section').scrollIntoView({behavior:'smooth'})" role="menuitem">💬 Feedback</button></li>
+    <li role="none"><button onclick="gChatToggle()" role="menuitem" id="nav-gchat">💬 Chat</button></li>
   </ul>
   <div class="nav-right">
     <div id="ra-quiz-pill" role="status" aria-label="Compteur quiz"><span id="ra-pill-count">0</span>/3 quiz</div>
@@ -6138,5 +6156,71 @@ window.addEventListener('orientationchange', function() { // ORIENTATION AJOUT
     </div> <!-- MODIFIÉ -->
   </div> <!-- MODIFIÉ -->
 </div> <!-- MODIFIÉ -->
+
+<!-- ── CHAT GÉNÉRAL FLOTTANT ─────────────────────────────── -->
+<button id="gchat-toggle-btn" onclick="gChatToggle()" title="Chat général" aria-label="Ouvrir le chat général">💬</button>
+<div id="gchat-widget" role="dialog" aria-label="Chat général">
+  <div class="gchat-header">
+    💬 CHAT GÉNÉRAL
+    <button class="gchat-close" onclick="gChatToggle()" aria-label="Fermer">✕</button>
+  </div>
+  <div id="gchat-messages"></div>
+  <div id="gchat-input-wrap">
+    <input id="gchat-input" type="text" placeholder="Votre message…" maxlength="300" onkeydown="if(event.key==='Enter')gChatSend()">
+    <button class="gchat-send-btn" onclick="gChatSend()">➤</button>
+  </div>
+</div>
+
+<script>
+/* ── MODULE CHAT GÉNÉRAL FLOTTANT ───────────────────────── */
+(function(){
+  const GC={msgs:[],lastId:0,pollInt:null,open:false};
+  function _jwt(){try{return localStorage.getItem('ra_jwt');}catch(e){}try{return sessionStorage.getItem('ra_jwt');}catch(e){}return null;}
+  function _myName(){const j=_jwt();if(!j)return '';try{const p=JSON.parse(atob(j.split('.')[1]));return p.name||'';}catch(e){return '';}}
+  function _esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+  function _render(){
+    const el=document.getElementById('gchat-messages');if(!el)return;
+    el.innerHTML=GC.msgs.map(m=>`<div class="msg ${m.me?'me':'them'}">${!m.me?`<div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);margin-bottom:2px">${_esc(m.name)}</div>`:''}<div class="msg-bubble">${_esc(m.text)}</div><div class="msg-meta">${_esc(m.time)}</div></div>`).join('');
+    el.scrollTop=el.scrollHeight;
+  }
+  function _fetch(){
+    const jwt=_jwt();if(!jwt)return;
+    fetch('/chat/general',{headers:{'Authorization':'Bearer '+jwt}})
+      .then(r=>r.json())
+      .then(d=>{
+        if(!d.success||!d.messages)return;
+        const me=_myName();
+        const newMsgs=d.messages.filter(m=>m.id>GC.lastId);
+        if(newMsgs.length){
+          newMsgs.forEach(m=>{GC.msgs.push({name:m.name,text:m.content,time:m.sent_at?m.sent_at.slice(11,16):'',me:m.name===me});});
+          GC.lastId=newMsgs[newMsgs.length-1].id;
+          _render();
+        }
+      }).catch(()=>{});
+  }
+  function _startPolling(){GC.msgs=[];GC.lastId=0;_fetch();if(GC.pollInt)clearInterval(GC.pollInt);GC.pollInt=setInterval(_fetch,8000);}
+  function _stopPolling(){if(GC.pollInt){clearInterval(GC.pollInt);GC.pollInt=null;}}
+  window.gChatToggle=function(){
+    const jwt=_jwt();
+    const widget=document.getElementById('gchat-widget');
+    if(!widget)return;
+    if(!jwt){alert('Connectez-vous pour accéder au chat général.');return;}
+    GC.open=!GC.open;
+    if(GC.open){widget.classList.add('open');if(!GC.pollInt)_startPolling();setTimeout(()=>{const i=document.getElementById('gchat-input');if(i)i.focus();},100);}
+    else{widget.classList.remove('open');_stopPolling();}
+  };
+  window.gChatSend=function(){
+    const input=document.getElementById('gchat-input');if(!input)return;
+    const text=input.value.trim();if(!text)return;
+    input.value='';
+    const jwt=_jwt();
+    if(!jwt){const me=_myName()||'Moi';const time=new Date().toTimeString().slice(0,5);GC.msgs.push({name:me,text,time,me:true});_render();return;}
+    fetch('/chat/general',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt},body:JSON.stringify({content:text})})
+      .then(()=>_fetch()).catch(()=>{});
+  };
+  window._gChatShowBtn=function(){const btn=document.getElementById('gchat-toggle-btn');if(btn)btn.classList.add('visible');};
+  document.addEventListener('DOMContentLoaded',function(){if(_jwt())window._gChatShowBtn();});
+})();
+</script>
 </body>
 </html>
