@@ -4103,6 +4103,7 @@ function showResult(iWin){
   document.querySelectorAll('.screen-d').forEach(s=>{s.classList.remove('active');s.style.display='none';});
   const t=document.getElementById('d-screen-result');if(t){t.style.display='';t.classList.add('active');}
   const jwt=_getJwt();
+  if(jwt&&_duelLive.code){fetch('/duels/'+_duelLive.code+'/live',{headers:{'Authorization':'Bearer '+jwt}}).then(r=>r.json()).then(data=>{if(data&&data.duel&&data.duel.scores){const oppId=(_duelLive.isCreator?data.duel.joiner_id:data.duel.creator_id);const oppScore=data.duel.scores.find(s=>s.user_id===oppId);if(oppScore!=null&&fth)fth.textContent=Number(oppScore.score).toLocaleString('fr-FR');}}).catch(()=>{});}
   if(jwt&&_duelLive.packId){fetch('/scores',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt},body:JSON.stringify({pack_id:_duelLive.packId,score:meS,total:meS+thS})}).catch(()=>{});}
 }
 function launchConfetti(){
