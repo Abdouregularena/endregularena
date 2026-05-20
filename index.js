@@ -897,6 +897,7 @@ function _peutRejoindre(userCountry, tCountry, tZone) { // TOURNOI AJOUT
   if (!userCountry) return false; // TOURNOI AJOUT
   if (tZone === 'uemoa') return UEMOA_PAYS.includes(userCountry); // TOURNOI AJOUT
   if (tZone === 'cemac') return CEMAC_PAYS.includes(userCountry); // TOURNOI AJOUT
+  if (tZone === 'inter') return UEMOA_PAYS.includes(userCountry) || CEMAC_PAYS.includes(userCountry); // TOURNOI AJOUT
   if (tZone === 'country') return tCountry === userCountry; // TOURNOI AJOUT
   return false; // TOURNOI AJOUT
 } // TOURNOI AJOUT
@@ -918,6 +919,7 @@ function _tFull(code) { // TOURNOI AJOUT
 app.post('/tournament/create', requireAuth, (req, res) => { // TOURNOI AJOUT
   const { name, zone, pack_id, max_players, start_date } = req.body || {}; // TOURNOI AJOUT
   if (!name || !zone) return err(res, 400, 'name et zone requis'); // TOURNOI AJOUT
+  if (!['uemoa','cemac','inter','country'].includes(zone)) return err(res, 400, 'Zone invalide'); // TOURNOI AJOUT
   const mp = Number(max_players); // TOURNOI AJOUT
   if (![8,16,32].includes(mp)) return err(res, 400, 'max_players doit être 8, 16 ou 32'); // TOURNOI AJOUT
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id); // TOURNOI AJOUT
@@ -963,7 +965,7 @@ app.post('/tournament/join', requireAuth, (req, res) => { // TOURNOI AJOUT
 app.get('/tournament/list', requireAuth, (req, res) => { // TOURNOI AJOUT
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id); // TOURNOI AJOUT
   const uZone = _zoneOf(user.country); // TOURNOI AJOUT
-  const zoneCond = uZone ? `AND t.zone = '${uZone}'` : ''; // TOURNOI AJOUT
+  const zoneCond = uZone ? `AND (t.zone = '${uZone}' OR t.zone = 'inter')` : ''; // TOURNOI AJOUT
   const open = db.prepare( // TOURNOI AJOUT
     `SELECT t.*, u.name AS creator_name, (SELECT COUNT(*) FROM tournament_participants tp WHERE tp.tournament_id = t.id) AS nb FROM tournaments t JOIN users u ON u.id = t.creator_id WHERE t.status IN ('waiting','qualif','elim') ${zoneCond} ORDER BY t.created_at DESC LIMIT 30` // TOURNOI AJOUT
   ).all(); // TOURNOI AJOUT
