@@ -2969,7 +2969,14 @@ async function apiCall(method, path, body) {
       method,
       headers: { 'Content-Type': 'application/json' },
     };
-    const token = localStorage.getItem('ra_jwt');
+    // FIX — Edge/Chrome Tracking Prevention peut faire throw localStorage.
+    // Sans ce try/catch, l'exception remonte dans le catch global et est
+    // miscatégorisée comme erreur réseau (NETWORK_ERROR) — la requête HTTP
+    // n'est même jamais envoyée. Pattern défensif identique aux lignes
+    // 3401, 3565, 3653, 4382 déjà présentes dans le fichier.
+    let token = null;
+    try { token = localStorage.getItem('ra_jwt'); } catch(e) {}
+    if (!token) { try { token = sessionStorage.getItem('ra_jwt'); } catch(e) {} }
     if (token) opts.headers['Authorization'] = 'Bearer ' + token;
     if (body)  opts.body = JSON.stringify(body);
     const res  = await fetch(API_BASE + path, opts); // MODIFIÉ
@@ -3824,7 +3831,8 @@ function createDuel(){
       if(!d.success||!d.code){showToast('❌ Erreur création duel');return;}
       _duelLive.code=d.code;_duelLive.packId=packId;_duelLive.numQuestions=numQ;_duelLive.timerSec=timerS;_duelLive.isCreator=true;
       _duelLive.myUserId=_getMyUserId();_duelLive.myName=_getMyName()||'Moi';_duelLive.oppName='En attente...';
-      const pack=PACKS.find(p=>p.id===packId);_duelLive.questions=pack?pack.questions:[];
+      // FIX anti-triche — les questions ne sont plus cachées côté client.
+      // Le serveur les tirera et les figera lors du POST /duels/:code/start.
       _showWaitScreen(d.code);_pollForJoiner();
     })
     .catch(()=>showToast('❌ Connexion impossible'));
@@ -3882,7 +3890,7 @@ function joinDuelByCode(){
       _duelLive.myUserId=_getMyUserId();_duelLive.myName=_getMyName()||'Moi';
       if(d.duel){
         _duelLive.packId=d.duel.pack_id;_duelLive.numQuestions=d.duel.num_questions||5;_duelLive.timerSec=d.duel.timer_sec||30;
-        const pack=PACKS.find(p=>p.id===_duelLive.packId);_duelLive.questions=pack?pack.questions:[];
+        // FIX anti-triche — questions servies par le serveur via /duels/:code/question/:index
         const crName=d.duel.creator?.name||'Créateur';
         _duelLive.oppName=crName;
         const avEl=document.getElementById('ws-creator-av');if(avEl)avEl.textContent=crName.slice(0,2).toUpperCase();
@@ -3902,7 +3910,7 @@ function _pollForStart(){
         if(!d.success||!d.duel)return;
         if(d.duel.status==='active'){
           _duelLive.packId=d.duel.pack_id||_duelLive.packId;_duelLive.numQuestions=d.duel.num_questions||_duelLive.numQuestions;_duelLive.timerSec=d.duel.timer_sec||_duelLive.timerSec;
-          const pack=PACKS.find(p=>p.id===_duelLive.packId);_duelLive.questions=pack?pack.questions:[];
+          // FIX anti-triche — questions servies par le serveur via /duels/:code/question/:index
           clearInterval(_duelLive.pollInt);_duelLive.pollInt=null;dGoTo('duel');
         }
       }).catch(()=>{});
@@ -3971,27 +3979,69 @@ function _pollLiveDuel(){
       }).catch(()=>{});
   },2000);
 }
+// FIX anti-triche — _loadDuelQ récupère désormais la question depuis le serveur.
+// Plus aucune lecture de _duelLive.questions (qui contenait les bonnes réponses
+// côté client). La question revient sans le champ `correct` — impossible de
+// tricher en inspectant le DOM ou la mémoire JS. Le champ `correct` n'est révélé
+// que via la réponse de /duels/:code/answer, APRÈS soumission.
+// La cache _currentDuelQ stocke la question reçue pour l'affichage feedback.
 function _loadDuelQ(){
-  const qs=_duelLive.questions;const numQ=_duelLive.numQuestions;
-  if(!qs||qs.length===0||dState.qIndex>=numQ){showResult(dState.scores.me>=dState.scores.them);return;}
-  const q=qs[dState.qIndex%qs.length];
-  const qEl=document.getElementById('q-text');if(qEl)qEl.textContent=q.q;
-  const curEl=document.getElementById('q-current');if(curEl)curEl.textContent=dState.qIndex+1;
-  const cEl=document.getElementById('q-choices');
-  if(cEl)cEl.innerHTML=q.choices.map((c,i)=>`<button class="q-choice" onclick="duelAnswer(${i})">${String.fromCharCode(65+i)}. ${escapeHtml(c)}</button>`).join('');
-  dState.answered=false;
+  const numQ=_duelLive.numQuestions;
+  if(dState.qIndex>=numQ){showResult(dState.scores.me>=dState.scores.them);return;}
+  const jwt=_getJwt();
+  if(!jwt||!_duelLive.code){showResult(false);return;}
+  fetch('/duels/'+_duelLive.code+'/question/'+dState.qIndex,{headers:{'Authorization':'Bearer '+jwt}})
+    .then(r=>r.json())
+    .then(d=>{
+      if(!d.success||!d.question){showToast('⚠ Erreur chargement question');return;}
+      const q=d.question;
+      _duelLive._currentQ=q; // cache locale (sans la bonne réponse)
+      const qEl=document.getElementById('q-text');if(qEl)qEl.textContent=q.q;
+      const curEl=document.getElementById('q-current');if(curEl)curEl.textContent=dState.qIndex+1;
+      const cEl=document.getElementById('q-choices');
+      if(cEl)cEl.innerHTML=q.choices.map((c,i)=>`<button class="q-choice" onclick="duelAnswer(${i})">${String.fromCharCode(65+i)}. ${escapeHtml(c)}</button>`).join('');
+      dState.answered=false;
+    })
+    .catch(()=>{showToast('⚠ Réseau indisponible');});
 }
+// FIX anti-triche — duelAnswer envoie maintenant uniquement choice_index.
+// Le serveur valide, calcule le score, et renvoie {correct, correct_index, my_score}.
+// Le client n'affecte plus dState.scores.me directement : il prend la valeur serveur.
 function duelAnswer(idx){
   if(dState.answered)return;dState.answered=true;
-  const q=_duelLive.questions[dState.qIndex%_duelLive.questions.length];const ok=idx===q.correct;
-  document.querySelectorAll('.q-choice').forEach((c,i)=>{if(i===q.correct)c.classList.add('correct');else if(i===idx&&!ok)c.classList.add('wrong');else c.classList.add('disabled');});
-  const choicesEl=document.getElementById('q-choices');
-  if(choicesEl){var refVal=q.reference||q.source||'BCEAO/CIMA 2026';var srcEl=document.createElement('div');srcEl.style.cssText='margin-top:12px;font-family:JetBrains Mono,monospace;font-size:.58rem;letter-spacing:1px;border-top:1px solid var(--gb);padding-top:9px;line-height:1.5';srcEl.innerHTML='<em style="color:#C9991A">📌 Réf. : '+escapeHtml(refVal)+'</em>';choicesEl.appendChild(srcEl);} // MODIFIÉ
-  if(ok){const pts=100+dState.streaks.me*10;dState.scores.me+=pts;dState.streaks.me++;showDelta('me','+'+pts);showToast('✓ Correct ! +'+pts+' pts');}
-  else{dState.streaks.me=0;showToast('✗ Réponse : '+q.choices[q.correct]);}
-  updateDuelUI();
   const jwt=_getJwt();
-  if(jwt&&_duelLive.code){fetch('/duels/'+_duelLive.code+'/answer',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt},body:JSON.stringify({q_index:dState.qIndex,correct:ok,score:dState.scores.me})}).catch(()=>{});}
+  if(!jwt||!_duelLive.code){showToast('⚠ Session expirée');return;}
+  fetch('/duels/'+_duelLive.code+'/answer',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt},body:JSON.stringify({q_index:dState.qIndex,choice_index:idx})})
+    .then(r=>r.json())
+    .then(d=>{
+      if(!d.success){showToast('⚠ '+(d.error||'Erreur'));return;}
+      const isCorrect=!!d.correct;
+      const correctIdx=d.correct_index;
+      const pts=Number(d.points_earned)||0;
+      const newScore=Number(d.my_score)||dState.scores.me;
+      // Affichage des choix : correct / wrong / disabled
+      document.querySelectorAll('.q-choice').forEach((c,i)=>{
+        if(correctIdx!=null&&i===correctIdx)c.classList.add('correct');
+        else if(i===idx&&!isCorrect)c.classList.add('wrong');
+        else c.classList.add('disabled');
+      });
+      // Affichage de la référence pédagogique (feuille de mats)
+      const q=_duelLive._currentQ;
+      const choicesEl=document.getElementById('q-choices');
+      if(choicesEl&&q){
+        var refVal=q.reference||'BCEAO/CIMA 2026';
+        var srcEl=document.createElement('div');
+        srcEl.style.cssText='margin-top:12px;font-family:JetBrains Mono,monospace;font-size:.58rem;letter-spacing:1px;border-top:1px solid var(--gb);padding-top:9px;line-height:1.5';
+        srcEl.innerHTML='<em style="color:#C9991A">📌 Réf. : '+escapeHtml(refVal)+'</em>';
+        choicesEl.appendChild(srcEl);
+      }
+      // Mise à jour du score authoritative (renvoyé par le serveur)
+      dState.scores.me=newScore;
+      if(isCorrect){dState.streaks.me++;showDelta('me','+'+pts);showToast('✓ Correct ! +'+pts+' pts');}
+      else{dState.streaks.me=0;if(q&&correctIdx!=null)showToast('✗ Réponse : '+q.choices[correctIdx]);else showToast('✗ Mauvaise réponse');}
+      updateDuelUI();
+    })
+    .catch(()=>{showToast('⚠ Réseau indisponible — réponse non enregistrée');dState.answered=false;});
   setTimeout(_duelNextQ,2400);
 }
 function _duelNextQ(){dState.qIndex++;if(dState.qIndex>=_duelLive.numQuestions){showResult(dState.scores.me>=dState.scores.them);return;}_resetDuelTimer();_loadDuelQ();}
@@ -4006,6 +4056,7 @@ function animNum(id,target){
 }
 function updateDuelUI(){
   animNum('score-me',dState.scores.me);animNum('score-them',dState.scores.them);
+  if(d.duel&&d.duel.scores){const oppId=(_duelLive.isCreator?d.duel.joiner_id:d.duel.creator_id);const oppScore=d.duel.scores.find(s=>s.user_id===oppId);if(oppScore&&oppScore.score>dState.scores.them)dState.scores.them=oppScore.score;}
   const sm=document.getElementById('streak-me');if(sm)sm.textContent='🔥 '+dState.streaks.me+' bonne(s)';
   const st=document.getElementById('streak-them');if(st)st.textContent=dState.streaks.them+' bonne(s)';
   const total=dState.scores.me+dState.scores.them||1;
@@ -4045,8 +4096,10 @@ function showResult(iWin){
   const fme=document.getElementById('final-score-me'),fth=document.getElementById('final-score-them');
   if(fme)fme.textContent=meS.toLocaleString('fr-FR');if(fth)fth.textContent=thS.toLocaleString('fr-FR');
   const trophy=document.getElementById('winner-trophy'),wname=document.getElementById('winner-name'),ptsEl=document.getElementById('pts-gain');
-  if(iWin){if(trophy)trophy.textContent='🏆';if(wname)wname.textContent='Toi';if(ptsEl){ptsEl.textContent='+120';ptsEl.className='pts-value gain';}launchConfetti();}
-  else{if(trophy)trophy.textContent='😤';if(wname)wname.textContent='Adversaire';if(ptsEl){ptsEl.textContent='-40';ptsEl.className='pts-value loss';}}
+  const myName=_duelLive.myName||_getMyName()||'Toi';
+  const oppName=_duelLive.oppName||'Adversaire';
+  if(iWin){if(trophy)trophy.textContent='🏆';if(wname)wname.textContent=myName;if(ptsEl){ptsEl.textContent='+120';ptsEl.className='pts-value gain';}launchConfetti();RA_FX.fireworks();RA_SFX.bravo();}
+  else{if(trophy)trophy.textContent='😤';if(wname)wname.textContent=oppName;if(ptsEl){ptsEl.textContent='-40';ptsEl.className='pts-value loss';}}
   document.querySelectorAll('.screen-d').forEach(s=>{s.classList.remove('active');s.style.display='none';});
   const t=document.getElementById('d-screen-result');if(t){t.style.display='';t.classList.add('active');}
   const jwt=_getJwt();
