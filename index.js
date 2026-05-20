@@ -254,14 +254,14 @@ app.use(helmet({
       scriptSrcAttr: ["'unsafe-inline'"],   // autorise onclick= et autres event handlers inline
       styleSrc:      ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc:       ["'self'", "https://fonts.gstatic.com"],
-      connectSrc:    ["'self'"],
+      connectSrc:    ["'self'", 'https://www.regularena.com', 'https://regularena.com'],
       imgSrc:        ["'self'", "data:"],
       frameAncestors:["'none'"],
     },
   },
 }));
 app.use((req, res, next) => {
-  const allowed = ['https://www.regularena.com','https://regularena.com','https://endregularena-production.up.railway.app'];
+   const allowed = ['https://www.regularena.com','https://regularena.com','https://endregularena-production.up.railway.app'];
   if (allowed.includes(req.headers.origin)) res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
