@@ -5521,7 +5521,7 @@ function _apiFetch(url, opts){
     opts.headers['Content-Type'] = 'application/json';
     opts.body = JSON.stringify(opts.body);
   }
-  return fetch(url, opts).then(function(r){ return r.json(); });
+  return fetch(url, opts).then(function(r){ return r.json().then(function(data){ data._httpStatus = r.status; data.ok = r.ok && data.success !== false; return data; }); });
 }
 
 /* ── navigation interne ─────────────────────────────────── */
