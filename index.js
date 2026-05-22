@@ -167,6 +167,13 @@ db.exec(`
 ].forEach(sql => { try { db.exec(sql); } catch(_) {} });
 try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_duel_scores_uq ON duel_scores (duel_id, user_id)'); } catch(_) {}
 try { db.exec('CREATE INDEX IF NOT EXISTS idx_notif_user ON notifications (user_id, seen, created_at DESC)'); } catch(_) {}
+// FIX performance : index manquants sur messages et dm
+try { db.exec('CREATE INDEX IF NOT EXISTS idx_messages_zone ON messages (zone, sent_at)'); } catch(_) {}
+try { db.exec('CREATE INDEX IF NOT EXISTS idx_dm_conv ON dm (from_id, to_id, sent_at)'); } catch(_) {}
+try { db.exec('CREATE INDEX IF NOT EXISTS idx_dm_to ON dm (to_id, from_id, sent_at)'); } catch(_) {}
+
+try { db.exec('CREATE INDEX IF NOT EXISTS idx_user_scores_user ON user_scores (user_id, played_at)'); } catch(_) {}
+try { db.exec('CREATE INDEX IF NOT EXISTS idx_tp_tid_score ON tournament_participants (tournament_id, score)'); } catch(_) {}
 
 // TOURNOI AJOUT — migrations nouvelles colonnes tables existantes
 ['ALTER TABLE tournaments ADD COLUMN country TEXT NOT NULL DEFAULT ""',   // TOURNOI AJOUT
@@ -822,19 +829,9 @@ app.get('/duels/:code/live', requireAuth, (req, res) => {
   return ok(res, { duel: d });
 });
 
-/* ── TOURNOIS ────────────────────────────────────────────────────── */
+/* ── TOURNOIS legacy /tournaments/* — désactivées, utiliser /tournament/* ── */
 app.post('/tournaments', requireAuth, (req, res) => {
-  const { pack_id, max_players } = req.body || {};
-  let code;
-  for (let i = 0; i < 10; i++) {
-    code = genCode('T');
-    const existing = db.prepare('SELECT id FROM tournaments WHERE code = ?').get(code);
-    if (!existing) break;
-  }
-  db.prepare('INSERT INTO tournaments (code, creator_id, pack_id, max_players) VALUES (?, ?, ?, ?)').run(code, req.user.id, pack_id || 'general', Number(max_players) || 8);
-  db.prepare('INSERT INTO tournament_participants (tournament_id, user_id) VALUES ((SELECT id FROM tournaments WHERE code = ?), ?)').run(code, req.user.id);
-  notifyAllExcept(req.user.id, 'tournament_created', `🏆 ${req.user.name} crée un tournoi ! Rejoignez avec le code : ${code}`);
-  return ok(res, { code });
+  return err(res, 410, 'Route obsolète — utiliser POST /tournament/create');
 });
 
 app.get('/tournaments/:code', requireAuth, (req, res) => {
@@ -849,35 +846,17 @@ app.get('/tournaments/:code', requireAuth, (req, res) => {
 });
 
 app.post('/tournaments/:code/join', requireAuth, (req, res) => {
-  const t = db.prepare('SELECT * FROM tournaments WHERE code = ?').get(req.params.code);
-  if (!t) return err(res, 404, 'Tournoi introuvable');
-  if (t.status !== 'waiting') return err(res, 400, 'Tournoi déjà commencé');
-  const already = db.prepare('SELECT id FROM tournament_participants WHERE tournament_id = ? AND user_id = ?').get(t.id, req.user.id);
-  if (already) return ok(res, { message: 'Déjà inscrit' });
-  const count = db.prepare('SELECT COUNT(*) AS n FROM tournament_participants WHERE tournament_id = ?').get(t.id).n;
-  if (count >= t.max_players) return err(res, 400, 'Tournoi complet');
-  db.prepare('INSERT INTO tournament_participants (tournament_id, user_id) VALUES (?, ?)').run(t.id, req.user.id);
-  return ok(res, { message: 'Inscrit au tournoi' });
+  return err(res, 410, 'Route obsolète — utiliser POST /tournament/join');
 });
 
 app.post('/tournaments/:code/start', requireAuth, (req, res) => {
-  const t = db.prepare('SELECT * FROM tournaments WHERE code = ?').get(req.params.code);
-  if (!t) return err(res, 404, 'Tournoi introuvable');
-  if (t.creator_id !== req.user.id) return err(res, 403, 'Seul le créateur peut démarrer');
-  db.prepare('UPDATE tournaments SET status = ? WHERE code = ?').run('active', req.params.code);
-  return ok(res, { message: 'Tournoi démarré' });
+  return err(res, 410, 'Route obsolète — utiliser POST /tournament/:code/start-qualif');
 });
 
+// SECURITE FIX : route legacy /tournaments/:code/score désactivée — scores acceptés côté client sans validation.
+// Utiliser /tournament/qualify à la place (validation serveur).
 app.post('/tournaments/:code/score', requireAuth, (req, res) => {
-  const { score, total } = req.body || {};
-  if (score == null || total == null) return err(res, 400, 'score et total requis');
-  const t = db.prepare('SELECT * FROM tournaments WHERE code = ?').get(req.params.code);
-  if (!t) return err(res, 404, 'Tournoi introuvable');
-  db.prepare('UPDATE tournament_participants SET score = ?, total = ? WHERE tournament_id = ? AND user_id = ?')
-    .run(Number(score), Number(total), t.id, req.user.id);
-  const participants = db.prepare('SELECT * FROM tournament_participants WHERE tournament_id = ? ORDER BY score DESC').all(t.id);
-  participants.forEach((p, i) => db.prepare('UPDATE tournament_participants SET rank = ? WHERE id = ?').run(i + 1, p.id));
-  return ok(res, { message: 'Score enregistré' });
+  return err(res, 410, 'Route obsolète — utiliser POST /tournament/qualify');
 });
 
 /* ================================================================
@@ -965,10 +944,11 @@ app.post('/tournament/join', requireAuth, (req, res) => { // TOURNOI AJOUT
 app.get('/tournament/list', requireAuth, (req, res) => { // TOURNOI AJOUT
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id); // TOURNOI AJOUT
   const uZone = _zoneOf(user.country); // TOURNOI AJOUT
-  const zoneCond = uZone ? `AND (t.zone = '${uZone}' OR t.zone = 'inter')` : ''; // TOURNOI AJOUT
-  const open = db.prepare( // TOURNOI AJOUT
-    `SELECT t.*, u.name AS creator_name, (SELECT COUNT(*) FROM tournament_participants tp WHERE tp.tournament_id = t.id) AS nb FROM tournaments t JOIN users u ON u.id = t.creator_id WHERE t.status IN ('waiting','qualif','elim') ${zoneCond} ORDER BY t.created_at DESC LIMIT 30` // TOURNOI AJOUT
-  ).all(); // TOURNOI AJOUT
+  // SECURITE FIX : utiliser des paramètres SQLite au lieu de l'interpolation de chaîne (anti-injection SQL)
+  const BASE_OPEN_SQL = `SELECT t.*, u.name AS creator_name, (SELECT COUNT(*) FROM tournament_participants tp WHERE tp.tournament_id = t.id) AS nb FROM tournaments t JOIN users u ON u.id = t.creator_id WHERE t.status IN ('waiting','qualif','elim')`; // SECURITE FIX
+  const open = uZone // SECURITE FIX
+    ? db.prepare(BASE_OPEN_SQL + ` AND (t.zone = ? OR t.zone = 'inter') ORDER BY t.created_at DESC LIMIT 30`).all(uZone) // SECURITE FIX
+    : db.prepare(BASE_OPEN_SQL + ` ORDER BY t.created_at DESC LIMIT 30`).all(); // SECURITE FIX
   const mine = db.prepare( // TOURNOI AJOUT
     'SELECT t.*, u.name AS creator_name, (SELECT COUNT(*) FROM tournament_participants tp WHERE tp.tournament_id = t.id) AS nb FROM tournaments t JOIN users u ON u.id = t.creator_id JOIN tournament_participants tp2 ON tp2.tournament_id = t.id AND tp2.user_id = ? ORDER BY t.created_at DESC LIMIT 20' // TOURNOI AJOUT
   ).all(req.user.id); // TOURNOI AJOUT
@@ -1098,6 +1078,9 @@ app.post('/tournament/match/:matchId/record', requireAuth, (req, res) => { // TO
   if (!winner_id) return err(res, 400, 'winner_id requis'); // TOURNOI AJOUT
   const match = db.prepare('SELECT * FROM tournament_matches WHERE id = ?').get(matchId); // TOURNOI AJOUT
   if (!match) return err(res, 404, 'Match introuvable'); // TOURNOI AJOUT
+  if (match.player1_id !== req.user.id && match.player2_id !== req.user.id) {
+    return err(res, 403, 'Seul un joueur du match peut enregistrer le résultat');
+  }
   const wId = Number(winner_id); // TOURNOI AJOUT
   if (match.player1_id !== wId && match.player2_id !== wId) return err(res, 400, 'winner_id doit être player1_id ou player2_id'); // TOURNOI AJOUT
   db.prepare('UPDATE tournament_matches SET winner_id = ?, status = ? WHERE id = ?').run(wId, 'done', matchId); // TOURNOI AJOUT
@@ -1108,6 +1091,9 @@ app.post('/tournament/match/:matchId/record', requireAuth, (req, res) => { // TO
 app.get('/tournament-chat/:tournamentId', requireAuth, (req, res) => { // TOURNOI AJOUT
   const tId = Number(req.params.tournamentId); // TOURNOI AJOUT
   if (!tId) return err(res, 400, 'tournamentId invalide'); // TOURNOI AJOUT
+  // SECURITE FIX : lecture du chat réservée aux participants du tournoi
+  const isParticipant = db.prepare('SELECT id FROM tournament_participants WHERE tournament_id = ? AND user_id = ?').get(tId, req.user.id); // SECURITE FIX
+  if (!isParticipant) return err(res, 403, 'Accès réservé aux participants du tournoi'); // SECURITE FIX
   const msgs = db.prepare( // TOURNOI AJOUT
     'SELECT tc.id, tc.content, tc.sent_at, u.name, u.country FROM tournament_chat tc JOIN users u ON u.id = tc.user_id WHERE tc.tournament_id = ? ORDER BY tc.sent_at DESC LIMIT 60' // TOURNOI AJOUT
   ).all(tId).reverse(); // TOURNOI AJOUT
@@ -1122,10 +1108,271 @@ app.post('/tournament-chat/:tournamentId', requireAuth, (req, res) => { // TOURN
   if (!content || !content.trim()) return err(res, 400, 'Message vide'); // TOURNOI AJOUT
   const t = db.prepare('SELECT id FROM tournaments WHERE id = ?').get(tId); // TOURNOI AJOUT
   if (!t) return err(res, 404, 'Tournoi introuvable'); // TOURNOI AJOUT
+  // SECURITE FIX : écriture du chat réservée aux participants du tournoi
+  const isParticipant = db.prepare('SELECT id FROM tournament_participants WHERE tournament_id = ? AND user_id = ?').get(tId, req.user.id); // SECURITE FIX
+  if (!isParticipant) return err(res, 403, 'Accès réservé aux participants du tournoi'); // SECURITE FIX
   db.prepare('INSERT INTO tournament_chat (tournament_id, user_id, content) VALUES (?,?,?)') // TOURNOI AJOUT
     .run(tId, req.user.id, content.trim().slice(0, 500)); // TOURNOI AJOUT
   return ok(res, { message: 'Message envoyé' }); // TOURNOI AJOUT
 }); // TOURNOI AJOUT
+
+/* ================================================================
+   COUMBA ARENA — Jeu de cartes UNO éducatif 2 joueurs
+================================================================ */
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS coumba_games (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    code       TEXT    NOT NULL UNIQUE,
+    player1_id INTEGER NOT NULL REFERENCES users(id),
+    player2_id INTEGER REFERENCES users(id),
+    state_json TEXT    NOT NULL DEFAULT '{}',
+    status     TEXT    NOT NULL DEFAULT 'waiting',
+    created_at TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
+`);
+
+const COUMBA_VF = [
+  {q:"Le ratio de solvabilité minimum exigé par la BCEAO pour les banques est de 8%.", a:true},
+  {q:"La BCEAO est l'autorité monétaire commune aux 8 pays membres de l'UEMOA.", a:true},
+  {q:"Les banques de la zone UEMOA doivent respecter un ratio de liquidité minimum de 75%.", a:true},
+  {q:"La COBAC est l'organe de supervision bancaire des établissements de crédit de la zone CEMAC.", a:true},
+  {q:"Un établissement de monnaie électronique peut recevoir des dépôts du public comme une banque classique.", a:false},
+  {q:"Le capital social minimum pour créer une banque en zone UEMOA est de 10 milliards de FCFA.", a:true},
+  {q:"Les banques de la zone CEMAC sont directement contrôlées par la BEAC.", a:false},
+  {q:"Le ratio Cooke mesure les fonds propres par rapport aux risques pondérés.", a:true},
+  {q:"La BCEAO peut prendre des participations directes dans le capital des banques commerciales.", a:false},
+  {q:"La loi bancaire de l'UEMOA exige un agrément préalable pour exercer l'activité bancaire.", a:true},
+  {q:"Les SFD (Systèmes Financiers Décentralisés) en UEMOA sont régis par une loi spécifique.", a:true},
+  {q:"Le secret bancaire s'applique même vis-à-vis des autorités judiciaires en toutes circonstances.", a:false},
+  {q:"La BCEAO peut retirer l'agrément d'un établissement de crédit en cas de manquements graves.", a:true},
+  {q:"Dans la zone UEMOA, les fonds propres nets d'un établissement doivent être positifs en permanence.", a:true},
+  {q:"Le ratio de division des risques plafonne les engagements sur un même bénéficiaire à 75% des fonds propres.", a:true},
+  {q:"Les banques en zone UEMOA peuvent librement convertir le FCFA en devises sans autorisation de la BCEAO.", a:false},
+  {q:"La COBAC délivre les agréments aux établissements de crédit de la zone CEMAC.", a:true},
+  {q:"La BCEAO a son siège social à Dakar, au Sénégal.", a:true},
+  {q:"Les établissements de monnaie électronique sont soumis au dispositif anti-blanchiment.", a:true},
+  {q:"Les banques islamiques sont totalement exemptées des ratios prudentiels classiques.", a:false},
+  {q:"La BEAC est la banque centrale commune aux six États membres de la CEMAC.", a:true},
+  {q:"Un établissement de crédit peut opérer une transformation en SFD sans agrément préalable.", a:false},
+  {q:"Les comptes de correspondants bancaires sont soumis à la vigilance anti-blanchiment.", a:true},
+  {q:"Le taux directeur de la BCEAO influence directement les taux des crédits accordés par les banques.", a:true},
+  {q:"Les dépôts des clients sont garantis à 100% par l'État en cas de faillite bancaire en zone UEMOA.", a:false},
+  {q:"La réglementation prudentielle UEMOA s'inspire des accords de Bâle III.", a:true},
+  {q:"Les dirigeants d'établissements de crédit condamnés pour fraude restent éligibles à leurs fonctions.", a:false},
+  {q:"Le plan comptable bancaire de l'UEMOA est harmonisé entre tous les pays membres.", a:true},
+  {q:"La surveillance macro-prudentielle relève de la compétence de la BCEAO en zone UEMOA.", a:true},
+  {q:"Les établissements financiers à caractère bancaire peuvent accepter des dépôts à vue du public.", a:false},
+];
+
+function coumbaNewDeck() {
+  const deck = [];
+  for (const c of ['r','b','g','o']) {
+    for (let n = 1; n <= 9; n++) deck.push({c, v: String(n)});
+    deck.push({c, v:'+2'});
+    deck.push({c, v:'sk'});
+  }
+  for (let i = 0; i < 3; i++) deck.push({c:'w', v:'w'});
+  for (let i = 0; i < 3; i++) deck.push({c:'w', v:'+4'});
+  return coumbaShuffle(deck);
+}
+
+function coumbaShuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function coumbaCanPlay(card, top) {
+  if (card.v==='w'||card.v==='+4') return true;
+  return card.c===top.c || card.v===top.v;
+}
+
+function coumbaGetState(code) {
+  const g = db.prepare('SELECT * FROM coumba_games WHERE code = ?').get(code);
+  if (!g) return null;
+  const p1 = db.prepare('SELECT id,name,country FROM users WHERE id = ?').get(g.player1_id);
+  const p2 = g.player2_id ? db.prepare('SELECT id,name,country FROM users WHERE id = ?').get(g.player2_id) : null;
+  let state = {};
+  try { state = JSON.parse(g.state_json); } catch(_) {}
+  return {...g, player1: p1, player2: p2, state};
+}
+
+/* POST /coumba — créer une partie */
+app.post('/coumba', requireAuth, (req, res) => {
+  let code;
+  for (let i = 0; i < 10; i++) {
+    code = genCode('C');
+    if (!db.prepare('SELECT id FROM coumba_games WHERE code = ?').get(code)) break;
+  }
+  db.prepare('INSERT INTO coumba_games (code, player1_id) VALUES (?,?)').run(code, req.user.id);
+  return ok(res, {code, game: coumbaGetState(code)});
+});
+
+/* POST /coumba/:code/join */
+app.post('/coumba/:code/join', requireAuth, (req, res) => {
+  const g = db.prepare('SELECT * FROM coumba_games WHERE code = ?').get(req.params.code);
+  if (!g) return err(res, 404, 'Partie introuvable');
+  if (g.player1_id === req.user.id) return ok(res, {message:'Tu es le créateur', game: coumbaGetState(req.params.code)});
+  if (g.status !== 'waiting') return err(res, 400, 'Partie déjà commencée');
+  if (g.player2_id) return err(res, 400, 'Partie complète');
+  db.prepare('UPDATE coumba_games SET player2_id=?, status=? WHERE code=?').run(req.user.id, 'joined', req.params.code);
+  db.prepare('INSERT INTO notifications (user_id,type,message) VALUES (?,?,?)').run(g.player1_id, 'coumba_joined', `🃏 ${req.user.name} a rejoint ta partie Coumba ! Code : ${req.params.code}`);
+  return ok(res, {message:'Rejoint', game: coumbaGetState(req.params.code)});
+});
+
+/* POST /coumba/:code/start */
+app.post('/coumba/:code/start', requireAuth, (req, res) => {
+  const g = db.prepare('SELECT * FROM coumba_games WHERE code = ?').get(req.params.code);
+  if (!g) return err(res, 404, 'Partie introuvable');
+  if (g.player1_id !== req.user.id) return err(res, 403, 'Seul le créateur peut démarrer');
+  if (!g.player2_id) return err(res, 400, "En attente d'un adversaire");
+  if (g.status === 'active') return ok(res, {message:'Déjà active', game: coumbaGetState(req.params.code)});
+  const deck = coumbaNewDeck();
+  const hand1 = deck.splice(0, 7);
+  const hand2 = deck.splice(0, 7);
+  let firstIdx = deck.findIndex(c => c.v !== '+4' && c.v !== 'w');
+  if (firstIdx < 0) firstIdx = 0;
+  const [topCard] = deck.splice(firstIdx, 1);
+  const state = {deck, discard:[topCard], hand1, hand2, cur:1, pending:null, winner_id:null, msg:'La partie commence !'};
+  db.prepare('UPDATE coumba_games SET status=?, state_json=? WHERE code=?').run('active', JSON.stringify(state), req.params.code);
+  return ok(res, {game: coumbaGetState(req.params.code)});
+});
+
+/* GET /coumba/:code/state */
+app.get('/coumba/:code/state', requireAuth, (req, res) => {
+  const g = coumbaGetState(req.params.code);
+  if (!g) return err(res, 404, 'Partie introuvable');
+  if (g.player1_id !== req.user.id && g.player2_id !== req.user.id) return err(res, 403, 'Accès refusé');
+  const isP1 = g.player1_id === req.user.id;
+  const myHand = isP1 ? (g.state.hand1||[]) : (g.state.hand2||[]);
+  const oppCount = isP1 ? (g.state.hand2||[]).length : (g.state.hand1||[]).length;
+  const top = g.state.discard ? g.state.discard[g.state.discard.length-1] : null;
+  const myNum = isP1 ? 1 : 2;
+  let pendingForMe = null;
+  if (g.state.pending && g.state.pending.target === myNum) {
+    pendingForMe = {q: g.state.pending.q, effect: g.state.pending.effect};
+  }
+  return ok(res, {
+    status: g.status, code: g.code,
+    player1: g.player1, player2: g.player2,
+    my_hand: myHand, opp_count: oppCount,
+    top_card: top, deck_count: (g.state.deck||[]).length,
+    is_my_turn: g.state.cur === myNum,
+    pending: pendingForMe,
+    winner_id: g.state.winner_id||null,
+    msg: g.state.msg||'',
+    my_player: myNum, cur: g.state.cur,
+  });
+});
+
+/* POST /coumba/:code/play */
+app.post('/coumba/:code/play', requireAuth, (req, res) => {
+  const {card_index, chosen_color} = req.body || {};
+  const g = db.prepare('SELECT * FROM coumba_games WHERE code = ?').get(req.params.code);
+  if (!g) return err(res, 404, 'Partie introuvable');
+  if (g.status !== 'active') return err(res, 400, 'Partie non active');
+  if (g.player1_id !== req.user.id && g.player2_id !== req.user.id) return err(res, 403, 'Accès refusé');
+  let state; try { state = JSON.parse(g.state_json); } catch(_) { return err(res, 500, 'État corrompu'); }
+  const isP1 = g.player1_id === req.user.id;
+  const myNum = isP1 ? 1 : 2;
+  if (state.cur !== myNum) return err(res, 400, "Ce n'est pas ton tour");
+  if (state.pending) return err(res, 400, 'Réponds à la question en attente');
+  const myHand = isP1 ? state.hand1 : state.hand2;
+  const idx = Number(card_index);
+  if (!Number.isInteger(idx)||idx<0||idx>=myHand.length) return err(res, 400, 'Index invalide');
+  const card = myHand[idx];
+  const top = state.discard[state.discard.length-1];
+  if (!coumbaCanPlay(card, top)) return err(res, 400, 'Carte non jouable');
+  if ((card.v==='w'||card.v==='+4') && !['r','b','g','o'].includes(chosen_color)) return err(res, 400, 'Couleur requise');
+  myHand.splice(idx, 1);
+  if (isP1) state.hand1 = myHand; else state.hand2 = myHand;
+  const played = (card.v==='w'||card.v==='+4') ? {...card, c:chosen_color} : card;
+  state.discard.push(played);
+  if (myHand.length === 0) {
+    state.winner_id = req.user.id;
+    state.msg = `🏆 Victoire !`;
+    db.prepare('UPDATE coumba_games SET status=?, state_json=? WHERE code=?').run('finished', JSON.stringify(state), g.code);
+    db.prepare('INSERT INTO user_scores (user_id, pack_id, score, total) VALUES (?,?,?,?)').run(req.user.id,'coumba',100,100);
+    return ok(res, {win:true});
+  }
+  const oppNum = myNum===1?2:1;
+  if (card.v==='+2'||card.v==='+4'||card.v==='sk') {
+    const vf = COUMBA_VF[Math.floor(Math.random()*COUMBA_VF.length)];
+    state.pending = {q:vf.q, a:vf.a, target:oppNum, effect:card.v};
+    state.cur = oppNum;
+    state.msg = `⚠️ Question pour le joueur ${oppNum} !`;
+  } else {
+    state.cur = oppNum;
+    state.msg = `Tour du joueur ${oppNum}`;
+  }
+  db.prepare('UPDATE coumba_games SET state_json=? WHERE code=?').run(JSON.stringify(state), g.code);
+  return ok(res, {ok:true});
+});
+
+/* POST /coumba/:code/draw */
+app.post('/coumba/:code/draw', requireAuth, (req, res) => {
+  const g = db.prepare('SELECT * FROM coumba_games WHERE code = ?').get(req.params.code);
+  if (!g) return err(res, 404, 'Partie introuvable');
+  if (g.status !== 'active') return err(res, 400, 'Partie non active');
+  if (g.player1_id !== req.user.id && g.player2_id !== req.user.id) return err(res, 403, 'Accès refusé');
+  let state; try { state = JSON.parse(g.state_json); } catch(_) { return err(res, 500, 'État corrompu'); }
+  const isP1 = g.player1_id === req.user.id;
+  const myNum = isP1 ? 1 : 2;
+  if (state.cur !== myNum) return err(res, 400, "Ce n'est pas ton tour");
+  if (state.pending) return err(res, 400, 'Réponds à la question en attente');
+  if (state.deck.length === 0) {
+    const top = state.discard.pop();
+    state.deck = coumbaShuffle(state.discard);
+    state.discard = [top];
+  }
+  const drawn = state.deck.length > 0 ? state.deck.splice(0,1) : [];
+  if (isP1) state.hand1.push(...drawn); else state.hand2.push(...drawn);
+  const oppNum = myNum===1?2:1;
+  state.cur = oppNum;
+  state.msg = `Joueur ${myNum} pioche. Tour du joueur ${oppNum}.`;
+  db.prepare('UPDATE coumba_games SET state_json=? WHERE code=?').run(JSON.stringify(state), g.code);
+  return ok(res, {drawn, ok:true});
+});
+
+/* POST /coumba/:code/answer */
+app.post('/coumba/:code/answer', requireAuth, (req, res) => {
+  const {answer} = req.body || {};
+  const g = db.prepare('SELECT * FROM coumba_games WHERE code = ?').get(req.params.code);
+  if (!g) return err(res, 404, 'Partie introuvable');
+  if (g.status !== 'active') return err(res, 400, 'Partie non active');
+  if (g.player1_id !== req.user.id && g.player2_id !== req.user.id) return err(res, 403, 'Accès refusé');
+  let state; try { state = JSON.parse(g.state_json); } catch(_) { return err(res, 500, 'État corrompu'); }
+  if (!state.pending) return err(res, 400, 'Aucune question en attente');
+  const isP1 = g.player1_id === req.user.id;
+  const myNum = isP1 ? 1 : 2;
+  if (state.pending.target !== myNum) return err(res, 400, 'Cette question ne te concerne pas');
+  const userAnswer = answer===true||answer==='true';
+  const correct = userAnswer === state.pending.a;
+  const effect = state.pending.effect;
+  const oppNum = myNum===1?2:1;
+  const myHand = isP1 ? state.hand1 : state.hand2;
+  if (!correct) {
+    let drawN = effect==='+2'?2:effect==='+4'?4:0;
+    for (let i = 0; i < drawN; i++) {
+      if (state.deck.length===0){const top=state.discard.pop();state.deck=coumbaShuffle(state.discard);state.discard=[top];}
+      if (state.deck.length>0) myHand.push(state.deck.splice(0,1)[0]);
+    }
+    if (isP1) state.hand1=myHand; else state.hand2=myHand;
+    state.cur = oppNum;
+    state.msg = `❌ Mauvaise réponse — ${effect==='sk'?'tour passé':drawN+' cartes piochées'}. Tour du joueur ${oppNum}.`;
+  } else {
+    state.cur = myNum;
+    state.msg = `✅ Bonne réponse — pénalité annulée ! Tour du joueur ${myNum}.`;
+  }
+  const correctAnswer = state.pending.a;
+  state.pending = null;
+  db.prepare('UPDATE coumba_games SET state_json=? WHERE code=?').run(JSON.stringify(state), g.code);
+  return ok(res, {correct, correct_answer:correctAnswer, ok:true});
+});
 
 /* ── CHAT ────────────────────────────────────────────────────────── */
 const VALID_ZONES = ['uemoa', 'cemac', 'general'];
@@ -1154,12 +1401,13 @@ app.post('/chat/:zone', requireAuth, (req, res) => {
 /* ── DM ──────────────────────────────────────────────────────────── */
 app.get('/dm/:userId', requireAuth, (req, res) => {
   const otherId = Number(req.params.userId);
-  if (!otherId) return err(res, 400, 'userId invalide');
+  if (!otherId || otherId === req.user.id) return err(res, 400, 'userId invalide');
+  // FIX : colonnes from_id/to_id (table dm) — sender_id/receiver_id n'existent pas
   const msgs = db.prepare(`
     SELECT d.id, d.content, d.sent_at, u.name,
-           CASE WHEN d.sender_id = ? THEN 1 ELSE 0 END AS is_mine
-    FROM dm d JOIN users u ON u.id = d.sender_id
-    WHERE (d.sender_id = ? AND d.receiver_id = ?) OR (d.sender_id = ? AND d.receiver_id = ?)
+           CASE WHEN d.from_id = ? THEN 1 ELSE 0 END AS is_mine
+    FROM dm d JOIN users u ON u.id = d.from_id
+    WHERE (d.from_id = ? AND d.to_id = ?) OR (d.from_id = ? AND d.to_id = ?)
     ORDER BY d.sent_at ASC LIMIT 100
   `).all(req.user.id, req.user.id, otherId, otherId, req.user.id);
   return ok(res, { messages: msgs });
@@ -1167,12 +1415,13 @@ app.get('/dm/:userId', requireAuth, (req, res) => {
 
 app.post('/dm/:userId', requireAuth, (req, res) => {
   const receiverId = Number(req.params.userId);
-  if (!receiverId) return err(res, 400, 'userId invalide');
+  if (!receiverId || receiverId === req.user.id) return err(res, 400, 'userId invalide');
   const { content } = req.body || {};
   if (!content || !content.trim()) return err(res, 400, 'Message vide');
   const receiver = db.prepare('SELECT id FROM users WHERE id = ?').get(receiverId);
   if (!receiver) return err(res, 404, 'Destinataire introuvable');
-  db.prepare('INSERT INTO dm (sender_id, receiver_id, content) VALUES (?, ?, ?)').run(req.user.id, receiverId, content.trim().slice(0, 500));
+  // FIX : colonnes from_id/to_id (table dm) — sender_id/receiver_id n'existent pas
+  db.prepare('INSERT INTO dm (from_id, to_id, content) VALUES (?, ?, ?)').run(req.user.id, receiverId, content.trim().slice(0, 500));
   return ok(res, { message: 'Message envoyé' });
 });
 
