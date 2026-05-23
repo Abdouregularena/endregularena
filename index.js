@@ -215,7 +215,7 @@ db.exec(`
 
 /* ── NOTIFICATIONS HELPER ──────────────────────────────────────────── */
 function notifyAllExcept(excludeUserId, type, message) {
-  const users = db.prepare('SELECT id FROM users WHERE email_verified = 1 AND id != ?').all(excludeUserId);
+  const users = db.prepare('SELECT id FROM users WHERE email_verified = 1 AND id != ? ORDER BY RANDOM() LIMIT 50').all(excludeUserId);
   const insert = db.prepare('INSERT INTO notifications (user_id, type, message) VALUES (?, ?, ?)');
   const tx = db.transaction(() => { users.forEach(u => insert.run(u.id, type, message)); });
   tx();
