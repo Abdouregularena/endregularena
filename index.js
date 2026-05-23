@@ -307,9 +307,6 @@ app.post('/auth/register', limiterStrict, async (req, res) => {
    
   if (!name || !email) return err(res, 400, 'Nom et email requis');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return err(res, 400, 'Email invalide');
-   const BLOCKED_DOMAINS = ['gmail.com','yahoo.com','hotmail.com','outlook.com','live.com','icloud.com','yahoo.fr','hotmail.fr','orange.fr','wanadoo.fr'];
-  const emailDomain = email.trim().toLowerCase().split('@')[1];
-  if (BLOCKED_DOMAINS.includes(emailDomain)) return err(res, 400, 'Email institutionnel requis (banque, régulateur, université)');
   if (name.length < 2 || name.length > 80) return err(res, 400, 'Nom invalide');
 
   const cleanName  = name.trim();
@@ -578,6 +575,12 @@ app.get('/scores/me', requireAuth, (req, res) => {
 app.delete('/scores/me', requireAuth, (req, res) => {
   db.prepare('DELETE FROM user_scores WHERE user_id = ?').run(req.user.id);
   return ok(res, { message: 'Historique supprimé' });
+});
+
+/* POST /scores/reset — réinitialise tous les scores solo du joueur connecté */
+app.post('/scores/reset', requireAuth, (req, res) => {
+  db.prepare('DELETE FROM user_scores WHERE user_id = ?').run(req.user.id);
+  return ok(res, { message: 'Score réinitialisé avec succès' });
 });
 
 app.get('/leaderboard', (req, res) => {
