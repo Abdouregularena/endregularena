@@ -3674,8 +3674,33 @@ function _soloShowResult() {
   }
 
   const jwt = (function(){ try{return localStorage.getItem('ra_jwt');}catch(e){} try{return sessionStorage.getItem('ra_jwt');}catch(e){} return null; })();
+  // SCORE SERVEUR — sauvegarde robuste avec retry
   if (jwt) {
-    fetch('/scores', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt}, body: JSON.stringify({pack_id: pack.id, score, total}) }).catch(()=>{});
+    (function _saveScore(retries){
+      fetch('/scores', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','Authorization':'Bearer '+jwt},
+        body: JSON.stringify({pack_id: pack.id, score: score, total: total})
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(d && d.success){
+          var badge = document.getElementById('solo-score-saved-badge');
+          if(!badge){
+            badge = document.createElement('div');
+            badge.id = 'solo-score-saved-badge';
+            badge.style.cssText = 'text-align:center;margin-top:10px;font-family:\'JetBrains Mono\',monospace;font-size:.68rem;color:var(--green);letter-spacing:1px;opacity:0;transition:opacity .4s';
+            var res = document.getElementById('solo-result');
+            if(res) res.appendChild(badge);
+          }
+          badge.textContent = '\u2713 Score enregistr\u00e9 sur le serveur';
+          setTimeout(function(){ badge.style.opacity='1'; }, 100);
+        }
+      })
+      .catch(function(){
+        if(retries > 0) setTimeout(function(){ _saveScore(retries-1); }, 3000);
+      });
+    })(2);
   }
 }
 
