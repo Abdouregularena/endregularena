@@ -237,7 +237,7 @@ function signJWT(user) {
     { id: user.id, email: user.email, name: user.name, profile: user.profile,
       is_verified: user.email_verified === 1 },
     JWT_SECRET,
-    { expiresIn: '30d' }
+    { expiresIn: '7d' }
   );
 }
 
