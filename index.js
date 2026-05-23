@@ -1087,10 +1087,9 @@ app.post('/tournament/match/:matchId/record', requireAuth, (req, res) => { // TO
   const wId = Number(winner_id); // TOURNOI AJOUT
   if (wId !== req.user.id) return err(res, 403, 'Tu ne peux déclarer que ta propre victoire');
   if (match.player1_id !== wId && match.player2_id !== wId) return err(res, 400, 'winner_id invalide');
-  if (match.duel_code) {
-    const duel = db.prepare('SELECT status FROM duels WHERE code = ?').get(match.duel_code);
-    if (!duel || duel.status !== 'finished') return err(res, 400, 'Duel pas encore terminé');
-  }
+ if (!match.duel_code) return err(res, 400, 'Duel non associé à ce match'); // SECURITE FIX
+  const duel = db.prepare('SELECT status FROM duels WHERE code = ?').get(match.duel_code);
+  if (!duel || duel.status !== 'finished') return err(res, 400, 'Duel pas encore terminé');
   db.prepare('UPDATE tournament_matches SET winner_id = ?, status = ? WHERE id = ?').run(wId, 'done', matchId); // TOURNOI AJOUT
   return ok(res, { message: 'Résultat enregistré' }); // TOURNOI AJOUT
 }); // TOURNOI AJOUT
