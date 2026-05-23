@@ -961,7 +961,10 @@ app.get('/tournament/list', requireAuth, (req, res) => { // TOURNOI AJOUT
 /* POST /tournament/qualify */
 app.post('/tournament/qualify', requireAuth, (req, res) => { // TOURNOI AJOUT
   const { tournament_id, score, total, questions_json } = req.body || {}; // TOURNOI AJOUT
-  if (!tournament_id || score == null || total == null) return err(res, 400, 'tournament_id, score, total requis'); // TOURNOI AJOUT
+  if (!tournament_id || score == null || total == null) return err(res, 400, 'tournament_id, score, total requis')
+     if (Number(score) < 0 || Number(score) > Number(total)) return err(res, 400, 'Score invalide'); // SECURITE FIX
+  if (Number(total) <= 0 || Number(total) > 20) return err(res, 400, 'Total invalide'); // SECURITE FIX
+  if (Number(score) > 2000) return err(res, 400, 'Score suspect'); // SECURITE FIX; // TOURNOI AJOUT
   const t = db.prepare('SELECT * FROM tournaments WHERE id = ?').get(Number(tournament_id)); // TOURNOI AJOUT
   if (!t) return err(res, 404, 'Tournoi introuvable'); // TOURNOI AJOUT
   if (!['qualif','waiting'].includes(t.status)) return err(res, 400, 'Phase de qualification non active'); // TOURNOI AJOUT
