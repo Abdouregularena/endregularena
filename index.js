@@ -278,6 +278,81 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
+// ============================================================
+// SECURITY BLOCK — REGUL ARENA — auto-patch
+// ============================================================
+
+const rateLimit = require('express-rate-limit');
+
+// 1. HELMET — Security Headers
+app.use(require('helmet')({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc:     ["'self'"],
+      scriptSrc:      ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      styleSrc:       ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc:        ["'self'", "https://fonts.gstatic.com", "data:"],
+      imgSrc:         ["'self'", "data:", "https:"],
+      connectSrc:     ["'self'",
+                       "https://endregularena-production.up.railway.app",
+                       "wss://endregularena-production.up.railway.app",
+                       "wss://www.regularena.com"],
+      frameSrc:       ["'none'"],
+      objectSrc:      ["'none'"],
+      upgradeInsecureRequests: [],
+    },
+  },
+  hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+  frameguard: { action: 'deny' },
+  noSniff:    true,
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+  permittedCrossDomainPolicies: false,
+}));
+
+app.use((_req, res, next) => {
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
+  next();
+});
+
+// 2. CORS — whitelist stricte
+const _cors = require('cors');
+const ALLOWED_ORIGINS = [
+  'https://www.regularena.com',
+  'https://regularena.com',
+  'https://endregularena-production.up.railway.app',
+];
+app.use(_cors({
+  origin: (origin, cb) => {
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
+    cb(new Error('CORS bloqué: ' + origin));
+  },
+  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization'],
+  credentials: true,
+}));
+
+// 3. RATE LIMITING
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 15, standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Trop de tentatives. Réessayez dans 15 minutes.' },
+});
+app.use('/auth/register', authLimiter);
+app.use('/auth/login',    authLimiter);
+app.use('/auth/resend',   authLimiter);
+
+app.use('/api/', rateLimit({
+  windowMs: 15 * 60 * 1000, max: 200, standardHeaders: true, legacyHeaders: false,
+}));
+app.use('/api/feedback', rateLimit({
+  windowMs: 10 * 60 * 1000, max: 5,
+  message: { error: 'Trop de feedbacks. Attendez 10 minutes.' },
+}));
+
+// ============================================================
+// FIN SECURITY BLOCK
+// ============================================================
+
+
 const limiterStrict = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, standardHeaders: true, legacyHeaders: false });
 const limiterLoose  = rateLimit({ windowMs: 15 * 60 * 1000, max: 60, standardHeaders: true, legacyHeaders: false });
 
