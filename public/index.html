@@ -17,18 +17,11 @@
 <meta name="twitter:description" content="Formation gamifiée sur la réglementation bancaire BCEAO, BEAC & COBAC. 100% gratuit.">
 <meta name="twitter:image" content="https://regularena.com/og-image.png">
 <meta name="theme-color" content="#002B5C">
-<!-- ── PWA / TWA ─────────────────────────────────────────── -->
-<link rel="manifest" href="/manifest.json">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="REGUL ARENA">
-<!-- ──────────────────────────────────────────────────────── -->
 <title>REGUL ARENA — Maîtrise Réglementaire Bancaire UEMOA & CEMAC</title>
 <link rel="canonical" href="https://regularena.com">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta name="robots" content="index, follow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,21 +42,27 @@
   --blue:      #4F8EF7; --green: #10B981; --green-dim: rgba(16,185,129,.12);
   --red:       #EF4444; --red-dim: rgba(239,68,68,.1);
   --purple:    #A855F7; --silver: #B0B8C8; --bronze: #CD7F32;
-  --bg:        #03050A; --bg2: #080C14; --bg3: #0E1320;
-  --glass:     rgba(8,12,20,.72); --glass2: rgba(14,19,32,.6);
+  --bg:        #020812; --bg2: #040D1C; --bg3: #071426;
+  --glass:     rgba(4,13,28,.82); --glass2: rgba(7,20,38,.7);
   --text:      #EEF0F5; --muted: #7A8499;
   --sep:       rgba(255,255,255,.06); --gb: rgba(255,255,255,.07);
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overflow-x:hidden;min-height:100vh}
-body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.35}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 140% 70% at 50% -5%, rgba(0,60,160,.55) 0%, rgba(0,30,90,.3) 30%, transparent 65%),
+  radial-gradient(ellipse 80% 60% at 0% 100%, rgba(0,43,120,.3) 0%, transparent 55%),
+  radial-gradient(ellipse 60% 50% at 100% 50%, rgba(0,80,200,.1) 0%, transparent 50%),
+  radial-gradient(ellipse 100% 40% at 50% 100%, rgba(0,20,60,.4) 0%, transparent 60%);
+pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E"),linear-gradient(rgba(0,80,200,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(0,80,200,.018) 1px,transparent 1px);background-size:auto,70px 70px,70px 70px;mask-image:radial-gradient(ellipse 100% 100% at 50% 50%,black 20%,transparent 80%);pointer-events:none;z-index:0;opacity:.5}
 .orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(80px);animation:orbPulse 10s ease-in-out infinite}
-.orb-g{width:600px;height:400px;top:-100px;left:-100px;background:radial-gradient(circle,rgba(0,43,92,.2),rgba(201,153,26,.06) 60%,transparent 70%)}
-.orb-c{width:400px;height:400px;top:30%;right:-80px;background:radial-gradient(circle,rgba(34,211,238,.04),transparent 70%);animation-delay:-5s}
+.orb-g{width:900px;height:600px;top:-200px;left:-150px;background:radial-gradient(circle,rgba(0,80,180,.28),rgba(0,43,92,.14) 50%,rgba(201,153,26,.04) 70%,transparent 80%)}
+.orb-c{width:600px;height:600px;top:30%;right:-120px;background:radial-gradient(circle,rgba(34,150,255,.08),rgba(0,80,180,.05) 50%,transparent 70%);animation-delay:-5s}
 
 /* ── NAV ─────────────────────────────────────────────────── */
-nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:14px 40px;background:#001E42;backdrop-filter:blur(20px);border-bottom:2px solid #C9991A} /* MODIFIÉ — #001E42 plus profond, border-bottom gold */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:14px 40px;background:rgba(1,8,24,.92);backdrop-filter:blur(24px);border-bottom:1px solid rgba(201,153,26,.3)} /* MODIFIÉ — #001E42 plus profond, border-bottom gold */
 nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:0} /* MODIFIÉ — ligne décorative supprimée, remplacée par border-bottom gold */
 .nav-logo{font-family:'Bebas Neue',cursive;font-size:1.5rem;letter-spacing:3px;color:var(--gold);text-decoration:none;flex-shrink:0;cursor:pointer}
 .nav-logo span{color:var(--text)}
@@ -132,8 +131,8 @@ nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:0} /* MOD
 
 /* ── LANDING ─────────────────────────────────────────────── */
 .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 40px 80px;position:relative;overflow:hidden}
-.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(201,153,26,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(201,153,26,.04) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black,transparent)}
-.hero::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:800px;height:800px;background:radial-gradient(ellipse,rgba(0,43,92,.15) 0%,rgba(201,153,26,.05) 40%,transparent 70%);pointer-events:none}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(30,100,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(30,100,255,.06) 1px,transparent 1px),linear-gradient(rgba(201,153,26,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(201,153,26,.025) 1px,transparent 1px);background-size:60px 60px,60px 60px,240px 240px,240px 240px;mask-image:radial-gradient(ellipse 90% 85% at 50% 50%,black,transparent)}
+.hero::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:1000px;height:900px;background:radial-gradient(ellipse,rgba(0,80,200,.18) 0%,rgba(0,43,120,.1) 35%,rgba(201,153,26,.04) 60%,transparent 75%);pointer-events:none}
 .hero-eyebrow{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:22px;opacity:0;animation:fadeUp .6s .2s forwards;position:relative;z-index:2}
 .hero-eyebrow::before,.hero-eyebrow::after{content:'—';margin:0 10px;opacity:.5}
 .hero-title{font-family:'Bebas Neue',cursive;font-size:clamp(4rem,12vw,9rem);line-height:.9;letter-spacing:4px;margin-bottom:8px;position:relative;z-index:2;opacity:0;animation:fadeUp .6s .35s forwards}
@@ -458,6 +457,7 @@ footer{display:flex;align-items:center;justify-content:space-between;border-top:
 
 @media(max-width:900px){
   .nav-hamburger{display:flex}
+  .has-disclaimer .mobile-nav{top:83px}
   .feedback-grid{grid-template-columns:1fr}
   .sponsors-banner{padding:14px 0}
   nav{padding:12px 18px}
@@ -479,6 +479,7 @@ footer{display:flex;align-items:center;justify-content:space-between;border-top:
   .ra-steps-inner{grid-template-columns:1fr}
   .ra-steps-band{padding:16px 18px}
   .ra-contact-footer{padding:30px 18px}
+  .ra-disclaimer-band{font-size:.55rem;padding:7px 40px 7px 14px}
 }
 
 /* ── ANIMATIONS ──────────────────────────────────────────── */
@@ -632,7 +633,27 @@ footer{display:flex;align-items:center;justify-content:space-between;border-top:
 .ra-notif-time{font-size:.65rem;color:var(--muted);margin-top:3px;font-family:'JetBrains Mono',monospace;}
 .ra-notif-empty{padding:24px;text-align:center;color:var(--muted);font-size:.8rem;}
 
-
+/* ── BANDEAU DISCLAIMER ──────────────────────────────────── */
+.ra-disclaimer-band{
+  position:fixed;top:0;left:0;right:0;z-index:300;
+  background:linear-gradient(90deg,#7a5a00,#a07800,#7a5a00);
+  border-bottom:1px solid rgba(201,153,26,.35);
+  padding:7px 20px;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  font-family:'JetBrains Mono',monospace;font-size:.62rem;
+  color:#ffe066;letter-spacing:1.5px;text-transform:uppercase;text-align:center;
+  animation:disclaimerSlide .6s ease forwards;
+}
+@keyframes disclaimerSlide{from{transform:translateY(-100%)}to{transform:translateY(0)}}
+.ra-disclaimer-band strong{color:#fff}
+.ra-disclaimer-close{
+  position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  background:none;border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.7);
+  font-size:.6rem;padding:2px 8px;cursor:pointer;border-radius:2px;
+  font-family:'JetBrains Mono',monospace;letter-spacing:1px;transition:all .2s;flex-shrink:0;
+}
+.ra-disclaimer-close:hover{background:rgba(255,255,255,.15)}
+/* has-disclaimer nav top géré dynamiquement par JS selon hauteur réelle du bandeau */
 
 /* ── TUTORIAL MODAL ──────────────────────────────────────── */
 .ra-tuto-overlay{
@@ -822,6 +843,9 @@ footer{display:flex;align-items:center;justify-content:space-between;border-top:
   /* Footer */
   .ra-contact-footer{padding:32px 16px}
   .ra-contact-grid{grid-template-columns:1fr}
+
+  /* Disclaimer text compact */
+  .ra-disclaimer-band{text-align:left;padding:8px 44px 8px 12px}
 }
 
 /* ── TABLETTE (481px – 768px) ────────────────────────────────── */
@@ -1048,6 +1072,12 @@ img,svg,video{max-width:100%}
 
 /* Inputs et selects — jamais plus petits que 16px pour éviter zoom iOS */
 input,select,textarea{font-size:max(16px,.84rem)!important}
+
+/* Disclaimer avec disclaimer-nav offset */
+@media(max-width:480px){
+  .ra-disclaimer-band{font-size:.54rem;padding:7px 36px 7px 10px;letter-spacing:1px}
+  .ra-disclaimer-close{right:8px;font-size:.54rem;padding:2px 6px}
+}
 
 /* ── RESPONSIVE ──────────────────────────────────────────── */
 
@@ -1280,81 +1310,230 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
   .d-create-btn{width:100%!important;justify-content:center;} /* MODIFIÉ */
 } /* MODIFIÉ */
 /* ── FIN MODIFIÉ — Layout flex Duel + Tournoi ────────────── */
-
-/* ── COUMBA ARENA ────────────────────────────────────────── */
-#page-coumba{background:var(--bg)}
-.ca-lobby{max-width:520px;margin:0 auto;padding:80px 20px 60px;text-align:center}
-.ca-lobby-title{font-family:'Bebas Neue',cursive;font-size:clamp(2.4rem,6vw,4rem);letter-spacing:3px;margin-bottom:6px}
-.ca-lobby-title span{background:linear-gradient(135deg,#C9991A,#E8B520);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.ca-lobby-sub{font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:32px}
-.ca-input{width:100%;background:var(--bg2);border:1px solid var(--gb);border-radius:3px;padding:14px 16px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:1rem;letter-spacing:3px;text-transform:uppercase;text-align:center;box-sizing:border-box;outline:none;transition:border .2s}
-.ca-input:focus{border-color:var(--gold)}
-.ca-waiting{max-width:480px;margin:0 auto;padding:80px 20px 60px;text-align:center}
-.ca-code-big{font-family:'Bebas Neue',cursive;font-size:3rem;letter-spacing:8px;color:var(--gold);background:var(--bg2);border:1px solid var(--gold-dim);border-radius:4px;padding:14px 32px;display:inline-block;margin:16px 0;cursor:pointer}
-.ca-pulse{animation:caPulse 2s ease-in-out infinite}
-@keyframes caPulse{0%,100%{opacity:1}50%{opacity:.5}}
-/* Table de jeu */
-.ca-board{display:flex;flex-direction:column;height:calc(100vh - 53px);overflow:hidden;background:radial-gradient(ellipse at center,#0a1628 0%,#03050A 100%)}
-.ca-opp-zone{display:flex;flex-direction:column;align-items:center;padding:14px 16px 8px;gap:8px;min-height:120px}
-.ca-opp-info{display:flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--muted);letter-spacing:2px}
-.ca-opp-cards{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;max-width:100%}
-.ca-center-zone{flex:1;display:flex;align-items:center;justify-content:center;gap:32px;position:relative}
-.ca-deck{width:72px;height:100px;border-radius:8px;background:linear-gradient(135deg,#002B5C,#001a3a);border:2px solid #C9991A;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Bebas Neue',cursive;font-size:.7rem;letter-spacing:2px;color:#C9991A;flex-direction:column;gap:4px;transition:transform .15s,box-shadow .15s;user-select:none}
-.ca-deck:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(201,153,26,.3)}
-.ca-discard{width:72px;height:100px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',cursive;font-size:1.8rem;border:2px solid rgba(255,255,255,.1);transition:transform .3s;position:relative}
-.ca-turn-badge{position:absolute;top:-24px;left:50%;transform:translateX(-50%);font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:2px;color:var(--gold);white-space:nowrap;background:rgba(201,153,26,.1);padding:3px 8px;border-radius:2px}
-.ca-my-zone{padding:8px 16px 16px;min-height:130px}
-.ca-my-info{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:2px;color:var(--muted);margin-bottom:8px;text-align:center}
-.ca-my-hand{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-height:200px;overflow-y:auto}
-/* Cartes */
-.ca-card{width:62px;height:90px;border-radius:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Bebas Neue',cursive;font-size:1.5rem;font-weight:900;border:2px solid rgba(255,255,255,.2);cursor:pointer;transition:transform .15s,box-shadow .15s,border-color .15s;position:relative;user-select:none;flex-shrink:0}
-.ca-card:hover{transform:translateY(-8px);box-shadow:0 8px 24px rgba(0,0,0,.5)}
-.ca-card.playable{border-color:rgba(255,255,255,.6);box-shadow:0 0 10px rgba(255,255,255,.2)}
-.ca-card.not-playable{opacity:.45;cursor:not-allowed}
-.ca-card.not-playable:hover{transform:none;box-shadow:none}
-.ca-card-val{font-size:1.3rem;line-height:1}
-.ca-card-lbl{font-family:'JetBrains Mono',monospace;font-size:.42rem;letter-spacing:1px;color:rgba(255,255,255,.7);margin-top:2px}
-.ca-card-back{width:48px;height:70px;border-radius:5px;background:linear-gradient(135deg,#002B5C,#001a3a);border:2px solid rgba(201,153,26,.4);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',cursive;font-size:.55rem;letter-spacing:1px;color:rgba(201,153,26,.5);flex-shrink:0}
-/* Couleurs cartes */
-.ca-c-r{background:linear-gradient(135deg,#c53030,#9b2c2c);color:#fff}
-.ca-c-b{background:linear-gradient(135deg,#2b6cb0,#1a4a8a);color:#fff}
-.ca-c-g{background:linear-gradient(135deg,#276749,#1a4731);color:#fff}
-.ca-c-o{background:linear-gradient(135deg,#b7791f,#975a16);color:#fff}
-.ca-c-w{background:linear-gradient(135deg,#4a5568,#2d3748);color:#fff}
-/* Overlay question */
-.ca-q-overlay{position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;padding:20px}
-.ca-q-box{background:#0A1628;border:1px solid var(--gold);border-radius:8px;max-width:500px;width:100%;padding:32px;text-align:center}
-.ca-q-label{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:12px}
-.ca-q-text{font-family:'Inter',sans-serif;font-size:1rem;color:var(--text);line-height:1.6;margin-bottom:24px;min-height:60px}
-.ca-q-btns{display:flex;gap:12px}
-.ca-q-btn{flex:1;padding:14px;font-family:'Bebas Neue',cursive;font-size:1.2rem;letter-spacing:2px;border:none;border-radius:4px;cursor:pointer;transition:all .2s}
-.ca-q-btn.vrai{background:linear-gradient(135deg,#276749,#1a4731);color:#fff}
-.ca-q-btn.vrai:hover{background:linear-gradient(135deg,#38a169,#276749)}
-.ca-q-btn.faux{background:linear-gradient(135deg,#c53030,#9b2c2c);color:#fff}
-.ca-q-btn.faux:hover{background:linear-gradient(135deg,#e53e3e,#c53030)}
-.ca-q-effect{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:2px;color:var(--muted);margin-bottom:16px}
-/* Overlay couleur Wild */
-.ca-color-overlay{position:fixed;inset:0;z-index:910;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;padding:20px}
-.ca-color-box{background:#0A1628;border:1px solid var(--gold);border-radius:8px;max-width:380px;width:100%;padding:28px;text-align:center}
-.ca-color-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
-.ca-color-btn{padding:16px;border:2px solid rgba(255,255,255,.2);border-radius:6px;cursor:pointer;font-family:'Bebas Neue',cursive;font-size:.9rem;letter-spacing:2px;color:#fff;transition:transform .15s,border-color .2s}
-.ca-color-btn:hover{transform:scale(1.05);border-color:rgba(255,255,255,.5)}
-/* Msg bar */
-.ca-msg-bar{position:absolute;bottom:140px;left:50%;transform:translateX(-50%);background:rgba(10,22,40,.9);border:1px solid var(--gb);border-radius:3px;padding:5px 14px;font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:1px;color:var(--muted);white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
-/* Résultat */
-.ca-result{max-width:460px;margin:0 auto;padding:80px 20px 60px;text-align:center}
-.ca-result-trophy{font-size:4rem;margin-bottom:12px}
-.ca-result-title{font-family:'Bebas Neue',cursive;font-size:clamp(2rem,6vw,3.5rem);letter-spacing:3px;margin-bottom:6px}
-/* Mode card landing */
-.ca-mode-card{background:linear-gradient(135deg,rgba(201,153,26,.08),rgba(201,153,26,.03));border-top-color:var(--gold)!important}
-@media(max-width:480px){
-  .ca-card{width:50px;height:74px;font-size:1.1rem}
-  .ca-card-lbl{font-size:.38rem}
-  .ca-deck,.ca-discard{width:60px;height:86px}
-}
 </style>
 </head>
 <body>
+
+<!-- ═══════════════════════════════════════════════
+     CANVAS 3D — Fond WebGL particules bleues
+     z-index:-1 → absolument aucune régression UI
+     ═══════════════════════════════════════════════ -->
+<canvas id="ra-bg-canvas" style="position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;opacity:1"></canvas>
+<script>
+(function(){
+  const canvas = document.getElementById('ra-bg-canvas');
+  if(!canvas) return;
+  const gl = canvas.getContext('webgl',{alpha:true,antialias:false,powerPreference:'low-power'});
+  if(!gl){ canvas.style.display='none'; return; }
+
+  // ── Resize ──
+  function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;gl.viewport(0,0,canvas.width,canvas.height)}
+  window.addEventListener('resize',resize);resize();
+
+  // ── Vertex Shader ──
+  const vSrc=`
+    attribute vec2 a_pos;
+    attribute float a_size;
+    attribute vec3 a_col;
+    attribute float a_life;
+    varying vec3 v_col;
+    varying float v_life;
+    uniform vec2 u_res;
+    void main(){
+      vec2 p=(a_pos/u_res)*2.0-1.0;
+      p.y=-p.y;
+      gl_Position=vec4(p,0,1);
+      gl_PointSize=a_size;
+      v_col=a_col;
+      v_life=a_life;
+    }`;
+
+  // ── Fragment Shader ──
+  const fSrc=`
+    precision mediump float;
+    varying vec3 v_col;
+    varying float v_life;
+    void main(){
+      vec2 c=gl_PointCoord-0.5;
+      float d=dot(c,c)*4.0;
+      if(d>1.0) discard;
+      float alpha=(1.0-d)*v_life*0.75;
+      gl_FragColor=vec4(v_col*1.2,alpha);
+    }`;
+
+  function mkShader(type,src){
+    const s=gl.createShader(type);
+    gl.shaderSource(s,src);
+    gl.compileShader(s);
+    return s;
+  }
+  const prog=gl.createProgram();
+  gl.attachShader(prog,mkShader(gl.VERTEX_SHADER,vSrc));
+  gl.attachShader(prog,mkShader(gl.FRAGMENT_SHADER,fSrc));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+
+  const aPos=gl.getAttribLocation(prog,'a_pos');
+  const aSz=gl.getAttribLocation(prog,'a_size');
+  const aCol=gl.getAttribLocation(prog,'a_col');
+  const aLife=gl.getAttribLocation(prog,'a_life');
+  const uRes=gl.getUniformLocation(prog,'u_res');
+
+  // ── Particules ──
+  const N=200;
+  const pos=new Float32Array(N*2);
+  const size=new Float32Array(N);
+  const col=new Float32Array(N*3);
+  const life=new Float32Array(N);
+  const vel=new Float32Array(N*2);
+  const lifeSpeed=new Float32Array(N);
+
+  // Palettes bleu-or
+  const palettes=[
+    [0.05,0.35,0.95],   // bleu électrique
+    [0.10,0.55,1.00],   // bleu ciel
+    [0.00,0.25,0.75],   // bleu roi
+    [0.13,0.82,0.94],   // cyan
+    [0.78,0.60,0.10],   // or foncé
+    [0.00,0.45,0.90],   // bleu vif
+    [0.02,0.18,0.55],   // bleu nuit
+  ];
+
+  function initParticle(i){
+    pos[i*2]=Math.random()*canvas.width;
+    pos[i*2+1]=Math.random()*canvas.height;
+    size[i]=Math.random()*3+1;
+    vel[i*2]=(Math.random()-.5)*.25;
+    vel[i*2+1]=(Math.random()-.5)*.18-0.08;
+    life[i]=Math.random();
+    lifeSpeed[i]=0.002+Math.random()*0.004;
+    const p=palettes[Math.floor(Math.random()*palettes.length)];
+    col[i*3]=p[0];col[i*3+1]=p[1];col[i*3+2]=p[2];
+  }
+  for(let i=0;i<N;i++) initParticle(i);
+
+  // ── Lignes de connexion ──
+  // On utilise un second programme pour les lignes
+  const vLineSrc=`
+    attribute vec2 a_pos;
+    attribute float a_alpha;
+    varying float v_alpha;
+    uniform vec2 u_res;
+    void main(){
+      vec2 p=(a_pos/u_res)*2.0-1.0;
+      p.y=-p.y;
+      gl_Position=vec4(p,0,1);
+      v_alpha=a_alpha;
+    }`;
+  const fLineSrc=`
+    precision mediump float;
+    varying float v_alpha;
+    void main(){
+      gl_FragColor=vec4(0.05,0.35,0.85,v_alpha*0.35);
+    }`;
+  const lineProg=gl.createProgram();
+  gl.attachShader(lineProg,mkShader(gl.VERTEX_SHADER,vLineSrc));
+  gl.attachShader(lineProg,mkShader(gl.FRAGMENT_SHADER,fLineSrc));
+  gl.linkProgram(lineProg);
+
+  const lAPos=gl.getAttribLocation(lineProg,'a_pos');
+  const lAAlpha=gl.getAttribLocation(lineProg,'a_alpha');
+  const lURes=gl.getUniformLocation(lineProg,'u_res');
+
+  const CONNECT_DIST=140;
+  const linePos=new Float32Array(N*N*4);
+  const lineAlpha=new Float32Array(N*N*2);
+
+  // ── Buffers ──
+  const posBuf=gl.createBuffer();
+  const szBuf=gl.createBuffer();
+  const colBuf=gl.createBuffer();
+  const lifeBuf=gl.createBuffer();
+  const lPosBuf=gl.createBuffer();
+  const lAlphaBuf=gl.createBuffer();
+
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
+
+  // ── Rendu ──
+  let raf;
+  function draw(){
+    raf=requestAnimationFrame(draw);
+    const W=canvas.width,H=canvas.height;
+    gl.clearColor(0,0,0,0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    // Update particles
+    for(let i=0;i<N;i++){
+      pos[i*2]+=vel[i*2];
+      pos[i*2+1]+=vel[i*2+1];
+      life[i]+=lifeSpeed[i];
+      if(life[i]>1) life[i]=0;
+      if(pos[i*2]<-20||pos[i*2]>W+20||pos[i*2+1]<-20||pos[i*2+1]>H+20) initParticle(i);
+    }
+
+    // Lines
+    let lCount=0;
+    for(let i=0;i<N;i++){
+      for(let j=i+1;j<N;j++){
+        const dx=pos[i*2]-pos[j*2],dy=pos[i*2+1]-pos[j*2+1];
+        const dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<CONNECT_DIST){
+          const a=1-dist/CONNECT_DIST;
+          linePos[lCount*4]=pos[i*2];linePos[lCount*4+1]=pos[i*2+1];
+          linePos[lCount*4+2]=pos[j*2];linePos[lCount*4+3]=pos[j*2+1];
+          lineAlpha[lCount*2]=a;lineAlpha[lCount*2+1]=a;
+          lCount++;
+        }
+      }
+    }
+
+    // Draw lines
+    if(lCount>0){
+      gl.useProgram(lineProg);
+      gl.uniform2f(lURes,W,H);
+      gl.bindBuffer(gl.ARRAY_BUFFER,lPosBuf);
+      gl.bufferData(gl.ARRAY_BUFFER,linePos.subarray(0,lCount*4),gl.DYNAMIC_DRAW);
+      gl.enableVertexAttribArray(lAPos);
+      gl.vertexAttribPointer(lAPos,2,gl.FLOAT,false,0,0);
+      gl.bindBuffer(gl.ARRAY_BUFFER,lAlphaBuf);
+      gl.bufferData(gl.ARRAY_BUFFER,lineAlpha.subarray(0,lCount*2),gl.DYNAMIC_DRAW);
+      gl.enableVertexAttribArray(lAAlpha);
+      gl.vertexAttribPointer(lAAlpha,1,gl.FLOAT,false,0,0);
+      gl.drawArrays(gl.LINES,0,lCount*2);
+    }
+
+    // Draw particles
+    gl.useProgram(prog);
+    gl.uniform2f(uRes,W,H);
+    gl.bindBuffer(gl.ARRAY_BUFFER,posBuf);
+    gl.bufferData(gl.ARRAY_BUFFER,pos,gl.DYNAMIC_DRAW);
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos,2,gl.FLOAT,false,0,0);
+    gl.bindBuffer(gl.ARRAY_BUFFER,szBuf);
+    gl.bufferData(gl.ARRAY_BUFFER,size,gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(aSz);
+    gl.vertexAttribPointer(aSz,1,gl.FLOAT,false,0,0);
+    gl.bindBuffer(gl.ARRAY_BUFFER,colBuf);
+    gl.bufferData(gl.ARRAY_BUFFER,col,gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(aCol);
+    gl.vertexAttribPointer(aCol,3,gl.FLOAT,false,0,0);
+    gl.bindBuffer(gl.ARRAY_BUFFER,lifeBuf);
+    gl.bufferData(gl.ARRAY_BUFFER,life,gl.DYNAMIC_DRAW);
+    gl.enableVertexAttribArray(aLife);
+    gl.vertexAttribPointer(aLife,1,gl.FLOAT,false,0,0);
+    gl.drawArrays(gl.POINTS,0,N);
+  }
+
+  // Pause si onglet masqué
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden){cancelAnimationFrame(raf)}else{draw()}
+  });
+
+  draw();
+})();
+</script>
+
 
 <!-- LOGO AJOUT — barre supérieure fixe -->
 <div id="ra-topbar"><!-- LOGO AJOUT -->
@@ -1371,7 +1550,7 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
   <div id="ra-ticker"><!-- LOGO AJOUT -->
     <span>🏆 REGUL ARENA — La plateforme réglementaire de référence UEMOA &amp; CEMAC</span><!-- LOGO AJOUT -->
     <span>📜 Quiz officiels BCEAO · CIMA · UEMOA · CEMAC</span><!-- LOGO AJOUT -->
-    <span>🤝 Partenaires &amp; Sponsors — /cgu.html</span><!-- LOGO AJOUT -->
+    <span>🤝 Partenaires &amp; Sponsors — contact@regularena.com</span><!-- LOGO AJOUT -->
     <span>🎓 Étudiants · Professionnels · Banque · Assurance</span><!-- LOGO AJOUT -->
   </div><!-- LOGO AJOUT -->
 </div><!-- LOGO AJOUT -->
@@ -1584,7 +1763,11 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
 </div>
 <div id="ra-toast" role="status" aria-live="polite"></div>
 
-
+<!-- BANDEAU DISCLAIMER -->
+<div id="ra-disclaimer" class="ra-disclaimer-band" role="alert" aria-live="polite">
+  <span>⚠ <strong>Plateforme indépendante</strong> — REGUL ARENA n'a aucun lien officiel avec la BCEAO, la BEAC, la COBAC ou toute institution réglementaire. Initiative privée à vocation pédagogique.</span>
+  <button class="ra-disclaimer-close" onclick="dismissDisclaimer()" aria-label="Fermer le bandeau">✕ OK</button>
+</div>
 
 <!-- TUTORIEL MODAL -->
 <div class="ra-tuto-overlay" id="ra-tuto-overlay" role="dialog" aria-modal="true" aria-labelledby="tuto-title">
@@ -1637,7 +1820,6 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
     <li role="none"><button id="nav-duel" onclick="showPage('duel')" role="menuitem">Duel<span id="notif-badge-duel" class="ra-notif-badge" style="display:none" onclick="event.stopPropagation();RANotif.toggle()"></span></button></li>
     <li role="none"><button id="nav-premium" onclick="showPage('premium')" role="menuitem">Top Scoreurs</button></li>
     <li role="none"><button id="nav-invitation" onclick="showPage('invitation')" role="menuitem">Inviter</button></li>
-    <li role="none"><button id="nav-coumba" onclick="showPage('coumba')" role="menuitem" style="color:var(--gold)">🃏 Coumba</button></li>
     <li role="none"><button onclick="document.querySelector('.feedback-section').scrollIntoView({behavior:'smooth'})" role="menuitem">💬 Feedback</button></li>
   </ul>
   <div class="nav-right">
@@ -1679,7 +1861,8 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
       <span class="ticker-item">Inscription gratuite · Email institutionnel ou universitaire</span>
       <span class="ticker-item"><span class="live-dot"></span>Badges · Certifications · Classement panafricain</span>
       <span class="ticker-item">Chaque question référencée à un texte officiel</span>
-      <span class="ticker-item">Rejoignez l'arène · /cgu.html</span>
+      <span class="ticker-item">Initiative indépendante · Abdou NDAO · Sénégal</span>
+      <span class="ticker-item">Rejoignez l'arène · contact@regularena.com</span>
     </div>
   </div>
 
@@ -1791,12 +1974,6 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
           <button onclick="openNotifyModal()" style="background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.25);color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:1.5px;padding:6px 12px;cursor:pointer;border-radius:2px;text-transform:uppercase;transition:all .2s" onmouseover="this.style.background='rgba(34,211,238,.15)'" onmouseout="this.style.background='rgba(34,211,238,.08)'">🔔 Me prévenir à l'ouverture</button>
         </div>
       </article>
-      <article class="mode-card ca-mode-card" role="listitem" onclick="showPage('coumba')" style="cursor:pointer">
-        <span class="mode-icon" aria-hidden="true">🃏</span>
-        <h3 class="mode-name">Coumba Arena</h3>
-        <p class="mode-desc">Jeu de cartes UNO éducatif 2 joueurs. Cartes spéciales = questions réglementaires. Réponds bien ou pioche !</p>
-        <span class="mode-badge">DISPONIBLE</span>
-      </article>
     </div>
   </section>
 
@@ -1862,7 +2039,7 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
             <li>Support communautaire</li>
           </ul>
           <button class="btn-ghost" style="width:100%;justify-content:center;margin-bottom:10px" onclick="openInstitutionContact()">Demander un accès →</button>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted);letter-spacing:1px;line-height:1.6">Envoyez un email à<br><a href="/cgu.html" style="color:var(--gold);text-decoration:none">/cgu.html</a><br>avec l'objet "Accès Institution"</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted);letter-spacing:1px;line-height:1.6">Envoyez un email à<br><a href="mailto:contact@regularena.com" style="color:var(--gold);text-decoration:none">contact@regularena.com</a><br>avec l'objet "Accès Institution"</div>
         </article>
       </div>
       <div style="text-align:center;margin-top:22px;padding:14px;border:1px solid var(--green-dim);background:var(--green-dim);border-radius:2px;max-width:640px;margin-left:auto;margin-right:auto">
@@ -1911,7 +2088,7 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
       <div class="ra-contact-grid">
         <div class="ra-contact-item">
           <div class="ra-contact-item-icon">📧</div>
-          <span>/cgu.html</span>
+          <span>contact@regularena.com</span>
         </div>
         <div class="ra-contact-item">
           <div class="ra-contact-item-icon">📧</div>
@@ -1927,16 +2104,16 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
         </div>
       </div>
       <div class="ra-contact-footer-legal">
-        <strong>REGUL ARENA</strong> — La première plateforme de formation gamifiée sur la réglementation bancaire UEMOA &amp; CEMAC.<br>
+        <strong>REGUL ARENA</strong> — Plateforme indépendante à vocation pédagogique. Initiative privée d'<strong>Abdou NDAO</strong>. Sans lien officiel avec la BCEAO, la BEAC, la COBAC ou toute institution réglementaire.<br>
         © 2026 REGUL ARENA — Tous droits réservés.<br><br>
         <span style="display:inline-flex;gap:16px;flex-wrap:wrap;justify-content:center;font-size:11px">
-          <a href="/cgu.html" style="color:var(--gold);text-decoration:underline;text-underline-offset:3px">Conditions d'utilisation</a>
+          <a href="mailto:contact@regularena.com?subject=CGU" style="color:var(--gold);text-decoration:underline;text-underline-offset:3px">Conditions d'utilisation</a>
           <span style="color:var(--muted)">·</span>
-          <a href="/privacy.html?subject=Politique%20de%20confidentialité" style="color:var(--gold);text-decoration:underline;text-underline-offset:3px">Politique de confidentialité</a>
+          <a href="mailto:contact@regularena.com?subject=Politique%20de%20confidentialité" style="color:var(--gold);text-decoration:underline;text-underline-offset:3px">Politique de confidentialité</a>
           <span style="color:var(--muted)">·</span>
           <a href="mailto:abdou.ndao@regularena.com?subject=À%20propos" style="color:var(--gold);text-decoration:underline;text-underline-offset:3px">À propos &amp; Équipe</a>
           <span style="color:var(--muted)">·</span>
-          <a href="/privacy.html?subject=RGPD" style="color:var(--gold);text-decoration:underline;text-underline-offset:3px">Données personnelles (RGPD)</a>
+          <a href="mailto:contact@regularena.com?subject=RGPD" style="color:var(--gold);text-decoration:underline;text-underline-offset:3px">Données personnelles (RGPD)</a>
         </span>
       </div>
     </div>
@@ -2888,117 +3065,6 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
       <div id="amb-list" class="card" style="overflow:hidden"></div>
     </div>
   </div>
-</div>
-
-<!-- ================================================================
-     PAGE COUMBA ARENA — Jeu de cartes UNO éducatif
-================================================================ -->
-<div id="page-coumba" class="page" role="main" aria-label="Coumba Arena">
-
-  <!-- LOBBY -->
-  <div id="ca-screen-lobby" class="ca-lobby">
-    <div class="ca-lobby-title"><span>COUMBA</span> ARENA</div>
-    <div class="ca-lobby-sub">Jeu de cartes éducatif · 2 joueurs · Réglementation bancaire</div>
-    <div style="background:var(--bg2);border:1px solid var(--gb);border-radius:6px;padding:24px;margin-bottom:16px;text-align:left">
-      <div style="font-family:'Bebas Neue',cursive;font-size:1rem;letter-spacing:2px;color:var(--gold);margin-bottom:16px">🃏 RÈGLES RAPIDES</div>
-      <div style="font-family:'Inter',sans-serif;font-size:.8rem;color:var(--muted);line-height:1.8">
-        • 4 couleurs : <span style="color:#e53e3e">■ COBAC</span> · <span style="color:#4299e1">■ BCEAO</span> · <span style="color:#48bb78">■ OHADA</span> · <span style="color:#C9991A">■ CIMA</span><br>
-        • Pose une carte de même couleur ou même valeur<br>
-        • <strong style="color:var(--text)">+2 / Skip / Wild+4</strong> → ton adversaire répond à une question réglementaire<br>
-        • Bonne réponse = pénalité annulée · Mauvaise = cartes piochées<br>
-        • Premier à vider sa main gagne 🏆
-      </div>
-    </div>
-    <button class="btn-gold" style="width:100%;justify-content:center;margin-bottom:10px;font-size:1rem" onclick="caCreateGame()">⚔ Créer une partie</button>
-    <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:2px;color:var(--muted);text-align:center;margin:10px 0">— OU —</div>
-    <input class="ca-input" id="ca-join-code" placeholder="CODE DE LA PARTIE" maxlength="10" oninput="this.value=this.value.toUpperCase()">
-    <button class="btn-ghost" style="width:100%;justify-content:center;margin-top:10px" onclick="caJoinGame()">Rejoindre avec ce code</button>
-    <div id="ca-lobby-err" style="margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#fc8181;text-align:center;min-height:20px"></div>
-  </div>
-
-  <!-- SALLE D'ATTENTE -->
-  <div id="ca-screen-waiting" class="ca-waiting" style="display:none">
-    <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:3px;color:var(--gold);margin-bottom:8px">CODE DE TA PARTIE</div>
-    <div class="ca-code-big" id="ca-waiting-code" onclick="caCopyCode()" title="Cliquer pour copier">———</div>
-    <div style="font-family:'Inter',sans-serif;font-size:.8rem;color:var(--muted);margin:8px 0 24px">Partage ce code à ton adversaire</div>
-    <div id="ca-waiting-status" class="ca-pulse" style="font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:2px;color:var(--muted)">EN ATTENTE D'UN ADVERSAIRE…</div>
-    <div id="ca-waiting-opponent" style="display:none;margin-top:16px">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:2px;color:var(--green);margin-bottom:12px">✓ ADVERSAIRE CONNECTÉ !</div>
-      <button class="btn-gold" style="width:100%;justify-content:center" onclick="caStartGame()">🃏 Lancer la partie</button>
-    </div>
-    <button class="btn-ghost" style="margin-top:20px" onclick="caBackToLobby()">← Annuler</button>
-  </div>
-
-  <!-- PLATEAU DE JEU -->
-  <div id="ca-screen-board" class="ca-board" style="display:none">
-    <!-- Zone adversaire -->
-    <div class="ca-opp-zone">
-      <div class="ca-opp-info">
-        <span id="ca-opp-name">Adversaire</span>
-        <span style="color:var(--gold)" id="ca-opp-flag"></span>
-        <span>·</span>
-        <span id="ca-opp-count">7</span> cartes
-      </div>
-      <div class="ca-opp-cards" id="ca-opp-hand-visual"></div>
-    </div>
-
-    <!-- Centre -->
-    <div class="ca-center-zone">
-      <div class="ca-deck" onclick="caDraw()" id="ca-deck-btn">
-        <span style="font-size:1.4rem">🂠</span>
-        <span id="ca-deck-count">—</span>
-        <span style="font-size:.5rem">PIOCHER</span>
-      </div>
-      <div style="position:relative">
-        <div class="ca-turn-badge" id="ca-turn-badge">TON TOUR</div>
-        <div class="ca-discard" id="ca-discard-top"></div>
-      </div>
-      <div class="ca-msg-bar" id="ca-msg-bar">En attente…</div>
-    </div>
-
-    <!-- Ma main -->
-    <div class="ca-my-zone">
-      <div class="ca-my-info" id="ca-my-info">Ta main</div>
-      <div class="ca-my-hand" id="ca-my-hand"></div>
-    </div>
-  </div>
-
-  <!-- OVERLAY QUESTION -->
-  <div id="ca-q-overlay" class="ca-q-overlay" style="display:none">
-    <div class="ca-q-box">
-      <div class="ca-q-label">⚡ Question réglementaire</div>
-      <div class="ca-q-effect" id="ca-q-effect-label">Si faux → +2 cartes</div>
-      <div class="ca-q-text" id="ca-q-text">…</div>
-      <div class="ca-q-btns">
-        <button class="ca-q-btn vrai" onclick="caAnswer(true)">✅ VRAI</button>
-        <button class="ca-q-btn faux" onclick="caAnswer(false)">❌ FAUX</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- OVERLAY CHOIX COULEUR -->
-  <div id="ca-color-overlay" class="ca-color-overlay" style="display:none">
-    <div class="ca-color-box">
-      <div style="font-family:'Bebas Neue',cursive;font-size:1rem;letter-spacing:2px;color:var(--gold);margin-bottom:6px">CHOISIR UNE COULEUR</div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted);margin-bottom:4px">Quelle couleur veux-tu imposer ?</div>
-      <div class="ca-color-btns">
-        <button class="ca-color-btn ca-c-r" onclick="caChooseColor('r')">COBAC<br><span style="font-size:.6rem;opacity:.7">Rouge</span></button>
-        <button class="ca-color-btn ca-c-b" onclick="caChooseColor('b')">BCEAO<br><span style="font-size:.6rem;opacity:.7">Bleu</span></button>
-        <button class="ca-color-btn ca-c-g" onclick="caChooseColor('g')">OHADA<br><span style="font-size:.6rem;opacity:.7">Vert</span></button>
-        <button class="ca-color-btn ca-c-o" onclick="caChooseColor('o')">CIMA<br><span style="font-size:.6rem;opacity:.7">Or</span></button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ÉCRAN RÉSULTAT -->
-  <div id="ca-screen-result" class="ca-result" style="display:none">
-    <div class="ca-result-trophy" id="ca-result-trophy">🏆</div>
-    <div class="ca-result-title" id="ca-result-title">Victoire !</div>
-    <div style="font-family:'Inter',sans-serif;font-size:.9rem;color:var(--muted);margin:8px 0 28px" id="ca-result-sub"></div>
-    <button class="btn-gold" style="width:100%;justify-content:center;margin-bottom:10px" onclick="caBackToLobby()">🃏 Rejouer</button>
-    <button class="btn-ghost" style="width:100%;justify-content:center" onclick="showPage('landing')">← Accueil</button>
-  </div>
-
 </div>
 
 <!-- ================================================================
@@ -5057,6 +5123,39 @@ const RAPlayer = (() => {
   return { togglePlay, toggleExpand, seek, skip, setVolume, toggleMute };
 })();
 
+/* ── DISCLAIMER ─────────────────────────────────────────── */
+(function(){
+  const band = document.getElementById('ra-disclaimer');
+  if(!band) return;
+  if(localStorage.getItem('ra-disclaimer-dismissed')==='1'){
+    band.remove();
+  } else {
+    document.documentElement.classList.add('has-disclaimer');
+    // Ajustement dynamique basé sur la hauteur réelle du bandeau
+    requestAnimationFrame(()=>{
+      const h = band.offsetHeight;
+      const nav = document.querySelector('nav');
+      if(nav) nav.style.top = h+'px';
+      document.querySelectorAll('.page-top').forEach(el => el.style.marginTop = (53+h)+'px');
+    });
+  }
+})();
+
+function dismissDisclaimer(){
+  const band = document.getElementById('ra-disclaimer');
+  if(!band) return;
+  localStorage.setItem('ra-disclaimer-dismissed','1');
+  band.style.transition='transform .3s ease';
+  band.style.transform='translateY(-100%)';
+  setTimeout(()=>{
+    band.remove();
+    document.documentElement.classList.remove('has-disclaimer');
+    const nav = document.querySelector('nav');
+    if (nav) nav.style.top = '0';
+    document.querySelectorAll('.page-top').forEach(el => el.style.marginTop = '');
+  },320);
+}
+
 /* ── TUTORIAL MODAL ─────────────────────────────────────── */
 function openTuto(){
   document.getElementById('ra-tuto-overlay').classList.add('open');
@@ -5088,7 +5187,7 @@ document.getElementById('ra-tuto-overlay').addEventListener('click',function(e){
     <div style="background:var(--navy-dim);border:1px solid rgba(0,43,92,.4);border-radius:3px;padding:16px;margin-bottom:18px">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
         <span style="font-size:1rem">📧</span>
-        <a href="/privacy.html?subject=Accès%20Institution%20REGUL%20ARENA" style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--gold);text-decoration:none;letter-spacing:1px">/cgu.html</a>
+        <a href="mailto:contact@regularena.com?subject=Accès%20Institution%20REGUL%20ARENA" style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--gold);text-decoration:none;letter-spacing:1px">contact@regularena.com</a>
       </div>
       <div style="display:flex;align-items:center;gap:10px">
         <span style="font-size:1rem">📞</span>
@@ -5099,7 +5198,7 @@ document.getElementById('ra-tuto-overlay').addEventListener('click',function(e){
       <strong style="color:var(--gold)">Objet suggéré :</strong> "Accès Institution — [Nom de votre organisation]"<br>
       <strong style="color:var(--gold)">À préciser :</strong> nombre d'utilisateurs, pays, type d'institution
     </div>
-    <button class="btn-gold" style="width:100%;justify-content:center" onclick="window.location='/privacy.html?subject=Accès%20Institution%20REGUL%20ARENA'">Envoyer un email →</button>
+    <button class="btn-gold" style="width:100%;justify-content:center" onclick="window.location='mailto:contact@regularena.com?subject=Accès%20Institution%20REGUL%20ARENA'">Envoyer un email →</button>
     <div style="text-align:center;margin-top:10px"><span style="font-size:.72rem;color:var(--muted);cursor:pointer" onclick="closeInstitutionContact()">Fermer</span></div>
   </div>
 </div>
@@ -5794,13 +5893,7 @@ function _apiFetch(url, opts){
     opts.headers['Content-Type'] = 'application/json';
     opts.body = JSON.stringify(opts.body);
   }
-  return fetch(url, opts).then(function(r){
-    return r.json().then(function(data){
-      data._httpStatus = r.status;
-      data.ok = r.ok && data.success !== false;
-      return data;
-    });
-  });
+  return fetch(url, opts).then(function(r){ return r.json(); });
 }
 
 /* ── navigation interne ─────────────────────────────────── */
@@ -5909,20 +6002,11 @@ window.raT_loadList = function(){
   elOpen.innerHTML = '<div class="rat-empty">Chargement…</div>';
   elMine.innerHTML = '<div class="rat-empty">Chargement…</div>';
   _apiFetch('/tournament/list').then(function(r){
-    if(!r.ok){
-      var msg = r._httpStatus === 401
-        ? '<div class="rat-empty">Connecte-toi pour voir les tournois</div>'
-        : '<div class="rat-empty">Erreur chargement — ' + (r.error || '?') + '</div>';
-      elOpen.innerHTML = msg;
-      elMine.innerHTML = msg;
-      return;
-    }
+    if(!r.ok){ elOpen.innerHTML = '<div class="rat-empty">Erreur chargement</div>'; return; }
     _renderList(elOpen, r.open || []);
     _renderList(elMine, r.mine || []);
   }).catch(function(){
-    var msg = '<div class="rat-empty">Erreur réseau</div>';
-    elOpen.innerHTML = msg;
-    elMine.innerHTML = msg;
+    elOpen.innerHTML = '<div class="rat-empty">Erreur réseau</div>';
   });
 };
 
@@ -6501,330 +6585,5 @@ window.addEventListener('orientationchange', function() { // ORIENTATION AJOUT
     </div> <!-- MODIFIÉ -->
   </div> <!-- MODIFIÉ -->
 </div> <!-- MODIFIÉ -->
-
-<script>
-/* ================================================================
-   COUMBA ARENA — Frontend JS
-================================================================ */
-(function(){
-'use strict';
-
-const CA = {
-  code: null,
-  myPlayer: null,
-  pollTimer: null,
-  pendingCardIndex: null,
-  pendingCardVal: null,
-  lastMsg: '',
-  isMyTurn: false,
-};
-
-const COLOR_LABEL = {r:'COBAC',b:'BCEAO',g:'OHADA',o:'CIMA',w:'JOKER'};
-const COLOR_EMOJI  = {r:'🔴',b:'🔵',g:'🟢',o:'🟡',w:'⬛'};
-const VAL_LABEL    = {'+2':'+2','sk':'SKIP','+4':'+4','w':'WILD'};
-
-function caScreen(name){
-  ['lobby','waiting','board','result'].forEach(s=>{
-    const el=document.getElementById('ca-screen-'+s);
-    if(el) el.style.display = s===name?'':'none';
-  });
-  document.getElementById('ca-q-overlay').style.display='none';
-  document.getElementById('ca-color-overlay').style.display='none';
-}
-
-function caErr(msg){
-  const el=document.getElementById('ca-lobby-err');
-  if(el) el.textContent=msg;
-}
-
-window.caBackToLobby=function(){
-  caPollStop();
-  CA.code=null; CA.myPlayer=null;
-  caScreen('lobby');
-  caErr('');
-};
-
-window.caCreateGame=async function(){
-  const jwt=localStorage.getItem('ra_jwt');
-  if(!jwt){if(typeof openGate==='function')openGate();return;}
-  caErr('');
-  try{
-    const r=await fetch('/coumba',{method:'POST',headers:{'Authorization':'Bearer '+jwt,'Content-Type':'application/json'},body:'{}'});
-    const d=await r.json();
-    if(!d.success)return caErr(d.error||'Erreur');
-    CA.code=d.code; CA.myPlayer=1;
-    document.getElementById('ca-waiting-code').textContent=d.code;
-    document.getElementById('ca-waiting-status').style.display='block';
-    document.getElementById('ca-waiting-opponent').style.display='none';
-    caScreen('waiting');
-    caPollWaiting();
-  }catch(e){caErr('Erreur réseau');}
-};
-
-window.caJoinGame=async function(){
-  const jwt=localStorage.getItem('ra_jwt');
-  if(!jwt){if(typeof openGate==='function')openGate();return;}
-  const code=document.getElementById('ca-join-code').value.trim().toUpperCase();
-  if(!code)return caErr('Saisis un code de partie');
-  caErr('');
-  try{
-    const r=await fetch('/coumba/'+code+'/join',{method:'POST',headers:{'Authorization':'Bearer '+jwt,'Content-Type':'application/json'},body:'{}'});
-    const d=await r.json();
-    if(!d.success)return caErr(d.error||'Partie introuvable');
-    CA.code=code; CA.myPlayer=2;
-    caPollStart();
-  }catch(e){caErr('Erreur réseau');}
-};
-
-window.caStartGame=async function(){
-  const jwt=localStorage.getItem('ra_jwt');
-  if(!jwt)return;
-  try{
-    const r=await fetch('/coumba/'+CA.code+'/start',{method:'POST',headers:{'Authorization':'Bearer '+jwt,'Content-Type':'application/json'},body:'{}'});
-    const d=await r.json();
-    if(!d.success)return alert(d.error||'Erreur démarrage');
-    caPollStart();
-  }catch(e){alert('Erreur réseau');}
-};
-
-window.caCopyCode=function(){
-  const code=document.getElementById('ca-waiting-code').textContent;
-  navigator.clipboard&&navigator.clipboard.writeText(code);
-  document.getElementById('ca-waiting-code').textContent='COPIÉ !';
-  setTimeout(()=>{document.getElementById('ca-waiting-code').textContent=code;},1500);
-};
-
-/* ── Polling ── */
-function caPollStop(){clearInterval(CA.pollTimer);CA.pollTimer=null;}
-
-function caPollWaiting(){
-  caPollStop();
-  CA.pollTimer=setInterval(async()=>{
-    const jwt=localStorage.getItem('ra_jwt');
-    if(!jwt||!CA.code)return;
-    try{
-      const r=await fetch('/coumba/'+CA.code+'/state',{headers:{'Authorization':'Bearer '+jwt}});
-      const d=await r.json();
-      if(!d.success)return;
-      const s=d;
-      if(s.player2){
-        document.getElementById('ca-waiting-status').style.display='none';
-        document.getElementById('ca-waiting-opponent').style.display='block';
-        document.getElementById('ca-waiting-opponent').querySelector('.btn-gold').textContent='🃏 Lancer la partie';
-      }
-      if(s.status==='active'){caPollStop();caPollStart();}
-    }catch(_){}
-  },3000);
-}
-
-function caPollStart(){
-  caPollStop();
-  CA.pollTimer=setInterval(()=>caFetchState(),2500);
-  caFetchState();
-}
-
-async function caFetchState(){
-  const jwt=localStorage.getItem('ra_jwt');
-  if(!jwt||!CA.code)return;
-  try{
-    const r=await fetch('/coumba/'+CA.code+'/state',{headers:{'Authorization':'Bearer '+jwt}});
-    const d=await r.json();
-    if(!d.success)return;
-    CA.myPlayer=d.my_player;
-    caRender(d);
-  }catch(_){}
-}
-
-/* ── Rendu ── */
-function caRender(s){
-  if(s.status==='finished'||s.winner_id){
-    caPollStop();
-    caScreen('result');
-    const jwt=localStorage.getItem('ra_jwt');
-    let myId=null;
-    try{const p=JSON.parse(atob(jwt.split('.')[1]));myId=p.id;}catch(_){}
-    const iWon=s.winner_id===myId;
-    document.getElementById('ca-result-trophy').textContent=iWon?'🏆':'😔';
-    document.getElementById('ca-result-title').textContent=iWon?'VICTOIRE !':'DÉFAITE';
-    document.getElementById('ca-result-sub').textContent=iWon?'Tu as vidé ta main en premier !':'Ton adversaire a vidé sa main en premier.';
-    return;
-  }
-  if(s.status==='active'){
-    caScreen('board');
-    // Adversaire
-    const opp=CA.myPlayer===1?s.player2:s.player1;
-    document.getElementById('ca-opp-name').textContent=opp?opp.name:'Adversaire';
-    document.getElementById('ca-opp-count').textContent=s.opp_count;
-    const oppHand=document.getElementById('ca-opp-hand-visual');
-    oppHand.innerHTML='';
-    const shown=Math.min(s.opp_count,10);
-    for(let i=0;i<shown;i++){
-      const c=document.createElement('div');
-      c.className='ca-card-back';
-      c.textContent='🂠';
-      oppHand.appendChild(c);
-    }
-    // Pioche
-    document.getElementById('ca-deck-count').textContent=s.deck_count;
-    const deckBtn=document.getElementById('ca-deck-btn');
-    deckBtn.style.opacity=s.is_my_turn&&!s.pending?'1':'0.4';
-    // Défausse
-    const top=s.top_card;
-    const discEl=document.getElementById('ca-discard-top');
-    if(top){
-      discEl.className='ca-discard ca-c-'+top.c;
-      discEl.innerHTML=caCardHTML(top,false,false);
-    }
-    // Badge tour
-    const badge=document.getElementById('ca-turn-badge');
-    badge.textContent=s.is_my_turn?'TON TOUR':'TOUR ADVERSAIRE';
-    badge.style.color=s.is_my_turn?'var(--gold)':'var(--muted)';
-    // Message
-    const msgBar=document.getElementById('ca-msg-bar');
-    if(s.msg&&s.msg!==CA.lastMsg){
-      CA.lastMsg=s.msg;
-      msgBar.textContent=s.msg;
-    }
-    // Ma main
-    CA.isMyTurn=s.is_my_turn;
-    const myInfo=document.getElementById('ca-my-info');
-    myInfo.textContent='Ta main — '+s.my_hand.length+' carte'+(s.my_hand.length>1?'s':'');
-    const myHandEl=document.getElementById('ca-my-hand');
-    myHandEl.innerHTML='';
-    s.my_hand.forEach((card,i)=>{
-      const playable=s.is_my_turn&&!s.pending&&caCanPlayFront(card,top);
-      const btn=document.createElement('button');
-      btn.className='ca-card ca-c-'+card.c+(playable?' playable':' not-playable');
-      btn.innerHTML=caCardHTML(card,true,playable);
-      btn.title=caCardTitle(card);
-      btn.setAttribute('aria-label',caCardTitle(card));
-      if(playable) btn.onclick=()=>caPlayCard(i,card);
-      myHandEl.appendChild(btn);
-    });
-    // Question en attente
-    if(s.pending){
-      document.getElementById('ca-q-text').textContent=s.pending.q;
-      const eff=s.pending.effect;
-      const effLabel=eff==='+2'?'Si faux → +2 cartes à piocher':eff==='+4'?'Si faux → +4 cartes à piocher':eff==='sk'?'Si faux → ton tour est passé':'';
-      document.getElementById('ca-q-effect-label').textContent=effLabel;
-      document.getElementById('ca-q-overlay').style.display='flex';
-    } else {
-      document.getElementById('ca-q-overlay').style.display='none';
-    }
-  } else if(s.status==='joined'&&CA.myPlayer===2){
-    // Joueur 2 rejoint, attend que P1 démarre
-    caScreen('waiting');
-    document.getElementById('ca-waiting-code').textContent=CA.code;
-    document.getElementById('ca-waiting-status').style.display='none';
-    document.getElementById('ca-waiting-opponent').style.display='block';
-    document.getElementById('ca-waiting-opponent').querySelector('.btn-gold').style.display='none';
-    document.getElementById('ca-waiting-opponent').innerHTML='<div style="font-family:\'JetBrains Mono\',monospace;font-size:.7rem;letter-spacing:2px;color:var(--muted)" class="ca-pulse">En attente du lancement par le créateur…</div>';
-  }
-}
-
-function caCanPlayFront(card,top){
-  if(!top)return true;
-  if(card.v==='w'||card.v==='+4')return true;
-  return card.c===top.c||card.v===top.v;
-}
-
-function caCardHTML(card,showLabel,playable){
-  const val=VAL_LABEL[card.v]||card.v;
-  const lbl=card.c==='w'?'JOKER':COLOR_LABEL[card.c]||'';
-  return '<span class="ca-card-val">'+val+'</span><span class="ca-card-lbl">'+lbl+'</span>';
-}
-
-function caCardTitle(card){
-  const lbl=COLOR_LABEL[card.c]||card.c;
-  const val=VAL_LABEL[card.v]||card.v;
-  return lbl+' '+val;
-}
-
-/* ── Actions ── */
-window.caPlayCard=function(idx,card){
-  if(!CA.isMyTurn)return;
-  if(card.v==='w'||card.v==='+4'){
-    CA.pendingCardIndex=idx;
-    CA.pendingCardVal=card.v;
-    document.getElementById('ca-color-overlay').style.display='flex';
-    return;
-  }
-  caSendPlay(idx,null);
-};
-
-window.caChooseColor=function(color){
-  document.getElementById('ca-color-overlay').style.display='none';
-  caSendPlay(CA.pendingCardIndex,color);
-};
-
-async function caSendPlay(idx,color){
-  const jwt=localStorage.getItem('ra_jwt');
-  if(!jwt||!CA.code)return;
-  const body={card_index:idx};
-  if(color)body.chosen_color=color;
-  try{
-    const r=await fetch('/coumba/'+CA.code+'/play',{method:'POST',headers:{'Authorization':'Bearer '+jwt,'Content-Type':'application/json'},body:JSON.stringify(body)});
-    const d=await r.json();
-    if(!d.success)return showToast&&showToast(d.error||'Erreur',3000);
-    caFetchState();
-  }catch(e){console.error(e);}
-}
-
-window.caDraw=async function(){
-  if(!CA.isMyTurn)return;
-  const jwt=localStorage.getItem('ra_jwt');
-  if(!jwt||!CA.code)return;
-  try{
-    const r=await fetch('/coumba/'+CA.code+'/draw',{method:'POST',headers:{'Authorization':'Bearer '+jwt,'Content-Type':'application/json'},body:'{}'});
-    const d=await r.json();
-    if(!d.success)return;
-    caFetchState();
-  }catch(e){console.error(e);}
-};
-
-window.caAnswer=async function(answer){
-  document.getElementById('ca-q-overlay').style.display='none';
-  const jwt=localStorage.getItem('ra_jwt');
-  if(!jwt||!CA.code)return;
-  try{
-    const r=await fetch('/coumba/'+CA.code+'/answer',{method:'POST',headers:{'Authorization':'Bearer '+jwt,'Content-Type':'application/json'},body:JSON.stringify({answer})});
-    const d=await r.json();
-    if(d.success){
-      const msg=d.correct?'✅ Bonne réponse ! Pénalité annulée.':'❌ Mauvaise réponse. La réponse était : '+(d.correct_answer?'VRAI':'FAUX');
-      const msgBar=document.getElementById('ca-msg-bar');
-      if(msgBar){msgBar.textContent=msg;CA.lastMsg='';}
-    }
-    caFetchState();
-  }catch(e){console.error(e);}
-};
-
-/* Arrêt du polling quand on quitte la page */
-const _origShowPage=typeof showPage==='function'?showPage:null;
-if(_origShowPage){
-  window.showPage=function(p){
-    if(p!=='coumba')caPollStop();
-    _origShowPage(p);
-    if(p==='coumba'){caScreen('lobby');caErr('');}
-  };
-}
-
-})();
-</script>
-
-<!-- ── PWA Service Worker ────────────────────────────────── -->
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function () {
-    navigator.serviceWorker.register('/sw.js')
-      .then(function (reg) {
-        console.log('[PWA] Service worker enregistré :', reg.scope);
-      })
-      .catch(function (err) {
-        console.warn('[PWA] Échec enregistrement SW :', err);
-      });
-  });
-}
-</script>
-<!-- ──────────────────────────────────────────────────────── -->
 </body>
 </html>
