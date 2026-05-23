@@ -1131,16 +1131,30 @@ input,select,textarea{font-size:max(16px,.84rem)!important}
 /* ── FIN TOURNOI AJOUT styles ────────────────────────────── */
 
 /* ── LOGO AJOUT ──────────────────────────────────────────── */
-#ra-topbar { /* LOGO AJOUT */
-  position: fixed; top: 52px; left: 0; right: 0; z-index: 150; /* MODIFIÉ — top:52px = hauteur exacte du nav (padding:14px×2 + logo:24px), z-index:150 < nav:200 */
-  background: #002B5C; height: 32px; /* MODIFIÉ — réduit à 32px max comme demandé */
+#ra-topbar {
+  position: fixed; top: 52px; left: 0; right: 0; z-index: 150;
+  background: linear-gradient(90deg, #001a3a 0%, #002B5C 50%, #001a3a 100%);
+  height: 36px;
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0 16px; box-shadow: 0 2px 8px rgba(0,0,0,.4);
-  overflow: hidden; /* MODIFIÉ — empêche tout débordement vertical du logo/texte */
-} /* LOGO AJOUT */
-#ra-topbar-logo { height: 24px; width: auto; object-fit: contain; flex-shrink: 0; } /* MODIFIÉ — 24px pour tenir dans 32px sans débordement */
-#ra-topbar-stats { display: flex; gap: 14px; font-family: 'Inter',sans-serif; font-size: 11px; color: #F5F3EE; line-height: 1; } /* MODIFIÉ — line-height:1 évite tout débordement vertical */
-#ra-topbar-stats strong { color: #C9991A; } /* LOGO AJOUT */
+  padding: 0 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.5), inset 0 -1px 0 rgba(201,153,26,.3);
+  overflow: hidden;
+}
+#ra-topbar-logo { height: 22px; width: auto; object-fit: contain; flex-shrink: 0; opacity: .9; }
+#ra-topbar-stats {
+  display: flex; gap: 16px;
+  font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500;
+  color: #EEF0F5; line-height: 1; letter-spacing: .3px;
+}
+#ra-topbar-stats span {
+  display: flex; align-items: center; gap: 5px;
+  padding: 3px 10px;
+  background: rgba(201,153,26,.12);
+  border: 1px solid rgba(201,153,26,.25);
+  border-radius: 2px;
+  white-space: nowrap;
+}
+#ra-topbar-stats strong { color: #E8B520; font-weight: 700; font-size: 13px; }
 
 #ra-ticker-wrap { /* LOGO AJOUT */
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; /* MODIFIÉ — z-index abaissé à 100, sous nav (200) et modales, ne bloque plus les boutons */
@@ -1157,12 +1171,12 @@ input,select,textarea{font-size:max(16px,.84rem)!important}
 #ra-ticker span::before { content: '◆ '; color: #C9991A; } /* LOGO AJOUT */
 @keyframes ra-scroll { from { transform: translateX(100vw); } to { transform: translateX(-100%); } } /* LOGO AJOUT */
 
-body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIFIÉ — 52px nav + 32px topbar = 84px exact, zéro superposition */
+body { padding-top: 88px !important; padding-bottom: 32px !important; } /* topbar 36px + nav 52px = 88px */
 
 @media (orientation: landscape) and (max-height: 500px) { /* LOGO AJOUT */
-  #ra-topbar { height: 28px; top: 40px; } /* MODIFIÉ — nav ~40px en landscape + topbar 28px */
+  #ra-topbar { height: 30px; top: 40px; }
   #ra-topbar-logo { height: 20px; } /* MODIFIÉ */
-  body { padding-top: 68px !important; } /* MODIFIÉ — 40px nav + 28px topbar = 68px */
+  body { padding-top: 70px !important; } /* 40px nav + 30px topbar */
   #ra-topbar-stats span:nth-child(3) { display: none; } /* LOGO AJOUT */
 } /* LOGO AJOUT */
 /* ── FIN LOGO AJOUT ──────────────────────────────────────── */
