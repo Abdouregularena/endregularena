@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 /* ================================================================
    REGUL ARENA â€” Backend API
@@ -1078,11 +1078,13 @@ app.post('/tournament/match/:matchId/record', requireAuth, (req, res) => { // TO
   if (!winner_id) return err(res, 400, 'winner_id requis'); // TOURNOI AJOUT
   const match = db.prepare('SELECT * FROM tournament_matches WHERE id = ?').get(matchId); // TOURNOI AJOUT
   if (!match) return err(res, 404, 'Match introuvable'); // TOURNOI AJOUT
-  if (match.player1_id !== req.user.id && match.player2_id !== req.user.id) {
-    return err(res, 403, 'Seul un joueur du match peut enregistrer le résultat');
-  }
   const wId = Number(winner_id); // TOURNOI AJOUT
-  if (match.player1_id !== wId && match.player2_id !== wId) return err(res, 400, 'winner_id doit être player1_id ou player2_id'); // TOURNOI AJOUT
+  if (wId !== req.user.id) return err(res, 403, 'Tu ne peux déclarer que ta propre victoire');
+  if (match.player1_id !== wId && match.player2_id !== wId) return err(res, 400, 'winner_id invalide');
+  if (match.duel_code) {
+    const duel = db.prepare('SELECT status FROM duels WHERE code = ?').get(match.duel_code);
+    if (!duel || duel.status !== 'finished') return err(res, 400, 'Duel pas encore terminé');
+  }
   db.prepare('UPDATE tournament_matches SET winner_id = ?, status = ? WHERE id = ?').run(wId, 'done', matchId); // TOURNOI AJOUT
   return ok(res, { message: 'Résultat enregistré' }); // TOURNOI AJOUT
 }); // TOURNOI AJOUT
@@ -1461,6 +1463,26 @@ app.get('/api/quiz/uemoa/:packId', (req, res) => {
 app.get('/revision/uemoa', (req, res) => {
   res.sendFile(path.join(__dirname, 'regul_arena_quiz_uemoa_officiel.html'));
 });
+
+/* ── PWA / TWA ─────────────────────────────────────────────────────── */
+/* Sert le dossier .well-known (dotfiles bloqués par Express par défaut) */
+app.use('/.well-known', express.static(path.join(__dirname, 'public', '.well-known'), {
+  dotfiles: 'allow'
+}));
+
+/* Forcer le bon Content-Type pour manifest.json et sw.js */
+app.get('/manifest.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/manifest+json');
+  res.sendFile(path.join(__dirname, 'public', 'manifest.json'));
+});
+
+app.get('/sw.js', (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript');
+  res.setHeader('Service-Worker-Allowed', '/');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.sendFile(path.join(__dirname, 'public', 'sw.js'));
+});
+/* ─────────────────────────────────────────────────────────────────── */
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('/api', (req, res) => res.json({ status: 'ok', message: 'API REGUL ARENA en ligne' }));
