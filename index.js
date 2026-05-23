@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 /* ================================================================
    REGUL ARENA â€” Backend API
@@ -215,7 +215,7 @@ db.exec(`
 
 /* ── NOTIFICATIONS HELPER ──────────────────────────────────────────── */
 function notifyAllExcept(excludeUserId, type, message) {
-  const users = db.prepare('SELECT id FROM users WHERE email_verified = 1 AND id != ?').all(excludeUserId);
+  const users = db.prepare('SELECT id FROM users WHERE email_verified = 1 AND id != ? ORDER BY RANDOM() LIMIT 50').all(excludeUserId);
   const insert = db.prepare('INSERT INTO notifications (user_id, type, message) VALUES (?, ?, ?)');
   const tx = db.transaction(() => { users.forEach(u => insert.run(u.id, type, message)); });
   tx();
@@ -237,7 +237,7 @@ function signJWT(user) {
     { id: user.id, email: user.email, name: user.name, profile: user.profile,
       is_verified: user.email_verified === 1 },
     JWT_SECRET,
-    { expiresIn: '30d' }
+    { expiresIn: '7d' }
   );
 }
 
@@ -307,6 +307,9 @@ app.post('/auth/register', limiterStrict, async (req, res) => {
    
   if (!name || !email) return err(res, 400, 'Nom et email requis');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return err(res, 400, 'Email invalide');
+   const BLOCKED_DOMAINS = ['gmail.com','yahoo.com','hotmail.com','outlook.com','live.com','icloud.com','yahoo.fr','hotmail.fr','orange.fr','wanadoo.fr'];
+  const emailDomain = email.trim().toLowerCase().split('@')[1];
+  if (BLOCKED_DOMAINS.includes(emailDomain)) return err(res, 400, 'Email institutionnel requis (banque, régulateur, université)');
   if (name.length < 2 || name.length > 80) return err(res, 400, 'Nom invalide');
 
   const cleanName  = name.trim();
@@ -958,7 +961,10 @@ app.get('/tournament/list', requireAuth, (req, res) => { // TOURNOI AJOUT
 /* POST /tournament/qualify */
 app.post('/tournament/qualify', requireAuth, (req, res) => { // TOURNOI AJOUT
   const { tournament_id, score, total, questions_json } = req.body || {}; // TOURNOI AJOUT
-  if (!tournament_id || score == null || total == null) return err(res, 400, 'tournament_id, score, total requis'); // TOURNOI AJOUT
+  if (!tournament_id || score == null || total == null) return err(res, 400, 'tournament_id, score, total requis')
+     if (Number(score) < 0 || Number(score) > Number(total)) return err(res, 400, 'Score invalide'); // SECURITE FIX
+  if (Number(total) <= 0 || Number(total) > 20) return err(res, 400, 'Total invalide'); // SECURITE FIX
+  if (Number(score) > 2000) return err(res, 400, 'Score suspect'); // SECURITE FIX; // TOURNOI AJOUT
   const t = db.prepare('SELECT * FROM tournaments WHERE id = ?').get(Number(tournament_id)); // TOURNOI AJOUT
   if (!t) return err(res, 404, 'Tournoi introuvable'); // TOURNOI AJOUT
   if (!['qualif','waiting'].includes(t.status)) return err(res, 400, 'Phase de qualification non active'); // TOURNOI AJOUT
@@ -1078,11 +1084,12 @@ app.post('/tournament/match/:matchId/record', requireAuth, (req, res) => { // TO
   if (!winner_id) return err(res, 400, 'winner_id requis'); // TOURNOI AJOUT
   const match = db.prepare('SELECT * FROM tournament_matches WHERE id = ?').get(matchId); // TOURNOI AJOUT
   if (!match) return err(res, 404, 'Match introuvable'); // TOURNOI AJOUT
-  if (match.player1_id !== req.user.id && match.player2_id !== req.user.id) {
-    return err(res, 403, 'Seul un joueur du match peut enregistrer le résultat');
-  }
   const wId = Number(winner_id); // TOURNOI AJOUT
-  if (match.player1_id !== wId && match.player2_id !== wId) return err(res, 400, 'winner_id doit être player1_id ou player2_id'); // TOURNOI AJOUT
+  if (wId !== req.user.id) return err(res, 403, 'Tu ne peux déclarer que ta propre victoire');
+  if (match.player1_id !== wId && match.player2_id !== wId) return err(res, 400, 'winner_id invalide');
+ if (!match.duel_code) return err(res, 400, 'Duel non associé à ce match'); // SECURITE FIX
+  const duel = db.prepare('SELECT status FROM duels WHERE code = ?').get(match.duel_code);
+  if (!duel || duel.status !== 'finished') return err(res, 400, 'Duel pas encore terminé');
   db.prepare('UPDATE tournament_matches SET winner_id = ?, status = ? WHERE id = ?').run(wId, 'done', matchId); // TOURNOI AJOUT
   return ok(res, { message: 'Résultat enregistré' }); // TOURNOI AJOUT
 }); // TOURNOI AJOUT
@@ -1461,6 +1468,26 @@ app.get('/api/quiz/uemoa/:packId', (req, res) => {
 app.get('/revision/uemoa', (req, res) => {
   res.sendFile(path.join(__dirname, 'regul_arena_quiz_uemoa_officiel.html'));
 });
+
+/* ── PWA / TWA ─────────────────────────────────────────────────────── */
+/* Sert le dossier .well-known (dotfiles bloqués par Express par défaut) */
+app.use('/.well-known', express.static(path.join(__dirname, 'public', '.well-known'), {
+  dotfiles: 'allow'
+}));
+
+/* Forcer le bon Content-Type pour manifest.json et sw.js */
+app.get('/manifest.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/manifest+json');
+  res.sendFile(path.join(__dirname, 'public', 'manifest.json'));
+});
+
+app.get('/sw.js', (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript');
+  res.setHeader('Service-Worker-Allowed', '/');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.sendFile(path.join(__dirname, 'public', 'sw.js'));
+});
+/* ─────────────────────────────────────────────────────────────────── */
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('/api', (req, res) => res.json({ status: 'ok', message: 'API REGUL ARENA en ligne' }));

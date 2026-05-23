@@ -17,11 +17,18 @@
 <meta name="twitter:description" content="Formation gamifiée sur la réglementation bancaire BCEAO, BEAC & COBAC. 100% gratuit.">
 <meta name="twitter:image" content="https://regularena.com/og-image.png">
 <meta name="theme-color" content="#002B5C">
+<!-- ── PWA / TWA ─────────────────────────────────────────── -->
+<link rel="manifest" href="/manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="REGUL ARENA">
+<!-- ──────────────────────────────────────────────────────── -->
 <title>REGUL ARENA — Maîtrise Réglementaire Bancaire UEMOA & CEMAC</title>
 <link rel="canonical" href="https://regularena.com">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="apple-touch-icon" href="/icons/icon-192x192.png">
 <meta name="robots" content="index, follow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -56,15 +63,15 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .orb-c{width:400px;height:400px;top:30%;right:-80px;background:radial-gradient(circle,rgba(34,211,238,.04),transparent 70%);animation-delay:-5s}
 
 /* ── NAV ─────────────────────────────────────────────────── */
-nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:14px 40px;background:rgba(3,5,10,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--gb)}
-nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-f),var(--navy-dim),var(--gold-f),transparent)}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:14px 40px;background:#001E42;backdrop-filter:blur(20px);border-bottom:2px solid #C9991A} /* MODIFIÉ — #001E42 plus profond, border-bottom gold */
+nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:0} /* MODIFIÉ — ligne décorative supprimée, remplacée par border-bottom gold */
 .nav-logo{font-family:'Bebas Neue',cursive;font-size:1.5rem;letter-spacing:3px;color:var(--gold);text-decoration:none;flex-shrink:0;cursor:pointer}
 .nav-logo span{color:var(--text)}
 .nav-links{display:flex;gap:4px;list-style:none}
-.nav-links button{background:none;border:none;cursor:pointer;color:var(--muted);font-family:'Inter',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:8px 12px;border-radius:2px;transition:all .2s}
+.nav-links button{background:none;border:none;cursor:pointer;color:#FFFFFF;font-family:'Inter',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:8px 12px;border-radius:2px;transition:all .2s} /* MODIFIÉ — texte nav #FFFFFF font-weight 600 */
 .nav-links button:hover,.nav-links button.active{color:var(--gold);background:var(--gold-dim)}
 .nav-right{display:flex;align-items:center;gap:10px}
-#ra-quiz-pill{display:none;align-items:center;gap:7px;background:var(--gold-dim);border:1px solid var(--border);border-radius:20px;padding:5px 13px;font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase}
+#ra-quiz-pill{display:none;align-items:center;gap:7px;background:#C9991A;border:none;border-radius:12px;padding:2px 10px;font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:1.5px;color:#001E42;font-weight:700;text-transform:uppercase} /* MODIFIÉ — fond #C9991A, texte #001E42, border-radius 12px, font-weight 700 */
 .nav-cta{background:linear-gradient(135deg,var(--gold),var(--gold-l));color:var(--bg) !important;font-family:'Montserrat',sans-serif;font-weight:800;font-size:.75rem;letter-spacing:1px;padding:9px 18px;border:none;cursor:pointer;border-radius:2px;clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);transition:all .2s}
 .nav-cta:hover{box-shadow:0 4px 20px var(--gold-glow);transform:translateY(-1px)}
 
@@ -270,23 +277,6 @@ nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;backg
 .chat-input:focus{border-color:var(--border)}
 .chat-send{background:var(--gold);color:var(--bg);border:none;padding:9px 14px;cursor:pointer;border-radius:2px;font-size:.9rem;transition:background .2s}
 .chat-send:hover{background:var(--gold-l)}
-/* ── CHAT GÉNÉRAL FLOTTANT ───────────────────────────────── */
-#gchat-widget{position:fixed;bottom:80px;right:20px;width:320px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;z-index:500;display:none;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.5)}
-#gchat-widget.open{display:flex}
-.gchat-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--sep);font-family:'Bebas Neue',cursive;font-size:.85rem;letter-spacing:2px;color:var(--gold)}
-.gchat-close{background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;line-height:1;transition:color .2s}
-.gchat-close:hover{color:var(--text)}
-#gchat-messages{height:220px;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:7px}
-#gchat-messages::-webkit-scrollbar{width:4px}
-#gchat-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-#gchat-input-wrap{display:flex;gap:7px;padding:11px;border-top:1px solid var(--sep)}
-#gchat-input{flex:1;background:var(--bg);border:1px solid var(--gb);color:var(--text);font-family:'Inter',sans-serif;font-size:.8rem;padding:9px 13px;border-radius:2px;outline:none;transition:border-color .2s}
-#gchat-input:focus{border-color:var(--border)}
-.gchat-send-btn{background:var(--gold);color:var(--bg);border:none;padding:9px 14px;cursor:pointer;border-radius:2px;font-size:.9rem;transition:background .2s}
-.gchat-send-btn:hover{background:var(--gold-l)}
-#gchat-toggle-btn{position:fixed;bottom:20px;right:20px;width:50px;height:50px;border-radius:50%;background:var(--gold);color:var(--bg);border:none;font-size:1.3rem;cursor:pointer;z-index:501;box-shadow:0 4px 16px rgba(0,0,0,.4);transition:background .2s;display:none;align-items:center;justify-content:center}
-#gchat-toggle-btn.visible{display:flex}
-#gchat-toggle-btn:hover{background:var(--gold-l)}
 .notif-item{display:flex;align-items:flex-start;gap:11px;padding:13px 15px;border-bottom:1px solid var(--sep);transition:background .2s;cursor:pointer}
 .notif-item:hover{background:var(--gold-dim)}
 .notif-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
@@ -468,7 +458,6 @@ footer{display:flex;align-items:center;justify-content:space-between;border-top:
 
 @media(max-width:900px){
   .nav-hamburger{display:flex}
-  .has-disclaimer .mobile-nav{top:83px}
   .feedback-grid{grid-template-columns:1fr}
   .sponsors-banner{padding:14px 0}
   nav{padding:12px 18px}
@@ -490,7 +479,6 @@ footer{display:flex;align-items:center;justify-content:space-between;border-top:
   .ra-steps-inner{grid-template-columns:1fr}
   .ra-steps-band{padding:16px 18px}
   .ra-contact-footer{padding:30px 18px}
-  .ra-disclaimer-band{font-size:.55rem;padding:7px 40px 7px 14px}
 }
 
 /* ── ANIMATIONS ──────────────────────────────────────────── */
@@ -513,29 +501,33 @@ footer{display:flex;align-items:center;justify-content:space-between;border-top:
 
 /* ── AUDIO PLAYER FLOTTANT ───────────────────────────────── */
 #ra-audio-player{
-  position:fixed;bottom:28px;right:28px;z-index:500;
-  background:var(--glass);backdrop-filter:blur(20px);
-  border:1px solid var(--border);border-radius:3px;
-  box-shadow:0 8px 40px var(--gold-glow);
+  position:fixed;bottom:80px;right:16px;z-index:900; /* MODIFIÉ — fixed bottom-right, plus de chevauchement texte hero */
+  background:#C9991A; /* MODIFIÉ — fond doré, cercle compact */
+  border:none;border-radius:50%; /* MODIFIÉ — bouton circulaire */
+  box-shadow:0 2px 8px rgba(0,0,0,.35); /* MODIFIÉ — shadow légère */
   overflow:hidden;transition:all .35s cubic-bezier(.4,0,.2,1);
-  width:52px;
+  width:36px;height:36px; /* MODIFIÉ — réduit à 36px */
+  opacity:.75; /* MODIFIÉ — discret au repos sur hero */
 }
-#ra-audio-player.expanded{width:300px;}
+#ra-audio-player.expanded{width:300px;height:auto;border-radius:12px;background:var(--glass);backdrop-filter:blur(20px);border:1px solid var(--border);} /* MODIFIÉ — panneau expansé */
 #ra-audio-player::before{
   content:'';position:absolute;top:0;left:0;right:0;height:2px;
   background:linear-gradient(90deg,transparent,var(--gold),var(--navy),var(--gold),transparent);
 }
 .ra-ap-header{
-  display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;
+  display:flex;align-items:center;gap:10px;padding:8px;cursor:pointer; /* MODIFIÉ — padding réduit pour cercle 44px (8+28+8=44) */
 }
+#ra-audio-player.expanded .ra-ap-header{padding:12px 14px;} /* MODIFIÉ — padding normal en mode expansé */
 .ra-ap-toggle{
   width:28px;height:28px;border-radius:50%;flex-shrink:0;
-  background:linear-gradient(135deg,var(--gold),var(--gold-l));
+  background:transparent; /* MODIFIÉ — transparent, parent #C9991A fournit le fond */
   border:none;cursor:pointer;color:var(--bg);font-size:1rem;
   display:flex;align-items:center;justify-content:center;
-  transition:all .2s;box-shadow:0 2px 10px var(--gold-dim);
+  transition:all .2s;
 }
+#ra-audio-player.expanded .ra-ap-toggle{background:linear-gradient(135deg,var(--gold),var(--gold-l));box-shadow:0 2px 10px var(--gold-dim);} /* MODIFIÉ — gradient visible en mode expansé */
 .ra-ap-toggle:hover{box-shadow:0 4px 18px var(--gold-glow);transform:scale(1.08);}
+#ra-audio-player:hover,#ra-audio-player:focus-within{opacity:1;} /* MODIFIÉ — opaque au hover/focus */
 .ra-ap-info{flex:1;min-width:0;opacity:0;transition:opacity .25s .1s;}
 #ra-audio-player.expanded .ra-ap-info{opacity:1;}
 .ra-ap-title{
@@ -640,27 +632,7 @@ footer{display:flex;align-items:center;justify-content:space-between;border-top:
 .ra-notif-time{font-size:.65rem;color:var(--muted);margin-top:3px;font-family:'JetBrains Mono',monospace;}
 .ra-notif-empty{padding:24px;text-align:center;color:var(--muted);font-size:.8rem;}
 
-/* ── BANDEAU DISCLAIMER ──────────────────────────────────── */
-.ra-disclaimer-band{
-  position:fixed;top:0;left:0;right:0;z-index:300;
-  background:linear-gradient(90deg,#7a5a00,#a07800,#7a5a00);
-  border-bottom:1px solid rgba(201,153,26,.35);
-  padding:7px 20px;
-  display:flex;align-items:center;justify-content:center;gap:10px;
-  font-family:'JetBrains Mono',monospace;font-size:.62rem;
-  color:#ffe066;letter-spacing:1.5px;text-transform:uppercase;text-align:center;
-  animation:disclaimerSlide .6s ease forwards;
-}
-@keyframes disclaimerSlide{from{transform:translateY(-100%)}to{transform:translateY(0)}}
-.ra-disclaimer-band strong{color:#fff}
-.ra-disclaimer-close{
-  position:absolute;right:14px;top:50%;transform:translateY(-50%);
-  background:none;border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.7);
-  font-size:.6rem;padding:2px 8px;cursor:pointer;border-radius:2px;
-  font-family:'JetBrains Mono',monospace;letter-spacing:1px;transition:all .2s;flex-shrink:0;
-}
-.ra-disclaimer-close:hover{background:rgba(255,255,255,.15)}
-/* has-disclaimer nav top géré dynamiquement par JS selon hauteur réelle du bandeau */
+
 
 /* ── TUTORIAL MODAL ──────────────────────────────────────── */
 .ra-tuto-overlay{
@@ -834,7 +806,7 @@ footer{display:flex;align-items:center;justify-content:space-between;border-top:
   #d-screen-result [style*="font-size:2.5rem"]{font-size:1.9rem!important}
 
   /* Audio player — repositionné pour éviter l'UI OS */
-  #ra-audio-player{bottom:16px;right:14px}
+  #ra-audio-player{bottom:80px;right:14px} /* MODIFIÉ — cohérent avec position fixe */
   #ra-audio-player.expanded{width:260px}
 
   /* Section solo */
@@ -850,9 +822,6 @@ footer{display:flex;align-items:center;justify-content:space-between;border-top:
   /* Footer */
   .ra-contact-footer{padding:32px 16px}
   .ra-contact-grid{grid-template-columns:1fr}
-
-  /* Disclaimer text compact */
-  .ra-disclaimer-band{text-align:left;padding:8px 44px 8px 12px}
 }
 
 /* ── TABLETTE (481px – 768px) ────────────────────────────────── */
@@ -931,7 +900,7 @@ footer{display:flex;align-items:center;justify-content:space-between;border-top:
   .feedback-section{padding:48px 16px}
 
   /* Tablette nav: audio repositionné */
-  #ra-audio-player{bottom:14px;right:10px}
+  #ra-audio-player{bottom:80px;right:10px} /* MODIFIÉ — cohérent avec position fixe */
   #ra-audio-player.expanded{width:calc(100vw - 20px);right:10px}
 }
 
@@ -1000,7 +969,7 @@ footer{display:flex;align-items:center;justify-content:space-between;border-top:
   .popt{font-size:.58rem;padding:10px 10px;flex:1;min-width:56px;text-align:center}
 
   /* Audio player mobile S — plein bas */
-  #ra-audio-player{bottom:10px;right:8px}
+  #ra-audio-player{bottom:80px;right:8px} /* MODIFIÉ — cohérent avec position fixe */
   #ra-audio-player.expanded{width:calc(100vw - 16px);right:8px}
 
   /* Notification panel */
@@ -1079,12 +1048,6 @@ img,svg,video{max-width:100%}
 
 /* Inputs et selects — jamais plus petits que 16px pour éviter zoom iOS */
 input,select,textarea{font-size:max(16px,.84rem)!important}
-
-/* Disclaimer avec disclaimer-nav offset */
-@media(max-width:480px){
-  .ra-disclaimer-band{font-size:.54rem;padding:7px 36px 7px 10px;letter-spacing:1px}
-  .ra-disclaimer-close{right:8px;font-size:.54rem;padding:2px 6px}
-}
 
 /* ── RESPONSIVE ──────────────────────────────────────────── */
 
@@ -1317,13 +1280,85 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
   .d-create-btn{width:100%!important;justify-content:center;} /* MODIFIÉ */
 } /* MODIFIÉ */
 /* ── FIN MODIFIÉ — Layout flex Duel + Tournoi ────────────── */
+
+/* ── COUMBA ARENA ────────────────────────────────────────── */
+#page-coumba{background:var(--bg)}
+.ca-lobby{max-width:520px;margin:0 auto;padding:80px 20px 60px;text-align:center}
+.ca-lobby-title{font-family:'Bebas Neue',cursive;font-size:clamp(2.4rem,6vw,4rem);letter-spacing:3px;margin-bottom:6px}
+.ca-lobby-title span{background:linear-gradient(135deg,#C9991A,#E8B520);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.ca-lobby-sub{font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:32px}
+.ca-input{width:100%;background:var(--bg2);border:1px solid var(--gb);border-radius:3px;padding:14px 16px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:1rem;letter-spacing:3px;text-transform:uppercase;text-align:center;box-sizing:border-box;outline:none;transition:border .2s}
+.ca-input:focus{border-color:var(--gold)}
+.ca-waiting{max-width:480px;margin:0 auto;padding:80px 20px 60px;text-align:center}
+.ca-code-big{font-family:'Bebas Neue',cursive;font-size:3rem;letter-spacing:8px;color:var(--gold);background:var(--bg2);border:1px solid var(--gold-dim);border-radius:4px;padding:14px 32px;display:inline-block;margin:16px 0;cursor:pointer}
+.ca-pulse{animation:caPulse 2s ease-in-out infinite}
+@keyframes caPulse{0%,100%{opacity:1}50%{opacity:.5}}
+/* Table de jeu */
+.ca-board{display:flex;flex-direction:column;height:calc(100vh - 53px);overflow:hidden;background:radial-gradient(ellipse at center,#0a1628 0%,#03050A 100%)}
+.ca-opp-zone{display:flex;flex-direction:column;align-items:center;padding:14px 16px 8px;gap:8px;min-height:120px}
+.ca-opp-info{display:flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--muted);letter-spacing:2px}
+.ca-opp-cards{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;max-width:100%}
+.ca-center-zone{flex:1;display:flex;align-items:center;justify-content:center;gap:32px;position:relative}
+.ca-deck{width:72px;height:100px;border-radius:8px;background:linear-gradient(135deg,#002B5C,#001a3a);border:2px solid #C9991A;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Bebas Neue',cursive;font-size:.7rem;letter-spacing:2px;color:#C9991A;flex-direction:column;gap:4px;transition:transform .15s,box-shadow .15s;user-select:none}
+.ca-deck:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(201,153,26,.3)}
+.ca-discard{width:72px;height:100px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',cursive;font-size:1.8rem;border:2px solid rgba(255,255,255,.1);transition:transform .3s;position:relative}
+.ca-turn-badge{position:absolute;top:-24px;left:50%;transform:translateX(-50%);font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:2px;color:var(--gold);white-space:nowrap;background:rgba(201,153,26,.1);padding:3px 8px;border-radius:2px}
+.ca-my-zone{padding:8px 16px 16px;min-height:130px}
+.ca-my-info{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:2px;color:var(--muted);margin-bottom:8px;text-align:center}
+.ca-my-hand{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-height:200px;overflow-y:auto}
+/* Cartes */
+.ca-card{width:62px;height:90px;border-radius:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Bebas Neue',cursive;font-size:1.5rem;font-weight:900;border:2px solid rgba(255,255,255,.2);cursor:pointer;transition:transform .15s,box-shadow .15s,border-color .15s;position:relative;user-select:none;flex-shrink:0}
+.ca-card:hover{transform:translateY(-8px);box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.ca-card.playable{border-color:rgba(255,255,255,.6);box-shadow:0 0 10px rgba(255,255,255,.2)}
+.ca-card.not-playable{opacity:.45;cursor:not-allowed}
+.ca-card.not-playable:hover{transform:none;box-shadow:none}
+.ca-card-val{font-size:1.3rem;line-height:1}
+.ca-card-lbl{font-family:'JetBrains Mono',monospace;font-size:.42rem;letter-spacing:1px;color:rgba(255,255,255,.7);margin-top:2px}
+.ca-card-back{width:48px;height:70px;border-radius:5px;background:linear-gradient(135deg,#002B5C,#001a3a);border:2px solid rgba(201,153,26,.4);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',cursive;font-size:.55rem;letter-spacing:1px;color:rgba(201,153,26,.5);flex-shrink:0}
+/* Couleurs cartes */
+.ca-c-r{background:linear-gradient(135deg,#c53030,#9b2c2c);color:#fff}
+.ca-c-b{background:linear-gradient(135deg,#2b6cb0,#1a4a8a);color:#fff}
+.ca-c-g{background:linear-gradient(135deg,#276749,#1a4731);color:#fff}
+.ca-c-o{background:linear-gradient(135deg,#b7791f,#975a16);color:#fff}
+.ca-c-w{background:linear-gradient(135deg,#4a5568,#2d3748);color:#fff}
+/* Overlay question */
+.ca-q-overlay{position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;padding:20px}
+.ca-q-box{background:#0A1628;border:1px solid var(--gold);border-radius:8px;max-width:500px;width:100%;padding:32px;text-align:center}
+.ca-q-label{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:12px}
+.ca-q-text{font-family:'Inter',sans-serif;font-size:1rem;color:var(--text);line-height:1.6;margin-bottom:24px;min-height:60px}
+.ca-q-btns{display:flex;gap:12px}
+.ca-q-btn{flex:1;padding:14px;font-family:'Bebas Neue',cursive;font-size:1.2rem;letter-spacing:2px;border:none;border-radius:4px;cursor:pointer;transition:all .2s}
+.ca-q-btn.vrai{background:linear-gradient(135deg,#276749,#1a4731);color:#fff}
+.ca-q-btn.vrai:hover{background:linear-gradient(135deg,#38a169,#276749)}
+.ca-q-btn.faux{background:linear-gradient(135deg,#c53030,#9b2c2c);color:#fff}
+.ca-q-btn.faux:hover{background:linear-gradient(135deg,#e53e3e,#c53030)}
+.ca-q-effect{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:2px;color:var(--muted);margin-bottom:16px}
+/* Overlay couleur Wild */
+.ca-color-overlay{position:fixed;inset:0;z-index:910;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;padding:20px}
+.ca-color-box{background:#0A1628;border:1px solid var(--gold);border-radius:8px;max-width:380px;width:100%;padding:28px;text-align:center}
+.ca-color-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.ca-color-btn{padding:16px;border:2px solid rgba(255,255,255,.2);border-radius:6px;cursor:pointer;font-family:'Bebas Neue',cursive;font-size:.9rem;letter-spacing:2px;color:#fff;transition:transform .15s,border-color .2s}
+.ca-color-btn:hover{transform:scale(1.05);border-color:rgba(255,255,255,.5)}
+/* Msg bar */
+.ca-msg-bar{position:absolute;bottom:140px;left:50%;transform:translateX(-50%);background:rgba(10,22,40,.9);border:1px solid var(--gb);border-radius:3px;padding:5px 14px;font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:1px;color:var(--muted);white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+/* Résultat */
+.ca-result{max-width:460px;margin:0 auto;padding:80px 20px 60px;text-align:center}
+.ca-result-trophy{font-size:4rem;margin-bottom:12px}
+.ca-result-title{font-family:'Bebas Neue',cursive;font-size:clamp(2rem,6vw,3.5rem);letter-spacing:3px;margin-bottom:6px}
+/* Mode card landing */
+.ca-mode-card{background:linear-gradient(135deg,rgba(201,153,26,.08),rgba(201,153,26,.03));border-top-color:var(--gold)!important}
+@media(max-width:480px){
+  .ca-card{width:50px;height:74px;font-size:1.1rem}
+  .ca-card-lbl{font-size:.38rem}
+  .ca-deck,.ca-discard{width:60px;height:86px}
+}
 </style>
 </head>
 <body>
 
 <!-- LOGO AJOUT — barre supérieure fixe -->
 <div id="ra-topbar"><!-- LOGO AJOUT -->
-  <img src="https://endregularena-production.up.railway.app/logo.png" alt="REGUL ARENA" id="ra-topbar-logo"><!-- LOGO AJOUT -->
+  <img src="/logo.png" alt="REGUL ARENA" id="ra-topbar-logo"><!-- LOGO AJOUT -->
   <div id="ra-topbar-stats"><!-- LOGO AJOUT -->
     <span>📚 <strong id="stat-packs">22</strong> Packs</span><!-- LOGO AJOUT -->
     <span>❓ <strong id="stat-questions">550+</strong> Questions</span><!-- LOGO AJOUT -->
@@ -1432,7 +1467,7 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
         <div style="width:8px;height:8px;border-radius:50%;background:var(--gold);animation:pulse 1.5s ease-in-out infinite"></div>
         <span style="font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase">En attente de confirmation...</span>
       </div>
-      <button class="ra-btn-main" onclick="RAAuth.resendEmail()" style="background:var(--glass);border:1px solid var(--gb);color:var(--muted);box-shadow:none">📨 Renvoyer l'email</button>
+      <button id="ra-auth-resend-btn" class="ra-btn-main" onclick="RAAuth.resendEmail()" style="background:var(--glass);border:1px solid var(--gb);color:var(--muted);box-shadow:none">📨 Renvoyer l'email</button>
       <div style="text-align:center;margin-top:8px"><span style="font-size:.72rem;color:var(--muted);cursor:pointer" onclick="RAAuth.loginMode()">← Modifier mon email</span></div>
     </div>
 
@@ -1528,7 +1563,7 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
         <div style="width:8px;height:8px;border-radius:50%;background:var(--gold);animation:pulse 1.5s ease-in-out infinite"></div>
         <span style="font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase">En attente de confirmation...</span>
       </div>
-      <button class="ra-btn-main" onclick="RAGate.resendEmail()" style="background:var(--glass);border:1px solid var(--gb);color:var(--muted);box-shadow:none">📨 Renvoyer l'email</button>
+      <button id="ra-gate-resend-btn" class="ra-btn-main" onclick="RAGate.resendEmail()" style="background:var(--glass);border:1px solid var(--gb);color:var(--muted);box-shadow:none">📨 Renvoyer l'email</button>
       <div style="text-align:center;margin-top:8px"><span style="font-size:.72rem;color:var(--muted);cursor:pointer" onclick="RAGate.goStep(2)">← Modifier mon email</span></div>
     </div>
     <!-- Étape 4 : Succès -->
@@ -1549,11 +1584,7 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
 </div>
 <div id="ra-toast" role="status" aria-live="polite"></div>
 
-<!-- BANDEAU DISCLAIMER -->
-<div id="ra-disclaimer" class="ra-disclaimer-band" role="alert" aria-live="polite">
-  <span>⚠ <strong>Plateforme indépendante</strong> — REGUL ARENA n'a aucun lien officiel avec la BCEAO, la BEAC, la COBAC ou toute institution réglementaire. Initiative privée à vocation pédagogique.</span>
-  <button class="ra-disclaimer-close" onclick="dismissDisclaimer()" aria-label="Fermer le bandeau">✕ OK</button>
-</div>
+
 
 <!-- TUTORIEL MODAL -->
 <div class="ra-tuto-overlay" id="ra-tuto-overlay" role="dialog" aria-modal="true" aria-labelledby="tuto-title">
@@ -1606,8 +1637,8 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
     <li role="none"><button id="nav-duel" onclick="showPage('duel')" role="menuitem">Duel<span id="notif-badge-duel" class="ra-notif-badge" style="display:none" onclick="event.stopPropagation();RANotif.toggle()"></span></button></li>
     <li role="none"><button id="nav-premium" onclick="showPage('premium')" role="menuitem">Top Scoreurs</button></li>
     <li role="none"><button id="nav-invitation" onclick="showPage('invitation')" role="menuitem">Inviter</button></li>
+    <li role="none"><button id="nav-coumba" onclick="showPage('coumba')" role="menuitem" style="color:var(--gold)">🃏 Coumba</button></li>
     <li role="none"><button onclick="document.querySelector('.feedback-section').scrollIntoView({behavior:'smooth'})" role="menuitem">💬 Feedback</button></li>
-    <li role="none"><button onclick="gChatToggle()" role="menuitem" id="nav-gchat">💬 Chat</button></li>
   </ul>
   <div class="nav-right">
     <div id="ra-quiz-pill" role="status" aria-label="Compteur quiz"><span id="ra-pill-count">0</span>/3 quiz</div>
@@ -1648,7 +1679,6 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
       <span class="ticker-item">Inscription gratuite · Email institutionnel ou universitaire</span>
       <span class="ticker-item"><span class="live-dot"></span>Badges · Certifications · Classement panafricain</span>
       <span class="ticker-item">Chaque question référencée à un texte officiel</span>
-      <span class="ticker-item">Initiative indépendante · Abdou NDAO · Sénégal</span>
       <span class="ticker-item">Rejoignez l'arène · contact@regularena.com</span>
     </div>
   </div>
@@ -1761,49 +1791,12 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
           <button onclick="openNotifyModal()" style="background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.25);color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:1.5px;padding:6px 12px;cursor:pointer;border-radius:2px;text-transform:uppercase;transition:all .2s" onmouseover="this.style.background='rgba(34,211,238,.15)'" onmouseout="this.style.background='rgba(34,211,238,.08)'">🔔 Me prévenir à l'ouverture</button>
         </div>
       </article>
-    </div>
-  </section>
-
-  <!-- BIBLIOTHÈQUE UEMOA OFFICIELLE -->
-  <section class="section reveal" id="uemoa-biblio" aria-labelledby="uemoa-biblio-title">
-    <div class="section-label">Sources officielles BCEAO / UMOA</div>
-    <h2 class="section-title" id="uemoa-biblio-title">Bibliothèque <span class="g">UEMOA</span></h2>
-    <p style="color:var(--muted);max-width:560px;margin:0 0 32px;font-size:.9rem;line-height:1.7">38 QCM · 30 Flash Cards · 17 Mémos tirés des textes officiels BCEAO. Décisions 013 &amp; 014, Instruction FODEP 005-2017, Règlement RFFE.</p>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:28px">
-      <a href="/revision/uemoa" target="_blank" rel="noopener" style="text-decoration:none;display:block;padding:20px;background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.25);border-radius:4px;transition:all .25s" onmouseover="this.style.borderColor='rgba(255,107,53,.6)';this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='rgba(255,107,53,.25)';this.style.transform='none'">
-        <div style="font-size:1.3rem;margin-bottom:10px">📘</div>
-        <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:.82rem;color:#ff6b35;letter-spacing:.5px;margin-bottom:6px">P1 — Dispositif Prudentiel</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted)">Décision 013/CM/UMOA · 12 QCM</div>
-      </a>
-      <a href="/revision/uemoa" target="_blank" rel="noopener" style="text-decoration:none;display:block;padding:20px;background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.2);border-radius:4px;transition:all .25s" onmouseover="this.style.borderColor='rgba(0,229,255,.5)';this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='rgba(0,229,255,.2)';this.style.transform='none'">
-        <div style="font-size:1.3rem;margin-bottom:10px">📗</div>
-        <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:.82rem;color:#00e5ff;letter-spacing:.5px;margin-bottom:6px">P2 — Supervision Consolidée</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted)">Décision 014/CM/UMOA · 8 QCM</div>
-      </a>
-      <a href="/revision/uemoa" target="_blank" rel="noopener" style="text-decoration:none;display:block;padding:20px;background:rgba(168,255,62,.06);border:1px solid rgba(168,255,62,.2);border-radius:4px;transition:all .25s" onmouseover="this.style.borderColor='rgba(168,255,62,.5)';this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='rgba(168,255,62,.2)';this.style.transform='none'">
-        <div style="font-size:1.3rem;margin-bottom:10px">📒</div>
-        <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:.82rem;color:#a8ff3e;letter-spacing:.5px;margin-bottom:6px">P3 — Déclaration FODEP</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted)">Instruction 005-08-2017 · 7 QCM</div>
-      </a>
-      <a href="/revision/uemoa" target="_blank" rel="noopener" style="text-decoration:none;display:block;padding:20px;background:rgba(199,125,255,.06);border:1px solid rgba(199,125,255,.2);border-radius:4px;transition:all .25s" onmouseover="this.style.borderColor='rgba(199,125,255,.5)';this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='rgba(199,125,255,.2)';this.style.transform='none'">
-        <div style="font-size:1.3rem;margin-bottom:10px">📙</div>
-        <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:.82rem;color:#c77dff;letter-spacing:.5px;margin-bottom:6px">P4 — Relations Financières Ext.</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted)">Règlement RFFE UEMOA · 5 QCM</div>
-      </a>
-      <a href="/revision/uemoa" target="_blank" rel="noopener" style="text-decoration:none;display:block;padding:20px;background:rgba(255,209,102,.06);border:1px solid rgba(255,209,102,.2);border-radius:4px;transition:all .25s" onmouseover="this.style.borderColor='rgba(255,209,102,.5)';this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='rgba(255,209,102,.2)';this.style.transform='none'">
-        <div style="font-size:1.3rem;margin-bottom:10px">📕</div>
-        <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:.82rem;color:#ffd166;letter-spacing:.5px;margin-bottom:6px">P5 — Institutions &amp; Gouvernance</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted)">Architecture UMOA · 6 QCM</div>
-      </a>
-      <a href="/revision/uemoa" target="_blank" rel="noopener" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;background:var(--gold-dim);border:1px solid var(--border);border-radius:4px;transition:all .25s;text-align:center" onmouseover="this.style.boxShadow='0 8px 32px var(--gold-glow)';this.style.transform='translateY(-3px)'" onmouseout="this.style.boxShadow='none';this.style.transform='none'">
-        <div style="font-size:1.6rem;margin-bottom:10px">📖</div>
-        <div style="font-family:'Montserrat',sans-serif;font-weight:800;font-size:.85rem;color:var(--gold);margin-bottom:6px">Accéder à la bibliothèque</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted)">38 QCM · 30 Flash · 17 Mémos →</div>
-      </a>
-    </div>
-    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
-      <a href="/revision/uemoa" target="_blank" rel="noopener" class="btn-gold" style="font-size:.78rem">📖 Réviser UEMOA</a>
-      <span style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted);letter-spacing:1px">✓ Sources officielles BCEAO — mises à jour 2018</span>
+      <article class="mode-card ca-mode-card" role="listitem" onclick="showPage('coumba')" style="cursor:pointer">
+        <span class="mode-icon" aria-hidden="true">🃏</span>
+        <h3 class="mode-name">Coumba Arena</h3>
+        <p class="mode-desc">Jeu de cartes UNO éducatif 2 joueurs. Cartes spéciales = questions réglementaires. Réponds bien ou pioche !</p>
+        <span class="mode-badge">DISPONIBLE</span>
+      </article>
     </div>
   </section>
 
@@ -1934,7 +1927,7 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
         </div>
       </div>
       <div class="ra-contact-footer-legal">
-        <strong>REGUL ARENA</strong> — Plateforme indépendante à vocation pédagogique. Initiative privée d'<strong>Abdou NDAO</strong>. Sans lien officiel avec la BCEAO, la BEAC, la COBAC ou toute institution réglementaire.<br>
+        <strong>REGUL ARENA</strong> — La première plateforme de formation gamifiée sur la réglementation bancaire UEMOA &amp; CEMAC.<br>
         © 2026 REGUL ARENA — Tous droits réservés.<br><br>
         <span style="display:inline-flex;gap:16px;flex-wrap:wrap;justify-content:center;font-size:11px">
           <a href="mailto:contact@regularena.com?subject=CGU" style="color:var(--gold);text-decoration:underline;text-underline-offset:3px">Conditions d'utilisation</a>
@@ -2293,10 +2286,9 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
       </div><!-- TOURNOI AJOUT -->
       <div class="rat-field"><!-- TOURNOI AJOUT -->
         <label class="rat-form-label" for="rat-c-zone">Zone géographique</label><!-- TOURNOI AJOUT -->
-        <select class="rat-select" id="rat-c-zone" onchange="_rat_initPackSelect()"><!-- TOURNOI AJOUT -->
+        <select class="rat-select" id="rat-c-zone"><!-- TOURNOI AJOUT -->
           <option value="uemoa">UEMOA (zone entière)</option><!-- TOURNOI AJOUT -->
           <option value="cemac">CEMAC (zone entière)</option><!-- TOURNOI AJOUT -->
-          <option value="inter">UEMOA + CEMAC (Inter-zones)</option><!-- TOURNOI AJOUT -->
           <option value="country">Mon pays uniquement</option><!-- TOURNOI AJOUT -->
         </select><!-- TOURNOI AJOUT -->
       </div><!-- TOURNOI AJOUT -->
@@ -2431,14 +2423,6 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
     <div style="font-family:'Bebas Neue',cursive;font-size:2rem;letter-spacing:3px;color:var(--gold);margin-bottom:6px">▶ MODE SOLO</div>
     <div style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--muted);letter-spacing:1.5px;margin-bottom:28px">22 PACKS · BCEAO · BEAC · COBAC · UMOA · LBC-FT</div>
     <div id="solo-pack-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px"></div>
-    <!-- Accès bibliothèque UEMOA officielle -->
-    <div style="margin-top:36px;padding:24px;background:var(--gold-dim);border:1px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
-      <div>
-        <div style="font-family:'Bebas Neue',cursive;font-size:1.1rem;letter-spacing:2px;color:var(--gold);margin-bottom:4px">📖 Bibliothèque UEMOA Officielle</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted)">38 QCM · 30 Flash Cards · 17 Mémos · Sources officielles BCEAO — Décisions 013 &amp; 014 · Instruction FODEP · Règlement RFFE</div>
-      </div>
-      <a href="/revision/uemoa" target="_blank" rel="noopener" class="btn-gold" style="font-size:.75rem;flex-shrink:0">Réviser →</a>
-    </div>
   </div>
   <!-- Overlay quiz solo -->
   <div id="solo-quiz-overlay" style="display:none;position:fixed;inset:0;background:rgba(10,12,18,.97);z-index:800;overflow-y:auto">
@@ -2907,6 +2891,117 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
 </div>
 
 <!-- ================================================================
+     PAGE COUMBA ARENA — Jeu de cartes UNO éducatif
+================================================================ -->
+<div id="page-coumba" class="page" role="main" aria-label="Coumba Arena">
+
+  <!-- LOBBY -->
+  <div id="ca-screen-lobby" class="ca-lobby">
+    <div class="ca-lobby-title"><span>COUMBA</span> ARENA</div>
+    <div class="ca-lobby-sub">Jeu de cartes éducatif · 2 joueurs · Réglementation bancaire</div>
+    <div style="background:var(--bg2);border:1px solid var(--gb);border-radius:6px;padding:24px;margin-bottom:16px;text-align:left">
+      <div style="font-family:'Bebas Neue',cursive;font-size:1rem;letter-spacing:2px;color:var(--gold);margin-bottom:16px">🃏 RÈGLES RAPIDES</div>
+      <div style="font-family:'Inter',sans-serif;font-size:.8rem;color:var(--muted);line-height:1.8">
+        • 4 couleurs : <span style="color:#e53e3e">■ COBAC</span> · <span style="color:#4299e1">■ BCEAO</span> · <span style="color:#48bb78">■ OHADA</span> · <span style="color:#C9991A">■ CIMA</span><br>
+        • Pose une carte de même couleur ou même valeur<br>
+        • <strong style="color:var(--text)">+2 / Skip / Wild+4</strong> → ton adversaire répond à une question réglementaire<br>
+        • Bonne réponse = pénalité annulée · Mauvaise = cartes piochées<br>
+        • Premier à vider sa main gagne 🏆
+      </div>
+    </div>
+    <button class="btn-gold" style="width:100%;justify-content:center;margin-bottom:10px;font-size:1rem" onclick="caCreateGame()">⚔ Créer une partie</button>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:2px;color:var(--muted);text-align:center;margin:10px 0">— OU —</div>
+    <input class="ca-input" id="ca-join-code" placeholder="CODE DE LA PARTIE" maxlength="10" oninput="this.value=this.value.toUpperCase()">
+    <button class="btn-ghost" style="width:100%;justify-content:center;margin-top:10px" onclick="caJoinGame()">Rejoindre avec ce code</button>
+    <div id="ca-lobby-err" style="margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#fc8181;text-align:center;min-height:20px"></div>
+  </div>
+
+  <!-- SALLE D'ATTENTE -->
+  <div id="ca-screen-waiting" class="ca-waiting" style="display:none">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:3px;color:var(--gold);margin-bottom:8px">CODE DE TA PARTIE</div>
+    <div class="ca-code-big" id="ca-waiting-code" onclick="caCopyCode()" title="Cliquer pour copier">———</div>
+    <div style="font-family:'Inter',sans-serif;font-size:.8rem;color:var(--muted);margin:8px 0 24px">Partage ce code à ton adversaire</div>
+    <div id="ca-waiting-status" class="ca-pulse" style="font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:2px;color:var(--muted)">EN ATTENTE D'UN ADVERSAIRE…</div>
+    <div id="ca-waiting-opponent" style="display:none;margin-top:16px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:2px;color:var(--green);margin-bottom:12px">✓ ADVERSAIRE CONNECTÉ !</div>
+      <button class="btn-gold" style="width:100%;justify-content:center" onclick="caStartGame()">🃏 Lancer la partie</button>
+    </div>
+    <button class="btn-ghost" style="margin-top:20px" onclick="caBackToLobby()">← Annuler</button>
+  </div>
+
+  <!-- PLATEAU DE JEU -->
+  <div id="ca-screen-board" class="ca-board" style="display:none">
+    <!-- Zone adversaire -->
+    <div class="ca-opp-zone">
+      <div class="ca-opp-info">
+        <span id="ca-opp-name">Adversaire</span>
+        <span style="color:var(--gold)" id="ca-opp-flag"></span>
+        <span>·</span>
+        <span id="ca-opp-count">7</span> cartes
+      </div>
+      <div class="ca-opp-cards" id="ca-opp-hand-visual"></div>
+    </div>
+
+    <!-- Centre -->
+    <div class="ca-center-zone">
+      <div class="ca-deck" onclick="caDraw()" id="ca-deck-btn">
+        <span style="font-size:1.4rem">🂠</span>
+        <span id="ca-deck-count">—</span>
+        <span style="font-size:.5rem">PIOCHER</span>
+      </div>
+      <div style="position:relative">
+        <div class="ca-turn-badge" id="ca-turn-badge">TON TOUR</div>
+        <div class="ca-discard" id="ca-discard-top"></div>
+      </div>
+      <div class="ca-msg-bar" id="ca-msg-bar">En attente…</div>
+    </div>
+
+    <!-- Ma main -->
+    <div class="ca-my-zone">
+      <div class="ca-my-info" id="ca-my-info">Ta main</div>
+      <div class="ca-my-hand" id="ca-my-hand"></div>
+    </div>
+  </div>
+
+  <!-- OVERLAY QUESTION -->
+  <div id="ca-q-overlay" class="ca-q-overlay" style="display:none">
+    <div class="ca-q-box">
+      <div class="ca-q-label">⚡ Question réglementaire</div>
+      <div class="ca-q-effect" id="ca-q-effect-label">Si faux → +2 cartes</div>
+      <div class="ca-q-text" id="ca-q-text">…</div>
+      <div class="ca-q-btns">
+        <button class="ca-q-btn vrai" onclick="caAnswer(true)">✅ VRAI</button>
+        <button class="ca-q-btn faux" onclick="caAnswer(false)">❌ FAUX</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- OVERLAY CHOIX COULEUR -->
+  <div id="ca-color-overlay" class="ca-color-overlay" style="display:none">
+    <div class="ca-color-box">
+      <div style="font-family:'Bebas Neue',cursive;font-size:1rem;letter-spacing:2px;color:var(--gold);margin-bottom:6px">CHOISIR UNE COULEUR</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted);margin-bottom:4px">Quelle couleur veux-tu imposer ?</div>
+      <div class="ca-color-btns">
+        <button class="ca-color-btn ca-c-r" onclick="caChooseColor('r')">COBAC<br><span style="font-size:.6rem;opacity:.7">Rouge</span></button>
+        <button class="ca-color-btn ca-c-b" onclick="caChooseColor('b')">BCEAO<br><span style="font-size:.6rem;opacity:.7">Bleu</span></button>
+        <button class="ca-color-btn ca-c-g" onclick="caChooseColor('g')">OHADA<br><span style="font-size:.6rem;opacity:.7">Vert</span></button>
+        <button class="ca-color-btn ca-c-o" onclick="caChooseColor('o')">CIMA<br><span style="font-size:.6rem;opacity:.7">Or</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉCRAN RÉSULTAT -->
+  <div id="ca-screen-result" class="ca-result" style="display:none">
+    <div class="ca-result-trophy" id="ca-result-trophy">🏆</div>
+    <div class="ca-result-title" id="ca-result-title">Victoire !</div>
+    <div style="font-family:'Inter',sans-serif;font-size:.9rem;color:var(--muted);margin:8px 0 28px" id="ca-result-sub"></div>
+    <button class="btn-gold" style="width:100%;justify-content:center;margin-bottom:10px" onclick="caBackToLobby()">🃏 Rejouer</button>
+    <button class="btn-ghost" style="width:100%;justify-content:center" onclick="showPage('landing')">← Accueil</button>
+  </div>
+
+</div>
+
+<!-- ================================================================
      BANNIÈRE PARTENAIRES / SPONSORS — Branding animé
 ================================================================ -->
 <div class="sponsors-banner" aria-label="Partenaires et sponsors">
@@ -3031,7 +3126,7 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
 'use strict';
 
 /* ── CONFIG BACKEND ──────────────────────────────────────── */
-const API_BASE = "https://endregularena-production.up.railway.app"; // MODIFIÉ
+const API_BASE = ""; // MODIFIÉ
 
 async function apiCall(method, path, body) {
   try {
@@ -3039,14 +3134,7 @@ async function apiCall(method, path, body) {
       method,
       headers: { 'Content-Type': 'application/json' },
     };
-    // FIX — Edge/Chrome Tracking Prevention peut faire throw localStorage.
-    // Sans ce try/catch, l'exception remonte dans le catch global et est
-    // miscatégorisée comme erreur réseau (NETWORK_ERROR) — la requête HTTP
-    // n'est même jamais envoyée. Pattern défensif identique aux lignes
-    // 3401, 3565, 3653, 4382 déjà présentes dans le fichier.
-    let token = null;
-    try { token = localStorage.getItem('ra_jwt'); } catch(e) {}
-    if (!token) { try { token = sessionStorage.getItem('ra_jwt'); } catch(e) {} }
+    const token = localStorage.getItem('ra_jwt');
     if (token) opts.headers['Authorization'] = 'Bearer ' + token;
     if (body)  opts.body = JSON.stringify(body);
     const res  = await fetch(API_BASE + path, opts); // MODIFIÉ
@@ -3286,77 +3374,77 @@ const PACKS = [
     {q:'Un établissement financier doit geler les avoirs d\'une personne listée :',choices:['Après notification de la CENTIF','Sans délai','Dans les 24h','Dans les 5 jours ouvrables'],correct:1,source:'Résolution ONU 1267 - obligation de gel immédiat'},
     {q:'Le non-report de transaction suspecte liée au FT est sanctionné :',choices:['Par une amende administrative uniquement','Par des sanctions pénales et administratives','Par la fermeture de l\'établissement','Par aucune sanction spécifique'],correct:1,source:'Directive UEMOA LBC/FT, Art. 42'},
   ]},
-  { // MODIFIÉ — ajout pack ITB Banque & Management
-    id:'itb-banque-management', label:'ITB — Banque & Management', zone:'UEMOA', color:'rgba(201,153,26,.10)', tc:'var(--gold)', questions:[ // MODIFIÉ
-    {q:'Qu\'est-ce que l\'écosystème bancaire ?',choices:['L\'ensemble des métiers, activités, technologies, règles et partenaires qui interagissent autour de la banque','Le seul réseau d\'agences physiques d\'une banque','La liste des produits financiers proposés aux clients','Le règlement interne de la Banque de France'],correct:0,source:'Écosystème bancaire'},
-    {q:'Parmi ces acteurs, lesquels font partie de l\'écosystème bancaire externe ?',choices:['Uniquement les clients particuliers','Les Fintech, Bigtech, régulateurs, marchés et environnement sociétal','Seulement les banques centrales','Uniquement les concurrents directs'],correct:1,source:'Écosystème bancaire'},
-    {q:'En quoi consiste l\'intermédiation bancaire ?',choices:['Vendre des actions en bourse','Collecter l\'épargne des agents à capacité de financement pour la transformer en crédits aux agents à besoin de financement','Gérer uniquement les moyens de paiement','Fournir des conseils en gestion de patrimoine'],correct:1,source:'Intermédiation bancaire'},
-    {q:'Quelles sont les 3 transformations opérées par la banque dans le cadre de l\'intermédiation ?',choices:['Transformation des prix, des devises et des délais','Transformation des échéances, des risques et de l\'information','Transformation digitale, commerciale et organisationnelle','Transformation des produits, des clients et des marchés'],correct:1,source:'Intermédiation bancaire'},
-    {q:'Qu\'est-ce que le scoring bancaire ?',choices:['Un outil de gestion des ressources humaines','Une méthode statistique et algorithmique estimant la probabilité de défaut d\'un emprunteur','Un tableau de bord commercial','Un ratio de solvabilité réglementaire'],correct:1,source:'Scoring'},
-    {q:'Quel est l\'impact du scoring sur la banque ?',choices:['Il augmente le coût du risque','Il réduit les défauts, limite la prise de risque et maîtrise le coût du risque','Il remplace totalement le conseiller bancaire','Il supprime le besoin d\'analyse financière'],correct:1,source:'Scoring'},
-    {q:'Quel métier bancaire s\'adresse aux particuliers, professionnels et PME pour la gestion des comptes, crédits et épargne ?',choices:['Banque de financement et d\'investissement','Banque de détail','Banque privée','Fonctions supports'],correct:1,source:'Métiers bancaires'},
-    {q:'Quelle structure organisationnelle combine pilotage par fonction et par projet ?',choices:['Structure hiérarchique','Structure fonctionnelle','Structure matricielle','Structure en réseau'],correct:2,source:'Structures organisationnelles'},
-    {q:'Dans la méthode QQOQCCP, à quelle question correspond \'Quel volume ? Quel coût ?\'',choices:['Quoi ?','Combien ?','Comment ?','Pourquoi ?'],correct:1,source:'QQOQCCP'},
-    {q:'La méthode QQOQCCP est utilisée pour :',choices:['Fixer des objectifs commerciaux','Résoudre un dysfonctionnement de manière structurée','Analyser la rentabilité d\'un produit','Évaluer les compétences d\'un collaborateur'],correct:1,source:'QQOQCCP'},
-    {q:'Dans l\'analyse SWOT, quelle dimension évalue les faiblesses ?',choices:['Externe / Positif','Externe / Négatif','Interne / Négatif','Interne / Positif'],correct:2,source:'SWOT / PESTEL'},
-    {q:'Le \'T\' de PESTEL correspond à :',choices:['Taux','Technologie','Travail','Territoire'],correct:1,source:'SWOT / PESTEL'},
-    {q:'Quelle est la différence entre transformation par amélioration continue et transformation de rupture ?',choices:['Il n\'y a aucune différence','L\'amélioration continue optimise les processus existants, la rupture remet profondément en cause les métiers et organisations','L\'amélioration continue concerne le digital, la rupture concerne la réglementation','La rupture est toujours imposée par les régulateurs'],correct:1,source:'Transformation bancaire'},
-    {q:'Quels éléments caractérisent le mode projet ?',choices:['Cycles courts, flexibilité et stand-ups','Objectifs clairs, livrables définis, planning, ressources allouées et gouvernance','Élimination des gaspillages et fluidification des processus','Délégation totale au manager de proximité'],correct:1,source:'Mode projet'},
-    {q:'L\'objectif principal du lean management est :',choices:['Développer de nouveaux produits rapidement','Identifier et éliminer les gaspillages pour fluidifier les processus et créer de la valeur','Mettre en place des cycles itératifs courts','Définir des objectifs stratégiques à 5 ans'],correct:1,source:'Lean management'},
-    {q:'Parmi les outils suivants, lequel est propre à la méthode Agile ?',choices:['Le diagramme de Gantt','Le tableau Kanban et les réunions stand-up','Le coefficient d\'exploitation','La cartographie des risques'],correct:1,source:'Méthode Agile'},
-    {q:'Quels types de risques la gestion des risques vise-t-elle à maîtriser ?',choices:['Uniquement les risques de crédit','Les risques opérationnels, de conformité, juridiques, réputationnels et technologiques','Seulement les risques de marché','Les risques commerciaux et concurrentiels'],correct:1,source:'Gestion des risques'},
-    {q:'Que signifie PCA et à quoi sert-il ?',choices:['Plan Commercial Annuel — fixer les objectifs de vente','Plan de Continuité d\'Activité — maintenir ou reprendre l\'activité en cas de crise','Plan de Contrôle Analytique — mesurer la rentabilité','Plan de Communication Associé — informer les parties prenantes'],correct:1,source:'PCA'},
-    {q:'Parmi ces exemples, lequel constitue un risque éthique en banque ?',choices:['Un client insatisfait du taux proposé','Un conflit d\'intérêts, une fraude interne ou un manquement au devoir de conseil','La hausse des taux directeurs de la BCE','Un départ en retraite d\'un collaborateur'],correct:1,source:'Éthique'},
-    {q:'Quelle est la différence entre IA générative et IA prédictive ?',choices:['Il n\'y a aucune différence','L\'IA générative produit de nouveaux contenus (textes, synthèses), l\'IA prédictive anticipe des comportements à partir de données','L\'IA prédictive remplace les humains, l\'IA générative les assiste','L\'IA prédictive est interdite en banque'],correct:1,source:'IA et IA Act'},
-    {q:'Parmi les risques liés à l\'IA générative en banque, lequel figure dans le cours ?',choices:['Baisse des revenus commerciaux','Hallucinations, biais algorithmiques, manque d\'explicabilité, risques de fuite de données','Hausse du coût du crédit','Difficulté à recruter des conseillers'],correct:1,source:'IA et IA Act'},
-    {q:'L\'IA Act classe les systèmes d\'IA selon :',choices:['Leur prix de marché','Leur niveau de risque, avec des obligations croissantes en matière de transparence et gouvernance','Le chiffre d\'affaires des entreprises qui les utilisent','Le pays d\'origine de l\'algorithme'],correct:1,source:'IA Act'},
-    {q:'Quels sont les principaux outils du pilotage des risques ?',choices:['Budget, KPI et plan d\'action commercial','Cartographie des risques, KRI, reportings, contrôles internes et audits','Scoring, NSFR et LCR','SWOT, PESTEL et QQOQCCP'],correct:1,source:'Outils de pilotage des risques'},
-    {q:'Que signifie ALM ?',choices:['Audit et Liquidité des Marchés','Asset and Liability Management — gestion actif-passif','Analyse et Levier des Marges','Allocation Libre des Moyens'],correct:1,source:'ALM'},
-    {q:'Quelle est la problématique majeure de l\'ALM ?',choices:['La difficulté à recruter des spécialistes','Les décalages de maturité et de taux entre emplois et ressources','La baisse de la fréquentation des agences','L\'augmentation des charges salariales'],correct:1,source:'ALM'},
-    {q:'Que mesure le LCR (Liquidity Coverage Ratio) ?',choices:['La capacité à résister à une crise de liquidité sur 30 jours grâce à des actifs liquides de haute qualité','La stabilité des ressources à un horizon d\'un an','La solvabilité générale sur 5 ans','Le rapport entre fonds propres et actifs pondérés'],correct:0,source:'Ratios Bâle III'},
-    {q:'Quel est le niveau minimum réglementaire pour le LCR et le NSFR ?',choices:['50%','75%','100%','150%'],correct:2,source:'Ratios Bâle III'},
-    {q:'Qu\'est-ce que le Produit Net Bancaire (PNB) ?',choices:['Le bénéfice net après impôt','L\'équivalent du chiffre d\'affaires, issu des marges d\'intermédiation et des commissions','Le résultat après déduction du coût du risque','La somme des dividendes versés aux actionnaires'],correct:1,source:'Compte de résultat'},
-    {q:'Comment obtient-on le Résultat Brut d\'Exploitation (RBE) ?',choices:['PNB — Coût du risque','PNB — Charges générales d\'exploitation','PNB + Produits exceptionnels','Résultat d\'exploitation + impôts'],correct:1,source:'Compte de résultat'},
-    {q:'Que mesure le coefficient d\'exploitation ?',choices:['La rentabilité des fonds propres','L\'efficacité opérationnelle : charges d\'exploitation / PNB','Le rapport entre crédits et dépôts','La productivité par agent'],correct:1,source:'Ratios financiers'},
-    {q:'Que signifie RAROC ?',choices:['Ratio d\'Appui au Remboursement des Obligations de Crédit','Rentabilité Ajustée au Risque sur les Capitaux propres (Risk-Adjusted Return on Capital)','Rapport Annuel de Résultat Opérationnel Commercial','Ratio d\'Assurance et de Risque des Opérations de Crédit'],correct:1,source:'Ratios financiers'},
-    {q:'Le ratio de solvabilité Bâle III impose un minimum de fonds propres de :',choices:['3%','5%','8%','12%'],correct:2,source:'Ratios prudentiels'},
-    {q:'Quel est le niveau minimum du ratio de levier selon Bâle III ?',choices:['1%','3%','5%','8%'],correct:1,source:'Ratios prudentiels'},
-    {q:'Un objectif pertinent doit être :',choices:['Ambitieux et flou pour laisser de la marge','Utile, mesurable, échéancé et réaliste','Uniquement quantitatif','Fixé uniquement par la direction générale'],correct:1,source:'Pilotage de la performance'},
-    {q:'Que contient un plan d\'action commercial (PAC) ?',choices:['Les ratios prudentiels de la banque','Des actions de prospection, conquête, fidélisation et sécurisation de la clientèle','Les procédures de gestion des risques opérationnels','Les indicateurs de solvabilité'],correct:1,source:'Plan d\'action'},
-    {q:'Que signifie la méthode KISS ?',choices:['Keep — Improve — Start — Stop','Kpi — Indicateur — Stratégie — Suivi','Knowhow — Innovation — Skills — Satisfaction','Key — Ideas — Solutions — Success'],correct:0,source:'Méthode KISS'},
-    {q:'Comment interpréter un indicateur de performance selon le cours ?',choices:['En valeur absolue seulement','Par comparaison dans le temps, avec des entités similaires (benchmark) ou avec une norme/objectif','Uniquement par rapport au budget initial','En le comparant uniquement au secteur bancaire national'],correct:1,source:'Indicateurs'},
-    {q:'À quoi sert la méthode SPRI ?',choices:['Évaluer la solvabilité d\'un emprunteur','Présenter clairement les résultats, difficultés et solutions (Situation — Problème — Résolution — Informations)','Cartographier les risques opérationnels','Analyser le compte de résultat'],correct:1,source:'Méthode SPRI'},
-    {q:'Quel type de graphique est recommandé pour visualiser des évolutions dans le temps ?',choices:['Graphique en barres','Camembert','Courbe','Nuage de points'],correct:2,source:'Représentations graphiques'},
-    {q:'Sur quel principe fondamental repose le management situationnel ?',choices:['Il existe un style de management universellement efficace','Il n\'existe pas de style de management universellement efficace ; l\'efficacité dépend de l\'adaptation à la situation','Le manager doit toujours être directif pour obtenir des résultats','La motivation financière est le seul levier d\'efficacité'],correct:1,source:'Management situationnel'},
-    {q:'Quel style managérial correspond à un collaborateur à très faible autonomie (ne sait pas faire, manque de confiance) ?',choices:['Délégatif','Participatif','Directif','Persuasif'],correct:2,source:'Management situationnel'},
-    {q:'Quel style managérial correspond à un collaborateur motivé mais peu compétent ?',choices:['Directif','Persuasif','Participatif','Délégatif'],correct:1,source:'Management situationnel'},
-    {q:'Quel style managérial correspond à une autonomie modérée ?',choices:['Directif','Persuasif','Participatif','Délégatif'],correct:2,source:'Management situationnel'},
-    {q:'Un manager utilise le style délégatif. Qu\'est-ce que cela signifie ?',choices:['Il définit lui-même toutes les méthodes et contrôle en permanence','Il fixe les objectifs puis laisse le collaborateur autonome pour les décisions et la mise en œuvre','Il explique chaque décision pour créer l\'adhésion','Il participe à toutes les réunions pour guider le collectif'],correct:1,source:'Management situationnel'},
-    {q:'L\'outil DISC analyse :',choices:['La personnalité profonde du collaborateur','Le comportement observable (le \'comment\' agir)','La performance financière de l\'équipe','Le niveau de compétences techniques'],correct:1,source:'DISC'},
-    {q:'Quels sont les 4 profils comportementaux du DISC ?',choices:['Directif, Indirect, Stable, Curieux','Dominance, Influence, Stabilité, Conformité','Décideur, Innovateur, Soutien, Contrôleur','Dynamique, Intuitif, Sensible, Confiant'],correct:1,source:'DISC'},
-    {q:'Quel est l\'objectif ultime du management situationnel en matière de relation hiérarchique ?',choices:['Maintenir la dépendance pour garder le contrôle','Atteindre l\'interdépendance : coopération mature, objectifs communs, responsabilisation partagée','Favoriser l\'indépendance totale de chaque collaborateur','Maintenir une contre-dépendance saine'],correct:1,source:'Interdépendance'},
-    {q:'Qu\'est-ce que le triangle vertueux des 3P ?',choices:['Performance, Précision, Pertinence','Puissance (développer le potentiel), Permission (prendre des initiatives), Protection (cadre sécurisant)','Pilotage, Planification, Prévision','Projet, Plan, Priorité'],correct:1,source:'Gestion des compétences'},
-    {q:'Selon Herzberg, quelle est la différence entre facteurs d\'hygiène et facteurs de motivation ?',choices:['Il n\'y a aucune différence','Les facteurs d\'hygiène (salaire, conditions) évitent l\'insatisfaction ; les facteurs de motivation (reconnaissance, responsabilités) créent l\'engagement durable','Les facteurs d\'hygiène créent la motivation, les facteurs de motivation créent l\'hygiène','Les deux sont des freins à la performance'],correct:1,source:'Théories de la motivation'},
-    {q:'Qu\'appelle-t-on \'strokes\' selon Éric Berne ?',choices:['Des sanctions disciplinaires','Des signes de reconnaissance (conditionnels ou inconditionnels) reconnaissant l\'existence et la valeur de l\'autre','Des indicateurs de performance','Des techniques de négociation commerciale'],correct:1,source:'Signes de reconnaissance'},
-    {q:'Quelle est la différence entre tutorat et mentorat ?',choices:['Ce sont deux mots pour la même chose','Le tutorat transmet des savoir-faire par des collaborateurs expérimentés ; le mentorat accompagne le développement du potentiel dans une relation non hiérarchique','Le tutorat est réservé aux cadres, le mentorat aux non-cadres','Le mentorat est obligatoire, le tutorat est facultatif'],correct:1,source:'Outils de développement'},
-    {q:'Qu\'est-ce que le reverse mentoring ?',choices:['Un mentorat inversé où des juniors forment des seniors, notamment sur les usages digitaux','Un outil de sanction disciplinaire','Une méthode de coaching pour les managers seniors','Un processus d\'évaluation à 360°'],correct:0,source:'Outils de développement'},
-    {q:'Quels sont les 4 niveaux d\'évaluation du modèle de Kirkpatrick ?',choices:['Budget, KPI, Écart, Bilan','Réaction, Apprentissage, Comportement, Résultats','Objectif, Action, Suivi, Correction','Diagnostic, Plan, Mise en œuvre, Évaluation'],correct:1,source:'Modèle Kirkpatrick'},
-    {q:'À quoi sert l\'outil Belbin ?',choices:['Évaluer la rentabilité d\'une agence','Analyser les rôles en équipe pour construire des équipes équilibrées et améliorer le fonctionnement collectif','Mesurer le risque de crédit','Planifier le budget annuel'],correct:1,source:'Outil Belbin'},
-    {q:'Selon Belbin, autour de quelles 3 grandes dimensions s\'organisent les 9 rôles d\'équipe ?',choices:['Stratégie, Opérations, Support','Réflexion, Action, Relation','Compétences, Comportements, Résultats','Individu, Équipe, Organisation'],correct:1,source:'Outil Belbin'},
-    {q:'Qu\'est-ce que la grille \'Qui fait quoi ?\' dans le processus d\'intégration ?',choices:['Un tableau de bord commercial','L\'outil central clarifiant les rôles du manager, tuteur, DRH et collègues durant l\'intégration','Une matrice de compétences','Un planning de formation annuel'],correct:1,source:'Intégration'},
-    {q:'Quels sont les bénéfices d\'une intégration réussie ?',choices:['Augmentation immédiate du PNB','Montée en compétences plus rapide, engagement accru et réduction du turnover','Réduction des charges salariales','Amélioration du ratio de solvabilité'],correct:1,source:'Intégration'},
-    {q:'Quelle est la différence entre démarche expert et démarche d\'accompagnement ?',choices:['Il n\'y a aucune différence','La démarche expert apporte directement la solution ; la démarche d\'accompagnement fait construire la solution par le collaborateur','La démarche expert est réservée aux managers seniors','L\'accompagnement est une forme de sanction'],correct:1,source:'Accompagnement'},
-    {q:'La méthode DESC est utilisée pour :',choices:['Analyser le compte de résultat','Structurer un entretien de recadrage de manière assertive (Décrire, Exprimer, Spécifier solutions, Conséquences positives)','Évaluer le risque de crédit','Présenter un pitch commercial'],correct:1,source:'Entretien de recadrage'},
-    {q:'Selon le cours, quand un collaborateur est en difficulté, le manager doit identifier si le problème relève du :',choices:['Budget, du planning ou des ressources','Sens (n\'a pas compris), de la motivation (n\'a pas envie) ou de la capacité (ne sait pas faire)','Recrutement, de la formation ou de la rémunération','Règlement intérieur, du droit du travail ou de la convention collective'],correct:1,source:'Entretien d\'accompagnement'},
-    {q:'Qu\'est-ce qu\'un prêt in fine ?',choices:['Un prêt dont les intérêts sont remboursés en priorité','Un crédit dont le capital est remboursé en une seule fois à l\'échéance, avec seulement les intérêts et l\'assurance payés pendant la durée','Un prêt à taux variable indexé sur l\'inflation','Un crédit revolving pour les professionnels'],correct:1,source:'Prêt in fine'},
-    {q:'Sur quels 3 leviers repose le LBO (Leverage Buy-Out) ?',choices:['Levier commercial, marketing et RH','Levier financier (remboursement par les flux de la cible), juridique (contrôle avec mise de fonds limitée) et fiscal (intégration fiscale)','Levier opérationnel, stratégique et digital','Levier crédit, épargne et assurance'],correct:1,source:'LBO'},
-    {q:'Qu\'est-ce qu\'un pitch selon le cours ?',choices:['Un rapport écrit détaillé','Une prise de parole courte et percutante avec une accroche, des messages clés et une conclusion marquante','Un tableau de bord de performance','Une réunion de stand-up agile'],correct:1,source:'Communication orale'},
-    {q:'La technique des 3V en communication orale correspond à :',choices:['Vision, Valeurs, Victoires','Verbal (les mots), Vocal (le ton, rythme), Visuel (langage corporel, regard, posture)','Vente, Volume, Valeur ajoutée','Veille, Validation, Vérification'],correct:1,source:'Communication orale'},
-    {q:'À quoi sert l\'executive summary ?',choices:['Remplacer intégralement un rapport','Résumer un document en mettant en avant l\'essentiel pour le destinataire','Structurer un plan d\'action commercial','Présenter les ratios financiers annuels'],correct:1,source:'Communication écrite'},
-    {q:'Que signifie la méthode SPRITE ?',choices:['Style, Pertinence, Rigueur, Impact, Tonalité, Évaluation','Situation, Problème, Résolution, Implications, Transfert, Évaluation','Segmentation, Profil, Référentiel, Indicateurs, Tests, Écarts','Stratégie, Plan, Résultats, Innovation, Transformation, Exécution'],correct:1,source:'Communication écrite'},
-    {q:'Le diamant de Leavitt montre l\'interdépendance entre :',choices:['Produits, Marchés, Clients et Concurrents','Tâches, Acteurs (individus), Structure et Technologie','Budget, Planning, Ressources et Objectifs','Risques, Conformité, Audit et Contrôle'],correct:1,source:'Communication écrite'},
-    {q:'Quelles sont les 4 postures du manager communicant selon le cours ?',choices:['Directif, Persuasif, Participatif, Délégatif','Porte-parole, Porteur de sens, Décideur, Ambassadeur','Coach, Mentor, Tuteur, Formateur','Expert, Technicien, Stratège, Opérationnel'],correct:1,source:'Postures du manager'},
-  ]}, // MODIFIÉ
+,
+  {id:'itb-b1b2', label:'ITB — Banque & Management', zone:'UEMOA', color:'rgba(0,43,92,.15)', tc:'var(--navy)', questions:[
+    {q:'Qu\'est-ce que l\'écosystème bancaire ?',choices:['L\'ensemble des métiers, activités, technologies, règles et partenaires qui interagissent autour de la banque','Le seul réseau d\'agences physiques d\'une banque','La liste des produits financiers proposés aux clients','Le règlement interne de la Banque de France'],correct:0,source:'L\'écosystème bancaire désigne l\'ensemble des métiers, activités, technologies, r'},
+    {q:'Parmi ces acteurs, lesquels font partie de l\'écosystème bancaire externe ?',choices:['Uniquement les clients particuliers','Les Fintech, Bigtech, régulateurs, marchés et environnement sociétal','Seulement les banques centrales','Uniquement les concurrents directs'],correct:1,source:'La banque interagit en permanence avec ses clients, les régulateurs, les marchés'},
+    {q:'En quoi consiste l\'intermédiation bancaire ?',choices:['Vendre des actions en bourse','Collecter l\'épargne des agents à capacité de financement pour la transformer en crédits aux agents à besoin de financement','Gérer uniquement les moyens de paiement','Fournir des conseils en gestion de patrimoine'],correct:1,source:'L\'intermédiation bancaire est l\'activité fondatrice du métier : collecter l\'épar'},
+    {q:'Quelles sont les 3 transformations opérées par la banque dans le cadre de l\'intermédiation ?',choices:['Transformation des prix, des devises et des délais','Transformation des échéances, des risques et de l\'information','Transformation digitale, commerciale et organisationnelle','Transformation des produits, des clients et des marchés'],correct:1,source:'La banque transforme les échéances (court terme → long terme), les risques (mutu'},
+    {q:'Qu\'est-ce que le scoring bancaire ?',choices:['Un outil de gestion des ressources humaines','Une méthode statistique et algorithmique estimant la probabilité de défaut d\'un emprunteur','Un tableau de bord commercial','Un ratio de solvabilité réglementaire'],correct:1,source:'Le scoring est un outil d\'évaluation du risque de défaut de paiement basé sur de'},
+    {q:'Quel est l\'impact du scoring sur la banque ?',choices:['Il augmente le coût du risque','Il réduit les défauts, limite la prise de risque et maîtrise le coût du risque','Il remplace totalement le conseiller bancaire','Il supprime le besoin d\'analyse financière'],correct:1,source:'Le scoring contribue à réduire les défauts de paiement, à optimiser le portefeui'},
+    {q:'Quel métier bancaire s\'adresse aux particuliers, professionnels et PME pour la gestion des comptes, crédits et épargne ?',choices:['Banque de financement et d\'investissement','Banque de détail','Banque privée','Fonctions supports'],correct:1,source:'La banque de détail constitue la base de l\'activité bancaire, s\'adressant aux pa'},
+    {q:'Quelle structure organisationnelle combine pilotage par fonction et par projet ?',choices:['Structure hiérarchique','Structure fonctionnelle','Structure matricielle','Structure en réseau'],correct:2,source:'La structure matricielle combine pilotage par fonction et par projet. Les grande'},
+    {q:'Dans la méthode QQOQCCP, à quelle question correspond \'Quel volume ? Quel coût ?\'',choices:['Quoi ?','Combien ?','Comment ?','Pourquoi ?'],correct:1,source:'\'Combien ?\' correspond aux quantités impliquées et au montant du budget impacté.'},
+    {q:'La méthode QQOQCCP est utilisée pour :',choices:['Fixer des objectifs commerciaux','Résoudre un dysfonctionnement de manière structurée','Analyser la rentabilité d\'un produit','Évaluer les compétences d\'un collaborateur'],correct:1,source:'L\'hexamètre de Quintilien (QQOQCCP) est un outil de résolution de problème à pri'},
+    {q:'Dans l\'analyse SWOT, quelle dimension évalue les faiblesses ?',choices:['Externe / Positif','Externe / Négatif','Interne / Négatif','Interne / Positif'],correct:2,source:'Les faiblesses font partie de la dimension interne et négative de la matrice SWO'},
+    {q:'Le \'T\' de PESTEL correspond à :',choices:['Taux','Technologie','Travail','Territoire'],correct:1,source:'Dans PESTEL, T = Technologie (automatisation, IA, R&D, changement technologique,'},
+    {q:'Quelle est la différence entre transformation par amélioration continue et transformation de rupture ?',choices:['Il n\'y a aucune différence','L\'amélioration continue optimise les processus existants, la rupture remet profondément en cause les métiers et organisations','L\'amélioration continue concerne le digital, la rupture concerne la réglementation','La rupture est toujours imposée par les régulateurs'],correct:1,source:'La transformation par amélioration continue optimise progressivement les process'},
+    {q:'Quels éléments caractérisent le mode projet ?',choices:['Cycles courts, flexibilité et stand-ups','Objectifs clairs, livrables définis, planning, ressources allouées et gouvernance','Élimination des gaspillages et fluidification des processus','Délégation totale au manager de proximité'],correct:1,source:'Le mode projet est cadré par des objectifs clairs, des livrables définis, un pla'},
+    {q:'L\'objectif principal du lean management est :',choices:['Développer de nouveaux produits rapidement','Identifier et éliminer les gaspillages pour fluidifier les processus et créer de la valeur','Mettre en place des cycles itératifs courts','Définir des objectifs stratégiques à 5 ans'],correct:1,source:'Le lean management vise l\'amélioration continue et la création de valeur pour le'},
+    {q:'Parmi les outils suivants, lequel est propre à la méthode Agile ?',choices:['Le diagramme de Gantt','Le tableau Kanban et les réunions stand-up','Le coefficient d\'exploitation','La cartographie des risques'],correct:1,source:'La méthode agile utilise des outils concrets comme les réunions stand-up, les it'},
+    {q:'Quels types de risques la gestion des risques vise-t-elle à maîtriser ?',choices:['Uniquement les risques de crédit','Les risques opérationnels, de conformité, juridiques, réputationnels et technologiques','Seulement les risques de marché','Les risques commerciaux et concurrentiels'],correct:1,source:'La gestion des risques couvre les risques opérationnels, de conformité, juridiqu'},
+    {q:'Que signifie PCA et à quoi sert-il ?',choices:['Plan Commercial Annuel — fixer les objectifs de vente','Plan de Continuité d\'Activité — maintenir ou reprendre l\'activité en cas de crise','Plan de Contrôle Analytique — mesurer la rentabilité','Plan de Communication Associé — informer les parties prenantes'],correct:1,source:'Le PCA (Plan de Continuité d\'Activité) est un ensemble de procédures documentées'},
+    {q:'Parmi ces exemples, lequel constitue un risque éthique en banque ?',choices:['Un client insatisfait du taux proposé','Un conflit d\'intérêts, une fraude interne ou un manquement au devoir de conseil','La hausse des taux directeurs de la BCE','Un départ en retraite d\'un collaborateur'],correct:1,source:'Les risques liés à l\'éthique incluent : conflits d\'intérêts, fraude interne, cor'},
+    {q:'Quelle est la différence entre IA générative et IA prédictive ?',choices:['Il n\'y a aucune différence','L\'IA générative produit de nouveaux contenus (textes, synthèses), l\'IA prédictive anticipe des comportements à partir de données','L\'IA prédictive remplace les humains, l\'IA générative les assiste','L\'IA prédictive est interdite en banque'],correct:1,source:'L\'IA générative produit de nouveaux contenus (textes, synthèses, rapports) tandi'},
+    {q:'Parmi les risques liés à l\'IA générative en banque, lequel figure dans le cours ?',choices:['Baisse des revenus commerciaux','Hallucinations, biais algorithmiques, manque d\'explicabilité, risques de fuite de données','Hausse du coût du crédit','Difficulté à recruter des conseillers'],correct:1,source:'Les usages de l\'IA générative comportent des limites : erreurs ou \'hallucination'},
+    {q:'L\'IA Act classe les systèmes d\'IA selon :',choices:['Leur prix de marché','Leur niveau de risque, avec des obligations croissantes en matière de transparence et gouvernance','Le chiffre d\'affaires des entreprises qui les utilisent','Le pays d\'origine de l\'algorithme'],correct:1,source:'L\'IA Act adopte une approche fondée sur le niveau de risque : risques inacceptab'},
+    {q:'Quels sont les principaux outils du pilotage des risques ?',choices:['Budget, KPI et plan d\'action commercial','Cartographie des risques, KRI, reportings, contrôles internes et audits','Scoring, NSFR et LCR','SWOT, PESTEL et QQOQCCP'],correct:1,source:'Les principaux outils du pilotage des risques sont la cartographie des risques, '},
+    {q:'Que signifie ALM ?',choices:['Audit et Liquidité des Marchés','Asset and Liability Management — gestion actif-passif','Analyse et Levier des Marges','Allocation Libre des Moyens'],correct:1,source:'ALM = Asset and Liability Management, fonction stratégique visant à équilibrer a'},
+    {q:'Quelle est la problématique majeure de l\'ALM ?',choices:['La difficulté à recruter des spécialistes','Les décalages de maturité et de taux entre emplois et ressources','La baisse de la fréquentation des agences','L\'augmentation des charges salariales'],correct:1,source:'La problématique majeure provient des décalages de maturité et de taux entre emp'},
+    {q:'Que mesure le LCR (Liquidity Coverage Ratio) ?',choices:['La capacité à résister à une crise de liquidité sur 30 jours grâce à des actifs liquides de haute qualité','La stabilité des ressources à un horizon d\'un an','La solvabilité générale sur 5 ans','Le rapport entre fonds propres et actifs pondérés'],correct:0,source:'Le LCR mesure la capacité de la banque à résister à une crise de liquidité sur 3'},
+    {q:'Quel est le niveau minimum réglementaire pour le LCR et le NSFR ?',choices:['50%','75%','100%','150%'],correct:2,source:'Les ratios LCR et NSFR doivent être supérieurs à 100%, conformément à la régleme'},
+    {q:'Qu\'est-ce que le Produit Net Bancaire (PNB) ?',choices:['Le bénéfice net après impôt','L\'équivalent du chiffre d\'affaires, issu des marges d\'intermédiation et des commissions','Le résultat après déduction du coût du risque','La somme des dividendes versés aux actionnaires'],correct:1,source:'Le PNB est le solde intermédiaire de gestion le plus important, équivalent du ch'},
+    {q:'Comment obtient-on le Résultat Brut d\'Exploitation (RBE) ?',choices:['PNB – Coût du risque','PNB – Charges générales d\'exploitation','PNB + Produits exceptionnels','Résultat d\'exploitation + impôts'],correct:1,source:'RBE = PNB – Charges générales d\'exploitation (+ dotations aux amortissements). I'},
+    {q:'Que mesure le coefficient d\'exploitation ?',choices:['La rentabilité des fonds propres','L\'efficacité opérationnelle : charges d\'exploitation / PNB','Le rapport entre crédits et dépôts','La productivité par agent'],correct:1,source:'Le coefficient d\'exploitation = charges d\'exploitation / PNB. Plus il est faible'},
+    {q:'Que signifie RAROC ?',choices:['Ratio d\'Appui au Remboursement des Obligations de Crédit','Rentabilité Ajustée au Risque sur les Capitaux propres (Risk-Adjusted Return on Capital)','Rapport Annuel de Résultat Opérationnel Commercial','Ratio d\'Assurance et de Risque des Opérations de Crédit'],correct:1,source:'Le RAROC (Risk-Adjusted Return on Capital) est un ratio de rentabilité globale i'},
+    {q:'Le ratio de solvabilité Bâle III impose un minimum de fonds propres de :',choices:['3%','5%','8%','12%'],correct:2,source:'Le ratio de solvabilité (Bâle III / Pilier 1) impose un minimum de 8% de fonds p'},
+    {q:'Quel est le niveau minimum du ratio de levier selon Bâle III ?',choices:['1%','3%','5%','8%'],correct:1,source:'Le ratio de levier impose un minimum de 3% de fonds propres par rapport aux acti'},
+    {q:'Un objectif pertinent doit être :',choices:['Ambitieux et flou pour laisser de la marge','Utile, mesurable, échéancé et réaliste','Uniquement quantitatif','Fixé uniquement par la direction générale'],correct:1,source:'Un objectif n\'a de valeur que s\'il est utile, mesurable, échéancé et réaliste. I'},
+    {q:'Que contient un plan d\'action commercial (PAC) ?',choices:['Les ratios prudentiels de la banque','Des actions de prospection, conquête, fidélisation et sécurisation de la clientèle','Les procédures de gestion des risques opérationnels','Les indicateurs de solvabilité'],correct:1,source:'Le PAC (plan d\'action commercial) regroupe des actions de prospection, de conquê'},
+    {q:'Que signifie la méthode KISS ?',choices:['Keep – Improve – Start – Stop','Kpi – Indicateur – Stratégie – Suivi','Knowhow – Innovation – Skills – Satisfaction','Key – Ideas – Solutions – Success'],correct:0,source:'La méthode KISS = Keep (ce que je garde), Improve (ce que j\'améliore), Start (ce'},
+    {q:'Comment interpréter un indicateur de performance selon le cours ?',choices:['En valeur absolue seulement','Par comparaison dans le temps, avec des entités similaires (benchmark) ou avec une norme/objectif','Uniquement par rapport au budget initial','En le comparant uniquement au secteur bancaire national'],correct:1,source:'L\'interprétation des indicateurs repose sur des comparaisons dans le temps, avec'},
+    {q:'À quoi sert la méthode SPRI ?',choices:['Évaluer la solvabilité d\'un emprunteur','Présenter clairement les résultats, difficultés et solutions (Situation – Problème – Résolution – Informations)','Cartographier les risques opérationnels','Analyser le compte de résultat'],correct:1,source:'La méthode SPRI (Situation, Problème, Résolution, Informations) permet de présen'},
+    {q:'Quel type de graphique est recommandé pour visualiser des évolutions dans le temps ?',choices:['Graphique en barres','Camembert','Courbe','Nuage de points'],correct:2,source:'Les courbes sont recommandées pour visualiser des évolutions dans le temps. Les '},
+    {q:'Sur quel principe fondamental repose le management situationnel ?',choices:['Il existe un style de management universellement efficace','Il n\'existe pas de style de management universellement efficace ; l\'efficacité dépend de l\'adaptation à la situation','Le manager doit toujours être directif pour obtenir des résultats','La motivation financière est le seul levier d\'efficacité'],correct:1,source:'Le management situationnel repose sur le principe qu\'il n\'existe pas de style un'},
+    {q:'Quel style managérial correspond à un collaborateur à très faible autonomie (ne sait pas faire, manque de confiance) ?',choices:['Délégatif','Participatif','Directif','Persuasif'],correct:2,source:'Le style directif est adapté à la très faible autonomie. Il se caractérise par d'},
+    {q:'Quel style managérial correspond à un collaborateur motivé mais peu compétent ?',choices:['Directif','Persuasif','Participatif','Délégatif'],correct:1,source:'Le style persuasif s\'applique à une faible autonomie avec motivation. Le manager'},
+    {q:'Quel style managérial correspond à une autonomie modérée ?',choices:['Directif','Persuasif','Participatif','Délégatif'],correct:2,source:'Le style participatif correspond à une autonomie modérée. Le manager adopte une '},
+    {q:'Un manager utilise le style délégatif. Qu\'est-ce que cela signifie ?',choices:['Il définit lui-même toutes les méthodes et contrôle en permanence','Il fixe les objectifs puis laisse le collaborateur autonome pour les décisions et la mise en œuvre','Il explique chaque décision pour créer l\'adhésion','Il participe à toutes les réunions pour guider le collectif'],correct:1,source:'Le style délégatif s\'applique à une forte autonomie. Le manager définit les obje'},
+    {q:'L\'outil DISC analyse :',choices:['La personnalité profonde du collaborateur','Le comportement observable (le \'comment\' agir)','La performance financière de l\'équipe','Le niveau de compétences techniques'],correct:1,source:'Le DISC analyse le comportement observable, c\'est-à-dire le \'comment\' agir, et n'},
+    {q:'Quels sont les 4 profils comportementaux du DISC ?',choices:['Directif, Indirect, Stable, Curieux','Dominance, Influence, Stabilité, Conformité','Décideur, Innovateur, Soutien, Contrôleur','Dynamique, Intuitif, Sensible, Confiant'],correct:1,source:'Le DISC identifie 4 profils : D = Dominance, I = Influence, S = Stabilité, C = C'},
+    {q:'Quel est l\'objectif ultime du management situationnel en matière de relation hiérarchique ?',choices:['Maintenir la dépendance pour garder le contrôle','Atteindre l\'interdépendance : coopération mature, objectifs communs, responsabilisation partagée','Favoriser l\'indépendance totale de chaque collaborateur','Maintenir une contre-dépendance saine'],correct:1,source:'L\'objectif du management situationnel est d\'atteindre l\'interdépendance, situati'},
+    {q:'Qu\'est-ce que le triangle vertueux des 3P ?',choices:['Performance, Précision, Pertinence','Puissance (développer le potentiel), Permission (prendre des initiatives), Protection (cadre sécurisant)','Pilotage, Planification, Prévision','Projet, Plan, Priorité'],correct:1,source:'Le triangle des 3P : Puissance = développement du potentiel, Permission = autori'},
+    {q:'Selon Herzberg, quelle est la différence entre facteurs d\'hygiène et facteurs de motivation ?',choices:['Il n\'y a aucune différence','Les facteurs d\'hygiène (salaire, conditions) évitent l\'insatisfaction ; les facteurs de motivation (reconnaissance, responsabilités) créent l\'engagement durable','Les facteurs d\'hygiène créent la motivation, les facteurs de motivation créent l\'hygiène','Les deux sont des freins à la performance'],correct:1,source:'Herzberg distingue les facteurs d\'hygiène (conditions de travail, rémunération, '},
+    {q:'Qu\'appelle-t-on \'strokes\' selon Éric Berne ?',choices:['Des sanctions disciplinaires','Des signes de reconnaissance (conditionnels ou inconditionnels) reconnaissant l\'existence et la valeur de l\'autre','Des indicateurs de performance','Des techniques de négociation commerciale'],correct:1,source:'Les \'strokes\' (Éric Berne) sont des signes de reconnaissance. Conditionnels = li'},
+    {q:'Quelle est la différence entre tutorat et mentorat ?',choices:['Ce sont deux mots pour la même chose','Le tutorat transmet des savoir-faire par des collaborateurs expérimentés ; le mentorat accompagne le développement du potentiel dans une relation non hiérarchique','Le tutorat est réservé aux cadres, le mentorat aux non-cadres','Le mentorat est obligatoire, le tutorat est facultatif'],correct:1,source:'Tutorat = transmission de savoir-faire par des collaborateurs expérimentés. Ment'},
+    {q:'Qu\'est-ce que le reverse mentoring ?',choices:['Un mentorat inversé où des juniors forment des seniors, notamment sur les usages digitaux','Un outil de sanction disciplinaire','Une méthode de coaching pour les managers seniors','Un processus d\'évaluation à 360°'],correct:0,source:'Le reverse mentoring permet à des salariés juniors de former des seniors, par ex'},
+    {q:'Quels sont les 4 niveaux d\'évaluation du modèle de Kirkpatrick ?',choices:['Budget, KPI, Écart, Bilan','Réaction, Apprentissage, Comportement, Résultats','Objectif, Action, Suivi, Correction','Diagnostic, Plan, Mise en œuvre, Évaluation'],correct:1,source:'Le modèle de Kirkpatrick comprend 4 niveaux : Réaction (satisfaction des partici'},
+    {q:'À quoi sert l\'outil Belbin ?',choices:['Évaluer la rentabilité d\'une agence','Analyser les rôles en équipe pour construire des équipes équilibrées et améliorer le fonctionnement collectif','Mesurer le risque de crédit','Planifier le budget annuel'],correct:1,source:'Belbin identifie 9 rôles d\'équipe (Réflexion, Action, Relation) pour construire '},
+    {q:'Selon Belbin, autour de quelles 3 grandes dimensions s\'organisent les 9 rôles d\'équipe ?',choices:['Stratégie, Opérations, Support','Réflexion, Action, Relation','Compétences, Comportements, Résultats','Individu, Équipe, Organisation'],correct:1,source:'Belbin organise les 9 rôles autour de 3 dimensions : Réflexion (priseur, concept'},
+    {q:'Qu\'est-ce que la grille \'Qui fait quoi ?\' dans le processus d\'intégration ?',choices:['Un tableau de bord commercial','L\'outil central clarifiant les rôles du manager, tuteur, DRH et collègues durant l\'intégration','Une matrice de compétences','Un planning de formation annuel'],correct:1,source:'La grille \'Qui fait quoi ?\' clarifie les rôles du manager (N+1), du tuteur, de l'},
+    {q:'Quels sont les bénéfices d\'une intégration réussie ?',choices:['Augmentation immédiate du PNB','Montée en compétences plus rapide, engagement accru et réduction du turnover','Réduction des charges salariales','Amélioration du ratio de solvabilité'],correct:1,source:'Une intégration réussie permet une montée en compétence plus rapide, un engageme'},
+    {q:'Quelle est la différence entre démarche expert et démarche d\'accompagnement ?',choices:['Il n\'y a aucune différence','La démarche expert apporte directement la solution ; la démarche d\'accompagnement fait construire la solution par le collaborateur','La démarche expert est réservée aux managers seniors','L\'accompagnement est une forme de sanction'],correct:1,source:'Démarche expert = apporter directement la solution. Démarche d\'accompagnement = '},
+    {q:'La méthode DESC est utilisée pour :',choices:['Analyser le compte de résultat','Structurer un entretien de recadrage de manière assertive (Décrire, Exprimer, Spécifier solutions, Conséquences positives)','Évaluer le risque de crédit','Présenter un pitch commercial'],correct:1,source:'DESC = Décrire les faits, Exprimer le ressenti, Spécifier des solutions, Conclur'},
+    {q:'Selon le cours, quand un collaborateur est en difficulté, le manager doit identifier si le problème relève du :',choices:['Budget, du planning ou des ressources','Sens (n\'a pas compris), de la motivation (n\'a pas envie) ou de la capacité (ne sait pas faire)','Recrutement, de la formation ou de la rémunération','Règlement intérieur, du droit du travail ou de la convention collective'],correct:1,source:'Le manager doit identifier si la difficulté relève du sens (n\'a pas compris), de'},
+    {q:'Qu\'est-ce qu\'un prêt in fine ?',choices:['Un prêt dont les intérêts sont remboursés en priorité','Un crédit dont le capital est remboursé en une seule fois à l\'échéance, avec seulement les intérêts et l\'assurance payés pendant la durée','Un prêt à taux variable indexé sur l\'inflation','Un crédit revolving pour les professionnels'],correct:1,source:'Prêt in fine : capital remboursé en une seule fois à l\'échéance, seuls les intér'},
+    {q:'Sur quels 3 leviers repose le LBO (Leverage Buy-Out) ?',choices:['Levier commercial, marketing et RH','Levier financier (remboursement par les flux de la cible), juridique (contrôle avec mise de fonds limitée) et fiscal (intégration fiscale)','Levier opérationnel, stratégique et digital','Levier crédit, épargne et assurance'],correct:1,source:'Le LBO repose sur 3 leviers : financier (remboursement de la dette par les flux '},
+    {q:'Qu\'est-ce qu\'un pitch selon le cours ?',choices:['Un rapport écrit détaillé','Une prise de parole courte et percutante avec une accroche, des messages clés et une conclusion marquante','Un tableau de bord de performance','Une réunion de stand-up agile'],correct:1,source:'Le pitch est une prise de parole courte et percutante construite autour d\'une ac'},
+    {q:'La technique des 3V en communication orale correspond à :',choices:['Vision, Valeurs, Victoires','Verbal (les mots), Vocal (le ton, rythme), Visuel (langage corporel, regard, posture)','Vente, Volume, Valeur ajoutée','Veille, Validation, Vérification'],correct:1,source:'La technique des 3V : Verbal = les mots choisis, Vocal = le ton, le rythme, la v'},
+    {q:'À quoi sert l\'executive summary ?',choices:['Remplacer intégralement un rapport','Résumer un document en mettant en avant l\'essentiel pour le destinataire','Structurer un plan d\'action commercial','Présenter les ratios financiers annuels'],correct:1,source:'L\'executive summary est destiné à résumer un document en mettant en avant l\'esse'},
+    {q:'Que signifie la méthode SPRITE ?',choices:['Style, Pertinence, Rigueur, Impact, Tonalité, Évaluation','Situation, Problème, Résolution, Implications, Transfert, Évaluation','Segmentation, Profil, Référentiel, Indicateurs, Tests, Écarts','Stratégie, Plan, Résultats, Innovation, Transformation, Exécution'],correct:1,source:'SPRITE = Situation, Problème, Résolution, Implications, Transfert, Évaluation. M'},
+    {q:'Le diamant de Leavitt montre l\'interdépendance entre :',choices:['Produits, Marchés, Clients et Concurrents','Tâches, Acteurs (individus), Structure et Technologie','Budget, Planning, Ressources et Objectifs','Risques, Conformité, Audit et Contrôle'],correct:1,source:'Le diamant de Leavitt est un outil d\'analyse globale des situations de changemen'},
+    {q:'Quelles sont les 4 postures du manager communicant selon le cours ?',choices:['Directif, Persuasif, Participatif, Délégatif','Porte-parole, Porteur de sens, Décideur, Ambassadeur','Coach, Mentor, Tuteur, Formateur','Expert, Technicien, Stratège, Opérationnel'],correct:1,source:'Les 4 postures du manager communicant : Porte-parole (transmet l\'information), P'}
+  ]}
 ];
 
 let _soloState = { pack: null, qIndex: 0, score: 0, answered: false, answers: [] };
@@ -3385,12 +3473,10 @@ function initSolo() {
 }
 
 function startSoloPack(packId) {
-  const pack = PACKS.find(p => p && p.id === packId); // MODIFIÉ
-  if (!pack) { console.error('Pack introuvable :', packId); alert('Ce pack est temporairement indisponible.'); return; } // MODIFIÉ
+  const pack = PACKS.find(p => p.id === packId);
+  if (!pack) return;
   _soloState = { pack, qIndex: 0, score: 0, answered: false, answers: [] };
   const overlay = document.getElementById('solo-quiz-overlay');
-  if (!overlay) { console.error('[RA] solo-quiz-overlay introuvable — pack:', packId); return; } // MODIFIÉ
-  console.log('[RA] startSoloPack →', packId, '— questions:', pack.questions.length); // MODIFIÉ
   overlay.style.display = 'block';
   document.getElementById('solo-pack-title').textContent = pack.label;
   document.getElementById('solo-q-total').textContent = pack.questions.length;
@@ -3428,8 +3514,8 @@ function soloAnswer(idx) {
     else if (i === idx && !ok) c.classList.add('wrong');
     else c.classList.add('disabled');
   });
-  if (ok) { _soloState.score += 100; showToast('✓ Correct ! +100 pts'); }
-  else showToast('✗ ' + q.choices[q.correct]);
+  if (ok) { _soloState.score += 100; RA_SFX.correct(); showToast('✓ Correct ! +100 pts'); } // MODIFIÉ
+  else { RA_SFX.error(); showToast('✗ ' + q.choices[q.correct]); } // MODIFIÉ
   _soloState.answers.push({ q: q.q, choices: q.choices, userIdx: idx, correctIdx: q.correct, ok, source: q.source || '' });
   { // MODIFIÉ — afficher référence officielle (q.reference en priorité, fallback source puis défaut)
     const refVal = q.reference || q.source || 'BCEAO/CIMA 2026'; // MODIFIÉ
@@ -3453,7 +3539,7 @@ function _soloShowResult() {
   document.getElementById('solo-result-trophy').textContent = pct >= 80 ? '🏆' : pct >= 50 ? '👍' : '📚';
   document.getElementById('solo-result-score').textContent = score.toLocaleString('fr-FR') + ' / ' + total.toLocaleString('fr-FR') + ' pts — ' + pct + '%';
   document.getElementById('solo-result-msg').textContent = pct >= 80 ? 'Excellent ! Maîtrise confirmée.' : pct >= 50 ? 'Bon résultat. Continuez !' : 'À retravailler. La réglementation n\'a pas de secrets pour qui persiste !';
-  if (pct >= 80) typeof launchConfetti === 'function' && launchConfetti();
+  if (pct >= 80) { typeof launchConfetti === 'function' && launchConfetti(); RA_SFX.victory(); RA_FX.confetti(); RA_SFX.applause(); RA_FX.bravo(); } // MODIFIÉ
 
   const recap = document.getElementById('solo-recap');
   if (recap) {
@@ -3901,8 +3987,7 @@ function createDuel(){
       if(!d.success||!d.code){showToast('❌ Erreur création duel');return;}
       _duelLive.code=d.code;_duelLive.packId=packId;_duelLive.numQuestions=numQ;_duelLive.timerSec=timerS;_duelLive.isCreator=true;
       _duelLive.myUserId=_getMyUserId();_duelLive.myName=_getMyName()||'Moi';_duelLive.oppName='En attente...';
-      // FIX anti-triche — les questions ne sont plus cachées côté client.
-      // Le serveur les tirera et les figera lors du POST /duels/:code/start.
+      const pack=PACKS.find(p=>p.id===packId);_duelLive.questions=pack?pack.questions:[];
       _showWaitScreen(d.code);_pollForJoiner();
     })
     .catch(()=>showToast('❌ Connexion impossible'));
@@ -3916,6 +4001,7 @@ function _showWaitScreen(code){
   const urlEl=document.getElementById('invite-link-url');if(urlEl)urlEl.textContent=location.origin+'/?code='+code; // MODIFIÉ — sync lien copier sur d-screen-create
   const btnL=document.getElementById('btn-lancer-duel');if(btnL)btnL.style.display='none';
   const ps=document.getElementById('wait-poll-status');if(ps)ps.textContent="En attente d'un joueur...";
+  RA_SFX.waiting(); // MODIFIÉ — boucle d'attente pendant écran wait créateur
 }
 function _pollForJoiner(){
   _duelLive.pollInt=setInterval(()=>{
@@ -3935,11 +4021,24 @@ function _pollForJoiner(){
       }).catch(()=>{});
   },3000);
 }
+// MODIFIÉ — récupère le code pays du profil JWT ou localStorage
+function _getPlayerCountry(){
+  try{const jwt=(function(){try{return localStorage.getItem('ra_jwt');}catch(e){}try{return sessionStorage.getItem('ra_jwt');}catch(e){}return null;})();if(jwt){const p=JSON.parse(atob(jwt.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));if(p.country)return p.country;}}catch(e){}
+  try{const u=JSON.parse(localStorage.getItem('ra_auth_user_data')||localStorage.getItem('ra_gate_user_data')||'null');if(u&&u.country)return u.country;}catch(e){}
+  return 'SN';
+}
+const _INTRO_DELAY=10000;
+function _duelIntroThenStart(){
+  RA_SFX.stopWaiting();
+  RA_SFX.anthem(_getPlayerCountry());
+  setTimeout(function(){ RA_SFX.arenaIntro(); }, 3400);
+  setTimeout(function(){ dGoTo('duel'); }, _INTRO_DELAY);
+}
 function lancerDuel(){
   const jwt=_getJwt();if(!jwt)return;
   fetch('/duels/'+_duelLive.code+'/start',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt}})
     .then(r=>r.json()).then(d=>{
-      if(d.success){clearInterval(_duelLive.pollInt);_duelLive.pollInt=null;dGoTo('duel');}
+      if(d.success){clearInterval(_duelLive.pollInt);_duelLive.pollInt=null;_duelIntroThenStart();} // MODIFIÉ — intro anthem+arenaIntro avant duel
       else showToast('❌ '+(d.error||'Erreur lancement'));
     }).catch(()=>showToast('❌ Connexion impossible'));
 }
@@ -3960,7 +4059,7 @@ function joinDuelByCode(){
       _duelLive.myUserId=_getMyUserId();_duelLive.myName=_getMyName()||'Moi';
       if(d.duel){
         _duelLive.packId=d.duel.pack_id;_duelLive.numQuestions=d.duel.num_questions||5;_duelLive.timerSec=d.duel.timer_sec||30;
-        // FIX anti-triche — questions servies par le serveur via /duels/:code/question/:index
+        const pack=PACKS.find(p=>p.id===_duelLive.packId);_duelLive.questions=pack?pack.questions:[];
         const crName=d.duel.creator?.name||'Créateur';
         _duelLive.oppName=crName;
         const avEl=document.getElementById('ws-creator-av');if(avEl)avEl.textContent=crName.slice(0,2).toUpperCase();
@@ -3969,6 +4068,7 @@ function joinDuelByCode(){
       _clearDuelPolls();
       document.querySelectorAll('.screen-d').forEach(s=>{s.classList.remove('active');s.style.display='none';});
       const t=document.getElementById('d-screen-waiting-start');t.style.display='';t.classList.add('active');
+      RA_SFX.waiting(); // MODIFIÉ — boucle d'attente pendant écran wait rejoignant
       _pollForStart();
     }).catch(()=>showToast('❌ Connexion impossible'));
 }
@@ -3980,8 +4080,8 @@ function _pollForStart(){
         if(!d.success||!d.duel)return;
         if(d.duel.status==='active'){
           _duelLive.packId=d.duel.pack_id||_duelLive.packId;_duelLive.numQuestions=d.duel.num_questions||_duelLive.numQuestions;_duelLive.timerSec=d.duel.timer_sec||_duelLive.timerSec;
-          // FIX anti-triche — questions servies par le serveur via /duels/:code/question/:index
-          clearInterval(_duelLive.pollInt);_duelLive.pollInt=null;dGoTo('duel');
+          const pack=PACKS.find(p=>p.id===_duelLive.packId);_duelLive.questions=pack?pack.questions:[];
+          clearInterval(_duelLive.pollInt);_duelLive.pollInt=null;_duelIntroThenStart(); // MODIFIÉ — intro anthem+arenaIntro avant duel
         }
       }).catch(()=>{});
   },3000);
@@ -4049,69 +4149,27 @@ function _pollLiveDuel(){
       }).catch(()=>{});
   },2000);
 }
-// FIX anti-triche — _loadDuelQ récupère désormais la question depuis le serveur.
-// Plus aucune lecture de _duelLive.questions (qui contenait les bonnes réponses
-// côté client). La question revient sans le champ `correct` — impossible de
-// tricher en inspectant le DOM ou la mémoire JS. Le champ `correct` n'est révélé
-// que via la réponse de /duels/:code/answer, APRÈS soumission.
-// La cache _currentDuelQ stocke la question reçue pour l'affichage feedback.
 function _loadDuelQ(){
-  const numQ=_duelLive.numQuestions;
-  if(dState.qIndex>=numQ){showResult(dState.scores.me>=dState.scores.them);return;}
-  const jwt=_getJwt();
-  if(!jwt||!_duelLive.code){showResult(false);return;}
-  fetch('/duels/'+_duelLive.code+'/question/'+dState.qIndex,{headers:{'Authorization':'Bearer '+jwt}})
-    .then(r=>r.json())
-    .then(d=>{
-      if(!d.success||!d.question){showToast('⚠ Erreur chargement question');return;}
-      const q=d.question;
-      _duelLive._currentQ=q; // cache locale (sans la bonne réponse)
-      const qEl=document.getElementById('q-text');if(qEl)qEl.textContent=q.q;
-      const curEl=document.getElementById('q-current');if(curEl)curEl.textContent=dState.qIndex+1;
-      const cEl=document.getElementById('q-choices');
-      if(cEl)cEl.innerHTML=q.choices.map((c,i)=>`<button class="q-choice" onclick="duelAnswer(${i})">${String.fromCharCode(65+i)}. ${escapeHtml(c)}</button>`).join('');
-      dState.answered=false;
-    })
-    .catch(()=>{showToast('⚠ Réseau indisponible');});
+  const qs=_duelLive.questions;const numQ=_duelLive.numQuestions;
+  if(!qs||qs.length===0||dState.qIndex>=numQ){showResult(dState.scores.me>=dState.scores.them);return;}
+  const q=qs[dState.qIndex%qs.length];
+  const qEl=document.getElementById('q-text');if(qEl)qEl.textContent=q.q;
+  const curEl=document.getElementById('q-current');if(curEl)curEl.textContent=dState.qIndex+1;
+  const cEl=document.getElementById('q-choices');
+  if(cEl)cEl.innerHTML=q.choices.map((c,i)=>`<button class="q-choice" onclick="duelAnswer(${i})">${String.fromCharCode(65+i)}. ${escapeHtml(c)}</button>`).join('');
+  dState.answered=false;
 }
-// FIX anti-triche — duelAnswer envoie maintenant uniquement choice_index.
-// Le serveur valide, calcule le score, et renvoie {correct, correct_index, my_score}.
-// Le client n'affecte plus dState.scores.me directement : il prend la valeur serveur.
 function duelAnswer(idx){
   if(dState.answered)return;dState.answered=true;
+  const q=_duelLive.questions[dState.qIndex%_duelLive.questions.length];const ok=idx===q.correct;
+  document.querySelectorAll('.q-choice').forEach((c,i)=>{if(i===q.correct)c.classList.add('correct');else if(i===idx&&!ok)c.classList.add('wrong');else c.classList.add('disabled');});
+  const choicesEl=document.getElementById('q-choices');
+  if(choicesEl){var refVal=q.reference||q.source||'BCEAO/CIMA 2026';var srcEl=document.createElement('div');srcEl.style.cssText='margin-top:12px;font-family:JetBrains Mono,monospace;font-size:.58rem;letter-spacing:1px;border-top:1px solid var(--gb);padding-top:9px;line-height:1.5';srcEl.innerHTML='<em style="color:#C9991A">📌 Réf. : '+escapeHtml(refVal)+'</em>';choicesEl.appendChild(srcEl);} // MODIFIÉ
+  if(ok){const pts=100+dState.streaks.me*10;dState.scores.me+=pts;dState.streaks.me++;RA_SFX.correct();showDelta('me','+'+pts);showToast('✓ Correct ! +'+pts+' pts');} // MODIFIÉ
+  else{dState.streaks.me=0;RA_SFX.error();showToast('✗ Réponse : '+q.choices[q.correct]);} // MODIFIÉ
+  updateDuelUI();
   const jwt=_getJwt();
-  if(!jwt||!_duelLive.code){showToast('⚠ Session expirée');return;}
-  fetch('/duels/'+_duelLive.code+'/answer',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt},body:JSON.stringify({q_index:dState.qIndex,choice_index:idx})})
-    .then(r=>r.json())
-    .then(d=>{
-      if(!d.success){showToast('⚠ '+(d.error||'Erreur'));return;}
-      const isCorrect=!!d.correct;
-      const correctIdx=d.correct_index;
-      const pts=Number(d.points_earned)||0;
-      const newScore=Number(d.my_score)||dState.scores.me;
-      // Affichage des choix : correct / wrong / disabled
-      document.querySelectorAll('.q-choice').forEach((c,i)=>{
-        if(correctIdx!=null&&i===correctIdx)c.classList.add('correct');
-        else if(i===idx&&!isCorrect)c.classList.add('wrong');
-        else c.classList.add('disabled');
-      });
-      // Affichage de la référence pédagogique (feuille de mats)
-      const q=_duelLive._currentQ;
-      const choicesEl=document.getElementById('q-choices');
-      if(choicesEl&&q){
-        var refVal=q.reference||'BCEAO/CIMA 2026';
-        var srcEl=document.createElement('div');
-        srcEl.style.cssText='margin-top:12px;font-family:JetBrains Mono,monospace;font-size:.58rem;letter-spacing:1px;border-top:1px solid var(--gb);padding-top:9px;line-height:1.5';
-        srcEl.innerHTML='<em style="color:#C9991A">📌 Réf. : '+escapeHtml(refVal)+'</em>';
-        choicesEl.appendChild(srcEl);
-      }
-      // Mise à jour du score authoritative (renvoyé par le serveur)
-      dState.scores.me=newScore;
-      if(isCorrect){dState.streaks.me++;showDelta('me','+'+pts);showToast('✓ Correct ! +'+pts+' pts');}
-      else{dState.streaks.me=0;if(q&&correctIdx!=null)showToast('✗ Réponse : '+q.choices[correctIdx]);else showToast('✗ Mauvaise réponse');}
-      updateDuelUI();
-    })
-    .catch(()=>{showToast('⚠ Réseau indisponible — réponse non enregistrée');dState.answered=false;});
+  if(jwt&&_duelLive.code){fetch('/duels/'+_duelLive.code+'/answer',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt},body:JSON.stringify({q_index:dState.qIndex,correct:ok,score:dState.scores.me})}).catch(()=>{});}
   setTimeout(_duelNextQ,2400);
 }
 function _duelNextQ(){dState.qIndex++;if(dState.qIndex>=_duelLive.numQuestions){showResult(dState.scores.me>=dState.scores.them);return;}_resetDuelTimer();_loadDuelQ();}
@@ -4126,7 +4184,6 @@ function animNum(id,target){
 }
 function updateDuelUI(){
   animNum('score-me',dState.scores.me);animNum('score-them',dState.scores.them);
-  if(d.duel&&d.duel.scores){const oppId=(_duelLive.isCreator?d.duel.joiner_id:d.duel.creator_id);const oppScore=d.duel.scores.find(s=>s.user_id===oppId);if(oppScore&&oppScore.score>dState.scores.them)dState.scores.them=oppScore.score;}
   const sm=document.getElementById('streak-me');if(sm)sm.textContent='🔥 '+dState.streaks.me+' bonne(s)';
   const st=document.getElementById('streak-them');if(st)st.textContent=dState.streaks.them+' bonne(s)';
   const total=dState.scores.me+dState.scores.them||1;
@@ -4144,7 +4201,7 @@ function _startDuelTimer(){
   if(dState.timerInt)clearInterval(dState.timerInt);
   dState.timerInt=setInterval(()=>{
     dState.timerVal--;if(disp)disp.textContent=dState.timerVal;
-    if(timerEl){if(dState.timerVal<=10)timerEl.classList.add('urgent');else timerEl.classList.remove('urgent');}
+    if(timerEl){if(dState.timerVal<=10){timerEl.classList.add('urgent');RA_SFX.timer();}else timerEl.classList.remove('urgent');} // MODIFIÉ
     if(dState.timerVal<=0){
       clearInterval(dState.timerInt);
       if(!dState.answered){
@@ -4166,14 +4223,11 @@ function showResult(iWin){
   const fme=document.getElementById('final-score-me'),fth=document.getElementById('final-score-them');
   if(fme)fme.textContent=meS.toLocaleString('fr-FR');if(fth)fth.textContent=thS.toLocaleString('fr-FR');
   const trophy=document.getElementById('winner-trophy'),wname=document.getElementById('winner-name'),ptsEl=document.getElementById('pts-gain');
-  const myName=_duelLive.myName||_getMyName()||'Toi';
-  const oppName=_duelLive.oppName||'Adversaire';
-  if(iWin){if(trophy)trophy.textContent='🏆';if(wname)wname.textContent=myName;if(ptsEl){ptsEl.textContent='+120';ptsEl.className='pts-value gain';}launchConfetti();RA_FX.fireworks();RA_SFX.bravo();}
-  else{if(trophy)trophy.textContent='😤';if(wname)wname.textContent=oppName;if(ptsEl){ptsEl.textContent='-40';ptsEl.className='pts-value loss';}}
+  if(iWin){if(trophy)trophy.textContent='🏆';if(wname)wname.textContent='Toi';if(ptsEl){ptsEl.textContent='+120';ptsEl.className='pts-value gain';}launchConfetti();RA_FX.fireworks();RA_SFX.bravo();} // MODIFIÉ
+  else{if(trophy)trophy.textContent='😤';if(wname)wname.textContent='Adversaire';if(ptsEl){ptsEl.textContent='-40';ptsEl.className='pts-value loss';}}
   document.querySelectorAll('.screen-d').forEach(s=>{s.classList.remove('active');s.style.display='none';});
   const t=document.getElementById('d-screen-result');if(t){t.style.display='';t.classList.add('active');}
   const jwt=_getJwt();
-  if(jwt&&_duelLive.code){fetch('/duels/'+_duelLive.code+'/live',{headers:{'Authorization':'Bearer '+jwt}}).then(r=>r.json()).then(data=>{if(data&&data.duel&&data.duel.scores){const oppId=(_duelLive.isCreator?data.duel.joiner_id:data.duel.creator_id);const oppScore=data.duel.scores.find(s=>s.user_id===oppId);if(oppScore!=null&&fth)fth.textContent=Number(oppScore.score).toLocaleString('fr-FR');}}).catch(()=>{});}
   if(jwt&&_duelLive.packId){fetch('/scores',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt},body:JSON.stringify({pack_id:_duelLive.packId,score:meS,total:meS+thS})}).catch(()=>{});}
 }
 function launchConfetti(){
@@ -4277,10 +4331,16 @@ function resetInviteMsg(){const msg=document.getElementById('invite-message');if
    ─────────────────────────────────────────────────────────── */
 const RAGate = (() => {
   const KEY_COUNT='ra_quiz_count', KEY_REG='ra_gate_registered', KEY_USER='ra_gate_user_data';
+  const KEY_SESSION='ra_session', SALT='RA2025'; // MODIFIÉ — anti-cheat
+  // MODIFIÉ — blacklist emails jetables + personnels (était undefined → bug silencieux)
+  const BLOCKED=['yahoo.com','hotmail.com','outlook.com','live.com','yopmail.com','orange.sn','free.fr','icloud.com','protonmail.com','mailinator.com','guerrillamail.com','tempmail.com','throwam.com','sharklasers.com','trashmail.com','dispostable.com','maildrop.cc','getnada.com','fakeinbox.com','spamgourmet.com','mailnull.com','spamex.com','spamfree24.org','anonaddy.com','simplelogin.io','tutanota.com','cock.li'];
   const MAX_FREE=3;
   let state={count:0,registered:false,user:null,emailValid:false,loginMode:false};
+  // MODIFIÉ — stocke le compteur avec un hash d'intégrité pour détecter la triche DevTools
+  function _saveSession(count){try{localStorage.setItem(KEY_COUNT,count);localStorage.setItem(KEY_SESSION,btoa(JSON.stringify({count,timestamp:Date.now(),salt:SALT})));}catch(e){}}
+  function _loadSession(){try{const raw=localStorage.getItem(KEY_SESSION);const stored=parseInt(localStorage.getItem(KEY_COUNT)||'0');if(!raw){_saveSession(stored);return stored;}const s=JSON.parse(atob(raw));if(s.salt!==SALT||s.count!==stored){_saveSession(0);try{gToast('⚠ Session invalide détectée — réinitialisation.');}catch(e){}return 0;}return s.count;}catch(e){return 0;}}
   function init(){
-    try{state.count=parseInt(localStorage.getItem(KEY_COUNT)||'0');state.registered=localStorage.getItem(KEY_REG)==='true';state.user=JSON.parse(localStorage.getItem(KEY_USER)||'null');}catch(e){}
+    try{state.count=_loadSession();state.registered=localStorage.getItem(KEY_REG)==='true';state.user=JSON.parse(localStorage.getItem(KEY_USER)||'null');}catch(e){} // MODIFIÉ
     renderPill();
     if(state.count>=MAX_FREE&&!state.registered)setTimeout(showGate,400);
   }
@@ -4291,7 +4351,7 @@ const RAGate = (() => {
   }
   function quizCompleted(){
     if(state.registered||(window.RAAuth&&RAAuth.isAuthenticated()))return;
-    try{state.count=parseInt(localStorage.getItem(KEY_COUNT)||'0')+1;localStorage.setItem(KEY_COUNT,state.count);}catch(e){state.count++;}
+    try{state.count=_loadSession()+1;_saveSession(state.count);}catch(e){state.count++;} // MODIFIÉ — anti-cheat
     renderPill();
     const remaining=MAX_FREE-state.count;
     if(remaining>0)gToast('Quiz '+(state.count)+'/'+MAX_FREE+' — '+remaining+' quiz gratuits restants');
@@ -4321,7 +4381,7 @@ const RAGate = (() => {
     const ok=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
     const dom=v.split('@')[1]?.toLowerCase();const blocked=ok&&BLOCKED.some(d=>dom===d||dom?.endsWith('.'+d));
     if(!ok){if(hint)hint.className='ra-email-hint invalid show';if(icon)icon.textContent='✗';if(txt)txt.textContent='Format invalide';if(input)input.className='ra-input error';state.emailValid=false;}
-    else if(blocked){if(hint)hint.className='ra-email-hint invalid show';if(icon)icon.textContent='✗';if(txt)txt.textContent='Email personnel non accepté — utilise ton email institutionnel';if(input)input.className='ra-input error';state.emailValid=false;}
+    else if(blocked){if(hint)hint.className='ra-email-hint invalid show';if(icon)icon.textContent='✗';if(txt)txt.textContent='Email jetable détecté. Utilisez votre email institutionnel.';if(input)input.className='ra-input error';state.emailValid=false;} // MODIFIÉ — message blacklist
     else{if(hint)hint.className='ra-email-hint valid show';if(icon)icon.textContent='✓';if(txt)txt.textContent='Email institutionnel valide ('+dom+')';if(input)input.className='ra-input success';state.emailValid=true;}
     updateSubmitBtn();
   }
@@ -4353,6 +4413,7 @@ const RAGate = (() => {
   function resendEmail(){
     const email=document.getElementById('ra-confirm-email')?.textContent;
     if(!email)return;
+    if(!_startResendCooldown('ra-gate-resend-btn',60))return; // MODIFIÉ — rate-limit 60s
     apiCall('POST','/auth/resend',{email}).then(r=>{
       gToast(r.ok?'📧 Email renvoyé à '+email:'⚠ '+(r.data?.error||'Erreur'));
     });
@@ -4387,7 +4448,7 @@ const RAGate = (() => {
     setTimeout(()=>{if(c)c.innerHTML='';},6000);
   }
   function gToast(msg){const t=document.getElementById('ra-toast');if(!t)return;t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),3200);}
-  function reset(){try{localStorage.removeItem(KEY_COUNT);localStorage.removeItem(KEY_REG);localStorage.removeItem(KEY_USER);}catch(e){}state={count:0,registered:false,user:null,emailValid:false,loginMode:false};renderPill();const o=document.getElementById('ra-gate-overlay');if(o){o.classList.remove('visible');document.body.style.overflow='';}gToast('↺ Réinitialisé');}
+  function reset(){try{localStorage.removeItem(KEY_COUNT);localStorage.removeItem(KEY_REG);localStorage.removeItem(KEY_USER);localStorage.removeItem(KEY_SESSION);}catch(e){}state={count:0,registered:false,user:null,emailValid:false,loginMode:false};renderPill();const o=document.getElementById('ra-gate-overlay');if(o){o.classList.remove('visible');document.body.style.overflow='';}gToast('↺ Réinitialisé');} // MODIFIÉ — anti-cheat : purge ra_session
 
   return {quizCompleted,showGate,close,goStep,loginMode,validateEmail,updateSubmitBtn,submit,resendEmail,checkURLConfirmation,reset};
 })();
@@ -4467,7 +4528,7 @@ document.addEventListener('input', e => {
 const RAAuth = (() => {
   const KEY_REG  = 'ra_auth_registered';
   const KEY_USER = 'ra_auth_user_data';
-  const BLOCKED  = ['yahoo.com','hotmail.com','outlook.com','live.com','yopmail.com','orange.sn','free.fr','icloud.com','protonmail.com'];
+  const BLOCKED  = ['yahoo.com','hotmail.com','outlook.com','live.com','yopmail.com','orange.sn','free.fr','icloud.com','protonmail.com','mailinator.com','guerrillamail.com','tempmail.com','throwam.com','sharklasers.com','trashmail.com','dispostable.com','maildrop.cc','getnada.com','fakeinbox.com','spamgourmet.com','mailnull.com','spamex.com','spamfree24.org','anonaddy.com','simplelogin.io','tutanota.com','cock.li']; // MODIFIÉ — blacklist étendue
 
   let _pendingPage = null;
   let _emailValid  = false;
@@ -4666,6 +4727,7 @@ const RAAuth = (() => {
   function resendEmail() {
     const email = document.getElementById('ra-auth-confirm-email')?.textContent;
     if (!email) return;
+    if (!_startResendCooldown('ra-auth-resend-btn', 60)) return; // MODIFIÉ — rate-limit 60s
     apiCall('POST','/auth/resend',{email}).then(r=>{
       _toast(r.ok?'📧 Email renvoyé à '+email:'⚠ '+(r.data?.error||'Erreur'));
     });
@@ -4910,19 +4972,10 @@ const RAPlayer = (() => {
   const header    = document.getElementById('ra-ap-header');
   const player    = document.getElementById('ra-audio-player');
 
-  let playing = false, expanded = false, _muted = false, _volume = 0.7;
+  let playing = false, expanded = false, _muted = false, _volume = 0.7; // MODIFIÉ
   let _tickId = null;
-  let _useSynth = false; // bascule vers Web Audio si AAC indisponible
 
-  // ── Piste AAC ────────────────────────────────────────────────
-  const audio = new Audio('/assets/audio/REGUL_ARENA_SONG.aac');
-  audio.loop = true;
-  audio.volume = _volume;
-  audio.preload = 'none';
-  // Si le fichier échoue à charger, on passera automatiquement au synthétiseur
-  audio.onerror = () => { _useSynth = true; };
-
-  // ── Synthétiseur Web Audio (fallback) ────────────────────────
+  // ── Synthétiseur Web Audio (100% natif, aucun fichier externe) ── // MODIFIÉ
   let _ctx = null, _masterGain = null;
   function _initSynth() {
     if (_ctx) return;
@@ -4951,56 +5004,25 @@ const RAPlayer = (() => {
 
   const fmt = s => { if (!isFinite(s)) return '0:00'; const m = Math.floor(s/60); return m+':'+(Math.floor(s%60)<10?'0':'')+Math.floor(s%60); };
 
-  function _tick() {
-    if (!_useSynth && audio.duration && isFinite(audio.duration)) {
-      const pct = (audio.currentTime / audio.duration) * 100;
-      if (progressBar) progressBar.style.width = pct + '%';
-      if (progressThumb) progressThumb.style.left = pct + '%';
-      if (timeEl) timeEl.textContent = fmt(audio.currentTime);
-    }
-    _tickId = requestAnimationFrame(_tick);
-  }
+  function _tick() { _tickId = requestAnimationFrame(_tick); } // MODIFIÉ — synth infini, pas de durée native
 
-  function _setPlaying(val) {
+  function _setPlaying(val) { // MODIFIÉ
     playing = val;
     if (playBtn) playBtn.textContent = val ? '⏸' : '▶';
     eqBars.forEach(b => b.classList.toggle('paused', !val));
-    if (status) status.textContent = val ? '♪ En lecture' : (_useSynth ? '♪ Ambiance sonore' : 'En pause');
+    if (status) status.textContent = val ? '♪ En lecture' : '♪ Ambiance sonore'; // MODIFIÉ
   }
 
-  function _startSynth() {
-    _initSynth();
-    if (_ctx.state === 'suspended') { _ctx.resume(); }
-    _masterGain.gain.setTargetAtTime(_muted ? 0 : _volume, _ctx.currentTime, 0.8);
-    _setPlaying(true);
-    if (!expanded) toggleExpand();
-    _tickId = requestAnimationFrame(_tick);
-  }
-  function _stopSynth() {
-    if (_masterGain) _masterGain.gain.setTargetAtTime(0, _ctx.currentTime, 0.4);
-    _setPlaying(false);
-    cancelAnimationFrame(_tickId);
-  }
-
-  function togglePlay() {
-    // Chemin synthétiseur (fallback ou forcé)
-    if (_useSynth) {
-      if (!playing) _startSynth(); else _stopSynth();
-      return;
-    }
-    // Chemin AAC (prioritaire) — geste utilisateur requis par navigateur
+  function togglePlay() { // MODIFIÉ — 100% Web Audio, aucun fichier AAC
     if (!playing) {
-      audio.play().then(() => {
-        _setPlaying(true);
-        if (!expanded) toggleExpand();
-        _tickId = requestAnimationFrame(_tick);
-      }).catch(err => {
-        console.warn('[RAPlayer] AAC play() refusé, bascule synthétiseur :', err.message);
-        _useSynth = true;
-        _startSynth();
-      });
+      _initSynth();
+      if (_ctx.state === 'suspended') { _ctx.resume(); }
+      _masterGain.gain.setTargetAtTime(_muted ? 0 : _volume, _ctx.currentTime, 0.8);
+      _setPlaying(true);
+      if (!expanded) toggleExpand();
+      _tickId = requestAnimationFrame(_tick);
     } else {
-      audio.pause();
+      if (_masterGain) _masterGain.gain.setTargetAtTime(0, _ctx.currentTime, 0.4);
       _setPlaying(false);
       cancelAnimationFrame(_tickId);
     }
@@ -5012,28 +5034,20 @@ const RAPlayer = (() => {
     if (header) header.setAttribute('aria-expanded', expanded);
   }
 
-  function setVolume(val) {
+  function setVolume(val) { // MODIFIÉ
     _volume = parseFloat(val);
     _muted = false;
-    if (_useSynth && _masterGain && _ctx) {
-      _masterGain.gain.setTargetAtTime(_volume, _ctx.currentTime, 0.1);
-    } else {
-      audio.volume = _volume;
-    }
+    if (_masterGain && _ctx) _masterGain.gain.setTargetAtTime(_volume, _ctx.currentTime, 0.1);
     const muteBtn = document.getElementById('ra-ap-mutebtn');
     if (muteBtn) muteBtn.textContent = _volume === 0 ? '🔇' : _volume < 0.5 ? '🔉' : '🔊';
   }
 
-  function toggleMute() {
+  function toggleMute() { // MODIFIÉ
     _muted = !_muted;
-    if (_useSynth && _masterGain && _ctx) {
-      _masterGain.gain.setTargetAtTime(_muted ? 0 : _volume, _ctx.currentTime, 0.1);
-    } else {
-      audio.muted = _muted;
-    }
-    const vol = document.getElementById('ra-ap-vol');
+    if (_masterGain && _ctx) _masterGain.gain.setTargetAtTime(_muted ? 0 : _volume, _ctx.currentTime, 0.1);
     const muteBtn = document.getElementById('ra-ap-mutebtn');
     if (muteBtn) muteBtn.textContent = _muted ? '🔇' : '🔊';
+    const vol = document.getElementById('ra-ap-vol');
     if (vol) vol.value = _muted ? 0 : _volume;
   }
 
@@ -5042,39 +5056,6 @@ const RAPlayer = (() => {
 
   return { togglePlay, toggleExpand, seek, skip, setVolume, toggleMute };
 })();
-
-/* ── DISCLAIMER ─────────────────────────────────────────── */
-(function(){
-  const band = document.getElementById('ra-disclaimer');
-  if(!band) return;
-  if(localStorage.getItem('ra-disclaimer-dismissed')==='1'){
-    band.remove();
-  } else {
-    document.documentElement.classList.add('has-disclaimer');
-    // Ajustement dynamique basé sur la hauteur réelle du bandeau
-    requestAnimationFrame(()=>{
-      const h = band.offsetHeight;
-      const nav = document.querySelector('nav');
-      if(nav) nav.style.top = h+'px';
-      document.querySelectorAll('.page-top').forEach(el => el.style.marginTop = (53+h)+'px');
-    });
-  }
-})();
-
-function dismissDisclaimer(){
-  const band = document.getElementById('ra-disclaimer');
-  if(!band) return;
-  localStorage.setItem('ra-disclaimer-dismissed','1');
-  band.style.transition='transform .3s ease';
-  band.style.transform='translateY(-100%)';
-  setTimeout(()=>{
-    band.remove();
-    document.documentElement.classList.remove('has-disclaimer');
-    const nav = document.querySelector('nav');
-    if (nav) nav.style.top = '0';
-    document.querySelectorAll('.page-top').forEach(el => el.style.marginTop = '');
-  },320);
-}
 
 /* ── TUTORIAL MODAL ─────────────────────────────────────── */
 function openTuto(){
@@ -5140,6 +5121,298 @@ function escapeHtml(str) {
     .replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;')
     .replace(/'/g,'&#x27;');
+}
+
+/* ── RA_SFX : effets sonores 100% Web Audio API ─────────── */ // MODIFIÉ
+const RA_SFX = (() => {
+  let _ctx = null;
+  function _getCtx() { // MODIFIÉ
+    if (!_ctx) _ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (_ctx.state === 'suspended') _ctx.resume();
+    return _ctx;
+  }
+  function _tone(freq, duration, type, freqEnd, gain) { // MODIFIÉ
+    try {
+      const ctx = _getCtx();
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type = type || 'sine';
+      o.frequency.setValueAtTime(freq, ctx.currentTime);
+      if (freqEnd !== undefined) o.frequency.linearRampToValueAtTime(freqEnd, ctx.currentTime + duration);
+      const vol = gain || 0.35;
+      g.gain.setValueAtTime(0, ctx.currentTime);
+      g.gain.linearRampToValueAtTime(vol, ctx.currentTime + 0.01);
+      g.gain.linearRampToValueAtTime(0, ctx.currentTime + duration);
+      o.start(ctx.currentTime);
+      o.stop(ctx.currentTime + duration + 0.01);
+    } catch(e) {}
+  }
+  function correct() { _tone(880, 0.3, 'sine'); } // MODIFIÉ — 880 Hz, 0.3 s
+  function error()   { _tone(220, 0.5, 'sawtooth', 110); } // MODIFIÉ — 220→110 Hz, 0.5 s
+  function victory() { // MODIFIÉ — arpège montant C5 E5 G5
+    [[523, 0], [659, 180], [784, 360]].forEach(([f, delay]) =>
+      setTimeout(() => _tone(f, 0.22, 'sine', undefined, 0.3), delay)
+    );
+  }
+  function timer()    { _tone(440, 0.08, 'sine', undefined, 0.25); } // MODIFIÉ — bip court 440 Hz
+  function click()    { _tone(600, 0.05, 'sine', undefined, 0.18); } // MODIFIÉ — feedback bouton 600 Hz
+  function applause() { // MODIFIÉ — bruit blanc filtré 1.5s fade out
+    try {
+      const ctx = _getCtx();
+      const sr = ctx.sampleRate, len = sr * 1.5;
+      const buf = ctx.createBuffer(1, len, sr);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+      const src = ctx.createBufferSource(); src.buffer = buf;
+      const bpf = ctx.createBiquadFilter(); bpf.type = 'bandpass';
+      bpf.frequency.value = 3000; bpf.Q.value = 0.6;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.28, ctx.currentTime);
+      g.gain.linearRampToValueAtTime(0, ctx.currentTime + 1.5);
+      src.connect(bpf); bpf.connect(g); g.connect(ctx.destination);
+      src.start(ctx.currentTime);
+    } catch(e) {}
+  }
+  function bravo() { // MODIFIÉ — fanfare arpège C4 E4 G4 C5
+    [[261, 0], [329, 150], [392, 300], [523, 450]].forEach(([f, d]) =>
+      setTimeout(() => _tone(f, 0.22, 'sine', undefined, 0.35), d)
+    );
+  }
+  let _waitInt = null; // MODIFIÉ — état boucle waiting
+
+  // ── Séquenceur mélodique (planifié sur la timeline Web Audio) ── // MODIFIÉ
+  function _playNotes(notes) {
+    try {
+      const ctx = _getCtx();
+      let t = ctx.currentTime + 0.05;
+      notes.forEach(function([f, d]) {
+        if (f > 0) {
+          const o = ctx.createOscillator(), g = ctx.createGain();
+          o.type = 'sine'; o.frequency.value = f;
+          g.gain.setValueAtTime(0, t);
+          g.gain.linearRampToValueAtTime(0.28, t + 0.01);
+          g.gain.linearRampToValueAtTime(0.2,  t + d * 0.75);
+          g.gain.linearRampToValueAtTime(0,    t + d - 0.02);
+          o.connect(g); g.connect(ctx.destination);
+          o.start(t); o.stop(t + d);
+        }
+        t += d;
+      });
+    } catch(e) {}
+  }
+  function _kickSynth() { // MODIFIÉ — kick synthétique 60Hz
+    try {
+      const ctx = _getCtx(), now = ctx.currentTime;
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(120, now);
+      o.frequency.exponentialRampToValueAtTime(60, now + 0.15);
+      g.gain.setValueAtTime(0.5, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(now); o.stop(now + 0.35);
+    } catch(e) {}
+  }
+  function _hihatSynth() { // MODIFIÉ — hihat bruit blanc filtré 8kHz
+    try {
+      const ctx = _getCtx(), now = ctx.currentTime;
+      const buf = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * 0.04), ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      const src = ctx.createBufferSource(); src.buffer = buf;
+      const hpf = ctx.createBiquadFilter(); hpf.type = 'highpass'; hpf.frequency.value = 8000;
+      const g = ctx.createGain(); g.gain.setValueAtTime(0.12, now); g.gain.linearRampToValueAtTime(0, now + 0.04);
+      src.connect(hpf); hpf.connect(g); g.connect(ctx.destination);
+      src.start(now);
+    } catch(e) {}
+  }
+
+  // ── Hymnes nationaux — intro ≤4s, notes approx. reconstituées ── // MODIFIÉ
+  const _HYMNES = {
+    SN:[[392,.3],[392,.2],[392,.3],[329,.3],[261,.5],[293,.3],[293,.2],[293,.3],[246,.3],[196,.6]],
+    CI:[[261,.35],[293,.2],[329,.35],[392,.4],[329,.3],[293,.3],[261,.6],[329,.4],[392,.7]],
+    BF:[[392,.4],[440,.4],[392,.4],[349,.35],[392,.7],[329,.4],[293,.35],[261,.7]],
+    ML:[[392,.3],[440,.3],[523,.5],[440,.3],[392,.5],[329,.3],[261,.7]],
+    BJ:[[261,.3],[261,.1],[293,.3],[329,.3],[261,.3],[293,.5],[329,.3],[392,.6]],
+    NE:[[392,.4],[392,.2],[440,.4],[392,.4],[349,.35],[329,.7],[261,.6]],
+    TG:[[329,.3],[349,.3],[392,.3],[440,.3],[392,.3],[349,.3],[329,.7],[261,.6]],
+    GW:[[261,.4],[293,.4],[329,.4],[261,.4],[293,.4],[349,.7],[329,.3],[261,.7]],
+    CM:[[261,.35],[329,.35],[392,.35],[440,.35],[523,.6],[440,.3],[392,.3],[329,.5],[261,.6]],
+    GA:[[329,.35],[329,.2],[392,.4],[329,.3],[261,.6],[329,.3],[392,.5],[329,.6]],
+    CG:[[392,.3],[349,.3],[329,.3],[293,.3],[261,.3],[293,.3],[329,.6],[261,.6]],
+    CF:[[261,.4],[293,.4],[329,.4],[392,.7],[329,.4],[261,.4],[293,.7]],
+    GQ:[[329,.4],[392,.4],[392,.1],[440,.4],[392,.3],[329,.5],[261,.4],[293,.7]],
+    TD:[[261,.35],[293,.35],[329,.35],[293,.35],[261,.35],[329,.4],[392,.7]]
+  };
+  function anthem(code) { _playNotes(_HYMNES[code] || _HYMNES['SN']); } // MODIFIÉ
+
+  function arenaIntro() { // MODIFIÉ — foule · gong · countdown 5→1 · fanfare (~7s total)
+    try {
+      const ctx = _getCtx(), t0 = ctx.currentTime + 0.05;
+      // Foule synthétique modulée (1.8s) // MODIFIÉ
+      const cLen = Math.ceil(ctx.sampleRate * 1.8);
+      const cBuf = ctx.createBuffer(1, cLen, ctx.sampleRate);
+      const cd = cBuf.getChannelData(0);
+      for (let i = 0; i < cLen; i++) cd[i] = Math.random() * 2 - 1;
+      const crowd = ctx.createBufferSource(); crowd.buffer = cBuf;
+      const bpf = ctx.createBiquadFilter(); bpf.type = 'bandpass'; bpf.frequency.value = 2500; bpf.Q.value = 0.4;
+      const lfo = ctx.createOscillator(), lfoG = ctx.createGain();
+      lfo.frequency.value = 3.5; lfoG.gain.value = 1200;
+      lfo.connect(lfoG); lfoG.connect(bpf.frequency);
+      lfo.start(t0); lfo.stop(t0 + 1.8);
+      const cg = ctx.createGain();
+      cg.gain.setValueAtTime(0.12, t0);
+      cg.gain.linearRampToValueAtTime(0.38, t0 + 0.6);
+      cg.gain.linearRampToValueAtTime(0, t0 + 1.8);
+      crowd.connect(bpf); bpf.connect(cg); cg.connect(ctx.destination);
+      crowd.start(t0);
+      // Gong grave 80Hz decay 3s (t=0.3) // MODIFIÉ
+      const tg = t0 + 0.3;
+      const gong = ctx.createOscillator(), gg = ctx.createGain();
+      gong.type = 'sine'; gong.frequency.value = 80;
+      gg.gain.setValueAtTime(0.55, tg); gg.gain.exponentialRampToValueAtTime(0.001, tg + 3.0);
+      gong.connect(gg); gg.connect(ctx.destination);
+      gong.start(tg); gong.stop(tg + 3.2);
+      // Countdown bips 5→1 · 440Hz · espacés 1s (t=1.5→5.5) // MODIFIÉ
+      for (let i = 0; i < 5; i++) {
+        const tb = t0 + 1.5 + i;
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.type = 'sine'; o.frequency.value = i === 4 ? 660 : 440;
+        g.gain.setValueAtTime(0, tb); g.gain.linearRampToValueAtTime(0.3, tb + 0.01); g.gain.linearRampToValueAtTime(0, tb + 0.12);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(tb); o.stop(tb + 0.15);
+      }
+      // Fanfare C4+E4+G4 simultané (t=6.8, 0.5s) // MODIFIÉ
+      const tf = t0 + 6.8;
+      [261, 329, 392].forEach(function(f) {
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.type = 'sine'; o.frequency.value = f;
+        g.gain.setValueAtTime(0, tf); g.gain.linearRampToValueAtTime(0.22, tf + 0.02); g.gain.linearRampToValueAtTime(0, tf + 0.5);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(tf); o.stop(tf + 0.55);
+      });
+    } catch(e) {}
+  }
+
+  function waiting() { // MODIFIÉ — boucle kick+hihat BPM 90 pendant attente adversaire
+    if (_waitInt) return;
+    let beat = 0;
+    function _tick() { (beat++ % 2 === 0) ? _kickSynth() : _hihatSynth(); }
+    _tick();
+    _waitInt = setInterval(_tick, Math.round(60000 / 90));
+  }
+  function stopWaiting() { // MODIFIÉ — arrête la boucle waiting
+    if (_waitInt) { clearInterval(_waitInt); _waitInt = null; }
+  }
+
+  return { correct, error, victory, timer, click, applause, bravo, anthem, arenaIntro, waiting, stopWaiting }; // MODIFIÉ
+})();
+
+// MODIFIÉ — click feedback sur tous les boutons principaux (délégation globale)
+document.addEventListener('click', function(e) {
+  const el = e.target.closest('.btn-gold, .ra-btn-main, .btn-ghost, .btn-navy, .nav-cta');
+  if (el && !el.disabled) RA_SFX.click();
+}, { passive: true });
+
+/* ── RA_FX : animations visuelles CSS/JS pures ──────────── */ // MODIFIÉ
+const RA_FX = (() => {
+  // Injection keyframes une seule fois // MODIFIÉ
+  (function() {
+    const s = document.createElement('style');
+    s.textContent = [
+      '@keyframes _ra_fall{0%{transform:translateY(-12px) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}',
+      '@keyframes _ra_fw{0%{transform:translate(-50%,-50%) scale(0);opacity:1}100%{transform:translate(-50%,-50%) scale(3);opacity:0}}',
+      '@keyframes _ra_pop{0%{transform:translate(-50%,-50%) scale(0)}70%{transform:translate(-50%,-50%) scale(1.2)}100%{transform:translate(-50%,-50%) scale(1)}}'
+    ].join('');
+    document.head.appendChild(s);
+  })();
+
+  function confetti() { // MODIFIÉ — 30 divs colorés chute 2s auto-supprimés
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:9999';
+    const cols = ['#002B5C','#C9991A','#E8B520','#ffffff'];
+    for (let i = 0; i < 30; i++) {
+      const d = document.createElement('div');
+      const dur = (1.5 + Math.random() * 0.5).toFixed(2);
+      const delay = (Math.random() * 0.4).toFixed(2);
+      d.style.cssText = 'position:absolute'
+        + ';left:' + (Math.random() * 100).toFixed(1) + '%'
+        + ';top:0'
+        + ';width:' + (5 + Math.random() * 7).toFixed(0) + 'px'
+        + ';height:' + (7 + Math.random() * 10).toFixed(0) + 'px'
+        + ';background:' + cols[i % cols.length]
+        + ';border-radius:' + (Math.random() > .5 ? '50%' : '2px')
+        + ';animation:_ra_fall ' + dur + 's ' + delay + 's linear forwards';
+      wrap.appendChild(d);
+    }
+    document.body.appendChild(wrap);
+    setTimeout(() => wrap.remove(), 2200); // MODIFIÉ
+  }
+
+  function fireworks() { // MODIFIÉ — 5 cercles expansifs centre scale 0→3 opacity 1→0 1s
+    const cols = ['#C9991A','#E8B520','#002B5C','#22D3EE','#ffffff'];
+    for (let i = 0; i < 5; i++) {
+      setTimeout(() => {
+        const d = document.createElement('div');
+        const sz = 60 + i * 22;
+        d.style.cssText = 'position:fixed;left:50%;top:50%'
+          + ';width:' + sz + 'px;height:' + sz + 'px'
+          + ';border:3px solid ' + cols[i]
+          + ';border-radius:50%'
+          + ';pointer-events:none;z-index:9998'
+          + ';animation:_ra_fw 1s ease-out forwards';
+        document.body.appendChild(d);
+        setTimeout(() => d.remove(), 1100); // MODIFIÉ
+      }, i * 110);
+    }
+  }
+
+  function bravo() { // MODIFIÉ — badge centré scale bounce 0.6s, auto-supprimé 2s
+    const d = document.createElement('div');
+    d.style.cssText = 'position:fixed;left:50%;top:50%'
+      + ';transform:translate(-50%,-50%) scale(0)'
+      + ';background:#002B5C;border:2px solid #C9991A'
+      + ';color:#C9991A;font-family:\'Bebas Neue\',cursive'
+      + ';font-size:2.4rem;letter-spacing:5px'
+      + ';padding:20px 48px;border-radius:4px'
+      + ';z-index:10000;pointer-events:none'
+      + ';animation:_ra_pop 0.6s ease-out forwards'
+      + ';box-shadow:0 8px 40px rgba(201,153,26,.45)';
+    d.textContent = '🏆 BRAVO !';
+    document.body.appendChild(d);
+    setTimeout(() => { // MODIFIÉ — fade puis suppression
+      d.style.transition = 'opacity 0.4s';
+      d.style.opacity = '0';
+      setTimeout(() => d.remove(), 420);
+    }, 1600);
+  }
+
+  return { confetti, fireworks, bravo };
+})();
+
+/* ── RATE-LIMIT : cooldown bouton "Renvoyer l'email" ────── */
+function _startResendCooldown(btnId, seconds) {
+  const btn = document.getElementById(btnId);
+  if (!btn || btn.disabled) return false; // déjà en cooldown
+  let remaining = seconds;
+  const origHTML = btn.innerHTML;
+  btn.disabled = true;
+  btn.style.opacity = '.5';
+  btn.style.cursor = 'not-allowed';
+  btn.innerHTML = '⏳ Renvoyer dans <strong>' + remaining + 's</strong>';
+  const iv = setInterval(function() {
+    remaining--;
+    if (remaining <= 0) {
+      clearInterval(iv);
+      btn.disabled = false;
+      btn.style.opacity = '';
+      btn.style.cursor = '';
+      btn.innerHTML = origHTML;
+    } else {
+      btn.innerHTML = '⏳ Renvoyer dans <strong>' + remaining + 's</strong>';
+    }
+  }, 1000);
+  return true;
 }
 
 /* ── MOBILE NAV ─────────────────────────────────────────── */
@@ -5395,12 +5668,12 @@ const RANotif = (() => {
       return;
     }
     _list.innerHTML = notifications.map(n => `
-      <div class="ra-notif-item ${n.seen ? '' : 'unread'}" data-id="${n.id}" onclick="RANotif.markSeen(${n.id}, this)">
+      <div class="ra-notif-item ${n.seen ? '' : 'unread'}" data-id="${escapeHtml(String(n.id))}" onclick="RANotif.markSeen(${parseInt(n.id)||0}, this)">
         <div style="flex:1">
-          <div class="ra-notif-msg">${n.message}</div>
-          <div class="ra-notif-time">${_fmt(n.created_at)}</div>
+          <div class="ra-notif-msg">${escapeHtml(n.message)}</div>
+          <div class="ra-notif-time">${escapeHtml(_fmt(n.created_at))}</div>
         </div>
-      </div>`).join('');
+      </div>`).join(''); // MODIFIÉ — XSS : escapeHtml sur données serveur
   }
 
   async function poll() {
@@ -5521,7 +5794,13 @@ function _apiFetch(url, opts){
     opts.headers['Content-Type'] = 'application/json';
     opts.body = JSON.stringify(opts.body);
   }
-  return fetch(url, opts).then(function(r){ return r.json().then(function(data){ data._httpStatus = r.status; data.ok = r.ok && data.success !== false; return data; }); });
+  return fetch(url, opts).then(function(r){
+    return r.json().then(function(data){
+      data._httpStatus = r.status;
+      data.ok = r.ok && data.success !== false;
+      return data;
+    });
+  });
 }
 
 /* ── navigation interne ─────────────────────────────────── */
@@ -5549,16 +5828,11 @@ window.raT_goTo = function(screen){
 function _rat_initPackSelect(){ // MODIFIÉ
   var sel = document.getElementById('rat-c-pack'); // MODIFIÉ
   if(!sel || typeof PACKS === 'undefined' || !PACKS.length) return; // MODIFIÉ
-  var selectedZone = ((document.getElementById('rat-c-zone')||{}).value || 'uemoa').toLowerCase();
-  var filteredPacks = PACKS.filter(function(p){
-    if(selectedZone === 'inter') return true;
-    if(selectedZone === 'uemoa') return p.zone === 'UEMOA';
-    if(selectedZone === 'cemac') return p.zone === 'CEMAC';
-    return true;
-  });
-  sel.innerHTML = filteredPacks.map(function(p){ // MODIFIÉ
+  if(sel.getAttribute('data-rat-populated')) return; // MODIFIÉ — init une seule fois
+  sel.innerHTML = PACKS.map(function(p){ // MODIFIÉ
     return '<option value="'+_esc(p.id)+'">'+_esc(p.label)+(p.zone?' ('+_esc(p.zone)+')':'')+'</option>'; // MODIFIÉ
   }).join(''); // MODIFIÉ
+  sel.setAttribute('data-rat-populated','1'); // MODIFIÉ
 } // MODIFIÉ
 
 /* ── modal planification manche suivante ────────────────── */ // MODIFIÉ
@@ -5635,11 +5909,20 @@ window.raT_loadList = function(){
   elOpen.innerHTML = '<div class="rat-empty">Chargement…</div>';
   elMine.innerHTML = '<div class="rat-empty">Chargement…</div>';
   _apiFetch('/tournament/list').then(function(r){
-    if(!r.ok){ var msg = r._httpStatus === 401 ? '<div class="rat-empty">Connecte-toi pour voir les tournois</div>' : '<div class="rat-empty">Erreur chargement</div>'; elOpen.innerHTML = msg; elMine.innerHTML = msg; return; }
+    if(!r.ok){
+      var msg = r._httpStatus === 401
+        ? '<div class="rat-empty">Connecte-toi pour voir les tournois</div>'
+        : '<div class="rat-empty">Erreur chargement — ' + (r.error || '?') + '</div>';
+      elOpen.innerHTML = msg;
+      elMine.innerHTML = msg;
+      return;
+    }
     _renderList(elOpen, r.open || []);
     _renderList(elMine, r.mine || []);
   }).catch(function(){
-    elOpen.innerHTML = '<div class="rat-empty">Erreur réseau</div>';
+    var msg = '<div class="rat-empty">Erreur réseau</div>';
+    elOpen.innerHTML = msg;
+    elMine.innerHTML = msg;
   });
 };
 
@@ -5954,6 +6237,9 @@ window.raT_startQualify = function(tournamentId, packId){
     answered: false
   };
 
+  // MODIFIÉ — intro musicale non-bloquante avant qualification tournoi
+  RA_SFX.anthem(_getPlayerCountry());
+  setTimeout(function(){ RA_SFX.arenaIntro(); }, 3400);
   raT_goTo('ra-qualify');
   _ratQS_showQuestion();
 };
@@ -6029,6 +6315,7 @@ window.raT_QS_next = function(){
 function _ratQS_updateTimer(){
   var el = document.getElementById('rat-q-timer');
   if(el) el.textContent = _ratQS.timeLeft + 's';
+  if(_ratQS && _ratQS.timeLeft <= 5 && _ratQS.timeLeft > 0) RA_SFX.timer(); // MODIFIÉ
 }
 
 function _ratQS_finish(){
@@ -6050,6 +6337,7 @@ function _ratQS_finish(){
     if(!rankEl) return;
     if(r.ok){
       rankEl.textContent = 'Score enregistré — classement #' + (r.rank||'?');
+      if(r.rank === 1){ RA_FX.fireworks(); RA_SFX.bravo(); } // MODIFIÉ — victoire tournoi
       // MODIFIÉ — si vainqueur de manche (rank 1), inviter à planifier le tour suivant
       if(r.rank === 1 && r.next_round && typeof raT_promptNextRound === 'function'){ // MODIFIÉ
         setTimeout(function(){ raT_promptNextRound(qs.tournamentId, r.next_round); }, 1500); // MODIFIÉ
@@ -6214,70 +6502,329 @@ window.addEventListener('orientationchange', function() { // ORIENTATION AJOUT
   </div> <!-- MODIFIÉ -->
 </div> <!-- MODIFIÉ -->
 
-<!-- ── CHAT GÉNÉRAL FLOTTANT ─────────────────────────────── -->
-<button id="gchat-toggle-btn" onclick="gChatToggle()" title="Chat général" aria-label="Ouvrir le chat général">💬</button>
-<div id="gchat-widget" role="dialog" aria-label="Chat général">
-  <div class="gchat-header">
-    💬 CHAT GÉNÉRAL
-    <button class="gchat-close" onclick="gChatToggle()" aria-label="Fermer">✕</button>
-  </div>
-  <div id="gchat-messages"></div>
-  <div id="gchat-input-wrap">
-    <input id="gchat-input" type="text" placeholder="Votre message…" maxlength="300" onkeydown="if(event.key==='Enter')gChatSend()">
-    <button class="gchat-send-btn" onclick="gChatSend()">➤</button>
-  </div>
-</div>
-
 <script>
-/* ── MODULE CHAT GÉNÉRAL FLOTTANT ───────────────────────── */
+/* ================================================================
+   COUMBA ARENA — Frontend JS
+================================================================ */
 (function(){
-  const GC={msgs:[],lastId:0,pollInt:null,open:false};
-  function _jwt(){try{return localStorage.getItem('ra_jwt');}catch(e){}try{return sessionStorage.getItem('ra_jwt');}catch(e){}return null;}
-  function _myName(){const j=_jwt();if(!j)return '';try{const p=JSON.parse(atob(j.split('.')[1]));return p.name||'';}catch(e){return '';}}
-  function _esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
-  function _render(){
-    const el=document.getElementById('gchat-messages');if(!el)return;
-    el.innerHTML=GC.msgs.map(m=>`<div class="msg ${m.me?'me':'them'}">${!m.me?`<div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);margin-bottom:2px">${_esc(m.name)}</div>`:''}<div class="msg-bubble">${_esc(m.text)}</div><div class="msg-meta">${_esc(m.time)}</div></div>`).join('');
-    el.scrollTop=el.scrollHeight;
+'use strict';
+
+const CA = {
+  code: null,
+  myPlayer: null,
+  pollTimer: null,
+  pendingCardIndex: null,
+  pendingCardVal: null,
+  lastMsg: '',
+  isMyTurn: false,
+};
+
+const COLOR_LABEL = {r:'COBAC',b:'BCEAO',g:'OHADA',o:'CIMA',w:'JOKER'};
+const COLOR_EMOJI  = {r:'🔴',b:'🔵',g:'🟢',o:'🟡',w:'⬛'};
+const VAL_LABEL    = {'+2':'+2','sk':'SKIP','+4':'+4','w':'WILD'};
+
+function caScreen(name){
+  ['lobby','waiting','board','result'].forEach(s=>{
+    const el=document.getElementById('ca-screen-'+s);
+    if(el) el.style.display = s===name?'':'none';
+  });
+  document.getElementById('ca-q-overlay').style.display='none';
+  document.getElementById('ca-color-overlay').style.display='none';
+}
+
+function caErr(msg){
+  const el=document.getElementById('ca-lobby-err');
+  if(el) el.textContent=msg;
+}
+
+window.caBackToLobby=function(){
+  caPollStop();
+  CA.code=null; CA.myPlayer=null;
+  caScreen('lobby');
+  caErr('');
+};
+
+window.caCreateGame=async function(){
+  const jwt=localStorage.getItem('ra_jwt');
+  if(!jwt){if(typeof openGate==='function')openGate();return;}
+  caErr('');
+  try{
+    const r=await fetch('/coumba',{method:'POST',headers:{'Authorization':'Bearer '+jwt,'Content-Type':'application/json'},body:'{}'});
+    const d=await r.json();
+    if(!d.success)return caErr(d.error||'Erreur');
+    CA.code=d.code; CA.myPlayer=1;
+    document.getElementById('ca-waiting-code').textContent=d.code;
+    document.getElementById('ca-waiting-status').style.display='block';
+    document.getElementById('ca-waiting-opponent').style.display='none';
+    caScreen('waiting');
+    caPollWaiting();
+  }catch(e){caErr('Erreur réseau');}
+};
+
+window.caJoinGame=async function(){
+  const jwt=localStorage.getItem('ra_jwt');
+  if(!jwt){if(typeof openGate==='function')openGate();return;}
+  const code=document.getElementById('ca-join-code').value.trim().toUpperCase();
+  if(!code)return caErr('Saisis un code de partie');
+  caErr('');
+  try{
+    const r=await fetch('/coumba/'+code+'/join',{method:'POST',headers:{'Authorization':'Bearer '+jwt,'Content-Type':'application/json'},body:'{}'});
+    const d=await r.json();
+    if(!d.success)return caErr(d.error||'Partie introuvable');
+    CA.code=code; CA.myPlayer=2;
+    caPollStart();
+  }catch(e){caErr('Erreur réseau');}
+};
+
+window.caStartGame=async function(){
+  const jwt=localStorage.getItem('ra_jwt');
+  if(!jwt)return;
+  try{
+    const r=await fetch('/coumba/'+CA.code+'/start',{method:'POST',headers:{'Authorization':'Bearer '+jwt,'Content-Type':'application/json'},body:'{}'});
+    const d=await r.json();
+    if(!d.success)return alert(d.error||'Erreur démarrage');
+    caPollStart();
+  }catch(e){alert('Erreur réseau');}
+};
+
+window.caCopyCode=function(){
+  const code=document.getElementById('ca-waiting-code').textContent;
+  navigator.clipboard&&navigator.clipboard.writeText(code);
+  document.getElementById('ca-waiting-code').textContent='COPIÉ !';
+  setTimeout(()=>{document.getElementById('ca-waiting-code').textContent=code;},1500);
+};
+
+/* ── Polling ── */
+function caPollStop(){clearInterval(CA.pollTimer);CA.pollTimer=null;}
+
+function caPollWaiting(){
+  caPollStop();
+  CA.pollTimer=setInterval(async()=>{
+    const jwt=localStorage.getItem('ra_jwt');
+    if(!jwt||!CA.code)return;
+    try{
+      const r=await fetch('/coumba/'+CA.code+'/state',{headers:{'Authorization':'Bearer '+jwt}});
+      const d=await r.json();
+      if(!d.success)return;
+      const s=d;
+      if(s.player2){
+        document.getElementById('ca-waiting-status').style.display='none';
+        document.getElementById('ca-waiting-opponent').style.display='block';
+        document.getElementById('ca-waiting-opponent').querySelector('.btn-gold').textContent='🃏 Lancer la partie';
+      }
+      if(s.status==='active'){caPollStop();caPollStart();}
+    }catch(_){}
+  },3000);
+}
+
+function caPollStart(){
+  caPollStop();
+  CA.pollTimer=setInterval(()=>caFetchState(),2500);
+  caFetchState();
+}
+
+async function caFetchState(){
+  const jwt=localStorage.getItem('ra_jwt');
+  if(!jwt||!CA.code)return;
+  try{
+    const r=await fetch('/coumba/'+CA.code+'/state',{headers:{'Authorization':'Bearer '+jwt}});
+    const d=await r.json();
+    if(!d.success)return;
+    CA.myPlayer=d.my_player;
+    caRender(d);
+  }catch(_){}
+}
+
+/* ── Rendu ── */
+function caRender(s){
+  if(s.status==='finished'||s.winner_id){
+    caPollStop();
+    caScreen('result');
+    const jwt=localStorage.getItem('ra_jwt');
+    let myId=null;
+    try{const p=JSON.parse(atob(jwt.split('.')[1]));myId=p.id;}catch(_){}
+    const iWon=s.winner_id===myId;
+    document.getElementById('ca-result-trophy').textContent=iWon?'🏆':'😔';
+    document.getElementById('ca-result-title').textContent=iWon?'VICTOIRE !':'DÉFAITE';
+    document.getElementById('ca-result-sub').textContent=iWon?'Tu as vidé ta main en premier !':'Ton adversaire a vidé sa main en premier.';
+    return;
   }
-  function _fetch(){
-    const jwt=_jwt();if(!jwt)return;
-    fetch('/chat/general',{headers:{'Authorization':'Bearer '+jwt}})
-      .then(r=>r.json())
-      .then(d=>{
-        if(!d.success||!d.messages)return;
-        const me=_myName();
-        const newMsgs=d.messages.filter(m=>m.id>GC.lastId);
-        if(newMsgs.length){
-          newMsgs.forEach(m=>{GC.msgs.push({name:m.name,text:m.content,time:m.sent_at?m.sent_at.slice(11,16):'',me:m.name===me});});
-          GC.lastId=newMsgs[newMsgs.length-1].id;
-          _render();
-        }
-      }).catch(()=>{});
+  if(s.status==='active'){
+    caScreen('board');
+    // Adversaire
+    const opp=CA.myPlayer===1?s.player2:s.player1;
+    document.getElementById('ca-opp-name').textContent=opp?opp.name:'Adversaire';
+    document.getElementById('ca-opp-count').textContent=s.opp_count;
+    const oppHand=document.getElementById('ca-opp-hand-visual');
+    oppHand.innerHTML='';
+    const shown=Math.min(s.opp_count,10);
+    for(let i=0;i<shown;i++){
+      const c=document.createElement('div');
+      c.className='ca-card-back';
+      c.textContent='🂠';
+      oppHand.appendChild(c);
+    }
+    // Pioche
+    document.getElementById('ca-deck-count').textContent=s.deck_count;
+    const deckBtn=document.getElementById('ca-deck-btn');
+    deckBtn.style.opacity=s.is_my_turn&&!s.pending?'1':'0.4';
+    // Défausse
+    const top=s.top_card;
+    const discEl=document.getElementById('ca-discard-top');
+    if(top){
+      discEl.className='ca-discard ca-c-'+top.c;
+      discEl.innerHTML=caCardHTML(top,false,false);
+    }
+    // Badge tour
+    const badge=document.getElementById('ca-turn-badge');
+    badge.textContent=s.is_my_turn?'TON TOUR':'TOUR ADVERSAIRE';
+    badge.style.color=s.is_my_turn?'var(--gold)':'var(--muted)';
+    // Message
+    const msgBar=document.getElementById('ca-msg-bar');
+    if(s.msg&&s.msg!==CA.lastMsg){
+      CA.lastMsg=s.msg;
+      msgBar.textContent=s.msg;
+    }
+    // Ma main
+    CA.isMyTurn=s.is_my_turn;
+    const myInfo=document.getElementById('ca-my-info');
+    myInfo.textContent='Ta main — '+s.my_hand.length+' carte'+(s.my_hand.length>1?'s':'');
+    const myHandEl=document.getElementById('ca-my-hand');
+    myHandEl.innerHTML='';
+    s.my_hand.forEach((card,i)=>{
+      const playable=s.is_my_turn&&!s.pending&&caCanPlayFront(card,top);
+      const btn=document.createElement('button');
+      btn.className='ca-card ca-c-'+card.c+(playable?' playable':' not-playable');
+      btn.innerHTML=caCardHTML(card,true,playable);
+      btn.title=caCardTitle(card);
+      btn.setAttribute('aria-label',caCardTitle(card));
+      if(playable) btn.onclick=()=>caPlayCard(i,card);
+      myHandEl.appendChild(btn);
+    });
+    // Question en attente
+    if(s.pending){
+      document.getElementById('ca-q-text').textContent=s.pending.q;
+      const eff=s.pending.effect;
+      const effLabel=eff==='+2'?'Si faux → +2 cartes à piocher':eff==='+4'?'Si faux → +4 cartes à piocher':eff==='sk'?'Si faux → ton tour est passé':'';
+      document.getElementById('ca-q-effect-label').textContent=effLabel;
+      document.getElementById('ca-q-overlay').style.display='flex';
+    } else {
+      document.getElementById('ca-q-overlay').style.display='none';
+    }
+  } else if(s.status==='joined'&&CA.myPlayer===2){
+    // Joueur 2 rejoint, attend que P1 démarre
+    caScreen('waiting');
+    document.getElementById('ca-waiting-code').textContent=CA.code;
+    document.getElementById('ca-waiting-status').style.display='none';
+    document.getElementById('ca-waiting-opponent').style.display='block';
+    document.getElementById('ca-waiting-opponent').querySelector('.btn-gold').style.display='none';
+    document.getElementById('ca-waiting-opponent').innerHTML='<div style="font-family:\'JetBrains Mono\',monospace;font-size:.7rem;letter-spacing:2px;color:var(--muted)" class="ca-pulse">En attente du lancement par le créateur…</div>';
   }
-  function _startPolling(){GC.msgs=[];GC.lastId=0;_fetch();if(GC.pollInt)clearInterval(GC.pollInt);GC.pollInt=setInterval(_fetch,8000);}
-  function _stopPolling(){if(GC.pollInt){clearInterval(GC.pollInt);GC.pollInt=null;}}
-  window.gChatToggle=function(){
-    const jwt=_jwt();
-    const widget=document.getElementById('gchat-widget');
-    if(!widget)return;
-    if(!jwt){alert('Connectez-vous pour accéder au chat général.');return;}
-    GC.open=!GC.open;
-    if(GC.open){widget.classList.add('open');if(!GC.pollInt)_startPolling();setTimeout(()=>{const i=document.getElementById('gchat-input');if(i)i.focus();},100);}
-    else{widget.classList.remove('open');_stopPolling();}
+}
+
+function caCanPlayFront(card,top){
+  if(!top)return true;
+  if(card.v==='w'||card.v==='+4')return true;
+  return card.c===top.c||card.v===top.v;
+}
+
+function caCardHTML(card,showLabel,playable){
+  const val=VAL_LABEL[card.v]||card.v;
+  const lbl=card.c==='w'?'JOKER':COLOR_LABEL[card.c]||'';
+  return '<span class="ca-card-val">'+val+'</span><span class="ca-card-lbl">'+lbl+'</span>';
+}
+
+function caCardTitle(card){
+  const lbl=COLOR_LABEL[card.c]||card.c;
+  const val=VAL_LABEL[card.v]||card.v;
+  return lbl+' '+val;
+}
+
+/* ── Actions ── */
+window.caPlayCard=function(idx,card){
+  if(!CA.isMyTurn)return;
+  if(card.v==='w'||card.v==='+4'){
+    CA.pendingCardIndex=idx;
+    CA.pendingCardVal=card.v;
+    document.getElementById('ca-color-overlay').style.display='flex';
+    return;
+  }
+  caSendPlay(idx,null);
+};
+
+window.caChooseColor=function(color){
+  document.getElementById('ca-color-overlay').style.display='none';
+  caSendPlay(CA.pendingCardIndex,color);
+};
+
+async function caSendPlay(idx,color){
+  const jwt=localStorage.getItem('ra_jwt');
+  if(!jwt||!CA.code)return;
+  const body={card_index:idx};
+  if(color)body.chosen_color=color;
+  try{
+    const r=await fetch('/coumba/'+CA.code+'/play',{method:'POST',headers:{'Authorization':'Bearer '+jwt,'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const d=await r.json();
+    if(!d.success)return showToast&&showToast(d.error||'Erreur',3000);
+    caFetchState();
+  }catch(e){console.error(e);}
+}
+
+window.caDraw=async function(){
+  if(!CA.isMyTurn)return;
+  const jwt=localStorage.getItem('ra_jwt');
+  if(!jwt||!CA.code)return;
+  try{
+    const r=await fetch('/coumba/'+CA.code+'/draw',{method:'POST',headers:{'Authorization':'Bearer '+jwt,'Content-Type':'application/json'},body:'{}'});
+    const d=await r.json();
+    if(!d.success)return;
+    caFetchState();
+  }catch(e){console.error(e);}
+};
+
+window.caAnswer=async function(answer){
+  document.getElementById('ca-q-overlay').style.display='none';
+  const jwt=localStorage.getItem('ra_jwt');
+  if(!jwt||!CA.code)return;
+  try{
+    const r=await fetch('/coumba/'+CA.code+'/answer',{method:'POST',headers:{'Authorization':'Bearer '+jwt,'Content-Type':'application/json'},body:JSON.stringify({answer})});
+    const d=await r.json();
+    if(d.success){
+      const msg=d.correct?'✅ Bonne réponse ! Pénalité annulée.':'❌ Mauvaise réponse. La réponse était : '+(d.correct_answer?'VRAI':'FAUX');
+      const msgBar=document.getElementById('ca-msg-bar');
+      if(msgBar){msgBar.textContent=msg;CA.lastMsg='';}
+    }
+    caFetchState();
+  }catch(e){console.error(e);}
+};
+
+/* Arrêt du polling quand on quitte la page */
+const _origShowPage=typeof showPage==='function'?showPage:null;
+if(_origShowPage){
+  window.showPage=function(p){
+    if(p!=='coumba')caPollStop();
+    _origShowPage(p);
+    if(p==='coumba'){caScreen('lobby');caErr('');}
   };
-  window.gChatSend=function(){
-    const input=document.getElementById('gchat-input');if(!input)return;
-    const text=input.value.trim();if(!text)return;
-    input.value='';
-    const jwt=_jwt();
-    if(!jwt){const me=_myName()||'Moi';const time=new Date().toTimeString().slice(0,5);GC.msgs.push({name:me,text,time,me:true});_render();return;}
-    fetch('/chat/general',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt},body:JSON.stringify({content:text})})
-      .then(()=>_fetch()).catch(()=>{});
-  };
-  window._gChatShowBtn=function(){const btn=document.getElementById('gchat-toggle-btn');if(btn)btn.classList.add('visible');};
-  document.addEventListener('DOMContentLoaded',function(){if(_jwt())window._gChatShowBtn();});
+}
+
 })();
 </script>
+
+<!-- ── PWA Service Worker ────────────────────────────────── -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('/sw.js')
+      .then(function (reg) {
+        console.log('[PWA] Service worker enregistré :', reg.scope);
+      })
+      .catch(function (err) {
+        console.warn('[PWA] Échec enregistrement SW :', err);
+      });
+  });
+}
+</script>
+<!-- ──────────────────────────────────────────────────────── -->
 </body>
 </html>

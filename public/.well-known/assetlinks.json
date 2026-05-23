@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.regularena.www.twa",
+    "sha256_cert_fingerprints": [
+      "65:B3:CC:05:18:E5:F7:EE:BB:A1:98:96:3E:7B:22:78:A0:E4:CC:03:17:19:90:57:92:CB:D7:6E:58:D8:FC:27"
+    ]
+  }
+}]
