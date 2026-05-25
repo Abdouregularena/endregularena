@@ -30,7 +30,7 @@ const TOKEN_TTL_H = 24;
 const resend = new Resend(RESEND_KEY);
 
 /* â”€â”€ BASE DE DONNÃ‰ES SQLite â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-const db = new Database(path.join(__dirname, 'regularena.db'));
+const db = new Database(process.env.DB_PATH || path.join(__dirname, 'regularena.db')); // MODIFIÉ — persistance : DB_PATH → volume Railway (ex: /data/regularena.db)
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
 
@@ -908,6 +908,7 @@ app.post('/tournament/create', requireAuth, (req, res) => { // TOURNOI AJOUT
   const mp = Number(max_players); // TOURNOI AJOUT
   if (![8,16,32].includes(mp)) return err(res, 400, 'max_players doit être 8, 16 ou 32'); // TOURNOI AJOUT
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id); // TOURNOI AJOUT
+  if (!user) return err(res, 401, 'Session expirée, reconnecte-toi'); // MODIFIÉ — anti-crash user undefined
   if (!_peutRejoindre(user.country, user.country, zone)) { // TOURNOI AJOUT
     return err(res, 403, 'Vous ne pouvez pas créer un tournoi hors de votre zone'); // TOURNOI AJOUT
   } // TOURNOI AJOUT
@@ -949,6 +950,7 @@ app.post('/tournament/join', requireAuth, (req, res) => { // TOURNOI AJOUT
 /* GET /tournament/list */
 app.get('/tournament/list', requireAuth, (req, res) => { // TOURNOI AJOUT
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id); // TOURNOI AJOUT
+  if (!user) return err(res, 401, 'Session expirée, reconnecte-toi'); // MODIFIÉ — anti-crash user undefined
   const uZone = _zoneOf(user.country); // TOURNOI AJOUT
   // SECURITE FIX : utiliser des paramètres SQLite au lieu de l'interpolation de chaîne (anti-injection SQL)
   const BASE_OPEN_SQL = `SELECT t.*, u.name AS creator_name, (SELECT COUNT(*) FROM tournament_participants tp WHERE tp.tournament_id = t.id) AS nb FROM tournaments t JOIN users u ON u.id = t.creator_id WHERE t.status IN ('waiting','qualif','elim')`; // SECURITE FIX
