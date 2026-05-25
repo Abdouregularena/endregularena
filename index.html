@@ -1586,8 +1586,109 @@ body { padding-top: 88px !important; padding-bottom: 32px !important; } /* topba
   #page-bibliotheque .flash-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
 }
 
+
+/* ================================================================
+   COUCHE THÈME « ACADÉMIE »  —  AJOUT NON DESTRUCTIF
+   Repeint l'interface en crème / bleu marine / or.
+   N'enlève AUCUNE classe, AUCUN id, AUCUNE logique existante.
+   Tout est ajouté en fin de feuille : la dernière règle l'emporte.
+================================================================ */
+:root{
+  --aca-serif:'Playfair Display',Georgia,serif;
+  --aca-sans:'IBM Plex Sans',system-ui,sans-serif;
+  --aca-creme:#F5F3EE; --aca-creme2:#EFEBE2; --aca-blanc:#FCFBF8;
+  --aca-bleu:#002B5C; --aca-bleu-d:#001E42; --aca-or:#C9991A; --aca-or-l:#E0B23A; --aca-or-d:#A67E10;
+  --aca-txt:#1d2733; --aca-soft:#54616f; --aca-mute:#8a94a1;
+  --aca-ligne:rgba(0,43,92,.12); --aca-ligne-or:rgba(201,153,26,.32);
+  --aca-ombre:0 18px 50px -24px rgba(0,43,92,.30);
+  /* on re-thématise les tokens d'origine */
+  --bg:#F5F3EE !important; --text:#1d2733 !important; --muted:#54616f !important;
+  --glass:rgba(252,251,248,.88) !important; --sep:rgba(0,43,92,.10) !important;
+  --border:rgba(201,153,26,.30) !important;
+  --bib-bg:#F5F3EE !important; --bib-surface:#FCFBF8 !important; --bib-border:rgba(0,43,92,.12) !important;
+  --bib-text:#1d2733 !important; --bib-muted:#54616f !important;
+}
+/* ---- base ---- */
+html,body{background:var(--aca-creme) !important;color:var(--aca-txt) !important}
+body{
+  font-family:var(--aca-sans) !important;
+  background-image:
+    radial-gradient(900px 500px at 88% -5%,rgba(201,153,26,.10),transparent 60%),
+    radial-gradient(800px 600px at -5% 100%,rgba(0,43,92,.06),transparent 55%) !important;
+}
+h1,h2,h3,.hero-title,.section-title{font-family:var(--aca-serif) !important;color:var(--aca-bleu) !important}
+#particles-js{opacity:.10 !important}
+
+/* ---- navigation ---- */
+nav{background:rgba(245,243,238,.88) !important;backdrop-filter:blur(10px);border-bottom:1px solid var(--aca-ligne) !important;box-shadow:none !important}
+.nav-logo,.nav-logo *{color:var(--aca-bleu) !important}
+.nav-links a{color:var(--aca-soft) !important}
+.nav-links a:hover{color:var(--aca-bleu) !important}
+.nav-cta{background:var(--aca-or) !important;color:var(--aca-bleu) !important;border:none !important;box-shadow:0 6px 18px -8px rgba(201,153,26,.7) !important}
+
+/* ---- hero ---- */
+.hero{background:transparent !important}
+.hero-eyebrow{color:var(--aca-or-d) !important;background:transparent !important}
+.hero-title{color:var(--aca-bleu) !important;text-shadow:none !important}
+.hero-desc{color:var(--aca-soft) !important}
+.hero-band{color:var(--aca-or-d) !important}
+
+/* ---- boutons ---- */
+.btn-gold,.btn-navy,.btn-ghost{border-radius:11px !important;font-family:var(--aca-sans) !important;font-weight:600 !important;text-shadow:none !important}
+.btn-gold{background:var(--aca-or) !important;color:var(--aca-bleu) !important;border:none !important;box-shadow:0 8px 22px -10px rgba(201,153,26,.8) !important}
+.btn-navy{background:var(--aca-bleu) !important;color:#fff !important;border:none !important}
+.btn-ghost{background:transparent !important;color:var(--aca-bleu) !important;border:1.5px solid var(--aca-ligne) !important}
+.btn-ghost:hover{border-color:var(--aca-bleu) !important;background:rgba(0,43,92,.04) !important}
+
+/* ---- sections / titres ---- */
+.section{background:transparent !important}
+.section-title{color:var(--aca-bleu) !important}
+.module-label{color:var(--aca-or-d) !important;background:transparent !important}
+
+/* ---- cartes (packs, zones, prix, duel) ---- */
+.price-card,.zone-card,.d-pack-card,.pack-btn,.lb-preview,.badges-grid>*{
+  background:var(--aca-blanc) !important;border:1px solid var(--aca-ligne) !important;
+  border-radius:14px !important;box-shadow:var(--aca-ombre) !important;color:var(--aca-txt) !important;
+}
+.price-card.featured,.zone-card.featured,.featured{border:2px solid var(--aca-or) !important}
+.price-card *,.zone-card *,.d-pack-card *{text-shadow:none !important}
+
+/* ---- stats / chiffres ---- */
+.stat-pill,.stat-item{background:var(--aca-blanc) !important;border:1px solid var(--aca-ligne) !important;color:var(--aca-txt) !important}
+.stat-number,.num,.pts-value,.score-display{font-family:var(--aca-serif) !important;color:var(--aca-bleu) !important}
+.stat-label{color:var(--aca-mute) !important}
+
+/* ---- quiz / options ---- */
+.q-choice,.popt,.rat-qualify-opt{background:var(--aca-creme) !important;border:1.5px solid var(--aca-ligne) !important;color:var(--aca-txt) !important;border-radius:12px !important}
+.q-choice:hover,.popt:hover{border-color:var(--aca-or) !important;background:var(--aca-blanc) !important}
+.duel-timer{color:var(--aca-bleu) !important}
+
+/* ---- classement ---- */
+.lb-row{background:var(--aca-blanc) !important;border:1px solid var(--aca-ligne) !important;color:var(--aca-txt) !important}
+.lb-header{color:var(--aca-bleu) !important}
+.lb-filter-btn{background:var(--aca-creme2) !important;border:1.5px solid var(--aca-ligne) !important;color:var(--aca-soft) !important}
+.lb-filter-btn.active{background:var(--aca-bleu) !important;color:#fff !important}
+
+/* ---- badges ---- */
+.rat-badge{color:var(--aca-bleu) !important}
+
+/* ---- formulaires ---- */
+.form-input,.form-select{background:var(--aca-creme) !important;border:1.5px solid var(--aca-ligne) !important;color:var(--aca-txt) !important;border-radius:10px !important}
+.form-input::placeholder{color:var(--aca-mute) !important}
+.form-input:focus,.form-select:focus{border-color:var(--aca-or) !important;outline:none !important}
+
+/* ---- onglets ---- */
+.tab{color:var(--aca-soft) !important}
+.tab.active{color:var(--aca-bleu) !important;border-color:var(--aca-or) !important}
+
+/* ---- pied de page / bandeaux (on garde le marine) ---- */
+.ra-contact-footer{background:var(--aca-bleu-d) !important;color:#cdd8e6 !important}
+.ra-contact-footer a{color:#cdd8e6 !important}
+.ra-disclaimer-band{background:rgba(0,43,92,.06) !important;border:1px solid var(--aca-ligne) !important;color:var(--aca-soft) !important}
+
 </style>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
