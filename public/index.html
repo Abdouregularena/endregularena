@@ -1570,9 +1570,7 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
 
 
 /* ================================================================
-   COUCHE THÈME « ACADÉMIE » v2  —  AJOUT NON DESTRUCTIF
-   v2 : en-tête + cartes sombres passées en BLEU MARINE + texte clair
-        (lisibilité corrigée). Cartes de prix laissées en clair.
+   COUCHE THÈME « ACADÉMIE » v3  —  AJOUT NON DESTRUCTIF
 ================================================================ */
 :root{
   --aca-serif:'Playfair Display',Georgia,serif;
@@ -1581,26 +1579,19 @@ body { padding-top: 84px !important; padding-bottom: 32px !important; } /* MODIF
   --aca-bleu:#002B5C; --aca-bleu-d:#001E42; --aca-or:#C9991A; --aca-or-l:#E0B23A; --aca-or-d:#A67E10;
   --aca-clair:#EAF0F8;
   --aca-txt:#1d2733; --aca-soft:#54616f; --aca-mute:#8a94a1;
-  --aca-ligne:rgba(0,43,92,.12); --aca-ligne-or:rgba(201,153,26,.32);
-  --aca-ombre:0 18px 50px -24px rgba(0,43,92,.30);
+  --aca-ligne:rgba(0,43,92,.12); --aca-ombre:0 18px 50px -24px rgba(0,43,92,.30);
   --bg:#F5F3EE !important; --text:#1d2733 !important; --muted:#54616f !important;
   --glass:rgba(252,251,248,.88) !important; --sep:rgba(0,43,92,.10) !important; --border:rgba(201,153,26,.30) !important;
   --bib-bg:#F5F3EE !important; --bib-surface:#FCFBF8 !important; --bib-border:rgba(0,43,92,.12) !important;
   --bib-text:#1d2733 !important; --bib-muted:#54616f !important;
-  /* v2 : surfaces de cartes sombres -> bleu marine */
   --bg2:#002B5C !important; --bg3:#001E42 !important; --glass2:rgba(0,43,92,.55) !important;
 }
 html,body{background:var(--aca-creme) !important;color:var(--aca-txt) !important}
-body{
-  font-family:var(--aca-sans) !important;
-  background-image:
-    radial-gradient(900px 500px at 88% -5%,rgba(201,153,26,.10),transparent 60%),
-    radial-gradient(800px 600px at -5% 100%,rgba(0,43,92,.06),transparent 55%) !important;
-}
+body{font-family:var(--aca-sans) !important;background-image:radial-gradient(900px 500px at 88% -5%,rgba(201,153,26,.10),transparent 60%),radial-gradient(800px 600px at -5% 100%,rgba(0,43,92,.06),transparent 55%) !important}
 h1,h2,h3,.hero-title,.section-title{font-family:var(--aca-serif) !important;color:var(--aca-bleu) !important}
 #particles-js{opacity:.10 !important}
 
-/* ===== EN-TÊTE EN BLEU MARINE (texte clair, lisible) ===== */
+/* ===== EN-TÊTE BLEU MARINE ===== */
 nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.12) !important;box-shadow:none !important}
 .nav-logo,.nav-logo *{color:#fff !important;-webkit-text-fill-color:#fff !important}
 .nav-links a{color:#dbe6f4 !important;-webkit-text-fill-color:#dbe6f4 !important}
@@ -1615,64 +1606,54 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
 .btn-navy{background:var(--aca-bleu) !important;color:#fff !important;-webkit-text-fill-color:#fff !important;border:none !important}
 .btn-ghost{background:transparent !important;color:var(--aca-bleu) !important;-webkit-text-fill-color:var(--aca-bleu) !important;border:1.5px solid var(--aca-ligne) !important}
 
-/* ===== SECTIONS / TITRES sur fond crème ===== */
+/* ===== SECTIONS / TITRES ===== */
 .section{background:transparent !important}
 .section-title{color:var(--aca-bleu) !important;-webkit-text-fill-color:var(--aca-bleu) !important}
 .module-label{color:var(--aca-or-d) !important;-webkit-text-fill-color:var(--aca-or-d) !important;background:transparent !important}
 
 /* ===== CARTES SOMBRES -> BLEU MARINE + TEXTE CLAIR ===== */
-.mode-card,.zone-card,.d-pack-card{
-  background:var(--aca-bleu) !important;border:1px solid rgba(201,153,26,.30) !important;
-  border-radius:14px !important;box-shadow:var(--aca-ombre) !important;
-}
-.mode-card,.mode-card *,
-.zone-card,.zone-card *,
-.d-pack-card,.d-pack-card *{
-  color:var(--aca-clair) !important;-webkit-text-fill-color:var(--aca-clair) !important;text-shadow:none !important;
-}
-/* titres de ces cartes en or éclatant */
-.mode-name,.d-pack-name,.mode-card h3,.zone-card h3,.d-pack-card h3{
-  color:var(--aca-or-l) !important;-webkit-text-fill-color:var(--aca-or-l) !important;
-}
+.mode-card,.zone-card,.d-pack-card{background:var(--aca-bleu) !important;border:1px solid rgba(201,153,26,.30) !important;border-radius:14px !important;box-shadow:var(--aca-ombre) !important}
+.mode-card,.mode-card *,.zone-card,.zone-card *,.d-pack-card,.d-pack-card *{color:var(--aca-clair) !important;-webkit-text-fill-color:var(--aca-clair) !important;text-shadow:none !important}
+.mode-name,.d-pack-name,.mode-card h3,.zone-card h3,.d-pack-card h3,.zone-name{color:var(--aca-or-l) !important;-webkit-text-fill-color:var(--aca-or-l) !important}
 
-/* ===== CARTES DE PRIX : RESTENT CLAIRES (nickel) ===== */
-.price-card,.pack-btn,.my-stat-card{
-  background:var(--aca-blanc) !important;border:1px solid var(--aca-ligne) !important;
-  border-radius:14px !important;box-shadow:var(--aca-ombre) !important;color:var(--aca-txt) !important;
-}
+/* ===== TUILES DE PACKS SOLO : titre en or/beige, sous-texte clair ===== */
+#solo-pack-grid [onclick^="startSoloPack"]{color:var(--aca-clair) !important}
+#solo-pack-grid [onclick^="startSoloPack"]>div:first-child{color:var(--aca-or-l) !important;-webkit-text-fill-color:var(--aca-or-l) !important;font-family:var(--aca-sans) !important}
+#solo-pack-grid [onclick^="startSoloPack"]>div:last-child{color:#c3d2e6 !important;-webkit-text-fill-color:#c3d2e6 !important}
+
+/* ===== CARTES DE PRIX : CLAIRES ===== */
+.price-card,.pack-btn,.my-stat-card{background:var(--aca-blanc) !important;border:1px solid var(--aca-ligne) !important;border-radius:14px !important;box-shadow:var(--aca-ombre) !important;color:var(--aca-txt) !important}
 .price-card.featured,.featured{border:2px solid var(--aca-or) !important}
 
-/* ===== BANDE "COMMENT DÉMARRER" (déjà bleue) : texte clair / or ===== */
+/* ===== BANDE "COMMENT DÉMARRER" ===== */
 .ra-steps-band,.ra-steps-band *{color:var(--aca-clair) !important;-webkit-text-fill-color:var(--aca-clair) !important}
 .ra-steps-band-label{color:var(--aca-or-l) !important;-webkit-text-fill-color:var(--aca-or-l) !important}
 .ra-step-card h3,.ra-step-card strong,.ra-step-card b{color:var(--aca-or-l) !important;-webkit-text-fill-color:var(--aca-or-l) !important}
 
-/* ===== STATS / CHIFFRES ===== */
+/* ===== STATS ===== */
 .stat-pill,.stat-item{background:var(--aca-blanc) !important;border:1px solid var(--aca-ligne) !important;color:var(--aca-txt) !important}
 .stat-number,.num,.pts-value,.score-display{font-family:var(--aca-serif) !important;color:var(--aca-bleu) !important;-webkit-text-fill-color:var(--aca-bleu) !important}
 .stat-label{color:var(--aca-mute) !important;-webkit-text-fill-color:var(--aca-mute) !important}
 
-/* ===== QUIZ / OPTIONS (clair) ===== */
+/* ===== QUIZ ===== */
 .q-choice,.popt,.rat-qualify-opt{background:var(--aca-creme) !important;border:1.5px solid var(--aca-ligne) !important;color:var(--aca-txt) !important;border-radius:12px !important}
 .q-choice:hover,.popt:hover{border-color:var(--aca-or) !important;background:var(--aca-blanc) !important}
 .duel-timer{color:var(--aca-bleu) !important}
 
-/* ===== CLASSEMENT (clair) ===== */
+/* ===== CLASSEMENT ===== */
 .lb-row{background:var(--aca-blanc) !important;border:1px solid var(--aca-ligne) !important;color:var(--aca-txt) !important}
 .lb-header{color:var(--aca-bleu) !important}
 .lb-filter-btn{background:var(--aca-creme2) !important;border:1.5px solid var(--aca-ligne) !important;color:var(--aca-soft) !important}
 .lb-filter-btn.active{background:var(--aca-bleu) !important;color:#fff !important;-webkit-text-fill-color:#fff !important}
 
-/* ===== FORMULAIRES (clair) ===== */
+/* ===== FORMULAIRES ===== */
 .form-input,.form-select{background:var(--aca-creme) !important;border:1.5px solid var(--aca-ligne) !important;color:var(--aca-txt) !important;border-radius:10px !important}
 .form-input::placeholder{color:var(--aca-mute) !important}
 .form-input:focus,.form-select:focus{border-color:var(--aca-or) !important;outline:none !important}
 
-/* ===== ONGLETS ===== */
+/* ===== ONGLETS / PIED ===== */
 .tab{color:var(--aca-soft) !important}
 .tab.active{color:var(--aca-bleu) !important;border-color:var(--aca-or) !important}
-
-/* ===== PIED DE PAGE ===== */
 .ra-contact-footer{background:var(--aca-bleu-d) !important;color:#cdd8e6 !important}
 .ra-contact-footer a{color:#cdd8e6 !important}
 
