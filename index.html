@@ -24,8 +24,8 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta name="robots" content="index, follow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;0,700;0,800;0,900&family=Roboto:ital,wght@0,300;0,400;0,500;0,700&family=Merriweather:ital,wght@0,300;0,400;1,300;1,400&family=Lato:wght@300;400;700;900&family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;700&display=swap
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
 <style>
 /* ================================================================
@@ -42,10 +42,6 @@ https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;0,700;
   --blue:      #4F8EF7; --green: #10B981; --green-dim: rgba(16,185,129,.12);
   --red:       #EF4444; --red-dim: rgba(239,68,68,.1);
   --purple:    #A855F7; --silver: #B0B8C8; --bronze: #CD7F32;
-  --font-title:   'Montserrat', sans-serif;
-  --font-heading: 'Lato', sans-serif;
-  --font-body:    'Roboto', sans-serif;
-  --font-quote:   'Merriweather', Georgia, serif;
   --bg:        #03050A; --bg2: #080C14; --bg3: #0E1320;
   --glass:     rgba(8,12,20,.72); --glass2: rgba(14,19,32,.6);
   --text:      #EEF0F5; --muted: #7A8499;
@@ -53,7 +49,7 @@ https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;0,700;
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:var(--font-body);overflow-x:hidden;min-height:100vh}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overflow-x:hidden;min-height:100vh}
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.35}
 .orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(80px);animation:orbPulse 10s ease-in-out infinite}
 .orb-g{width:600px;height:400px;top:-100px;left:-100px;background:radial-gradient(circle,rgba(0,43,92,.2),rgba(201,153,26,.06) 60%,transparent 70%)}
@@ -65,7 +61,7 @@ nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:0} /* MOD
 .nav-logo{font-family:'Bebas Neue',cursive;font-size:1.5rem;letter-spacing:3px;color:var(--gold);text-decoration:none;flex-shrink:0;cursor:pointer}
 .nav-logo span{color:var(--text)}
 .nav-links{display:flex;gap:4px;list-style:none}
-.nav-links button{background:none;border:none;cursor:pointer;color:#FFFFFF;font-family:var(--font-body);font-size:.75rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:8px 12px;border-radius:2px;transition:all .2s} /* MODIFIÉ — texte nav #FFFFFF font-weight 600 */
+.nav-links button{background:none;border:none;cursor:pointer;color:#FFFFFF;font-family:'Inter',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:8px 12px;border-radius:2px;transition:all .2s} /* MODIFIÉ — texte nav #FFFFFF font-weight 600 */
 .nav-links button:hover,.nav-links button.active{color:var(--gold);background:var(--gold-dim)}
 .nav-right{display:flex;align-items:center;gap:10px}
 #ra-quiz-pill{display:none;align-items:center;gap:7px;background:#C9991A;border:none;border-radius:12px;padding:2px 10px;font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:1.5px;color:#001E42;font-weight:700;text-transform:uppercase} /* MODIFIÉ — fond #C9991A, texte #001E42, border-radius 12px, font-weight 700 */
@@ -103,7 +99,7 @@ nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:0} /* MOD
 
 .form-group{margin-bottom:18px}
 .form-label{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:2.5px;color:var(--muted);text-transform:uppercase;margin-bottom:7px;display:block}
-.form-input,.form-select{width:100%;background:var(--bg2);border:1px solid var(--gb);color:var(--text);font-family:var(--font-body);font-size:.85rem;padding:11px 15px;border-radius:2px;outline:none;transition:border-color .2s}
+.form-input,.form-select{width:100%;background:var(--bg2);border:1px solid var(--gb);color:var(--text);font-family:'Inter',sans-serif;font-size:.85rem;padding:11px 15px;border-radius:2px;outline:none;transition:border-color .2s}
 .form-input:focus,.form-select:focus{border-color:var(--border)}
 .form-input::placeholder{color:var(--muted)}
 .form-select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237A8499' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
@@ -230,7 +226,7 @@ nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:0} /* MOD
 .progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-l));border-radius:4px;transition:width 1s ease}
 
 /* ── TOURNOIS ────────────────────────────────────────────── */
-.screen-t{display:none;min-height:calc(100vh - 53px);padding:80px 20px 60px;position:relative;z-index:1}
+.screen-t{display:none;min-height:auto;padding:40px 20px 60px;position:relative;z-index:1} /* MODIFIÉ — min-height 100vh→auto, padding-top 80→40 (supprime le vide) */
 .screen-t.active{display:block}
 .code-box{display:flex;align-items:center;border:1px solid var(--border);border-radius:2px;overflow:hidden;background:var(--bg)}
 .code-display{flex:1;padding:13px 18px;font-family:'Bebas Neue',cursive;font-size:1.7rem;letter-spacing:7px;background:linear-gradient(135deg,var(--gold),var(--gold-b));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
@@ -270,7 +266,7 @@ nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:0} /* MOD
 .msg.them .msg-bubble{background:var(--glass2);border:1px solid var(--gb)}
 .msg-meta{font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--muted)}
 .chat-input-wrap{display:flex;gap:7px;padding:11px;border-top:1px solid var(--sep)}
-.chat-input{flex:1;background:var(--bg2);border:1px solid var(--gb);color:var(--text);font-family:var(--font-body);font-size:.8rem;padding:9px 13px;border-radius:2px;outline:none;transition:border-color .2s}
+.chat-input{flex:1;background:var(--bg2);border:1px solid var(--gb);color:var(--text);font-family:'Inter',sans-serif;font-size:.8rem;padding:9px 13px;border-radius:2px;outline:none;transition:border-color .2s}
 .chat-input:focus{border-color:var(--border)}
 .chat-send{background:var(--gold);color:var(--bg);border:none;padding:9px 14px;cursor:pointer;border-radius:2px;font-size:.9rem;transition:background .2s}
 .chat-send:hover{background:var(--gold-l)}
@@ -307,7 +303,7 @@ nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:0} /* MOD
 .q-panel{background:var(--bg2);border-top:1px solid var(--gb);padding:28px;flex:1}
 .q-text{font-family:'Montserrat',sans-serif;font-size:.95rem;font-weight:600;line-height:1.6;margin-bottom:20px}
 .q-choices{display:flex;flex-direction:column;gap:9px}
-.q-choice{background:var(--bg3);border:1px solid var(--gb);color:var(--text);font-family:var(--font-body);font-size:.83rem;padding:12px 16px;cursor:pointer;text-align:left;border-radius:2px;transition:all .2s}
+.q-choice{background:var(--bg3);border:1px solid var(--gb);color:var(--text);font-family:'Inter',sans-serif;font-size:.83rem;padding:12px 16px;cursor:pointer;text-align:left;border-radius:2px;transition:all .2s}
 .q-choice:hover:not(.disabled){border-color:var(--border);background:var(--gold-dim)}
 .q-choice.correct{border-color:var(--green);background:var(--green-dim);color:var(--green)}
 .q-choice.wrong{border-color:var(--red);background:var(--red-dim);color:var(--red)}
@@ -371,9 +367,9 @@ nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:0} /* MOD
 .ra-gate-title{font-family:'Bebas Neue',cursive;font-size:2.2rem;letter-spacing:2px;line-height:1.1;margin-bottom:14px}
 .ra-gate-title .g{background:linear-gradient(135deg,var(--gold),var(--gold-b));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .ra-gate-desc{font-size:.83rem;color:var(--muted);line-height:1.6;margin-bottom:22px}
-.ra-input{width:100%;background:var(--bg);border:1px solid var(--gb);color:var(--text);font-family:var(--font-body);font-size:.84rem;padding:11px 14px;border-radius:2px;outline:none;margin-bottom:11px;transition:border-color .2s}
+.ra-input{width:100%;background:var(--bg);border:1px solid var(--gb);color:var(--text);font-family:'Inter',sans-serif;font-size:.84rem;padding:11px 14px;border-radius:2px;outline:none;margin-bottom:11px;transition:border-color .2s}
 .ra-input:focus{border-color:var(--border)} .ra-input.error{border-color:var(--red)} .ra-input.success{border-color:var(--green)}
-.ra-select{width:100%;background:var(--bg);border:1px solid var(--gb);color:var(--text);font-family:var(--font-body);font-size:.84rem;padding:11px 14px;border-radius:2px;outline:none;margin-bottom:11px;cursor:pointer;appearance:none}
+.ra-select{width:100%;background:var(--bg);border:1px solid var(--gb);color:var(--text);font-family:'Inter',sans-serif;font-size:.84rem;padding:11px 14px;border-radius:2px;outline:none;margin-bottom:11px;cursor:pointer;appearance:none}
 .ra-email-hint{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:1px;display:none;padding:6px 10px;border-radius:2px;margin-top:-6px;margin-bottom:10px}
 .ra-email-hint.show{display:flex;gap:7px;align-items:center}
 .ra-email-hint.valid{background:var(--green-dim);border:1px solid rgba(16,185,129,.3);color:var(--green)}
@@ -403,7 +399,7 @@ nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:0} /* MOD
 .feedback-section{padding:70px 40px;background:var(--bg2);border-top:1px solid var(--border)}
 .feedback-inner{max-width:700px;margin:0 auto}
 .feedback-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
-.feedback-textarea{width:100%;background:var(--bg3);border:1px solid var(--gb);color:var(--text);font-family:var(--font-body);font-size:.85rem;padding:13px 16px;border-radius:2px;outline:none;resize:vertical;min-height:110px;transition:border-color .2s;grid-column:1/-1}
+.feedback-textarea{width:100%;background:var(--bg3);border:1px solid var(--gb);color:var(--text);font-family:'Inter',sans-serif;font-size:.85rem;padding:13px 16px;border-radius:2px;outline:none;resize:vertical;min-height:110px;transition:border-color .2s;grid-column:1/-1}
 .feedback-textarea:focus{border-color:var(--border)}
 .feedback-textarea::placeholder{color:var(--muted)}
 .feedback-type-btns{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
@@ -428,7 +424,7 @@ nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:0} /* MOD
 /* ── NAV USER CHIP ───────────────────────────────────────── */
 .ra-nav-user-chip{display:flex;align-items:center;gap:7px;background:var(--gold-dim);border:1px solid var(--border);border-radius:20px;padding:4px 12px 4px 4px;cursor:default}
 .ra-nav-user-av{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-l));color:var(--bg);font-family:'Bebas Neue',cursive;font-size:.72rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.ra-nav-user-name{font-family:var(--font-body);font-size:.72rem;font-weight:600;color:var(--gold);letter-spacing:.5px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ra-nav-user-name{font-family:'Inter',sans-serif;font-size:.72rem;font-weight:600;color:var(--gold);letter-spacing:.5px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media(max-width:480px){.ra-nav-user-name{display:none}.ra-nav-user-chip{padding:4px}}
 
 /* ── PRICING RESPONSIVE ≤ 768px ─────────────────────────── */
@@ -444,7 +440,7 @@ nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:0} /* MOD
 .nav-hamburger.open span:nth-child(2){opacity:0}
 .nav-hamburger.open span:nth-child(3){transform:translateY(-9px) rotate(-45deg)}
 .mobile-nav{position:fixed;top:53px;left:0;right:0;z-index:190;background:rgba(3,5,10,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:12px 0;flex-direction:column}
-.mobile-nav button{width:100%;background:none;border:none;cursor:pointer;color:var(--muted);font-family:var(--font-body);font-size:.88rem;font-weight:600;text-align:left;padding:13px 24px;transition:all .2s}
+.mobile-nav button{width:100%;background:none;border:none;cursor:pointer;color:var(--muted);font-family:'Inter',sans-serif;font-size:.88rem;font-weight:600;text-align:left;padding:13px 24px;transition:all .2s}
 .mobile-nav button:hover{color:var(--gold);background:var(--gold-dim)}
 
 footer{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);flex-wrap:wrap;gap:18px;position:relative;z-index:1;padding:28px 40px}
@@ -706,7 +702,7 @@ footer{display:flex;align-items:center;justify-content:space-between;border-top:
   color:var(--gold);margin-bottom:8px;
 }
 .ra-contact-tagline{
-  font-family:var(--font-body);font-size:15px;color:var(--muted);
+  font-family:'Inter',sans-serif;font-size:15px;color:var(--muted);
   max-width:540px;margin:0 auto 30px;line-height:1.7;font-style:italic;
 }
 .ra-contact-grid{
@@ -726,7 +722,7 @@ footer{display:flex;align-items:center;justify-content:space-between;border-top:
   flex-shrink:0;font-size:16px;
 }
 .ra-contact-item span{
-  font-family:var(--font-body);font-size:13px;color:var(--text);
+  font-family:'Inter',sans-serif;font-size:13px;color:var(--text);
   word-break:break-all;text-align:left;line-height:1.4;
 }
 .ra-contact-footer-legal{
@@ -1131,30 +1127,19 @@ input,select,textarea{font-size:max(16px,.84rem)!important}
 /* ── FIN TOURNOI AJOUT styles ────────────────────────────── */
 
 /* ── LOGO AJOUT ──────────────────────────────────────────── */
-#ra-topbar {
-  position: fixed; top: 52px; left: 0; right: 0; z-index: 150;
-  background: linear-gradient(90deg, #001a3a 0%, #002B5C 50%, #001a3a 100%);
-  height: 36px;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 20px;
-  box-shadow: 0 2px 12px rgba(0,0,0,.5), inset 0 -1px 0 rgba(201,153,26,.3);
-  overflow: hidden;
-}
-#ra-topbar-logo { height: 22px; width: auto; object-fit: contain; flex-shrink: 0; opacity: .9; }
-#ra-topbar-stats {
-  display: flex; gap: 16px;
-  font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500;
-  color: #EEF0F5; line-height: 1; letter-spacing: .3px;
-}
-#ra-topbar-stats span {
-  display: flex; align-items: center; gap: 5px;
-  padding: 3px 10px;
-  background: rgba(201,153,26,.12);
-  border: 1px solid rgba(201,153,26,.25);
-  border-radius: 2px;
-  white-space: nowrap;
-}
-#ra-topbar-stats strong { color: #E8B520; font-weight: 700; font-size: 13px; }
+#ra-topbar { /* LOGO AJOUT */
+  position: fixed; top: 52px; left: 0; right: 0; z-index: 150; /* MODIFIÉ — top:52px = hauteur exacte du nav (padding:14px×2 + logo:24px), z-index:150 < nav:200 */
+  background: #002B5C; height: 46px; /* MODIFIÉ — 46px, drapeaux nettement plus visibles */
+  display: flex; align-items: center; gap: 12px; /* MODIFIÉ — logo + marquee drapeaux */
+  padding: 0 16px; box-shadow: 0 2px 8px rgba(0,0,0,.4);
+  overflow: hidden; /* MODIFIÉ — empêche tout débordement vertical du logo/texte */
+} /* LOGO AJOUT */
+#ra-topbar-logo { height: 28px; width: auto; object-fit: contain; flex-shrink: 0; } /* MODIFIÉ */
+#ra-flags-marquee { flex: 1; min-width: 0; height: 100%; overflow: hidden; position: relative; display: flex; align-items: center; -webkit-mask: linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent); mask: linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent); } /* DRAPEAUX AJOUT */
+#ra-flags { display: flex; align-items: center; gap: 22px; white-space: nowrap; will-change: transform; animation: ra-flags-scroll 34s linear infinite; } /* DRAPEAUX AJOUT */
+#ra-flags .raf { height: 32px; width: auto; display: block; border-radius: 3px; border: 1px solid rgba(255,255,255,.45); box-shadow: 0 1px 4px rgba(0,0,0,.55); object-fit: cover; overflow:hidden; } /* MODIFIÉ : .raf (svg inline) + overflow */ /* MODIFIÉ — 32px, bordure renforcée */
+@keyframes ra-flags-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } } /* DRAPEAUX AJOUT — boucle continue (liste dupliquée ×2) */
+#ra-topbar-stats { display: none; } /* MODIFIÉ — stats déplacées dans le ticker bas */
 
 #ra-ticker-wrap { /* LOGO AJOUT */
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; /* MODIFIÉ — z-index abaissé à 100, sous nav (200) et modales, ne bloque plus les boutons */
@@ -1171,14 +1156,25 @@ input,select,textarea{font-size:max(16px,.84rem)!important}
 #ra-ticker span::before { content: '◆ '; color: #C9991A; } /* LOGO AJOUT */
 @keyframes ra-scroll { from { transform: translateX(100vw); } to { transform: translateX(-100%); } } /* LOGO AJOUT */
 
-body { padding-top: 88px !important; padding-bottom: 32px !important; } /* topbar 36px + nav 52px = 88px */
+body { padding-top: 98px !important; padding-bottom: 32px !important; } /* MODIFIÉ — 52px nav + 46px topbar = 98px */
 
 @media (orientation: landscape) and (max-height: 500px) { /* LOGO AJOUT */
-  #ra-topbar { height: 30px; top: 40px; }
+  #ra-topbar { height: 40px; top: 40px; } /* MODIFIÉ — landscape */
   #ra-topbar-logo { height: 20px; } /* MODIFIÉ */
-  body { padding-top: 70px !important; } /* 40px nav + 30px topbar */
-  #ra-topbar-stats span:nth-child(3) { display: none; } /* LOGO AJOUT */
+  body { padding-top: 80px !important; } /* MODIFIÉ — 40px nav + 40px topbar */
+  #ra-flags .raf { height: 26px; } /* MODIFIÉ */ /* MODIFIÉ — landscape */
 } /* LOGO AJOUT */
+@media (max-width: 768px) { /* DRAPEAUX AJOUT — responsive tablette/mobile */
+  #ra-topbar { gap: 8px; padding: 0 10px; }
+  #ra-flags { gap: 12px; animation-duration: 26s; }
+  #ra-flags .raf { height: 28px; } /* MODIFIÉ */
+} /* DRAPEAUX AJOUT */
+@media (max-width: 480px) { /* DRAPEAUX AJOUT — responsive petit mobile */
+  #ra-topbar-logo { height: 20px; }
+  #ra-flags { gap: 10px; }
+  #ra-flags .raf { height: 24px; } /* MODIFIÉ */
+  #ra-ticker { font-size: 11px; gap: 50px; }
+} /* DRAPEAUX AJOUT */
 /* ── FIN LOGO AJOUT ──────────────────────────────────────── */
 
 /* ── ORIENTATION AJOUT — gestion landscape/portrait mobile ── */
@@ -1588,103 +1584,92 @@ body { padding-top: 88px !important; padding-bottom: 32px !important; } /* topba
 
 
 /* ================================================================
-   COUCHE THÈME « ACADÉMIE »  —  AJOUT NON DESTRUCTIF
-   Repeint l'interface en crème / bleu marine / or.
-   N'enlève AUCUNE classe, AUCUN id, AUCUNE logique existante.
-   Tout est ajouté en fin de feuille : la dernière règle l'emporte.
+   COUCHE THÈME « ACADÉMIE » v3  —  AJOUT NON DESTRUCTIF
 ================================================================ */
 :root{
   --aca-serif:'Playfair Display',Georgia,serif;
   --aca-sans:'IBM Plex Sans',system-ui,sans-serif;
   --aca-creme:#F5F3EE; --aca-creme2:#EFEBE2; --aca-blanc:#FCFBF8;
   --aca-bleu:#002B5C; --aca-bleu-d:#001E42; --aca-or:#C9991A; --aca-or-l:#E0B23A; --aca-or-d:#A67E10;
+  --aca-clair:#EAF0F8;
   --aca-txt:#1d2733; --aca-soft:#54616f; --aca-mute:#8a94a1;
-  --aca-ligne:rgba(0,43,92,.12); --aca-ligne-or:rgba(201,153,26,.32);
-  --aca-ombre:0 18px 50px -24px rgba(0,43,92,.30);
-  /* on re-thématise les tokens d'origine */
+  --aca-ligne:rgba(0,43,92,.12); --aca-ombre:0 18px 50px -24px rgba(0,43,92,.30);
   --bg:#F5F3EE !important; --text:#1d2733 !important; --muted:#54616f !important;
-  --glass:rgba(252,251,248,.88) !important; --sep:rgba(0,43,92,.10) !important;
-  --border:rgba(201,153,26,.30) !important;
+  --glass:rgba(252,251,248,.88) !important; --sep:rgba(0,43,92,.10) !important; --border:rgba(201,153,26,.30) !important;
   --bib-bg:#F5F3EE !important; --bib-surface:#FCFBF8 !important; --bib-border:rgba(0,43,92,.12) !important;
   --bib-text:#1d2733 !important; --bib-muted:#54616f !important;
+  --bg2:#002B5C !important; --bg3:#001E42 !important; --glass2:rgba(0,43,92,.55) !important;
 }
-/* ---- base ---- */
 html,body{background:var(--aca-creme) !important;color:var(--aca-txt) !important}
-body{
-  font-family:var(--aca-sans) !important;
-  background-image:
-    radial-gradient(900px 500px at 88% -5%,rgba(201,153,26,.10),transparent 60%),
-    radial-gradient(800px 600px at -5% 100%,rgba(0,43,92,.06),transparent 55%) !important;
-}
+body{font-family:var(--aca-sans) !important;background-image:radial-gradient(900px 500px at 88% -5%,rgba(201,153,26,.10),transparent 60%),radial-gradient(800px 600px at -5% 100%,rgba(0,43,92,.06),transparent 55%) !important}
 h1,h2,h3,.hero-title,.section-title{font-family:var(--aca-serif) !important;color:var(--aca-bleu) !important}
 #particles-js{opacity:.10 !important}
 
-/* ---- navigation ---- */
-nav{background:rgba(245,243,238,.88) !important;backdrop-filter:blur(10px);border-bottom:1px solid var(--aca-ligne) !important;box-shadow:none !important}
-.nav-logo,.nav-logo *{color:var(--aca-bleu) !important}
-.nav-links a{color:var(--aca-soft) !important}
-.nav-links a:hover{color:var(--aca-bleu) !important}
-.nav-cta{background:var(--aca-or) !important;color:var(--aca-bleu) !important;border:none !important;box-shadow:0 6px 18px -8px rgba(201,153,26,.7) !important}
+/* ===== EN-TÊTE BLEU MARINE ===== */
+nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.12) !important;box-shadow:none !important}
+.nav-logo,.nav-logo *{color:#fff !important;-webkit-text-fill-color:#fff !important}
+.nav-links a{color:#dbe6f4 !important;-webkit-text-fill-color:#dbe6f4 !important}
+.nav-links a:hover{color:#fff !important;-webkit-text-fill-color:#fff !important}
+.nav-cta{background:var(--aca-or) !important;color:var(--aca-bleu) !important;-webkit-text-fill-color:var(--aca-bleu) !important;border:none !important}
+.ra-disclaimer-band{background:var(--aca-bleu-d) !important;border:none !important}
+.ra-disclaimer-band,.ra-disclaimer-band *{color:#c3d2e6 !important;-webkit-text-fill-color:#c3d2e6 !important}
 
-/* ---- hero ---- */
-.hero{background:transparent !important}
-.hero-eyebrow{color:var(--aca-or-d) !important;background:transparent !important}
-.hero-title{color:var(--aca-bleu) !important;text-shadow:none !important}
-.hero-desc{color:var(--aca-soft) !important}
-.hero-band{color:var(--aca-or-d) !important}
-
-/* ---- boutons ---- */
+/* ===== BOUTONS ===== */
 .btn-gold,.btn-navy,.btn-ghost{border-radius:11px !important;font-family:var(--aca-sans) !important;font-weight:600 !important;text-shadow:none !important}
-.btn-gold{background:var(--aca-or) !important;color:var(--aca-bleu) !important;border:none !important;box-shadow:0 8px 22px -10px rgba(201,153,26,.8) !important}
-.btn-navy{background:var(--aca-bleu) !important;color:#fff !important;border:none !important}
-.btn-ghost{background:transparent !important;color:var(--aca-bleu) !important;border:1.5px solid var(--aca-ligne) !important}
-.btn-ghost:hover{border-color:var(--aca-bleu) !important;background:rgba(0,43,92,.04) !important}
+.btn-gold{background:var(--aca-or) !important;color:var(--aca-bleu) !important;-webkit-text-fill-color:var(--aca-bleu) !important;border:none !important;box-shadow:0 8px 22px -10px rgba(201,153,26,.8) !important}
+.btn-navy{background:var(--aca-bleu) !important;color:#fff !important;-webkit-text-fill-color:#fff !important;border:none !important}
+.btn-ghost{background:transparent !important;color:var(--aca-bleu) !important;-webkit-text-fill-color:var(--aca-bleu) !important;border:1.5px solid var(--aca-ligne) !important}
 
-/* ---- sections / titres ---- */
+/* ===== SECTIONS / TITRES ===== */
 .section{background:transparent !important}
-.section-title{color:var(--aca-bleu) !important}
-.module-label{color:var(--aca-or-d) !important;background:transparent !important}
+.section-title{color:var(--aca-bleu) !important;-webkit-text-fill-color:var(--aca-bleu) !important}
+.module-label{color:var(--aca-or-d) !important;-webkit-text-fill-color:var(--aca-or-d) !important;background:transparent !important}
 
-/* ---- cartes (packs, zones, prix, duel) ---- */
-.price-card,.zone-card,.d-pack-card,.pack-btn,.lb-preview,.badges-grid>*{
-  background:var(--aca-blanc) !important;border:1px solid var(--aca-ligne) !important;
-  border-radius:14px !important;box-shadow:var(--aca-ombre) !important;color:var(--aca-txt) !important;
-}
-.price-card.featured,.zone-card.featured,.featured{border:2px solid var(--aca-or) !important}
-.price-card *,.zone-card *,.d-pack-card *{text-shadow:none !important}
+/* ===== CARTES SOMBRES -> BLEU MARINE + TEXTE CLAIR ===== */
+.mode-card,.zone-card,.d-pack-card{background:var(--aca-bleu) !important;border:1px solid rgba(201,153,26,.30) !important;border-radius:14px !important;box-shadow:var(--aca-ombre) !important}
+.mode-card,.mode-card *,.zone-card,.zone-card *,.d-pack-card,.d-pack-card *{color:var(--aca-clair) !important;-webkit-text-fill-color:var(--aca-clair) !important;text-shadow:none !important}
+.mode-name,.d-pack-name,.mode-card h3,.zone-card h3,.d-pack-card h3,.zone-name{color:var(--aca-or-l) !important;-webkit-text-fill-color:var(--aca-or-l) !important}
 
-/* ---- stats / chiffres ---- */
+/* ===== TUILES DE PACKS SOLO : titre en or/beige, sous-texte clair ===== */
+#solo-pack-grid [onclick^="startSoloPack"]{color:var(--aca-clair) !important}
+#solo-pack-grid [onclick^="startSoloPack"]>div:first-child{color:var(--aca-or-l) !important;-webkit-text-fill-color:var(--aca-or-l) !important;font-family:var(--aca-sans) !important}
+#solo-pack-grid [onclick^="startSoloPack"]>div:last-child{color:#c3d2e6 !important;-webkit-text-fill-color:#c3d2e6 !important}
+
+/* ===== CARTES DE PRIX : CLAIRES ===== */
+.price-card,.pack-btn,.my-stat-card{background:var(--aca-blanc) !important;border:1px solid var(--aca-ligne) !important;border-radius:14px !important;box-shadow:var(--aca-ombre) !important;color:var(--aca-txt) !important}
+.price-card.featured,.featured{border:2px solid var(--aca-or) !important}
+
+/* ===== BANDE "COMMENT DÉMARRER" ===== */
+.ra-steps-band,.ra-steps-band *{color:var(--aca-clair) !important;-webkit-text-fill-color:var(--aca-clair) !important}
+.ra-steps-band-label{color:var(--aca-or-l) !important;-webkit-text-fill-color:var(--aca-or-l) !important}
+.ra-step-card h3,.ra-step-card strong,.ra-step-card b{color:var(--aca-or-l) !important;-webkit-text-fill-color:var(--aca-or-l) !important}
+
+/* ===== STATS ===== */
 .stat-pill,.stat-item{background:var(--aca-blanc) !important;border:1px solid var(--aca-ligne) !important;color:var(--aca-txt) !important}
-.stat-number,.num,.pts-value,.score-display{font-family:var(--aca-serif) !important;color:var(--aca-bleu) !important}
-.stat-label{color:var(--aca-mute) !important}
+.stat-number,.num,.pts-value,.score-display{font-family:var(--aca-serif) !important;color:var(--aca-bleu) !important;-webkit-text-fill-color:var(--aca-bleu) !important}
+.stat-label{color:var(--aca-mute) !important;-webkit-text-fill-color:var(--aca-mute) !important}
 
-/* ---- quiz / options ---- */
+/* ===== QUIZ ===== */#solo-q-text{color:#EFE3C6 !important;-webkit-text-fill-color:#EFE3C6 !important} /* MODIFIÉ — beige lisible sur fond bleu */
 .q-choice,.popt,.rat-qualify-opt{background:var(--aca-creme) !important;border:1.5px solid var(--aca-ligne) !important;color:var(--aca-txt) !important;border-radius:12px !important}
 .q-choice:hover,.popt:hover{border-color:var(--aca-or) !important;background:var(--aca-blanc) !important}
 .duel-timer{color:var(--aca-bleu) !important}
 
-/* ---- classement ---- */
+/* ===== CLASSEMENT ===== */
 .lb-row{background:var(--aca-blanc) !important;border:1px solid var(--aca-ligne) !important;color:var(--aca-txt) !important}
 .lb-header{color:var(--aca-bleu) !important}
 .lb-filter-btn{background:var(--aca-creme2) !important;border:1.5px solid var(--aca-ligne) !important;color:var(--aca-soft) !important}
-.lb-filter-btn.active{background:var(--aca-bleu) !important;color:#fff !important}
+.lb-filter-btn.active{background:var(--aca-bleu) !important;color:#fff !important;-webkit-text-fill-color:#fff !important}
 
-/* ---- badges ---- */
-.rat-badge{color:var(--aca-bleu) !important}
-
-/* ---- formulaires ---- */
+/* ===== FORMULAIRES ===== */
 .form-input,.form-select{background:var(--aca-creme) !important;border:1.5px solid var(--aca-ligne) !important;color:var(--aca-txt) !important;border-radius:10px !important}
 .form-input::placeholder{color:var(--aca-mute) !important}
 .form-input:focus,.form-select:focus{border-color:var(--aca-or) !important;outline:none !important}
 
-/* ---- onglets ---- */
+/* ===== ONGLETS / PIED ===== */
 .tab{color:var(--aca-soft) !important}
 .tab.active{color:var(--aca-bleu) !important;border-color:var(--aca-or) !important}
-
-/* ---- pied de page / bandeaux (on garde le marine) ---- */
 .ra-contact-footer{background:var(--aca-bleu-d) !important;color:#cdd8e6 !important}
 .ra-contact-footer a{color:#cdd8e6 !important}
-.ra-disclaimer-band{background:rgba(0,43,92,.06) !important;border:1px solid var(--aca-ligne) !important;color:var(--aca-soft) !important}
 
 </style>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -1695,16 +1680,16 @@ nav{background:rgba(245,243,238,.88) !important;backdrop-filter:blur(10px);borde
 <!-- LOGO AJOUT — barre supérieure fixe -->
 <div id="ra-topbar"><!-- LOGO AJOUT -->
   <img src="/logo.png" alt="REGUL ARENA" id="ra-topbar-logo"><!-- LOGO AJOUT -->
-  <div id="ra-topbar-stats"><!-- LOGO AJOUT -->
-    <span>📚 <strong id="stat-packs">22</strong> Packs</span><!-- LOGO AJOUT -->
-    <span>❓ <strong id="stat-questions">550+</strong> Questions</span><!-- LOGO AJOUT -->
-    <span>🌍 <strong id="stat-countries">14</strong> Pays</span><!-- LOGO AJOUT -->
-  </div><!-- LOGO AJOUT -->
+  <div id="ra-flags-marquee" aria-label="Drapeaux des 14 pays UEMOA & CEMAC"><!-- DRAPEAUX AJOUT -->
+    <div id="ra-flags"><!-- DRAPEAUX AJOUT — liste dupliquée ×2 pour boucle continue --><!-- MODIFIÉ : drapeaux passés en SVG inline (CDN flagcdn supprimé : CSP/réseau) --><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sénégal"><g fill-rule="evenodd" stroke-width="1pt"> <path fill="#0b7226" d="M0 0h213.3v480H0z"/> <path fill="#ff0" d="M213.3 0h213.3v480H213.3z"/> <path fill="#bc0000" d="M426.6 0H640v480H426.6z"/> </g> <path fill="#0b7226" d="M342 218.8h71.8l-56.6 43.6 20.7 69.3-56.6-43.6-56.6 41.6 20.7-67.3-56.6-43.6h69.8l22.7-71.3z"/></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Côte d'Ivoire"><g fill-rule="evenodd"> <path fill="#00cd00" d="M426.8 0H640v480H426.8z"/> <path fill="#ff9a00" d="M0 0h212.9v480H0z"/> <path fill="#fff" d="M212.9 0h214v480h-214z"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Burkina Faso"><g fill-rule="evenodd"> <path fill="#de0000" d="M640 479.6H.4V0H640z"/> <path fill="#35a100" d="M639.6 480H0V240.2h639.6z"/> <path fill="#fff300" d="m254.6 276.2-106-72.4h131L320 86.6 360.4 204l131-.1-106 72.4 40.5 117.3-106-72.6L214 393.4"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mali"><g fill-rule="evenodd"> <path fill="red" d="M425.8 0H640v480H425.7z"/> <path fill="#009a00" d="M0 0h212.9v480H0z"/> <path fill="#ff0" d="M212.9 0h214v480h-214z"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bénin"><defs> <clipPath id="f5_bj-a"> <path fill="gray" d="M67.6-154h666v666h-666z"/> </clipPath> </defs> <g clip-path="url(#f5_bj-a)" transform="matrix(.961 0 0 .7207 -65 111)"> <g fill-rule="evenodd" stroke-width="1pt"> <path fill="#319400" d="M0-154h333v666H0z"/> <path fill="#ffd600" d="M333-154h666v333H333z"/> <path fill="#de2110" d="M333 179h666v333H333z"/> </g> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Niger"><path fill="#0db02b" d="M0 0h640v480H0z"/> <path fill="#fff" d="M0 0h640v320H0z"/> <path fill="#e05206" d="M0 0h640v160H0z"/> <circle cx="320" cy="240" r="68" fill="#e05206"/></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Togo"><defs> <clipPath id="f7_tg-a"> <path fill-opacity=".7" d="M0 0h682.7v512H0z"/> </clipPath> </defs> <g fill-rule="evenodd" clip-path="url(#f7_tg-a)" transform="scale(.9375)"> <path fill="#ffe300" d="M0 0h767.6v512H0z"/> <path fill="#118600" d="M0 208.1h767.6V311H0zM0 .2h767.6v102.9H0z"/> <path fill="#d80000" d="M0 .3h306.5v310.6H0z"/> <path fill="#fff" d="M134.4 128.4c0-.8 18.9-53 18.9-53l17 52.2s57.4 1.7 57.4.8-45.3 34.3-45.3 34.3 21.4 60 20.5 58.2-49.6-36-49.6-36-49.7 34.3-48.8 34.3c.8 0 18.8-56.5 18.8-56.5l-44.5-33.4z"/> <path fill="#118600" d="M0 409.2h767.6V512H0z"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" aria-label="Guinée-Bissau"><path fill="#ce1126" d="M0 0h220v480H0z"/> <path fill="#fcd116" d="M220 0h420v240H220z"/> <path fill="#009e49" d="M220 240h420v240H220z"/> <g id="f8_gw-b" transform="matrix(80 0 0 80 110 240)"> <path id="f8_gw-a" fill="#000001" d="M0-1v1h.5" transform="rotate(18 0 -1)"/> <use xlink:href="#f8_gw-a" width="100%" height="100%" transform="scale(-1 1)"/> </g> <use xlink:href="#f8_gw-b" width="100%" height="100%" transform="rotate(72 110 240)"/> <use xlink:href="#f8_gw-b" width="100%" height="100%" transform="rotate(144 110 240)"/> <use xlink:href="#f8_gw-b" width="100%" height="100%" transform="rotate(-144 110 240)"/> <use xlink:href="#f8_gw-b" width="100%" height="100%" transform="rotate(-72 110 240)"/></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" aria-label="Cameroun"><path fill="#007a5e" d="M0 0h213.3v480H0z"/> <path fill="#ce1126" d="M213.3 0h213.4v480H213.3z"/> <path fill="#fcd116" d="M426.7 0H640v480H426.7z"/> <g fill="#fcd116" transform="translate(320 240)scale(7.1111)"> <g id="f9_cm-b"> <path id="f9_cm-a" d="M0-8-2.5-.4 1.3.9z"/> <use xlink:href="#f9_cm-a" width="100%" height="100%" transform="scale(-1 1)"/> </g> <use xlink:href="#f9_cm-b" width="100%" height="100%" transform="rotate(72)"/> <use xlink:href="#f9_cm-b" width="100%" height="100%" transform="rotate(144)"/> <use xlink:href="#f9_cm-b" width="100%" height="100%" transform="rotate(-144)"/> <use xlink:href="#f9_cm-b" width="100%" height="100%" transform="rotate(-72)"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Centrafrique"><defs> <clipPath id="f10_cf-a"> <path fill-opacity=".7" d="M-12.4 32h640v480h-640z"/> </clipPath> </defs> <g fill-rule="evenodd" clip-path="url(#f10_cf-a)" transform="translate(12.4 -32)"> <path fill="#00f" d="M-52 32h719.3v119H-52z"/> <path fill="#ff0" d="M-52 391.6h719.3V512H-52z"/> <path fill="#009a00" d="M-52 271.3h719.3v120.3H-52z"/> <path fill="#fff" d="M-52 151h719.3v120.3H-52z"/> <path fill="red" d="M247.7 32.5h119.9V512H247.7z"/> <path fill="#ff0" d="m99.3 137.7-31.5-21.8-31.3 22L47.4 101 16.9 78l38.2-1 12.5-36.3L80.3 77l38.1.7L88.2 101"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Congo"><defs> <clipPath id="f11_cg-a"> <path fill-opacity=".7" d="M-79.5 32h640v480h-640z"/> </clipPath> </defs> <g fill-rule="evenodd" stroke-width="1pt" clip-path="url(#f11_cg-a)" transform="translate(79.5 -32)"> <path fill="#ff0" d="M-119.5 32h720v480h-720z"/> <path fill="#00ca00" d="M-119.5 32v480l480-480z"/> <path fill="red" d="M120.5 512h480V32z"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Gabon"><g fill-rule="evenodd"> <path fill="#ffe700" d="M640 480H0V0h640z"/> <path fill="#36a100" d="M640 160H0V0h640z"/> <path fill="#006dbc" d="M640 480H0V320h640z"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Guinée équatoriale"><path fill="#e32118" d="M0 0h640v480H0z"/> <path fill="#fff" d="M0 0h640v320H0z"/> <path fill="#3e9a00" d="M0 0h640v160H0z"/> <path fill="#0073ce" d="M0 0v480l180-240z"/> <g stroke="#000"> <path fill="#fff" d="M281.6 191.8h76.6V272c0 27-35.2 6.2-38.2 20.6-5.2-14.8-38.2 6.6-38.2-22.2z"/> <path fill="#73452b" stroke-width=".2" d="M325.4 279.8s-1 1-2.8.2-2-51.4-2-51.4c4-4.4 7.2-5.8 7.2-5.8l2.4 2c-9 4.6-8.2 11.2-7.4 22.6.2 4.2.2 9.6 1.2 14.8 1.4 6.6 4.2 12.2 4.4 16.4.2 2.6-3 1.2-3 1.2z"/> <path fill="#73452b" stroke-width=".2" d="M319.2 221.6h3.6c-3 29-.4 46.2-.4 54.6 0 2.8 1.6 3.8 1.4 3.8-3.6 4-5.4-.2-5.4-.2z"/> <path fill="#a36629" stroke-width=".2" d="M313.6 279.8c-3.4 1.6-3.8-1.6-3.6-2 7.4-15 10.6-48 3.8-51.6l.4-3.2c2.6.8 5 4.2 5 4.2 1 37 0 52.2-.6 52.8-3.6 3.8-5-.6-5.2-1"/> <path fill="none" stroke-width=".2" d="M313.4 279.2c-.6-3.2 5.2-11.4 4.8-20m5 7q2.8 7.4 2.2 13.6"/> <path fill="#009a3b" stroke-width=".2" d="M331 208c1.2-1.4 1.2-1.4 3.4-1.4.4-3 5.4-3 5.8.8 4-.8 4.8 1.6 3.2 4 3.8-1 7.2 0 6.2 4.4 6.8 1.8 4.2 6.6 1.2 7.6-.4 3-3.2 4-7 2.8-4.8 3.4-7.6 2.2-9.8-1.2-5.4.8-5.8-.4-8.2-3.4-4.2 1.8-5 1.8-8.6-.4-.2 2.8-1.2 2-3 1.8q.4 5.6-4.4 4c2.4 5-3.8 7.2-6.8 3-2.8.2-3-.6-4.4-1.6-1.2 4-5.6 3.4-6.4 1.2-5.6-.8-5-3.8-.4-4 .4-3.2 3.2-2.6 5-2.2.2-2 1.4-1.6 2.4-1.2q-1-2 1.6-2.6c-2.6-3.4-1-4.6 1.6-5.8-1.4-3.2 1-3 2.8-3.2-.2-3.4.8-4 4.4-4.4-.4-1.2.2-2.2 2.2-2.2-1.2-3.4.4-4.2 4-3.6.6-5 11.2-2.6 10.4 4.2 3 .4 4 1 4.8 3.4z"/> <path fill="none" stroke-width=".2" d="M309.6 206.2c.8.4 1.8 0 2 2.2 1.6-2.8 3.6-1.2 3.6 2m11-5.8c-.8 1.2-3.8 1.2-3.4 4.4-1-1.4-3-1.8-3.8-.4m12-.6c0 .8-.2 3.2-1 4.4m13.4-1c.2.2-2.8 0-4.2 1m11.6 11c-.8-.4-2.4-1.4-3.6.2 0-.8 0-3-2.2-3m-1.2 5.6c0-2-.4-2.6-.8-3.2m-5.8.4c-1.6-1.2-3.2.6-3.2 1.6m-8.4-3.4c0-.8-.6-2.4.8-3M302.8 230c.4-2 1.8-2 1.6-3-.2-1.6-2-3-4.2-.8m4.2.8q2-.5 2.8.4m-6.2-7.8c.8-.8 2.8-.6 4 0m0-4.8c1 0 2.8-.4 3.4 1.4 2.2-3.4 3.8-3 4.2-2.2m4-.4c1.6-.6 4.4 1 6 3.8.8-2.2 2-1.8 3.2-2m7.6 2c2.6-1.2 4.2 1.2 5 2.2 1.2-1.6 2.2-1.6 3.4-1.6m-32.6 4.2c.6-1 2-1.2 3-.6-.2-1.8 1-2.6 1.8-2.2"/> <path fill="gold" stroke-width=".7" d="m317.4 180.5-4.4.2-2.2 4-2.4-3.8-4.4.2 2-4-2.4-3.7 4.6-.2 2-4 2.4 3.8 4.4-.2-2 4zm-18.8 1.5-4.4 1-1.2 4.3-3.2-3.2-4.2 1 1.2-4.2-3-3.2 4.2-1.1 1.2-4.3 3.2 3.2 4.4-1-1.4 4.3zm-18.2 3.7-4 2-.2 4.4-3.8-2.4-4 2 .4-4.5-3.8-2.4 4-2 .4-4.5 3.6 2.5 4-2-.2 4.4zm42.8-5.2 4.4.2 2 4 2.4-3.8 4.4.2-2-4 2.4-3.7-4.4-.2-2.2-4-2.4 3.8-4.4-.2 2 4zM342 182l4.2 1 1.2 4.3 3.2-3.2 4.2 1-1.2-4.2 3.2-3.2-4.4-1.1-1.2-4.3-3.2 3.2-4.2-1 1.2 4.3zm18 3.7 4 2 .2 4.4 3.8-2.4 4 2-.2-4.5 3.6-2.4-4-2-.2-4.5-3.8 2.5-4-2 .4 4.4z"/> <g fill="#fff" stroke-width=".7"> <path d="m365.4 270.4 5 7.2 4.6-6.8-3.2-5.8zm-31.8 21 .4 7.2s2 0 3.8-.6c1.6-.6 3-1.8 3-1.8l-.2-3.8zm-26.8 0-.4 7s-1.8 0-3.6-.4c-1.6-.4-3-1.4-3-1.4l-2-4.8zm-32.2-21-5.2 7.2-5.6-9.2 4.2-4.4z"/> <path d="M299.6 305.8c0 6.8 41.2 6.8 41.2 0v-9.6c0 5-41.2 4-41.2 0z"/> <path d="M262.8 283.6c3.6 18.4 36.8 18.8 36.8 18.8v-6.2c-.8-2.4.6-3.2 6-4 2.2-.2 1.2-3.4 1.2-3.4s-14.4 2.6-24.6-1.4c-13.8-5.6-15.8-16.4-15.8-16.4s-1 8.4-3.6 12.6zm114.6 0c-3.4 18.4-36.6 18.8-36.6 18.8v-6.2c.6-2.4-.8-3.2-6.2-4-2.2-.2-1-3.4-1-3.4s14.4 2.6 24.6-1.4c13.6-5.6 15.2-16.4 15.2-16.4s1.4 8.4 4 12.6z"/> <path d="M265.4 276.6c-9.2-5-2-10.2-1.2-25 1.4 9 11.6 12.8 10.4 18.6-4.2.2-6.2-6.2-8.2.8zm109.4 0c9.2-5.2 1.6-10.2.8-25-1.4 9-11.4 12.8-10.2 18.6 4 .2 6-6.2 8 .8l1.4 5.4z"/> </g> <path stroke="none" d="m271 283.4 1 .8-2.2 2.4q-1.4 1.4-.5 2.2 1 1 2-.4l2.5-2.6.8.8-2.4 2.8c-1.3 1.5-2.5 1.2-3.6.2-.8-.8-1.4-2 0-3.5zm4 3.4 1 .6-.2 4.8 2.2-3.4 1 .6-3.2 5.2-1.2-.6.2-4.8-2.2 3.4-1-.6zm1.8 8.4 2.8-5.6 1 .6-2.6 5.4zm4.4-4.8-2.2 5.8 2.2.8q2.8.9 3.6-1.9 1.2-2.6-1.6-3.9zm.8 1.4c2 .7 2.2 1.5 1.6 3-.6 1.3-1 1.8-3 .8zm5.8.8-3.6 5.4 1.4.4.8-1.4 2.4.6.2 1.4 1.4.2-1.4-6.4zm.4 1.4.4 2.4-1.6-.2zm3-.9-.2 6.2h2.3c2.2.1 2.8-1 2.9-3 0-1.8-.7-3-2.9-3zm1.2 1c2.2.1 2.5.8 2.5 2.3-.1 1.5-.4 2.1-2.6 1.8v-4zm19.8 7.7v6.4h1.4v-2.4s1.2 0 2.2-.2q1.2-.2 1.3-2 0-1.8-1.9-1.8zm1.4 1h1.4c1.1 0 1 1.8 0 1.8h-1.4zm5.8-1-2.6 6.4h1.4l.6-1.6h2.6l.6 1.6h1.4l-2.6-6.4zm.6 1.4 1 2.4h-1.8zm3.4 3.8 3.4-4.2h-3v-1h4.8v1L325 307h3.6v1.2h-5.2zm20.2-12.4 1.2-.2.6 3.6q.2 2-1.3 2.5c-1 .4-2.4 0-2.5-1.7l1-.2q.4 1.3 1 1 .8-.4.6-1.4zm2-.4 1.1-.2.6 3q.2 1.9 1.5 1.7t.9-2l-.7-3.1 1.2-.2.8 3.3c.4 2-.6 2.7-2 3-1.1.2-2.4 0-2.8-2zm6.2 2.8 1-.4c.5.9 1.2.8 1.8.6q1.2-.8.5-1.4c-.6-.3-2 .2-2.7 0q-1.4-.6-1.2-1.7.2-1.4 1.7-1.7 1.6-.6 2.7 1l-1.2.4q-.7-.9-1.4-.4c-.4.2-1 .5-.6 1 .2.5 1.7.2 2.5.2s1.4.6 1.5 1.3q.4 1.6-1.5 2.2c-1.5.6-2.9 0-3.1-1.1m5.4-5-1.6.8-.4-1 4.4-1.8.4.8-1.6.8 1.8 4.4-1 .6zm2.6-2.2 1-.6 2.8 5.2-1 .6zm6.8.4 1.2-.4a2.4 2.4 0 0 1-2.4 3.3c-3 0-3.4-3.4-2.9-4.5.8-1.9 3-1.8 4-.8l-1 .8c-.6-.8-2-.3-2 .4a3 3 0 0 0 1.4 3c1 .4 2.4-.8 1.7-1.8m-.6-4.2 1-.8 3.6 4.8-1 .8zm3.8-3-1 .8 2.2 6 1-1-.6-1.2 1.8-1.6 1.2.6 1-.8zm.4 1.4 2 1-1.2 1.2z"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tchad"><g fill-rule="evenodd"> <path fill="#002664" d="M0 0h214v480H0z"/> <path fill="#c60c30" d="M426 0h214v480H426z"/> <path fill="#fecb00" d="M214 0h212v480H214z"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g fill-rule="evenodd" stroke-width="1pt"> <path fill="#0b7226" d="M0 0h213.3v480H0z"/> <path fill="#ff0" d="M213.3 0h213.3v480H213.3z"/> <path fill="#bc0000" d="M426.6 0H640v480H426.6z"/> </g> <path fill="#0b7226" d="M342 218.8h71.8l-56.6 43.6 20.7 69.3-56.6-43.6-56.6 41.6 20.7-67.3-56.6-43.6h69.8l22.7-71.3z"/></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g fill-rule="evenodd"> <path fill="#00cd00" d="M426.8 0H640v480H426.8z"/> <path fill="#ff9a00" d="M0 0h212.9v480H0z"/> <path fill="#fff" d="M212.9 0h214v480h-214z"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g fill-rule="evenodd"> <path fill="#de0000" d="M640 479.6H.4V0H640z"/> <path fill="#35a100" d="M639.6 480H0V240.2h639.6z"/> <path fill="#fff300" d="m254.6 276.2-106-72.4h131L320 86.6 360.4 204l131-.1-106 72.4 40.5 117.3-106-72.6L214 393.4"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g fill-rule="evenodd"> <path fill="red" d="M425.8 0H640v480H425.7z"/> <path fill="#009a00" d="M0 0h212.9v480H0z"/> <path fill="#ff0" d="M212.9 0h214v480h-214z"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs> <clipPath id="f19_bj-a"> <path fill="gray" d="M67.6-154h666v666h-666z"/> </clipPath> </defs> <g clip-path="url(#f19_bj-a)" transform="matrix(.961 0 0 .7207 -65 111)"> <g fill-rule="evenodd" stroke-width="1pt"> <path fill="#319400" d="M0-154h333v666H0z"/> <path fill="#ffd600" d="M333-154h666v333H333z"/> <path fill="#de2110" d="M333 179h666v333H333z"/> </g> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="#0db02b" d="M0 0h640v480H0z"/> <path fill="#fff" d="M0 0h640v320H0z"/> <path fill="#e05206" d="M0 0h640v160H0z"/> <circle cx="320" cy="240" r="68" fill="#e05206"/></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs> <clipPath id="f21_tg-a"> <path fill-opacity=".7" d="M0 0h682.7v512H0z"/> </clipPath> </defs> <g fill-rule="evenodd" clip-path="url(#f21_tg-a)" transform="scale(.9375)"> <path fill="#ffe300" d="M0 0h767.6v512H0z"/> <path fill="#118600" d="M0 208.1h767.6V311H0zM0 .2h767.6v102.9H0z"/> <path fill="#d80000" d="M0 .3h306.5v310.6H0z"/> <path fill="#fff" d="M134.4 128.4c0-.8 18.9-53 18.9-53l17 52.2s57.4 1.7 57.4.8-45.3 34.3-45.3 34.3 21.4 60 20.5 58.2-49.6-36-49.6-36-49.7 34.3-48.8 34.3c.8 0 18.8-56.5 18.8-56.5l-44.5-33.4z"/> <path fill="#118600" d="M0 409.2h767.6V512H0z"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true"><path fill="#ce1126" d="M0 0h220v480H0z"/> <path fill="#fcd116" d="M220 0h420v240H220z"/> <path fill="#009e49" d="M220 240h420v240H220z"/> <g id="f22_gw-b" transform="matrix(80 0 0 80 110 240)"> <path id="f22_gw-a" fill="#000001" d="M0-1v1h.5" transform="rotate(18 0 -1)"/> <use xlink:href="#f22_gw-a" width="100%" height="100%" transform="scale(-1 1)"/> </g> <use xlink:href="#f22_gw-b" width="100%" height="100%" transform="rotate(72 110 240)"/> <use xlink:href="#f22_gw-b" width="100%" height="100%" transform="rotate(144 110 240)"/> <use xlink:href="#f22_gw-b" width="100%" height="100%" transform="rotate(-144 110 240)"/> <use xlink:href="#f22_gw-b" width="100%" height="100%" transform="rotate(-72 110 240)"/></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true"><path fill="#007a5e" d="M0 0h213.3v480H0z"/> <path fill="#ce1126" d="M213.3 0h213.4v480H213.3z"/> <path fill="#fcd116" d="M426.7 0H640v480H426.7z"/> <g fill="#fcd116" transform="translate(320 240)scale(7.1111)"> <g id="f23_cm-b"> <path id="f23_cm-a" d="M0-8-2.5-.4 1.3.9z"/> <use xlink:href="#f23_cm-a" width="100%" height="100%" transform="scale(-1 1)"/> </g> <use xlink:href="#f23_cm-b" width="100%" height="100%" transform="rotate(72)"/> <use xlink:href="#f23_cm-b" width="100%" height="100%" transform="rotate(144)"/> <use xlink:href="#f23_cm-b" width="100%" height="100%" transform="rotate(-144)"/> <use xlink:href="#f23_cm-b" width="100%" height="100%" transform="rotate(-72)"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs> <clipPath id="f24_cf-a"> <path fill-opacity=".7" d="M-12.4 32h640v480h-640z"/> </clipPath> </defs> <g fill-rule="evenodd" clip-path="url(#f24_cf-a)" transform="translate(12.4 -32)"> <path fill="#00f" d="M-52 32h719.3v119H-52z"/> <path fill="#ff0" d="M-52 391.6h719.3V512H-52z"/> <path fill="#009a00" d="M-52 271.3h719.3v120.3H-52z"/> <path fill="#fff" d="M-52 151h719.3v120.3H-52z"/> <path fill="red" d="M247.7 32.5h119.9V512H247.7z"/> <path fill="#ff0" d="m99.3 137.7-31.5-21.8-31.3 22L47.4 101 16.9 78l38.2-1 12.5-36.3L80.3 77l38.1.7L88.2 101"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs> <clipPath id="f25_cg-a"> <path fill-opacity=".7" d="M-79.5 32h640v480h-640z"/> </clipPath> </defs> <g fill-rule="evenodd" stroke-width="1pt" clip-path="url(#f25_cg-a)" transform="translate(79.5 -32)"> <path fill="#ff0" d="M-119.5 32h720v480h-720z"/> <path fill="#00ca00" d="M-119.5 32v480l480-480z"/> <path fill="red" d="M120.5 512h480V32z"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g fill-rule="evenodd"> <path fill="#ffe700" d="M640 480H0V0h640z"/> <path fill="#36a100" d="M640 160H0V0h640z"/> <path fill="#006dbc" d="M640 480H0V320h640z"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="#e32118" d="M0 0h640v480H0z"/> <path fill="#fff" d="M0 0h640v320H0z"/> <path fill="#3e9a00" d="M0 0h640v160H0z"/> <path fill="#0073ce" d="M0 0v480l180-240z"/> <g stroke="#000"> <path fill="#fff" d="M281.6 191.8h76.6V272c0 27-35.2 6.2-38.2 20.6-5.2-14.8-38.2 6.6-38.2-22.2z"/> <path fill="#73452b" stroke-width=".2" d="M325.4 279.8s-1 1-2.8.2-2-51.4-2-51.4c4-4.4 7.2-5.8 7.2-5.8l2.4 2c-9 4.6-8.2 11.2-7.4 22.6.2 4.2.2 9.6 1.2 14.8 1.4 6.6 4.2 12.2 4.4 16.4.2 2.6-3 1.2-3 1.2z"/> <path fill="#73452b" stroke-width=".2" d="M319.2 221.6h3.6c-3 29-.4 46.2-.4 54.6 0 2.8 1.6 3.8 1.4 3.8-3.6 4-5.4-.2-5.4-.2z"/> <path fill="#a36629" stroke-width=".2" d="M313.6 279.8c-3.4 1.6-3.8-1.6-3.6-2 7.4-15 10.6-48 3.8-51.6l.4-3.2c2.6.8 5 4.2 5 4.2 1 37 0 52.2-.6 52.8-3.6 3.8-5-.6-5.2-1"/> <path fill="none" stroke-width=".2" d="M313.4 279.2c-.6-3.2 5.2-11.4 4.8-20m5 7q2.8 7.4 2.2 13.6"/> <path fill="#009a3b" stroke-width=".2" d="M331 208c1.2-1.4 1.2-1.4 3.4-1.4.4-3 5.4-3 5.8.8 4-.8 4.8 1.6 3.2 4 3.8-1 7.2 0 6.2 4.4 6.8 1.8 4.2 6.6 1.2 7.6-.4 3-3.2 4-7 2.8-4.8 3.4-7.6 2.2-9.8-1.2-5.4.8-5.8-.4-8.2-3.4-4.2 1.8-5 1.8-8.6-.4-.2 2.8-1.2 2-3 1.8q.4 5.6-4.4 4c2.4 5-3.8 7.2-6.8 3-2.8.2-3-.6-4.4-1.6-1.2 4-5.6 3.4-6.4 1.2-5.6-.8-5-3.8-.4-4 .4-3.2 3.2-2.6 5-2.2.2-2 1.4-1.6 2.4-1.2q-1-2 1.6-2.6c-2.6-3.4-1-4.6 1.6-5.8-1.4-3.2 1-3 2.8-3.2-.2-3.4.8-4 4.4-4.4-.4-1.2.2-2.2 2.2-2.2-1.2-3.4.4-4.2 4-3.6.6-5 11.2-2.6 10.4 4.2 3 .4 4 1 4.8 3.4z"/> <path fill="none" stroke-width=".2" d="M309.6 206.2c.8.4 1.8 0 2 2.2 1.6-2.8 3.6-1.2 3.6 2m11-5.8c-.8 1.2-3.8 1.2-3.4 4.4-1-1.4-3-1.8-3.8-.4m12-.6c0 .8-.2 3.2-1 4.4m13.4-1c.2.2-2.8 0-4.2 1m11.6 11c-.8-.4-2.4-1.4-3.6.2 0-.8 0-3-2.2-3m-1.2 5.6c0-2-.4-2.6-.8-3.2m-5.8.4c-1.6-1.2-3.2.6-3.2 1.6m-8.4-3.4c0-.8-.6-2.4.8-3M302.8 230c.4-2 1.8-2 1.6-3-.2-1.6-2-3-4.2-.8m4.2.8q2-.5 2.8.4m-6.2-7.8c.8-.8 2.8-.6 4 0m0-4.8c1 0 2.8-.4 3.4 1.4 2.2-3.4 3.8-3 4.2-2.2m4-.4c1.6-.6 4.4 1 6 3.8.8-2.2 2-1.8 3.2-2m7.6 2c2.6-1.2 4.2 1.2 5 2.2 1.2-1.6 2.2-1.6 3.4-1.6m-32.6 4.2c.6-1 2-1.2 3-.6-.2-1.8 1-2.6 1.8-2.2"/> <path fill="gold" stroke-width=".7" d="m317.4 180.5-4.4.2-2.2 4-2.4-3.8-4.4.2 2-4-2.4-3.7 4.6-.2 2-4 2.4 3.8 4.4-.2-2 4zm-18.8 1.5-4.4 1-1.2 4.3-3.2-3.2-4.2 1 1.2-4.2-3-3.2 4.2-1.1 1.2-4.3 3.2 3.2 4.4-1-1.4 4.3zm-18.2 3.7-4 2-.2 4.4-3.8-2.4-4 2 .4-4.5-3.8-2.4 4-2 .4-4.5 3.6 2.5 4-2-.2 4.4zm42.8-5.2 4.4.2 2 4 2.4-3.8 4.4.2-2-4 2.4-3.7-4.4-.2-2.2-4-2.4 3.8-4.4-.2 2 4zM342 182l4.2 1 1.2 4.3 3.2-3.2 4.2 1-1.2-4.2 3.2-3.2-4.4-1.1-1.2-4.3-3.2 3.2-4.2-1 1.2 4.3zm18 3.7 4 2 .2 4.4 3.8-2.4 4 2-.2-4.5 3.6-2.4-4-2-.2-4.5-3.8 2.5-4-2 .4 4.4z"/> <g fill="#fff" stroke-width=".7"> <path d="m365.4 270.4 5 7.2 4.6-6.8-3.2-5.8zm-31.8 21 .4 7.2s2 0 3.8-.6c1.6-.6 3-1.8 3-1.8l-.2-3.8zm-26.8 0-.4 7s-1.8 0-3.6-.4c-1.6-.4-3-1.4-3-1.4l-2-4.8zm-32.2-21-5.2 7.2-5.6-9.2 4.2-4.4z"/> <path d="M299.6 305.8c0 6.8 41.2 6.8 41.2 0v-9.6c0 5-41.2 4-41.2 0z"/> <path d="M262.8 283.6c3.6 18.4 36.8 18.8 36.8 18.8v-6.2c-.8-2.4.6-3.2 6-4 2.2-.2 1.2-3.4 1.2-3.4s-14.4 2.6-24.6-1.4c-13.8-5.6-15.8-16.4-15.8-16.4s-1 8.4-3.6 12.6zm114.6 0c-3.4 18.4-36.6 18.8-36.6 18.8v-6.2c.6-2.4-.8-3.2-6.2-4-2.2-.2-1-3.4-1-3.4s14.4 2.6 24.6-1.4c13.6-5.6 15.2-16.4 15.2-16.4s1.4 8.4 4 12.6z"/> <path d="M265.4 276.6c-9.2-5-2-10.2-1.2-25 1.4 9 11.6 12.8 10.4 18.6-4.2.2-6.2-6.2-8.2.8zm109.4 0c9.2-5.2 1.6-10.2.8-25-1.4 9-11.4 12.8-10.2 18.6 4 .2 6-6.2 8 .8l1.4 5.4z"/> </g> <path stroke="none" d="m271 283.4 1 .8-2.2 2.4q-1.4 1.4-.5 2.2 1 1 2-.4l2.5-2.6.8.8-2.4 2.8c-1.3 1.5-2.5 1.2-3.6.2-.8-.8-1.4-2 0-3.5zm4 3.4 1 .6-.2 4.8 2.2-3.4 1 .6-3.2 5.2-1.2-.6.2-4.8-2.2 3.4-1-.6zm1.8 8.4 2.8-5.6 1 .6-2.6 5.4zm4.4-4.8-2.2 5.8 2.2.8q2.8.9 3.6-1.9 1.2-2.6-1.6-3.9zm.8 1.4c2 .7 2.2 1.5 1.6 3-.6 1.3-1 1.8-3 .8zm5.8.8-3.6 5.4 1.4.4.8-1.4 2.4.6.2 1.4 1.4.2-1.4-6.4zm.4 1.4.4 2.4-1.6-.2zm3-.9-.2 6.2h2.3c2.2.1 2.8-1 2.9-3 0-1.8-.7-3-2.9-3zm1.2 1c2.2.1 2.5.8 2.5 2.3-.1 1.5-.4 2.1-2.6 1.8v-4zm19.8 7.7v6.4h1.4v-2.4s1.2 0 2.2-.2q1.2-.2 1.3-2 0-1.8-1.9-1.8zm1.4 1h1.4c1.1 0 1 1.8 0 1.8h-1.4zm5.8-1-2.6 6.4h1.4l.6-1.6h2.6l.6 1.6h1.4l-2.6-6.4zm.6 1.4 1 2.4h-1.8zm3.4 3.8 3.4-4.2h-3v-1h4.8v1L325 307h3.6v1.2h-5.2zm20.2-12.4 1.2-.2.6 3.6q.2 2-1.3 2.5c-1 .4-2.4 0-2.5-1.7l1-.2q.4 1.3 1 1 .8-.4.6-1.4zm2-.4 1.1-.2.6 3q.2 1.9 1.5 1.7t.9-2l-.7-3.1 1.2-.2.8 3.3c.4 2-.6 2.7-2 3-1.1.2-2.4 0-2.8-2zm6.2 2.8 1-.4c.5.9 1.2.8 1.8.6q1.2-.8.5-1.4c-.6-.3-2 .2-2.7 0q-1.4-.6-1.2-1.7.2-1.4 1.7-1.7 1.6-.6 2.7 1l-1.2.4q-.7-.9-1.4-.4c-.4.2-1 .5-.6 1 .2.5 1.7.2 2.5.2s1.4.6 1.5 1.3q.4 1.6-1.5 2.2c-1.5.6-2.9 0-3.1-1.1m5.4-5-1.6.8-.4-1 4.4-1.8.4.8-1.6.8 1.8 4.4-1 .6zm2.6-2.2 1-.6 2.8 5.2-1 .6zm6.8.4 1.2-.4a2.4 2.4 0 0 1-2.4 3.3c-3 0-3.4-3.4-2.9-4.5.8-1.9 3-1.8 4-.8l-1 .8c-.6-.8-2-.3-2 .4a3 3 0 0 0 1.4 3c1 .4 2.4-.8 1.7-1.8m-.6-4.2 1-.8 3.6 4.8-1 .8zm3.8-3-1 .8 2.2 6 1-1-.6-1.2 1.8-1.6 1.2.6 1-.8zm.4 1.4 2 1-1.2 1.2z"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g fill-rule="evenodd"> <path fill="#002664" d="M0 0h214v480H0z"/> <path fill="#c60c30" d="M426 0h214v480H426z"/> <path fill="#fecb00" d="M214 0h212v480H214z"/> </g></svg>
+    </div><!-- DRAPEAUX AJOUT -->
+  </div><!-- DRAPEAUX AJOUT -->
 </div><!-- LOGO AJOUT -->
 
 <!-- LOGO AJOUT — bandeau défilant bas -->
 <div id="ra-ticker-wrap"><!-- LOGO AJOUT -->
   <div id="ra-ticker"><!-- LOGO AJOUT -->
+    <span>📚 <strong>22</strong> Packs · ❓ <strong>550+</strong> Questions · 🌍 <strong>14</strong> Pays UEMOA &amp; CEMAC</span><!-- MODIFIÉ — stats déplacées ici -->
     <span>🏆 REGUL ARENA — La plateforme réglementaire de référence UEMOA &amp; CEMAC</span><!-- LOGO AJOUT -->
     <span>📜 Quiz officiels BCEAO · CIMA · UEMOA · CEMAC</span><!-- LOGO AJOUT -->
     <span>🤝 Partenaires &amp; Sponsors — contact@regularena.com</span><!-- LOGO AJOUT -->
@@ -1974,6 +1959,7 @@ nav{background:rgba(245,243,238,.88) !important;backdrop-filter:blur(10px);borde
     <li role="none"><button id="nav-landing" onclick="showPage('landing')" class="active" role="menuitem" aria-current="page">Accueil</button></li>
     <li role="none"><button id="nav-classement" onclick="showPage('classement')" role="menuitem">Classement</button></li>
     <li role="none"><button id="nav-tournois" onclick="showPage('tournois')" role="menuitem">Tournois<span id="notif-badge-tournois" class="ra-notif-badge" style="display:none" onclick="event.stopPropagation();RANotif.toggle()"></span></button></li>
+    <li role="none"><button id="nav-quizExpress" onclick="aller('quizExpress')" role="menuitem">⚡ Quiz Express UMOA</button></li>
     <li role="none"><button id="nav-duel" onclick="showPage('duel')" role="menuitem">Duel<span id="notif-badge-duel" class="ra-notif-badge" style="display:none" onclick="event.stopPropagation();RANotif.toggle()"></span></button></li>
     <li role="none"><button id="nav-premium" onclick="showPage('premium')" role="menuitem">Top Scoreurs</button></li>
     <li role="none"><button id="nav-invitation" onclick="showPage('invitation')" role="menuitem">Inviter</button></li>
@@ -1997,6 +1983,7 @@ nav{background:rgba(245,243,238,.88) !important;backdrop-filter:blur(10px);borde
   <button onclick="showPage('landing');toggleMobileNav()">🏠 Accueil</button>
   <button onclick="showPage('classement');toggleMobileNav()">🏆 Classement</button>
   <button onclick="showPage('tournois');toggleMobileNav()">🏟 Tournois</button>
+  <button onclick="aller('quizExpress');toggleMobileNav()">⚡ Quiz Express UMOA</button>
   <button onclick="showPage('duel');toggleMobileNav()">⚔ Duel</button>
   <button onclick="showPage('premium');toggleMobileNav()">⭐ Top Scoreurs</button>
   <button onclick="showPage('invitation');toggleMobileNav()">📨 Inviter</button>
@@ -3265,6 +3252,74 @@ nav{background:rgba(245,243,238,.88) !important;backdrop-filter:blur(10px);borde
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE QUIZ EXPRESS UMOA — Dispositif Prudentiel 2016
+     ═══════════════════════════════════════════════════════════ -->
+<div id="page-quizExpress" class="page" role="main" aria-label="Quiz Express UMOA">
+  <div class="qe-wrap">
+    <div class="qe-kicker">⚡ Quiz Express</div>
+    <h1 class="qe-title">Quiz Express — Dispositif Prudentiel UMOA 2016</h1>
+    <p class="qe-sub">10 questions chronométrées · 20 s par question · sources réglementaires citées</p>
+    <div class="qe-setup">
+      <label class="qe-label" for="qe-cat">Catégorie</label>
+      <select id="qe-cat" class="qe-select">
+        <option value="Toutes">Toutes</option>
+        <option value="Fonds propres">Fonds propres</option>
+        <option value="Liquidité">Liquidité</option>
+        <option value="Division risques">Division risques</option>
+        <option value="Gouvernance">Gouvernance</option>
+        <option value="Piliers Bâle">Piliers Bâle</option>
+        <option value="Ratio levier">Ratio levier</option>
+        <option value="APR">APR</option>
+      </select>
+      <button class="qe-start" onclick="QE.start()">Démarrer 10 questions (3 min)</button>
+    </div>
+  </div>
+
+  <!-- Overlay de jeu -->
+  <div id="qe-overlay" class="qe-overlay" style="display:none">
+    <div class="qe-confetti" id="qe-confetti" aria-hidden="true"></div>
+
+    <div class="qe-game" id="qe-game">
+      <div class="qe-bar">
+        <span>Question <b id="qe-num">1</b>/<b id="qe-total">10</b></span>
+        <span class="qe-score-wrap">Score <b id="qe-score">0</b></span>
+        <span class="qe-timer" id="qe-timer">20</span>
+        <button class="qe-quit" onclick="QE.quit()" aria-label="Quitter le quiz">✕</button>
+      </div>
+      <div class="qe-progress"><div class="qe-progress-fill" id="qe-progress-fill"></div></div>
+
+      <div class="qe-flip" id="qe-flip">
+        <div class="qe-flip-inner">
+          <div class="qe-face qe-front">
+            <span class="qe-cat-chip" id="qe-cat-chip"></span>
+            <div class="qe-q" id="qe-q"></div>
+            <div class="qe-choices" id="qe-choices"></div>
+          </div>
+          <div class="qe-face qe-back">
+            <div class="qe-verdict" id="qe-verdict"></div>
+            <div class="qe-correct" id="qe-correct"></div>
+            <div class="qe-source" id="qe-source"></div>
+            <button class="qe-next" id="qe-next-btn" onclick="QE.next()">Question suivante →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qe-result" id="qe-result" style="display:none">
+      <div class="qe-result-trophy" id="qe-result-trophy">🏆</div>
+      <div class="qe-result-score" id="qe-result-score"></div>
+      <div class="qe-result-xp" id="qe-result-xp"></div>
+      <div class="qe-result-actions">
+        <button class="qe-start" onclick="QE.showSources()">📚 Voir les sources réglementaires</button>
+        <button class="qe-ghost" onclick="QE.replay()">🔄 Rejouer</button>
+        <button class="qe-ghost" onclick="QE.quit()">← Retour à l'accueil</button>
+      </div>
+      <div class="qe-sources-list" id="qe-sources-list" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
 <!-- ================================================================
      SECTION FEEDBACK / SUGGESTIONS UTILISATEURS
 ================================================================ -->
@@ -3373,7 +3428,7 @@ async function apiCall(method, path, body) {
 /* ───────────────────────────────────────────────────────────
    CORE : Navigation SPA
    ─────────────────────────────────────────────────────────── */
-const PAGES = ['landing','classement','tournois','duel','solo','premium','invitation'];
+const PAGES = ['landing','classement','tournois','duel','solo','premium','invitation','quizExpress'];
 const pageInits = {};
 
 function showPage(id) {
@@ -3400,6 +3455,9 @@ function showPage(id) {
   if (id === 'solo') { initSolo(); return; }
   if (!pageInits[id]) { pageInits[id] = true; initPage(id); }
 }
+
+/* Navigation alias utilisé par le mode Quiz Express */
+function aller(id) { showPage(id); }
 
 function initPage(id) {
   if (id === 'classement') renderLeaderboard();
@@ -3789,33 +3847,8 @@ function _soloShowResult() {
   }
 
   const jwt = (function(){ try{return localStorage.getItem('ra_jwt');}catch(e){} try{return sessionStorage.getItem('ra_jwt');}catch(e){} return null; })();
-  // SCORE SERVEUR — sauvegarde robuste avec retry
   if (jwt) {
-    (function _saveScore(retries){
-      fetch('/scores', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json','Authorization':'Bearer '+jwt},
-        body: JSON.stringify({pack_id: pack.id, score: score, total: total})
-      })
-      .then(function(r){ return r.json(); })
-      .then(function(d){
-        if(d && d.success){
-          var badge = document.getElementById('solo-score-saved-badge');
-          if(!badge){
-            badge = document.createElement('div');
-            badge.id = 'solo-score-saved-badge';
-            badge.style.cssText = 'text-align:center;margin-top:10px;font-family:\'JetBrains Mono\',monospace;font-size:.68rem;color:var(--green);letter-spacing:1px;opacity:0;transition:opacity .4s';
-            var res = document.getElementById('solo-result');
-            if(res) res.appendChild(badge);
-          }
-          badge.textContent = '\u2713 Score enregistr\u00e9 sur le serveur';
-          setTimeout(function(){ badge.style.opacity='1'; }, 100);
-        }
-      })
-      .catch(function(){
-        if(retries > 0) setTimeout(function(){ _saveScore(retries-1); }, 3000);
-      });
-    })(2);
+    fetch('/scores', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt}, body: JSON.stringify({pack_id: pack.id, score, total}) }).catch(()=>{});
   }
 }
 
@@ -5324,6 +5357,9 @@ const RAPlayer = (() => {
       const h = band.offsetHeight;
       const nav = document.querySelector('nav');
       if(nav) nav.style.top = h+'px';
+      const _tb = document.getElementById('ra-topbar'); // MODIFIÉ : descend la barre drapeaux sous la nav décalée (sinon cachée derrière)
+      if(_tb && nav) _tb.style.top = (h + nav.offsetHeight) + 'px'; // MODIFIÉ
+      document.body.style.paddingTop = (h + nav.offsetHeight + (_tb ? _tb.offsetHeight : 46)) + 'px'; // MODIFIÉ : contenu sous disclaimer+nav+drapeaux
       document.querySelectorAll('.page-top').forEach(el => el.style.marginTop = (53+h)+'px');
     });
   }
@@ -5340,6 +5376,8 @@ function dismissDisclaimer(){
     document.documentElement.classList.remove('has-disclaimer');
     const nav = document.querySelector('nav');
     if (nav) nav.style.top = '0';
+    const _tb = document.getElementById('ra-topbar'); if(_tb) _tb.style.top = ''; // MODIFIÉ : barre drapeaux revient à sa position CSS (top:52px)
+    document.body.style.paddingTop = ''; // MODIFIÉ : padding revient à la valeur CSS (98px)
     document.querySelectorAll('.page-top').forEach(el => el.style.marginTop = '');
   },320);
 }
@@ -6081,7 +6119,16 @@ function _apiFetch(url, opts){
     opts.headers['Content-Type'] = 'application/json';
     opts.body = JSON.stringify(opts.body);
   }
-  return fetch(url, opts).then(function(r){ return r.json(); });
+  return fetch(url, opts).then(function(r){ // MODIFIÉ
+    var st = r.status; // MODIFIÉ
+    return r.json().then(function(j){ // MODIFIÉ
+      if(j && typeof j === 'object'){ // MODIFIÉ — backend renvoie {success:true}, module teste r.ok
+        if(j.ok === undefined) j.ok = !!j.success; // MODIFIÉ — normalise success → ok
+        j._httpStatus = st; // MODIFIÉ — expose le code HTTP (401…)
+      } // MODIFIÉ
+      return j; // MODIFIÉ
+    }).catch(function(){ return { ok:false, _httpStatus:st, error:'Réponse serveur invalide' }; }); // MODIFIÉ
+  });
 }
 
 /* ── navigation interne ─────────────────────────────────── */
@@ -6762,7 +6809,7 @@ window.addEventListener('orientationchange', function() { // ORIENTATION AJOUT
   <div style="background:#0A1628;border:1px solid #C9991A;border-radius:6px;padding:32px;max-width:420px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.6)"> <!-- MODIFIÉ -->
     <div style="font-family:'Bebas Neue',cursive;font-size:.65rem;letter-spacing:3px;color:#C9991A;margin-bottom:6px">🏆 VICTOIRE — PLANIFIER LA SUITE</div> <!-- MODIFIÉ -->
     <h2 style="font-family:'Bebas Neue',cursive;font-size:1.4rem;letter-spacing:2px;color:#F5F3EE;margin:0 0 20px">PLANIFIER LA <span style="color:#C9991A" id="rat-nr-round-label">MANCHE SUIVANTE</span></h2> <!-- MODIFIÉ -->
-    <p style="font-family:var(--font-body);font-size:.82rem;color:#8899AA;margin-bottom:20px;line-height:1.5">Choisissez la date et l'heure de la prochaine manche. Les participants seront notifiés automatiquement.</p> <!-- MODIFIÉ -->
+    <p style="font-family:'Inter',sans-serif;font-size:.82rem;color:#8899AA;margin-bottom:20px;line-height:1.5">Choisissez la date et l'heure de la prochaine manche. Les participants seront notifiés automatiquement.</p> <!-- MODIFIÉ -->
     <div style="margin-bottom:20px"> <!-- MODIFIÉ -->
       <label style="display:block;font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:2px;color:#C9991A;text-transform:uppercase;margin-bottom:8px">Date &amp; heure de la manche</label> <!-- MODIFIÉ -->
       <input id="rat-nr-date" type="datetime-local" style="width:100%;background:#0D1F3C;border:1px solid #1E3A5F;border-radius:4px;padding:12px 14px;color:#F5F3EE;font-family:'JetBrains Mono',monospace;font-size:.82rem;box-sizing:border-box"> <!-- MODIFIÉ -->
@@ -6773,6 +6820,75 @@ window.addEventListener('orientationchange', function() { // ORIENTATION AJOUT
     </div> <!-- MODIFIÉ -->
   </div> <!-- MODIFIÉ -->
 </div> <!-- MODIFIÉ -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     STYLES QUIZ EXPRESS UMOA
+     ═══════════════════════════════════════════════════════════ -->
+<style>
+#page-quizExpress{--qe-navy:#002B5C;--qe-gold:#C9991A;--qe-cream:#F5F3EE;font-family:'IBM Plex Sans','Inter',sans-serif}
+#page-quizExpress .qe-wrap{max-width:760px;margin:0 auto;padding:48px 20px}
+#page-quizExpress .qe-kicker{font-family:'IBM Plex Sans',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:3px;color:var(--qe-gold);text-transform:uppercase;margin-bottom:10px}
+#page-quizExpress .qe-title{font-family:'Playfair Display',serif;font-size:2rem;font-weight:800;color:var(--qe-cream);line-height:1.2;margin-bottom:10px}
+#page-quizExpress .qe-sub{font-size:.9rem;color:var(--muted);margin-bottom:36px}
+#page-quizExpress .qe-setup{background:linear-gradient(160deg,rgba(0,43,92,.55),rgba(8,12,20,.6));border:1px solid var(--border);border-radius:8px;padding:30px}
+#page-quizExpress .qe-label{display:block;font-family:'IBM Plex Sans',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--qe-gold);margin-bottom:10px}
+#page-quizExpress .qe-select{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:5px;color:var(--qe-cream);font-family:'IBM Plex Sans',sans-serif;font-size:.95rem;padding:13px 14px;margin-bottom:24px;cursor:pointer}
+#page-quizExpress .qe-select:focus{outline:none;border-color:var(--qe-gold)}
+.qe-start{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--gold),var(--gold-l));color:#03050A;font-family:'IBM Plex Sans',sans-serif;font-weight:700;font-size:.95rem;letter-spacing:.5px;border:none;border-radius:6px;padding:15px 26px;cursor:pointer;transition:transform .15s,box-shadow .2s;width:100%;justify-content:center}
+.qe-start:hover{transform:translateY(-1px);box-shadow:0 6px 24px var(--gold-glow)}
+.qe-ghost{background:none;border:1px solid var(--border);color:var(--qe-cream);font-family:'IBM Plex Sans',sans-serif;font-size:.85rem;padding:13px 20px;border-radius:6px;cursor:pointer;transition:all .2s}
+.qe-ghost:hover{border-color:var(--qe-gold);color:var(--qe-gold)}
+
+/* Overlay de jeu */
+.qe-overlay{--qe-navy:#002B5C;--qe-gold:#C9991A;--qe-cream:#F5F3EE;position:fixed;inset:0;z-index:850;background:radial-gradient(ellipse at top,#06122a,#03050A 70%);overflow-y:auto;font-family:'IBM Plex Sans',sans-serif}
+.qe-confetti{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:5}
+.qe-game,.qe-result{max-width:620px;margin:0 auto;padding:28px 20px 60px;position:relative;z-index:10}
+.qe-bar{display:flex;align-items:center;gap:14px;font-size:.78rem;color:var(--muted);margin-bottom:14px}
+.qe-bar b{color:var(--qe-cream)}
+.qe-bar .qe-score-wrap{margin-left:auto}
+.qe-timer{display:inline-flex;align-items:center;justify-content:center;min-width:42px;height:42px;border-radius:50%;border:2px solid var(--qe-gold);color:var(--qe-gold);font-family:'IBM Plex Sans',sans-serif;font-weight:700;font-size:1rem;transition:color .2s,border-color .2s}
+.qe-timer.qe-low{border-color:var(--red);color:var(--red);animation:qePulse .6s ease-in-out infinite}
+@keyframes qePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.qe-quit{background:rgba(255,255,255,.06);border:none;color:var(--qe-cream);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:.85rem}
+.qe-progress{height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;margin-bottom:24px}
+.qe-progress-fill{height:100%;width:100%;background:linear-gradient(90deg,var(--gold),var(--gold-l))}
+
+/* Carte flip */
+.qe-flip{perspective:1400px}
+.qe-flip-inner{position:relative;transform-style:preserve-3d;transition:transform .6s cubic-bezier(.45,.05,.2,1);min-height:380px}
+.qe-flip.flipped .qe-flip-inner{transform:rotateY(180deg)}
+.qe-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:linear-gradient(160deg,rgba(0,43,92,.5),rgba(8,12,20,.7));border:1px solid var(--border);border-radius:10px;padding:26px}
+.qe-front{position:relative}
+.qe-back{transform:rotateY(180deg);display:flex;flex-direction:column}
+.qe-cat-chip{display:inline-block;background:var(--gold-dim);color:var(--qe-gold);font-size:.62rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:20px;margin-bottom:18px}
+.qe-q{font-family:'Playfair Display',serif;font-size:1.22rem;font-weight:700;line-height:1.45;color:var(--qe-cream);margin-bottom:22px}
+.qe-choices{display:flex;flex-direction:column;gap:11px}
+.qe-choice{text-align:left;background:var(--bg2);border:1px solid var(--sep);color:var(--qe-cream);font-family:'IBM Plex Sans',sans-serif;font-size:.92rem;padding:14px 16px;border-radius:7px;cursor:pointer;transition:all .18s}
+.qe-choice:hover:not(:disabled){border-color:var(--qe-gold);background:var(--gold-f)}
+.qe-choice:disabled{cursor:default;opacity:.85}
+.qe-choice.ok{border-color:var(--green);background:var(--green-dim);color:#bff3da}
+.qe-choice.ko{border-color:var(--red);background:var(--red-dim);color:#ffc9c9}
+.qe-verdict{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:800;margin-bottom:8px}
+.qe-verdict.ok{color:var(--green)}
+.qe-verdict.ko{color:var(--red)}
+.qe-correct{font-size:.95rem;color:var(--qe-cream);margin-bottom:18px;line-height:1.5}
+.qe-source{font-size:.78rem;color:var(--muted);background:var(--bg2);border-left:3px solid var(--qe-gold);border-radius:0 5px 5px 0;padding:12px 14px;line-height:1.5;margin-bottom:auto}
+.qe-next{margin-top:22px;align-self:flex-end;background:linear-gradient(135deg,var(--gold),var(--gold-l));color:#03050A;font-family:'IBM Plex Sans',sans-serif;font-weight:700;font-size:.9rem;border:none;border-radius:6px;padding:13px 22px;cursor:pointer}
+
+/* Résultat */
+.qe-result{text-align:center}
+.qe-result-trophy{font-size:3.4rem;margin-bottom:10px}
+.qe-result-score{font-family:'Playfair Display',serif;font-size:2.6rem;font-weight:800;color:var(--qe-gold)}
+.qe-result-xp{font-family:'IBM Plex Sans',sans-serif;font-size:1rem;color:var(--qe-cream);margin:6px 0 28px}
+.qe-result-actions{display:flex;flex-direction:column;gap:10px;max-width:380px;margin:0 auto}
+.qe-sources-list{margin-top:28px;text-align:left;display:flex;flex-direction:column;gap:12px}
+.qe-src-item{background:var(--bg2);border:1px solid var(--sep);border-left:3px solid var(--muted);border-radius:0 6px 6px 0;padding:13px 15px}
+.qe-src-item.ok{border-left-color:var(--green)}
+.qe-src-item.ko{border-left-color:var(--red)}
+.qe-src-q{font-size:.88rem;color:var(--qe-cream);line-height:1.45;margin-bottom:6px}
+.qe-src-ref{font-size:.74rem;color:var(--muted)}
+@media(max-width:600px){#page-quizExpress .qe-title{font-size:1.55rem}.qe-q{font-size:1.05rem}}
+</style>
 
 <!-- ═══════════════════════════════════════════════════════════
      PAGE BIBLIOTHÈQUE RÉGLEMENTAIRE
@@ -7836,7 +7952,7 @@ window.addEventListener('orientationchange', function() { // ORIENTATION AJOUT
 
 <script>
 /* ─── TAB SWITCHING ─── */
-function switchTab(tabId, btn) {
+function switchTabProgress(tabId, btn) { // MODIFIÉ : renommée (était "switchTab" → écrasait celle des onglets tournoi, args inversés)
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
   document.getElementById('tab-' + tabId).classList.add('active');
@@ -8118,5 +8234,228 @@ updateProgress();
 
 </script>
 
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE QUIZ EXPRESS UMOA — logique, timer, IndexedDB, XP
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+const QE = (function(){
+  /* Questions de démo (inline) — remplacées au runtime par
+     assets/quizzes_umoa_bale.json (21 questions) si disponible. */
+  const DEMO = [
+    { cat:'Fonds propres', q:'Quel est le ratio minimum de fonds propres de base dur (CET1), hors coussins, exigé par le Dispositif prudentiel UMOA 2016 ?',
+      choices:['4,5 %','5 %','7 %','8 %'], answer:1,
+      source:'Article 24 — Ratio de fonds propres CET1, Dispositif prudentiel applicable aux établissements de crédit et compagnies financières de l\'UMOA (2016).' },
+    { cat:'Liquidité', q:'Le ratio de liquidité à court terme (LCR) doit, à terme, être au moins égal à :',
+      choices:['60 %','75 %','100 %','120 %'], answer:2,
+      source:'Article 76 — Ratio de liquidité à court terme (LCR), Dispositif prudentiel UMOA 2016.' },
+    { cat:'Division risques', q:'La limite individuelle de division des risques sur un même bénéficiaire (ou groupe lié) est fixée à un pourcentage des fonds propres effectifs de :',
+      choices:['15 %','25 %','40 %','65 %'], answer:1,
+      source:'Article 67 — Division des risques, limite par bénéficiaire, Dispositif prudentiel UMOA 2016.' },
+    { cat:'Piliers Bâle', q:'Dans l\'architecture de Bâle reprise par le dispositif 2016, le Pilier 2 correspond à :',
+      choices:['Les exigences minimales de fonds propres','La surveillance prudentielle (processus de supervision)','La discipline de marché et la transparence financière','Le ratio de levier'], answer:1,
+      source:'Préambule — Les trois piliers de Bâle II/III, Dispositif prudentiel UMOA 2016.' },
+    { cat:'Ratio levier', q:'Le ratio de levier minimum exigé des établissements de crédit par le dispositif 2016 est de :',
+      choices:['2 %','3 %','5 %','8 %'], answer:1,
+      source:'Article 51 — Ratio de levier, Dispositif prudentiel UMOA 2016.' }
+  ];
+
+  let POOL = DEMO.slice();
+  let state = null;
+  let timer = null;
+
+  /* Chargement optionnel du jeu complet de 21 questions */
+  fetch('assets/quizzes_umoa_bale.json')
+    .then(r => r.ok ? r.json() : null)
+    .then(d => { if (Array.isArray(d) && d.length) POOL = d; })
+    .catch(() => {});
+
+  /* ── IndexedDB : quiz_express_attempts ── */
+  function openDB(){
+    return new Promise((res, rej) => {
+      const req = indexedDB.open('regul_arena_qe', 1);
+      req.onupgradeneeded = e => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains('quiz_express_attempts'))
+          db.createObjectStore('quiz_express_attempts', { keyPath:'id', autoIncrement:true });
+      };
+      req.onsuccess = e => res(e.target.result);
+      req.onerror  = e => rej(e.target.error);
+    });
+  }
+  async function saveAttempt(rec){
+    try {
+      const db = await openDB();
+      const tx = db.transaction('quiz_express_attempts', 'readwrite');
+      tx.objectStore('quiz_express_attempts').add(rec);
+      return new Promise(r => { tx.oncomplete = () => r(true); tx.onerror = () => r(false); });
+    } catch(e) { return false; }
+  }
+
+  function pick(cat){
+    let pool = (cat === 'Toutes') ? POOL.slice() : POOL.filter(q => q.cat === cat);
+    for (let i = pool.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    return pool.slice(0, Math.min(10, pool.length));
+  }
+
+  function start(){
+    const cat = document.getElementById('qe-cat').value;
+    const qs = pick(cat);
+    if (!qs.length){ showToast('Aucune question pour cette catégorie pour le moment.'); return; }
+    // Sortir l'overlay du contexte d'empilement de la page pour couvrir le header fixe
+    const ov = document.getElementById('qe-overlay');
+    if (ov.parentElement !== document.body) document.body.appendChild(ov);
+    state = { cat, qs, i:0, score:0, t0:Date.now(), answers:[] };
+    document.getElementById('qe-total').textContent = qs.length;
+    document.getElementById('qe-result').style.display = 'none';
+    document.getElementById('qe-game').style.display = 'block';
+    document.getElementById('qe-confetti').innerHTML = '';
+    document.getElementById('qe-overlay').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    render();
+  }
+
+  function render(){
+    const q = state.qs[state.i];
+    flip(false);
+    document.getElementById('qe-num').textContent = state.i + 1;
+    document.getElementById('qe-score').textContent = state.score;
+    document.getElementById('qe-cat-chip').textContent = q.cat;
+    document.getElementById('qe-q').textContent = q.q;
+    const ch = document.getElementById('qe-choices');
+    ch.innerHTML = '';
+    q.choices.forEach((c, idx) => {
+      const b = document.createElement('button');
+      b.className = 'qe-choice';
+      b.type = 'button';
+      b.textContent = c;
+      b.onclick = () => answer(idx);
+      ch.appendChild(b);
+    });
+    startTimer();
+  }
+
+  function startTimer(){
+    clearInterval(timer);
+    let t = 20;
+    const el = document.getElementById('qe-timer');
+    const fill = document.getElementById('qe-progress-fill');
+    el.textContent = t;
+    el.classList.remove('qe-low');
+    if (fill){
+      fill.style.transition = 'none';
+      fill.style.width = '100%';
+      requestAnimationFrame(() => { fill.style.transition = 'width 20s linear'; fill.style.width = '0%'; });
+    }
+    timer = setInterval(() => {
+      t--;
+      el.textContent = Math.max(0, t);
+      if (t <= 5) el.classList.add('qe-low');
+      if (t <= 0){ clearInterval(timer); answer(-1); }
+    }, 1000);
+  }
+
+  function answer(idx){
+    clearInterval(timer);
+    const q = state.qs[state.i];
+    const correct = idx === q.answer;
+    if (correct) state.score++;
+    state.answers.push({ q:q.q, cat:q.cat, source:q.source, correct });
+    document.querySelectorAll('#qe-choices .qe-choice').forEach((b, i) => {
+      b.disabled = true;
+      if (i === q.answer) b.classList.add('ok');
+      if (i === idx && !correct) b.classList.add('ko');
+    });
+    const verdict = document.getElementById('qe-verdict');
+    verdict.textContent = correct ? '✅ Bonne réponse' : (idx === -1 ? '⏱ Temps écoulé' : '❌ Mauvaise réponse');
+    verdict.className = 'qe-verdict ' + (correct ? 'ok' : 'ko');
+    document.getElementById('qe-correct').textContent = 'Réponse correcte : ' + q.choices[q.answer];
+    document.getElementById('qe-source').textContent = '📖 ' + q.source;
+    document.getElementById('qe-score').textContent = state.score;
+    document.getElementById('qe-next-btn').textContent =
+      (state.i + 1 >= state.qs.length) ? 'Voir le résultat →' : 'Question suivante →';
+    setTimeout(() => flip(true), 320);
+  }
+
+  function flip(on){ document.getElementById('qe-flip').classList.toggle('flipped', !!on); }
+
+  function next(){
+    if (state.i + 1 >= state.qs.length){ finish(); return; }
+    state.i++;
+    render();
+  }
+
+  async function finish(){
+    if (state.done) return;
+    state.done = true;
+    clearInterval(timer);
+    const total = state.qs.length;
+    const dur = Math.round((Date.now() - state.t0) / 1000);
+    const perfect = total >= 10 && state.score === total;
+    const xp = state.score * 50 + (perfect ? 200 : 0);
+    state.xp = xp;
+    await saveAttempt({
+      date: new Date().toISOString(),
+      categorie: state.cat,
+      score: state.score,
+      total,
+      xp_gagne: xp,
+      duree_sec: dur
+    });
+    document.getElementById('qe-game').style.display = 'none';
+    const r = document.getElementById('qe-result');
+    r.style.display = 'block';
+    const ratio = state.score / total;
+    document.getElementById('qe-result-trophy').textContent = perfect ? '🏆' : (ratio >= 0.6 ? '🥇' : '📘');
+    document.getElementById('qe-result-score').textContent = state.score + ' / ' + total;
+    document.getElementById('qe-result-xp').textContent =
+      '+' + xp + ' XP' + (perfect ? ' · Sans faute ! Bonus +200' : '') + ' · ' + dur + ' s';
+    const list = document.getElementById('qe-sources-list');
+    list.style.display = 'none';
+    list.innerHTML = state.answers.map(a =>
+      '<div class="qe-src-item ' + (a.correct ? 'ok' : 'ko') + '">' +
+        '<div class="qe-src-q">' + (a.correct ? '✅' : '❌') + ' ' + a.q + '</div>' +
+        '<div class="qe-src-ref">📖 ' + a.source + '</div>' +
+      '</div>'
+    ).join('');
+    confetti();
+    showToast('Bravo ! +' + xp + ' XP');
+  }
+
+  function showSources(){
+    const el = document.getElementById('qe-sources-list');
+    el.style.display = (el.style.display === 'none') ? 'flex' : 'none';
+  }
+
+  function confetti(){
+    const c = document.getElementById('qe-confetti');
+    if (!c) return;
+    c.innerHTML = '';
+    const cols = ['#C9991A','#E8B520','#002B5C','#F5F3EE','#10B981'];
+    for (let i = 0; i < 70; i++){
+      const p = document.createElement('div');
+      const col = cols[Math.floor(Math.random() * cols.length)];
+      p.style.cssText = 'position:absolute;top:-12px;left:' + (Math.random()*100) + '%;width:' +
+        (4 + Math.random()*8) + 'px;height:' + (4 + Math.random()*12) + 'px;background:' + col +
+        ';border-radius:' + (Math.random() > .5 ? '50%' : '0') +
+        ';animation:confettiDrop ' + (2 + Math.random()*3) + 's ' + (Math.random()*1.2) + 's linear forwards';
+      c.appendChild(p);
+    }
+    setTimeout(() => { if (c) c.innerHTML = ''; }, 6000);
+  }
+
+  function replay(){ start(); }
+
+  function quit(){
+    clearInterval(timer);
+    document.getElementById('qe-overlay').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  return { start, answer, next, finish, showSources, replay, quit };
+})();
+</script>
 </body>
 </html>

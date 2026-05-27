@@ -1959,6 +1959,7 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
     <li role="none"><button id="nav-landing" onclick="showPage('landing')" class="active" role="menuitem" aria-current="page">Accueil</button></li>
     <li role="none"><button id="nav-classement" onclick="showPage('classement')" role="menuitem">Classement</button></li>
     <li role="none"><button id="nav-tournois" onclick="showPage('tournois')" role="menuitem">Tournois<span id="notif-badge-tournois" class="ra-notif-badge" style="display:none" onclick="event.stopPropagation();RANotif.toggle()"></span></button></li>
+    <li role="none"><button id="nav-quizExpress" onclick="aller('quizExpress')" role="menuitem">⚡ Quiz Express UMOA</button></li>
     <li role="none"><button id="nav-duel" onclick="showPage('duel')" role="menuitem">Duel<span id="notif-badge-duel" class="ra-notif-badge" style="display:none" onclick="event.stopPropagation();RANotif.toggle()"></span></button></li>
     <li role="none"><button id="nav-premium" onclick="showPage('premium')" role="menuitem">Top Scoreurs</button></li>
     <li role="none"><button id="nav-invitation" onclick="showPage('invitation')" role="menuitem">Inviter</button></li>
@@ -1982,6 +1983,7 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
   <button onclick="showPage('landing');toggleMobileNav()">🏠 Accueil</button>
   <button onclick="showPage('classement');toggleMobileNav()">🏆 Classement</button>
   <button onclick="showPage('tournois');toggleMobileNav()">🏟 Tournois</button>
+  <button onclick="aller('quizExpress');toggleMobileNav()">⚡ Quiz Express UMOA</button>
   <button onclick="showPage('duel');toggleMobileNav()">⚔ Duel</button>
   <button onclick="showPage('premium');toggleMobileNav()">⭐ Top Scoreurs</button>
   <button onclick="showPage('invitation');toggleMobileNav()">📨 Inviter</button>
@@ -3250,6 +3252,74 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE QUIZ EXPRESS UMOA — Dispositif Prudentiel 2016
+     ═══════════════════════════════════════════════════════════ -->
+<div id="page-quizExpress" class="page" role="main" aria-label="Quiz Express UMOA">
+  <div class="qe-wrap">
+    <div class="qe-kicker">⚡ Quiz Express</div>
+    <h1 class="qe-title">Quiz Express — Dispositif Prudentiel UMOA 2016</h1>
+    <p class="qe-sub">10 questions chronométrées · 20 s par question · sources réglementaires citées</p>
+    <div class="qe-setup">
+      <label class="qe-label" for="qe-cat">Catégorie</label>
+      <select id="qe-cat" class="qe-select">
+        <option value="Toutes">Toutes</option>
+        <option value="Fonds propres">Fonds propres</option>
+        <option value="Liquidité">Liquidité</option>
+        <option value="Division risques">Division risques</option>
+        <option value="Gouvernance">Gouvernance</option>
+        <option value="Piliers Bâle">Piliers Bâle</option>
+        <option value="Ratio levier">Ratio levier</option>
+        <option value="APR">APR</option>
+      </select>
+      <button class="qe-start" onclick="QE.start()">Démarrer 10 questions (3 min)</button>
+    </div>
+  </div>
+
+  <!-- Overlay de jeu -->
+  <div id="qe-overlay" class="qe-overlay" style="display:none">
+    <div class="qe-confetti" id="qe-confetti" aria-hidden="true"></div>
+
+    <div class="qe-game" id="qe-game">
+      <div class="qe-bar">
+        <span>Question <b id="qe-num">1</b>/<b id="qe-total">10</b></span>
+        <span class="qe-score-wrap">Score <b id="qe-score">0</b></span>
+        <span class="qe-timer" id="qe-timer">20</span>
+        <button class="qe-quit" onclick="QE.quit()" aria-label="Quitter le quiz">✕</button>
+      </div>
+      <div class="qe-progress"><div class="qe-progress-fill" id="qe-progress-fill"></div></div>
+
+      <div class="qe-flip" id="qe-flip">
+        <div class="qe-flip-inner">
+          <div class="qe-face qe-front">
+            <span class="qe-cat-chip" id="qe-cat-chip"></span>
+            <div class="qe-q" id="qe-q"></div>
+            <div class="qe-choices" id="qe-choices"></div>
+          </div>
+          <div class="qe-face qe-back">
+            <div class="qe-verdict" id="qe-verdict"></div>
+            <div class="qe-correct" id="qe-correct"></div>
+            <div class="qe-source" id="qe-source"></div>
+            <button class="qe-next" id="qe-next-btn" onclick="QE.next()">Question suivante →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qe-result" id="qe-result" style="display:none">
+      <div class="qe-result-trophy" id="qe-result-trophy">🏆</div>
+      <div class="qe-result-score" id="qe-result-score"></div>
+      <div class="qe-result-xp" id="qe-result-xp"></div>
+      <div class="qe-result-actions">
+        <button class="qe-start" onclick="QE.showSources()">📚 Voir les sources réglementaires</button>
+        <button class="qe-ghost" onclick="QE.replay()">🔄 Rejouer</button>
+        <button class="qe-ghost" onclick="QE.quit()">← Retour à l'accueil</button>
+      </div>
+      <div class="qe-sources-list" id="qe-sources-list" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
 <!-- ================================================================
      SECTION FEEDBACK / SUGGESTIONS UTILISATEURS
 ================================================================ -->
@@ -3358,7 +3428,7 @@ async function apiCall(method, path, body) {
 /* ───────────────────────────────────────────────────────────
    CORE : Navigation SPA
    ─────────────────────────────────────────────────────────── */
-const PAGES = ['landing','classement','tournois','duel','solo','premium','invitation'];
+const PAGES = ['landing','classement','tournois','duel','solo','premium','invitation','quizExpress'];
 const pageInits = {};
 
 function showPage(id) {
@@ -3385,6 +3455,9 @@ function showPage(id) {
   if (id === 'solo') { initSolo(); return; }
   if (!pageInits[id]) { pageInits[id] = true; initPage(id); }
 }
+
+/* Navigation alias utilisé par le mode Quiz Express */
+function aller(id) { showPage(id); }
 
 function initPage(id) {
   if (id === 'classement') renderLeaderboard();
@@ -6749,6 +6822,75 @@ window.addEventListener('orientationchange', function() { // ORIENTATION AJOUT
 </div> <!-- MODIFIÉ -->
 
 <!-- ═══════════════════════════════════════════════════════════
+     STYLES QUIZ EXPRESS UMOA
+     ═══════════════════════════════════════════════════════════ -->
+<style>
+#page-quizExpress{--qe-navy:#002B5C;--qe-gold:#C9991A;--qe-cream:#F5F3EE;font-family:'IBM Plex Sans','Inter',sans-serif}
+#page-quizExpress .qe-wrap{max-width:760px;margin:0 auto;padding:48px 20px}
+#page-quizExpress .qe-kicker{font-family:'IBM Plex Sans',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:3px;color:var(--qe-gold);text-transform:uppercase;margin-bottom:10px}
+#page-quizExpress .qe-title{font-family:'Playfair Display',serif;font-size:2rem;font-weight:800;color:var(--qe-cream);line-height:1.2;margin-bottom:10px}
+#page-quizExpress .qe-sub{font-size:.9rem;color:var(--muted);margin-bottom:36px}
+#page-quizExpress .qe-setup{background:linear-gradient(160deg,rgba(0,43,92,.55),rgba(8,12,20,.6));border:1px solid var(--border);border-radius:8px;padding:30px}
+#page-quizExpress .qe-label{display:block;font-family:'IBM Plex Sans',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--qe-gold);margin-bottom:10px}
+#page-quizExpress .qe-select{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:5px;color:var(--qe-cream);font-family:'IBM Plex Sans',sans-serif;font-size:.95rem;padding:13px 14px;margin-bottom:24px;cursor:pointer}
+#page-quizExpress .qe-select:focus{outline:none;border-color:var(--qe-gold)}
+.qe-start{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--gold),var(--gold-l));color:#03050A;font-family:'IBM Plex Sans',sans-serif;font-weight:700;font-size:.95rem;letter-spacing:.5px;border:none;border-radius:6px;padding:15px 26px;cursor:pointer;transition:transform .15s,box-shadow .2s;width:100%;justify-content:center}
+.qe-start:hover{transform:translateY(-1px);box-shadow:0 6px 24px var(--gold-glow)}
+.qe-ghost{background:none;border:1px solid var(--border);color:var(--qe-cream);font-family:'IBM Plex Sans',sans-serif;font-size:.85rem;padding:13px 20px;border-radius:6px;cursor:pointer;transition:all .2s}
+.qe-ghost:hover{border-color:var(--qe-gold);color:var(--qe-gold)}
+
+/* Overlay de jeu */
+.qe-overlay{--qe-navy:#002B5C;--qe-gold:#C9991A;--qe-cream:#F5F3EE;position:fixed;inset:0;z-index:850;background:radial-gradient(ellipse at top,#06122a,#03050A 70%);overflow-y:auto;font-family:'IBM Plex Sans',sans-serif}
+.qe-confetti{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:5}
+.qe-game,.qe-result{max-width:620px;margin:0 auto;padding:28px 20px 60px;position:relative;z-index:10}
+.qe-bar{display:flex;align-items:center;gap:14px;font-size:.78rem;color:var(--muted);margin-bottom:14px}
+.qe-bar b{color:var(--qe-cream)}
+.qe-bar .qe-score-wrap{margin-left:auto}
+.qe-timer{display:inline-flex;align-items:center;justify-content:center;min-width:42px;height:42px;border-radius:50%;border:2px solid var(--qe-gold);color:var(--qe-gold);font-family:'IBM Plex Sans',sans-serif;font-weight:700;font-size:1rem;transition:color .2s,border-color .2s}
+.qe-timer.qe-low{border-color:var(--red);color:var(--red);animation:qePulse .6s ease-in-out infinite}
+@keyframes qePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.qe-quit{background:rgba(255,255,255,.06);border:none;color:var(--qe-cream);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:.85rem}
+.qe-progress{height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;margin-bottom:24px}
+.qe-progress-fill{height:100%;width:100%;background:linear-gradient(90deg,var(--gold),var(--gold-l))}
+
+/* Carte flip */
+.qe-flip{perspective:1400px}
+.qe-flip-inner{position:relative;transform-style:preserve-3d;transition:transform .6s cubic-bezier(.45,.05,.2,1);min-height:380px}
+.qe-flip.flipped .qe-flip-inner{transform:rotateY(180deg)}
+.qe-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:linear-gradient(160deg,rgba(0,43,92,.5),rgba(8,12,20,.7));border:1px solid var(--border);border-radius:10px;padding:26px}
+.qe-front{position:relative}
+.qe-back{transform:rotateY(180deg);display:flex;flex-direction:column}
+.qe-cat-chip{display:inline-block;background:var(--gold-dim);color:var(--qe-gold);font-size:.62rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:20px;margin-bottom:18px}
+.qe-q{font-family:'Playfair Display',serif;font-size:1.22rem;font-weight:700;line-height:1.45;color:var(--qe-cream);margin-bottom:22px}
+.qe-choices{display:flex;flex-direction:column;gap:11px}
+.qe-choice{text-align:left;background:var(--bg2);border:1px solid var(--sep);color:var(--qe-cream);font-family:'IBM Plex Sans',sans-serif;font-size:.92rem;padding:14px 16px;border-radius:7px;cursor:pointer;transition:all .18s}
+.qe-choice:hover:not(:disabled){border-color:var(--qe-gold);background:var(--gold-f)}
+.qe-choice:disabled{cursor:default;opacity:.85}
+.qe-choice.ok{border-color:var(--green);background:var(--green-dim);color:#bff3da}
+.qe-choice.ko{border-color:var(--red);background:var(--red-dim);color:#ffc9c9}
+.qe-verdict{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:800;margin-bottom:8px}
+.qe-verdict.ok{color:var(--green)}
+.qe-verdict.ko{color:var(--red)}
+.qe-correct{font-size:.95rem;color:var(--qe-cream);margin-bottom:18px;line-height:1.5}
+.qe-source{font-size:.78rem;color:var(--muted);background:var(--bg2);border-left:3px solid var(--qe-gold);border-radius:0 5px 5px 0;padding:12px 14px;line-height:1.5;margin-bottom:auto}
+.qe-next{margin-top:22px;align-self:flex-end;background:linear-gradient(135deg,var(--gold),var(--gold-l));color:#03050A;font-family:'IBM Plex Sans',sans-serif;font-weight:700;font-size:.9rem;border:none;border-radius:6px;padding:13px 22px;cursor:pointer}
+
+/* Résultat */
+.qe-result{text-align:center}
+.qe-result-trophy{font-size:3.4rem;margin-bottom:10px}
+.qe-result-score{font-family:'Playfair Display',serif;font-size:2.6rem;font-weight:800;color:var(--qe-gold)}
+.qe-result-xp{font-family:'IBM Plex Sans',sans-serif;font-size:1rem;color:var(--qe-cream);margin:6px 0 28px}
+.qe-result-actions{display:flex;flex-direction:column;gap:10px;max-width:380px;margin:0 auto}
+.qe-sources-list{margin-top:28px;text-align:left;display:flex;flex-direction:column;gap:12px}
+.qe-src-item{background:var(--bg2);border:1px solid var(--sep);border-left:3px solid var(--muted);border-radius:0 6px 6px 0;padding:13px 15px}
+.qe-src-item.ok{border-left-color:var(--green)}
+.qe-src-item.ko{border-left-color:var(--red)}
+.qe-src-q{font-size:.88rem;color:var(--qe-cream);line-height:1.45;margin-bottom:6px}
+.qe-src-ref{font-size:.74rem;color:var(--muted)}
+@media(max-width:600px){#page-quizExpress .qe-title{font-size:1.55rem}.qe-q{font-size:1.05rem}}
+</style>
+
+<!-- ═══════════════════════════════════════════════════════════
      PAGE BIBLIOTHÈQUE RÉGLEMENTAIRE
      QCM · Flash Cards · Mémos — 150 ressources UEMOA
      ═══════════════════════════════════════════════════════════ -->
@@ -8092,5 +8234,228 @@ updateProgress();
 
 </script>
 
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE QUIZ EXPRESS UMOA — logique, timer, IndexedDB, XP
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+const QE = (function(){
+  /* Questions de démo (inline) — remplacées au runtime par
+     assets/quizzes_umoa_bale.json (21 questions) si disponible. */
+  const DEMO = [
+    { cat:'Fonds propres', q:'Quel est le ratio minimum de fonds propres de base dur (CET1), hors coussins, exigé par le Dispositif prudentiel UMOA 2016 ?',
+      choices:['4,5 %','5 %','7 %','8 %'], answer:1,
+      source:'Article 24 — Ratio de fonds propres CET1, Dispositif prudentiel applicable aux établissements de crédit et compagnies financières de l\'UMOA (2016).' },
+    { cat:'Liquidité', q:'Le ratio de liquidité à court terme (LCR) doit, à terme, être au moins égal à :',
+      choices:['60 %','75 %','100 %','120 %'], answer:2,
+      source:'Article 76 — Ratio de liquidité à court terme (LCR), Dispositif prudentiel UMOA 2016.' },
+    { cat:'Division risques', q:'La limite individuelle de division des risques sur un même bénéficiaire (ou groupe lié) est fixée à un pourcentage des fonds propres effectifs de :',
+      choices:['15 %','25 %','40 %','65 %'], answer:1,
+      source:'Article 67 — Division des risques, limite par bénéficiaire, Dispositif prudentiel UMOA 2016.' },
+    { cat:'Piliers Bâle', q:'Dans l\'architecture de Bâle reprise par le dispositif 2016, le Pilier 2 correspond à :',
+      choices:['Les exigences minimales de fonds propres','La surveillance prudentielle (processus de supervision)','La discipline de marché et la transparence financière','Le ratio de levier'], answer:1,
+      source:'Préambule — Les trois piliers de Bâle II/III, Dispositif prudentiel UMOA 2016.' },
+    { cat:'Ratio levier', q:'Le ratio de levier minimum exigé des établissements de crédit par le dispositif 2016 est de :',
+      choices:['2 %','3 %','5 %','8 %'], answer:1,
+      source:'Article 51 — Ratio de levier, Dispositif prudentiel UMOA 2016.' }
+  ];
+
+  let POOL = DEMO.slice();
+  let state = null;
+  let timer = null;
+
+  /* Chargement optionnel du jeu complet de 21 questions */
+  fetch('assets/quizzes_umoa_bale.json')
+    .then(r => r.ok ? r.json() : null)
+    .then(d => { if (Array.isArray(d) && d.length) POOL = d; })
+    .catch(() => {});
+
+  /* ── IndexedDB : quiz_express_attempts ── */
+  function openDB(){
+    return new Promise((res, rej) => {
+      const req = indexedDB.open('regul_arena_qe', 1);
+      req.onupgradeneeded = e => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains('quiz_express_attempts'))
+          db.createObjectStore('quiz_express_attempts', { keyPath:'id', autoIncrement:true });
+      };
+      req.onsuccess = e => res(e.target.result);
+      req.onerror  = e => rej(e.target.error);
+    });
+  }
+  async function saveAttempt(rec){
+    try {
+      const db = await openDB();
+      const tx = db.transaction('quiz_express_attempts', 'readwrite');
+      tx.objectStore('quiz_express_attempts').add(rec);
+      return new Promise(r => { tx.oncomplete = () => r(true); tx.onerror = () => r(false); });
+    } catch(e) { return false; }
+  }
+
+  function pick(cat){
+    let pool = (cat === 'Toutes') ? POOL.slice() : POOL.filter(q => q.cat === cat);
+    for (let i = pool.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    return pool.slice(0, Math.min(10, pool.length));
+  }
+
+  function start(){
+    const cat = document.getElementById('qe-cat').value;
+    const qs = pick(cat);
+    if (!qs.length){ showToast('Aucune question pour cette catégorie pour le moment.'); return; }
+    // Sortir l'overlay du contexte d'empilement de la page pour couvrir le header fixe
+    const ov = document.getElementById('qe-overlay');
+    if (ov.parentElement !== document.body) document.body.appendChild(ov);
+    state = { cat, qs, i:0, score:0, t0:Date.now(), answers:[] };
+    document.getElementById('qe-total').textContent = qs.length;
+    document.getElementById('qe-result').style.display = 'none';
+    document.getElementById('qe-game').style.display = 'block';
+    document.getElementById('qe-confetti').innerHTML = '';
+    document.getElementById('qe-overlay').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    render();
+  }
+
+  function render(){
+    const q = state.qs[state.i];
+    flip(false);
+    document.getElementById('qe-num').textContent = state.i + 1;
+    document.getElementById('qe-score').textContent = state.score;
+    document.getElementById('qe-cat-chip').textContent = q.cat;
+    document.getElementById('qe-q').textContent = q.q;
+    const ch = document.getElementById('qe-choices');
+    ch.innerHTML = '';
+    q.choices.forEach((c, idx) => {
+      const b = document.createElement('button');
+      b.className = 'qe-choice';
+      b.type = 'button';
+      b.textContent = c;
+      b.onclick = () => answer(idx);
+      ch.appendChild(b);
+    });
+    startTimer();
+  }
+
+  function startTimer(){
+    clearInterval(timer);
+    let t = 20;
+    const el = document.getElementById('qe-timer');
+    const fill = document.getElementById('qe-progress-fill');
+    el.textContent = t;
+    el.classList.remove('qe-low');
+    if (fill){
+      fill.style.transition = 'none';
+      fill.style.width = '100%';
+      requestAnimationFrame(() => { fill.style.transition = 'width 20s linear'; fill.style.width = '0%'; });
+    }
+    timer = setInterval(() => {
+      t--;
+      el.textContent = Math.max(0, t);
+      if (t <= 5) el.classList.add('qe-low');
+      if (t <= 0){ clearInterval(timer); answer(-1); }
+    }, 1000);
+  }
+
+  function answer(idx){
+    clearInterval(timer);
+    const q = state.qs[state.i];
+    const correct = idx === q.answer;
+    if (correct) state.score++;
+    state.answers.push({ q:q.q, cat:q.cat, source:q.source, correct });
+    document.querySelectorAll('#qe-choices .qe-choice').forEach((b, i) => {
+      b.disabled = true;
+      if (i === q.answer) b.classList.add('ok');
+      if (i === idx && !correct) b.classList.add('ko');
+    });
+    const verdict = document.getElementById('qe-verdict');
+    verdict.textContent = correct ? '✅ Bonne réponse' : (idx === -1 ? '⏱ Temps écoulé' : '❌ Mauvaise réponse');
+    verdict.className = 'qe-verdict ' + (correct ? 'ok' : 'ko');
+    document.getElementById('qe-correct').textContent = 'Réponse correcte : ' + q.choices[q.answer];
+    document.getElementById('qe-source').textContent = '📖 ' + q.source;
+    document.getElementById('qe-score').textContent = state.score;
+    document.getElementById('qe-next-btn').textContent =
+      (state.i + 1 >= state.qs.length) ? 'Voir le résultat →' : 'Question suivante →';
+    setTimeout(() => flip(true), 320);
+  }
+
+  function flip(on){ document.getElementById('qe-flip').classList.toggle('flipped', !!on); }
+
+  function next(){
+    if (state.i + 1 >= state.qs.length){ finish(); return; }
+    state.i++;
+    render();
+  }
+
+  async function finish(){
+    if (state.done) return;
+    state.done = true;
+    clearInterval(timer);
+    const total = state.qs.length;
+    const dur = Math.round((Date.now() - state.t0) / 1000);
+    const perfect = total >= 10 && state.score === total;
+    const xp = state.score * 50 + (perfect ? 200 : 0);
+    state.xp = xp;
+    await saveAttempt({
+      date: new Date().toISOString(),
+      categorie: state.cat,
+      score: state.score,
+      total,
+      xp_gagne: xp,
+      duree_sec: dur
+    });
+    document.getElementById('qe-game').style.display = 'none';
+    const r = document.getElementById('qe-result');
+    r.style.display = 'block';
+    const ratio = state.score / total;
+    document.getElementById('qe-result-trophy').textContent = perfect ? '🏆' : (ratio >= 0.6 ? '🥇' : '📘');
+    document.getElementById('qe-result-score').textContent = state.score + ' / ' + total;
+    document.getElementById('qe-result-xp').textContent =
+      '+' + xp + ' XP' + (perfect ? ' · Sans faute ! Bonus +200' : '') + ' · ' + dur + ' s';
+    const list = document.getElementById('qe-sources-list');
+    list.style.display = 'none';
+    list.innerHTML = state.answers.map(a =>
+      '<div class="qe-src-item ' + (a.correct ? 'ok' : 'ko') + '">' +
+        '<div class="qe-src-q">' + (a.correct ? '✅' : '❌') + ' ' + a.q + '</div>' +
+        '<div class="qe-src-ref">📖 ' + a.source + '</div>' +
+      '</div>'
+    ).join('');
+    confetti();
+    showToast('Bravo ! +' + xp + ' XP');
+  }
+
+  function showSources(){
+    const el = document.getElementById('qe-sources-list');
+    el.style.display = (el.style.display === 'none') ? 'flex' : 'none';
+  }
+
+  function confetti(){
+    const c = document.getElementById('qe-confetti');
+    if (!c) return;
+    c.innerHTML = '';
+    const cols = ['#C9991A','#E8B520','#002B5C','#F5F3EE','#10B981'];
+    for (let i = 0; i < 70; i++){
+      const p = document.createElement('div');
+      const col = cols[Math.floor(Math.random() * cols.length)];
+      p.style.cssText = 'position:absolute;top:-12px;left:' + (Math.random()*100) + '%;width:' +
+        (4 + Math.random()*8) + 'px;height:' + (4 + Math.random()*12) + 'px;background:' + col +
+        ';border-radius:' + (Math.random() > .5 ? '50%' : '0') +
+        ';animation:confettiDrop ' + (2 + Math.random()*3) + 's ' + (Math.random()*1.2) + 's linear forwards';
+      c.appendChild(p);
+    }
+    setTimeout(() => { if (c) c.innerHTML = ''; }, 6000);
+  }
+
+  function replay(){ start(); }
+
+  function quit(){
+    clearInterval(timer);
+    document.getElementById('qe-overlay').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  return { start, answer, next, finish, showSources, replay, quit };
+})();
+</script>
 </body>
 </html>
