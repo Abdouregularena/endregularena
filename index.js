@@ -510,26 +510,52 @@ app.post('/feedback', limiterLoose, async (req, res) => {
     'INSERT INTO feedback (type, content, email) VALUES (?, ?, ?)'
   ).run(type, text.slice(0, 2000), email.slice(0, 120));
 
-  try {
-    await resend.emails.send({
-      from: FROM_EMAIL,
-      to: 'contact@regularena.com',
-      subject: `[REGUL ARENA] Feedback — ${type} (${stars}★)`,
-      html: `<div style="font-family:sans-serif;max-width:600px">
+  // Metadonnees de la requete pour le mail
+  const esc  = (s) => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const when = new Date().toLocaleString('fr-FR', { timeZone: 'Africa/Dakar' }) + ' (Dakar)';
+  const ip   = (req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '').toString().split(',')[0].trim();
+  const ua   = (req.headers['user-agent'] || '').toString();
+  const html = `<div style="font-family:sans-serif;max-width:600px">
         <h2 style="color:#C9991A">Nouveau feedback REGUL ARENA</h2>
         <table style="width:100%;border-collapse:collapse">
-          <tr><td style="padding:6px 0;color:#888;width:120px">Type</td><td><strong>${type}</strong></td></tr>
-          <tr><td style="padding:6px 0;color:#888">Note</td><td>${'⭐'.repeat(Math.min(5, Number(stars)||0))}</td></tr>
-          ${name ? `<tr><td style="padding:6px 0;color:#888">Nom</td><td>${name}</td></tr>` : ''}
-          ${email ? `<tr><td style="padding:6px 0;color:#888">Email</td><td>${email}</td></tr>` : ''}
+          <tr><td style="padding:6px 0;color:#888;width:130px">Categorie</td><td><strong>${esc(type)}</strong></td></tr>
+          <tr><td style="padding:6px 0;color:#888">Note</td><td>${'⭐'.repeat(Math.min(5, Number(stars)||0))} (${Number(stars)||0}/5)</td></tr>
+          <tr><td style="padding:6px 0;color:#888">Nom</td><td>${name ? esc(name) : '—'}</td></tr>
+          <tr><td style="padding:6px 0;color:#888">Email</td><td>${email ? esc(email) : '—'}</td></tr>
+          <tr><td style="padding:6px 0;color:#888">Date / heure</td><td>${esc(when)}</td></tr>
+          <tr><td style="padding:6px 0;color:#888">IP</td><td>${esc(ip) || '—'}</td></tr>
+          <tr><td style="padding:6px 0;color:#888">Navigateur</td><td style="font-size:11px;color:#666">${esc(ua) || '—'}</td></tr>
         </table>
         <hr style="margin:16px 0;border-color:#333">
-        <div style="background:#111;padding:16px;border-radius:4px;white-space:pre-wrap;color:#EEF0F5">${text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
-      </div>`,
-    });
-  } catch (_) { /* non-bloquant */ }
+        <div style="background:#111;padding:16px;border-radius:4px;white-space:pre-wrap;color:#EEF0F5">${esc(text)}</div>
+      </div>`;
+  const subject = `[REGUL ARENA] Feedback — ${type} (${Number(stars)||0}★)`;
 
-  return ok(res, { message: 'Feedback enregistre' });
+  // Envoi principal : Abdou en destinataire, contact@ en copie
+  let emailSent = false;
+  try {
+    const payload = { from: FROM_EMAIL, to: 'abdou.ndao@regularena.com', cc: 'contact@regularena.com', subject, html };
+    if (email) payload.reply_to = email;
+    await resend.emails.send(payload);
+    emailSent = true;
+  } catch (e1) {
+    console.error('[feedback] envoi principal echoue:', e1 && e1.message ? e1.message : e1);
+    // Fallback : adresse Gmail de secours
+    try {
+      const fb = { from: FROM_EMAIL, to: 'abddou200485@gmail.com', subject: '[FALLBACK] ' + subject, html };
+      if (email) fb.reply_to = email;
+      await resend.emails.send(fb);
+      emailSent = true;
+      console.warn('[feedback] envoye via fallback Gmail');
+    } catch (e2) {
+      console.error('[feedback] fallback Gmail echoue:', e2 && e2.message ? e2.message : e2);
+    }
+  }
+
+  if (!emailSent) {
+    return err(res, 502, "Feedback enregistre, mais l'email n'a pas pu etre envoye (config Resend a verifier).");
+  }
+  return ok(res, { message: 'Feedback envoye', emailSent: true });
 });
 
 
