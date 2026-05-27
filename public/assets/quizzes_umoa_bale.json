@@ -1,1 +1,149 @@
-
+[
+  {
+    "cat": "Fonds propres",
+    "q": "Quel est le ratio minimum de fonds propres de base de catégorie 1 (CET1) exigé des établissements de crédit de l'UMOA ?",
+    "choices": ["4,5% des risques pondérés", "5% des risques pondérés", "6% des risques pondérés", "8% des risques pondérés"],
+    "answer": 1,
+    "source": "Avis n°004-04-2016 BCEAO — Art. 24 (Dispositif prudentiel applicable aux EC et CF de l'UMOA, Titre III)"
+  },
+  {
+    "cat": "Fonds propres",
+    "q": "Quel est le ratio minimum de fonds propres de catégorie 1 (Tier 1 = CET1 + AT1) ?",
+    "choices": ["5%", "6%", "7,5%", "8%"],
+    "answer": 1,
+    "source": "Avis n°004-04-2016 BCEAO — Art. 24, Titre III Chap. 2"
+  },
+  {
+    "cat": "Fonds propres",
+    "q": "Quel est le ratio minimum de fonds propres effectifs (FPE = T1 + T2) hors coussins ?",
+    "choices": ["7%", "8%", "10,5%", "12%"],
+    "answer": 1,
+    "source": "Avis n°004-04-2016 BCEAO — Art. 24"
+  },
+  {
+    "cat": "Fonds propres",
+    "q": "Quel est le niveau du coussin de conservation des fonds propres en cible 2022 ?",
+    "choices": ["1,25%", "1,875%", "2,5%", "3%"],
+    "answer": 2,
+    "source": "Avis n°004-04-2016 BCEAO — Art. 26 (Coussin de conservation, transition 0,625% par an de 2019 à 2022)"
+  },
+  {
+    "cat": "Fonds propres",
+    "q": "Le coussin contracyclique imposable par la BCEAO peut atteindre quel niveau maximum ?",
+    "choices": ["1%", "1,5%", "2,5%", "5%"],
+    "answer": 2,
+    "source": "Avis n°004-04-2016 BCEAO — Art. 27 (Coussin contracyclique, à discrétion de la BCEAO)"
+  },
+  {
+    "cat": "Fonds propres",
+    "q": "Quel est le total des exigences minimales en fonds propres (FPE + coussin de conservation) à horizon 2022 ?",
+    "choices": ["8%", "9,5%", "10,5%", "12,5%"],
+    "answer": 2,
+    "source": "Avis n°004-04-2016 BCEAO — Art. 24 + Art. 26 combinés (cible pleine 2022)"
+  },
+  {
+    "cat": "Liquidité",
+    "q": "Le Ratio de Liquidité à Court Terme (RLCT / LCR) impose aux banques de couvrir leurs sorties nettes de trésorerie sur quel horizon ?",
+    "choices": ["7 jours", "15 jours", "30 jours", "90 jours"],
+    "answer": 2,
+    "source": "Instruction n°009-09-2017 BCEAO — Art. 4 (LCR sur stress de 30 jours calendaires)"
+  },
+  {
+    "cat": "Liquidité",
+    "q": "Quel niveau minimum doit atteindre le RLCT à pleine application ?",
+    "choices": ["75%", "100%", "110%", "125%"],
+    "answer": 1,
+    "source": "Instruction n°009-09-2017 BCEAO — Art. 5 (RLCT ≥ 100%)"
+  },
+  {
+    "cat": "Liquidité",
+    "q": "Le Ratio de Liquidité à Long Terme (RLLT / NSFR) compare quels éléments ?",
+    "choices": ["Actifs liquides / dépôts à vue", "Financement stable disponible / financement stable exigé", "Crédits à terme / dépôts à terme", "Fonds propres / engagements hors bilan"],
+    "answer": 1,
+    "source": "Instruction n°009-09-2017 BCEAO — Art. 7 (NSFR : ASF / RSF ≥ 100%)"
+  },
+  {
+    "cat": "Division risques",
+    "q": "Quelle est la limite maximale d'exposition sur un même bénéficiaire (ou groupe de contreparties liées) en % des fonds propres effectifs ?",
+    "choices": ["10%", "20%", "25%", "40%"],
+    "answer": 2,
+    "source": "Avis n°004-04-2016 BCEAO — Art. 56 (Limite individuelle : 25% des FPE)"
+  },
+  {
+    "cat": "Division risques",
+    "q": "À partir de quel seuil une exposition est-elle considérée comme un « grand risque » devant être déclaré à la Commission Bancaire ?",
+    "choices": ["5% des FPE", "10% des FPE", "15% des FPE", "20% des FPE"],
+    "answer": 1,
+    "source": "Avis n°004-04-2016 BCEAO — Art. 57 (Seuil de déclaration des grands risques : 10%)"
+  },
+  {
+    "cat": "Division risques",
+    "q": "Quelle est la limite globale cumulée des grands risques en % des fonds propres effectifs ?",
+    "choices": ["400%", "600%", "800%", "1000%"],
+    "answer": 2,
+    "source": "Avis n°004-04-2016 BCEAO — Art. 58 (Limite globale des grands risques : 8 fois les FPE)"
+  },
+  {
+    "cat": "Gouvernance",
+    "q": "Quel organe est obligatoire au sein du conseil d'administration de tout établissement de crédit selon le dispositif UMOA ?",
+    "choices": ["Comité de rémunération uniquement", "Comité d'audit", "Comité stratégie commerciale", "Aucun comité n'est obligatoire"],
+    "answer": 1,
+    "source": "Circulaire n°01-2017 CB-UMOA — Art. 24 (Gouvernance : Comité d'audit obligatoire)"
+  },
+  {
+    "cat": "Gouvernance",
+    "q": "Combien d'administrateurs indépendants sont exigés au minimum dans le conseil d'administration ?",
+    "choices": ["Aucun", "Au moins 1", "Au moins 2", "Au moins le tiers"],
+    "answer": 2,
+    "source": "Circulaire n°01-2017 CB-UMOA — Art. 18 (Indépendance : minimum 2 administrateurs indépendants)"
+  },
+  {
+    "cat": "Gouvernance",
+    "q": "La fonction de contrôle interne doit obligatoirement être indépendante de quelles autres fonctions ?",
+    "choices": ["Audit interne uniquement", "Conformité uniquement", "Audit interne et gestion des risques", "Direction générale uniquement"],
+    "answer": 2,
+    "source": "Circulaire n°04-2017 CB-UMOA — Art. 8 (Séparation des 3 lignes de défense : opérationnel / risques+conformité / audit interne)"
+  },
+  {
+    "cat": "Piliers Bâle",
+    "q": "Le Pilier 1 du dispositif prudentiel UMOA couvre principalement :",
+    "choices": ["La gouvernance et la transparence", "Les exigences minimales de fonds propres (risque de crédit, de marché, opérationnel)", "Le processus de surveillance prudentielle", "La discipline de marché et la communication financière"],
+    "answer": 1,
+    "source": "Avis n°004-04-2016 BCEAO — Préambule (Architecture Bâle II/III, Pilier 1)"
+  },
+  {
+    "cat": "Piliers Bâle",
+    "q": "Le Pilier 2 (processus de surveillance prudentielle) inclut notamment :",
+    "choices": ["Le calcul du ratio Cooke", "L'ICAAP (évaluation interne de l'adéquation des fonds propres) et le SREP", "La publication semestrielle des comptes", "Le ratio de levier uniquement"],
+    "answer": 1,
+    "source": "Avis n°004-04-2016 BCEAO — Titre V (ICAAP/SREP, Pilier 2)"
+  },
+  {
+    "cat": "Piliers Bâle",
+    "q": "Le Pilier 3 (discipline de marché) impose la publication :",
+    "choices": ["Du seul bilan annuel", "D'informations sur la structure des fonds propres, l'exposition aux risques et la gestion des risques", "Des seuls ratios prudentiels", "Du rapport d'audit externe uniquement"],
+    "answer": 1,
+    "source": "Instruction n°026-11-2016 BCEAO — Pilier 3 (Communication financière prudentielle)"
+  },
+  {
+    "cat": "Ratio levier",
+    "q": "Quel est le niveau minimum du ratio de levier (Tier 1 / Exposition totale) imposé aux établissements de l'UMOA ?",
+    "choices": ["1%", "2%", "3%", "5%"],
+    "answer": 2,
+    "source": "Avis n°004-04-2016 BCEAO — Art. 35 (Ratio de levier ≥ 3%)"
+  },
+  {
+    "cat": "Ratio levier",
+    "q": "Le dispositif prudentiel UMOA est entré en vigueur à quelle date, avec quelle période de transition ?",
+    "choices": ["1er janvier 2017 — transition 3 ans", "1er janvier 2018 — transition jusqu'en 2022", "1er juillet 2018 — transition 2 ans", "1er janvier 2020 — transition 5 ans"],
+    "answer": 1,
+    "source": "Avis n°004-04-2016 BCEAO — Dispositions transitoires (entrée en vigueur 01/01/2018, application pleine 2022)"
+  },
+  {
+    "cat": "APR",
+    "q": "Quelle est la pondération en risque d'une créance sur un État souverain de l'UEMOA libellée et financée en FCFA ?",
+    "choices": ["0%", "20%", "50%", "100%"],
+    "answer": 0,
+    "source": "Avis n°004-04-2016 BCEAO — Art. 46 (Pondération 0% pour souverains UEMOA en monnaie locale)"
+  }
+]
