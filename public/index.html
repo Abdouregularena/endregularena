@@ -4541,8 +4541,9 @@ const RAGate = (() => {
     const o=document.getElementById('ra-gate-overlay');if(o){o.classList.remove('visible');document.body.style.overflow='';}
   }
   function goStep(n){
-    document.querySelectorAll('.ra-gate-step').forEach((s,i)=>s.classList.toggle('active',i===n-1));
-    document.querySelectorAll('.ra-sdot').forEach((d,i)=>d.classList.toggle('active',i===n-1));
+    const root=document.getElementById('ra-gate-overlay');if(!root)return;
+    root.querySelectorAll('.ra-gate-step').forEach((s,i)=>s.classList.toggle('active',i===n-1));
+    root.querySelectorAll('.ra-sdot').forEach((d,i)=>d.classList.toggle('active',i===n-1));
   }
   function loginMode(){
     state.loginMode=true;
