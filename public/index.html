@@ -176,19 +176,6 @@ nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:0} /* MOD
 .badge-glow{position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--gold);opacity:0;transition:opacity .3s}
 .badge-item:hover .badge-glow{opacity:1}
 
-.pricing-section{padding:90px 40px;background:var(--bg2)}
-.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:44px;background:var(--border)}
-.price-card{background:var(--bg);padding:44px 34px;position:relative;overflow:hidden;transition:background .3s;min-width:0}
-.price-card:hover{background:#0a0f1a}
-.price-card.featured{background:var(--gold-dim);border:1px solid var(--border)}
-.price-card.featured::before{content:'RECOMMANDÉ';position:absolute;top:18px;right:-28px;background:var(--gold);color:var(--bg);font-family:'JetBrains Mono',monospace;font-size:.58rem;font-weight:700;letter-spacing:2px;padding:4px 40px;transform:rotate(45deg)}
-.price-icon{font-size:1.8rem;margin-bottom:18px;display:block}
-.price-tier{font-family:'Bebas Neue',cursive;font-size:1.5rem;letter-spacing:3px;margin-bottom:6px;color:var(--muted)}
-.price-amount{font-family:'Bebas Neue',cursive;font-size:3.2rem;line-height:1;color:var(--gold);letter-spacing:2px;margin-bottom:4px}
-.price-period{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--muted);letter-spacing:2px;margin-bottom:28px}
-.price-features{list-style:none;margin-bottom:32px}
-.price-features li{padding:9px 0;border-bottom:1px solid var(--sep);font-size:.83rem;color:var(--muted);display:flex;align-items:center;gap:9px}
-.price-features li::before{content:'▸';color:var(--gold);font-size:.68rem}
 .quote-section{padding:72px 40px;text-align:center;position:relative;overflow:hidden}
 .quote-section::before{content:'"';position:absolute;top:-40px;left:50%;transform:translateX(-50%);font-family:'Bebas Neue',cursive;font-size:20rem;color:rgba(201,153,26,.04);line-height:1;pointer-events:none}
 .quote-text{font-family:'Montserrat',sans-serif;font-size:clamp(1.1rem,2.2vw,1.6rem);font-weight:600;max-width:760px;margin:0 auto 28px;line-height:1.55;position:relative;z-index:2}
@@ -427,13 +414,6 @@ nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:0} /* MOD
 .ra-nav-user-name{font-family:'Inter',sans-serif;font-size:.72rem;font-weight:600;color:var(--gold);letter-spacing:.5px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media(max-width:480px){.ra-nav-user-name{display:none}.ra-nav-user-chip{padding:4px}}
 
-/* ── PRICING RESPONSIVE ≤ 768px ─────────────────────────── */
-@media(max-width:768px){
-  .pricing-section{padding:60px 16px}
-  .pricing-grid{display:flex;flex-direction:column;align-items:center;gap:12px;background:transparent;overflow-x:hidden;margin-top:28px}
-  .price-card{width:100%;max-width:400px;min-width:unset!important;position:relative!important;left:unset!important;transform:none!important;margin:0 auto;border:1px solid var(--border);border-radius:3px;padding:32px 22px}
-  .price-card.featured{border:2px solid var(--border);order:-1}
-}
 .nav-hamburger{display:none;flex-direction:column;justify-content:space-between;width:28px;height:20px;background:none;border:none;cursor:pointer;padding:0;z-index:201}
 .nav-hamburger span{display:block;height:2px;background:var(--muted);border-radius:2px;transition:all .3s}
 .nav-hamburger.open span:nth-child(1){transform:translateY(9px) rotate(45deg)}
@@ -458,10 +438,7 @@ footer{display:flex;align-items:center;justify-content:space-between;border-top:
   .nav-links{display:none}
   .hero{padding:100px 20px 60px}
   .stat-item{padding:14px 18px}
-  .zones-grid,.modes-grid,.pricing-grid,.badges-grid,.adv-grid,.hof-grid{grid-template-columns:1fr}
-  .pricing-grid{display:flex;flex-direction:column;align-items:stretch;gap:0;background:transparent}
-  .price-card{width:100%;max-width:100%;min-width:unset!important;position:relative!important;left:unset!important;transform:none!important;margin:0 0 2px;border:1px solid var(--border)}
-  .price-card.featured{border:2px solid var(--border)}
+  .zones-grid,.modes-grid,.badges-grid,.adv-grid,.hof-grid{grid-template-columns:1fr}
   .lb-header,.lb-row{grid-template-columns:50px 1fr 90px}
   .lb-header>*:nth-child(n+4),.lb-row>*:nth-child(n+4){display:none}
   .section{padding:60px 18px}
@@ -855,7 +832,6 @@ footer{display:flex;align-items:center;justify-content:space-between;border-top:
   .adv-grid{grid-template-columns:1fr 1fr}
   .hof-grid{grid-template-columns:1fr 1fr}
   .stats-grid{grid-template-columns:repeat(2,1fr)}
-  .pricing-grid{grid-template-columns:1fr}
   #solo-pack-grid{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))!important}
 
   /* Duel live — restituer le layout 2 joueurs */
@@ -1040,9 +1016,6 @@ footer{display:flex;align-items:center;justify-content:space-between;border-top:
   /* Zone cards padding réduit */
   .zone-card{padding:34px}
 
-  /* Price cards */
-  .price-card{padding:34px 22px}
-
   /* Steps band */
   .ra-steps-inner{grid-template-columns:repeat(3,1fr)}
 
@@ -1127,25 +1100,11 @@ input,select,textarea{font-size:max(16px,.84rem)!important}
 /* ── FIN TOURNOI AJOUT styles ────────────────────────────── */
 
 /* ── LOGO AJOUT ──────────────────────────────────────────── */
-#ra-topbar { /* LOGO AJOUT */
-  position: fixed; top: 52px; left: 0; right: 0; z-index: 150; /* MODIFIÉ — top:52px = hauteur exacte du nav (padding:14px×2 + logo:24px), z-index:150 < nav:200 */
-  background: #002B5C; height: 46px; /* MODIFIÉ — 46px, drapeaux nettement plus visibles */
-  display: flex; align-items: center; gap: 12px; /* MODIFIÉ — logo + marquee drapeaux */
-  padding: 0 16px; box-shadow: 0 2px 8px rgba(0,0,0,.4);
-  overflow: hidden; /* MODIFIÉ — empêche tout débordement vertical du logo/texte */
-} /* LOGO AJOUT */
-#ra-topbar-logo { height: 28px; width: auto; object-fit: contain; flex-shrink: 0; } /* MODIFIÉ */
-#ra-flags-marquee { flex: 1; min-width: 0; height: 100%; overflow: hidden; position: relative; display: flex; align-items: center; -webkit-mask: linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent); mask: linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent); } /* DRAPEAUX AJOUT */
-#ra-flags { display: flex; align-items: center; gap: 22px; white-space: nowrap; will-change: transform; animation: ra-flags-scroll 34s linear infinite; } /* DRAPEAUX AJOUT */
-#ra-flags .raf { height: 32px; width: auto; display: block; border-radius: 3px; border: 1px solid rgba(255,255,255,.45); box-shadow: 0 1px 4px rgba(0,0,0,.55); object-fit: cover; overflow:hidden; } /* MODIFIÉ : .raf (svg inline) + overflow */ /* MODIFIÉ — 32px, bordure renforcée */
-@keyframes ra-flags-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } } /* DRAPEAUX AJOUT — boucle continue (liste dupliquée ×2) */
-#ra-topbar-stats { display: none; } /* MODIFIÉ — stats déplacées dans le ticker bas */
-
 #ra-ticker-wrap { /* LOGO AJOUT */
-  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; /* MODIFIÉ — z-index abaissé à 100, sous nav (200) et modales, ne bloque plus les boutons */
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
   background: #002B5C; height: 32px; overflow: hidden;
   border-top: 2px solid #C9991A;
-  pointer-events: none; /* MODIFIÉ — les clics passent à travers la bande basse */
+  pointer-events: none;
 } /* LOGO AJOUT */
 #ra-ticker { /* LOGO AJOUT */
   display: flex; gap: 80px; white-space: nowrap;
@@ -1156,25 +1115,11 @@ input,select,textarea{font-size:max(16px,.84rem)!important}
 #ra-ticker span::before { content: '◆ '; color: #C9991A; } /* LOGO AJOUT */
 @keyframes ra-scroll { from { transform: translateX(100vw); } to { transform: translateX(-100%); } } /* LOGO AJOUT */
 
-body { padding-top: 98px !important; padding-bottom: 32px !important; } /* MODIFIÉ — 52px nav + 46px topbar = 98px */
+body { padding-top: 52px !important; padding-bottom: 32px !important; } /* hauteur du nav */
 
-@media (orientation: landscape) and (max-height: 500px) { /* LOGO AJOUT */
-  #ra-topbar { height: 40px; top: 40px; } /* MODIFIÉ — landscape */
-  #ra-topbar-logo { height: 20px; } /* MODIFIÉ */
-  body { padding-top: 80px !important; } /* MODIFIÉ — 40px nav + 40px topbar */
-  #ra-flags .raf { height: 26px; } /* MODIFIÉ */ /* MODIFIÉ — landscape */
-} /* LOGO AJOUT */
-@media (max-width: 768px) { /* DRAPEAUX AJOUT — responsive tablette/mobile */
-  #ra-topbar { gap: 8px; padding: 0 10px; }
-  #ra-flags { gap: 12px; animation-duration: 26s; }
-  #ra-flags .raf { height: 28px; } /* MODIFIÉ */
-} /* DRAPEAUX AJOUT */
-@media (max-width: 480px) { /* DRAPEAUX AJOUT — responsive petit mobile */
-  #ra-topbar-logo { height: 20px; }
-  #ra-flags { gap: 10px; }
-  #ra-flags .raf { height: 24px; } /* MODIFIÉ */
+@media (max-width: 480px) {
   #ra-ticker { font-size: 11px; gap: 50px; }
-} /* DRAPEAUX AJOUT */
+}
 /* ── FIN LOGO AJOUT ──────────────────────────────────────── */
 
 /* ── ORIENTATION AJOUT — gestion landscape/portrait mobile ── */
@@ -1636,8 +1581,8 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
 #solo-pack-grid [onclick^="startSoloPack"]>div:last-child{color:#c3d2e6 !important;-webkit-text-fill-color:#c3d2e6 !important}
 
 /* ===== CARTES DE PRIX : CLAIRES ===== */
-.price-card,.pack-btn,.my-stat-card{background:var(--aca-blanc) !important;border:1px solid var(--aca-ligne) !important;border-radius:14px !important;box-shadow:var(--aca-ombre) !important;color:var(--aca-txt) !important}
-.price-card.featured,.featured{border:2px solid var(--aca-or) !important}
+.pack-btn,.my-stat-card{background:var(--aca-blanc) !important;border:1px solid var(--aca-ligne) !important;border-radius:14px !important;box-shadow:var(--aca-ombre) !important;color:var(--aca-txt) !important}
+.featured{border:2px solid var(--aca-or) !important}
 
 /* ===== BANDE "COMMENT DÉMARRER" ===== */
 .ra-steps-band,.ra-steps-band *{color:var(--aca-clair) !important;-webkit-text-fill-color:var(--aca-clair) !important}
@@ -1677,14 +1622,6 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
 </head>
 <body>
 
-<!-- LOGO AJOUT — barre supérieure fixe -->
-<div id="ra-topbar"><!-- LOGO AJOUT -->
-  <img src="/logo.png" alt="REGUL ARENA" id="ra-topbar-logo"><!-- LOGO AJOUT -->
-  <div id="ra-flags-marquee" aria-label="Drapeaux des 14 pays UEMOA & CEMAC"><!-- DRAPEAUX AJOUT -->
-    <div id="ra-flags"><!-- DRAPEAUX AJOUT — liste dupliquée ×2 pour boucle continue --><!-- MODIFIÉ : drapeaux passés en SVG inline (CDN flagcdn supprimé : CSP/réseau) --><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sénégal"><g fill-rule="evenodd" stroke-width="1pt"> <path fill="#0b7226" d="M0 0h213.3v480H0z"/> <path fill="#ff0" d="M213.3 0h213.3v480H213.3z"/> <path fill="#bc0000" d="M426.6 0H640v480H426.6z"/> </g> <path fill="#0b7226" d="M342 218.8h71.8l-56.6 43.6 20.7 69.3-56.6-43.6-56.6 41.6 20.7-67.3-56.6-43.6h69.8l22.7-71.3z"/></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Côte d'Ivoire"><g fill-rule="evenodd"> <path fill="#00cd00" d="M426.8 0H640v480H426.8z"/> <path fill="#ff9a00" d="M0 0h212.9v480H0z"/> <path fill="#fff" d="M212.9 0h214v480h-214z"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Burkina Faso"><g fill-rule="evenodd"> <path fill="#de0000" d="M640 479.6H.4V0H640z"/> <path fill="#35a100" d="M639.6 480H0V240.2h639.6z"/> <path fill="#fff300" d="m254.6 276.2-106-72.4h131L320 86.6 360.4 204l131-.1-106 72.4 40.5 117.3-106-72.6L214 393.4"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mali"><g fill-rule="evenodd"> <path fill="red" d="M425.8 0H640v480H425.7z"/> <path fill="#009a00" d="M0 0h212.9v480H0z"/> <path fill="#ff0" d="M212.9 0h214v480h-214z"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bénin"><defs> <clipPath id="f5_bj-a"> <path fill="gray" d="M67.6-154h666v666h-666z"/> </clipPath> </defs> <g clip-path="url(#f5_bj-a)" transform="matrix(.961 0 0 .7207 -65 111)"> <g fill-rule="evenodd" stroke-width="1pt"> <path fill="#319400" d="M0-154h333v666H0z"/> <path fill="#ffd600" d="M333-154h666v333H333z"/> <path fill="#de2110" d="M333 179h666v333H333z"/> </g> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Niger"><path fill="#0db02b" d="M0 0h640v480H0z"/> <path fill="#fff" d="M0 0h640v320H0z"/> <path fill="#e05206" d="M0 0h640v160H0z"/> <circle cx="320" cy="240" r="68" fill="#e05206"/></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Togo"><defs> <clipPath id="f7_tg-a"> <path fill-opacity=".7" d="M0 0h682.7v512H0z"/> </clipPath> </defs> <g fill-rule="evenodd" clip-path="url(#f7_tg-a)" transform="scale(.9375)"> <path fill="#ffe300" d="M0 0h767.6v512H0z"/> <path fill="#118600" d="M0 208.1h767.6V311H0zM0 .2h767.6v102.9H0z"/> <path fill="#d80000" d="M0 .3h306.5v310.6H0z"/> <path fill="#fff" d="M134.4 128.4c0-.8 18.9-53 18.9-53l17 52.2s57.4 1.7 57.4.8-45.3 34.3-45.3 34.3 21.4 60 20.5 58.2-49.6-36-49.6-36-49.7 34.3-48.8 34.3c.8 0 18.8-56.5 18.8-56.5l-44.5-33.4z"/> <path fill="#118600" d="M0 409.2h767.6V512H0z"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" aria-label="Guinée-Bissau"><path fill="#ce1126" d="M0 0h220v480H0z"/> <path fill="#fcd116" d="M220 0h420v240H220z"/> <path fill="#009e49" d="M220 240h420v240H220z"/> <g id="f8_gw-b" transform="matrix(80 0 0 80 110 240)"> <path id="f8_gw-a" fill="#000001" d="M0-1v1h.5" transform="rotate(18 0 -1)"/> <use xlink:href="#f8_gw-a" width="100%" height="100%" transform="scale(-1 1)"/> </g> <use xlink:href="#f8_gw-b" width="100%" height="100%" transform="rotate(72 110 240)"/> <use xlink:href="#f8_gw-b" width="100%" height="100%" transform="rotate(144 110 240)"/> <use xlink:href="#f8_gw-b" width="100%" height="100%" transform="rotate(-144 110 240)"/> <use xlink:href="#f8_gw-b" width="100%" height="100%" transform="rotate(-72 110 240)"/></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" aria-label="Cameroun"><path fill="#007a5e" d="M0 0h213.3v480H0z"/> <path fill="#ce1126" d="M213.3 0h213.4v480H213.3z"/> <path fill="#fcd116" d="M426.7 0H640v480H426.7z"/> <g fill="#fcd116" transform="translate(320 240)scale(7.1111)"> <g id="f9_cm-b"> <path id="f9_cm-a" d="M0-8-2.5-.4 1.3.9z"/> <use xlink:href="#f9_cm-a" width="100%" height="100%" transform="scale(-1 1)"/> </g> <use xlink:href="#f9_cm-b" width="100%" height="100%" transform="rotate(72)"/> <use xlink:href="#f9_cm-b" width="100%" height="100%" transform="rotate(144)"/> <use xlink:href="#f9_cm-b" width="100%" height="100%" transform="rotate(-144)"/> <use xlink:href="#f9_cm-b" width="100%" height="100%" transform="rotate(-72)"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Centrafrique"><defs> <clipPath id="f10_cf-a"> <path fill-opacity=".7" d="M-12.4 32h640v480h-640z"/> </clipPath> </defs> <g fill-rule="evenodd" clip-path="url(#f10_cf-a)" transform="translate(12.4 -32)"> <path fill="#00f" d="M-52 32h719.3v119H-52z"/> <path fill="#ff0" d="M-52 391.6h719.3V512H-52z"/> <path fill="#009a00" d="M-52 271.3h719.3v120.3H-52z"/> <path fill="#fff" d="M-52 151h719.3v120.3H-52z"/> <path fill="red" d="M247.7 32.5h119.9V512H247.7z"/> <path fill="#ff0" d="m99.3 137.7-31.5-21.8-31.3 22L47.4 101 16.9 78l38.2-1 12.5-36.3L80.3 77l38.1.7L88.2 101"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Congo"><defs> <clipPath id="f11_cg-a"> <path fill-opacity=".7" d="M-79.5 32h640v480h-640z"/> </clipPath> </defs> <g fill-rule="evenodd" stroke-width="1pt" clip-path="url(#f11_cg-a)" transform="translate(79.5 -32)"> <path fill="#ff0" d="M-119.5 32h720v480h-720z"/> <path fill="#00ca00" d="M-119.5 32v480l480-480z"/> <path fill="red" d="M120.5 512h480V32z"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Gabon"><g fill-rule="evenodd"> <path fill="#ffe700" d="M640 480H0V0h640z"/> <path fill="#36a100" d="M640 160H0V0h640z"/> <path fill="#006dbc" d="M640 480H0V320h640z"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Guinée équatoriale"><path fill="#e32118" d="M0 0h640v480H0z"/> <path fill="#fff" d="M0 0h640v320H0z"/> <path fill="#3e9a00" d="M0 0h640v160H0z"/> <path fill="#0073ce" d="M0 0v480l180-240z"/> <g stroke="#000"> <path fill="#fff" d="M281.6 191.8h76.6V272c0 27-35.2 6.2-38.2 20.6-5.2-14.8-38.2 6.6-38.2-22.2z"/> <path fill="#73452b" stroke-width=".2" d="M325.4 279.8s-1 1-2.8.2-2-51.4-2-51.4c4-4.4 7.2-5.8 7.2-5.8l2.4 2c-9 4.6-8.2 11.2-7.4 22.6.2 4.2.2 9.6 1.2 14.8 1.4 6.6 4.2 12.2 4.4 16.4.2 2.6-3 1.2-3 1.2z"/> <path fill="#73452b" stroke-width=".2" d="M319.2 221.6h3.6c-3 29-.4 46.2-.4 54.6 0 2.8 1.6 3.8 1.4 3.8-3.6 4-5.4-.2-5.4-.2z"/> <path fill="#a36629" stroke-width=".2" d="M313.6 279.8c-3.4 1.6-3.8-1.6-3.6-2 7.4-15 10.6-48 3.8-51.6l.4-3.2c2.6.8 5 4.2 5 4.2 1 37 0 52.2-.6 52.8-3.6 3.8-5-.6-5.2-1"/> <path fill="none" stroke-width=".2" d="M313.4 279.2c-.6-3.2 5.2-11.4 4.8-20m5 7q2.8 7.4 2.2 13.6"/> <path fill="#009a3b" stroke-width=".2" d="M331 208c1.2-1.4 1.2-1.4 3.4-1.4.4-3 5.4-3 5.8.8 4-.8 4.8 1.6 3.2 4 3.8-1 7.2 0 6.2 4.4 6.8 1.8 4.2 6.6 1.2 7.6-.4 3-3.2 4-7 2.8-4.8 3.4-7.6 2.2-9.8-1.2-5.4.8-5.8-.4-8.2-3.4-4.2 1.8-5 1.8-8.6-.4-.2 2.8-1.2 2-3 1.8q.4 5.6-4.4 4c2.4 5-3.8 7.2-6.8 3-2.8.2-3-.6-4.4-1.6-1.2 4-5.6 3.4-6.4 1.2-5.6-.8-5-3.8-.4-4 .4-3.2 3.2-2.6 5-2.2.2-2 1.4-1.6 2.4-1.2q-1-2 1.6-2.6c-2.6-3.4-1-4.6 1.6-5.8-1.4-3.2 1-3 2.8-3.2-.2-3.4.8-4 4.4-4.4-.4-1.2.2-2.2 2.2-2.2-1.2-3.4.4-4.2 4-3.6.6-5 11.2-2.6 10.4 4.2 3 .4 4 1 4.8 3.4z"/> <path fill="none" stroke-width=".2" d="M309.6 206.2c.8.4 1.8 0 2 2.2 1.6-2.8 3.6-1.2 3.6 2m11-5.8c-.8 1.2-3.8 1.2-3.4 4.4-1-1.4-3-1.8-3.8-.4m12-.6c0 .8-.2 3.2-1 4.4m13.4-1c.2.2-2.8 0-4.2 1m11.6 11c-.8-.4-2.4-1.4-3.6.2 0-.8 0-3-2.2-3m-1.2 5.6c0-2-.4-2.6-.8-3.2m-5.8.4c-1.6-1.2-3.2.6-3.2 1.6m-8.4-3.4c0-.8-.6-2.4.8-3M302.8 230c.4-2 1.8-2 1.6-3-.2-1.6-2-3-4.2-.8m4.2.8q2-.5 2.8.4m-6.2-7.8c.8-.8 2.8-.6 4 0m0-4.8c1 0 2.8-.4 3.4 1.4 2.2-3.4 3.8-3 4.2-2.2m4-.4c1.6-.6 4.4 1 6 3.8.8-2.2 2-1.8 3.2-2m7.6 2c2.6-1.2 4.2 1.2 5 2.2 1.2-1.6 2.2-1.6 3.4-1.6m-32.6 4.2c.6-1 2-1.2 3-.6-.2-1.8 1-2.6 1.8-2.2"/> <path fill="gold" stroke-width=".7" d="m317.4 180.5-4.4.2-2.2 4-2.4-3.8-4.4.2 2-4-2.4-3.7 4.6-.2 2-4 2.4 3.8 4.4-.2-2 4zm-18.8 1.5-4.4 1-1.2 4.3-3.2-3.2-4.2 1 1.2-4.2-3-3.2 4.2-1.1 1.2-4.3 3.2 3.2 4.4-1-1.4 4.3zm-18.2 3.7-4 2-.2 4.4-3.8-2.4-4 2 .4-4.5-3.8-2.4 4-2 .4-4.5 3.6 2.5 4-2-.2 4.4zm42.8-5.2 4.4.2 2 4 2.4-3.8 4.4.2-2-4 2.4-3.7-4.4-.2-2.2-4-2.4 3.8-4.4-.2 2 4zM342 182l4.2 1 1.2 4.3 3.2-3.2 4.2 1-1.2-4.2 3.2-3.2-4.4-1.1-1.2-4.3-3.2 3.2-4.2-1 1.2 4.3zm18 3.7 4 2 .2 4.4 3.8-2.4 4 2-.2-4.5 3.6-2.4-4-2-.2-4.5-3.8 2.5-4-2 .4 4.4z"/> <g fill="#fff" stroke-width=".7"> <path d="m365.4 270.4 5 7.2 4.6-6.8-3.2-5.8zm-31.8 21 .4 7.2s2 0 3.8-.6c1.6-.6 3-1.8 3-1.8l-.2-3.8zm-26.8 0-.4 7s-1.8 0-3.6-.4c-1.6-.4-3-1.4-3-1.4l-2-4.8zm-32.2-21-5.2 7.2-5.6-9.2 4.2-4.4z"/> <path d="M299.6 305.8c0 6.8 41.2 6.8 41.2 0v-9.6c0 5-41.2 4-41.2 0z"/> <path d="M262.8 283.6c3.6 18.4 36.8 18.8 36.8 18.8v-6.2c-.8-2.4.6-3.2 6-4 2.2-.2 1.2-3.4 1.2-3.4s-14.4 2.6-24.6-1.4c-13.8-5.6-15.8-16.4-15.8-16.4s-1 8.4-3.6 12.6zm114.6 0c-3.4 18.4-36.6 18.8-36.6 18.8v-6.2c.6-2.4-.8-3.2-6.2-4-2.2-.2-1-3.4-1-3.4s14.4 2.6 24.6-1.4c13.6-5.6 15.2-16.4 15.2-16.4s1.4 8.4 4 12.6z"/> <path d="M265.4 276.6c-9.2-5-2-10.2-1.2-25 1.4 9 11.6 12.8 10.4 18.6-4.2.2-6.2-6.2-8.2.8zm109.4 0c9.2-5.2 1.6-10.2.8-25-1.4 9-11.4 12.8-10.2 18.6 4 .2 6-6.2 8 .8l1.4 5.4z"/> </g> <path stroke="none" d="m271 283.4 1 .8-2.2 2.4q-1.4 1.4-.5 2.2 1 1 2-.4l2.5-2.6.8.8-2.4 2.8c-1.3 1.5-2.5 1.2-3.6.2-.8-.8-1.4-2 0-3.5zm4 3.4 1 .6-.2 4.8 2.2-3.4 1 .6-3.2 5.2-1.2-.6.2-4.8-2.2 3.4-1-.6zm1.8 8.4 2.8-5.6 1 .6-2.6 5.4zm4.4-4.8-2.2 5.8 2.2.8q2.8.9 3.6-1.9 1.2-2.6-1.6-3.9zm.8 1.4c2 .7 2.2 1.5 1.6 3-.6 1.3-1 1.8-3 .8zm5.8.8-3.6 5.4 1.4.4.8-1.4 2.4.6.2 1.4 1.4.2-1.4-6.4zm.4 1.4.4 2.4-1.6-.2zm3-.9-.2 6.2h2.3c2.2.1 2.8-1 2.9-3 0-1.8-.7-3-2.9-3zm1.2 1c2.2.1 2.5.8 2.5 2.3-.1 1.5-.4 2.1-2.6 1.8v-4zm19.8 7.7v6.4h1.4v-2.4s1.2 0 2.2-.2q1.2-.2 1.3-2 0-1.8-1.9-1.8zm1.4 1h1.4c1.1 0 1 1.8 0 1.8h-1.4zm5.8-1-2.6 6.4h1.4l.6-1.6h2.6l.6 1.6h1.4l-2.6-6.4zm.6 1.4 1 2.4h-1.8zm3.4 3.8 3.4-4.2h-3v-1h4.8v1L325 307h3.6v1.2h-5.2zm20.2-12.4 1.2-.2.6 3.6q.2 2-1.3 2.5c-1 .4-2.4 0-2.5-1.7l1-.2q.4 1.3 1 1 .8-.4.6-1.4zm2-.4 1.1-.2.6 3q.2 1.9 1.5 1.7t.9-2l-.7-3.1 1.2-.2.8 3.3c.4 2-.6 2.7-2 3-1.1.2-2.4 0-2.8-2zm6.2 2.8 1-.4c.5.9 1.2.8 1.8.6q1.2-.8.5-1.4c-.6-.3-2 .2-2.7 0q-1.4-.6-1.2-1.7.2-1.4 1.7-1.7 1.6-.6 2.7 1l-1.2.4q-.7-.9-1.4-.4c-.4.2-1 .5-.6 1 .2.5 1.7.2 2.5.2s1.4.6 1.5 1.3q.4 1.6-1.5 2.2c-1.5.6-2.9 0-3.1-1.1m5.4-5-1.6.8-.4-1 4.4-1.8.4.8-1.6.8 1.8 4.4-1 .6zm2.6-2.2 1-.6 2.8 5.2-1 .6zm6.8.4 1.2-.4a2.4 2.4 0 0 1-2.4 3.3c-3 0-3.4-3.4-2.9-4.5.8-1.9 3-1.8 4-.8l-1 .8c-.6-.8-2-.3-2 .4a3 3 0 0 0 1.4 3c1 .4 2.4-.8 1.7-1.8m-.6-4.2 1-.8 3.6 4.8-1 .8zm3.8-3-1 .8 2.2 6 1-1-.6-1.2 1.8-1.6 1.2.6 1-.8zm.4 1.4 2 1-1.2 1.2z"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tchad"><g fill-rule="evenodd"> <path fill="#002664" d="M0 0h214v480H0z"/> <path fill="#c60c30" d="M426 0h214v480H426z"/> <path fill="#fecb00" d="M214 0h212v480H214z"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g fill-rule="evenodd" stroke-width="1pt"> <path fill="#0b7226" d="M0 0h213.3v480H0z"/> <path fill="#ff0" d="M213.3 0h213.3v480H213.3z"/> <path fill="#bc0000" d="M426.6 0H640v480H426.6z"/> </g> <path fill="#0b7226" d="M342 218.8h71.8l-56.6 43.6 20.7 69.3-56.6-43.6-56.6 41.6 20.7-67.3-56.6-43.6h69.8l22.7-71.3z"/></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g fill-rule="evenodd"> <path fill="#00cd00" d="M426.8 0H640v480H426.8z"/> <path fill="#ff9a00" d="M0 0h212.9v480H0z"/> <path fill="#fff" d="M212.9 0h214v480h-214z"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g fill-rule="evenodd"> <path fill="#de0000" d="M640 479.6H.4V0H640z"/> <path fill="#35a100" d="M639.6 480H0V240.2h639.6z"/> <path fill="#fff300" d="m254.6 276.2-106-72.4h131L320 86.6 360.4 204l131-.1-106 72.4 40.5 117.3-106-72.6L214 393.4"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g fill-rule="evenodd"> <path fill="red" d="M425.8 0H640v480H425.7z"/> <path fill="#009a00" d="M0 0h212.9v480H0z"/> <path fill="#ff0" d="M212.9 0h214v480h-214z"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs> <clipPath id="f19_bj-a"> <path fill="gray" d="M67.6-154h666v666h-666z"/> </clipPath> </defs> <g clip-path="url(#f19_bj-a)" transform="matrix(.961 0 0 .7207 -65 111)"> <g fill-rule="evenodd" stroke-width="1pt"> <path fill="#319400" d="M0-154h333v666H0z"/> <path fill="#ffd600" d="M333-154h666v333H333z"/> <path fill="#de2110" d="M333 179h666v333H333z"/> </g> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="#0db02b" d="M0 0h640v480H0z"/> <path fill="#fff" d="M0 0h640v320H0z"/> <path fill="#e05206" d="M0 0h640v160H0z"/> <circle cx="320" cy="240" r="68" fill="#e05206"/></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs> <clipPath id="f21_tg-a"> <path fill-opacity=".7" d="M0 0h682.7v512H0z"/> </clipPath> </defs> <g fill-rule="evenodd" clip-path="url(#f21_tg-a)" transform="scale(.9375)"> <path fill="#ffe300" d="M0 0h767.6v512H0z"/> <path fill="#118600" d="M0 208.1h767.6V311H0zM0 .2h767.6v102.9H0z"/> <path fill="#d80000" d="M0 .3h306.5v310.6H0z"/> <path fill="#fff" d="M134.4 128.4c0-.8 18.9-53 18.9-53l17 52.2s57.4 1.7 57.4.8-45.3 34.3-45.3 34.3 21.4 60 20.5 58.2-49.6-36-49.6-36-49.7 34.3-48.8 34.3c.8 0 18.8-56.5 18.8-56.5l-44.5-33.4z"/> <path fill="#118600" d="M0 409.2h767.6V512H0z"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true"><path fill="#ce1126" d="M0 0h220v480H0z"/> <path fill="#fcd116" d="M220 0h420v240H220z"/> <path fill="#009e49" d="M220 240h420v240H220z"/> <g id="f22_gw-b" transform="matrix(80 0 0 80 110 240)"> <path id="f22_gw-a" fill="#000001" d="M0-1v1h.5" transform="rotate(18 0 -1)"/> <use xlink:href="#f22_gw-a" width="100%" height="100%" transform="scale(-1 1)"/> </g> <use xlink:href="#f22_gw-b" width="100%" height="100%" transform="rotate(72 110 240)"/> <use xlink:href="#f22_gw-b" width="100%" height="100%" transform="rotate(144 110 240)"/> <use xlink:href="#f22_gw-b" width="100%" height="100%" transform="rotate(-144 110 240)"/> <use xlink:href="#f22_gw-b" width="100%" height="100%" transform="rotate(-72 110 240)"/></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true"><path fill="#007a5e" d="M0 0h213.3v480H0z"/> <path fill="#ce1126" d="M213.3 0h213.4v480H213.3z"/> <path fill="#fcd116" d="M426.7 0H640v480H426.7z"/> <g fill="#fcd116" transform="translate(320 240)scale(7.1111)"> <g id="f23_cm-b"> <path id="f23_cm-a" d="M0-8-2.5-.4 1.3.9z"/> <use xlink:href="#f23_cm-a" width="100%" height="100%" transform="scale(-1 1)"/> </g> <use xlink:href="#f23_cm-b" width="100%" height="100%" transform="rotate(72)"/> <use xlink:href="#f23_cm-b" width="100%" height="100%" transform="rotate(144)"/> <use xlink:href="#f23_cm-b" width="100%" height="100%" transform="rotate(-144)"/> <use xlink:href="#f23_cm-b" width="100%" height="100%" transform="rotate(-72)"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs> <clipPath id="f24_cf-a"> <path fill-opacity=".7" d="M-12.4 32h640v480h-640z"/> </clipPath> </defs> <g fill-rule="evenodd" clip-path="url(#f24_cf-a)" transform="translate(12.4 -32)"> <path fill="#00f" d="M-52 32h719.3v119H-52z"/> <path fill="#ff0" d="M-52 391.6h719.3V512H-52z"/> <path fill="#009a00" d="M-52 271.3h719.3v120.3H-52z"/> <path fill="#fff" d="M-52 151h719.3v120.3H-52z"/> <path fill="red" d="M247.7 32.5h119.9V512H247.7z"/> <path fill="#ff0" d="m99.3 137.7-31.5-21.8-31.3 22L47.4 101 16.9 78l38.2-1 12.5-36.3L80.3 77l38.1.7L88.2 101"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs> <clipPath id="f25_cg-a"> <path fill-opacity=".7" d="M-79.5 32h640v480h-640z"/> </clipPath> </defs> <g fill-rule="evenodd" stroke-width="1pt" clip-path="url(#f25_cg-a)" transform="translate(79.5 -32)"> <path fill="#ff0" d="M-119.5 32h720v480h-720z"/> <path fill="#00ca00" d="M-119.5 32v480l480-480z"/> <path fill="red" d="M120.5 512h480V32z"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g fill-rule="evenodd"> <path fill="#ffe700" d="M640 480H0V0h640z"/> <path fill="#36a100" d="M640 160H0V0h640z"/> <path fill="#006dbc" d="M640 480H0V320h640z"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="#e32118" d="M0 0h640v480H0z"/> <path fill="#fff" d="M0 0h640v320H0z"/> <path fill="#3e9a00" d="M0 0h640v160H0z"/> <path fill="#0073ce" d="M0 0v480l180-240z"/> <g stroke="#000"> <path fill="#fff" d="M281.6 191.8h76.6V272c0 27-35.2 6.2-38.2 20.6-5.2-14.8-38.2 6.6-38.2-22.2z"/> <path fill="#73452b" stroke-width=".2" d="M325.4 279.8s-1 1-2.8.2-2-51.4-2-51.4c4-4.4 7.2-5.8 7.2-5.8l2.4 2c-9 4.6-8.2 11.2-7.4 22.6.2 4.2.2 9.6 1.2 14.8 1.4 6.6 4.2 12.2 4.4 16.4.2 2.6-3 1.2-3 1.2z"/> <path fill="#73452b" stroke-width=".2" d="M319.2 221.6h3.6c-3 29-.4 46.2-.4 54.6 0 2.8 1.6 3.8 1.4 3.8-3.6 4-5.4-.2-5.4-.2z"/> <path fill="#a36629" stroke-width=".2" d="M313.6 279.8c-3.4 1.6-3.8-1.6-3.6-2 7.4-15 10.6-48 3.8-51.6l.4-3.2c2.6.8 5 4.2 5 4.2 1 37 0 52.2-.6 52.8-3.6 3.8-5-.6-5.2-1"/> <path fill="none" stroke-width=".2" d="M313.4 279.2c-.6-3.2 5.2-11.4 4.8-20m5 7q2.8 7.4 2.2 13.6"/> <path fill="#009a3b" stroke-width=".2" d="M331 208c1.2-1.4 1.2-1.4 3.4-1.4.4-3 5.4-3 5.8.8 4-.8 4.8 1.6 3.2 4 3.8-1 7.2 0 6.2 4.4 6.8 1.8 4.2 6.6 1.2 7.6-.4 3-3.2 4-7 2.8-4.8 3.4-7.6 2.2-9.8-1.2-5.4.8-5.8-.4-8.2-3.4-4.2 1.8-5 1.8-8.6-.4-.2 2.8-1.2 2-3 1.8q.4 5.6-4.4 4c2.4 5-3.8 7.2-6.8 3-2.8.2-3-.6-4.4-1.6-1.2 4-5.6 3.4-6.4 1.2-5.6-.8-5-3.8-.4-4 .4-3.2 3.2-2.6 5-2.2.2-2 1.4-1.6 2.4-1.2q-1-2 1.6-2.6c-2.6-3.4-1-4.6 1.6-5.8-1.4-3.2 1-3 2.8-3.2-.2-3.4.8-4 4.4-4.4-.4-1.2.2-2.2 2.2-2.2-1.2-3.4.4-4.2 4-3.6.6-5 11.2-2.6 10.4 4.2 3 .4 4 1 4.8 3.4z"/> <path fill="none" stroke-width=".2" d="M309.6 206.2c.8.4 1.8 0 2 2.2 1.6-2.8 3.6-1.2 3.6 2m11-5.8c-.8 1.2-3.8 1.2-3.4 4.4-1-1.4-3-1.8-3.8-.4m12-.6c0 .8-.2 3.2-1 4.4m13.4-1c.2.2-2.8 0-4.2 1m11.6 11c-.8-.4-2.4-1.4-3.6.2 0-.8 0-3-2.2-3m-1.2 5.6c0-2-.4-2.6-.8-3.2m-5.8.4c-1.6-1.2-3.2.6-3.2 1.6m-8.4-3.4c0-.8-.6-2.4.8-3M302.8 230c.4-2 1.8-2 1.6-3-.2-1.6-2-3-4.2-.8m4.2.8q2-.5 2.8.4m-6.2-7.8c.8-.8 2.8-.6 4 0m0-4.8c1 0 2.8-.4 3.4 1.4 2.2-3.4 3.8-3 4.2-2.2m4-.4c1.6-.6 4.4 1 6 3.8.8-2.2 2-1.8 3.2-2m7.6 2c2.6-1.2 4.2 1.2 5 2.2 1.2-1.6 2.2-1.6 3.4-1.6m-32.6 4.2c.6-1 2-1.2 3-.6-.2-1.8 1-2.6 1.8-2.2"/> <path fill="gold" stroke-width=".7" d="m317.4 180.5-4.4.2-2.2 4-2.4-3.8-4.4.2 2-4-2.4-3.7 4.6-.2 2-4 2.4 3.8 4.4-.2-2 4zm-18.8 1.5-4.4 1-1.2 4.3-3.2-3.2-4.2 1 1.2-4.2-3-3.2 4.2-1.1 1.2-4.3 3.2 3.2 4.4-1-1.4 4.3zm-18.2 3.7-4 2-.2 4.4-3.8-2.4-4 2 .4-4.5-3.8-2.4 4-2 .4-4.5 3.6 2.5 4-2-.2 4.4zm42.8-5.2 4.4.2 2 4 2.4-3.8 4.4.2-2-4 2.4-3.7-4.4-.2-2.2-4-2.4 3.8-4.4-.2 2 4zM342 182l4.2 1 1.2 4.3 3.2-3.2 4.2 1-1.2-4.2 3.2-3.2-4.4-1.1-1.2-4.3-3.2 3.2-4.2-1 1.2 4.3zm18 3.7 4 2 .2 4.4 3.8-2.4 4 2-.2-4.5 3.6-2.4-4-2-.2-4.5-3.8 2.5-4-2 .4 4.4z"/> <g fill="#fff" stroke-width=".7"> <path d="m365.4 270.4 5 7.2 4.6-6.8-3.2-5.8zm-31.8 21 .4 7.2s2 0 3.8-.6c1.6-.6 3-1.8 3-1.8l-.2-3.8zm-26.8 0-.4 7s-1.8 0-3.6-.4c-1.6-.4-3-1.4-3-1.4l-2-4.8zm-32.2-21-5.2 7.2-5.6-9.2 4.2-4.4z"/> <path d="M299.6 305.8c0 6.8 41.2 6.8 41.2 0v-9.6c0 5-41.2 4-41.2 0z"/> <path d="M262.8 283.6c3.6 18.4 36.8 18.8 36.8 18.8v-6.2c-.8-2.4.6-3.2 6-4 2.2-.2 1.2-3.4 1.2-3.4s-14.4 2.6-24.6-1.4c-13.8-5.6-15.8-16.4-15.8-16.4s-1 8.4-3.6 12.6zm114.6 0c-3.4 18.4-36.6 18.8-36.6 18.8v-6.2c.6-2.4-.8-3.2-6.2-4-2.2-.2-1-3.4-1-3.4s14.4 2.6 24.6-1.4c13.6-5.6 15.2-16.4 15.2-16.4s1.4 8.4 4 12.6z"/> <path d="M265.4 276.6c-9.2-5-2-10.2-1.2-25 1.4 9 11.6 12.8 10.4 18.6-4.2.2-6.2-6.2-8.2.8zm109.4 0c9.2-5.2 1.6-10.2.8-25-1.4 9-11.4 12.8-10.2 18.6 4 .2 6-6.2 8 .8l1.4 5.4z"/> </g> <path stroke="none" d="m271 283.4 1 .8-2.2 2.4q-1.4 1.4-.5 2.2 1 1 2-.4l2.5-2.6.8.8-2.4 2.8c-1.3 1.5-2.5 1.2-3.6.2-.8-.8-1.4-2 0-3.5zm4 3.4 1 .6-.2 4.8 2.2-3.4 1 .6-3.2 5.2-1.2-.6.2-4.8-2.2 3.4-1-.6zm1.8 8.4 2.8-5.6 1 .6-2.6 5.4zm4.4-4.8-2.2 5.8 2.2.8q2.8.9 3.6-1.9 1.2-2.6-1.6-3.9zm.8 1.4c2 .7 2.2 1.5 1.6 3-.6 1.3-1 1.8-3 .8zm5.8.8-3.6 5.4 1.4.4.8-1.4 2.4.6.2 1.4 1.4.2-1.4-6.4zm.4 1.4.4 2.4-1.6-.2zm3-.9-.2 6.2h2.3c2.2.1 2.8-1 2.9-3 0-1.8-.7-3-2.9-3zm1.2 1c2.2.1 2.5.8 2.5 2.3-.1 1.5-.4 2.1-2.6 1.8v-4zm19.8 7.7v6.4h1.4v-2.4s1.2 0 2.2-.2q1.2-.2 1.3-2 0-1.8-1.9-1.8zm1.4 1h1.4c1.1 0 1 1.8 0 1.8h-1.4zm5.8-1-2.6 6.4h1.4l.6-1.6h2.6l.6 1.6h1.4l-2.6-6.4zm.6 1.4 1 2.4h-1.8zm3.4 3.8 3.4-4.2h-3v-1h4.8v1L325 307h3.6v1.2h-5.2zm20.2-12.4 1.2-.2.6 3.6q.2 2-1.3 2.5c-1 .4-2.4 0-2.5-1.7l1-.2q.4 1.3 1 1 .8-.4.6-1.4zm2-.4 1.1-.2.6 3q.2 1.9 1.5 1.7t.9-2l-.7-3.1 1.2-.2.8 3.3c.4 2-.6 2.7-2 3-1.1.2-2.4 0-2.8-2zm6.2 2.8 1-.4c.5.9 1.2.8 1.8.6q1.2-.8.5-1.4c-.6-.3-2 .2-2.7 0q-1.4-.6-1.2-1.7.2-1.4 1.7-1.7 1.6-.6 2.7 1l-1.2.4q-.7-.9-1.4-.4c-.4.2-1 .5-.6 1 .2.5 1.7.2 2.5.2s1.4.6 1.5 1.3q.4 1.6-1.5 2.2c-1.5.6-2.9 0-3.1-1.1m5.4-5-1.6.8-.4-1 4.4-1.8.4.8-1.6.8 1.8 4.4-1 .6zm2.6-2.2 1-.6 2.8 5.2-1 .6zm6.8.4 1.2-.4a2.4 2.4 0 0 1-2.4 3.3c-3 0-3.4-3.4-2.9-4.5.8-1.9 3-1.8 4-.8l-1 .8c-.6-.8-2-.3-2 .4a3 3 0 0 0 1.4 3c1 .4 2.4-.8 1.7-1.8m-.6-4.2 1-.8 3.6 4.8-1 .8zm3.8-3-1 .8 2.2 6 1-1-.6-1.2 1.8-1.6 1.2.6 1-.8zm.4 1.4 2 1-1.2 1.2z"/> </g></svg><svg class="raf" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g fill-rule="evenodd"> <path fill="#002664" d="M0 0h214v480H0z"/> <path fill="#c60c30" d="M426 0h214v480H426z"/> <path fill="#fecb00" d="M214 0h212v480H214z"/> </g></svg>
-    </div><!-- DRAPEAUX AJOUT -->
-  </div><!-- DRAPEAUX AJOUT -->
-</div><!-- LOGO AJOUT -->
 
 <!-- LOGO AJOUT — bandeau défilant bas -->
 <div id="ra-ticker-wrap"><!-- LOGO AJOUT -->
@@ -2144,53 +2081,7 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
     </div>
   </section>
 
-  <!-- ACCÈS GRATUIT -->
-  <section class="pricing-section reveal" id="tarifs" aria-labelledby="tarifs-title">
-    <div style="max-width:1200px;margin:0 auto">
-      <div class="section-label">Accès à la plateforme</div>
-      <h2 class="section-title" id="tarifs-title">100% Gratuit.<br><span class="g">Pour tous.</span></h2>
-      <p style="color:var(--muted);max-width:560px;margin:0 auto 44px;text-align:center;font-size:.92rem;line-height:1.7">REGUL ARENA est entièrement gratuit. Aucun abonnement, aucun pack payant. Inscris-toi avec ton email institutionnel et accède à toutes les fonctionnalités.</p>
-      <div class="pricing-grid" role="list">
-        <article class="price-card" role="listitem" style="text-align:center">
-          <span class="price-icon" aria-hidden="true">🎓</span>
-          <div class="price-tier">Étudiant</div>
-          <div class="price-amount" style="color:var(--green)">Gratuit</div>
-          <div class="price-period">Accès pédagogique complet</div>
-          <ul class="price-features" aria-label="Fonctionnalités Étudiant">
-            <li>Tous les packs thématiques</li><li>Mode Solo illimité</li>
-            <li>Classement UEMOA &amp; CEMAC</li><li>Badges &amp; certifications</li>
-          </ul>
-        </article>
-        <article class="price-card featured" role="listitem" style="text-align:center">
-          <span class="price-icon" aria-hidden="true">💼</span>
-          <div class="price-tier">Professionnel</div>
-          <div class="price-amount" style="color:var(--green)">Gratuit</div>
-          <div class="price-period">Email institutionnel requis</div>
-          <ul class="price-features" aria-label="Fonctionnalités Professionnel">
-            <li>22 packs réglementaires</li><li>Duels 1v1 illimités</li>
-            <li>Classement national</li><li>Certificat Expert UEMOA/CEMAC</li>
-            <li>Export rapport PDF</li>
-          </ul>
-        </article>
-        <article class="price-card" role="listitem" style="text-align:center">
-          <span class="price-icon" aria-hidden="true">🏛</span>
-          <div class="price-tier">Institution</div>
-          <div class="price-amount" style="color:var(--green)">Gratuit</div>
-          <div class="price-period">Accès équipe — Sur invitation</div>
-          <ul class="price-features" aria-label="Fonctionnalités Institution">
-            <li>Accès équipe illimité</li><li>Tournois intra-institution</li>
-            <li>Dashboard analytics</li><li>Rapport conformité mensuel</li>
-            <li>Support communautaire</li>
-          </ul>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted);letter-spacing:1px;line-height:1.6">Envoyez un email à<br><a href="mailto:contact@regularena.com" style="color:var(--gold);text-decoration:none">contact@regularena.com</a><br>avec l'objet "Accès Institution"</div>
-        </article>
-      </div>
-      <div style="text-align:center;margin-top:22px;padding:14px;border:1px solid var(--green-dim);background:var(--green-dim);border-radius:2px;max-width:640px;margin-left:auto;margin-right:auto">
-        <span style="color:var(--green);font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:2px">✓ AUCUN FRAIS · AUCUN ABONNEMENT · ACCÈS TOTAL GRATUIT</span>
-      </div>
-    </div>
-  </section>
-
+  
   <!-- BADGES -->
   <section class="section reveal" aria-labelledby="badges-title">
     <div class="section-label">Système de récompenses</div>
@@ -5354,9 +5245,7 @@ const RAPlayer = (() => {
       const h = band.offsetHeight;
       const nav = document.querySelector('nav');
       if(nav) nav.style.top = h+'px';
-      const _tb = document.getElementById('ra-topbar'); // MODIFIÉ : descend la barre drapeaux sous la nav décalée (sinon cachée derrière)
-      if(_tb && nav) _tb.style.top = (h + nav.offsetHeight) + 'px'; // MODIFIÉ
-      document.body.style.paddingTop = (h + nav.offsetHeight + (_tb ? _tb.offsetHeight : 46)) + 'px'; // MODIFIÉ : contenu sous disclaimer+nav+drapeaux
+      document.body.style.paddingTop = (h + nav.offsetHeight) + 'px';
       document.querySelectorAll('.page-top').forEach(el => el.style.marginTop = (53+h)+'px');
     });
   }
@@ -5373,8 +5262,7 @@ function dismissDisclaimer(){
     document.documentElement.classList.remove('has-disclaimer');
     const nav = document.querySelector('nav');
     if (nav) nav.style.top = '0';
-    const _tb = document.getElementById('ra-topbar'); if(_tb) _tb.style.top = ''; // MODIFIÉ : barre drapeaux revient à sa position CSS (top:52px)
-    document.body.style.paddingTop = ''; // MODIFIÉ : padding revient à la valeur CSS (98px)
+    document.body.style.paddingTop = '';
     document.querySelectorAll('.page-top').forEach(el => el.style.marginTop = '');
   },320);
 }
@@ -6726,45 +6614,7 @@ window.addEventListener('orientationchange', function() { // ORIENTATION AJOUT
 (function () {
   'use strict';
 
-  /* ── helper : ouvre RAGate directement sur le formulaire avec profil pré-sélectionné ── */
-  function _openGateWithProfile(profile) { // MODIFIÉ
-    if (typeof RAGate === 'undefined') return; // MODIFIÉ
-    // showGate() déjà appelé par onclick — ne pas rappeler ici
-    setTimeout(function () { // MODIFIÉ
-      var overlay = document.getElementById('ra-gate-overlay'); // MODIFIÉ
-      if (!overlay) return; // MODIFIÉ
-      // Scoper à #ra-gate-overlay uniquement — RAGate.goStep() sélecteur global cible aussi #ra-auth-overlay
-      overlay.querySelectorAll('.ra-gate-step').forEach(function (s, i) { // MODIFIÉ
-        s.classList.toggle('active', i === 1); // MODIFIÉ — index 1 = step 2 (formulaire)
-      }); // MODIFIÉ
-      overlay.querySelectorAll('.ra-sdot').forEach(function (d, i) { // MODIFIÉ
-        d.classList.toggle('active', i === 1); // MODIFIÉ
-      }); // MODIFIÉ
-      var sel = document.getElementById('ra-profile'); // MODIFIÉ
-      if (sel) { // MODIFIÉ
-        sel.value = profile; // MODIFIÉ — pré-sélectionner étudiant ou professionnel
-        sel.dispatchEvent(new Event('change')); // MODIFIÉ — déclencher onchange (affiche/masque établissement)
-      } // MODIFIÉ
-    }, 80); // MODIFIÉ
-  } // MODIFIÉ
-
   document.addEventListener('DOMContentLoaded', function () { // MODIFIÉ
-
-    /* ── Bouton "Commencer →" carte Étudiant ── */
-    var btnEtudiant = document.querySelector('.price-card:not(.featured) .btn-gold'); // MODIFIÉ
-    if (btnEtudiant) { // MODIFIÉ
-      btnEtudiant.addEventListener('click', function () { // MODIFIÉ
-        _openGateWithProfile('etudiant'); // MODIFIÉ
-      }); // MODIFIÉ
-    } // MODIFIÉ
-
-    /* ── Bouton "S'inscrire gratuitement →" carte Professionnel ── */
-    var btnPro = document.querySelector('.price-card.featured .btn-gold'); // MODIFIÉ
-    if (btnPro) { // MODIFIÉ
-      btnPro.addEventListener('click', function () { // MODIFIÉ
-        _openGateWithProfile('professionnel'); // MODIFIÉ
-      }); // MODIFIÉ
-    } // MODIFIÉ
 
     /* ── Blocs "Comment démarrer" — 3 step cards ── */
     var steps = document.querySelectorAll('.ra-step-card'); // MODIFIÉ
