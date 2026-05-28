@@ -3323,7 +3323,7 @@ async function apiCall(method, path, body) {
 /* ───────────────────────────────────────────────────────────
    CORE : Navigation SPA
    ─────────────────────────────────────────────────────────── */
-const PAGES = ['landing','classement','tournois','duel','solo','premium','invitation','quizExpress'];
+const PAGES = ['landing','classement','tournois','duel','solo','premium','invitation','quizExpress','bibliotheque'];
 const pageInits = {};
 
 function showPage(id) {
@@ -3336,6 +3336,12 @@ function showPage(id) {
   }
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + id).classList.add('active');
+  // La Bibliothèque est une sous-app plein écran (placée après le footer dans le DOM) :
+  // on masque feedback + footer pendant qu'elle est active, on les restaure sinon.
+  const _hideChrome = (id === 'bibliotheque');
+  document.querySelectorAll('.feedback-section, footer[role="contentinfo"]').forEach(el => {
+    el.style.display = _hideChrome ? 'none' : '';
+  });
   document.querySelectorAll('.nav-links button').forEach(b => {
     b.classList.remove('active');
     b.removeAttribute('aria-current');
