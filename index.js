@@ -328,26 +328,43 @@ app.post('/auth/register', limiterStrict, async (req, res) => {
     'INSERT INTO confirm_tokens (user_id, token, expires_at) VALUES (?, ?, ?)'
   ).run(user.id, token, expiresAt(TOKEN_TTL_H));
 
-  // Envoyer email via Resend
+  // Verification immediate : l'inscription persiste sans dependre de l'email.
+  db.prepare('UPDATE users SET email_verified = 1 WHERE id = ?').run(user.id);
+  user = db.prepare('SELECT * FROM users WHERE id = ?').get(user.id);
+
+  // Email de bienvenue en best-effort (NON bloquant : l'inscription reussit meme si Resend echoue).
   const confirmUrl = `${BASE_URL}/auth/verify?token=${token}`;
   try {
-    const sendResult = await resend.emails.send({
+    await resend.emails.send({
       from: `REGUL ARENA <${FROM_EMAIL}>`,
       to:   cleanEmail,
-      subject: 'Confirme ton inscription — REGUL ARENA',
+      subject: 'Bienvenue sur REGUL ARENA',
       html: emailConfirmHTML(cleanName, confirmUrl),
       headers: { 'X-Entity-Ref-ID': crypto.randomUUID() },
     });
-    if (sendResult.error) {
-      console.error('Resend error:', JSON.stringify(sendResult.error));
-      return err(res, 500, 'Erreur envoi email — réessaie dans quelques instants');
-    }
   } catch (e) {
-    console.error('Resend exception:', e.message);
-    return err(res, 500, 'Erreur envoi email — réessaie dans quelques instants');
+    console.warn('[register] email de bienvenue non envoye (non bloquant):', e && e.message);
   }
 
-  return ok(res, { message: 'Email de confirmation envoyé' });
+  return ok(res, { token: signJWT(user), user: publicUser(user), message: 'Compte cree' });
+});
+
+
+/* POST /auth/login-direct
+   Body : { email }
+   → connexion directe par email (Option B, sans mot de passe ni email).
+*/
+app.post('/auth/login-direct', limiterStrict, (req, res) => {
+  const { email } = req.body || {};
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return err(res, 400, 'Email invalide');
+  const cleanEmail = email.trim().toLowerCase();
+  let user = db.prepare('SELECT * FROM users WHERE email = ?').get(cleanEmail);
+  if (!user) return err(res, 404, 'Aucun compte avec cet email. Inscris-toi d\'abord.');
+  if (user.email_verified !== 1) {
+    db.prepare('UPDATE users SET email_verified = 1 WHERE id = ?').run(user.id);
+    user = db.prepare('SELECT * FROM users WHERE id = ?').get(user.id);
+  }
+  return ok(res, { token: signJWT(user), user: publicUser(user), message: 'Connecte' });
 });
 
 

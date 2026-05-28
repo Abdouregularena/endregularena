@@ -412,6 +412,8 @@ nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:0} /* MOD
 .ra-nav-user-chip{display:flex;align-items:center;gap:7px;background:var(--gold-dim);border:1px solid var(--border);border-radius:20px;padding:4px 12px 4px 4px;cursor:default}
 .ra-nav-user-av{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-l));color:var(--bg);font-family:'Bebas Neue',cursive;font-size:.72rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .ra-nav-user-name{font-family:'Inter',sans-serif;font-size:.72rem;font-weight:600;color:var(--gold);letter-spacing:.5px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ra-logout-btn{background:none;border:none;color:var(--gold);cursor:pointer;font-size:.85rem;padding:0 2px 0 5px;line-height:1;opacity:.65;transition:opacity .2s}
+.ra-logout-btn:hover{opacity:1}
 @media(max-width:480px){.ra-nav-user-name{display:none}.ra-nav-user-chip{padding:4px}}
 
 .nav-hamburger{display:none;flex-direction:column;justify-content:space-between;width:28px;height:20px;background:none;border:none;cursor:pointer;padding:0;z-index:201}
@@ -1706,7 +1708,7 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
       </ul>
       <button class="ra-btn-main" onclick="document.querySelectorAll('.ra-auth-step').forEach((s,i)=>s.classList.toggle('active',i===1));document.querySelectorAll('.ra-auth-sdot').forEach((d,i)=>d.classList.toggle('active',i===1))">S'inscrire gratuitement →</button>
       <div style="text-align:center;font-size:.75rem;color:var(--muted);margin-top:4px">
-        Déjà inscrit ? <span style="color:var(--gold);cursor:pointer;border-bottom:1px solid rgba(201,153,26,.3)" onclick="RAAuth.loginMode()">Se connecter →</span>
+        Déjà un compte ? <span style="display:inline-block;margin-left:4px;color:var(--gold);font-weight:700;cursor:pointer;border:1px solid var(--gold);border-radius:6px;padding:5px 14px" onclick="RAAuth.loginMode()">🔑 Se connecter</span>
       </div>
     </div>
 
@@ -1803,7 +1805,7 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
       </ul>
       <button class="ra-btn-main" onclick="RAGate.goStep(2)">S'inscrire gratuitement →</button>
       <div style="text-align:center;font-size:.75rem;color:var(--muted)">
-        Déjà inscrit ? <span style="color:var(--gold);cursor:pointer;border-bottom:1px solid rgba(201,153,26,.3)" onclick="RAGate.loginMode()">Se connecter →</span>
+        Déjà un compte ? <span style="display:inline-block;margin-left:4px;color:var(--gold);font-weight:700;cursor:pointer;border:1px solid var(--gold);border-radius:6px;padding:5px 14px" onclick="RAGate.loginMode()">🔑 Se connecter</span>
       </div>
     </div>
     <!-- Étape 2 : Formulaire -->
@@ -1938,6 +1940,7 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
     <div id="ra-nav-user" class="ra-nav-user-chip" style="display:none" aria-label="Utilisateur connecté">
       <div id="ra-nav-user-av" class="ra-nav-user-av" aria-hidden="true">?</div>
       <span id="ra-nav-user-name" class="ra-nav-user-name"></span>
+      <button id="ra-logout-btn" class="ra-logout-btn" onclick="raLogout()" title="Se déconnecter" aria-label="Se déconnecter">⏻</button>
     </div>
     <button class="nav-cta" onclick="showPage('solo')" aria-label="Jouer maintenant">⚔ Jouer</button>
     <button class="nav-hamburger" id="nav-hamburger" onclick="toggleMobileNav()" aria-label="Menu" aria-expanded="false" aria-controls="mobile-nav-menu">
@@ -4539,24 +4542,38 @@ const RAGate = (() => {
     const name=document.getElementById('ra-name')?.value?.trim();
     const profile=document.getElementById('ra-profile')?.value;
     const country=document.getElementById('ra-country')?.value;
-    const ready=state.emailValid&&name?.length>=2&&profile&&country;
+    const ready = state.loginMode ? state.emailValid : (state.emailValid&&name?.length>=2&&profile&&country);
     btn.disabled=!ready;btn.style.opacity=ready?'1':'.5';
   }
   document.addEventListener('input',e=>{if(['ra-name','ra-profile','ra-country'].includes(e.target.id))updateSubmitBtn();});
   function submit(){
-    const name=document.getElementById('ra-name')?.value?.trim();
     const email=document.getElementById('ra-email')?.value?.trim();
-    const profile=document.getElementById('ra-profile')?.value;
-    const country=document.getElementById('ra-country')?.value;
-    const etablissement=profile==='etudiant'?(document.getElementById('ra-etablissement')?.value?.trim()||''):''; // MODIFIÉ
-    if(!state.emailValid||!name){gToast('⚠ Remplis tous les champs correctement');return;}
+    if(!state.emailValid){gToast('⚠ Email invalide');return;}
+    const isLogin=!!state.loginMode;
+    let body;
+    if(isLogin){ body={email}; }
+    else {
+      const name=document.getElementById('ra-name')?.value?.trim();
+      const profile=document.getElementById('ra-profile')?.value;
+      const country=document.getElementById('ra-country')?.value;
+      const etablissement=profile==='etudiant'?(document.getElementById('ra-etablissement')?.value?.trim()||''):'';
+      if(!name){gToast('⚠ Remplis tous les champs correctement');return;}
+      body={name,email,profile,country,etablissement};
+    }
     const ce=document.getElementById('ra-confirm-email');if(ce)ce.textContent=email;
-    goStep(3);
-    apiCall('POST','/auth/register',{name,email,profile,country,etablissement}).then(r=>{ // MODIFIÉ
-      if(!r.ok){
-        gToast('⚠ '+(r.data?.error||'Erreur — réessaie'));
-        goStep(2);
+    apiCall('POST', isLogin?'/auth/login-direct':'/auth/register', body).then(r=>{
+      if(!r.ok || !r.data || !r.data.token){
+        gToast('⚠ '+((r.data&&r.data.error)||'Erreur — réessaie'));
+        goStep(2); return;
       }
+      const jwt=r.data.token, user=r.data.user;
+      try{localStorage.setItem('ra_jwt',jwt);localStorage.setItem(KEY_REG,'true');localStorage.setItem(KEY_USER,JSON.stringify(user||{}));}catch(e){}
+      try{document.dispatchEvent(new Event('ra:login'));}catch(e){}
+      state.registered=true;state.user=user;
+      const wn=document.getElementById('ra-welcome-name');if(wn)wn.textContent=(user&&user.name)||'champion';
+      goStep(4);launchGateConfetti();
+      gToast('🎉 Bienvenue '+((user&&user.name)||'')+' !');
+      renderPill();
     });
   }
   function resendEmail(){
@@ -4783,25 +4800,35 @@ const RAAuth = (() => {
     const profile = document.getElementById('ra-auth-profile')?.value;
     const country = document.getElementById('ra-auth-country')?.value;
     if (!btn) return;
-    const ready = _emailValid && name?.length>=2 && profile && country;
+    const ready = _loginMode ? _emailValid : (_emailValid && name?.length>=2 && profile && country);
     btn.disabled = !ready; btn.style.opacity = ready?'1':'.5';
   }
 
   function submit() {
-    const name    = document.getElementById('ra-auth-name')?.value?.trim();
-    const email   = document.getElementById('ra-auth-email')?.value?.trim();
-    const profile = document.getElementById('ra-auth-profile')?.value;
-    const country = document.getElementById('ra-auth-country')?.value;
-    const etablissement = profile==='etudiant'?(document.getElementById('ra-auth-etablissement')?.value?.trim()||''):''; // MODIFIÉ
-    if (!_emailValid || !name) { _toast('⚠ Remplis tous les champs correctement'); return; }
+    const email = document.getElementById('ra-auth-email')?.value?.trim();
+    if (!_emailValid) { _toast('⚠ Email invalide'); return; }
+    const isLogin = !!_loginMode;
+    let body;
+    if (isLogin) { body = { email }; }
+    else {
+      const name    = document.getElementById('ra-auth-name')?.value?.trim();
+      const profile = document.getElementById('ra-auth-profile')?.value;
+      const country = document.getElementById('ra-auth-country')?.value;
+      const etablissement = profile==='etudiant'?(document.getElementById('ra-auth-etablissement')?.value?.trim()||''):'';
+      if (!name) { _toast('⚠ Remplis tous les champs correctement'); return; }
+      body = { name, email, profile, country, etablissement };
+    }
     const ce = document.getElementById('ra-auth-confirm-email');
     if (ce) ce.textContent = email;
-    _goStep(3);
-    apiCall('POST','/auth/register',{name,email,profile,country,etablissement}).then(r=>{ // MODIFIÉ
-      if(!r.ok){
-        _toast('⚠ '+(r.data?.error||'Erreur — réessaie'));
-        _goStep(2);
+    apiCall('POST', isLogin ? '/auth/login-direct' : '/auth/register', body).then(r=>{
+      if (!r.ok || !r.data || !r.data.token) {
+        _toast('⚠ '+((r.data&&r.data.error)||'Erreur — réessaie'));
+        _goStep(2); return;
       }
+      const jwt = r.data.token, user = r.data.user;
+      try { localStorage.setItem('ra_jwt', jwt); localStorage.setItem(KEY_REG, 'true'); localStorage.setItem(KEY_USER, JSON.stringify(user||{})); } catch(e) {}
+      try { document.dispatchEvent(new Event('ra:login')); } catch(e) {}
+      confirmEmail();
     });
   }
 
@@ -5033,6 +5060,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Réagir à un login live (inscription/connexion sans rechargement de page)
   document.addEventListener('ra:login', () => { _unlockAuthUI(); });
+
+  // Déconnexion : purge la session puis recharge (re-verrouille tout proprement)
+  window.raLogout = function(){
+    try { ['ra_jwt','ra_auth_registered','ra_auth_user_data','ra_gate_registered','ra_gate_user_data'].forEach(k => localStorage.removeItem(k)); } catch(e) {}
+    try { ['ra_jwt','ra_auth_registered','ra_gate_registered'].forEach(k => sessionStorage.removeItem(k)); } catch(e) {}
+    location.reload();
+  };
 
   // Vérification synchrone : JWT déjà en storage → unlock immédiat
   if (RAAuth.isAuthenticated()) {
