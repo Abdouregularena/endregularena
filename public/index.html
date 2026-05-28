@@ -2236,6 +2236,10 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
       <p style="color:var(--muted);font-size:.83rem;max-width:500px;margin:0 auto 18px;line-height:1.6">Intègre le <strong style="color:var(--cyan)">Top 10</strong> pour accéder aux championnats officiels UEMOA &amp; CEMAC. Score minimum : 5 000 pts · Taux réussite &gt; 80%</p>
       <button class="btn-gold" onclick="showPage('premium')">Accéder aux championnats →</button>
     </div>
+    <div class="ra-perso-zone">
+      <div class="ra-perso-label">Zone perso</div>
+      <button class="ra-reset-btn" onclick="RAScore.openReset()">🔄 Réinitialiser mes scores</button>
+    </div>
   </div>
 </div>
 
@@ -2993,6 +2997,11 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
   </div>
 
   <!-- Modal unlock -->
+  <div class="ra-perso-zone">
+    <div class="ra-perso-label">Zone perso</div>
+    <button class="ra-reset-btn" onclick="RAScore.openReset()">🔄 Réinitialiser mes scores</button>
+  </div>
+
   <div id="unlock-modal" class="unlock-modal" role="dialog" aria-modal="true" aria-label="Débloquer Premium">
     <div class="unlock-backdrop" onclick="closeUnlock()"></div>
     <div class="unlock-box">
@@ -3747,9 +3756,13 @@ function _soloShowResult() {
       </div>`).join('');
   }
 
-  const jwt = (function(){ try{return localStorage.getItem('ra_jwt');}catch(e){} try{return sessionStorage.getItem('ra_jwt');}catch(e){} return null; })();
-  if (jwt) {
-    fetch('/scores', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt}, body: JSON.stringify({pack_id: pack.id, score, total}) }).catch(()=>{});
+  // Opt-in : faire compter ce score au classement ?
+  if (window.RAScore) {
+    RAScore.offerSave({
+      container: res,
+      before: res.querySelector('.btn-gold'),
+      packId: pack.id, score: score, total: total
+    });
   }
 }
 
@@ -3764,23 +3777,6 @@ function replaySolo() {
 /* ───────────────────────────────────────────────────────────
    MODULE : CLASSEMENT
    ─────────────────────────────────────────────────────────── */
-const LB_DATA = [
-  {rank:1, prev:1, init:'KD',name:'KofiDansso',   country:'🇨🇮',inst:'Ecobank CI · Conformité',   score:5850,delta:0,  streak:'🔥 15 bonnes',col:'rgba(201,153,26,.18)',tc:'var(--gold)',   zone:'uemoa',type:'pro',  me:false},
-  {rank:2, prev:4, init:'AT',name:'AïchaTraoré',  country:'🇸🇳',inst:'BCEAO Dakar · Audit',       score:5100,delta:+2, streak:'🔥 8 bonnes', col:'rgba(176,184,200,.15)',tc:'var(--silver)',zone:'uemoa',type:'pro',  me:false},
-  {rank:3, prev:3, init:'JM',name:'JeanMouamba',  country:'🇨🇲',inst:'BEAC · Juriste',            score:4980,delta:0,  streak:'5 bonnes',   col:'rgba(205,127,50,.15)',tc:'var(--bronze)',zone:'cemac',type:'pro',  me:false},
-  {rank:4, prev:2, init:'OB',name:'OumarBalde',   country:'🇧🇫',inst:'Coris Bank · Juridique',    score:4750,delta:-2, streak:'🔥 6 bonnes', col:'rgba(79,142,247,.15)',tc:'var(--blue)',   zone:'uemoa',type:'pro',  me:false},
-  {rank:5, prev:6, init:'FN',name:'FatimaND',     country:'🇲🇱',inst:'BOA Mali · Audit',          score:4650,delta:+1, streak:'4 bonnes',   col:'rgba(16,185,129,.15)',tc:'var(--green)',  zone:'uemoa',type:'pro',  me:false},
-  {rank:6, prev:5, init:'MB',name:'MoussaBarro',  country:'🇸🇳',inst:'BRS · Compliance',          score:4480,delta:-1, streak:'3 bonnes',   col:'rgba(239,68,68,.12)', tc:'var(--red)',    zone:'uemoa',type:'pro',  me:false},
-  {rank:7, prev:8, init:'SF',name:'SalimFadiga',  country:'🇹🇬',inst:'Orabank TG · Risques',      score:4350,delta:+1, streak:'🔥 7 bonnes', col:'rgba(168,85,247,.12)',tc:'var(--purple)', zone:'uemoa',type:'pro',  me:false},
-  {rank:8, prev:9, init:'DK',name:'DialoKonaté',  country:'🇨🇮',inst:'GTBank CI · Juridique',     score:4300,delta:+1, streak:'2 bonnes',   col:'rgba(34,211,238,.1)', tc:'var(--cyan)',   zone:'uemoa',type:'pro',  me:false},
-  {rank:9, prev:7, init:'BT',name:'BintaTraoré',  country:'🇨🇮',inst:'SGBCI · Risques',           score:4280,delta:-2, streak:'4 bonnes',   col:'rgba(201,153,26,.1)', tc:'var(--gold-l)', zone:'uemoa',type:'student',me:false},
-  {rank:10,prev:12,init:'YS',name:'YoussoufSow',  country:'🇸🇳',inst:'UBA Dakar · Conformité',    score:4260,delta:+2, streak:'🔥 5 bonnes', col:'rgba(79,142,247,.1)', tc:'var(--blue)',   zone:'uemoa',type:'student',me:false},
-  {rank:11,prev:11,init:'LC',name:'LorettaCongo', country:'🇨🇬',inst:'LCB · Audit',               score:4100,delta:0,  streak:'3 bonnes',   col:'rgba(16,185,129,.1)', tc:'var(--green)',  zone:'cemac',type:'pro',  me:false},
-  {rank:12,prev:14,init:'RN',name:'RolandNdong',  country:'🇬🇦',inst:'BGFIBank · Crédit',         score:3980,delta:+2, streak:'2 bonnes',   col:'rgba(176,184,200,.1)',tc:'var(--silver)', zone:'cemac',type:'pro',  me:false},
-  {rank:13,prev:10,init:'AK',name:'AminaKouyaté', country:'🇬🇳',inst:'BICIGUI · Conformité',      score:3850,delta:-3, streak:'1 bonne',    col:'rgba(205,127,50,.1)', tc:'var(--bronze)', zone:'uemoa',type:'student',me:false},
-  {rank:21,prev:24,init:'AN',name:'Abdou N.',      country:'🇸🇳',inst:'REGUL ARENA · Fondateur',  score:4250,delta:+3, streak:'🔥 5 bonnes', col:'rgba(34,211,238,.15)',tc:'var(--cyan)',   zone:'uemoa',type:'pro',  me:true},
-];
-
 function renderLeaderboard(filter = 'all') {
   const container = document.getElementById('leaderboard-rows');
   if (!container) return;
@@ -4415,8 +4411,15 @@ function showResult(iWin){
   else{if(trophy)trophy.textContent='😤';if(wname)wname.textContent='Adversaire';if(ptsEl){ptsEl.textContent='-40';ptsEl.className='pts-value loss';}}
   document.querySelectorAll('.screen-d').forEach(s=>{s.classList.remove('active');s.style.display='none';});
   const t=document.getElementById('d-screen-result');if(t){t.style.display='';t.classList.add('active');}
-  const jwt=_getJwt();
-  if(jwt&&_duelLive.packId){fetch('/scores',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt},body:JSON.stringify({pack_id:_duelLive.packId,score:meS,total:meS+thS})}).catch(()=>{});}
+  // Opt-in : faire compter ce score au classement ?
+  if (window.RAScore && _duelLive.packId) {
+    const _w = t ? t.querySelector('[onclick*="dGoTo"]') : null;
+    RAScore.offerSave({
+      container: t,
+      before: _w ? _w.closest('div') : null,
+      packId: _duelLive.packId, score: meS, total: meS + thS
+    });
+  }
 }
 function launchConfetti(){
   const c=document.getElementById('confetti');if(!c)return;c.innerHTML='';
@@ -4441,21 +4444,19 @@ const ADVANTAGES = [
   {icon:'🎯',cls:'adv-green',title:'Espace Premium',     desc:'Interface enrichie, historique illimité des matchs, export rapport conformité PDF mensuel.',tag:'✓ Interface premium'},
   {icon:'⚡',cls:'adv-gold', title:'Points ×2',          desc:'Tous tes quiz et duels comptent double en Premium. Accélère ta montée dans le classement.',tag:'× 2 pts partout'},
 ];
-const HOF_PLAYERS = [
-  {init:'KD',name:'KofiDansso',  inst:'Ecobank CI',    pts:'5 850',rank:'Champion UEMOA',col:'rgba(201,153,26,.18)',tc:'var(--gold)'},
-  {init:'AT',name:'AïchaTraoré', inst:'BCEAO Dakar',   pts:'5 100',rank:'#2 UEMOA',     col:'rgba(176,184,200,.15)',tc:'var(--silver)'},
-  {init:'JM',name:'JeanMouamba', inst:'BEAC',          pts:'4 980',rank:'Champion CEMAC',col:'rgba(205,127,50,.15)',tc:'var(--bronze)'},
-  {init:'OB',name:'OumarBalde',  inst:'Coris Bank',    pts:'4 750',rank:'#4',           col:'rgba(79,142,247,.15)',tc:'var(--blue)'},
-  {init:'FN',name:'FatimaND',    inst:'BOA Mali',      pts:'4 650',rank:'#5',           col:'rgba(16,185,129,.15)',tc:'var(--green)'},
-  {init:'MB',name:'MoussaBarro', inst:'BRS',           pts:'4 480',rank:'#6',           col:'rgba(239,68,68,.12)', tc:'var(--red)'},
-];
 function renderAdvantages(){
   const g=document.getElementById('advantages-grid');if(!g)return;
   g.innerHTML=ADVANTAGES.map(a=>`<div class="adv-card ${a.cls}" role="listitem"><span class="adv-icon" aria-hidden="true">${a.icon}</span><h3 class="adv-title">${a.title}</h3><p class="adv-desc">${a.desc}</p><span class="adv-tag">${a.tag}</span></div>`).join('');
 }
 function renderHOF(){
   const g=document.getElementById('hof-grid');if(!g)return;
-  g.innerHTML=HOF_PLAYERS.map((p,i)=>`<div class="hof-card" role="listitem"><div class="hof-av" style="background:${p.col};color:${p.tc};border-color:${p.tc}">${p.init}</div><div style="flex:1"><div class="hof-rank">#${i+1} ${p.rank}</div><div class="hof-name">${p.name}</div><div style="font-size:.75rem;color:var(--muted)">${p.inst}</div></div><div class="hof-pts">${p.pts}</div></div>`).join('');
+  g.innerHTML='<div style="grid-column:1/-1;color:var(--muted);text-align:center;padding:30px;font-family:\'JetBrains Mono\',monospace;font-size:.72rem;letter-spacing:2px">Chargement...</div>';
+  const cols=['var(--gold)','var(--silver)','var(--bronze)','var(--blue)','var(--green)','var(--red)'];
+  fetch('/leaderboard').then(r=>r.json()).then(data=>{
+    const rows=(data&&data.leaderboard)||[];
+    if(!rows.length){g.innerHTML='<div style="grid-column:1/-1;color:var(--muted);text-align:center;padding:40px 20px"><div style="font-size:2rem;margin-bottom:10px">🏆</div><div style="font-family:\'JetBrains Mono\',monospace;font-size:.72rem;letter-spacing:1px;line-height:1.6">Aucun Top Scoreur pour l\'instant.<br>Sois le premier à enregistrer un score !</div></div>';return;}
+    g.innerHTML=rows.slice(0,6).map((p,i)=>{const tc=cols[i]||'var(--gold)';const init=escapeHtml((p.name||'?').slice(0,2).toUpperCase());return `<div class="hof-card" role="listitem"><div class="hof-av" style="color:${tc};border-color:${tc}">${init}</div><div style="flex:1"><div class="hof-rank">#${i+1}</div><div class="hof-name">${escapeHtml(p.name||'')}</div><div style="font-size:.75rem;color:var(--muted)">${escapeHtml(p.etablissement||p.country||'')}</div></div><div class="hof-pts">${(p.total_score||0).toLocaleString('fr-FR')}</div></div>`;}).join('');
+  }).catch(()=>{g.innerHTML='<div style="grid-column:1/-1;color:var(--muted);text-align:center;padding:40px;font-family:\'JetBrains Mono\',monospace;font-size:.72rem">Classement indisponible pour l\'instant.</div>';});
 }
 function simulateUnlock(){
   const fill=document.getElementById('big-fill'),pct=document.getElementById('my-pct-big');
@@ -7863,16 +7864,7 @@ const _getJwt = () => {
 };
 const _scoredSessions = new Set();
 function _submitScore(packId, score, total) {
-  const jwt = _getJwt();
-  if (!jwt) return;
-  const key = packId + ':' + total;
-  if (_scoredSessions.has(key)) return;
-  _scoredSessions.add(key);
-  fetch('/scores', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + jwt },
-    body: JSON.stringify({ pack_id: packId, score: score, total: total })
-  }).catch(() => {});
+  /* Auto-enregistrement retiré (opt-in) : la Bibliothèque (QCM révision) ne compte plus automatiquement au classement. */
 }
 
 /* ─── QCM ANSWER TOGGLE ─── */
@@ -7999,16 +7991,7 @@ updateProgress();
   };
   var _bibScoredSessions = new Set();
   var _bibSubmitScore = function(packId, score, total) {
-    var jwt = _bibGetJwt();
-    if (!jwt) return;
-    var key = packId + ':' + total;
-    if (_bibScoredSessions.has(key)) return;
-    _bibScoredSessions.add(key);
-    fetch('/scores', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + jwt },
-      body: JSON.stringify({ pack_id: packId, score: score, total: total })
-    }).catch(function() {});
+    /* Auto-enregistrement retiré (opt-in). */
   };
 
   /* ─── QCM ANSWER TOGGLE BIBLIO ─── */
@@ -8147,10 +8130,25 @@ const QE = (function(){
   async function saveAttempt(rec){
     try {
       const db = await openDB();
-      const tx = db.transaction('quiz_express_attempts', 'readwrite');
-      tx.objectStore('quiz_express_attempts').add(rec);
-      return new Promise(r => { tx.oncomplete = () => r(true); tx.onerror = () => r(false); });
-    } catch(e) { return false; }
+      return await new Promise(r => {
+        const tx = db.transaction('quiz_express_attempts', 'readwrite');
+        const req = tx.objectStore('quiz_express_attempts').add(rec);
+        req.onsuccess = () => r(req.result);
+        tx.onerror = () => r(null);
+      });
+    } catch(e) { return null; }
+  }
+  function updateAttemptFlag(id, val){
+    if (id == null) return;
+    try {
+      const rq = indexedDB.open('regul_arena_qe', 1);
+      rq.onsuccess = e => {
+        const db = e.target.result;
+        const store = db.transaction('quiz_express_attempts', 'readwrite').objectStore('quiz_express_attempts');
+        const g = store.get(id);
+        g.onsuccess = () => { const rec = g.result; if (rec) { rec.compte_classement = val; store.put(rec); } };
+      };
+    } catch(e) {}
   }
 
   function pick(cat){
@@ -8258,13 +8256,14 @@ const QE = (function(){
     const perfect = total >= 10 && state.score === total;
     const xp = state.score * 50 + (perfect ? 200 : 0);
     state.xp = xp;
-    await saveAttempt({
+    const _attemptId = await saveAttempt({
       date: new Date().toISOString(),
       categorie: state.cat,
       score: state.score,
       total,
       xp_gagne: xp,
-      duree_sec: dur
+      duree_sec: dur,
+      compte_classement: false
     });
     document.getElementById('qe-game').style.display = 'none';
     const r = document.getElementById('qe-result');
@@ -8284,6 +8283,17 @@ const QE = (function(){
     ).join('');
     confetti();
     showToast('Bravo ! +' + xp + ' XP');
+    // Choix : faire compter ce score au classement ? (opt-in)
+    const _packId = 'umoa-bale-' + String(state.cat).toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    if (window.RAScore) {
+      RAScore.offerSave({
+        container: r,
+        before: r.querySelector('.qe-result-actions'),
+        packId: _packId, score: state.score, total: total,
+        onSaved:   () => updateAttemptFlag(_attemptId, true),
+        onSkipped: () => updateAttemptFlag(_attemptId, false)
+      });
+    }
   }
 
   function showSources(){
@@ -8318,6 +8328,156 @@ const QE = (function(){
 
   return { start, answer, next, finish, showSources, replay, quit };
 })();
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════
+     CONTRÔLE DES SCORES — choix opt-in (fin de quiz) + reset
+     ═══════════════════════════════════════════════════════════ -->
+<style>
+/* Zone de choix Enregistrer/Ne pas enregistrer (fin de match) */
+.ra-save-choice{background:linear-gradient(160deg,rgba(0,43,92,.55),rgba(8,12,20,.6));border:1px solid var(--border);border-radius:10px;padding:18px;margin:0 auto 22px;max-width:420px;text-align:center}
+.ra-save-q{font-family:'Playfair Display',serif;font-size:1.02rem;color:#F5F3EE;line-height:1.4;margin-bottom:14px}
+.ra-save-yes{display:block;width:100%;background:linear-gradient(135deg,#C9991A,#E8B520);color:#03050A;font-family:'IBM Plex Sans',sans-serif;font-weight:700;font-size:.9rem;letter-spacing:.5px;border:none;border-radius:6px;padding:13px;cursor:pointer;margin-bottom:9px;transition:box-shadow .2s}
+.ra-save-yes:hover{box-shadow:0 6px 20px rgba(201,153,26,.4)}
+.ra-save-no{display:block;width:100%;background:transparent;border:1px solid var(--muted);color:var(--muted);font-family:'IBM Plex Sans',sans-serif;font-size:.8rem;padding:10px;border-radius:6px;cursor:pointer;transition:all .2s}
+.ra-save-no:hover{border-color:#F5F3EE;color:#F5F3EE}
+/* Zone perso + bouton reset */
+.ra-perso-zone{border-top:1px solid var(--sep);margin-top:40px;padding-top:20px;text-align:center}
+.ra-perso-label{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:10px}
+.ra-reset-btn{background:transparent;border:1px solid #C9991A;color:#C9991A;font-family:'IBM Plex Sans',sans-serif;font-size:.78rem;width:auto;padding:10px 20px;border-radius:6px;cursor:pointer;transition:all .2s}
+.ra-reset-btn:hover{background:#C9991A;color:#002B5C}
+/* Modale reset */
+.ra-reset-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:4000;display:none;align-items:center;justify-content:center;padding:20px}
+.ra-reset-overlay.show{display:flex}
+.ra-reset-card{background:#002B5C;color:#F5F3EE;border:2px solid #C9991A;border-radius:12px;max-width:480px;width:100%;padding:30px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.ra-reset-card h3{font-family:'Playfair Display',serif !important;color:#C9991A !important;-webkit-text-fill-color:#C9991A !important;font-size:1.35rem;line-height:1.3;margin:0 0 16px}
+.ra-reset-card p{font-family:'IBM Plex Sans',sans-serif;font-size:.9rem;line-height:1.6;color:#F5F3EE;margin:0 0 10px}
+.ra-reset-card ul{font-family:'IBM Plex Sans',sans-serif;margin:12px 0;padding-left:20px}
+.ra-reset-card li{font-size:.88rem;line-height:1.5;color:#F5F3EE;margin-bottom:7px}
+.ra-reset-actions{display:flex;gap:12px;justify-content:flex-end;margin-top:24px;flex-wrap:wrap}
+.ra-reset-cancel{background:transparent;border:1px solid #F5F3EE;color:#F5F3EE;font-family:'IBM Plex Sans',sans-serif;font-size:.85rem;padding:11px 20px;border-radius:6px;cursor:pointer}
+.ra-reset-cancel:hover{background:rgba(245,243,238,.1)}
+.ra-reset-confirm{background:#C0392B;border:none;color:#fff;font-family:'IBM Plex Sans',sans-serif;font-weight:700;font-size:.85rem;padding:11px 22px;border-radius:6px;cursor:pointer;transition:background .2s}
+.ra-reset-confirm:hover{background:#a93226}
+</style>
+
+<div id="ra-reset-overlay" class="ra-reset-overlay" role="dialog" aria-modal="true" aria-label="Réinitialiser mes scores" onclick="if(event.target===this)RAScore.closeReset()">
+  <div class="ra-reset-card">
+    <h3>⚠️ Réinitialiser tous tes scores</h3>
+    <p>Cette action est <strong>IRRÉVERSIBLE</strong>.<br>Elle va effacer définitivement :</p>
+    <ul>
+      <li>Tous tes scores enregistrés au classement</li>
+      <li>Tout ton historique personnel de quiz</li>
+      <li>Tes statistiques cumulées (XP, niveau, badges liés aux scores)</li>
+    </ul>
+    <p>Tu repartiras de zéro. Es-tu sûr ?</p>
+    <div class="ra-reset-actions">
+      <button type="button" class="ra-reset-cancel" onclick="RAScore.closeReset()">ANNULER</button>
+      <button type="button" class="ra-reset-confirm" id="ra-reset-confirm-btn" onclick="RAScore.confirmReset()">OUI, RÉINITIALISER</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const RAScore = (function(){
+  function _jwt(){ try { return localStorage.getItem('ra_jwt') || sessionStorage.getItem('ra_jwt'); } catch(e){ return null; } }
+
+  async function _postScore(packId, score, total){
+    const t = _jwt(); if (!t) return { ok:false, noAuth:true };
+    try {
+      const r = await fetch('/scores', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + t },
+        body: JSON.stringify({ pack_id: packId, score: Number(score)||0, total: Number(total)||0 })
+      });
+      return { ok: r.ok };
+    } catch(e){ return { ok:false }; }
+  }
+
+  /* Zone de choix « faire compter ce score au classement ? » */
+  function offerSave(opts){
+    if (!opts || !opts.container) return;
+    const host = opts.container;
+    const existing = host.querySelector('.ra-save-choice'); if (existing) existing.remove();
+    const zone = document.createElement('div');
+    zone.className = 'ra-save-choice';
+    zone.innerHTML =
+      '<div class="ra-save-q">🏆 Faire compter ce score au classement ?</div>' +
+      '<button type="button" class="ra-save-yes">ENREGISTRER MON SCORE</button>' +
+      '<button type="button" class="ra-save-no">Ne pas enregistrer cette fois</button>';
+    if (opts.before && opts.before.parentNode) opts.before.parentNode.insertBefore(zone, opts.before);
+    else host.insertBefore(zone, host.firstChild);
+
+    zone.querySelector('.ra-save-yes').onclick = async function(){
+      if (!_jwt()) { if (typeof RAGate !== 'undefined' && RAGate.showGate) RAGate.showGate(); return; }
+      const b = this; b.disabled = true; b.textContent = '⏳ Envoi...';
+      const res = await _postScore(opts.packId, opts.score, opts.total);
+      if (res.ok) {
+        showToast('✅ Score enregistré au classement');
+        if (opts.onSaved) try { opts.onSaved(); } catch(e){}
+        zone.remove();
+      } else {
+        b.disabled = false; b.textContent = 'ENREGISTRER MON SCORE';
+        showToast('❌ Erreur, réessaye dans un instant');
+      }
+    };
+    zone.querySelector('.ra-save-no').onclick = function(){
+      showToast('Score gardé dans ton historique personnel uniquement');
+      if (opts.onSkipped) try { opts.onSkipped(); } catch(e){}
+      zone.remove();
+    };
+  }
+
+  /* ── RESET ── */
+  function _purgeIDB(){
+    return new Promise(function(res){
+      try {
+        const rq = indexedDB.open('regul_arena_qe', 1);
+        rq.onsuccess = function(e){
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains('quiz_express_attempts')) { res(true); return; }
+          const tx = db.transaction('quiz_express_attempts', 'readwrite');
+          tx.objectStore('quiz_express_attempts').clear();
+          tx.oncomplete = function(){ res(true); };
+          tx.onerror = function(){ res(false); };
+        };
+        rq.onerror = function(){ res(false); };
+      } catch(e){ res(false); }
+    });
+  }
+  function _refresh(){
+    try { if (typeof renderLeaderboard === 'function') renderLeaderboard('all'); } catch(e){}
+    try { if (typeof renderHOF === 'function') renderHOF(); } catch(e){}
+    // Carte « Mon rang » (classement) : repasser à l'état non classé
+    try { const b = document.getElementById('lb-my-rank-block'); if (b) b.style.display = 'none'; } catch(e){}
+  }
+  function _esc(e){ if (e.key === 'Escape') closeReset(); }
+  function openReset(){ const o = document.getElementById('ra-reset-overlay'); if (o){ o.classList.add('show'); document.addEventListener('keydown', _esc); } }
+  function closeReset(){ const o = document.getElementById('ra-reset-overlay'); if (o){ o.classList.remove('show'); document.removeEventListener('keydown', _esc); } }
+  async function confirmReset(){
+    const btn = document.getElementById('ra-reset-confirm-btn');
+    if (btn){ btn.disabled = true; btn.textContent = '⏳ Réinitialisation...'; }
+    const t = _jwt();
+    if (t) {
+      let ok = false;
+      try { const r = await fetch('/scores/reset', { method:'POST', headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + t } }); ok = r.ok; }
+      catch(e){ ok = false; }
+      if (!ok) {
+        if (btn){ btn.disabled = false; btn.textContent = 'OUI, RÉINITIALISER'; }
+        showToast('❌ Erreur, réessaye dans un instant');
+        return; // cohérence : ne pas purger le local si le backend a échoué
+      }
+    }
+    await _purgeIDB();      // historique perso Quiz Express (IndexedDB)
+    _refresh();
+    closeReset();
+    if (btn){ btn.disabled = false; btn.textContent = 'OUI, RÉINITIALISER'; }
+    showToast('🔄 Tous tes scores ont été réinitialisés');
+  }
+
+  return { offerSave, openReset, closeReset, confirmReset };
+})();
+window.RAScore = RAScore;
 </script>
 </body>
 </html>
