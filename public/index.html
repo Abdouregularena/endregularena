@@ -1942,6 +1942,7 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
       <span id="ra-nav-user-name" class="ra-nav-user-name"></span>
       <button id="ra-logout-btn" class="ra-logout-btn" onclick="raLogout()" title="Se déconnecter" aria-label="Se déconnecter">⏻</button>
     </div>
+    <button id="ds-nav-badge" class="ds-nav-badge" onclick="showPage('dailyStreak')" aria-label="Daily Compliance — ma série"><span class="ds-flame" aria-hidden="true">🔥</span><span id="ds-nav-text">Démarrer ma série</span></button>
     <button class="nav-cta" onclick="showPage('solo')" aria-label="Jouer maintenant">⚔ Jouer</button>
     <button class="nav-hamburger" id="nav-hamburger" onclick="toggleMobileNav()" aria-label="Menu" aria-expanded="false" aria-controls="mobile-nav-menu">
       <span></span><span></span><span></span>
@@ -1967,6 +1968,9 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
 ================================================================ -->
 <main id="page-landing" class="page active" role="main">
   <!-- Ticker -->
+
+  <!-- Carte d'accroche Daily Compliance (remplie par DailyStreak) -->
+  <div id="ds-hook-mount"></div>
 
   <!-- HERO -->
   <section class="hero" aria-labelledby="hero-title">
@@ -3189,6 +3193,124 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
 <!-- ================================================================
      SECTION FEEDBACK / SUGGESTIONS UTILISATEURS
 ================================================================ -->
+<!-- ═══════════════════════════════════════════════════════════
+     DAILY COMPLIANCE — série quotidienne (style Duolingo)
+     ═══════════════════════════════════════════════════════════ -->
+<style>
+.ds-nav-badge{display:inline-flex;align-items:center;gap:6px;background:#002B5C;border:1px solid #C9991A;border-radius:20px;padding:5px 13px;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;white-space:nowrap;transition:transform .2s,box-shadow .2s}
+.ds-nav-badge:hover{box-shadow:0 4px 16px rgba(201,153,26,.35);transform:translateY(-1px)}
+.ds-nav-badge .ds-flame{font-size:1rem;line-height:1}
+.ds-nav-badge #ds-nav-text{font-family:'Playfair Display',serif !important;font-weight:800;color:#C9991A !important;-webkit-text-fill-color:#C9991A !important;font-size:.82rem;letter-spacing:.3px}
+.ds-nav-badge.ds-available{box-shadow:0 0 0 0 rgba(255,107,53,.5)}
+.ds-nav-badge.ds-available .ds-flame{animation:dsFlameVibe 5s ease-in-out infinite}
+@keyframes dsFlameVibe{0%,86%,100%{transform:scale(1) rotate(0)}90%{transform:scale(1.3) rotate(-9deg)}94%{transform:scale(1.3) rotate(9deg)}}
+@media(max-width:600px){.ds-nav-badge #ds-nav-text{display:none}.ds-nav-badge{padding:6px 9px}}
+
+.ds-hook{max-width:760px;margin:18px auto 0;background:linear-gradient(135deg,#002B5C,#001E42);border:1px solid #C9991A;border-radius:12px;padding:22px 26px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;box-shadow:0 12px 40px -20px rgba(255,107,53,.7);position:relative;overflow:hidden}
+.ds-hook::before{content:'🔥';position:absolute;right:-6px;top:-16px;font-size:5rem;opacity:.12;pointer-events:none}
+.ds-hook-ico{font-size:2.4rem;line-height:1;position:relative;z-index:1}
+.ds-hook-body{flex:1;min-width:190px;position:relative;z-index:1}
+.ds-hook-title{font-family:'Playfair Display',serif !important;font-weight:800;font-size:1.25rem;color:#C9991A !important;-webkit-text-fill-color:#C9991A !important;margin-bottom:3px}
+.ds-hook-meta{font-family:'IBM Plex Sans',sans-serif;font-size:.82rem;color:#EAF0F8 !important;-webkit-text-fill-color:#EAF0F8;opacity:.9}
+.ds-hook-cta{position:relative;z-index:1;background:linear-gradient(135deg,#FF6B35,#C9991A);color:#03050A !important;-webkit-text-fill-color:#03050A;font-family:'IBM Plex Sans',sans-serif;font-weight:800;border:none;border-radius:8px;padding:13px 22px;cursor:pointer;white-space:nowrap;transition:transform .15s,box-shadow .2s}
+.ds-hook-cta:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(255,107,53,.5)}
+.ds-hook.done{border-color:#10B981}
+.ds-hook.done .ds-hook-title{color:#10B981 !important;-webkit-text-fill-color:#10B981}
+
+#page-dailyStreak{background:#03050A !important}
+.ds-wrap{max-width:680px;margin:0 auto;padding:44px 20px 80px;text-align:center}
+.ds-kicker{font-family:'IBM Plex Sans',sans-serif;font-weight:700;font-size:.72rem;letter-spacing:3px;color:#FF6B35 !important;-webkit-text-fill-color:#FF6B35;text-transform:uppercase;margin-bottom:10px}
+.ds-title{font-family:'Playfair Display',serif !important;font-weight:800;font-size:2.1rem;color:#C9991A !important;-webkit-text-fill-color:#C9991A !important;margin-bottom:8px}
+.ds-sub{font-family:'IBM Plex Sans',sans-serif;font-size:.92rem;color:#EAF0F8 !important;-webkit-text-fill-color:#EAF0F8;opacity:.8;margin-bottom:30px;line-height:1.5}
+.ds-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px}
+.ds-stat{background:linear-gradient(160deg,#002B5C,#001E42);border:1px solid rgba(201,153,26,.3);border-radius:10px;padding:18px 10px}
+.ds-stat-num{font-family:'Playfair Display',serif;font-weight:800;font-size:1.9rem;color:#C9991A !important;-webkit-text-fill-color:#C9991A;line-height:1}
+.ds-stat-lbl{font-family:'IBM Plex Sans',sans-serif;font-size:.64rem;color:#EAF0F8 !important;-webkit-text-fill-color:#EAF0F8;opacity:.75;margin-top:6px;letter-spacing:.5px}
+.ds-start{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#FF6B35,#C9991A);color:#03050A !important;-webkit-text-fill-color:#03050A;font-family:'IBM Plex Sans',sans-serif;font-weight:800;font-size:1rem;border:none;border-radius:10px;padding:16px 34px;cursor:pointer;transition:transform .15s,box-shadow .2s}
+.ds-start:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(255,107,53,.5)}
+.ds-done-msg{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.4);border-radius:10px;padding:18px;color:#bff3da !important;-webkit-text-fill-color:#bff3da;font-family:'IBM Plex Sans',sans-serif;font-size:.92rem;line-height:1.5;max-width:420px;margin:0 auto}
+.ds-badges-toggle{margin-top:30px;background:none;border:1px solid rgba(201,153,26,.4);color:#C9991A !important;-webkit-text-fill-color:#C9991A;font-family:'IBM Plex Sans',sans-serif;font-size:.82rem;padding:9px 18px;border-radius:8px;cursor:pointer}
+.ds-badges-list{margin-top:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
+.ds-badge{background:#002B5C;border:1px solid rgba(201,153,26,.3);border-radius:10px;padding:14px 8px}
+.ds-badge.locked{opacity:.35}
+.ds-badge-ico{font-size:1.7rem}
+.ds-badge-name{font-family:'IBM Plex Sans',sans-serif;font-size:.6rem;color:#EAF0F8 !important;-webkit-text-fill-color:#EAF0F8;margin-top:5px;line-height:1.3}
+.ds-result-ico{font-size:3.6rem;margin-bottom:10px}
+.ds-result-title{font-family:'Playfair Display',serif !important;font-weight:800;font-size:1.8rem;color:#C9991A !important;-webkit-text-fill-color:#C9991A !important;margin-bottom:8px;line-height:1.2}
+.ds-result-sub{font-family:'IBM Plex Sans',sans-serif;color:#EAF0F8 !important;-webkit-text-fill-color:#EAF0F8;opacity:.9;margin-bottom:18px;line-height:1.5}
+.ds-result-rewards{font-family:'IBM Plex Sans',sans-serif;color:#FFD27A !important;-webkit-text-fill-color:#FFD27A;font-size:.9rem;margin-bottom:22px;line-height:1.8}
+
+.ds-celebrate{position:fixed;inset:0;z-index:4500;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.82)}
+.ds-celebrate.show{display:flex}
+.ds-celebrate-card{background:linear-gradient(160deg,#002B5C,#001E42);border:2px solid #C9991A;border-radius:16px;max-width:430px;width:100%;padding:38px 28px;text-align:center;box-shadow:0 0 70px rgba(255,107,53,.55)}
+.ds-celebrate-ico{font-size:4rem;margin-bottom:12px;animation:dsPop .5s ease-out}
+@keyframes dsPop{0%{transform:scale(0)}70%{transform:scale(1.25)}100%{transform:scale(1)}}
+.ds-celebrate-card h3{font-family:'Playfair Display',serif !important;color:#C9991A !important;-webkit-text-fill-color:#C9991A !important;font-size:1.5rem;margin-bottom:10px}
+.ds-celebrate-card p{font-family:'IBM Plex Sans',sans-serif;color:#EAF0F8 !important;-webkit-text-fill-color:#EAF0F8;font-size:.95rem;line-height:1.6;margin-bottom:22px}
+.ds-celebrate-card button{background:linear-gradient(135deg,#FF6B35,#C9991A);color:#03050A !important;-webkit-text-fill-color:#03050A;font-family:'IBM Plex Sans',sans-serif;font-weight:800;border:none;border-radius:8px;padding:13px 30px;cursor:pointer}
+.ds-flame-particle{position:fixed;font-size:1.2rem;pointer-events:none;z-index:4600;animation:dsRise 1.6s ease-out forwards}
+@keyframes dsRise{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-170px) scale(1.6)}}
+@media(max-width:560px){.ds-stats{grid-template-columns:1fr 1fr 1fr}.ds-title{font-size:1.6rem}.ds-stat-num{font-size:1.5rem}}
+</style>
+
+<div id="page-dailyStreak" class="page" role="main" aria-label="Daily Compliance">
+  <div class="ds-wrap">
+    <div id="ds-intro">
+      <div class="ds-kicker">🔥 Daily Compliance</div>
+      <h1 class="ds-title">Ton défi quotidien</h1>
+      <p class="ds-sub">3 questions pour rester au top de la réglementation UEMOA. Reviens chaque jour pour garder ta série !</p>
+      <div class="ds-stats">
+        <div class="ds-stat"><div class="ds-stat-num" id="ds-stat-cur">0</div><div class="ds-stat-lbl">Série actuelle 🔥</div></div>
+        <div class="ds-stat"><div class="ds-stat-num" id="ds-stat-best">0</div><div class="ds-stat-lbl">Meilleure série 🏆</div></div>
+        <div class="ds-stat"><div class="ds-stat-num" id="ds-stat-saves">0</div><div class="ds-stat-lbl">Cartes Sauvetage 🛡️</div></div>
+      </div>
+      <div id="ds-cta-area"></div>
+      <button class="ds-badges-toggle" onclick="DailyStreak.toggleBadges()">🎖️ Mes badges <span id="ds-badges-caret">▸</span></button>
+      <div id="ds-badges-list" class="ds-badges-list" style="display:none"></div>
+    </div>
+    <div id="ds-result" style="display:none"></div>
+  </div>
+</div>
+
+<!-- Overlay de jeu (réutilise les styles Quiz Express .qe-*) -->
+<div id="daily-overlay" class="qe-overlay" style="display:none">
+  <div class="qe-confetti" id="ds-confetti" aria-hidden="true"></div>
+  <div class="qe-game">
+    <div class="qe-bar">
+      <span>Question <b id="ds-num">1</b>/<b>3</b></span>
+      <span class="qe-score-wrap">Erreurs <b id="ds-err">0</b>/1</span>
+      <span class="qe-timer" id="ds-timer">30</span>
+      <button class="qe-quit" onclick="DailyStreak.quit()" aria-label="Quitter le défi">✕</button>
+    </div>
+    <div class="qe-progress"><div class="qe-progress-fill" id="ds-progress-fill"></div></div>
+    <div class="qe-flip" id="ds-flip">
+      <div class="qe-flip-inner">
+        <div class="qe-face qe-front">
+          <span class="qe-cat-chip" id="ds-chip"></span>
+          <div class="qe-q" id="ds-q"></div>
+          <div class="qe-choices" id="ds-choices"></div>
+        </div>
+        <div class="qe-face qe-back">
+          <div class="qe-verdict" id="ds-verdict"></div>
+          <div class="qe-correct" id="ds-correct"></div>
+          <div class="qe-source" id="ds-source"></div>
+          <button class="qe-next" id="ds-next" onclick="DailyStreak.next()">Question suivante →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modale célébration de palier -->
+<div id="ds-celebrate" class="ds-celebrate" role="dialog" aria-modal="true" onclick="if(event.target===this)DailyStreak.closeCelebrate()">
+  <div class="ds-celebrate-card">
+    <div class="ds-celebrate-ico" id="ds-celebrate-ico">🏆</div>
+    <h3 id="ds-celebrate-title">Palier atteint !</h3>
+    <p id="ds-celebrate-text"></p>
+    <button onclick="DailyStreak.closeCelebrate()">Continuer →</button>
+  </div>
+</div>
+
 <div class="feedback-section" role="region" aria-labelledby="feedback-title">
   <div class="feedback-inner">
     <div class="section-label" style="justify-content:flex-start">Votre avis compte</div>
@@ -3294,7 +3416,7 @@ async function apiCall(method, path, body) {
 /* ───────────────────────────────────────────────────────────
    CORE : Navigation SPA
    ─────────────────────────────────────────────────────────── */
-const PAGES = ['landing','classement','tournois','duel','solo','premium','invitation','quizExpress','bibliotheque'];
+const PAGES = ['landing','classement','tournois','duel','solo','premium','invitation','quizExpress','bibliotheque','dailyStreak'];
 const pageInits = {};
 
 function showPage(id) {
@@ -3321,6 +3443,10 @@ function showPage(id) {
   // Init bibliothèque au premier affichage
   if (id === 'bibliotheque' && typeof window._bibInit === 'function') {
     setTimeout(window._bibInit, 50);
+  }
+  // Daily Compliance : (ré)afficher l'écran d'intro à chaque ouverture
+  if (id === 'dailyStreak' && window.DailyStreak) {
+    setTimeout(() => window.DailyStreak.renderIntro(), 30);
   }
   if (btn) { btn.classList.add('active'); btn.setAttribute('aria-current','page'); }
   window.scrollTo(0, 0);
@@ -8474,6 +8600,243 @@ const RAScore = (function(){
   return { offerSave, openReset, closeReset, confirmReset };
 })();
 window.RAScore = RAScore;
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE DAILY COMPLIANCE — série quotidienne (IndexedDB local)
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+const DailyStreak = (function(){
+  const DB='regul_arena_daily', STORE='daily_local', KEY='state', TZ='Africa/Dakar';
+  const TIERS=[
+    {d:3,  ico:'🥉',name:'Apprenti Régulier', xp:100,  saves:0},
+    {d:5,  ico:'🥈',name:'Habitué de l\'Arène',xp:200,  saves:1},
+    {d:7,  ico:'🥇',name:'Septénaire',         xp:500,  saves:0},
+    {d:14, ico:'💎',name:'Discipliné',         xp:1000, saves:1},
+    {d:21, ico:'🔥',name:'Inarrêtable',        xp:2000, saves:0, title:'Régulier UEMOA'},
+    {d:30, ico:'👑',name:'Légende du Mois',    xp:5000, saves:2},
+    {d:60, ico:'🏛️',name:'Maître des Arènes',  xp:10000,saves:0},
+    {d:100,ico:'⭐',name:'Centenaire',         xp:25000,saves:0}
+  ];
+  const DEMO=[
+    {cat:'Fonds propres',q:'Ratio minimum de fonds propres de base dur (CET1), hors coussins (Dispositif prudentiel UMOA 2016) ?',choices:['4,5 %','5 %','7 %','8 %'],answer:1,source:'Article 24 — Dispositif prudentiel UMOA 2016.'},
+    {cat:'Liquidité',q:'Le ratio de liquidité à court terme (LCR) doit, à terme, être au moins égal à :',choices:['60 %','75 %','100 %','120 %'],answer:2,source:'Article 76 — Dispositif prudentiel UMOA 2016.'},
+    {cat:'Division risques',q:'Limite individuelle de division des risques sur un même bénéficiaire (% des fonds propres) :',choices:['15 %','25 %','40 %','65 %'],answer:1,source:'Article 67 — Dispositif prudentiel UMOA 2016.'},
+    {cat:'Piliers Bâle',q:'Le Pilier 2 de Bâle correspond à :',choices:['Exigences minimales de fonds propres','La surveillance prudentielle','La discipline de marché','Le ratio de levier'],answer:1,source:'Préambule — Bâle II/III, Dispositif UMOA 2016.'},
+    {cat:'Ratio levier',q:'Le ratio de levier minimum exigé est de :',choices:['2 %','3 %','5 %','8 %'],answer:1,source:'Article 51 — Dispositif prudentiel UMOA 2016.'}
+  ];
+  let POOL=DEMO.slice();
+  let state=null, run=null, timer=null, cdTimer=null;
+
+  /* Debug caché (tests) : window._dailyDebug.dayOffset, .simulateNextDay(), .simulateSkip(n), .reset(), .getState() */
+  window._dailyDebug = window._dailyDebug || { dayOffset:0 };
+
+  /* ── Dates (Africa/Dakar = UTC+0) ── */
+  function _now(){ const d=new Date(); d.setDate(d.getDate()+(Number(window._dailyDebug.dayOffset)||0)); return d; }
+  function _dayStr(d){ return (d||_now()).toLocaleDateString('en-CA',{timeZone:TZ}); }
+  function _dayDiff(a,b){ return Math.round((Date.parse(b+'T00:00:00Z')-Date.parse(a+'T00:00:00Z'))/86400000); }
+  function _secsToReset(){ const n=_now(); const next=Date.parse(_dayStr(n)+'T00:00:00Z')+86400000; return Math.max(0,Math.floor((next-n.getTime())/1000)); }
+
+  /* ── IndexedDB ── */
+  function _open(){return new Promise((res,rej)=>{const r=indexedDB.open(DB,1);r.onupgradeneeded=e=>{const db=e.target.result;if(!db.objectStoreNames.contains(STORE))db.createObjectStore(STORE,{keyPath:'key'});};r.onsuccess=e=>res(e.target.result);r.onerror=e=>rej(e.target.error);});}
+  async function _loadDB(){try{const db=await _open();return await new Promise(r=>{const g=db.transaction(STORE,'readonly').objectStore(STORE).get(KEY);g.onsuccess=()=>r(g.result||null);g.onerror=()=>r(null);});}catch(e){return null;}}
+  async function _saveDB(){try{const db=await _open();const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put(Object.assign({key:KEY},state));return new Promise(r=>{tx.oncomplete=()=>r(true);tx.onerror=()=>r(false);});}catch(e){return false;}}
+  function _default(){return {streak:0,best:0,saves:0,lastDoneDate:null,xp:0,badges:[],title:null};}
+  async function _ensure(){ if(!state) state = (await _loadDB()) || _default(); return state; }
+  function canPlay(){ return !state || state.lastDoneDate !== _dayStr(); }
+
+  /* Charge le jeu complet de questions si dispo */
+  fetch('assets/quizzes_umoa_bale.json').then(r=>r.ok?r.json():null).then(d=>{ if(Array.isArray(d)&&d.length) POOL=d; }).catch(()=>{});
+  function _pick3(){ const p=POOL.slice(); for(let i=p.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[p[i],p[j]]=[p[j],p[i]];} return p.slice(0,Math.min(3,p.length)); }
+
+  /* ── Nav badge + carte accroche accueil ── */
+  async function refreshUI(){
+    await _ensure();
+    const txt=document.getElementById('ds-nav-text'), badge=document.getElementById('ds-nav-badge');
+    if(txt) txt.textContent = state.streak>0 ? (state.streak+' jour'+(state.streak>1?'s':'')) : 'Démarrer ma série';
+    if(badge) badge.classList.toggle('ds-available', canPlay());
+    _renderHook();
+  }
+  function _renderHook(){
+    const m=document.getElementById('ds-hook-mount'); if(!m) return;
+    if(canPlay()){
+      m.innerHTML='<div class="ds-hook"><span class="ds-hook-ico">🔥</span><div class="ds-hook-body"><div class="ds-hook-title">Daily Compliance</div><div class="ds-hook-meta">3 questions · 2 min · '+(state.streak>0?('Garde ta série de '+state.streak+' jour'+(state.streak>1?'s':'')+' !'):'Lance ta série dès aujourd\'hui !')+'</div></div><button class="ds-hook-cta" onclick="DailyStreak.open()">Commencer le défi →</button></div>';
+    } else {
+      m.innerHTML='<div class="ds-hook done"><span class="ds-hook-ico">✅</span><div class="ds-hook-body"><div class="ds-hook-title">Défi du jour validé !</div><div class="ds-hook-meta" id="ds-hook-cd">Reviens demain…</div></div></div>';
+      _startCountdown('ds-hook-cd');
+    }
+  }
+  function _startCountdown(elId){
+    clearInterval(cdTimer);
+    const tick=()=>{ const el=document.getElementById(elId); if(!el) return; const s=_secsToReset(); const h=Math.floor(s/3600), m=Math.floor((s%3600)/60); el.textContent='Reviens demain — il reste '+h+'h '+m+'min'; };
+    tick(); cdTimer=setInterval(tick,30000);
+  }
+
+  /* ── Écran intro ── */
+  async function renderIntro(){
+    await _ensure();
+    document.getElementById('ds-result').style.display='none';
+    document.getElementById('ds-intro').style.display='block';
+    document.getElementById('ds-stat-cur').textContent=state.streak;
+    document.getElementById('ds-stat-best').textContent=state.best;
+    document.getElementById('ds-stat-saves').textContent=state.saves;
+    const cta=document.getElementById('ds-cta-area');
+    if(canPlay()){
+      cta.innerHTML='<button class="ds-start" onclick="DailyStreak.startGame()">🔥 Démarrer le défi</button>';
+    } else {
+      cta.innerHTML='<div class="ds-done-msg">✅ Défi du jour validé ! Série : <b>'+state.streak+' jour'+(state.streak>1?'s':'')+'</b><br><span id="ds-intro-cd">Reviens demain…</span></div>';
+      _startCountdown('ds-intro-cd');
+    }
+    refreshUI();
+  }
+  function toggleBadges(){
+    const l=document.getElementById('ds-badges-list'), c=document.getElementById('ds-badges-caret');
+    const open=l.style.display==='none';
+    l.style.display=open?'grid':'none'; if(c)c.textContent=open?'▾':'▸';
+    if(open){ l.innerHTML=TIERS.map(t=>{const got=state.badges.indexOf(t.d)!==-1;return '<div class="ds-badge'+(got?'':' locked')+'"><div class="ds-badge-ico">'+t.ico+'</div><div class="ds-badge-name">'+t.name+'<br>'+t.d+' jours</div></div>';}).join(''); }
+  }
+
+  /* ── Jeu (3 questions, 30s, 1 erreur autorisée) ── */
+  function open(){ showPage('dailyStreak'); setTimeout(()=>{ if(canPlay()) startGame(); }, 60); }
+  function startGame(){
+    if(!canPlay()){ try{showToast('✅ Défi déjà validé aujourd\'hui — reviens demain !');}catch(e){} return; }
+    const qs=_pick3(); if(!qs.length) return;
+    run={ qs, i:0, errors:0 };
+    const ov=document.getElementById('daily-overlay');
+    if(ov.parentElement!==document.body) document.body.appendChild(ov);
+    ov.style.display='block'; document.body.style.overflow='hidden';
+    document.getElementById('ds-confetti').innerHTML='';
+    _renderQ();
+  }
+  function _renderQ(){
+    const q=run.qs[run.i];
+    document.getElementById('ds-flip').classList.remove('flipped');
+    document.getElementById('ds-num').textContent=run.i+1;
+    document.getElementById('ds-err').textContent=run.errors;
+    document.getElementById('ds-chip').textContent=q.cat||'Réglementation';
+    document.getElementById('ds-q').textContent=q.q;
+    const ch=document.getElementById('ds-choices'); ch.innerHTML='';
+    q.choices.forEach((c,idx)=>{ const b=document.createElement('button'); b.className='qe-choice'; b.type='button'; b.textContent=c; b.onclick=()=>_answer(idx); ch.appendChild(b); });
+    _startTimer();
+  }
+  function _startTimer(){
+    clearInterval(timer); let t=30;
+    const el=document.getElementById('ds-timer'), fill=document.getElementById('ds-progress-fill');
+    el.textContent=t; el.classList.remove('qe-low');
+    if(fill){ fill.style.transition='none'; fill.style.width='100%'; requestAnimationFrame(()=>{ fill.style.transition='width 30s linear'; fill.style.width='0%'; }); }
+    timer=setInterval(()=>{ t--; el.textContent=Math.max(0,t); if(t<=6)el.classList.add('qe-low'); try{if(t<=5&&t>0)RA_SFX.timer();}catch(e){} if(t<=0){ clearInterval(timer); _answer(-1); } },1000);
+  }
+  function _answer(idx){
+    clearInterval(timer);
+    const q=run.qs[run.i];
+    const correct = idx===q.answer;
+    if(!correct) run.errors++;
+    try{ correct?RA_SFX.correct():RA_SFX.error(); }catch(e){}
+    document.querySelectorAll('#ds-choices .qe-choice').forEach((b,i)=>{ b.disabled=true; if(i===q.answer)b.classList.add('ok'); if(i===idx&&!correct)b.classList.add('ko'); });
+    const v=document.getElementById('ds-verdict');
+    v.textContent = correct?'✅ Bonne réponse':(idx===-1?'⏱ Temps écoulé':'❌ Mauvaise réponse');
+    v.className='qe-verdict '+(correct?'ok':'ko');
+    document.getElementById('ds-correct').textContent='Réponse : '+q.choices[q.answer];
+    document.getElementById('ds-source').textContent='📖 '+(q.source||'Dispositif prudentiel UMOA 2016');
+    document.getElementById('ds-err').textContent=run.errors;
+    document.getElementById('ds-next').textContent=(run.i+1>=run.qs.length)?'Voir le résultat →':'Question suivante →';
+    setTimeout(()=>document.getElementById('ds-flip').classList.add('flipped'),320);
+  }
+  function next(){ if(run.i+1>=run.qs.length){ _finish(); return; } run.i++; _renderQ(); }
+  function quit(){ clearInterval(timer); const ov=document.getElementById('daily-overlay'); ov.style.display='none'; document.body.style.overflow=''; }
+
+  /* ── Logique de série ── */
+  function _resolve(errors){
+    const t=_dayStr(), last=state.lastDoneDate, passed=errors<=1, oldStreak=state.streak;
+    let savedBy=null, tiersHit=[], xpGained=0;
+    let cont='first';
+    if(last){ const d=_dayDiff(last,t); cont = d<=0?'sameday' : (d===1?'consecutive':'missed'); }
+    if(cont==='sameday') return {error:'already'};
+    if(!passed){
+      if(state.saves>0){ state.saves--; savedBy='fail'; state.lastDoneDate=t; }
+      else { state.streak=0; state.lastDoneDate=t; }
+      _saveDB();
+      return {passed:false,savedBy,oldStreak,newStreak:state.streak,tiersHit:[],xpGained:0};
+    }
+    if(cont==='first'||cont==='consecutive'){ state.streak = cont==='first'?1:state.streak+1; }
+    else { if(state.saves>0){ state.saves--; savedBy='missed'; state.streak=state.streak+1; } else { state.streak=1; } }
+    state.lastDoneDate=t;
+    if(state.streak>state.best) state.best=state.streak;
+    xpGained=25;
+    TIERS.forEach(tr=>{ if(state.streak===tr.d && state.badges.indexOf(tr.d)===-1){ state.badges.push(tr.d); xpGained+=tr.xp; if(tr.saves)state.saves+=tr.saves; if(tr.title)state.title=tr.title; tiersHit.push(tr); } });
+    state.xp=(state.xp||0)+xpGained;
+    _saveDB();
+    return {passed:true,savedBy,oldStreak,newStreak:state.streak,tiersHit,xpGained};
+  }
+  function _finish(){
+    quit();
+    const r=_resolve(run.errors);
+    document.getElementById('ds-intro').style.display='none';
+    const res=document.getElementById('ds-result'); res.style.display='block';
+    let html='';
+    if(r.passed){
+      try{RA_SFX.victory();RA_SFX.bravo();}catch(e){}
+      _confetti(); _flameBurst();
+      html='<div class="ds-result-ico">🔥</div><div class="ds-result-title">Série prolongée !</div>'
+        +'<div class="ds-result-sub">Tu es maintenant à <b style="color:#FF6B35">'+r.newStreak+' jour'+(r.newStreak>1?'s':'')+'</b> d\'affilée.'+(r.savedBy==='missed'?'<br>🛡️ Une Carte Sauvetage a couvert ton absence.':'')+'</div>'
+        +'<div class="ds-result-rewards">+'+r.xpGained+' XP'+(r.tiersHit.length?(' · '+r.tiersHit.map(t=>t.ico+' '+t.name).join(' · ')):'')+'</div>';
+    } else if(r.savedBy==='fail'){
+      html='<div class="ds-result-ico">🛡️</div><div class="ds-result-title">Carte Sauvetage utilisée</div><div class="ds-result-sub">Ta série de <b>'+r.newStreak+' jour'+(r.newStreak>1?'s':'')+'</b> est sauvée ! Reviens demain pour la prolonger.</div>';
+    } else {
+      html='<div class="ds-result-ico">💔</div><div class="ds-result-title">Série interrompue</div><div class="ds-result-sub">Ta série s\'arrête à '+r.oldStreak+' jour'+(r.oldStreak>1?'s':'')+'. Reprends demain — c\'est en persévérant qu\'on devient expert.</div>';
+    }
+    html+='<button class="ds-start" onclick="DailyStreak.renderIntro()">← Retour</button>';
+    res.innerHTML=html;
+    refreshUI();
+    if(r.tiersHit&&r.tiersHit.length) setTimeout(()=>_celebrate(r.tiersHit[0],r.newStreak),700);
+  }
+
+  /* ── Célébration palier ── */
+  function _celebrate(tier,streak){
+    try{RA_SFX.victory();}catch(e){}
+    document.getElementById('ds-celebrate-ico').textContent=tier.ico;
+    document.getElementById('ds-celebrate-title').textContent='Palier '+tier.d+' jours : '+tier.name+' !';
+    let txt='Tu débloques le badge '+tier.ico+' « '+tier.name+' » et +'+tier.xp+' XP.';
+    if(tier.saves) txt+=' +'+tier.saves+' Carte'+(tier.saves>1?'s':'')+' Sauvetage 🛡️.';
+    if(tier.title) txt+=' Nouveau titre : « '+tier.title+' ».';
+    document.getElementById('ds-celebrate-text').textContent=txt;
+    document.getElementById('ds-celebrate').classList.add('show');
+    _confetti();
+  }
+  function closeCelebrate(){ document.getElementById('ds-celebrate').classList.remove('show'); }
+
+  /* ── Effets ── */
+  function _confetti(){
+    const c=document.getElementById('ds-confetti'); if(!c) return; c.innerHTML='';
+    const cols=['#FF6B35','#C9991A','#E8B520','#F5F3EE','#10B981'];
+    for(let i=0;i<70;i++){ const p=document.createElement('div'); const col=cols[Math.floor(Math.random()*cols.length)];
+      p.style.cssText='position:absolute;top:-12px;left:'+(Math.random()*100)+'%;width:'+(4+Math.random()*8)+'px;height:'+(4+Math.random()*12)+'px;background:'+col+';border-radius:'+(Math.random()>.5?'50%':'0')+';animation:confettiDrop '+(2+Math.random()*3)+'s '+(Math.random()*1.2)+'s linear forwards'; c.appendChild(p); }
+    setTimeout(()=>{ if(c)c.innerHTML=''; },6000);
+  }
+  function _flameBurst(){
+    const badge=document.getElementById('ds-nav-badge'); if(!badge) return;
+    const r=badge.getBoundingClientRect(); const x=r.left+r.width/2, y=r.top+r.height/2;
+    for(let i=0;i<14;i++){ const f=document.createElement('div'); f.className='ds-flame-particle'; f.textContent='🔥';
+      f.style.left=(x+(Math.random()*60-30))+'px'; f.style.top=y+'px'; f.style.animationDelay=(Math.random()*.4)+'s'; document.body.appendChild(f);
+      setTimeout(()=>f.remove(),2100); }
+  }
+
+  /* ── Debug (tests) ── */
+  Object.assign(window._dailyDebug, {
+    getState: async()=>{ await _ensure(); return JSON.parse(JSON.stringify(state)); },
+    setState: async(p)=>{ await _ensure(); Object.assign(state,p); await _saveDB(); await refreshUI(); return state; },
+    reset: async()=>{ state=_default(); await _saveDB(); window._dailyDebug.dayOffset=0; await refreshUI(); return state; },
+    simulateNextDay: async()=>{ window._dailyDebug.dayOffset=(Number(window._dailyDebug.dayOffset)||0)+1; await refreshUI(); return _dayStr(); },
+    simulateSkip: async(n)=>{ window._dailyDebug.dayOffset=(Number(window._dailyDebug.dayOffset)||0)+(n||2); await refreshUI(); return _dayStr(); }
+  });
+
+  // Init au chargement : badge nav + carte accueil
+  document.addEventListener('DOMContentLoaded', ()=>{ refreshUI(); });
+  if(document.readyState!=='loading') refreshUI();
+
+  return { open, startGame, next, quit, renderIntro, toggleBadges, closeCelebrate, refreshUI, canPlay };
+})();
+window.DailyStreak = DailyStreak;
 </script>
 </body>
 </html>
