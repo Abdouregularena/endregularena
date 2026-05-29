@@ -1,0 +1,176 @@
+{
+  "pack_id": "rfe-uemoa",
+  "titre": "Pack Relations Financières Extérieures UEMOA",
+  "sous_titre": "Règlement n°09/2010/CM/UEMOA + Note BCEAO n°013-04-2026",
+  "sources": [
+    "Règlement n°09/2010/CM/UEMOA du 1er octobre 2010 relatif aux relations financières extérieures des États membres de l'UEMOA",
+    "Note BCEAO n°013-04-2026 du 17 avril 2026 relative au traitement des paiements extérieurs des non-résidents de nationalité étrangère ayant acquis le statut de résident de l'UEMOA",
+    "Règlement n°06/2024/CM/UEMOA du 20 décembre 2024 (fondement juridique de la Note 013-04-2026)"
+  ],
+  "icone": "🌍",
+  "couleur": "#1A3A6C",
+  "flash_cards": [
+    { "id": "fc1", "categorie": "Définitions clés", "recto": "Qu'est-ce qu'un INTERMÉDIAIRE AGRÉÉ ?", "verso": "Établissement de crédit installé dans l'UEMOA ayant reçu cette qualité par AGRÉMENT du Ministre chargé des Finances.", "source": "Règlement 09/2010 — Art. 1er" },
+    { "id": "fc2", "categorie": "Définitions clés", "recto": "Qu'est-ce qu'un AGRÉÉ DE CHANGE MANUEL ?", "verso": "Personne physique OU morale installée dans l'UEMOA, agréée par le Ministre des Finances, pour effectuer des opérations de change manuel.", "source": "Règlement 09/2010 — Art. 1er" },
+    { "id": "fc3", "categorie": "Définitions clés", "recto": "Qui est RÉSIDENT au sens du Règlement RFE ?", "verso": "Personne physique ayant son PRINCIPAL CENTRE D'INTÉRÊT dans un État UEMOA + fonctionnaires nationaux en poste à l'étranger + personnes morales pour leurs établissements dans l'UEMOA.", "source": "Règlement 09/2010 — Art. 1er" },
+    { "id": "fc4", "categorie": "Définitions clés", "recto": "Qui est NON-RÉSIDENT ?", "verso": "Personne physique avec principal centre d'intérêt à l'étranger + fonctionnaires étrangers en poste dans l'UEMOA + personnes morales pour leurs établissements à l'étranger.", "source": "Règlement 09/2010 — Art. 1er" },
+    { "id": "fc5", "categorie": "Définitions clés", "recto": "Qu'est-ce qu'un INVESTISSEMENT DIRECT ?", "verso": "Achat, création ou extension de fonds de commerce + opérations donnant le CONTRÔLE d'une société. ⚠️ Une participation au capital ≤ 10% N'EST PAS un investissement direct.", "source": "Règlement 09/2010 — Art. 1er" },
+    { "id": "fc6", "categorie": "Définitions clés", "recto": "Que comprend la ZONE FRANC ?", "verso": "1. Les 8 États UEMOA · 2. France + DOM-TOM (Monaco assimilée) · 3. Pays à compte d'opérations Trésor français (Cameroun, RCA, Congo, Gabon, Guinée Équatoriale, Tchad, Comores).", "source": "Règlement 09/2010 — Art. 1er" },
+    { "id": "fc7", "categorie": "Définitions clés", "recto": "Que sont les VALEURS MOBILIÈRES NATIONALES vs ÉTRANGÈRES ?", "verso": "NATIONALES = émises dans l'UEMOA en FCFA. ÉTRANGÈRES = émises à l'étranger OU émises dans l'UEMOA en monnaie étrangère.", "source": "Règlement 09/2010 — Art. 1er" },
+    { "id": "fc8", "categorie": "Définitions clés", "recto": "Qu'est-ce que le RAPATRIEMENT du produit des recettes d'exportation ?", "verso": "Perception effective dans le pays d'origine, attestée par cession de devises à la BCEAO via la banque domiciliataire.", "source": "Règlement 09/2010 — Art. 1er" },
+    { "id": "fc9", "categorie": "Seuils & plafonds", "recto": "Quel est le plafond d'un transfert vers l'étranger SANS pièce justificative ?", "verso": "500.000 FCFA (identification du demandeur + bénéficiaire suffit).", "source": "Règlement 09/2010 — Art. 4-3" },
+    { "id": "fc10", "categorie": "Seuils & plafonds", "recto": "Quel est le plafond d'un transfert via l'Office des Postes pour règlement d'importations ?", "verso": "1.000.000 FCFA maximum.", "source": "Règlement 09/2010 — Annexe I, Art. 5" },
+    { "id": "fc11", "categorie": "Seuils & plafonds", "recto": "Plafond de transfert hors Zone franc via l'Office des Postes SANS justificatif ?", "verso": "500.000 FCFA maximum.", "source": "Règlement 09/2010 — Annexe I, Art. 5" },
+    { "id": "fc12", "categorie": "Seuils & plafonds", "recto": "Pourcentage MINIMUM d'emprunt étranger pour financer un investissement à l'étranger d'un résident UEMOA ?", "verso": "75% au minimum doit être financé par emprunts à l'étranger.", "source": "Règlement 09/2010 — Art. 10" },
+    { "id": "fc13", "categorie": "Seuils & plafonds", "recto": "Délai max de cession de devises encaissées à l'étranger par un résident ?", "verso": "1 MOIS à compter de la date d'exigibilité du paiement.", "source": "Règlement 09/2010 — Art. 3" },
+    { "id": "fc14", "categorie": "Seuils & plafonds", "recto": "Délai max entre expédition de marchandises et exigibilité du paiement (export) ?", "verso": "120 JOURS maximum après expédition.", "source": "Règlement 09/2010 — Art. 3" },
+    { "id": "fc15", "categorie": "Seuils & plafonds", "recto": "Poids max d'or qu'un voyageur peut importer/exporter SANS autorisation ?", "verso": "500 GRAMMES d'objets en or.", "source": "Règlement 09/2010 — Art. 9" },
+    { "id": "fc16", "categorie": "Seuils & plafonds", "recto": "Délai max de rapatriement du produit de liquidation d'investissement non-réinvesti ?", "verso": "1 MOIS — via un intermédiaire agréé.", "source": "Règlement 09/2010 — Art. 10" },
+    { "id": "fc17", "categorie": "Opérations courantes", "recto": "Les paiements courants vers l'étranger suivent quel principe ?", "verso": "LIBERTÉ — sous réserve de présentation de pièces justificatives à l'intermédiaire agréé.", "source": "Règlement 09/2010 — Art. 4" },
+    { "id": "fc18", "categorie": "Opérations courantes", "recto": "Les opérations d'import/export doivent être domiciliées où ?", "verso": "Auprès d'un INTERMÉDIAIRE AGRÉÉ (obligation pour les résidents).", "source": "Règlement 09/2010 — Art. 5" },
+    { "id": "fc19", "categorie": "Opérations courantes", "recto": "Lister 5 paiements courants autorisés à titre général.", "verso": "1. Salaires/honoraires · 2. Loyers · 3. Impôts/amendes · 4. Dividendes/intérêts · 5. Transferts d'émigrants (+ marchandises, assurances, brevets, etc.).", "source": "Règlement 09/2010 — Art. 4-4" },
+    { "id": "fc20", "categorie": "Opérations en capital", "recto": "Les mouvements de capitaux INTRA-UEMOA sont-ils libres ?", "verso": "OUI — libres et SANS RESTRICTION (Articles 76d, 96, 97 Traité UEMOA + Art. 3 Traité UMOA).", "source": "Règlement 09/2010 — Art. 6" },
+    { "id": "fc21", "categorie": "Opérations en capital", "recto": "Investissement d'un résident UEMOA à l'étranger : quelle procédure ?", "verso": "AUTORISATION PRÉALABLE du Ministre des Finances + financement à 75% min. par emprunts étrangers + lettre Annexe VII.", "source": "Règlement 09/2010 — Art. 10" },
+    { "id": "fc22", "categorie": "Opérations en capital", "recto": "Investissement étranger dans l'UEMOA : libre ou autorisation ?", "verso": "LIBRE — mais déclaration statistique à la Direction des Finances Extérieures + BCEAO pour les investissements directs.", "source": "Règlement 09/2010 — Art. 10" },
+    { "id": "fc23", "categorie": "Opérations en capital", "recto": "Emprunt d'un résident UEMOA auprès d'un non-résident : conditions ?", "verso": "Réalisation par INTERMÉDIAIRE AGRÉÉ + déclaration statistique BCEAO + Direction Finances Extérieures.", "source": "Règlement 09/2010 — Art. 11" },
+    { "id": "fc24", "categorie": "Opérations en capital", "recto": "Transactions sur dérivés de change : condition principale ?", "verso": "Doivent être ADOSSÉES à des opérations commerciales ou financières réelles.", "source": "Règlement 09/2010 — Art. 12" },
+    { "id": "fc25", "categorie": "Or & valeurs mobilières", "recto": "Import/export d'or UEMOA ↔ étranger : régime ?", "verso": "AUTORISATION PRÉALABLE du Ministre des Finances (sauf Trésor, BCEAO, objets à faible quantité d'or, voyageurs ≤ 500g).", "source": "Règlement 09/2010 — Art. 9" },
+    { "id": "fc26", "categorie": "Or & valeurs mobilières", "recto": "Émission/vente de valeurs mobilières étrangères dans l'UEMOA : qui autorise ?", "verso": "La BCEAO (pour le compte de l'Autorité RFE) — PRÉALABLEMENT à l'autorisation du CREPMF.", "source": "Règlement 09/2010 — Art. 8" },
+    { "id": "fc27", "categorie": "Sanctions", "recto": "Qui sanctionne les infractions au Règlement RFE par les établissements de crédit ?", "verso": "La BCEAO + la Commission Bancaire de l'UMOA (au regard de la loi bancaire nationale).", "source": "Règlement 09/2010 — Art. 16" },
+    { "id": "fc28", "categorie": "Sanctions", "recto": "Sanction supplémentaire possible contre un intermédiaire agréé ou agréé de change manuel fautif ?", "verso": "RETRAIT DE L'AGRÉMENT — en sus des autres sanctions.", "source": "Règlement 09/2010 — Art. 16" },
+    { "id": "fc29", "categorie": "Sanctions", "recto": "Comment les intermédiaires habilités rendent-ils compte ?", "verso": "À la Direction chargée des Finances Extérieures + à la BCEAO (à des fins de contrôle).", "source": "Règlement 09/2010 — Art. 14" },
+    { "id": "fc30", "categorie": "Note BCEAO 013-04-2026", "recto": "Quel salarié étranger acquiert la qualité de résident UEMOA ?", "verso": "Celui dont le contrat de travail est : soit à DURÉE INDÉTERMINÉE, soit d'une durée ≥ 1 AN.", "source": "Note BCEAO 013-04-2026 — §1" },
+    { "id": "fc31", "categorie": "Note BCEAO 013-04-2026", "recto": "Sur quel article juridique repose la Note BCEAO 013-04-2026 ?", "verso": "Article 31 du Règlement n°06/2024/CM/UEMOA du 20 décembre 2024 + Article 2 de l'Annexe I.", "source": "Note BCEAO 013-04-2026 — Préambule" },
+    { "id": "fc32", "categorie": "Note BCEAO 013-04-2026", "recto": "Devise des paiements entre résidents (étranger devenu résident ↔ autre résident UEMOA) ?", "verso": "EXCLUSIVEMENT en FCFA — sur un compte d'intermédiaire agréé.", "source": "Note BCEAO 013-04-2026 — §2" },
+    { "id": "fc33", "categorie": "Note BCEAO 013-04-2026", "recto": "Le ressortissant étranger devenu résident peut-il garder ses comptes à l'étranger ?", "verso": "OUI — sans autorisation préalable du Ministre des Finances.", "source": "Note BCEAO 013-04-2026 — §2" },
+    { "id": "fc34", "categorie": "Note BCEAO 013-04-2026", "recto": "Lister les 5 dépenses courantes autorisées à titre général pour les transferts étrangers résidents.", "verso": "1. Biens & services · 2. Loyers · 3. Impôts/taxes · 4. Aides familiales · 5. Frais de scolarité (+ autres transferts courants sans contrepartie).", "source": "Note BCEAO 013-04-2026 — §3" },
+    { "id": "fc35", "categorie": "Note BCEAO 013-04-2026", "recto": "Durée MIN de constitution d'une épargne salariale transférable à l'étranger ?", "verso": "6 MOIS minimum.", "source": "Note BCEAO 013-04-2026 — §3" },
+    { "id": "fc36", "categorie": "Note BCEAO 013-04-2026", "recto": "Délai max de la Structure Finances Extérieures pour autoriser un transfert d'épargne ?", "verso": "5 JOURS OUVRÉS maximum.", "source": "Note BCEAO 013-04-2026 — §3" },
+    { "id": "fc37", "categorie": "Note BCEAO 013-04-2026", "recto": "Délai min entre 2 demandes de transferts d'épargne fondées sur le même motif ?", "verso": "6 MOIS — identique à la période minimale de constitution.", "source": "Note BCEAO 013-04-2026 — §3" },
+    { "id": "fc38", "categorie": "Note BCEAO 013-04-2026", "recto": "3 critères d'éligibilité aux transferts pour un étranger résident ?", "verso": "1. Justificatif de nationalité étrangère (passeport/CNI valide) · 2. Justificatif de revenus dans l'UEMOA · 3. Lien avec le pays de destination (fiscal, familial OU contractuel).", "source": "Note BCEAO 013-04-2026 — §5" },
+    { "id": "fc39", "categorie": "Note BCEAO 013-04-2026", "recto": "Plafond global des transferts à titre général pour un étranger résident ?", "verso": "Ne peut EXCÉDER les revenus nets perçus dans l'UEMOA, dûment justifiés (bulletins de salaire, attestations, etc.).", "source": "Note BCEAO 013-04-2026 — §7" },
+    { "id": "fc40", "categorie": "Note BCEAO 013-04-2026", "recto": "Transfert du solde en cas de départ définitif de l'UEMOA d'un étranger résident ?", "verso": "Autorisation préalable de la Structure Finances Extérieures → INTÉGRALITÉ du solde transférable, sans limitation de montant, si avoirs justifiés (revenus + liquidation d'investissements).", "source": "Note BCEAO 013-04-2026 — §4" }
+  ],
+  "mnemotechniques": [
+    {
+      "id": "mn1",
+      "concept": "Les 4 acteurs autorisés à effectuer les opérations financières avec l'étranger",
+      "moyen": "« BCEAO • POSTES • INTERMÉDIAIRE • CHANGE MANUEL » → acronyme B-PIC : Banque centrale, Postes, Intermédiaire agréé, Change manuel agréé.",
+      "explication": "Aucun autre acteur ne peut intermédier les flux financiers UEMOA ↔ étranger.",
+      "exemple": "Un commerçant ne peut PAS envoyer 2 M FCFA à l'étranger sans passer par l'un de ces 4 acteurs.",
+      "source": "Règlement 09/2010 — Art. 2"
+    },
+    {
+      "id": "mn2",
+      "concept": "Le seuil clé des 500.000 FCFA (sans pièces justificatives)",
+      "moyen": "« 5-0-0 RIME AVEC AUCUN SOUCI » → 500 000 = aucun justificatif requis, seulement l'identification.",
+      "explication": "Au-dessus de 500 000 FCFA, des pièces justificatives deviennent obligatoires.",
+      "exemple": "Transfert de 450 000 FCFA → identification suffit. À 600 000 FCFA → facture/contrat exigé.",
+      "source": "Règlement 09/2010 — Art. 4-3"
+    },
+    {
+      "id": "mn3",
+      "concept": "La règle des 75% pour les investissements à l'étranger",
+      "moyen": "« 3/4 VIENT DE L'ÉTRANGER » → 75% (3/4) du financement DOIT provenir d'emprunts à l'étranger.",
+      "explication": "Ce principe protège la balance des paiements UEMOA contre les fuites de capitaux.",
+      "exemple": "Investissement de 100 M FCFA en France → au moins 75 M FCFA doivent être empruntés hors UEMOA.",
+      "source": "Règlement 09/2010 — Art. 10"
+    },
+    {
+      "id": "mn4",
+      "concept": "La règle des 10% pour distinguer investissement direct vs participation",
+      "moyen": "« 1 DOIGT SUR 10 = SIMPLE TOUCHE » → ≤ 10% au capital = simple participation (PAS investissement direct).",
+      "explication": "Au-dessus de 10%, c'est un INVESTISSEMENT DIRECT soumis à autorisation préalable.",
+      "exemple": "Acheter 9% d'une société française → participation libre. Acheter 15% → investissement direct soumis à autorisation.",
+      "source": "Règlement 09/2010 — Art. 1er"
+    },
+    {
+      "id": "mn5",
+      "concept": "Les 3 délais clés en matière de devises et exportation",
+      "moyen": "« 1 MOIS - 4 MOIS - 1 MOIS » : 1 mois pour CÉDER les devises · 4 mois (120j) max entre EXPÉDITION et exigibilité · 1 mois pour RAPATRIER la liquidation non-réinvestie.",
+      "explication": "Mémorise la séquence : 1 → 4 → 1.",
+      "exemple": "Marchandise expédiée le 1er janvier → exigibilité max le 1er mai → cession devises avant le 1er juin.",
+      "source": "Règlement 09/2010 — Art. 3 et 10"
+    },
+    {
+      "id": "mn6",
+      "concept": "Les exceptions à l'autorisation pour l'or (Art. 9)",
+      "moyen": "« T-B-V » : Trésor public · BCEAO · Voyageurs (≤ 500 g).",
+      "explication": "Toute autre import/export d'or → autorisation préalable Ministre Finances obligatoire.",
+      "exemple": "Un voyageur avec 400 g de bijoux en or → OK sans autorisation. Avec 600 g → autorisation requise.",
+      "source": "Règlement 09/2010 — Art. 9"
+    },
+    {
+      "id": "mn7",
+      "concept": "La hiérarchie des sanctions pour intermédiaire agréé fautif",
+      "moyen": "« SAFE » : Sanction pénale, Amende, Fermeture, Exclusion → Retrait d'agrément.",
+      "explication": "Les sanctions sont cumulatives ; le retrait d'agrément est la sanction ultime professionnelle.",
+      "exemple": "Une banque qui exécute un transfert sans pièces justificatives → sanctions BCEAO + Commission Bancaire + risque retrait d'agrément.",
+      "source": "Règlement 09/2010 — Art. 16"
+    },
+    {
+      "id": "mn8",
+      "concept": "Devenir résident UEMOA (Note 013-04-2026) : la règle du contrat",
+      "moyen": "« CDI ou CDD ≥ 1 AN » → tout étranger sous l'une de ces 2 conditions DEVIENT résident UEMOA.",
+      "explication": "C'est la nature du contrat de travail qui détermine la résidence, pas la durée effective de présence.",
+      "exemple": "Un Français signé en CDD 13 mois au Sénégal → résident UEMOA dès la signature.",
+      "source": "Note BCEAO 013-04-2026 — §1"
+    },
+    {
+      "id": "mn9",
+      "concept": "Les 5 dépenses courantes libres pour étranger résident (Note 2026)",
+      "moyen": "« BLIST » : Biens & services · Loyers · Impôts/taxes · Soutien familial · Tuition (scolarité).",
+      "explication": "Ces 5 catégories sont autorisées sans formalité préalable (sous présentation de justificatifs).",
+      "exemple": "Un expatrié indien à Dakar peut transférer librement le paiement de la scolarité de ses enfants en Inde.",
+      "source": "Note BCEAO 013-04-2026 — §3"
+    },
+    {
+      "id": "mn10",
+      "concept": "Les 3 critères d'éligibilité aux transferts pour étranger résident",
+      "moyen": "« I-D-L » : Identité étrangère · Documents de revenus dans l'Union · Lien avec pays de destination.",
+      "explication": "Si l'un des 3 manque, l'intermédiaire agréé doit refuser le transfert.",
+      "exemple": "Un salarié allemand au Mali sans aucune attache (fiscale, familiale, contractuelle) en Allemagne → refus.",
+      "source": "Note BCEAO 013-04-2026 — §5"
+    },
+    {
+      "id": "mn11",
+      "concept": "La double règle des 6 mois pour les transferts d'épargne",
+      "moyen": "« 6+6 » : 6 mois MIN de constitution · 6 mois MIN entre 2 demandes pour le même motif.",
+      "explication": "Pas de transfert d'épargne sans une constitution préalable de 6 mois, et pas de second transfert avant 6 mois.",
+      "exemple": "Épargne salariale ouverte en janvier → premier transfert possible en juillet → deuxième transfert non avant janvier suivant.",
+      "source": "Note BCEAO 013-04-2026 — §3"
+    },
+    {
+      "id": "mn12",
+      "concept": "Les 3 piliers de responsabilité du CLIENT (Note 2026)",
+      "moyen": "« E-A-L » : Exactitude des informations · Authenticité des documents · Licéité de l'origine des fonds.",
+      "explication": "Le client est personnellement responsable de ces 3 dimensions, indépendamment de l'intermédiaire.",
+      "exemple": "Un faux bulletin de salaire engage la responsabilité du client, même si la banque l'a accepté.",
+      "source": "Note BCEAO 013-04-2026 — §8"
+    },
+    {
+      "id": "mn13",
+      "concept": "Les obligations LBC/FT/FPADM qui s'appliquent toujours",
+      "moyen": "« VCD » : Vigilance · Contrôle interne · Déclaration.",
+      "explication": "Quelle que soit la nature de l'opération RFE, ces 3 obligations LBC/FT/FPADM doivent être respectées.",
+      "exemple": "Même un transfert courant de 200 000 FCFA ne dispense pas de la vigilance LBC/FT par l'intermédiaire.",
+      "source": "Note BCEAO 013-04-2026 — §9 + Règlement 09/2010 — Art. 17"
+    },
+    {
+      "id": "mn14",
+      "concept": "La Zone franc à mémoriser sans confusion",
+      "moyen": "« 8 + 1 + 7 » : 8 États UEMOA + 1 France (DOM-TOM + Monaco) + 7 États à compte d'opérations (Cameroun, RCA, Congo, Gabon, Guinée Équatoriale, Tchad, Comores).",
+      "explication": "Total = 16 territoires dans la Zone franc.",
+      "exemple": "Un transfert UEMOA → Cameroun reste DANS la Zone franc, donc régime simplifié.",
+      "source": "Règlement 09/2010 — Art. 1er"
+    },
+    {
+      "id": "mn15",
+      "concept": "Le triangle de la résidence UEMOA",
+      "moyen": "« CENTRE D'INTÉRÊT × NATIONALITÉ × DURÉE » → la résidence dépend des 3, pas d'un seul critère.",
+      "explication": "Le principal centre d'intérêt prime sur la nationalité ; la nature du contrat prime sur la durée écoulée.",
+      "exemple": "Un Béninois centré professionnellement en France = non-résident UEMOA, même s'il est de nationalité ouest-africaine.",
+      "source": "Règlement 09/2010 — Art. 1er + Note 013-04-2026 — §1"
+    }
+  ]
+}
