@@ -1928,7 +1928,8 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
     <li role="none"><button id="nav-landing" onclick="showPage('landing')" class="active" role="menuitem" aria-current="page">Accueil</button></li>
     <li role="none"><button id="nav-classement" onclick="showPage('classement')" role="menuitem">Classement</button></li>
     <li role="none"><button id="nav-tournois" onclick="showPage('tournois')" role="menuitem">Tournois<span id="notif-badge-tournois" class="ra-notif-badge" style="display:none" onclick="event.stopPropagation();RANotif.toggle()"></span></button></li>
-    <li role="none"><button id="nav-quizExpress" onclick="aller('quizExpress')" role="menuitem">⚡ Quiz Express UMOA</button></li>
+    <li role="none"><button id="nav-quizExpress" onclick="QE.open('umoa-bale')" role="menuitem">⚡ Quiz Express UMOA</button></li>
+    <li role="none"><button id="nav-packsQuiz" onclick="showPage('packsQuiz')" role="menuitem">📚 Packs Quiz</button></li>
     <li role="none"><button id="nav-duel" onclick="showPage('duel')" role="menuitem">Duel<span id="notif-badge-duel" class="ra-notif-badge" style="display:none" onclick="event.stopPropagation();RANotif.toggle()"></span></button></li>
     <li role="none"><button id="nav-premium" onclick="showPage('premium')" role="menuitem">Top Scoreurs</button></li>
     <li role="none"><button id="nav-invitation" onclick="showPage('invitation')" role="menuitem">Inviter</button></li>
@@ -1954,7 +1955,8 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
   <button onclick="showPage('landing');toggleMobileNav()">🏠 Accueil</button>
   <button onclick="showPage('classement');toggleMobileNav()">🏆 Classement</button>
   <button onclick="showPage('tournois');toggleMobileNav()">🏟 Tournois</button>
-  <button onclick="aller('quizExpress');toggleMobileNav()">⚡ Quiz Express UMOA</button>
+  <button onclick="QE.open('umoa-bale');toggleMobileNav()">⚡ Quiz Express UMOA</button>
+  <button onclick="showPage('packsQuiz');toggleMobileNav()">📚 Packs Quiz</button>
   <button onclick="showPage('duel');toggleMobileNav()">⚔ Duel</button>
   <button onclick="showPage('premium');toggleMobileNav()">⭐ Top Scoreurs</button>
   <button onclick="showPage('invitation');toggleMobileNav()">📨 Inviter</button>
@@ -3128,8 +3130,8 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
 <div id="page-quizExpress" class="page" role="main" aria-label="Quiz Express UMOA">
   <div class="qe-wrap">
     <div class="qe-kicker">⚡ Quiz Express</div>
-    <h1 class="qe-title">Quiz Express — Dispositif Prudentiel UMOA 2016</h1>
-    <p class="qe-sub">10 questions chronométrées · 20 s par question · sources réglementaires citées</p>
+    <h1 class="qe-title" id="qe-title">Quiz Express — Dispositif Prudentiel UMOA 2016</h1>
+    <p class="qe-sub" id="qe-sub">10 questions chronométrées · 20 s par question · sources réglementaires citées</p>
     <div class="qe-setup">
       <label class="qe-label" for="qe-cat">Catégorie</label>
       <select id="qe-cat" class="qe-select">
@@ -3311,6 +3313,33 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE « CHOISIR UN PACK DE QUIZ »
+     ═══════════════════════════════════════════════════════════ -->
+<style>
+#page-packsQuiz{background:#03050A !important}
+.pq-wrap{max-width:880px;margin:0 auto;padding:48px 20px 70px;text-align:center}
+.pq-title{font-family:'Playfair Display',serif !important;font-weight:800;font-size:2rem;color:#C9991A !important;-webkit-text-fill-color:#C9991A !important;margin-bottom:8px}
+.pq-sub{font-family:'IBM Plex Sans',sans-serif;color:#EAF0F8 !important;-webkit-text-fill-color:#EAF0F8;opacity:.8;margin-bottom:34px}
+.packs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;max-width:760px;margin:0 auto}
+.pack-tile{background:linear-gradient(160deg,#002B5C,#001E42);border:1px solid rgba(201,153,26,.3);border-radius:14px;padding:26px 22px;display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0;animation:pqIn .5s ease-out forwards}
+@keyframes pqIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.pack-ico{font-size:2.6rem;line-height:1}
+.pack-name{font-family:'Playfair Display',serif !important;font-weight:800;font-size:1.1rem;color:#C9991A !important;-webkit-text-fill-color:#C9991A;line-height:1.25}
+.pack-count{font-family:'IBM Plex Sans',sans-serif;font-weight:700;font-size:.8rem;color:#FF6B35 !important;-webkit-text-fill-color:#FF6B35}
+.pack-desc{font-family:'IBM Plex Sans',sans-serif;font-size:.8rem;color:#EAF0F8 !important;-webkit-text-fill-color:#EAF0F8;opacity:.8;line-height:1.45;min-height:36px}
+.pack-play{margin-top:10px;width:100%;justify-content:center}
+.pq-soon{margin-top:30px;font-family:'IBM Plex Sans',sans-serif;font-size:.8rem;color:#EAF0F8 !important;-webkit-text-fill-color:#EAF0F8;opacity:.6}
+</style>
+<div id="page-packsQuiz" class="page" role="main" aria-label="Choisir un pack de quiz">
+  <div class="pq-wrap">
+    <h1 class="pq-title">📚 Choisis ton pack de Quiz</h1>
+    <p class="pq-sub">Sélectionne un thème réglementaire et lance un quiz chronométré.</p>
+    <div class="packs-grid" id="packs-grid"></div>
+    <div class="pq-soon">Plus de packs bientôt : CIMA Assurance · SYSCOHADA · RFE CEMAC…</div>
+  </div>
+</div>
+
 <div class="feedback-section" role="region" aria-labelledby="feedback-title">
   <div class="feedback-inner">
     <div class="section-label" style="justify-content:flex-start">Votre avis compte</div>
@@ -3416,7 +3445,7 @@ async function apiCall(method, path, body) {
 /* ───────────────────────────────────────────────────────────
    CORE : Navigation SPA
    ─────────────────────────────────────────────────────────── */
-const PAGES = ['landing','classement','tournois','duel','solo','premium','invitation','quizExpress','bibliotheque','dailyStreak'];
+const PAGES = ['landing','classement','tournois','duel','solo','premium','invitation','quizExpress','bibliotheque','dailyStreak','packsQuiz'];
 const pageInits = {};
 
 function showPage(id) {
@@ -3447,6 +3476,10 @@ function showPage(id) {
   // Daily Compliance : (ré)afficher l'écran d'intro à chaque ouverture
   if (id === 'dailyStreak' && window.DailyStreak) {
     setTimeout(() => window.DailyStreak.renderIntro(), 30);
+  }
+  // Page Packs Quiz : (re)rendre les tuiles
+  if (id === 'packsQuiz' && window.QE) {
+    setTimeout(() => window.QE.renderPacks(), 30);
   }
   if (btn) { btn.classList.add('active'); btn.setAttribute('aria-current','page'); }
   window.scrollTo(0, 0);
@@ -8205,9 +8238,29 @@ updateProgress();
      MODULE QUIZ EXPRESS UMOA — logique, timer, IndexedDB, XP
      ═══════════════════════════════════════════════════════════ -->
 <script>
+/* ═══ PACKS DE QUIZ — structure déclarative (extensible) ═══ */
+const QUIZ_PACKS = [
+  { id:'umoa-bale', label:'Quiz Express UMOA Bâle', icon:'⚡', source:'assets/quizzes_umoa_bale.json', description:'Dispositif Prudentiel UMOA 2016', cover_color:'#002B5C' },
+  { id:'rfe-uemoa', label:'Pack Relations Financières Extérieures UEMOA', icon:'🌍', source:'assets/quizzes_rfe_uemoa.json', description:'Règlement RFE UEMOA + Note BCEAO 013-04-2026', cover_color:'#1A3A6C' }
+];
+const RAPacks = (function(){
+  const cache = {};
+  function get(id){ return QUIZ_PACKS.find(p => p.id === id) || QUIZ_PACKS[0]; }
+  async function load(id){
+    const p = get(id);
+    if (cache[p.id]) return cache[p.id];
+    try {
+      const d = await fetch(p.source).then(r => r.ok ? r.json() : null);
+      if (Array.isArray(d) && d.length) { cache[p.id] = d.map(q => Object.assign({ _pack:p.id, _packLabel:p.label }, q)); return cache[p.id]; }
+    } catch(e) {}
+    cache[p.id] = []; return cache[p.id];
+  }
+  return { get, load, list: QUIZ_PACKS };
+})();
+window.RAPacks = RAPacks;
+
 const QE = (function(){
-  /* Questions de démo (inline) — remplacées au runtime par
-     assets/quizzes_umoa_bale.json (21 questions) si disponible. */
+  /* Questions de démo (inline) — fallback si le pack umoa-bale ne charge pas. */
   const DEMO = [
     { cat:'Fonds propres', q:'Quel est le ratio minimum de fonds propres de base dur (CET1), hors coussins, exigé par le Dispositif prudentiel UMOA 2016 ?',
       choices:['4,5 %','5 %','7 %','8 %'], answer:1,
@@ -8229,12 +8282,59 @@ const QE = (function(){
   let POOL = DEMO.slice();
   let state = null;
   let timer = null;
+  let activePack = RAPacks.get('umoa-bale');
 
-  /* Chargement optionnel du jeu complet de 21 questions */
-  fetch('assets/quizzes_umoa_bale.json')
-    .then(r => r.ok ? r.json() : null)
-    .then(d => { if (Array.isArray(d) && d.length) POOL = d; })
-    .catch(() => {});
+  /* Charge le pack actif (cache via RAPacks) ; fallback DEMO pour umoa-bale */
+  async function loadActive(packId){
+    if (packId) activePack = RAPacks.get(packId);
+    let qs = await RAPacks.load(activePack.id);
+    if ((!qs || !qs.length) && activePack.id === 'umoa-bale') qs = DEMO.slice();
+    POOL = (qs && qs.length) ? qs : DEMO.slice();
+    return POOL;
+  }
+  /* Migration silencieuse : pack_id par défaut 'umoa-bale' sur anciens records */
+  function _migrate(){
+    try {
+      const rq = indexedDB.open('regul_arena_qe', 1);
+      rq.onsuccess = e => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains('quiz_express_attempts')) return;
+        const st = db.transaction('quiz_express_attempts', 'readwrite').objectStore('quiz_express_attempts');
+        const all = st.getAll();
+        all.onsuccess = () => { (all.result || []).forEach(r => { if (!r.pack_id) { r.pack_id = 'umoa-bale'; st.put(r); } }); };
+      };
+    } catch(e) {}
+  }
+  _migrate();
+  loadActive('umoa-bale');
+
+  /* Ouvre l'écran de setup pour un pack donné */
+  async function open(packId){
+    await loadActive(packId);
+    _renderSetup();
+    showPage('quizExpress');
+  }
+  function _renderSetup(){
+    const t = document.getElementById('qe-title'); if (t) t.textContent = 'Quiz Express — ' + (activePack.description || activePack.label);
+    const sub = document.getElementById('qe-sub'); if (sub) sub.textContent = '10 questions chronométrées · 20 s par question · ' + activePack.label;
+    const sel = document.getElementById('qe-cat');
+    if (sel){
+      const cats = [...new Set(POOL.map(q => q.cat).filter(Boolean))];
+      sel.innerHTML = '<option value="Toutes">Toutes les catégories</option>' + cats.map(c => '<option value="' + String(c).replace(/"/g,'&quot;') + '">' + c + '</option>').join('');
+    }
+  }
+  /* Page « Choisir un pack » */
+  function renderPacks(){
+    const g = document.getElementById('packs-grid'); if (!g) return;
+    g.innerHTML = RAPacks.list.map((p, i) =>
+      '<div class="pack-tile" style="animation-delay:' + (i * 0.08) + 's"><div class="pack-ico">' + (p.icon || '📦') + '</div>' +
+      '<div class="pack-name">' + p.label + '</div>' +
+      '<div class="pack-count" id="pack-count-' + p.id + '">…</div>' +
+      '<div class="pack-desc">' + (p.description || '') + '</div>' +
+      '<button class="qe-start pack-play" onclick="QE.open(\'' + p.id + '\')">Jouer →</button></div>'
+    ).join('');
+    RAPacks.list.forEach(p => { RAPacks.load(p.id).then(qs => { const c = document.getElementById('pack-count-' + p.id); if (c) c.textContent = ((qs && qs.length) || 0) + ' questions'; }); });
+  }
 
   /* ── IndexedDB : quiz_express_attempts ── */
   function openDB(){
@@ -8289,7 +8389,7 @@ const QE = (function(){
     // Sortir l'overlay du contexte d'empilement de la page pour couvrir le header fixe
     const ov = document.getElementById('qe-overlay');
     if (ov.parentElement !== document.body) document.body.appendChild(ov);
-    state = { cat, qs, i:0, score:0, t0:Date.now(), answers:[] };
+    state = { cat, qs, i:0, score:0, t0:Date.now(), answers:[], packId: activePack.id };
     document.getElementById('qe-total').textContent = qs.length;
     document.getElementById('qe-result').style.display = 'none';
     document.getElementById('qe-game').style.display = 'block';
@@ -8380,6 +8480,7 @@ const QE = (function(){
     state.xp = xp;
     const _attemptId = await saveAttempt({
       date: new Date().toISOString(),
+      pack_id: state.packId || activePack.id,
       categorie: state.cat,
       score: state.score,
       total,
@@ -8406,7 +8507,7 @@ const QE = (function(){
     confetti();
     showToast('Bravo ! +' + xp + ' XP');
     // Choix : faire compter ce score au classement ? (opt-in)
-    const _packId = 'umoa-bale-' + String(state.cat).toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const _packId = (state.packId || activePack.id) + '-' + String(state.cat).toLowerCase().replace(/[^a-z0-9]+/g, '-');
     if (window.RAScore) {
       RAScore.offerSave({
         container: r,
@@ -8448,8 +8549,9 @@ const QE = (function(){
     document.body.style.overflow = '';
   }
 
-  return { start, answer, next, finish, showSources, replay, quit };
+  return { start, answer, next, finish, showSources, replay, quit, open, renderPacks };
 })();
+window.QE = QE;
 </script>
 
 <!-- ═══════════════════════════════════════════════════════════
@@ -8646,7 +8748,11 @@ const DailyStreak = (function(){
   function canPlay(){ return !state || state.lastDoneDate !== _dayStr(); }
 
   /* Charge le jeu complet de questions si dispo */
-  fetch('assets/quizzes_umoa_bale.json').then(r=>r.ok?r.json():null).then(d=>{ if(Array.isArray(d)&&d.length) POOL=d; }).catch(()=>{});
+  /* Source élargie : on agrège les questions de TOUS les packs disponibles */
+  (async function(){
+    if(!window.RAPacks) return;
+    try{ const all=[]; for(const p of RAPacks.list){ const qs=await RAPacks.load(p.id); if(qs&&qs.length) all.push.apply(all, qs); } if(all.length) POOL=all; }catch(e){}
+  })();
   function _pick3(){ const p=POOL.slice(); for(let i=p.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[p[i],p[j]]=[p[j],p[i]];} return p.slice(0,Math.min(3,p.length)); }
 
   /* ── Nav badge + carte accroche accueil ── */
@@ -8737,7 +8843,7 @@ const DailyStreak = (function(){
     v.textContent = correct?'✅ Bonne réponse':(idx===-1?'⏱ Temps écoulé':'❌ Mauvaise réponse');
     v.className='qe-verdict '+(correct?'ok':'ko');
     document.getElementById('ds-correct').textContent='Réponse : '+q.choices[q.answer];
-    document.getElementById('ds-source').textContent='📖 '+(q.source||'Dispositif prudentiel UMOA 2016');
+    document.getElementById('ds-source').textContent='Pack : '+(q._packLabel||'UMOA Bâle')+' · Catégorie : '+(q.cat||'—')+'  📖 '+(q.source||'Dispositif prudentiel UMOA 2016');
     document.getElementById('ds-err').textContent=run.errors;
     document.getElementById('ds-next').textContent=(run.i+1>=run.qs.length)?'Voir le résultat →':'Question suivante →';
     setTimeout(()=>document.getElementById('ds-flip').classList.add('flipped'),320);
