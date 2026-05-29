@@ -9,6 +9,246 @@
   ],
   "icone": "🌍",
   "couleur": "#1A3A6C",
+  "glossaire": [
+    { "terme": "Agréé de change manuel", "definition": "Personne physique OU morale installée dans l'UEMOA, agréée par le Ministre chargé des Finances, pour effectuer des opérations de change manuel (achat/vente de devises sous forme de billets, pièces, chèques de voyage).", "source": "Règlement 09/2010 — Art. 1er" },
+    { "terme": "Autorité RFE (Ministre)", "definition": "Le Ministre chargé des Finances de chaque État membre est l'autorité de mise en œuvre du Règlement RFE dans son pays. Il délivre les agréments, autorise les opérations particulières et peut déléguer à la BCEAO.", "source": "Règlement 09/2010 — Art. 13" },
+    { "terme": "BCEAO", "definition": "Banque Centrale des États de l'Afrique de l'Ouest. Tient les réserves de change de l'UMOA, gère le compte d'opérations avec le Trésor français, contrôle les flux financiers extérieurs et peut intervenir directement sur les marchés des changes.", "source": "Règlement 09/2010 — Art. 2 et 14" },
+    { "terme": "Cession de devises", "definition": "Opération par laquelle un résident remet à la BCEAO ou à un intermédiaire agréé les devises qu'il a reçues de l'étranger, en échange de FCFA. La cession matérialise le rapatriement effectif.", "source": "Règlement 09/2010 — Art. 1er et 3" },
+    { "terme": "Commission Bancaire UMOA", "definition": "Autorité de supervision conjointe avec la BCEAO chargée du contrôle de la conformité des établissements de crédit (et intermédiaires agréés) au Règlement RFE. Compétente pour les sanctions disciplinaires.", "source": "Règlement 09/2010 — Art. 16" },
+    { "terme": "CREPMF", "definition": "Conseil Régional de l'Épargne Publique et des Marchés Financiers. Autorise les émissions et placements de valeurs mobilières dans l'UEMOA. Interaction avec la BCEAO pour les titres étrangers placés dans l'Union.", "source": "Règlement 09/2010 — Art. 8" },
+    { "terme": "Domiciliation", "definition": "Procédure obligatoire par laquelle un résident désigne un intermédiaire agréé unique pour traiter une opération d'importation ou d'exportation. La domiciliation permet le contrôle des flux et la collecte d'informations statistiques.", "source": "Règlement 09/2010 — Art. 5" },
+    { "terme": "Étranger devenu résident UEMOA", "definition": "Ressortissant non-UEMOA de nationalité étrangère ayant acquis le statut de résident par contrat de travail à durée indéterminée OU à durée déterminée ≥ 1 an. Régime particulier de la Note BCEAO 013-04-2026.", "source": "Note BCEAO 013-04-2026 — §1" },
+    { "terme": "Intermédiaire agréé", "definition": "Établissement de crédit installé dans l'UEMOA ayant reçu l'agrément du Ministre des Finances pour effectuer les opérations financières avec l'extérieur (transferts, domiciliation, change). Responsable du contrôle de régularité.", "source": "Règlement 09/2010 — Art. 1er" },
+    { "terme": "Investissement direct", "definition": "Achat, création ou extension de fonds de commerce + toute opération donnant le contrôle d'une société (> 10% du capital). Soumis à autorisation préalable du Ministre lorsque réalisé à l'étranger par un résident.", "source": "Règlement 09/2010 — Art. 1er et 10" },
+    { "terme": "Investissement de portefeuille", "definition": "Acquisition de valeurs mobilières (≤ 10% du capital) sans intention de contrôle. Régime déclaratif moins contraignant que l'investissement direct.", "source": "Règlement 09/2010 — Art. 1er et 8" },
+    { "terme": "LBC/FT/FPADM", "definition": "Lutte contre le Blanchiment de Capitaux, le Financement du Terrorisme et le Financement de la Prolifération des Armes de Destruction Massive. Obligations transversales s'appliquant à TOUTES les opérations RFE.", "source": "Règlement 09/2010 — Art. 17 + Note 013-04-2026 — §9" },
+    { "terme": "Ministre chargé des Finances", "definition": "Autorité nationale qui délivre les agréments (intermédiaires agréés, agréés de change manuel) et autorise les opérations soumises à autorisation préalable (investissements directs à l'étranger, or, valeurs mobilières étrangères).", "source": "Règlement 09/2010 — Art. 13" },
+    { "terme": "Non-résident", "definition": "Personne physique ayant son principal centre d'intérêt à l'étranger + fonctionnaires étrangers en poste dans l'UEMOA + personnes morales pour leurs établissements à l'étranger.", "source": "Règlement 09/2010 — Art. 1er" },
+    { "terme": "Office des Postes", "definition": "Acteur autorisé à effectuer des transferts limités vers l'étranger (plafond 1.000.000 FCFA pour règlement d'importations / 500.000 FCFA hors zone franc sans justificatif).", "source": "Règlement 09/2010 — Art. 2 et Annexe I" },
+    { "terme": "Rapatriement", "definition": "Perception effective dans le pays d'origine du produit des recettes d'exportation ou de la liquidation d'un investissement. Attesté par la cession de devises à la BCEAO via la banque domiciliataire.", "source": "Règlement 09/2010 — Art. 1er et 3" },
+    { "terme": "Résident", "definition": "Personne physique ayant son principal centre d'intérêt dans un État UEMOA + fonctionnaires nationaux en poste à l'étranger + personnes morales pour leurs établissements dans l'UEMOA.", "source": "Règlement 09/2010 — Art. 1er" },
+    { "terme": "Trésor français (compte d'opérations)", "definition": "Compte tenu par la BCEAO auprès du Trésor français matérialisant la garantie de convertibilité du FCFA. Définit le périmètre de la Zone franc avec les pays africains également liés.", "source": "Règlement 09/2010 — Art. 1er (Zone franc)" },
+    { "terme": "Valeurs mobilières (nationales/étrangères)", "definition": "NATIONALES = émises dans l'UEMOA en FCFA. ÉTRANGÈRES = émises à l'étranger OU émises dans l'UEMOA en monnaie étrangère. Les valeurs étrangères placées dans l'UEMOA requièrent l'autorisation BCEAO préalable au CREPMF.", "source": "Règlement 09/2010 — Art. 1er et 8" },
+    { "terme": "Zone franc", "definition": "Ensemble territorial composé de : (1) les 8 États UEMOA · (2) France + DOM-TOM (Monaco assimilée) · (3) les 7 pays à compte d'opérations Trésor français (Cameroun, RCA, Congo, Gabon, Guinée Équatoriale, Tchad, Comores). Total = 16 territoires.", "source": "Règlement 09/2010 — Art. 1er" }
+  ],
+  "fiches_revision": [
+    {
+      "id": "fr1",
+      "ordre": 1,
+      "titre": "Cadre juridique et acteurs autorisés",
+      "icone": "📜",
+      "resume_court": "Le Règlement n°09/2010/CM/UEMOA fixe les règles des opérations financières entre l'UEMOA et le reste du monde. Quatre acteurs sont seuls autorisés à les effectuer.",
+      "points_cles": [
+        "Texte de base : Règlement n°09/2010/CM/UEMOA du 1er octobre 2010",
+        "Adopté par le Conseil des Ministres de l'UEMOA (CM/UEMOA)",
+        "Mise en œuvre conjointe : BCEAO + Ministre des Finances de chaque État + Commission Bancaire UMOA",
+        "Acronyme à retenir des 4 acteurs autorisés : B-PIC = BCEAO · Postes · Intermédiaire agréé · Change manuel agréé",
+        "Aucun autre acteur ne peut intermédier les flux financiers UEMOA ↔ étranger"
+      ],
+      "a_retenir": "Le Règlement 09/2010 est le texte CARDINAL. Pour exécuter une opération financière extérieure dans l'UEMOA, il faut OBLIGATOIREMENT passer par l'un des 4 acteurs B-PIC. Tout autre canal est illégal.",
+      "exemple_concret": "Un commerçant à Dakar veut envoyer 2 M FCFA à un fournisseur en Chine. Il NE PEUT PAS le faire via une plateforme de transfert non agréée. Il doit utiliser : sa banque (intermédiaire agréé), un agréé de change manuel, l'Office des Postes ou la BCEAO directement.",
+      "piege_frequent": "Confondre la Note BCEAO 013-04-2026 avec le Règlement 09/2010. La Note encadre UNIQUEMENT les paiements extérieurs des étrangers devenus résidents UEMOA. Le Règlement 09/2010 reste le texte général applicable à TOUTES les opérations RFE.",
+      "source": "Règlement 09/2010 — Art. 1er et 2"
+    },
+    {
+      "id": "fr2",
+      "ordre": 2,
+      "titre": "Résident vs Non-résident — qualification clé",
+      "icone": "👥",
+      "resume_court": "Le statut de résident détermine le régime applicable. Il dépend du principal centre d'intérêt (Règlement) ou de la nature du contrat de travail (Note 2026 pour les étrangers).",
+      "points_cles": [
+        "Résident (Règlement) : principal centre d'intérêt dans un État UEMOA",
+        "Sont aussi résidents : fonctionnaires nationaux en poste à l'étranger + personnes morales pour leurs établissements dans l'UEMOA",
+        "Non-résident : centre d'intérêt à l'étranger + fonctionnaires étrangers en poste dans l'UEMOA + personnes morales pour leurs établissements à l'étranger",
+        "Note BCEAO 013-04-2026 (étrangers) : devient résident si contrat de travail CDI OU CDD ≥ 1 an",
+        "Triangle d'analyse : CENTRE D'INTÉRÊT × NATIONALITÉ × NATURE DU CONTRAT"
+      ],
+      "a_retenir": "Le principal centre d'intérêt prime sur la nationalité. La nature du contrat de travail prime sur la durée de présence effective. Un Français en CDI à Dakar est RÉSIDENT UEMOA dès la signature ; un Béninois centré professionnellement en France est NON-RÉSIDENT UEMOA, même de nationalité ouest-africaine.",
+      "exemple_concret": "Un Indien signé en CDD 13 mois à Abidjan devient résident UEMOA. Un Français en mission ponctuelle 6 mois à Lomé sans contrat local reste non-résident.",
+      "piege_frequent": "Croire que la résidence dépend uniquement de la nationalité, ou uniquement de la durée écoulée sur le territoire. Le statut s'évalue au moment de l'opération à partir des trois critères combinés.",
+      "source": "Règlement 09/2010 — Art. 1er + Note 013-04-2026 — §1"
+    },
+    {
+      "id": "fr3",
+      "ordre": 3,
+      "titre": "Zone franc — périmètre territorial",
+      "icone": "🗺️",
+      "resume_court": "La Zone franc regroupe 16 territoires : 8 UEMOA + France et DOM-TOM (+ Monaco) + 7 pays à compte d'opérations Trésor français. Régime simplifié dans cette zone.",
+      "points_cles": [
+        "8 États UEMOA : Bénin, Burkina Faso, Côte d'Ivoire, Guinée-Bissau, Mali, Niger, Sénégal, Togo",
+        "France + DOM-TOM (Monaco assimilée)",
+        "7 États à compte d'opérations : Cameroun, RCA, Congo, Gabon, Guinée Équatoriale, Tchad, Comores",
+        "Total = 16 territoires (mémo : 8 + 1 + 7)",
+        "Régime simplifié pour les transferts intra-Zone franc"
+      ],
+      "a_retenir": "Tout transfert vers un pays de la Zone franc bénéficie d'un régime allégé par rapport à un transfert hors Zone franc. Connaître les 16 territoires est indispensable pour qualifier rapidement une opération.",
+      "exemple_concret": "Un virement de Dakar vers Yaoundé (Cameroun) reste dans la Zone franc → régime simplifié. Un virement de Dakar vers Lagos (Nigeria) sort de la Zone franc → contrôle renforcé et justificatifs requis au-delà de 500.000 FCFA.",
+      "piege_frequent": "Oublier les Comores (souvent absentes des listes mémorisées) ou inclure à tort le Nigeria, le Ghana ou la Mauritanie qui ne sont PAS dans la Zone franc.",
+      "source": "Règlement 09/2010 — Art. 1er"
+    },
+    {
+      "id": "fr4",
+      "ordre": 4,
+      "titre": "Opérations courantes — principe de liberté",
+      "icone": "💸",
+      "resume_court": "Les paiements courants vers l'étranger suivent le principe de liberté, sous réserve de pièces justificatives au-delà de 500.000 FCFA.",
+      "points_cles": [
+        "Seuil clé : 500.000 FCFA → en dessous, identification du demandeur et bénéficiaire suffit",
+        "Au-dessus de 500.000 FCFA : pièces justificatives obligatoires (facture, contrat, attestation)",
+        "Plafond Office des Postes pour règlement d'importations : 1.000.000 FCFA",
+        "Plafond Office des Postes hors Zone franc sans justificatif : 500.000 FCFA",
+        "5 catégories libres à titre général : salaires/honoraires · loyers · impôts/amendes · dividendes/intérêts · transferts d'émigrants"
+      ],
+      "a_retenir": "Le principe est la LIBERTÉ des paiements courants. Le seuil de 500.000 FCFA est la frontière entre simple identification et exigence de justificatifs. À 600.000 FCFA = facture obligatoire ; à 450.000 FCFA = identification suffit.",
+      "exemple_concret": "Un travailleur sénégalais envoie 400.000 FCFA à sa famille au Cameroun : seule l'identification est requise. Le mois suivant il envoie 600.000 FCFA : il doit présenter une attestation de soutien familial ou justificatif équivalent.",
+      "piege_frequent": "Croire que les opérations courantes ne sont pas contrôlées. Au contraire : au-dessus de 500.000 FCFA, le défaut de justificatif fait peser une responsabilité directe sur l'intermédiaire agréé qui exécute le transfert.",
+      "source": "Règlement 09/2010 — Art. 4 + Annexe I"
+    },
+    {
+      "id": "fr5",
+      "ordre": 5,
+      "titre": "Domiciliation et rôle des intermédiaires agréés",
+      "icone": "🏦",
+      "resume_court": "Les opérations d'import/export doivent être domiciliées chez un intermédiaire agréé unique. Délai max de cession des devises : 1 mois.",
+      "points_cles": [
+        "Domiciliation = désignation d'un intermédiaire agréé unique par opération (obligation pour les résidents)",
+        "Délai max de cession des devises : 1 mois à compter de la date d'exigibilité du paiement",
+        "Délai max entre expédition et exigibilité (export) : 120 jours",
+        "Les intermédiaires rendent compte à la Direction des Finances Extérieures + BCEAO",
+        "L'intermédiaire agréé est responsable du contrôle de régularité des opérations"
+      ],
+      "a_retenir": "La séquence à mémoriser : 1 → 4 → 1. 1 mois pour CÉDER les devises encaissées · 4 mois (120j) max entre EXPÉDITION et exigibilité · 1 mois pour RAPATRIER la liquidation non-réinvestie.",
+      "exemple_concret": "Marchandise expédiée le 1er janvier 2026 → exigibilité du paiement au plus tard le 1er mai 2026 (120 jours) → cession des devises encaissées avant le 1er juin 2026 (1 mois après exigibilité).",
+      "piege_frequent": "Confondre le délai de 120 jours (entre expédition et exigibilité) avec le délai de cession de 1 mois. Les deux délais se cumulent dans le calendrier.",
+      "source": "Règlement 09/2010 — Art. 3 et 5"
+    },
+    {
+      "id": "fr6",
+      "ordre": 6,
+      "titre": "Investissement direct vs participation — la règle des 10%",
+      "icone": "📈",
+      "resume_court": "Une participation au capital ≤ 10% n'est PAS un investissement direct. Au-dessus, c'est un investissement direct soumis à autorisation préalable lorsqu'il est fait à l'étranger.",
+      "points_cles": [
+        "Investissement direct = achat/création/extension de fonds de commerce + opérations donnant le CONTRÔLE d'une société",
+        "Seuil de qualification : participation ≤ 10% = simple participation (régime libre)",
+        "Participation > 10% = investissement direct (régime contraignant si fait à l'étranger)",
+        "Mémo : 1 doigt sur 10 = simple touche (≤10% = pas IDE)",
+        "L'investissement de portefeuille reste libre mais sous obligations déclaratives"
+      ],
+      "a_retenir": "Le seuil de 10% est la frontière entre régime libre (participation) et régime contraignant (investissement direct). Cette qualification détermine la procédure applicable.",
+      "exemple_concret": "Acheter 9% d'une société française cotée → participation libre (déclaration statistique uniquement). Acheter 15% de la même société → investissement direct soumis à autorisation préalable du Ministre + financement à 75% min par emprunts étrangers.",
+      "piege_frequent": "Considérer un cumul progressif (3% + 4% + 5% = 12%) comme une simple participation : à partir du moment où le cumul des prises de participations dépasse 10%, le régime de l'investissement direct s'applique.",
+      "source": "Règlement 09/2010 — Art. 1er et 10"
+    },
+    {
+      "id": "fr7",
+      "ordre": 7,
+      "titre": "Investissements à l'étranger des résidents UEMOA",
+      "icone": "🚀",
+      "resume_court": "Tout investissement direct d'un résident UEMOA à l'étranger requiert autorisation préalable + financement à 75% minimum par emprunts étrangers.",
+      "points_cles": [
+        "Autorisation préalable du Ministre des Finances (formulaire Annexe VII)",
+        "75% au minimum doit être financé par emprunts à l'étranger",
+        "Rapatriement obligatoire des revenus (dividendes, bénéfices)",
+        "Délai de rapatriement du produit de liquidation non-réinvesti : 1 mois",
+        "Réalisation par intermédiaire agréé + déclaration BCEAO + Direction des Finances Extérieures"
+      ],
+      "a_retenir": "Règle des 3/4 : 75% du financement DOIT venir de l'étranger. Ce principe protège la balance des paiements UEMOA contre les fuites de capitaux et réserve les FCFA aux opérations intra-zone.",
+      "exemple_concret": "Investissement de 100 M FCFA en France par un groupe ivoirien → 75 M FCFA minimum doivent être empruntés hors UEMOA. Seuls 25 M FCFA peuvent provenir des fonds propres de la société résidente.",
+      "piege_frequent": "Croire que les revenus rapatriés peuvent rester sur un compte à l'étranger. NON : ils doivent être cédés à la BCEAO via l'intermédiaire agréé dans le mois suivant leur encaissement.",
+      "source": "Règlement 09/2010 — Art. 10"
+    },
+    {
+      "id": "fr8",
+      "ordre": 8,
+      "titre": "Régime de l'or et valeurs mobilières étrangères",
+      "icone": "🪙",
+      "resume_court": "L'import/export d'or est soumis à autorisation préalable (sauf exceptions T-B-V). Les valeurs mobilières étrangères placées dans l'UEMOA requièrent l'autorisation BCEAO préalable au CREPMF.",
+      "points_cles": [
+        "Or : autorisation préalable Ministre des Finances pour tout import/export",
+        "Exceptions T-B-V : Trésor public · BCEAO · Voyageurs (≤ 500 g d'objets en or)",
+        "Valeurs mobilières étrangères placées dans l'UEMOA : autorisation BCEAO PUIS autorisation CREPMF",
+        "Valeurs mobilières nationales = émises dans l'UEMOA en FCFA",
+        "Valeurs mobilières étrangères = émises à l'étranger OU dans l'UEMOA en monnaie étrangère"
+      ],
+      "a_retenir": "Pour l'or : T-B-V = Trésor, BCEAO, Voyageurs sous 500g sont exempts d'autorisation. Pour les valeurs mobilières étrangères : double autorisation BCEAO + CREPMF dans cet ordre.",
+      "exemple_concret": "Un voyageur arrive à Cotonou avec 400 g de bijoux en or → OK, pas d'autorisation requise. Avec 600 g, il doit présenter une autorisation préalable du Ministre. Un émetteur français qui veut placer ses obligations sur le marché de l'UEMOA doit obtenir d'abord l'autorisation de la BCEAO puis celle du CREPMF.",
+      "piege_frequent": "Croire que le seuil de 500 g s'applique uniquement à l'or pur. NON : il s'applique aux OBJETS en or (bijoux, lingots, etc.), quelle que soit la pureté.",
+      "source": "Règlement 09/2010 — Art. 8 et 9"
+    },
+    {
+      "id": "fr9",
+      "ordre": 9,
+      "titre": "Emprunts et prêts internationaux",
+      "icone": "💼",
+      "resume_court": "Les emprunts d'un résident UEMOA auprès d'un non-résident passent par un intermédiaire agréé et font l'objet d'une déclaration statistique.",
+      "points_cles": [
+        "Réalisation obligatoire via un intermédiaire agréé",
+        "Déclaration statistique à la BCEAO + Direction des Finances Extérieures",
+        "Service de la dette : libre paiement (intérêts et capital) via l'intermédiaire",
+        "Les emprunts étrangers comptent dans les 75% requis pour financer un investissement à l'étranger",
+        "Les dérivés de change doivent être adossés à des opérations commerciales ou financières réelles"
+      ],
+      "a_retenir": "Tout emprunt international se fait via intermédiaire agréé + double déclaration (BCEAO + Direction Finances Extérieures). Les dérivés ne sont jamais spéculatifs purs : ils doivent couvrir une opération sous-jacente réelle.",
+      "exemple_concret": "Une entreprise sénégalaise emprunte 500 M FCFA équivalent en euros à une banque française. L'opération passe par sa banque domiciliataire à Dakar (intermédiaire agréé), qui notifie la BCEAO et la Direction des Finances Extérieures pour les besoins statistiques.",
+      "piege_frequent": "Confondre les opérations en capital (emprunts/prêts) avec les opérations courantes (paiements d'intérêts). Le PRINCIPAL emprunté est une opération en capital (déclarative) ; le PAIEMENT DES INTÉRÊTS est une opération courante (libre sous justificatifs).",
+      "source": "Règlement 09/2010 — Art. 11 et 12"
+    },
+    {
+      "id": "fr10",
+      "ordre": 10,
+      "titre": "Sanctions et hiérarchie disciplinaire",
+      "icone": "⚖️",
+      "resume_court": "Les infractions au Règlement RFE sont sanctionnées par la BCEAO et la Commission Bancaire. Sanction ultime : retrait d'agrément.",
+      "points_cles": [
+        "Autorités compétentes : BCEAO + Commission Bancaire UMOA (chacune en ce qui la concerne)",
+        "Sanctions cumulatives possibles : pénale + amende + fermeture + exclusion",
+        "Sanction ultime professionnelle : retrait d'agrément (intermédiaire agréé ou agréé de change manuel)",
+        "Application également au regard de la loi bancaire nationale",
+        "Reddition de compte permanente à la Direction des Finances Extérieures + BCEAO"
+      ],
+      "a_retenir": "Acronyme SAFE pour la hiérarchie : Sanction pénale · Amende · Fermeture · Exclusion → Retrait d'agrément en sommet professionnel.",
+      "exemple_concret": "Une banque qui exécute un transfert de 5 M FCFA sans recueillir les pièces justificatives requises s'expose à : sanctions BCEAO, sanctions Commission Bancaire, amendes administratives, et risque de retrait d'agrément en cas de récidive.",
+      "piege_frequent": "Penser que les sanctions sont alternatives. NON : elles sont CUMULATIVES. Un même fait peut entraîner sanction pénale (poursuites individuelles), amende administrative et retrait d'agrément simultanément.",
+      "source": "Règlement 09/2010 — Art. 16"
+    },
+    {
+      "id": "fr11",
+      "ordre": 11,
+      "titre": "Note BCEAO 013-04-2026 — étranger devenu résident UEMOA",
+      "icone": "🛂",
+      "resume_court": "La Note du 17 avril 2026 encadre les paiements extérieurs des étrangers ayant acquis le statut de résident UEMOA par contrat de travail CDI ou CDD ≥ 1 an.",
+      "points_cles": [
+        "Acquisition du statut : contrat de travail CDI OU CDD ≥ 1 an",
+        "Conservation possible de comptes à l'étranger SANS autorisation préalable",
+        "Paiements entre résidents (étranger ↔ autres résidents) : exclusivement en FCFA",
+        "5 dépenses courantes libres (acronyme BLIST) : Biens & services · Loyers · Impôts/taxes · Soutien familial · Tuition (scolarité)",
+        "Délai de la Structure Finances Extérieures pour autoriser un transfert d'épargne : 5 jours ouvrés max"
+      ],
+      "a_retenir": "La Note 013-04-2026 ouvre des droits NOUVEAUX à l'étranger devenu résident UEMOA (BLIST + comptes étrangers conservés). Le fondement juridique est l'article 31 du Règlement n°06/2024/CM/UEMOA.",
+      "exemple_concret": "Un expatrié canadien en CDI à Bamako conserve son compte au Canada sans autorisation. Il peut transférer librement (sous justificatifs) le paiement de la scolarité de ses enfants restés au Canada (catégorie 'T' du BLIST).",
+      "piege_frequent": "Croire que cette Note s'applique à TOUS les non-résidents. NON : elle vise EXCLUSIVEMENT les étrangers qui ont ACQUIS le statut de résident UEMOA. Un non-résident touriste ou en mission courte ne bénéficie pas du régime de la Note.",
+      "source": "Note BCEAO 013-04-2026 — §1 à §3"
+    },
+    {
+      "id": "fr12",
+      "ordre": 12,
+      "titre": "LBC/FT/FPADM et responsabilité du client",
+      "icone": "🛡️",
+      "resume_court": "Les obligations LBC/FT/FPADM s'appliquent à TOUTES les opérations RFE, indépendamment du montant. Le client porte une responsabilité personnelle directe.",
+      "points_cles": [
+        "Acronyme : LBC = Blanchiment · FT = Financement du Terrorisme · FPADM = Financement Prolifération Armes Destruction Massive",
+        "3 piliers VCD : Vigilance · Contrôle interne · Déclaration (de soupçon)",
+        "3 piliers de responsabilité du CLIENT (EAL) : Exactitude des informations · Authenticité des documents · Licéité de l'origine des fonds",
+        "Applicable même aux petits transferts courants (200.000 FCFA)",
+        "Les sanctions LBC/FT s'ajoutent aux sanctions RFE en cas de manquement"
+      ],
+      "a_retenir": "VCD (intermédiaire) + EAL (client) = double sécurité. La responsabilité du client est PERSONNELLE et engagée même si l'intermédiaire a accepté l'opération. Un faux bulletin de salaire engage le client, pas seulement la banque.",
+      "exemple_concret": "Un transfert courant de 200.000 FCFA ne dispense pas de la vigilance LBC/FT par l'intermédiaire. Le client qui présente un faux justificatif de revenus pour un transfert de 800.000 FCFA engage sa responsabilité pénale personnelle, indépendamment des sanctions visant la banque.",
+      "piege_frequent": "Croire que LBC/FT/FPADM ne concerne que les montants importants. FAUX : la vigilance est due sur TOUTES les opérations, et c'est précisément le fractionnement (smurfing) qui est une technique de blanchiment surveillée.",
+      "source": "Règlement 09/2010 — Art. 17 + Note BCEAO 013-04-2026 — §8 et §9"
+    }
+  ],
   "flash_cards": [
     { "id": "fc1", "categorie": "Définitions clés", "recto": "Qu'est-ce qu'un INTERMÉDIAIRE AGRÉÉ ?", "verso": "Établissement de crédit installé dans l'UEMOA ayant reçu cette qualité par AGRÉMENT du Ministre chargé des Finances.", "source": "Règlement 09/2010 — Art. 1er" },
     { "id": "fc2", "categorie": "Définitions clés", "recto": "Qu'est-ce qu'un AGRÉÉ DE CHANGE MANUEL ?", "verso": "Personne physique OU morale installée dans l'UEMOA, agréée par le Ministre des Finances, pour effectuer des opérations de change manuel.", "source": "Règlement 09/2010 — Art. 1er" },
