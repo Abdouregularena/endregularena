@@ -1190,6 +1190,26 @@ input,select,textarea{font-size:max(16px,.84rem)!important}
 .rat-qualify-opt:hover:not([disabled]){border-color:rgba(201,153,26,.5);background:rgba(201,153,26,.08)}
 .rat-qualify-opt.correct{background:rgba(60,180,80,.12);border-color:#5dca70;color:#5dca70}
 .rat-qualify-opt.wrong{background:rgba(220,80,60,.1);border-color:#e06050;color:#e06050}
+/* P1 — Lisibilité quiz qualification : couche thème Académie force des couleurs sombres
+   qui rendent le texte question/options bleu-sur-bleu. On force le texte clair F5F3EE sur
+   le fond bleu marine de #t-screen-ra-qualify. Les états correct/wrong gardent leur teinte
+   sémantique (vert/rouge) pour le feedback visuel. */
+#t-screen-ra-qualify .rat-qualify-q-text{color:#F5F3EE !important;-webkit-text-fill-color:#F5F3EE !important} /* MODIFIÉ */
+#t-screen-ra-qualify .rat-qualify-opt{color:#F5F3EE !important;-webkit-text-fill-color:#F5F3EE !important} /* MODIFIÉ */
+#t-screen-ra-qualify .rat-qualify-opt.correct{color:#10B981 !important;-webkit-text-fill-color:#10B981 !important} /* MODIFIÉ — vert succès préservé */
+#t-screen-ra-qualify .rat-qualify-opt.wrong{color:#ef4444 !important;-webkit-text-fill-color:#ef4444 !important} /* MODIFIÉ — rouge erreur préservé */
+#t-screen-ra-qualify #rat-q-timer{color:#C9991A !important;-webkit-text-fill-color:#C9991A !important} /* MODIFIÉ — accent doré */
+#t-screen-ra-qualify #rat-q-source{color:#cfdcef !important;-webkit-text-fill-color:#cfdcef !important} /* MODIFIÉ — source visible sur navy */
+#t-screen-ra-qualify #rat-q-final-score{color:#C9991A !important;-webkit-text-fill-color:#C9991A !important} /* MODIFIÉ */
+#t-screen-ra-qualify #rat-q-final-rank{color:#F5F3EE !important;-webkit-text-fill-color:#F5F3EE !important} /* MODIFIÉ */
+/* P2 — Écrans LEGACY de démo neutralisés visuellement. Ces 2 conteneurs (#t-screen-dashboard
+   et #t-screen-participant) contiennent encore du HTML hardcodé hérité de la maquette
+   (_demo_, _demo_, Ecobank CI · Conformité, scores 4 850/4 100, etc.). On les force
+   à display:none pour qu'ils ne s'affichent JAMAIS, même si la classe .active y est ajoutée
+   par erreur. La logique d'aiguillage (tGoTo) redirige déjà ces cibles vers le vrai module
+   raT_* — cette règle CSS est une 2e ligne de défense. */
+#t-screen-dashboard{display:none !important} /* MODIFIÉ — P2 maquette neutralisée */
+#t-screen-participant{display:none !important} /* MODIFIÉ — P2 maquette neutralisée */
 .rat-chat-wrap{border-top:1px solid var(--sep);margin-top:16px}
 .rat-chat-msgs{height:180px;overflow-y:auto;padding:12px 0;display:flex;flex-direction:column;gap:6px}
 .rat-chat-msg{font-size:.8rem;color:var(--light)}.rat-chat-msg span{color:var(--gold);font-weight:700;margin-right:6px}
@@ -1937,7 +1957,7 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
     <p style="font-size:.75rem;color:var(--muted);margin-bottom:28px;margin-top:8px">Ces données sont des exemples fictifs illustrant le fonctionnement du classement. Le classement réel sera alimenté par les parties jouées après inscription.</p>
     <div class="lb-table" role="table" aria-label="Top 5 joueurs — données illustratives">
       <div class="lb-header" role="row"><span role="columnheader">#</span><span role="columnheader">Joueur</span><span role="columnheader">Score</span><span role="columnheader">Pays</span><span role="columnheader">Série</span></div>
-      <div class="lb-row top3-row" role="row"><span class="lb-rank-num rank-gold-text" role="cell">01</span><div class="lb-player" role="cell"><div class="lb-av" style="background:rgba(201,153,26,.15);color:var(--gold)" aria-hidden="true">KD</div><div><div class="lb-name-main">KofiDansso <span style="font-size:.55rem;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:1px">[DÉMO]</span></div><div class="lb-name-sub">Ecobank CI · Conformité</div></div></div><span class="lb-score-val" role="cell">4 850</span><span class="lb-country" role="cell">🇨🇮</span><span class="lb-streak" role="cell">🔥 12 bonnes</span></div>
+      <div class="lb-row top3-row" role="row"><span class="lb-rank-num rank-gold-text" role="cell">01</span><div class="lb-player" role="cell"><div class="lb-av" style="background:rgba(201,153,26,.15);color:var(--gold)" aria-hidden="true">KD</div><div><div class="lb-name-main">_demo_ <span style="font-size:.55rem;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:1px">[DÉMO]</span></div><div class="lb-name-sub">Ecobank CI · Conformité</div></div></div><span class="lb-score-val" role="cell">4 850</span><span class="lb-country" role="cell">🇨🇮</span><span class="lb-streak" role="cell">🔥 12 bonnes</span></div>
       <div class="lb-row top3-row" role="row"><span class="lb-rank-num rank-silver-text" role="cell">02</span><div class="lb-player" role="cell"><div class="lb-av" style="background:rgba(176,184,200,.1);color:var(--silver)" aria-hidden="true">AT</div><div><div class="lb-name-main">AissatouT <span style="font-size:.55rem;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:1px">[DÉMO]</span></div><div class="lb-name-sub">BCEAO · Supervision</div></div></div><span class="lb-score-val" role="cell">4 625</span><span class="lb-country" role="cell">🇸🇳</span><span class="lb-streak" role="cell">🔥 9 bonnes</span></div>
       <div class="lb-row top3-row" role="row"><span class="lb-rank-num rank-bronze-text" role="cell">03</span><div class="lb-player" role="cell"><div class="lb-av" style="background:rgba(205,127,50,.12);color:var(--bronze)" aria-hidden="true">JM</div><div><div class="lb-name-main">JM_Cameroun <span style="font-size:.55rem;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:1px">[DÉMO]</span></div><div class="lb-name-sub">Afriland · Risk &amp; Compliance</div></div></div><span class="lb-score-val" role="cell">4 400</span><span class="lb-country" role="cell">🇨🇲</span><span class="lb-streak" role="cell">🔥 7 bonnes</span></div>
       <div class="lb-row" role="row"><span class="lb-rank-num" style="color:var(--muted)" role="cell">04</span><div class="lb-player" role="cell"><div class="lb-av" style="background:rgba(79,142,247,.1);color:var(--blue)" aria-hidden="true">OB</div><div><div class="lb-name-main">OumarBalde <span style="font-size:.55rem;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:1px">[DÉMO]</span></div><div class="lb-name-sub">Coris Bank · Juridique</div></div></div><span class="lb-score-val" role="cell">4 175</span><span class="lb-country" role="cell">🇧🇫</span><span class="lb-streak cold" role="cell">5 bonnes</span></div>
@@ -2110,15 +2130,13 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
           <div style="font-family:'Bebas Neue',cursive;font-size:1.4rem;letter-spacing:2px;margin-bottom:7px;color:var(--gold)">Créer</div>
           <div style="font-size:.78rem;color:var(--muted);line-height:1.5">Configure, invite tes participants, génère le bracket automatiquement.</div>
         </div>
-        <div class="card" style="padding:28px;cursor:pointer;transition:all .3s" onclick="tGoTo('participant')" onmouseenter="this.style.background='var(--bg3)'" onmouseleave="this.style.background=''">
+        <div class="card" style="padding:28px;cursor:pointer;transition:all .3s" onclick="raT_goTo('ra-join')" onmouseenter="this.style.background='var(--bg3)'" onmouseleave="this.style.background=''"><!-- MODIFIÉ — P2 : redirige vers le vrai écran rejoindre (raT_*) au lieu de la maquette démo #t-screen-participant -->
           <div style="font-size:2rem;margin-bottom:14px">🎮</div>
           <div style="font-family:'Bebas Neue',cursive;font-size:1.4rem;letter-spacing:2px;margin-bottom:7px;color:var(--cyan)">Rejoindre</div>
           <div style="font-size:.78rem;color:var(--muted);line-height:1.5">Rejoins avec un code unique. Suis ta progression dans le bracket.</div>
         </div>
       </div>
-      <div style="text-align:center;margin-top:22px">
-        <button class="btn-ghost" onclick="tGoTo('dashboard')">Voir le dashboard démo →</button>
-      </div>
+      <!-- P2 — Bouton "Voir le dashboard démo" retiré : la maquette de démo affichait des données fictives (_demo_, scores 4850/4100…). Utilisez "Créer" ou "Rejoindre" pour accéder au vrai module raT_*. -->
     </div>
   </div>
 
@@ -2289,7 +2307,7 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
         <div style="display:flex;align-items:center;gap:16px">
           <div style="width:60px;height:60px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',cursive;font-size:1.5rem;border:2px solid rgba(201,153,26,.4);background:rgba(201,153,26,.1);color:var(--gold)">KD</div>
           <div>
-            <div style="font-weight:700;font-size:.95rem">KofiDansso</div>
+            <div style="font-weight:700;font-size:.95rem">_demo_</div>
             <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted)">Ecobank CI · Conformité</div>
             <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--gold);margin-top:4px">#1 classement · 🔥 15 bonnes</div>
           </div>
@@ -2919,7 +2937,7 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
           <div class="lp-av" style="margin-right:-8px;z-index:3">AT<div class="av-label">Aïcha</div></div>
           <div class="lp-av invited" style="z-index:4">?<div class="av-label">Toi</div></div>
         </div>
-        <p style="color:var(--muted);line-height:1.7;font-size:.88rem;margin-bottom:28px"><strong style="color:var(--text)">Abdou N.</strong> t'invite à rejoindre REGUL ARENA — la plateforme de quiz réglementaire BCEAO, BEAC &amp; COBAC. Rejoins 348 experts déjà inscrits.</p>
+        <p style="color:var(--muted);line-height:1.7;font-size:.88rem;margin-bottom:28px"><strong style="color:var(--text)">_demo_</strong> t'invite à rejoindre REGUL ARENA — la plateforme de quiz réglementaire BCEAO, BEAC &amp; COBAC. Rejoins 348 experts déjà inscrits.</p>
         <button class="btn-gold" style="margin-bottom:12px;width:100%;justify-content:center" onclick="RAGate.showGate()">🎮 Rejoindre l'arène →</button>
         <button class="btn-ghost" style="width:100%;justify-content:center" onclick="invSwitch('invite',null)">← Retour aux invitations</button>
       </div>
@@ -3861,51 +3879,54 @@ function filterLB(btn, f) {
 /* ───────────────────────────────────────────────────────────
    MODULE : TOURNOIS
    ─────────────────────────────────────────────────────────── */
-const T_PLAYERS = [
-  {init:'KD',name:'KofiDansso',  inst:'Ecobank CI',  rank:'#1',  status:'confirmed',col:'rgba(201,153,26,.18)',tc:'var(--gold)',  me:false},
-  {init:'AN',name:'Abdou N.',    inst:'REGUL ARENA', rank:'#21', status:'confirmed',col:'rgba(34,211,238,.15)',tc:'var(--cyan)',  me:true},
-  {init:'AT',name:'AïchaTraoré',inst:'BCEAO Dakar', rank:'#2',  status:'confirmed',col:'rgba(176,184,200,.15)',tc:'var(--silver)',me:false},
-  {init:'OB',name:'OumarBalde', inst:'Coris Bank',  rank:'#4',  status:'confirmed',col:'rgba(79,142,247,.15)',tc:'var(--blue)',  me:false},
-  {init:'FN',name:'FatimaND',   inst:'BOA Mali',    rank:'#5',  status:'pending',  col:'rgba(16,185,129,.15)',tc:'var(--green)', me:false},
-  {init:'MB',name:'MoussaBarro',inst:'BRS',         rank:'#6',  status:'pending',  col:'rgba(239,68,68,.12)', tc:'var(--red)',   me:false},
-  {init:'SF',name:'SalimFadiga',inst:'Orabank TG',  rank:'#7',  status:'confirmed',col:'rgba(168,85,247,.12)',tc:'var(--purple)',me:false},
-  {init:'JM',name:'JeanMouamba',inst:'BEAC',        rank:'#3',  status:'invited',  col:'rgba(205,127,50,.15)',tc:'var(--bronze)',me:false},
-];
-const T_MATCHS = [
-  {p1:0,p2:7,status:'done',  winner:0,score1:4200,score2:3800},
-  {p1:1,p2:5,status:'done',  winner:1,score1:4850,score2:4100},
-  {p1:2,p2:4,status:'active',winner:-1,score1:3200,score2:2900},
-  {p1:3,p2:6,status:'pending',winner:-1,score1:0,score2:0},
-  {p1:0,p2:1,status:'pending',winner:-1,score1:0,score2:0},
-  {p1:-1,p2:-1,status:'pending',winner:-1,score1:0,score2:0},
-  {p1:-1,p2:-1,status:'pending',winner:-1,score1:0,score2:0},
-];
-const T_NOTIFS = [
-  {dot:'info',text:'<strong>FatimaND</strong> a accepté l\'invitation. 7/8 confirmés.',time:'Il y a 5min',read:false},
-  {dot:'warn',text:'<strong>JeanMouamba</strong> n\'a pas encore répondu.',time:'Il y a 22min',read:false},
-  {dot:'success',text:'Match QF1 terminé — <strong>KofiDansso</strong> se qualifie (4200–3800).',time:'Il y a 1h',read:true},
-];
-const T_CHAT_INIT = [
-  {name:'KofiDansso',text:'Prêt pour le tournoi 💪',time:'10:02',me:false},
-  {name:'Abdou N.',  text:'Bienvenue à tous ! Bon courage',time:'10:05',me:true},
-  {name:'AïchaTraoré',text:'Merci pour l\'organisation 🏆',time:'10:08',me:false},
-];
-const T_PERFS = [
-  {result:'win', round:'QF2',opp:'MoussaBarro',score:'4850 – 4100',correct:'12/15'},
-  {result:'loss',round:'Quart',opp:'KofiDansso',score:'3200 – 4800',correct:'9/15'},
-];
-const chatMsgsMain = [...T_CHAT_INIT];
-const chatMsgsPart = [{name:'KofiDansso',text:'Bonne chance !',time:'10:10',me:false}];
+/* P2 — Donnees demo retirees. Les vraies vues raT_* utilisent UNIQUEMENT l API.
+   Les ecrans legacy #t-screen-dashboard et #t-screen-participant sont neutralises
+   (display:none CSS + innerHTML vide au boot). */
+const T_PLAYERS = []; // MODIFIÉ — vide
+const T_MATCHS = []; // MODIFIÉ — vide
+const T_NOTIFS = []; // MODIFIÉ — vide
+const T_CHAT_INIT = []; // MODIFIÉ — vide
+const T_PERFS = []; // MODIFIÉ — vide
+const chatMsgsMain = []; // MODIFIÉ — vide
+const chatMsgsPart = []; // MODIFIÉ — vide
+/* MODIFIÉ — P2 : purge DOM des écrans démo au boot (le HTML statique contient encore
+   "_demo_", "_demo_", "Ecobank CI · Conformité" etc. qui doivent disparaître
+   définitivement même s'ils sont déjà invisibles via display:none). */
+(function _ratPurgeDemoScreens(){ // MODIFIÉ
+  function _purge(){
+    var ids = ['t-screen-dashboard', 't-screen-participant'];
+    ids.forEach(function(id){
+      var el = document.getElementById(id);
+      if (el) el.innerHTML = '<!-- P2 — Maquette démo supprimée (innerHTML vidé). Utilisez le module raT_* via Créer ou Rejoindre. -->';
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _purge);
+  else _purge();
+})();
 let tSimStep = 0;
 let tCode = 'RA-BM26';
 
 function tGoTo(screen) {
   // Auth requise pour créer/rejoindre un tournoi
   if (!RAAuth.isAuthenticated()) { RAAuth.showAuthWall('tournois'); return; }
+  /* MODIFIÉ — P2 : les cibles 'dashboard' et 'participant' pointent vers d'anciennes maquettes
+     démo (données fictives _demo_, Ecobank CI, scores 4850/4100…). On les redirige vers
+     les vraies vues raT_* du module tournoi. */
+  if (screen === 'dashboard') { // MODIFIÉ
+    if (typeof raT_loadView === 'function' && typeof tCode === 'string' && tCode && tCode.indexOf('T-') === 0) {
+      raT_loadView(tCode); // MODIFIÉ — si on a un vrai code tournoi, charge la vraie vue
+    } else if (typeof raT_goTo === 'function') {
+      raT_goTo('ra-home'); // MODIFIÉ — sinon, vers la liste des vrais tournois
+    }
+    return;
+  }
+  if (screen === 'participant') { // MODIFIÉ
+    if (typeof raT_goTo === 'function') raT_goTo('ra-join'); // MODIFIÉ — vers le vrai écran rejoindre
+    return;
+  }
   document.querySelectorAll('.screen-t').forEach(s => s.classList.remove('active'));
-  document.getElementById('t-screen-' + screen).classList.add('active');
-  if (screen === 'dashboard') { renderBracket(); renderParticipants(); renderMatchs(); renderNotifs(); renderChat(); renderScoreBars(); }
-  if (screen === 'participant') { renderPerfList(); }
+  const t = document.getElementById('t-screen-' + screen); if(!t) return; // MODIFIÉ — safety guard
+  t.classList.add('active');
 }
 function regenCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -4088,6 +4109,10 @@ function renderBracket() {
     {m:0,x:cols[0].x,y:qfY[0]},{m:1,x:cols[0].x,y:qfY[2]},{m:2,x:cols[0].x,y:qfY[1]},{m:3,x:cols[0].x,y:qfY[3]},
     {m:4,x:cols[1].x,y:sfY[0]},{m:5,x:cols[1].x,y:sfY[1]},{m:6,x:cols[2].x,y:fY[0]},
   ];
+  /* MODIFIÉ — P2 : T_MATCHS est vide (données démo retirées). On garde la fn intacte pour
+     ne pas casser les callsites (initPage('tournois') l'appelle pour la maquette), mais on
+     court-circuite si pas de matchs démo. */
+  if (!T_MATCHS || !T_MATCHS.length) { return; } // MODIFIÉ
   matchLayout.forEach(({m,x,y})=>{const md=T_MATCHS[m];slot(x,y,md,md.p1>=0?T_PLAYERS[md.p1]:null,md.p2>=0?T_PLAYERS[md.p2]:null);});
   const qfX=cols[0].x+W,sfX=cols[1].x+W;
   dc(qfX,qfY[0]+H+1,cols[1].x,sfY[0]+H+1);dc(qfX,qfY[2]+H+1,cols[1].x,sfY[0]+H+1);
@@ -4172,7 +4197,7 @@ function sendChatPart() {
 }
 function renderScoreBars() {
   const el=document.getElementById('score-bars'); if(!el)return;
-  const data=[{name:'KofiDansso',pct:94,col:'var(--gold)'},{name:'Abdou N.',pct:88,col:'var(--cyan)'},{name:'AïchaTraoré',pct:80,col:'var(--silver)'},{name:'OumarBalde',pct:76,col:'var(--blue)'}];
+  const data=[{name:'_demo_',pct:94,col:'var(--gold)'},{name:'_demo_',pct:88,col:'var(--cyan)'},{name:'_demo_',pct:80,col:'var(--silver)'},{name:'OumarBalde',pct:76,col:'var(--blue)'}];
   el.innerHTML=data.map(d=>`<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted);margin-bottom:5px"><span>${d.name}</span><span style="color:${d.col}">${d.pct}%</span></div><div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden"><div style="height:100%;width:${d.pct}%;background:${d.col};border-radius:3px"></div></div></div>`).join('');
 }
 function simulateMatch() {
@@ -4187,13 +4212,9 @@ function startTournament(){showToast('🚀 Tournoi lancé ! Notifications envoy�
 /* ───────────────────────────────────────────────────────────
    MODULE : DUEL
    ─────────────────────────────────────────────────────────── */
-const D_OPPONENTS = [
-  {id:1,init:'KD',name:'KofiDansso',  inst:'Ecobank CI · Conformité',  rank:'#1 UEMOA',score:5850,col:'rgba(201,153,26,.2)',tc:'var(--gold)'},
-  {id:2,init:'AT',name:'AïchaTraoré', inst:'BCEAO Dakar · Audit',      rank:'#2 UEMOA',score:5100,col:'rgba(176,184,200,.2)',tc:'var(--silver)'},
-  {id:3,init:'OB',name:'OumarBalde',  inst:'Coris Bank · Juridique',   rank:'#4 UEMOA',score:4750,col:'rgba(79,142,247,.2)',tc:'var(--blue)'},
-  {id:4,init:'FN',name:'FatimaND',    inst:'BOA Mali · Audit',         rank:'#5 UEMOA',score:4650,col:'rgba(16,185,129,.2)',tc:'var(--green)'},
-  {id:5,init:'JM',name:'JeanMouamba', inst:'BEAC · Juriste',           rank:'#3 CEMAC',score:4980,col:'rgba(205,127,50,.2)',tc:'var(--bronze)'},
-];
+/* MODIFIÉ — P2 : D_OPPONENTS vide (dead code, jamais utilise ailleurs). Avant : liste demo
+   de faux adversaires avec etablissements/scores fictifs. */
+const D_OPPONENTS = []; // MODIFIÉ
 const D_QUESTIONS = [
   {
     q:"Quel est le ratio de solvabilité minimum exigé par la réglementation prudentielle BCEAO (Bâle II/III, Décision N°013/2016/CM/UMOA) pour les établissements de crédit de l'UMOA ?",
@@ -4820,12 +4841,12 @@ const INVITES_DATA=[
   {name:'Lamine Traoré', inst:'OBA Burkina', status:'pending', time:'Il y a 1sem', pts:'—'},
 ];
 const AMBASSADORS=[
-  {rank:1,init:'KD',name:'KofiDansso',  inst:'Ecobank CI',  invites:18,pts:'+2 300',badge:'or',  col:'rgba(201,153,26,.18)',tc:'var(--gold)'},
-  {rank:2,init:'AT',name:'AïchaTraoré', inst:'BCEAO Dakar', invites:12,pts:'+1 600',badge:'or',  col:'rgba(176,184,200,.15)',tc:'var(--silver)'},
+  {rank:1,init:'KD',name:'_demo_',  inst:'Ecobank CI',  invites:18,pts:'+2 300',badge:'or',  col:'rgba(201,153,26,.18)',tc:'var(--gold)'},
+  {rank:2,init:'AT',name:'_demo_', inst:'BCEAO Dakar', invites:12,pts:'+1 600',badge:'or',  col:'rgba(176,184,200,.15)',tc:'var(--silver)'},
   {rank:3,init:'OB',name:'OumarBalde',  inst:'Coris Bank',  invites:9, pts:'+1 150',badge:'or',  col:'rgba(205,127,50,.15)',tc:'var(--bronze)'},
   {rank:4,init:'FN',name:'FatimaND',    inst:'BOA Mali',    invites:7, pts:'+950',  badge:'or',  col:'rgba(16,185,129,.15)',tc:'var(--green)'},
   {rank:5,init:'MB',name:'MoussaBarro', inst:'BRS',         invites:6, pts:'+800',  badge:'argent',col:'rgba(79,142,247,.12)',tc:'var(--blue)'},
-  {rank:6,init:'AN',name:'Abdou N.',    inst:'REGUL ARENA', invites:4, pts:'+600',  badge:'argent',col:'rgba(34,211,238,.15)',tc:'var(--cyan)',me:true},
+  {rank:6,init:'AN',name:'_demo_',    inst:'REGUL ARENA', invites:4, pts:'+600',  badge:'argent',col:'rgba(34,211,238,.15)',tc:'var(--cyan)',me:true},
 ];
 function invSwitch(name,btn){
   document.querySelectorAll('.screen-inv').forEach(s=>s.classList.remove('active'));
@@ -7015,6 +7036,14 @@ function _renderBracket(matches, participants){
     el.innerHTML = '<div class="rat-empty">Bracket non encore généré</div>';
     return;
   }
+  /* MODIFIÉ — P4 : pour permettre aux participants de jouer leur duel directement
+     depuis le bracket, on identifie l'utilisateur courant et on affiche un bouton
+     "▶ Jouer le duel" sur les matchs où il participe et qui ne sont pas terminés.
+     Le bouton invoque raT_playMatchDuel(code) qui réutilise le flow duel standard
+     (joinDuelByCode), héritant ainsi du fix questions_safe (séquence figée serveur
+     identique pour les 2 adversaires) et du polling /live (score adverse temps réel). */
+  var myUserId = null;
+  try { myUserId = _getMyUserId ? _getMyUserId() : null; } catch(_) {}
   // regrouper par round
   var rounds = {};
   matches.forEach(function(m){
@@ -7028,6 +7057,9 @@ function _renderBracket(matches, participants){
     rounds[r].forEach(function(m){
       var p1win = m.winner_id && m.winner_id === m.player1_id;
       var p2win = m.winner_id && m.winner_id === m.player2_id;
+      /* MODIFIÉ — P4 : eligibilité au bouton "Jouer" pour utilisateur courant */
+      var iAmInMatch = myUserId && (myUserId === m.player1_id || myUserId === m.player2_id); // MODIFIÉ
+      var matchOpen = m.duel_code && (m.status === 'pending' || m.status === 'active') && !m.winner_id; // MODIFIÉ
       html += '<div class="rat-match-card">'
         +'<div class="rat-match-player'+(p1win?' winner':p2win?' loser':'')+'">'
         +'<span>'+(m.p1_name||'TBD')+'</span>'
@@ -7041,12 +7073,32 @@ function _renderBracket(matches, participants){
         +'<div class="rat-match-status">'
         +(m.duel_code ? 'Code duel : '+m.duel_code : 'En attente')
         +'</div>'
+        +(iAmInMatch && matchOpen ? '<button class="rat-match-play" onclick="raT_playMatchDuel(\''+_esc(m.duel_code)+'\')" style="margin-top:8px;width:100%;background:#C9991A;color:#002B5C;border:none;padding:7px 10px;border-radius:4px;font-family:\'IBM Plex Sans\',sans-serif;font-size:.78rem;font-weight:700;cursor:pointer">▶ Jouer le duel</button>' : '') // MODIFIÉ — P4 bouton "Jouer le duel"
         +'</div>';
     });
     html += '</div>';
   });
   el.innerHTML = html;
 }
+
+/* MODIFIÉ — P4 : bascule vers le module duel et tente de rejoindre via le code du match.
+   Si l'utilisateur est le créateur du duel (player1), il reverra le wait screen + bouton
+   Lancer ; si c'est player2, il fera joinDuelByCode et attendra que player1 lance.
+   Dans les deux cas, le flow duel hérité figera questions_safe au /start serveur. */
+window.raT_playMatchDuel = function(duelCode){ // MODIFIÉ — P4
+  if (!duelCode) return;
+  try { sessionStorage.setItem('ra_pending_duel_code', duelCode); } catch(_) {}
+  if (typeof showPage === 'function') showPage('duel');
+  /* Auto-injection du code dans le champ join et déclenchement du flow standard.
+     Si l'utilisateur est player1 (créateur du duel), GET /duels/:code lui montrera
+     son wait screen + polling. Si player2, joinDuelByCode l'enregistrera. */
+  setTimeout(function(){
+    if (typeof dGoTo === 'function') dGoTo('join');
+    var inp = document.getElementById('join-code-input');
+    if (inp) inp.value = duelCode;
+    if (typeof joinDuelByCode === 'function') joinDuelByCode();
+  }, 300);
+};
 
 /* ── chat tournoi ───────────────────────────────────────── */
 function _loadChatMsgs(tId){
@@ -7077,20 +7129,40 @@ window.raT_sendChat = function(){
 };
 
 /* ── polling statut tournoi ─────────────────────────────── */
+/* MODIFIÉ — P5 : signature des participants/matchs pour détecter les changements live
+   (un participant qualifie, score change, match fini, bracket avance…). On compare une
+   "empreinte" légère JSON-friendly à chaque tick et on re-render seulement si différence. */
+function _ratParticipantsSignature(parts){ // MODIFIÉ — P5
+  if (!Array.isArray(parts)) return '';
+  return parts.map(function(p){ return (p.user_id||p.id||'')+':'+(p.score||0)+':'+(p.qualified?1:0)+':'+(p.rank||0); }).join('|');
+}
+function _ratMatchesSignature(matches){ // MODIFIÉ — P5
+  if (!Array.isArray(matches)) return '';
+  return matches.map(function(m){ return (m.id||'')+':'+(m.status||'')+':'+(m.winner_id||0); }).join('|');
+}
 function _startStatusPoll(code){
   if(_ratStatusPoll) clearInterval(_ratStatusPoll);
+  /* MODIFIÉ — P5 : poll passe de 5000ms à 3000ms pour réactivité accrue.
+     Re-render si STATUT change OU si participants change OU si matchs change. */
   _ratStatusPoll = setInterval(function(){
     if(_ratCode !== code) { clearInterval(_ratStatusPoll); return; }
     _apiFetch('/tournament/' + code).then(function(r){
-      if(!r.ok) return;
-      // si le statut a changé, re-rendre
-      if(_ratData && r.tournament && r.tournament.status !== _ratData.tournament.status){
+      if(!r.ok || !r.tournament) return;
+      if (!_ratData) { _ratData = r; return; }
+      var statusChanged = r.tournament.status !== _ratData.tournament.status; // MODIFIÉ
+      var partsChanged = _ratParticipantsSignature(r.participants) !== _ratParticipantsSignature(_ratData.participants); // MODIFIÉ
+      var matchesChanged = _ratMatchesSignature(r.matches) !== _ratMatchesSignature(_ratData.matches); // MODIFIÉ
+      if (statusChanged || partsChanged || matchesChanged) {
         _ratData = r;
-        _renderView(r);
-        showToast('Statut tournoi mis à jour : ' + _statusLabel(r.tournament.status));
+        _renderView(r); // MODIFIÉ — re-render à chaque changement (statut + participants + matchs)
+        if (statusChanged) showToast('Statut tournoi mis à jour : ' + _statusLabel(r.tournament.status));
+        /* P5 — si onglet Bracket actif et matchs ont changé, re-render le bracket aussi */
+        if (matchesChanged && _ratViewTab === 'bracket' && _ratId && typeof raT_loadBracket === 'function') {
+          raT_loadBracket(_ratId); // MODIFIÉ
+        }
       }
     });
-  }, 5000);
+  }, 3000); // MODIFIÉ — passe de 5000ms à 3000ms pour réactivité
 }
 
 /* ── actions créateur ───────────────────────────────────── */
