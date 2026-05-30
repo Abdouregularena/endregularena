@@ -4350,7 +4350,88 @@ function _showWaitScreen(code){
   const btnL=document.getElementById('btn-lancer-duel');if(btnL)btnL.style.display='none';
   const ps=document.getElementById('wait-poll-status');if(ps)ps.textContent="En attente d'un joueur...";
   RA_SFX.waiting(); // MODIFIÉ — boucle d'attente pendant écran wait créateur
+  _duelPersistState(); // MODIFIÉ — persiste _duelLive pour résilience au refresh navigateur
 }
+
+/* MODIFIÉ — Persistance résiliente du state _duelLive en sessionStorage.
+   Permet au créateur de récupérer son écran d'attente + polling actif après un refresh
+   navigateur (bug constaté en prod où le polling ne redémarrait jamais).
+   Le store est volatile (sessionStorage) : pas de pollution cross-onglets ni cross-sessions. */
+const _DUEL_PERSIST_KEY = 'ra_duel_live_state'; // MODIFIÉ
+function _duelPersistState(){ // MODIFIÉ
+  try {
+    if (!_duelLive || !_duelLive.code) return;
+    const snap = {
+      code: _duelLive.code,
+      isCreator: !!_duelLive.isCreator,
+      packId: _duelLive.packId || null,
+      packsIds: Array.isArray(_duelLive.packsIds)? _duelLive.packsIds.slice() : null,
+      numQuestions: _duelLive.numQuestions || 5,
+      timerSec: _duelLive.timerSec || 30,
+      myName: _duelLive.myName || null,
+      oppName: _duelLive.oppName || null,
+      savedAt: Date.now()
+    };
+    sessionStorage.setItem(_DUEL_PERSIST_KEY, JSON.stringify(snap));
+  } catch(_) {}
+}
+function _duelClearPersisted(){ // MODIFIÉ
+  try { sessionStorage.removeItem(_DUEL_PERSIST_KEY); } catch(_) {}
+}
+function _duelLoadPersisted(){ // MODIFIÉ
+  try { const raw = sessionStorage.getItem(_DUEL_PERSIST_KEY); return raw? JSON.parse(raw) : null; }
+  catch(_) { return null; }
+}
+/* MODIFIÉ — au boot : si un duel en attente est persisté, restaure l'écran et le polling.
+   Garde-fou : on vérifie d'abord auprès du backend que le duel existe et n'est pas terminé. */
+function _duelTryResumeOnLoad(){ // MODIFIÉ
+  const snap = _duelLoadPersisted();
+  if (!snap || !snap.code) return;
+  /* Limite : 1h max pour éviter de restaurer un duel oublié */
+  if (Date.now() - (snap.savedAt || 0) > 60*60*1000) { _duelClearPersisted(); return; }
+  const jwt = _getJwt(); if (!jwt) return; /* attend reconnexion utilisateur */
+  fetch('/duels/'+snap.code,{headers:{'Authorization':'Bearer '+jwt},cache:'no-store'})
+    .then(r=>r.json()).then(d=>{
+      if (!d || !d.success || !d.duel) { _duelClearPersisted(); return; }
+      const duel = d.duel;
+      if (duel.status === 'finished' || duel.status === 'cancelled') { _duelClearPersisted(); return; }
+      /* Restaure _duelLive */
+      _duelLive.code = duel.code;
+      _duelLive.isCreator = !!snap.isCreator;
+      _duelLive.packId = duel.pack_id || snap.packId || 'general';
+      _duelLive.packsIds = (Array.isArray(duel.packs_ids)? duel.packs_ids : (snap.packsIds || [_duelLive.packId])).slice();
+      _duelLive.numQuestions = duel.num_questions || snap.numQuestions || 5;
+      _duelLive.timerSec = duel.timer_sec || snap.timerSec || 30;
+      _duelLive.myName = snap.myName || _getMyName() || 'Moi';
+      _duelLive.myUserId = _getMyUserId();
+      _duelLive.questions = (typeof _duel_unionQuestions==='function')? _duel_unionQuestions(_duelLive.packsIds) : [];
+      _duelLive.oppName = snap.isCreator
+        ? ((duel.joiner && duel.joiner.name) || snap.oppName || 'En attente...')
+        : ((duel.creator && duel.creator.name) || snap.oppName || 'Créateur');
+      /* Bascule selon statut */
+      if (duel.status === 'active') {
+        /* Duel déjà lancé → bascule direct sur l'écran de duel */
+        showPage('duel'); dGoTo('duel');
+        return;
+      }
+      /* Sinon : restaure le bon écran d'attente + relance polling */
+      showPage('duel');
+      if (snap.isCreator) {
+        _showWaitScreen(duel.code);
+        /* Si joiner déjà présent, le poll immédiat va afficher le bouton tout de suite */
+        _pollForJoiner();
+      } else {
+        document.querySelectorAll('.screen-d').forEach(s=>{s.classList.remove('active');s.style.display='none';});
+        const t=document.getElementById('d-screen-waiting-start'); if (t){ t.style.display=''; t.classList.add('active'); }
+        const crName = (duel.creator && duel.creator.name) || _duelLive.oppName;
+        const avEl=document.getElementById('ws-creator-av'); if(avEl) avEl.textContent=crName.slice(0,2).toUpperCase();
+        const nmEl=document.getElementById('ws-creator-name'); if(nmEl) nmEl.textContent=crName;
+        try { RA_SFX.waiting(); } catch(_) {}
+        _pollForStart();
+      }
+    }).catch(()=>{});
+}
+window.addEventListener('load', function(){ setTimeout(_duelTryResumeOnLoad, 400); }); // MODIFIÉ — attendre auth + DOM stable
 /* MODIFIÉ — Polling créateur en attente du joiner.
    Améliorations :
    - PREMIER POLL IMMÉDIAT (avant le setInterval) pour détection <1s si le joiner est déjà là
@@ -4359,6 +4440,7 @@ function _showWaitScreen(code){
 function _pollForJoiner(){ // MODIFIÉ
   function _tick(){ // MODIFIÉ — extracted en fonction nommée pour réutilisation
     const jwt=_getJwt();if(!jwt)return;
+    if(!_duelLive.code){ if(_duelLive.pollInt){clearInterval(_duelLive.pollInt);_duelLive.pollInt=null;} return; } // MODIFIÉ — safety si state cleared
     fetch('/duels/'+_duelLive.code,{headers:{'Authorization':'Bearer '+jwt},cache:'no-store'}) // MODIFIÉ — cache:'no-store' en plus du Cache-Control serveur
       .then(r=>r.json()).then(d=>{
         if(!d||!d.success||!d.duel)return;
@@ -4369,8 +4451,9 @@ function _pollForJoiner(){ // MODIFIÉ
           const ps=document.getElementById('wait-poll-status');
           if(ps)ps.textContent=joinerName+' a rejoint !';
           const btnL=document.getElementById('btn-lancer-duel');if(btnL)btnL.style.display='flex';
+          _duelPersistState(); // MODIFIÉ — re-sauvegarde avec oppName mis à jour
         }
-        if(duel.status==='active'){clearInterval(_duelLive.pollInt);_duelLive.pollInt=null;dGoTo('duel');}
+        if(duel.status==='active'){clearInterval(_duelLive.pollInt);_duelLive.pollInt=null;_duelClearPersisted();dGoTo('duel');} // MODIFIÉ — clear persist quand duel actif
       }).catch(()=>{});
   }
   _tick(); // MODIFIÉ — PREMIER POLL IMMÉDIAT (réactivité <1s si joiner déjà présent)
@@ -4428,6 +4511,7 @@ function joinDuelByCode(){
       document.querySelectorAll('.screen-d').forEach(s=>{s.classList.remove('active');s.style.display='none';});
       const t=document.getElementById('d-screen-waiting-start');t.style.display='';t.classList.add('active');
       RA_SFX.waiting(); // MODIFIÉ — boucle d'attente pendant écran wait rejoignant
+      _duelPersistState(); // MODIFIÉ — persiste pour résilience au refresh côté joiner
       _pollForStart();
     }).catch(()=>showToast('❌ Connexion impossible'));
 }
@@ -4437,6 +4521,7 @@ function joinDuelByCode(){
 function _pollForStart(){ // MODIFIÉ
   function _tick(){
     const jwt=_getJwt();if(!jwt)return;
+    if(!_duelLive.code){ if(_duelLive.pollInt){clearInterval(_duelLive.pollInt);_duelLive.pollInt=null;} return; } // MODIFIÉ — safety si state cleared
     fetch('/duels/'+_duelLive.code,{headers:{'Authorization':'Bearer '+jwt},cache:'no-store'}) // MODIFIÉ
       .then(r=>r.json()).then(d=>{
         if(!d||!d.success||!d.duel)return;
@@ -4447,7 +4532,7 @@ function _pollForStart(){ // MODIFIÉ
           _duelLive.packsIds=packsIdsFromSrv.slice();
           _duelLive.numQuestions=d.duel.num_questions||_duelLive.numQuestions;_duelLive.timerSec=d.duel.timer_sec||_duelLive.timerSec;
           _duelLive.questions=_duel_unionQuestions(packsIdsFromSrv); // MODIFIÉ — union
-          clearInterval(_duelLive.pollInt);_duelLive.pollInt=null;_duelIntroThenStart(); // MODIFIÉ — intro anthem+arenaIntro avant duel
+          clearInterval(_duelLive.pollInt);_duelLive.pollInt=null;_duelClearPersisted();_duelIntroThenStart(); // MODIFIÉ — clear persist + intro
         }
       }).catch(()=>{});
   }
