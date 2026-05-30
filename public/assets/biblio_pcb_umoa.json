@@ -1,0 +1,288 @@
+{
+  "pack_id": "pcb-umoa",
+  "titre": "Pack Plan Comptable Bancaire Révisé UMOA",
+  "sous_titre": "Décision N°357-11-2016 BCEAO — Cadre conceptuel, classes de comptes & états financiers",
+  "icone": "📒",
+  "couleur": "#1B5E20",
+  "sources": [
+    "Décision N°357-11-2016 du Comité de Politique Monétaire de la BCEAO instituant le Plan Comptable Bancaire Révisé de l'UMOA",
+    "Annexe à la Décision N°357-11-2016 : Plan Comptable Bancaire Révisé de l'UMOA (313 pages)",
+    "Livre I — Cadre conceptuel du PCB",
+    "Livre II — États financiers et règles de présentation",
+    "Livre III — Organisation comptable et Plan de comptes",
+    "Annexes 1 à 7 : modèles d'états financiers, cadre comptable, contenu des comptes"
+  ],
+  "glossaire": [
+    { "terme": "PCB", "definition": "Plan Comptable Bancaire Révisé de l'UMOA — référentiel comptable obligatoire pour les banques, établissements financiers à caractère bancaire et compagnies financières de l'Union.", "source": "Décision N°357-11-2016 BCEAO" },
+    { "terme": "Continuité de l'exploitation", "definition": "Première hypothèse de base : l'entité poursuivra ses activités dans un avenir prévisible et n'a ni l'intention ni l'obligation d'y mettre fin.", "source": "PCB — Livre I Art. 12" },
+    { "terme": "Comptabilité d'engagement", "definition": "Deuxième hypothèse de base : les effets financiers des transactions sont enregistrés dès qu'ils interviennent, sans attendre le règlement de trésorerie.", "source": "PCB — Livre I Art. 13" },
+    { "terme": "Image fidèle", "definition": "Représentation comptable qui se traduit par 5 caractéristiques de l'information : pertinente, fidèle, comparable, vérifiable, compréhensible.", "source": "PCB — Livre I Art. 14-19" },
+    { "terme": "Permanence des méthodes", "definition": "Principe comptable exigeant la continuité d'application des mêmes méthodes d'évaluation et de présentation d'un exercice à l'autre, pour la comparabilité.", "source": "PCB — Livre I Art. 20" },
+    { "terme": "Prudence", "definition": "Principe comptable exigeant un certain degré de précaution dans l'appréciation des estimations, de sorte que les actifs ou produits ne soient pas surévalués et que les passifs ou charges ne soient pas sous-évalués.", "source": "PCB — Livre I Art. 20" },
+    { "terme": "Spécialisation des exercices", "definition": "Rattachement des charges et produits à l'exercice qui les a engendrés, indépendamment de leur paiement ou encaissement effectif.", "source": "PCB — Livre I Art. 20-21" },
+    { "terme": "Prééminence du fond sur la forme", "definition": "Principe selon lequel la réalité économique d'une transaction prévaut sur sa forme juridique apparente (substance over form).", "source": "PCB — Livre I Art. 20" },
+    { "terme": "Intangibilité du bilan d'ouverture", "definition": "Le bilan d'ouverture d'un exercice doit correspondre au bilan de clôture de l'exercice précédent, sans aucune modification non justifiée.", "source": "PCB — Livre I Art. 20" },
+    { "terme": "Classe 1", "definition": "Comptes de trésorerie et d'opérations avec les établissements de crédit et assimilés (caisse, banques centrales, CCP, banques correspondantes, SFD, prêts interbancaires, dépôts).", "source": "PCB — Annexe 5 Classe 1" },
+    { "terme": "Classe 2", "definition": "Comptes d'opérations avec la clientèle (crédits à la clientèle, dépôts à vue et à terme, créances en souffrance, comptes ordinaires).", "source": "PCB — Annexe 5 Classe 2" },
+    { "terme": "Classe 3", "definition": "Comptes d'opérations sur titres et d'opérations diverses (titres de placement, titres de participation, titres immobilisés, dérivés, opérations en cours).", "source": "PCB — Annexe 5 Classe 3" },
+    { "terme": "Classe 4", "definition": "Comptes de valeurs immobilisées (immobilisations corporelles, incorporelles et financières détenues durablement par l'établissement).", "source": "PCB — Annexe 5 Classe 4" },
+    { "terme": "Classe 5", "definition": "Comptes de provisions, fonds propres et assimilés (capital social, primes, réserves, report à nouveau, résultat, provisions pour risques et charges, dettes subordonnées).", "source": "PCB — Annexe 5 Classe 5" },
+    { "terme": "Classe 6", "definition": "Comptes de charges (intérêts versés, commissions payées, frais généraux, dotations aux amortissements et provisions, impôt sur les bénéfices, charges exceptionnelles).", "source": "PCB — Annexe 5 Classe 6" },
+    { "terme": "Classe 7", "definition": "Comptes de produits (intérêts perçus sur crédits et placements, commissions reçues, produits exceptionnels, reprises sur provisions, produits sur opérations de change et titres).", "source": "PCB — Annexe 5 Classe 7" },
+    { "terme": "Classe 9", "definition": "Comptes de HORS BILAN — engagements donnés (cautions, avals, ouvertures de crédit confirmées non utilisées) et reçus (garanties, hypothèques, nantissements).", "source": "PCB — Annexe 5 Classe 9" },
+    { "terme": "PNB (Produit Net Bancaire)", "definition": "Indicateur d'activité bancaire = produits d'exploitation bancaire − charges d'exploitation bancaire. Equivalent de la marge brute pour une banque. Comprend intérêts nets + commissions nettes + résultat des opérations financières.", "source": "PCB — Livre II Modèles d'états financiers" },
+    { "terme": "Créance saine", "definition": "Créance pour laquelle le service de la dette est régulier (paiements à bonne date). Ne nécessite pas de provisionnement spécifique.", "source": "PCB — Classe 2" },
+    { "terme": "Créance en souffrance", "definition": "Créance dont le service de la dette présente un retard de paiement nécessitant un classement et un provisionnement spécifiques. Se subdivise en : impayées/immobilisées, douteuses, litigieuses.", "source": "PCB — Classe 2 (Créances en souffrance)" },
+    { "terme": "Créance douteuse", "definition": "Créance dont le recouvrement est incertain en raison d'un risque potentiel de défaillance du débiteur. Provisionnement par paliers obligatoire.", "source": "PCB — Classe 2" },
+    { "terme": "Créance litigieuse", "definition": "Créance faisant l'objet d'une procédure contentieuse ou judiciaire. Provisionnement renforcé.", "source": "PCB — Classe 2" },
+    { "terme": "Titres de participation", "definition": "Titres dont la possession durable est estimée utile à l'activité, créant un lien durable avec la société émettrice (influence ou contrôle). Comptabilisés en Classe 4 ou 3.", "source": "PCB — Classe 3-4 (Titres de participation)" },
+    { "terme": "Titres de placement", "definition": "Titres acquis pour être détenus à court ou moyen terme en vue de réaliser une plus-value. Évalués à la plus basse valeur entre coût et marché (prudence).", "source": "PCB — Classe 3 (Titres de placement)" },
+    { "terme": "Créance rattachée (compte se terminant par 7)", "definition": "Intérêts courus non échus sur une opération principale (prêt, dépôt). Convention de numérotation : tout compte se terminant par 7 enregistre les créances rattachées (intérêts à recevoir).", "source": "PCB — Convention de numérotation" },
+    { "terme": "Dette rattachée (compte se terminant par 6)", "definition": "Intérêts courus non échus à payer sur une opération principale. Convention : compte se terminant par 6 enregistre les dettes rattachées.", "source": "PCB — Convention de numérotation" },
+    { "terme": "Hors bilan", "definition": "Engagements (donnés ou reçus) non comptabilisés au bilan mais représentant des risques ou droits potentiels : cautions, avals, lignes de crédit confirmées non tirées, garanties reçues.", "source": "PCB — Classe 9 (Hors bilan)" },
+    { "terme": "Coût historique", "definition": "Méthode d'évaluation principale du PCB : enregistrement des actifs et passifs à leur valeur d'acquisition ou de production, ajustée des amortissements et dépréciations.", "source": "PCB — Livre I Chapitre 3 (Évaluation)" }
+  ],
+  "fiches_revision": [
+    {
+      "id": "pcb01", "ordre": 1, "titre": "Cadre général et finalité du PCB", "icone": "📚",
+      "resume_court": "Le Plan Comptable Bancaire Révisé (PCB) UMOA, institué par la Décision N°357-11-2016 du CPM BCEAO, est le référentiel comptable obligatoire pour les banques, EFCB et compagnies financières de l'Union.",
+      "points_cles": [
+        "Adopté par la Décision N°357-11-2016 du Comité de Politique Monétaire (CPM) de la BCEAO.",
+        "Structure en 3 LIVRES : Cadre conceptuel · États financiers · Organisation comptable.",
+        "Finalité : donner une image FIDÈLE du patrimoine, de la situation financière et du résultat des établissements assujettis.",
+        "Champ d'application : banques, établissements financiers à caractère bancaire, compagnies financières de l'UMOA.",
+        "Aligné sur les principes de SYSCOHADA et inspiré des IFRS pour les concepts généraux."
+      ],
+      "a_retenir": "PCB = Décision 357-11-2016 du CPM BCEAO · 3 Livres · obligatoire pour toutes les banques UMOA.",
+      "exemple_concret": "Une banque ivoirienne tient sa comptabilité selon le PCB et produit ses états financiers selon le Livre II. Ses comptes alimentent ensuite le FODEP (Instruction 005-08-2017) pour la déclaration prudentielle.",
+      "piege_frequent": "Confondre le PCB (référentiel comptable BCEAO) avec le SYSCOHADA (référentiel comptable général OHADA). Le PCB s'applique en complément/dérogation pour les banques.",
+      "source": "PCB UMOA — Annexe à la Décision N°357-11-2016"
+    },
+    {
+      "id": "pcb02", "ordre": 2, "titre": "Hypothèses de base et caractéristiques qualitatives", "icone": "🏛️",
+      "resume_court": "Le PCB s'appuie sur 2 hypothèses de base (continuité de l'exploitation, comptabilité d'engagement) et 5 caractéristiques qualitatives de l'information financière.",
+      "points_cles": [
+        "HYPOTHÈSE 1 — Continuité de l'exploitation : l'entité poursuivra ses activités dans un avenir prévisible. Sinon, optique liquidative obligatoire.",
+        "HYPOTHÈSE 2 — Comptabilité d'engagement : les effets des transactions sont enregistrés dès qu'ils interviennent, sans attendre la trésorerie.",
+        "5 CARACTÉRISTIQUES de l'information financière : Pertinente · Fidèle · Comparable · Vérifiable · Compréhensible.",
+        "Pertinente = susceptible d'influencer les décisions économiques (importance relative + célérité).",
+        "Fidèle = complète + exempte d'erreurs.",
+        "Comparable = permanence des méthodes + comparaison sur au moins 2 périodes."
+      ],
+      "a_retenir": "2 hypothèses (continuité + engagement) + 5 caractéristiques (PFCVC : Pertinente, Fidèle, Comparable, Vérifiable, Compréhensible).",
+      "exemple_concret": "Une banque doit comptabiliser les intérêts courus sur ses prêts à chaque arrêté (comptabilité d'engagement), même si le client paiera plus tard. Elle doit aussi appliquer les mêmes méthodes d'évaluation des titres d'un exercice à l'autre (permanence pour comparabilité).",
+      "piege_frequent": "Confondre la comptabilité d'engagement (PCB) avec la comptabilité de caisse (qui n'enregistrerait que les flux de trésorerie).",
+      "source": "PCB UMOA — Livre I Chapitre 2 Art. 11-19"
+    },
+    {
+      "id": "pcb03", "ordre": 3, "titre": "Principes comptables fondamentaux", "icone": "⚖️",
+      "resume_court": "Le PCB édicte 7 principes comptables qui déclinent les caractéristiques qualitatives en règles applicables.",
+      "points_cles": [
+        "Permanence des méthodes : application constante des mêmes méthodes d'évaluation et présentation, sauf changement justifié.",
+        "Transparence : information complète et accessible aux utilisateurs.",
+        "Prudence : précaution dans les estimations (pas de surévaluation des actifs/produits, pas de sous-évaluation des passifs/charges).",
+        "Spécialisation des exercices : rattachement des charges et produits à l'exercice qui les a engendrés.",
+        "Intangibilité du bilan d'ouverture : le bilan d'ouverture = bilan de clôture précédent, sans modification non justifiée.",
+        "Importance significative : seules les informations significatives doivent être présentées séparément.",
+        "Prééminence de la réalité économique sur l'apparence juridique : le fond prime la forme."
+      ],
+      "a_retenir": "7 principes : Permanence · Transparence · Prudence · Spécialisation · Intangibilité · Importance significative · Substance over form.",
+      "exemple_concret": "Crédit-bail (leasing) : juridiquement, le bien appartient au bailleur. Économiquement, c'est le preneur qui en assume les risques et bénéfices → en application du principe de prééminence du fond sur la forme, le bien peut être inscrit à l'actif du preneur.",
+      "piege_frequent": "Sous-estimer le principe de spécialisation des exercices : oublier de comptabiliser les intérêts courus en fin d'exercice fausse le résultat.",
+      "source": "PCB UMOA — Livre I Art. 20-22"
+    },
+    {
+      "id": "pcb04", "ordre": 4, "titre": "Plan de comptes — Les 8 classes du PCB", "icone": "🗂️",
+      "resume_court": "Le PCB organise les comptes en 8 classes (de 1 à 9, sans la 8) : 5 classes de bilan (1-5), 2 classes de gestion (6-7) et 1 classe de hors bilan (9).",
+      "points_cles": [
+        "Classe 1 : Comptes de trésorerie et d'opérations avec les établissements de crédit et assimilés.",
+        "Classe 2 : Comptes d'opérations avec la clientèle (crédits, dépôts, créances en souffrance).",
+        "Classe 3 : Comptes d'opérations sur titres et opérations diverses.",
+        "Classe 4 : Comptes de valeurs immobilisées (immobilisations corporelles, incorporelles, financières).",
+        "Classe 5 : Comptes de provisions, fonds propres et assimilés.",
+        "Classe 6 : Comptes de CHARGES (intérêts, commissions, frais généraux, amortissements, impôts).",
+        "Classe 7 : Comptes de PRODUITS (intérêts, commissions, produits financiers).",
+        "Classe 9 : Comptes de HORS BILAN (engagements donnés et reçus). Pas de classe 8."
+      ],
+      "a_retenir": "Pyramide 1-2-3-4-5 (BILAN) · 6-7 (GESTION) · 9 (HORS BILAN). Pas de classe 8.",
+      "exemple_concret": "Une banque accorde un prêt de 50 M à un client : DÉBIT compte 201 (Crédits à la clientèle, Classe 2) / CRÉDIT compte 251 (Compte ordinaire du client, Classe 2). Les intérêts perçus alimenteront un compte de Classe 7.",
+      "piege_frequent": "Oublier que la Classe 8 n'existe pas dans le PCB → les hors bilan sont en Classe 9, pas en Classe 8.",
+      "source": "PCB UMOA — Annexe 5 (Cadre comptable)"
+    },
+    {
+      "id": "pcb05", "ordre": 5, "titre": "Classe 1 — Trésorerie et opérations interbancaires", "icone": "💰",
+      "resume_court": "La Classe 1 enregistre toutes les opérations avec la BCEAO, les banques correspondantes, le CCP, les SFD et les institutions financières internationales.",
+      "points_cles": [
+        "10 - Valeurs en caisse (billets et monnaies).",
+        "11 - Comptes ordinaires chez les établissements de crédit (banques centrales, CCP, banques correspondantes, SFD).",
+        "12 - Autres comptes de dépôts (marché monétaire, avoirs bloqués, dépôts à terme, dépôts de garantie).",
+        "13 - Prêts aux établissements de crédit (au jour le jour, valeurs en pension, prêts à terme).",
+        "Convention : comptes se terminant par 6 = dettes rattachées · par 7 = créances rattachées · par 3 = impayés.",
+        "Inclut le Fonds de Garantie Permanent SICA-UEMOA (compte 128)."
+      ],
+      "a_retenir": "Classe 1 = TOUT ce qui circule entre banques et BCEAO. Sous-classes 10, 11, 12, 13.",
+      "exemple_concret": "Une banque dépose 100 M FCFA à la BCEAO : DÉBIT 1111 (BCEAO compte ordinaire) / CRÉDIT 10 (caisse). Intérêts courus non échus sur les prêts au jour le jour → compte 1317 (créance rattachée).",
+      "piege_frequent": "Confondre les comptes 111 (Banques Centrales) et 114 (Banques et correspondants commerciaux).",
+      "source": "PCB UMOA — Annexe 5 Classe 1 §10-13"
+    },
+    {
+      "id": "pcb06", "ordre": 6, "titre": "Classe 2 — Opérations avec la clientèle", "icone": "👥",
+      "resume_court": "La Classe 2 enregistre les crédits accordés à la clientèle, les dépôts reçus, et les créances en souffrance classées en 3 catégories.",
+      "points_cles": [
+        "Crédits à la clientèle : crédits à court, moyen et long terme, escompte, affacturage, crédit-bail, etc.",
+        "Dépôts de la clientèle : comptes à vue, dépôts à terme, comptes d'épargne, dépôts de garantie reçus.",
+        "Créances en souffrance — 3 catégories à mémoriser : (1) IMPAYÉES ou IMMOBILISÉES · (2) DOUTEUSES · (3) LITIGIEUSES.",
+        "Une créance impayée : échue non remboursée à la date contractuelle.",
+        "Une créance douteuse : recouvrement incertain en raison d'un risque potentiel de défaillance.",
+        "Une créance litigieuse : faisant l'objet d'une procédure contentieuse ou judiciaire.",
+        "Chaque catégorie a un régime de provisionnement spécifique."
+      ],
+      "a_retenir": "Créances en souffrance = 3 catégories (I, D, L) avec provisionnement croissant.",
+      "exemple_concret": "Un client n'a pas remboursé une échéance depuis 95 jours → la créance passe en « douteuse » → reclassement comptable + provision réglementaire obligatoire.",
+      "piege_frequent": "Ne pas reclasser à temps les créances en souffrance → sous-estimation du provisionnement → faussage du résultat.",
+      "source": "PCB UMOA — Annexe 5 Classe 2 (Créances en souffrance)"
+    },
+    {
+      "id": "pcb07", "ordre": 7, "titre": "Classe 3 — Titres et opérations diverses", "icone": "📈",
+      "resume_court": "La Classe 3 enregistre les opérations sur titres (placement, participation, immobilisation) et les opérations diverses (comptes de régularisation).",
+      "points_cles": [
+        "Titres de PLACEMENT : acquis pour réaliser une plus-value à court/moyen terme. Évalués à la plus basse valeur (coût ou marché).",
+        "Titres de PARTICIPATION : possession durable créant un lien avec l'émettrice (influence ou contrôle). Évalués au coût d'acquisition + dépréciations.",
+        "Titres IMMOBILISÉS de l'activité de portefeuille : titres long terme stratégiques.",
+        "Comptes de régularisation : charges constatées d'avance, produits à recevoir, etc.",
+        "Opérations en cours et instruments financiers à terme (dérivés)."
+      ],
+      "a_retenir": "3 catégories de titres : PLACEMENT (court terme) · PARTICIPATION (durable lien capital) · IMMOBILISÉS (long terme stratégique).",
+      "exemple_concret": "Une banque achète 5% du capital d'une SGI pour conserver durablement → titres de participation (Classe 3 ou 4). Elle achète aussi des obligations d'État pour réaliser une plus-value → titres de placement (Classe 3), évalués à la plus basse entre 100 M (coût) et 95 M (marché) = 95 M.",
+      "piege_frequent": "Évaluer les titres de placement au seul coût d'acquisition sans tenir compte du principe de prudence (valeur de marché si inférieure).",
+      "source": "PCB UMOA — Annexe 5 Classe 3"
+    },
+    {
+      "id": "pcb08", "ordre": 8, "titre": "Classe 4 — Valeurs immobilisées", "icone": "🏢",
+      "resume_court": "La Classe 4 enregistre les immobilisations détenues durablement par l'établissement : corporelles (locaux, matériels), incorporelles (logiciels, fonds commercial) et financières (participations long terme).",
+      "points_cles": [
+        "Immobilisations CORPORELLES : terrains, constructions, matériel informatique, mobilier, véhicules.",
+        "Immobilisations INCORPORELLES : fonds de commerce, brevets, licences, logiciels, droits au bail.",
+        "Immobilisations FINANCIÈRES : titres de participation à long terme, prêts à long terme intragroupe, dépôts et cautionnements versés.",
+        "Évaluation à l'entrée : COÛT D'ACQUISITION ou de production (coût historique).",
+        "Amortissements : traduisent la consommation des avantages économiques sur la durée d'utilité.",
+        "Dépréciations : constatées si la valeur recouvrable devient inférieure à la valeur comptable."
+      ],
+      "a_retenir": "3 types d'immo : CORPORELLES (matérielles), INCORPORELLES (immatérielles), FINANCIÈRES (titres LT). Évaluation : coût historique.",
+      "exemple_concret": "Une banque achète un immeuble pour 500 M FCFA → débit 4 (Classe 4 immobilisations corporelles). Amortissement annuel sur 25 ans = 20 M/an → crédit en classe 4 (amortissements) + débit en classe 6 (charges).",
+      "piege_frequent": "Comptabiliser une immobilisation à sa valeur d'usage ou de marché au lieu du coût d'acquisition.",
+      "source": "PCB UMOA — Annexe 5 Classe 4"
+    },
+    {
+      "id": "pcb09", "ordre": 9, "titre": "Classe 5 — Fonds propres et provisions", "icone": "💎",
+      "resume_court": "La Classe 5 enregistre les capitaux propres, les provisions pour risques et charges, et les dettes subordonnées.",
+      "points_cles": [
+        "Capital social libéré (actions ordinaires, parts sociales des mutualistes).",
+        "Primes liées au capital (primes d'émission, d'apport, de fusion).",
+        "Réserves : statutaires, légales, facultatives + RÉSERVE SPÉCIALE BCEAO obligatoire (15% du bénéfice net annuel).",
+        "Report à nouveau (créditeur ou débiteur).",
+        "Résultat de l'exercice.",
+        "Provisions pour risques et charges (litiges, restructurations, etc.).",
+        "Dettes subordonnées (éligibles au T2 du dispositif prudentiel).",
+        "Subventions d'investissement et fonds dédiés."
+      ],
+      "a_retenir": "Classe 5 = PASSIF NET de la banque (ce qu'elle se doit à elle-même + provisions + emprunts subordonnés).",
+      "exemple_concret": "Une banque réalise 1 Md de bénéfice net → 15% (150 M) sont obligatoirement affectés à la réserve spéciale BCEAO (Classe 5) tant que celle-ci n'atteint pas 20% du capital social.",
+      "piege_frequent": "Omettre la réserve spéciale obligatoire (15% du bénéfice net annuel) jusqu'au seuil de 20% du capital social.",
+      "source": "PCB UMOA — Annexe 5 Classe 5 + Annexe Décision 013/2016 §16"
+    },
+    {
+      "id": "pcb10", "ordre": 10, "titre": "Classes 6 & 7 — Charges et produits, PNB", "icone": "📊",
+      "resume_court": "Les Classes 6 et 7 forment le compte de résultat de la banque. La différence Produits − Charges d'exploitation bancaire donne le PNB, indicateur clé d'activité.",
+      "points_cles": [
+        "CLASSE 6 — Charges : intérêts versés sur dépôts, commissions payées, frais généraux d'exploitation (personnel, services extérieurs), dotations aux amortissements et provisions, impôt sur les bénéfices.",
+        "CLASSE 7 — Produits : intérêts perçus sur crédits et placements, commissions reçues, produits sur opérations de change, reprises sur provisions, produits exceptionnels.",
+        "Produit Net Bancaire (PNB) = produits d'exploitation bancaire − charges d'exploitation bancaire.",
+        "PNB = marge d'intermédiation (intérêts perçus − versés) + commissions nettes + résultat des opérations financières.",
+        "Le PNB est l'INDICATEUR CLÉ d'activité bancaire (équivalent de la marge brute), sert de base au calcul de l'exigence en fonds propres au titre du risque opérationnel (× 15%)."
+      ],
+      "a_retenir": "PNB = produits bancaires − charges bancaires. C'est le « chiffre d'affaires » de la banque + base de calcul du risque opérationnel (15% × PNB moyen 3 ans).",
+      "exemple_concret": "Banque : intérêts perçus 100 Mds, commissions reçues 30 Mds, intérêts versés 60 Mds, commissions payées 5 Mds → PNB = (100+30) − (60+5) = 65 Mds. Exigence FP risque op = 15% × 65 = 9,75 Mds.",
+      "piege_frequent": "Confondre PNB avec résultat net : le PNB est en amont, le résultat net déduit en plus les frais généraux, dotations, impôts.",
+      "source": "PCB UMOA — Annexe 5 Classes 6-7 + Livre II"
+    },
+    {
+      "id": "pcb11", "ordre": 11, "titre": "Classe 9 — Hors bilan", "icone": "🔗",
+      "resume_court": "La Classe 9 enregistre les engagements donnés et reçus qui ne figurent pas au bilan mais représentent des risques ou droits potentiels.",
+      "points_cles": [
+        "Engagements de FINANCEMENT donnés : ouvertures de crédit confirmées non utilisées, lignes de crédit confirmées.",
+        "Engagements de FINANCEMENT reçus : lignes de financement obtenues d'autres EC.",
+        "Engagements de GARANTIE donnés : cautions, avals, garanties à première demande données à la clientèle.",
+        "Engagements de GARANTIE reçus : hypothèques, nantissements, cautions reçues de garants.",
+        "Engagements sur TITRES donnés et reçus.",
+        "Engagements en DEVISES (opérations de change à terme).",
+        "Finalité : compléter l'image financière en mettant en évidence les risques et engagements non comptabilisés au bilan."
+      ],
+      "a_retenir": "4 catégories d'engagements : FINANCEMENT · GARANTIE · TITRES · DEVISES. Donnés ET reçus.",
+      "exemple_concret": "La banque ouvre une ligne de crédit de 200 M à un client, dont 50 M sont utilisés. Le bilan enregistre 50 M de créance (Classe 2). Le hors bilan (Classe 9) enregistre 150 M d'engagement de financement donné.",
+      "piege_frequent": "Oublier d'enregistrer en hors bilan les garanties reçues de clients (hypothèques, nantissements) qui sont pourtant des droits réels.",
+      "source": "PCB UMOA — Annexe 5 Classe 9"
+    },
+    {
+      "id": "pcb12", "ordre": 12, "titre": "États financiers et lien avec le dispositif prudentiel", "icone": "📋",
+      "resume_court": "Le Livre II du PCB définit les modèles d'états financiers obligatoires. Ces états alimentent ensuite le FODEP transmis à la BCEAO.",
+      "points_cles": [
+        "5 ÉTATS FINANCIERS principaux : BILAN · HORS BILAN · COMPTE DE RÉSULTAT · TABLEAU DES FLUX DE TRÉSORERIE · NOTES ANNEXES.",
+        "Périodicité minimale : SEMESTRIELLE (au moins 30 juin et 31 décembre).",
+        "Notes annexes (Annexe 4 du PCB) : informations complémentaires obligatoires (méthodes comptables, détail des postes significatifs, engagements, etc.).",
+        "Les états financiers PCB alimentent le FODEP (Formulaire de Déclaration Prudentielle) transmis à la BCEAO les 30 avril et 31 octobre.",
+        "Le PCB est donc la SOURCE des données utilisées pour le dispositif prudentiel (Décision 013/2016) et la supervision (Décision 014/2016)."
+      ],
+      "a_retenir": "PCB → produit les états financiers → alimente le FODEP → permet le calcul des ratios prudentiels. Chaîne intégrée.",
+      "exemple_concret": "Au 31/12/2025, une banque clôture ses comptes selon le PCB. En avril 2026, elle transmet à la BCEAO son FODEP basé sur ces comptes, permettant à la Commission Bancaire de vérifier ses ratios CET1, T1, FPE, LCR, NSFR.",
+      "piege_frequent": "Considérer le PCB comme isolé : en réalité, il est la BASE de tout l'édifice prudentiel UMOA.",
+      "source": "PCB UMOA — Livre II + Instruction N°005-08-2017 BCEAO (FODEP)"
+    }
+  ],
+  "flash_cards": [
+    { "id": "pcbfc1", "categorie": "Cadre général", "recto": "Quel texte institue le PCB Révisé UMOA ?", "verso": "Décision N°357-11-2016 du Comité de Politique Monétaire (CPM) de la BCEAO.", "source": "PCB UMOA" },
+    { "id": "pcbfc2", "categorie": "Cadre général", "recto": "Combien de Livres compose le PCB ?", "verso": "3 Livres : Cadre conceptuel · États financiers · Organisation comptable.", "source": "PCB UMOA — Table des matières" },
+    { "id": "pcbfc3", "categorie": "Hypothèses", "recto": "Les 2 hypothèses de base du PCB ?", "verso": "Continuité de l'exploitation + Comptabilité d'engagement.", "source": "PCB Livre I Art. 11" },
+    { "id": "pcbfc4", "categorie": "Hypothèses", "recto": "Que postule la comptabilité d'engagement ?", "verso": "Les transactions sont enregistrées dès qu'elles interviennent, sans attendre le règlement de trésorerie.", "source": "PCB Livre I Art. 13" },
+    { "id": "pcbfc5", "categorie": "Hypothèses", "recto": "5 caractéristiques qualitatives de l'information financière ?", "verso": "Pertinente · Fidèle · Comparable · Vérifiable · Compréhensible.", "source": "PCB Livre I Art. 14-19" },
+    { "id": "pcbfc6", "categorie": "Principes", "recto": "Principe imposant que la réalité économique prévaut sur l'apparence juridique ?", "verso": "Prééminence du fond sur la forme (substance over form).", "source": "PCB Livre I Art. 20" },
+    { "id": "pcbfc7", "categorie": "Principes", "recto": "Principe de spécialisation des exercices ?", "verso": "Rattacher les charges et produits à l'exercice qui les a engendrés, indépendamment du paiement.", "source": "PCB Livre I" },
+    { "id": "pcbfc8", "categorie": "Classes", "recto": "Combien de classes de comptes a le PCB ?", "verso": "8 classes (1 à 9, sans la 8).", "source": "PCB Annexe 5" },
+    { "id": "pcbfc9", "categorie": "Classes", "recto": "Classe 1 du PCB ?", "verso": "Trésorerie et opérations avec les établissements de crédit et assimilés.", "source": "PCB Annexe 5 Classe 1" },
+    { "id": "pcbfc10", "categorie": "Classes", "recto": "Classe 2 du PCB ?", "verso": "Opérations avec la CLIENTÈLE (crédits, dépôts, créances en souffrance).", "source": "PCB Annexe 5 Classe 2" },
+    { "id": "pcbfc11", "categorie": "Classes", "recto": "Classe 3 du PCB ?", "verso": "Opérations sur TITRES et opérations diverses.", "source": "PCB Annexe 5 Classe 3" },
+    { "id": "pcbfc12", "categorie": "Classes", "recto": "Classe 4 du PCB ?", "verso": "Valeurs IMMOBILISÉES (corporelles, incorporelles, financières).", "source": "PCB Annexe 5 Classe 4" },
+    { "id": "pcbfc13", "categorie": "Classes", "recto": "Classe 5 du PCB ?", "verso": "Provisions, FONDS PROPRES et assimilés.", "source": "PCB Annexe 5 Classe 5" },
+    { "id": "pcbfc14", "categorie": "Classes", "recto": "Classe 6 du PCB ?", "verso": "CHARGES (intérêts versés, commissions payées, frais généraux, amortissements).", "source": "PCB Annexe 5 Classe 6" },
+    { "id": "pcbfc15", "categorie": "Classes", "recto": "Classe 7 du PCB ?", "verso": "PRODUITS (intérêts perçus, commissions reçues, produits financiers).", "source": "PCB Annexe 5 Classe 7" },
+    { "id": "pcbfc16", "categorie": "Classes", "recto": "Classe 9 du PCB ?", "verso": "HORS BILAN (engagements donnés et reçus).", "source": "PCB Annexe 5 Classe 9" },
+    { "id": "pcbfc17", "categorie": "Conventions", "recto": "Que représente un compte se terminant par 7 ?", "verso": "Créance rattachée (intérêts courus non échus à recevoir).", "source": "PCB Convention de numérotation" },
+    { "id": "pcbfc18", "categorie": "Conventions", "recto": "Que représente un compte se terminant par 6 ?", "verso": "Dette rattachée (intérêts courus non échus à payer).", "source": "PCB Convention" },
+    { "id": "pcbfc19", "categorie": "Conventions", "recto": "Que représente un compte de Classe 2 se terminant par 3 ?", "verso": "Impayés (créances échues non remboursées).", "source": "PCB Convention" },
+    { "id": "pcbfc20", "categorie": "Clientèle", "recto": "3 catégories de créances en souffrance ?", "verso": "1. IMPAYÉES ou immobilisées · 2. DOUTEUSES · 3. LITIGIEUSES.", "source": "PCB Classe 2" },
+    { "id": "pcbfc21", "categorie": "Clientèle", "recto": "Définition d'une créance douteuse ?", "verso": "Créance dont le recouvrement est incertain en raison d'un risque potentiel de défaillance du débiteur.", "source": "PCB Classe 2" },
+    { "id": "pcbfc22", "categorie": "Clientèle", "recto": "Définition d'une créance litigieuse ?", "verso": "Créance faisant l'objet d'une procédure contentieuse ou judiciaire.", "source": "PCB Classe 2" },
+    { "id": "pcbfc23", "categorie": "Titres", "recto": "Définition des titres de placement ?", "verso": "Titres acquis pour réaliser une plus-value à court/moyen terme. Évalués à la plus basse entre coût et marché.", "source": "PCB Classe 3" },
+    { "id": "pcbfc24", "categorie": "Titres", "recto": "Définition des titres de participation ?", "verso": "Titres dont la possession durable est utile à l'activité, créant un lien avec l'émettrice.", "source": "PCB Classe 3-4" },
+    { "id": "pcbfc25", "categorie": "Immobilisations", "recto": "Comment sont évaluées les immobilisations à l'entrée ?", "verso": "Au coût d'acquisition ou de production (coût historique).", "source": "PCB Classe 4" },
+    { "id": "pcbfc26", "categorie": "Fonds propres", "recto": "Quel taux annuel obligatoire pour la réserve spéciale BCEAO ?", "verso": "15% du bénéfice net annuel jusqu'à 20% du capital social.", "source": "Annexe Décision 013/2016 §16" },
+    { "id": "pcbfc27", "categorie": "PNB", "recto": "Que signifie PNB ?", "verso": "Produit Net Bancaire = produits d'exploitation bancaire − charges d'exploitation bancaire.", "source": "PCB Livre II" },
+    { "id": "pcbfc28", "categorie": "PNB", "recto": "À quoi sert le PNB dans le dispositif prudentiel ?", "verso": "Base de calcul de l'exigence en fonds propres au titre du risque opérationnel (15% × PNB moyen sur 3 ans).", "source": "Annexe Décision 013/2016 Titre V" },
+    { "id": "pcbfc29", "categorie": "États financiers", "recto": "Périodicité minimale des états financiers PCB ?", "verso": "Semestrielle (30 juin et 31 décembre minimum).", "source": "PCB Livre II" },
+    { "id": "pcbfc30", "categorie": "Hors bilan", "recto": "4 catégories d'engagements hors bilan ?", "verso": "Financement · Garantie · Titres · Devises (donnés et reçus).", "source": "PCB Classe 9" }
+  ],
+  "mnemotechniques": [
+    { "id": "pcbmn1", "concept": "Les 2 hypothèses de base du PCB", "moyen": "« CC » : Continuité · Comptabilité d'engagement.", "explication": "Deux mots simples à mémoriser ensemble.", "exemple": "Une banque comptabilise les intérêts courus dès qu'ils sont acquis (CC d'engagement), sauf si elle cesse son activité (continuité rompue).", "source": "PCB Livre I Art. 11" },
+    { "id": "pcbmn2", "concept": "Les 5 caractéristiques de l'information financière", "moyen": "« PFCVC » : Pertinente · Fidèle · Comparable · Vérifiable · Compréhensible.", "explication": "Acronyme à 5 lettres dans l'ordre du PCB.", "exemple": "Un rapport financier doit pouvoir être comparé d'un exercice à l'autre (Comparable) et compris par un investisseur non spécialiste (Compréhensible).", "source": "PCB Livre I Art. 14" },
+    { "id": "pcbmn3", "concept": "Les 7 principes comptables", "moyen": "« PTPS-IIS » : Permanence · Transparence · Prudence · Spécialisation · Intangibilité · Importance significative · Substance over form.", "explication": "Acronyme un peu long mais mnémo efficace.", "exemple": "Lors d'un crédit-bail, le PCB applique « Substance over form » : l'actif est inscrit chez le preneur économique, pas chez le bailleur juridique.", "source": "PCB Livre I Art. 20" },
+    { "id": "pcbmn4", "concept": "Les 8 classes du PCB (sans la 8)", "moyen": "« 1-2-3-4-5 / 6-7 / 9 » : 5 classes BILAN · 2 classes GESTION · 1 classe HORS BILAN.", "explication": "Pas de classe 8, à retenir absolument.", "exemple": "Pyramide mentale : 1-2-3-4-5 (bilan), 6-7 (compte de résultat), 9 (engagements).", "source": "PCB Annexe 5" },
+    { "id": "pcbmn5", "concept": "Conventions de numérotation des comptes", "moyen": "« 3-6-7 » : 3 = impayés · 6 = dettes rattachées · 7 = créances rattachées.", "explication": "Le dernier chiffre du compte indique sa nature spécifique.", "exemple": "Compte 1317 = créance rattachée sur prêt au jour le jour. Compte 1313 = impayé sur prêt au jour le jour.", "source": "PCB Conventions" },
+    { "id": "pcbmn6", "concept": "Les 3 catégories de créances en souffrance", "moyen": "« IDL » : Impayées · Douteuses · Litigieuses.", "explication": "Acronyme à mémoriser dans l'ordre croissant de gravité.", "exemple": "Une créance échue depuis 30 jours = Impayée → si recouvrement incertain à 90j = Douteuse → si en procès = Litigieuse.", "source": "PCB Classe 2" },
+    { "id": "pcbmn7", "concept": "Les 3 catégories de titres", "moyen": "« PPI » : Placement (CT) · Participation (durable) · Immobilisés (LT stratégiques).", "explication": "3 horizons différents pour 3 typologies.", "exemple": "Obligations à 6 mois = Placement. 30% du capital d'une filiale = Participation. Action stratégique long terme = Immobilisé.", "source": "PCB Classe 3-4" },
+    { "id": "pcbmn8", "concept": "Les 3 types d'immobilisations", "moyen": "« CIF » : Corporelles · Incorporelles · Financières.", "explication": "Matérielles, immatérielles, financières.", "exemple": "Immeuble (C) · Logiciel (I) · Participation 30% filiale long terme (F).", "source": "PCB Classe 4" },
+    { "id": "pcbmn9", "concept": "Formule du PNB", "moyen": "« PNB = P − C » d'exploitation bancaire.", "explication": "Marge brute d'activité bancaire.", "exemple": "Produits 130 Mds − Charges 65 Mds = PNB 65 Mds. À × 15% = exigence FP risque opérationnel.", "source": "PCB Livre II" },
+    { "id": "pcbmn10", "concept": "Réserve spéciale BCEAO", "moyen": "« 15 → 20 » : 15% du bénéfice annuel jusqu'à 20% du capital.", "explication": "Prélèvement obligatoire à mémoriser.", "exemple": "Capital 200 M, bénéfice annuel 100 M → 15 M en réserve spéciale jusqu'à atteindre 40 M (20% du capital).", "source": "Annexe Décision 013/2016 §16" },
+    { "id": "pcbmn11", "concept": "Les 4 catégories de hors bilan", "moyen": "« FGTD » : Financement · Garantie · Titres · Devises.", "explication": "Acronyme couvrant tous les engagements de la Classe 9.", "exemple": "Ouverture de crédit non tirée = F. Caution donnée = G. Achat de titres à terme = T. Vente USD à terme = D.", "source": "PCB Classe 9" },
+    { "id": "pcbmn12", "concept": "Chaîne PCB → FODEP → Ratios", "moyen": "« PCB → FODEP → BCEAO » : la comptabilité produit les chiffres, le FODEP les transmet, la BCEAO contrôle les ratios.", "explication": "Pipeline d'information prudentielle de bout en bout.", "exemple": "Comptes 31/12/2025 (PCB) → FODEP transmis 30/04/2026 → CB-UMOA vérifie CET1 ≥ 7,5%, FPE ≥ 10,5%, etc.", "source": "PCB + Instruction 005-08-2017" }
+  ]
+}
