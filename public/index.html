@@ -2095,6 +2095,13 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
                 <option value="cemac">Banque — Zone CEMAC (BEAC/COBAC)</option>
               </select>
             </div>
+            <!-- BROADCAST AJOUT — URL YouTube Live (optionnel) -->
+            <div class="form-group">
+              <label class="form-label" for="t-youtube">🎥 URL YouTube Live (optionnel)</label>
+              <input type="url" id="t-youtube" class="form-input" placeholder="https://youtube.com/watch?v=..." maxlength="200" oninput="_broadcastValidateYoutubeInput()">
+              <div id="t-youtube-help" style="font-size:.72rem;color:var(--muted);margin-top:4px">Colle ici l'URL de ta diffusion YouTube pour qu'elle s'affiche dans la vue spectateur. Laisse vide si pas de stream.</div>
+              <div id="t-youtube-err" style="font-size:.72rem;color:#e74c3c;margin-top:4px;display:none">URL YouTube invalide</div>
+            </div>
           </div>
           <button class="btn-gold" style="width:100%;justify-content:center;font-size:.9rem;padding:14px" onclick="createTournament()">🚀 Créer le tournoi</button>
         </div>
@@ -2159,6 +2166,16 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
           <input type="text" class="chat-input" id="chat-input" placeholder="Envoyer un message..." aria-label="Message" maxlength="400" onkeydown="if(event.key==='Enter')sendChat()">
           <button class="chat-send" onclick="sendChat()" aria-label="Envoyer">↑</button>
         </div>
+      </div>
+      <!-- BROADCAST AJOUT — Configuration stream + Partager le live -->
+      <div class="card" style="margin-top:14px;padding:16px">
+        <div style="font-family:'Bebas Neue',cursive;font-size:.9rem;letter-spacing:2px;color:var(--gold);margin-bottom:10px">🎥 Diffusion en direct</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input type="url" id="dash-youtube-url" class="form-input" style="flex:1;min-width:240px" placeholder="https://youtube.com/watch?v=..." maxlength="200">
+          <button class="btn-gold" style="padding:10px 18px;font-size:.75rem" onclick="_broadcastSaveYoutubeFromDashboard()">💾 Enregistrer URL</button>
+        </div>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:6px" id="dash-youtube-feedback">Colle l'URL de ta diffusion YouTube pour la lier à la vue spectateur. Laisse vide pour utiliser le Match Viewer natif.</div>
+        <div id="dash-share-box" style="margin-top:14px"></div>
       </div>
     </div>
   </div>
@@ -3181,7 +3198,7 @@ async function apiCall(method, path, body) {
 /* ───────────────────────────────────────────────────────────
    CORE : Navigation SPA
    ─────────────────────────────────────────────────────────── */
-const PAGES = ['landing','classement','tournois','duel','solo','premium','invitation','quizExpress','bibliotheque','biblioPack','dailyStreak','packsQuiz'];
+const PAGES = ['landing','classement','tournois','duel','solo','premium','invitation','quizExpress','bibliotheque','biblioPack','dailyStreak','packsQuiz','broadcast','watch'];
 const pageInits = {};
 
 function showPage(id) {
@@ -3196,9 +3213,16 @@ function showPage(id) {
   document.getElementById('page-' + id).classList.add('active');
   // La Bibliothèque (et la page pack) sont des sous-apps plein écran (placées après le footer) :
   // on masque feedback + footer pendant qu'elles sont actives, on les restaure sinon.
-  const _hideChrome = (id === 'bibliotheque' || id === 'biblioPack');
+  // BROADCAST AJOUT : la vue régie #broadcast masque AUSSI nav/bandes (mode OBS pur)
+  const _hideChrome = (id === 'bibliotheque' || id === 'biblioPack' || id === 'broadcast' || id === 'watch');
   document.querySelectorAll('.feedback-section, footer[role="contentinfo"]').forEach(el => {
     el.style.display = _hideChrome ? 'none' : '';
+  });
+  // Broadcast (vue régie OBS) : masque AUSSI la nav et les tickers/bandes habituelles
+  const _isBroadcast = (id === 'broadcast');
+  document.querySelectorAll('body > header, body > nav, header[role="banner"], #ra-topband, #ra-ticker-wrap, #ra-topbar, .ra-band, .ra-ticker, #ra-ticker, .sponsor-band, .nav-links, .mobile-nav, #mobile-nav-menu').forEach(el => {
+    if (_isBroadcast) el.setAttribute('data-broadcast-hidden', '1');
+    else if (el.getAttribute('data-broadcast-hidden')) el.removeAttribute('data-broadcast-hidden');
   });
   document.querySelectorAll('.nav-links button').forEach(b => {
     b.classList.remove('active');
@@ -3221,6 +3245,20 @@ function showPage(id) {
   if (id === 'packsQuiz' && window.QE) {
     setTimeout(() => window.QE.renderPacks(), 30);
   }
+  // BROADCAST AJOUT : démarrage des vues live (montent leur polling)
+  if (id === 'broadcast' && window.RABroadcast && typeof window.RABroadcast.mount === 'function') {
+    setTimeout(() => window.RABroadcast.mount(window._broadcastCode || null), 30);
+  }
+  if (id === 'watch' && window.RAWatch && typeof window.RAWatch.mount === 'function') {
+    setTimeout(() => window.RAWatch.mount(window._watchCode || null), 30);
+  }
+  // Unmount des vues live quand on quitte (clear polling)
+  if (id !== 'broadcast' && window.RABroadcast && typeof window.RABroadcast.unmount === 'function') {
+    try { window.RABroadcast.unmount(); } catch(_) {}
+  }
+  if (id !== 'watch' && window.RAWatch && typeof window.RAWatch.unmount === 'function') {
+    try { window.RAWatch.unmount(); } catch(_) {}
+  }
   if (btn) { btn.classList.add('active'); btn.setAttribute('aria-current','page'); }
   window.scrollTo(0, 0);
   if (id === 'solo') { initSolo(); return; }
@@ -3236,6 +3274,25 @@ function initPage(id) {
   if (id === 'premium')  { renderAdvantages(); renderHOF(); }
   if (id === 'invitation') { initQR(); renderInviteList(); renderAmbassadors(); }
 }
+
+/* ───────────────────────────────────────────────────────────
+   BROADCAST AJOUT : routeur hashbang pour partage YouTube
+   /#broadcast/<code> → vue régie OBS · /#watch/<code> → vue spectateur
+   ─────────────────────────────────────────────────────────── */
+function _broadcastHandleHash() {
+  const h = location.hash || '';
+  const mB = h.match(/^#broadcast\/(.+)$/);
+  const mW = h.match(/^#watch\/(.+)$/);
+  if (mB) {
+    window._broadcastCode = decodeURIComponent(mB[1]).toUpperCase();
+    showPage('broadcast');
+  } else if (mW) {
+    window._watchCode = decodeURIComponent(mW[1]).toUpperCase();
+    showPage('watch');
+  }
+}
+window.addEventListener('hashchange', _broadcastHandleHash);
+window.addEventListener('load', _broadcastHandleHash);
 
 /* ───────────────────────────────────────────────────────────
    CORE : Toast partagé
@@ -7383,6 +7440,727 @@ window.BiblioFiches = {
 };
 </script>
 
+<!-- ═══════════════════════════════════════════════════════════
+     BROADCAST AJOUT — Vue régie OBS (#broadcast) + Vue spectateur (#watch)
+     Polling REST 1s sur /tournaments/:code/live (pattern Duel _duelLive)
+     ═══════════════════════════════════════════════════════════ -->
+<style>
+/* CSS scopé broadcast/watch — pas de fuite vers le reste de l'app */
+
+/* PAGE BROADCAST (vue régie OBS plein écran 1920x1080) */
+#page-broadcast{background:#002B5C;color:#fff;min-height:100vh;display:none;font-family:'IBM Plex Sans',system-ui,sans-serif;overflow:hidden}
+#page-broadcast.active{display:flex;flex-direction:column}
+[data-broadcast-hidden]{display:none !important}
+body:has(#page-broadcast.active){overflow:hidden}
+#page-broadcast .br-header{display:flex;align-items:center;justify-content:space-between;padding:18px 26px;border-bottom:2px solid #C9991A;background:rgba(0,0,0,.18)}
+#page-broadcast .br-logo{font-family:'Playfair Display',Georgia,serif;font-size:1.8rem;font-weight:700;color:#fff !important;-webkit-text-fill-color:#fff !important;letter-spacing:.02em}
+#page-broadcast .br-logo .g{color:#C9991A !important;-webkit-text-fill-color:#C9991A !important}
+#page-broadcast .br-title{font-family:'Playfair Display',Georgia,serif;font-size:1.5rem;color:#fff !important;-webkit-text-fill-color:#fff !important;text-align:center;flex:1;padding:0 24px}
+#page-broadcast .br-sponsor-top{width:90px;height:60px;background:rgba(201,153,26,.12);border:1px dashed rgba(201,153,26,.45);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.62rem;color:#C9991A;text-align:center;line-height:1.1}
+#page-broadcast .br-main{flex:1;display:grid;grid-template-columns:1.45fr .9fr;gap:0;min-height:0}
+#page-broadcast .br-stage{padding:32px 38px;display:flex;flex-direction:column;justify-content:flex-start;gap:18px;border-right:1px solid rgba(255,255,255,.08)}
+#page-broadcast .br-timer{font-family:'Playfair Display',Georgia,serif;font-size:4.5rem;font-weight:700;color:#C9991A !important;-webkit-text-fill-color:#C9991A !important;line-height:1;display:flex;align-items:center;gap:18px}
+#page-broadcast .br-timer .lbl{font-family:'IBM Plex Sans',sans-serif;font-size:1rem;color:#cfdcef;text-transform:uppercase;letter-spacing:.16em;font-weight:600}
+#page-broadcast .br-qnum{font-family:'IBM Plex Sans',sans-serif;font-size:1.1rem;color:#C9991A;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+#page-broadcast .br-question{font-family:'Playfair Display',Georgia,serif;font-size:2.2rem;font-weight:700;line-height:1.3;color:#fff !important;-webkit-text-fill-color:#fff !important;margin:6px 0 14px}
+#page-broadcast .br-choices{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+#page-broadcast .br-choice{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:18px 22px;font-size:1.2rem;display:flex;align-items:center;gap:14px;line-height:1.35}
+#page-broadcast .br-choice .ltr{background:#C9991A;color:#002B5C;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.15rem;flex-shrink:0}
+#page-broadcast .br-empty-stage{font-family:'Playfair Display',Georgia,serif;color:#cfdcef;text-align:center;padding:60px 20px;font-style:italic;font-size:1.4rem}
+#page-broadcast .br-side{padding:24px 26px;background:rgba(0,0,0,.16);display:flex;flex-direction:column;gap:14px;min-height:0;overflow:hidden}
+#page-broadcast .br-side-title{font-family:'Playfair Display',Georgia,serif;font-size:1.45rem;color:#C9991A !important;-webkit-text-fill-color:#C9991A !important;font-weight:700;margin:0;letter-spacing:.02em}
+#page-broadcast .br-lb{display:flex;flex-direction:column;gap:6px;font-family:'IBM Plex Sans',sans-serif}
+#page-broadcast .br-lb-row{display:grid;grid-template-columns:42px 1fr auto;gap:10px;align-items:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:10px 12px;transition:transform .25s,background .25s}
+#page-broadcast .br-lb-row .rk{font-family:'Playfair Display',Georgia,serif;color:#C9991A;font-weight:700;font-size:1.15rem;text-align:center}
+#page-broadcast .br-lb-row .nm{font-weight:600;color:#fff}
+#page-broadcast .br-lb-row .sc{color:#C9991A;font-weight:700;font-variant-numeric:tabular-nums}
+#page-broadcast .br-lb-row.top1{background:linear-gradient(90deg,rgba(201,153,26,.22),rgba(201,153,26,.06));border-color:rgba(201,153,26,.55)}
+#page-broadcast .br-lb-row.top1 .rk{color:#fff;background:#C9991A;border-radius:50%;width:30px;height:30px;line-height:30px;margin:0 auto;font-size:.9rem}
+#page-broadcast .br-footer{background:rgba(0,0,0,.32);border-top:2px solid #C9991A;padding:14px 24px;display:flex;flex-direction:column;gap:10px}
+#page-broadcast .br-ticker{display:flex;align-items:center;gap:14px;overflow:hidden;height:30px}
+#page-broadcast .br-ticker-icon{color:#C9991A;font-size:1.2rem;flex-shrink:0}
+#page-broadcast .br-ticker-track{display:flex;gap:30px;white-space:nowrap;animation:brMarquee 36s linear infinite;color:#fff;font-size:.95rem}
+#page-broadcast .br-ticker-track .by{color:#C9991A;font-weight:600;margin-left:6px}
+@keyframes brMarquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+#page-broadcast .br-sponsors{display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap}
+#page-broadcast .br-sponsor{width:140px;height:46px;background:rgba(201,153,26,.1);border:1px dashed rgba(201,153,26,.4);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.72rem;color:#C9991A;text-align:center;line-height:1.15}
+#page-broadcast .br-supports-overlay{position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden}
+#page-broadcast .br-support-emoji{position:absolute;font-size:3rem;animation:brSupportFly 3.2s ease-out forwards;text-shadow:0 0 12px rgba(0,0,0,.4)}
+@keyframes brSupportFly{
+  0%{transform:translateY(40px) scale(.6);opacity:0}
+  15%{transform:translateY(0) scale(1.15);opacity:1}
+  100%{transform:translateY(-260px) scale(.9);opacity:0}
+}
+#page-broadcast .br-exit-hint{position:fixed;bottom:8px;right:10px;color:rgba(255,255,255,.35);font-size:.68rem;font-family:'IBM Plex Mono',monospace}
+@media(max-width:900px){
+  #page-broadcast .br-main{grid-template-columns:1fr;grid-template-rows:auto auto}
+  #page-broadcast .br-side{border-top:1px solid rgba(255,255,255,.1)}
+  #page-broadcast .br-question{font-size:1.6rem}
+  #page-broadcast .br-choices{grid-template-columns:1fr}
+  #page-broadcast .br-timer{font-size:3rem}
+}
+
+/* PAGE WATCH (vue spectateur web) */
+#page-watch{background:#F5F3EE;min-height:100vh;padding:24px 18px 60px;display:none}
+#page-watch.active{display:block}
+#page-watch .wt-header{max-width:1340px;margin:0 auto 22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+#page-watch .wt-live-badge{background:#e74c3c;color:#fff;padding:6px 12px;border-radius:18px;font-family:'IBM Plex Sans',sans-serif;font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;display:inline-flex;align-items:center;gap:6px;animation:wtPulse 1.4s infinite}
+#page-watch .wt-live-dot{width:8px;height:8px;background:#fff;border-radius:50%;display:inline-block}
+@keyframes wtPulse{0%,100%{opacity:1}50%{opacity:.6}}
+#page-watch .wt-title{font-family:'Playfair Display',serif;font-size:1.8rem;color:#002B5C !important;-webkit-text-fill-color:#002B5C !important;font-weight:700;margin:0;line-height:1.2}
+#page-watch .wt-sub{font-family:'IBM Plex Sans',sans-serif;font-size:.9rem;color:#5a6b7c;margin:4px 0 0;width:100%}
+#page-watch .wt-grid{max-width:1340px;margin:0 auto;display:grid;grid-template-columns:1.55fr .85fr;gap:18px}
+#page-watch .wt-main{background:#fff;border:1px solid #e5e1d6;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:14px;min-height:420px}
+#page-watch .wt-embed{position:relative;width:100%;padding-bottom:56.25%;background:#000;border-radius:10px;overflow:hidden}
+#page-watch .wt-embed iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
+#page-watch .wt-native{background:linear-gradient(135deg,#002B5C 0%,#1A3A6C 100%);color:#fff;padding:22px;border-radius:10px;min-height:260px;display:flex;flex-direction:column;gap:14px}
+#page-watch .wt-native-qnum{font-size:.85rem;color:#C9991A;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+#page-watch .wt-native-q{font-family:'Playfair Display',serif;font-size:1.4rem;color:#fff !important;-webkit-text-fill-color:#fff !important;font-weight:700;line-height:1.35}
+#page-watch .wt-native-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#page-watch .wt-native-c{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:12px 14px;font-size:.92rem;display:flex;align-items:center;gap:10px;opacity:.85}
+#page-watch .wt-native-c .ltr{background:#C9991A;color:#002B5C;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0;font-size:.85rem}
+#page-watch .wt-native-empty{text-align:center;padding:30px 18px;color:#cfdcef;font-style:italic}
+#page-watch .wt-meta{font-size:.82rem;color:#5a6b7c}
+#page-watch .wt-side{display:flex;flex-direction:column;gap:14px;min-height:0}
+#page-watch .wt-card{background:#fff;border:1px solid #e5e1d6;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
+#page-watch .wt-card-title{font-family:'Playfair Display',serif;font-size:1.05rem;color:#C9991A !important;-webkit-text-fill-color:#C9991A !important;font-weight:700;margin:0}
+#page-watch .wt-lb-row{display:grid;grid-template-columns:30px 1fr auto;gap:8px;align-items:center;padding:7px 10px;background:#F5F3EE;border-radius:6px;font-size:.88rem}
+#page-watch .wt-lb-row .rk{font-family:'Playfair Display',serif;color:#C9991A;font-weight:700;text-align:center}
+#page-watch .wt-lb-row .nm{color:#002B5C;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#page-watch .wt-lb-row .sc{color:#C9991A;font-weight:700;font-variant-numeric:tabular-nums;font-size:.85rem}
+#page-watch .wt-chat-feed{flex:1;min-height:200px;max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding:6px;background:#F5F3EE;border-radius:8px;font-size:.85rem}
+#page-watch .wt-chat-msg{background:#fff;border:1px solid #e5e1d6;border-radius:6px;padding:7px 10px;line-height:1.4}
+#page-watch .wt-chat-msg .ps{color:#C9991A;font-weight:700;margin-right:6px;font-size:.78rem}
+#page-watch .wt-chat-msg .mg{color:#2a3a4c}
+#page-watch .wt-chat-empty{text-align:center;color:#5a6b7c;padding:18px 10px;font-style:italic;font-size:.85rem}
+#page-watch .wt-supports{display:flex;gap:6px;justify-content:center}
+#page-watch .wt-supp-btn{background:#fff;border:1px solid #e5e1d6;border-radius:10px;padding:8px 14px;font-size:1.4rem;cursor:pointer;transition:transform .15s,background .15s,border-color .15s}
+#page-watch .wt-supp-btn:hover{transform:translateY(-1px) scale(1.06);border-color:#C9991A;background:#fdf6e3}
+#page-watch .wt-supp-btn:disabled{opacity:.4;cursor:not-allowed}
+#page-watch .wt-chat-form{display:flex;gap:6px;align-items:center}
+#page-watch .wt-chat-input{flex:1;padding:8px 10px;border:1px solid #e5e1d6;border-radius:8px;font-family:'IBM Plex Sans',sans-serif;font-size:.88rem;color:#002B5C;background:#fff;outline:none}
+#page-watch .wt-chat-input:focus{border-color:#C9991A}
+#page-watch .wt-chat-send{background:#002B5C;color:#fff;border:none;padding:8px 14px;border-radius:8px;font-family:'IBM Plex Sans',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;transition:background .15s}
+#page-watch .wt-chat-send:hover{background:#1A3A6C}
+#page-watch .wt-chat-locked{font-size:.82rem;color:#5a6b7c;text-align:center;padding:8px;font-style:italic}
+#page-watch .wt-supports-floating{position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden}
+#page-watch .wt-support-bubble{position:absolute;font-size:1.6rem;animation:wtBubble 2.4s ease-out forwards}
+@keyframes wtBubble{
+  0%{opacity:0;transform:translateY(20px) scale(.7)}
+  20%{opacity:1;transform:translateY(0) scale(1.1)}
+  100%{opacity:0;transform:translateY(-160px) scale(.9)}
+}
+@media(max-width:900px){
+  #page-watch .wt-grid{grid-template-columns:1fr}
+  #page-watch .wt-title{font-size:1.4rem}
+  #page-watch .wt-native-choices{grid-template-columns:1fr}
+  #page-watch .wt-chat-feed{max-height:220px}
+}
+
+/* SHARE LIVE MODAL (dans dashboard tournoi) */
+.share-live-box{background:#fff;border:1px solid #e5e1d6;border-radius:12px;padding:16px;margin-top:14px;font-family:'IBM Plex Sans',sans-serif}
+.share-live-box .ttl{font-family:'Playfair Display',serif;font-size:1rem;color:#002B5C !important;-webkit-text-fill-color:#002B5C !important;font-weight:700;margin:0 0 10px;display:flex;align-items:center;gap:8px}
+.share-live-row{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+.share-live-row .lbl{font-size:.72rem;color:#5a6b7c;font-weight:600;text-transform:uppercase;letter-spacing:.05em;min-width:80px}
+.share-live-row .url{flex:1;font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:#002B5C;background:#F5F3EE;padding:6px 10px;border-radius:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.share-live-row .cpy{background:#C9991A;color:#fff;border:none;padding:6px 12px;border-radius:6px;font-size:.78rem;cursor:pointer;font-weight:600}
+.share-live-row .cpy:hover{background:#a87d12}
+.share-live-row .cpy.copied{background:#27ae60}
+</style>
+
+<!-- PAGE BROADCAST (vue régie OBS) -->
+<div id="page-broadcast" class="page" role="main" aria-label="Vue régie broadcast">
+  <header class="br-header">
+    <div class="br-logo">REGUL <span class="g">ARENA</span></div>
+    <div class="br-title" id="br-title">— Tournoi en cours —</div>
+    <div class="br-sponsor-top" id="br-sponsor-top">Devenez sponsor</div>
+  </header>
+  <div class="br-main">
+    <div class="br-stage" id="br-stage">
+      <div class="br-empty-stage" id="br-stage-empty">En attente du début du tournoi…</div>
+      <div id="br-stage-content" style="display:none">
+        <div class="br-timer"><span id="br-timer-val">00:30</span><span class="lbl">Temps restant</span></div>
+        <div class="br-qnum" id="br-qnum">— / —</div>
+        <div class="br-question" id="br-question">—</div>
+        <div class="br-choices" id="br-choices"></div>
+      </div>
+    </div>
+    <aside class="br-side">
+      <h2 class="br-side-title">🏆 Classement Live</h2>
+      <div class="br-lb" id="br-lb"></div>
+    </aside>
+  </div>
+  <footer class="br-footer">
+    <div class="br-ticker">
+      <span class="br-ticker-icon">💬</span>
+      <div class="br-ticker-track" id="br-ticker-track"><span style="opacity:.5">En attente des supporters…</span></div>
+    </div>
+    <div class="br-sponsors" id="br-sponsors">
+      <div class="br-sponsor">Devenez sponsor</div>
+      <div class="br-sponsor">Devenez sponsor</div>
+      <div class="br-sponsor">Devenez sponsor</div>
+    </div>
+  </footer>
+  <div class="br-supports-overlay" id="br-supports-overlay"></div>
+  <div class="br-exit-hint">ESC : sortir du plein écran · Ctrl+Shift+B : quitter</div>
+</div>
+
+<!-- PAGE WATCH (vue spectateur web) -->
+<div id="page-watch" class="page" role="main" aria-label="Vue spectateur en direct">
+  <div class="wt-header">
+    <span class="wt-live-badge"><span class="wt-live-dot"></span>EN DIRECT</span>
+    <h1 class="wt-title" id="wt-title">— Tournoi en cours —</h1>
+    <div class="wt-sub" id="wt-sub">— participants · — questions</div>
+  </div>
+  <div class="wt-grid">
+    <div class="wt-main">
+      <div id="wt-stage"><!-- injecté : embed YouTube OU Match Viewer natif --></div>
+      <div class="wt-meta" id="wt-meta">—</div>
+    </div>
+    <aside class="wt-side">
+      <div class="wt-card">
+        <h3 class="wt-card-title">🏆 Classement Live</h3>
+        <div id="wt-lb"></div>
+      </div>
+      <div class="wt-card">
+        <h3 class="wt-card-title">💬 Chat spectateurs</h3>
+        <div class="wt-chat-feed" id="wt-chat-feed"><div class="wt-chat-empty">En attente des supporters…</div></div>
+        <div class="wt-supports">
+          <button class="wt-supp-btn" onclick="RAWatch.sendSupport('⚡')" title="Énergie">⚡</button>
+          <button class="wt-supp-btn" onclick="RAWatch.sendSupport('🔥')" title="Fire">🔥</button>
+          <button class="wt-supp-btn" onclick="RAWatch.sendSupport('👏')" title="Applaudir">👏</button>
+          <button class="wt-supp-btn" onclick="RAWatch.sendSupport('❤️')" title="Cœur">❤️</button>
+        </div>
+        <div id="wt-chat-form-wrap">
+          <div class="wt-chat-form">
+            <input class="wt-chat-input" id="wt-chat-input" type="text" maxlength="200" placeholder="Encourage les participants…" onkeydown="if(event.key==='Enter'){RAWatch.sendMessage()}">
+            <button class="wt-chat-send" onclick="RAWatch.sendMessage()">Envoyer</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+  <div class="wt-supports-floating" id="wt-supports-floating"></div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   BROADCAST AJOUT — Utilitaires partagés + RABroadcast + RAWatch
+   ═══════════════════════════════════════════════════════════ */
+
+function _broadcastParseYouTubeUrl(url) {
+  if (!url || typeof url !== 'string') return null;
+  const m = url.trim().match(/(?:youtube\.com\/(?:watch\?v=|embed\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+function _broadcastEmbedYouTubeUrl(url) {
+  const id = _broadcastParseYouTubeUrl(url);
+  return id ? ('https://www.youtube.com/embed/' + id + '?autoplay=1&mute=0&rel=0') : null;
+}
+
+/* Validation côté client du champ #t-youtube */
+function _broadcastValidateYoutubeInput() {
+  const inp = document.getElementById('t-youtube');
+  const err = document.getElementById('t-youtube-err');
+  if (!inp || !err) return true;
+  const v = (inp.value || '').trim();
+  if (!v) { err.style.display = 'none'; inp.style.borderColor = ''; return true; }
+  const ok = !!_broadcastParseYouTubeUrl(v);
+  err.style.display = ok ? 'none' : 'block';
+  inp.style.borderColor = ok ? '' : '#e74c3c';
+  return ok;
+}
+
+/* Helper JWT (réutilise pattern existant) */
+function _broadcastGetJwt() {
+  try { return localStorage.getItem('ra_jwt'); } catch(e) {}
+  try { return sessionStorage.getItem('ra_jwt'); } catch(e) {}
+  return null;
+}
+
+/* ─── RABroadcast — polling /tournaments/:code/live (vue régie) ─── */
+const RABroadcast = (function(){
+  let _code = null;
+  let _pollInt = null;
+  let _supportsLastId = 0;
+  let _supportsPollInt = null;
+  let _timerTickInt = null;
+  let _timerLeft = 0;
+  let _kbHandler = null;
+  let _activeMatchKey = null;
+
+  function _fmtTimer(sec){ const s = Math.max(0, Math.floor(sec)); return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0'); }
+
+  function _renderSnapshot(data){
+    if (!data || !data.tournament) return;
+    const t = data.tournament;
+    const title = document.getElementById('br-title');
+    if (title) title.textContent = (t.name || 'Tournoi') + ' · Code ' + t.code;
+    /* Leaderboard top 10 — diff réactif */
+    const lb = document.getElementById('br-lb');
+    if (lb) {
+      const rows = (data.leaderboard_top10 || []).slice(0, 10);
+      if (!rows.length) {
+        lb.innerHTML = '<div style="opacity:.5;text-align:center;padding:30px 10px;font-style:italic">Aucun participant pour l\'instant</div>';
+      } else {
+        lb.innerHTML = rows.map(function(r, i){
+          return '<div class="br-lb-row' + (i === 0 ? ' top1' : '') + '">'
+               +   '<div class="rk">' + (i + 1) + '</div>'
+               +   '<div class="nm">' + (r.name || 'Anonyme') + (r.country ? ' <span style="opacity:.5;font-size:.85em">' + r.country + '</span>' : '') + '</div>'
+               +   '<div class="sc">' + (r.score || 0) + ' pts</div>'
+               + '</div>';
+        }).join('');
+      }
+    }
+    /* Question en cours */
+    const empty = document.getElementById('br-stage-empty');
+    const stage = document.getElementById('br-stage-content');
+    const q = data.current_question;
+    if (q && q.q) {
+      if (empty) empty.style.display = 'none';
+      if (stage) stage.style.display = 'block';
+      const qn = document.getElementById('br-qnum');
+      if (qn) qn.textContent = 'Question ' + ((q.index || 0) + 1) + ' / ' + (q.total || 10);
+      const qel = document.getElementById('br-question');
+      if (qel) qel.textContent = q.q;
+      const ch = document.getElementById('br-choices');
+      if (ch) {
+        const letters = ['A','B','C','D'];
+        ch.innerHTML = (q.choices || []).map(function(c, i){
+          return '<div class="br-choice"><span class="ltr">' + (letters[i] || (i+1)) + '</span><span>' + c + '</span></div>';
+        }).join('');
+      }
+      /* Reset timer si on change de question */
+      const matchKey = (data.current_match && data.current_match.duel_code || '') + '|' + q.index;
+      if (matchKey !== _activeMatchKey) {
+        _activeMatchKey = matchKey;
+        _timerLeft = 30; /* timer indicatif côté broadcast */
+      }
+    } else {
+      if (empty) empty.style.display = 'block';
+      if (stage) stage.style.display = 'none';
+      _activeMatchKey = null;
+    }
+    /* Ticker chat (derniers messages) */
+    const tt = document.getElementById('br-ticker-track');
+    if (tt) {
+      const msgs = (data.recent_chat || []).slice(-6);
+      if (msgs.length) {
+        const seq = msgs.map(function(m){ return '<span>« ' + (m.message || m.content || '').slice(0,80) + ' »<span class="by"> — ' + (m.pseudo || 'spectateur') + '</span></span>'; }).join('');
+        tt.innerHTML = seq + seq;
+      } else {
+        tt.innerHTML = '<span style="opacity:.5">En attente des supporters…</span>';
+      }
+    }
+  }
+
+  function _flySupport(emoji){
+    const ov = document.getElementById('br-supports-overlay');
+    if (!ov) return;
+    const el = document.createElement('div');
+    el.className = 'br-support-emoji';
+    el.textContent = emoji;
+    el.style.left = (Math.random() * 70 + 15) + '%';
+    el.style.bottom = '90px';
+    ov.appendChild(el);
+    setTimeout(function(){ try { ov.removeChild(el); } catch(_) {} }, 3200);
+  }
+
+  async function _fetchLive(){
+    if (!_code) return;
+    try {
+      const r = await fetch('/tournaments/' + _code + '/live');
+      if (!r.ok) return;
+      const d = await r.json();
+      if (d && d.success !== false) _renderSnapshot(d.data || d);
+    } catch(e){}
+  }
+
+  async function _fetchSupports(){
+    if (!_code) return;
+    try {
+      const r = await fetch('/tournaments/' + _code + '/support?since=' + _supportsLastId);
+      if (!r.ok) return;
+      const d = await r.json();
+      const payload = (d && (d.data || d)) || {};
+      const arr = payload.supports || [];
+      arr.forEach(function(s){ if (s && s.emoji) _flySupport(s.emoji); });
+      if (typeof payload.last_id === 'number') _supportsLastId = payload.last_id;
+    } catch(e){}
+  }
+
+  function _enterFullscreen(){
+    try {
+      const el = document.documentElement;
+      const fn = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+      if (fn) fn.call(el).catch(function(){});
+    } catch(e){}
+  }
+  function _exitFullscreen(){
+    try {
+      const fn = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
+      if (fn) fn.call(document).catch(function(){});
+    } catch(e){}
+  }
+
+  function _onKey(ev){
+    if (ev.key === 'Escape') { _exitFullscreen(); }
+    if (ev.ctrlKey && ev.shiftKey && (ev.key === 'B' || ev.key === 'b')) {
+      ev.preventDefault();
+      location.hash = '';
+      showPage('landing');
+    }
+  }
+
+  function mount(code){
+    _code = (code || window._broadcastCode || '').toUpperCase();
+    _supportsLastId = 0;
+    _activeMatchKey = null;
+    _fetchLive();
+    _pollInt = setInterval(_fetchLive, 1000);
+    _supportsPollInt = setInterval(_fetchSupports, 1500);
+    _timerTickInt = setInterval(function(){
+      if (_timerLeft > 0) {
+        _timerLeft -= 1;
+        const tv = document.getElementById('br-timer-val');
+        if (tv) tv.textContent = _fmtTimer(_timerLeft);
+      }
+    }, 1000);
+    if (!_kbHandler) {
+      _kbHandler = _onKey;
+      document.addEventListener('keydown', _kbHandler);
+    }
+    /* Fullscreen auto au premier mount (après un clic utilisateur idéalement) */
+    setTimeout(_enterFullscreen, 250);
+  }
+  function unmount(){
+    if (_pollInt) { clearInterval(_pollInt); _pollInt = null; }
+    if (_supportsPollInt) { clearInterval(_supportsPollInt); _supportsPollInt = null; }
+    if (_timerTickInt) { clearInterval(_timerTickInt); _timerTickInt = null; }
+    if (_kbHandler) { document.removeEventListener('keydown', _kbHandler); _kbHandler = null; }
+    _code = null;
+    _exitFullscreen();
+  }
+  return { mount: mount, unmount: unmount, _fetchLive: _fetchLive };
+})();
+window.RABroadcast = RABroadcast;
+
+/* ─── RAWatch — vue spectateur web (chat + leaderboard + embed YT) ─── */
+const RAWatch = (function(){
+  let _code = null;
+  let _livePollInt = null;
+  let _chatPollInt = null;
+  let _supportsPollInt = null;
+  let _chatLastId = 0;
+  let _supportsLastId = 0;
+  let _lastEmbedUrl = null;
+  let _lastStageMode = null; /* 'youtube' | 'native' | null */
+
+  function _isLogged(){ return !!_broadcastGetJwt(); }
+
+  function _renderStage(t, q){
+    const stage = document.getElementById('wt-stage');
+    if (!stage) return;
+    const yt = t && t.youtube_live_url ? _broadcastEmbedYouTubeUrl(t.youtube_live_url) : null;
+    if (yt) {
+      if (_lastEmbedUrl !== yt) {
+        stage.innerHTML = '<div class="wt-embed"><iframe src="' + yt + '" allow="autoplay; encrypted-media" frameborder="0" allowfullscreen></iframe></div>';
+        _lastEmbedUrl = yt;
+        _lastStageMode = 'youtube';
+      }
+      return;
+    }
+    /* Match Viewer natif */
+    if (_lastStageMode !== 'native') {
+      stage.innerHTML = '<div class="wt-native" id="wt-native"></div>';
+      _lastStageMode = 'native';
+      _lastEmbedUrl = null;
+    }
+    const native = document.getElementById('wt-native');
+    if (!native) return;
+    if (q && q.q) {
+      const letters = ['A','B','C','D'];
+      native.innerHTML = '<div class="wt-native-qnum">Question ' + ((q.index || 0) + 1) + ' / ' + (q.total || 10) + '</div>'
+                       + '<div class="wt-native-q">' + q.q + '</div>'
+                       + '<div class="wt-native-choices">' + (q.choices || []).map(function(c, i){
+                           return '<div class="wt-native-c"><span class="ltr">' + (letters[i] || (i+1)) + '</span><span>' + c + '</span></div>';
+                         }).join('') + '</div>';
+    } else {
+      native.innerHTML = '<div class="wt-native-empty">En attente du début du tournoi… Reste branché 🎬</div>';
+    }
+  }
+
+  function _renderSnapshot(data){
+    if (!data || !data.tournament) return;
+    const t = data.tournament;
+    const title = document.getElementById('wt-title');
+    if (title) title.textContent = (t.name || 'Tournoi en cours') + ' · ' + (t.code || '');
+    const sub = document.getElementById('wt-sub');
+    const partCount = (data.leaderboard_top10 || []).length;
+    if (sub) sub.textContent = partCount + ' participant' + (partCount > 1 ? 's' : '') + ' · Pack ' + (t.pack_id || '—');
+    _renderStage(t, data.current_question);
+    /* Leaderboard */
+    const lb = document.getElementById('wt-lb');
+    if (lb) {
+      const rows = (data.leaderboard_top10 || []).slice(0, 10);
+      if (!rows.length) {
+        lb.innerHTML = '<div style="text-align:center;color:#5a6b7c;padding:14px;font-style:italic;font-size:.82rem">Pas encore de participants</div>';
+      } else {
+        lb.innerHTML = rows.map(function(r, i){
+          return '<div class="wt-lb-row">'
+               +   '<div class="rk">' + (i + 1) + '</div>'
+               +   '<div class="nm">' + (r.name || 'Anonyme') + '</div>'
+               +   '<div class="sc">' + (r.score || 0) + '</div>'
+               + '</div>';
+        }).join('');
+      }
+    }
+    /* Form lock si non auth */
+    const wrap = document.getElementById('wt-chat-form-wrap');
+    if (wrap) {
+      if (_isLogged()) {
+        if (!wrap.querySelector('.wt-chat-form')) {
+          wrap.innerHTML = '<div class="wt-chat-form"><input class="wt-chat-input" id="wt-chat-input" type="text" maxlength="200" placeholder="Encourage les participants…" onkeydown="if(event.key===\'Enter\'){RAWatch.sendMessage()}"><button class="wt-chat-send" onclick="RAWatch.sendMessage()">Envoyer</button></div>';
+        }
+      } else {
+        wrap.innerHTML = '<div class="wt-chat-locked">🔐 Connecte-toi pour chatter et envoyer des supports</div>';
+      }
+    }
+    /* Supports buttons : disable si non logged */
+    document.querySelectorAll('#page-watch .wt-supp-btn').forEach(function(b){ b.disabled = !_isLogged(); });
+  }
+
+  function _appendChat(msgs){
+    const feed = document.getElementById('wt-chat-feed');
+    if (!feed) return;
+    if (feed.querySelector('.wt-chat-empty')) feed.innerHTML = '';
+    msgs.forEach(function(m){
+      const div = document.createElement('div');
+      div.className = 'wt-chat-msg';
+      div.innerHTML = '<span class="ps">' + (m.pseudo || 'spectateur') + '</span><span class="mg">' + (m.message || m.content || '').replace(/[<>]/g, '') + '</span>';
+      feed.appendChild(div);
+    });
+    /* Limite à 100 messages */
+    while (feed.children.length > 100) feed.removeChild(feed.firstChild);
+    feed.scrollTop = feed.scrollHeight;
+  }
+
+  function _flyBubble(emoji){
+    const ov = document.getElementById('wt-supports-floating');
+    if (!ov) return;
+    const el = document.createElement('div');
+    el.className = 'wt-support-bubble';
+    el.textContent = emoji;
+    el.style.left = (Math.random() * 70 + 15) + '%';
+    el.style.bottom = '60px';
+    ov.appendChild(el);
+    setTimeout(function(){ try { ov.removeChild(el); } catch(_) {} }, 2400);
+  }
+
+  async function _fetchLive(){
+    if (!_code) return;
+    try {
+      const r = await fetch('/tournaments/' + _code + '/live');
+      if (!r.ok) return;
+      const d = await r.json();
+      if (d && d.success !== false) _renderSnapshot(d.data || d);
+    } catch(e){}
+  }
+  async function _fetchChat(){
+    if (!_code) return;
+    try {
+      const r = await fetch('/tournaments/' + _code + '/chat?since=' + _chatLastId);
+      if (!r.ok) return;
+      const d = await r.json();
+      const p = d.data || d || {};
+      if (p.messages && p.messages.length) {
+        _appendChat(p.messages);
+        if (typeof p.last_id === 'number') _chatLastId = p.last_id;
+      }
+    } catch(e){}
+  }
+  async function _fetchSupports(){
+    if (!_code) return;
+    try {
+      const r = await fetch('/tournaments/' + _code + '/support?since=' + _supportsLastId);
+      if (!r.ok) return;
+      const d = await r.json();
+      const p = d.data || d || {};
+      (p.supports || []).forEach(function(s){ if (s && s.emoji) _flyBubble(s.emoji); });
+      if (typeof p.last_id === 'number') _supportsLastId = p.last_id;
+    } catch(e){}
+  }
+
+  async function sendMessage(){
+    if (!_code) return;
+    const jwt = _broadcastGetJwt();
+    if (!jwt) { showToast('🔐 Connecte-toi pour chatter'); return; }
+    const inp = document.getElementById('wt-chat-input');
+    if (!inp) return;
+    const msg = (inp.value || '').trim();
+    if (!msg) return;
+    try {
+      const r = await fetch('/tournaments/' + _code + '/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + jwt },
+        body: JSON.stringify({ message: msg })
+      });
+      const d = await r.json();
+      if (r.ok && (d.success !== false)) {
+        inp.value = '';
+        try { window.RA_SFX && RA_SFX.click && RA_SFX.click(); } catch(_) {}
+      } else {
+        showToast('⚠️ ' + (d.error || 'Message refusé'));
+      }
+    } catch(e) { showToast('❌ Erreur réseau'); }
+  }
+
+  async function sendSupport(emoji){
+    if (!_code) return;
+    const jwt = _broadcastGetJwt();
+    if (!jwt) { showToast('🔐 Connecte-toi pour envoyer un support'); return; }
+    try {
+      await fetch('/tournaments/' + _code + '/support', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + jwt },
+        body: JSON.stringify({ emoji: emoji })
+      });
+      _flyBubble(emoji);
+      try { window.RA_SFX && RA_SFX.click && RA_SFX.click(); } catch(_) {}
+    } catch(e){}
+  }
+
+  function mount(code){
+    _code = (code || window._watchCode || '').toUpperCase();
+    _chatLastId = 0;
+    _supportsLastId = 0;
+    _lastEmbedUrl = null;
+    _lastStageMode = null;
+    /* Reset chat feed */
+    const feed = document.getElementById('wt-chat-feed');
+    if (feed) feed.innerHTML = '<div class="wt-chat-empty">En attente des supporters…</div>';
+    _fetchLive();
+    _fetchChat();
+    _livePollInt = setInterval(_fetchLive, 1000);
+    _chatPollInt = setInterval(_fetchChat, 2000);
+    _supportsPollInt = setInterval(_fetchSupports, 1500);
+  }
+  function unmount(){
+    if (_livePollInt) { clearInterval(_livePollInt); _livePollInt = null; }
+    if (_chatPollInt) { clearInterval(_chatPollInt); _chatPollInt = null; }
+    if (_supportsPollInt) { clearInterval(_supportsPollInt); _supportsPollInt = null; }
+    _code = null;
+  }
+  return { mount: mount, unmount: unmount, sendMessage: sendMessage, sendSupport: sendSupport };
+})();
+window.RAWatch = RAWatch;
+
+/* ─── Bouton "Partager le live" (à insérer dans dashboard tournoi via JS) ─── */
+function _broadcastShareUrls(code, ytUrl){
+  const origin = location.origin || 'https://regularena.com';
+  return [
+    { lbl: 'YouTube Live', val: ytUrl || '— Non configuré —', has: !!ytUrl },
+    { lbl: 'Vue spectateur', val: origin + '/#watch/' + code, has: true },
+    { lbl: 'Vue régie OBS', val: origin + '/#broadcast/' + code, has: true }
+  ];
+}
+function _broadcastRenderShareBox(containerId, code, ytUrl){
+  const c = document.getElementById(containerId);
+  if (!c) return;
+  const urls = _broadcastShareUrls(code, ytUrl);
+  c.innerHTML = ''
+    + '<div class="share-live-box">'
+    +   '<div class="ttl">🎥 Partager le live</div>'
+    +   urls.map(function(u, i){
+          return '<div class="share-live-row">'
+               +   '<span class="lbl">' + u.lbl + '</span>'
+               +   '<span class="url">' + u.val + '</span>'
+               +   '<button class="cpy" onclick="_broadcastCopy(this,\'' + (u.val.replace(/'/g, "&#39;")) + '\')" ' + (u.has ? '' : 'disabled') + '>📋 Copier</button>'
+               + '</div>';
+        }).join('')
+    + '</div>';
+}
+function _broadcastCopy(btn, txt){
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt);
+    } else {
+      const ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    }
+    btn.classList.add('copied');
+    const old = btn.textContent;
+    btn.textContent = '✓ Copié';
+    setTimeout(function(){ btn.classList.remove('copied'); btn.textContent = old; }, 1500);
+  } catch(e){}
+}
+
+/* PATCH /tournaments/:code/config — sauvegarde youtube_live_url côté créateur */
+async function _broadcastSaveYoutubeUrl(code, url){
+  const jwt = _broadcastGetJwt();
+  if (!jwt) return { ok: false, error: 'auth' };
+  try {
+    const r = await fetch('/tournaments/' + code + '/config', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + jwt },
+      body: JSON.stringify({ youtube_live_url: url })
+    });
+    const d = await r.json();
+    return { ok: r.ok && (d.success !== false), data: d };
+  } catch(e) { return { ok: false, error: 'network' }; }
+}
+
+/* Action du bouton "Enregistrer URL" dans le dashboard tournoi */
+async function _broadcastSaveYoutubeFromDashboard(){
+  const inp = document.getElementById('dash-youtube-url');
+  const fb = document.getElementById('dash-youtube-feedback');
+  if (!inp) return;
+  const url = (inp.value || '').trim();
+  /* Lecture du code tournoi depuis le badge ou la variable globale tCode */
+  const code = (window.tCode || (document.querySelector('.t-code-display') && document.querySelector('.t-code-display').textContent) || '').trim().toUpperCase();
+  if (!code) { if (fb) { fb.textContent = "⚠️ Aucun tournoi actif (créé-en un d'abord)"; fb.style.color = '#e74c3c'; } return; }
+  if (url && !_broadcastParseYouTubeUrl(url)) {
+    if (fb) { fb.textContent = '⚠️ URL YouTube invalide'; fb.style.color = '#e74c3c'; }
+    return;
+  }
+  const res = await _broadcastSaveYoutubeUrl(code, url);
+  if (res.ok) {
+    if (fb) { fb.textContent = '✓ URL enregistrée — les spectateurs verront le live YouTube'; fb.style.color = '#27ae60'; }
+    _broadcastRenderShareBox('dash-share-box', code, url);
+    try { window.RA_SFX && RA_SFX.correct && RA_SFX.correct(); } catch(_) {}
+  } else {
+    if (fb) { fb.textContent = '❌ ' + ((res.data && res.data.error) || "Échec de l'enregistrement"); fb.style.color = '#e74c3c'; }
+  }
+}
+
+/* Rendu auto de la box "Partager le live" quand on ouvre le dashboard tournoi */
+(function(){
+  /* Hook léger : observer l'apparition de #t-screen-dashboard */
+  function _wireOnDashboard(){
+    const dash = document.getElementById('t-screen-dashboard');
+    if (!dash) return;
+    /* Au moment où dash devient visible, on met à jour la share-box */
+    const obs = new MutationObserver(function(){
+      if (dash.classList.contains('active')) {
+        const code = (window.tCode || (document.querySelector('.t-code-display') && document.querySelector('.t-code-display').textContent) || '').trim().toUpperCase();
+        if (code) {
+          /* Précharge l'URL existante si déjà enregistrée */
+          fetch('/tournaments/' + code + '/live').then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
+            const yt = (d && (d.data || d) && ((d.data || d).youtube_live_url || ((d.data || d).tournament || {}).youtube_live_url)) || '';
+            const inp = document.getElementById('dash-youtube-url');
+            if (inp && yt) inp.value = yt;
+            _broadcastRenderShareBox('dash-share-box', code, yt);
+          }).catch(function(){
+            _broadcastRenderShareBox('dash-share-box', code, '');
+          });
+        }
+      }
+    });
+    obs.observe(dash, { attributes: true, attributeFilter: ['class'] });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _wireOnDashboard);
+  else _wireOnDashboard();
+})();
+</script>
 <!-- ═══════════════════════════════════════════════════════════
      MODULE QUIZ EXPRESS UMOA — logique, timer, IndexedDB, XP
      ═══════════════════════════════════════════════════════════ -->

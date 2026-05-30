@@ -180,6 +180,8 @@ try { db.exec('CREATE INDEX IF NOT EXISTS idx_tp_tid_score ON tournament_partici
  'ALTER TABLE tournaments ADD COLUMN zone TEXT NOT NULL DEFAULT "uemoa"', // TOURNOI AJOUT
  'ALTER TABLE tournaments ADD COLUMN start_date TEXT NOT NULL DEFAULT ""',// TOURNOI AJOUT
  'ALTER TABLE tournament_participants ADD COLUMN qualified INTEGER NOT NULL DEFAULT 0', // TOURNOI AJOUT
+ /* BROADCAST AJOUT — colonne URL YouTube Live (optionnelle, sur la table tournaments existante) */
+ 'ALTER TABLE tournaments ADD COLUMN youtube_live_url TEXT',
 ].forEach(sql => { try { db.exec(sql); } catch(_) {} }); // TOURNOI AJOUT
 
 // TOURNOI AJOUT — nouvelles tables module tournoi
@@ -211,7 +213,19 @@ db.exec(`
     content       TEXT NOT NULL,
     sent_at       TEXT NOT NULL DEFAULT (datetime('now'))
   );
+  /* BROADCAST AJOUT — supports volatiles (emojis ⚡🔥👏❤️ envoyés par les spectateurs) */
+  CREATE TABLE IF NOT EXISTS tournament_supports (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    tournament_id INTEGER NOT NULL,
+    user_id       INTEGER,
+    pseudo        TEXT,
+    emoji         TEXT NOT NULL,
+    created_at    TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tournament_id) REFERENCES tournaments(id)
+  );
 `); // TOURNOI AJOUT
+try { db.exec('CREATE INDEX IF NOT EXISTS idx_supports_tournament ON tournament_supports(tournament_id, created_at)'); } catch(_) {}
+try { db.exec('CREATE INDEX IF NOT EXISTS idx_tournament_chat_tid ON tournament_chat(tournament_id, id)'); } catch(_) {}
 
 /* ── NOTIFICATIONS HELPER ──────────────────────────────────────────── */
 function notifyAllExcept(excludeUserId, type, message) {
@@ -1170,6 +1184,173 @@ app.post('/tournament-chat/:tournamentId', requireAuth, (req, res) => { // TOURN
     .run(tId, req.user.id, content.trim().slice(0, 500)); // TOURNOI AJOUT
   return ok(res, { message: 'Message envoyé' }); // TOURNOI AJOUT
 }); // TOURNOI AJOUT
+
+/* ================================================================
+   BROADCAST AJOUT — Vues régie (#broadcast) et spectateur (#watch)
+   Polling REST 1s sur /tournaments/:code/live (calqué sur _duelLive)
+================================================================ */
+
+const _BROADCAST_BANNED = ['putain','connard','connasse','salope','salaud','enculé','encule','enculer','merde','fdp','ntm']; // basique
+function _broadcastClean(msg) {
+  if (typeof msg !== 'string') return '';
+  const trimmed = msg.trim().slice(0, 200);
+  if (!trimmed) return '';
+  const lc = trimmed.toLowerCase();
+  if (_BROADCAST_BANNED.some(w => lc.includes(w))) return null; // rejet
+  if (/https?:\/\/|www\./i.test(trimmed)) return null; // pas d'URL externe (anti-spam)
+  return trimmed;
+}
+
+function _broadcastValidEmoji(e) {
+  return ['⚡','🔥','👏','❤️'].includes(e);
+}
+
+/* GET /tournaments/:code/live — snapshot complet (broadcast + watch) */
+app.get('/tournaments/:code/live', (req, res) => {
+  const code = String(req.params.code || '').trim().toUpperCase();
+  const t = db.prepare('SELECT id, code, name, status, max_players, pack_id, country, zone, start_date, youtube_live_url, creator_id FROM tournaments WHERE code = ?').get(code);
+  if (!t) return err(res, 404, 'Tournoi introuvable');
+  /* Leaderboard top 10 */
+  const leaderboard = db.prepare(`
+    SELECT u.id, u.name, u.country, tp.score, tp.rank
+    FROM tournament_participants tp JOIN users u ON u.id = tp.user_id
+    WHERE tp.tournament_id = ?
+    ORDER BY tp.score DESC, COALESCE(tp.rank, 9999) ASC
+    LIMIT 10
+  `).all(t.id);
+  /* Match en cours : on prend le premier match en statut 'active' du round courant */
+  const currentMatch = db.prepare(`
+    SELECT tm.id, tm.round, tm.status, tm.duel_code,
+           u1.name AS p1_name, u1.country AS p1_country,
+           u2.name AS p2_name, u2.country AS p2_country
+    FROM tournament_matches tm
+    LEFT JOIN users u1 ON u1.id = tm.player1_id
+    LEFT JOIN users u2 ON u2.id = tm.player2_id
+    WHERE tm.tournament_id = ? AND tm.status = 'active'
+    ORDER BY tm.round DESC, tm.id ASC LIMIT 1
+  `).get(t.id);
+  /* Question en cours : depuis duels.questions_json[index_courant] si match actif */
+  let currentQuestion = null;
+  if (currentMatch && currentMatch.duel_code) {
+    try {
+      const duel = db.prepare('SELECT questions_json, started_at FROM duels WHERE code = ?').get(currentMatch.duel_code);
+      if (duel && duel.questions_json) {
+        const qs = JSON.parse(duel.questions_json);
+        if (Array.isArray(qs) && qs.length) {
+          /* Index estimé via elapsed/timer_sec, capé au nombre de questions */
+          const ds = db.prepare('SELECT timer_sec, num_questions FROM duels WHERE code = ?').get(currentMatch.duel_code) || {};
+          const elapsed = duel.started_at ? Math.max(0, Math.floor((Date.now() - new Date(duel.started_at + 'Z').getTime()) / 1000)) : 0;
+          const idx = Math.min(qs.length - 1, Math.floor(elapsed / Math.max(10, ds.timer_sec || 30)));
+          const q = qs[idx];
+          if (q) currentQuestion = { index: idx, total: ds.num_questions || qs.length, q: q.q, choices: q.choices, source: q.source || q.reference || '' };
+        }
+      }
+    } catch(_) {}
+  }
+  /* Derniers messages chat */
+  const recent_chat = db.prepare(`
+    SELECT tc.id, tc.content, tc.sent_at, u.name AS pseudo
+    FROM tournament_chat tc JOIN users u ON u.id = tc.user_id
+    WHERE tc.tournament_id = ?
+    ORDER BY tc.id DESC LIMIT 10
+  `).all(t.id).reverse();
+  /* Supports des 60 dernières secondes */
+  const recent_supports = db.prepare(`
+    SELECT id, emoji, pseudo, created_at
+    FROM tournament_supports
+    WHERE tournament_id = ? AND created_at >= datetime('now', '-60 seconds')
+    ORDER BY id DESC LIMIT 20
+  `).all(t.id);
+  return ok(res, {
+    tournament: {
+      id: t.id, code: t.code, name: t.name, status: t.status,
+      max_players: t.max_players, pack_id: t.pack_id,
+      country: t.country, zone: t.zone, start_date: t.start_date,
+      youtube_live_url: t.youtube_live_url || '', creator_id: t.creator_id
+    },
+    leaderboard_top10: leaderboard,
+    current_match: currentMatch || null,
+    current_question: currentQuestion,
+    status: t.status,
+    youtube_live_url: t.youtube_live_url || '',
+    recent_chat, recent_supports
+  });
+});
+
+/* GET /tournaments/:code/chat?since=<lastId> — pour vue watch */
+app.get('/tournaments/:code/chat', (req, res) => {
+  const code = String(req.params.code || '').trim().toUpperCase();
+  const t = db.prepare('SELECT id FROM tournaments WHERE code = ?').get(code);
+  if (!t) return err(res, 404, 'Tournoi introuvable');
+  const since = Number(req.query.since) || 0;
+  const rows = db.prepare(`
+    SELECT tc.id, tc.content AS message, tc.sent_at AS created_at, u.name AS pseudo, u.id AS user_id
+    FROM tournament_chat tc JOIN users u ON u.id = tc.user_id
+    WHERE tc.tournament_id = ? AND tc.id > ?
+    ORDER BY tc.id ASC LIMIT 100
+  `).all(t.id, since);
+  return ok(res, { messages: rows, last_id: rows.length ? rows[rows.length-1].id : since });
+});
+
+/* POST /tournaments/:code/chat — INSERT message spectateur dans tournament_chat */
+app.post('/tournaments/:code/chat', requireAuth, (req, res) => {
+  const code = String(req.params.code || '').trim().toUpperCase();
+  const t = db.prepare('SELECT id FROM tournaments WHERE code = ?').get(code);
+  if (!t) return err(res, 404, 'Tournoi introuvable');
+  const raw = (req.body && req.body.message) || (req.body && req.body.content) || '';
+  const clean = _broadcastClean(raw);
+  if (clean === null) return err(res, 400, 'Message rejeté (URL ou contenu inapproprié)');
+  if (!clean) return err(res, 400, 'Message vide ou trop long (200 caractères max)');
+  const info = db.prepare('INSERT INTO tournament_chat (tournament_id, user_id, content) VALUES (?,?,?)').run(t.id, req.user.id, clean);
+  const u = db.prepare('SELECT name FROM users WHERE id = ?').get(req.user.id) || {};
+  return ok(res, { id: info.lastInsertRowid, pseudo: u.name || 'Anonyme', message: clean });
+});
+
+/* GET /tournaments/:code/support?since=<isoOrTs> — derniers supports volatiles */
+app.get('/tournaments/:code/support', (req, res) => {
+  const code = String(req.params.code || '').trim().toUpperCase();
+  const t = db.prepare('SELECT id FROM tournaments WHERE code = ?').get(code);
+  if (!t) return err(res, 404, 'Tournoi introuvable');
+  const sinceId = Number(req.query.since) || 0;
+  const rows = db.prepare(`
+    SELECT id, emoji, pseudo, created_at
+    FROM tournament_supports
+    WHERE tournament_id = ? AND id > ? AND created_at >= datetime('now', '-60 seconds')
+    ORDER BY id ASC LIMIT 50
+  `).all(t.id, sinceId);
+  return ok(res, { supports: rows, last_id: rows.length ? rows[rows.length-1].id : sinceId });
+});
+
+/* POST /tournaments/:code/support — INSERT emoji */
+app.post('/tournaments/:code/support', requireAuth, (req, res) => {
+  const code = String(req.params.code || '').trim().toUpperCase();
+  const t = db.prepare('SELECT id FROM tournaments WHERE code = ?').get(code);
+  if (!t) return err(res, 404, 'Tournoi introuvable');
+  const emoji = (req.body && req.body.emoji) || '';
+  if (!_broadcastValidEmoji(emoji)) return err(res, 400, 'Emoji invalide (autorisés : ⚡ 🔥 👏 ❤️)');
+  const u = db.prepare('SELECT name FROM users WHERE id = ?').get(req.user.id) || {};
+  const info = db.prepare('INSERT INTO tournament_supports (tournament_id, user_id, pseudo, emoji) VALUES (?,?,?,?)').run(t.id, req.user.id, u.name || '', emoji);
+  /* Purge opportuniste : supprimer les supports > 5 minutes pour ce tournoi */
+  try { db.prepare("DELETE FROM tournament_supports WHERE tournament_id = ? AND created_at < datetime('now', '-5 minutes')").run(t.id); } catch(_) {}
+  return ok(res, { id: info.lastInsertRowid, emoji });
+});
+
+/* PATCH /tournaments/:code/config — créateur uniquement, update youtube_live_url */
+function _broadcastValidYouTube(url) {
+  if (!url) return true; // vide = autorisé (champ optionnel)
+  if (typeof url !== 'string') return false;
+  return /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|embed\/|live\/)|youtu\.be\/)[A-Za-z0-9_-]{11}/.test(url.trim());
+}
+app.patch('/tournaments/:code/config', requireAuth, (req, res) => {
+  const code = String(req.params.code || '').trim().toUpperCase();
+  const t = db.prepare('SELECT id, creator_id FROM tournaments WHERE code = ?').get(code);
+  if (!t) return err(res, 404, 'Tournoi introuvable');
+  if (t.creator_id !== req.user.id) return err(res, 403, 'Réservé au créateur du tournoi');
+  const url = (req.body && req.body.youtube_live_url) || '';
+  if (!_broadcastValidYouTube(url)) return err(res, 400, 'URL YouTube invalide');
+  db.prepare('UPDATE tournaments SET youtube_live_url = ? WHERE id = ?').run(url.trim(), t.id);
+  return ok(res, { youtube_live_url: url.trim() });
+});
 
 /* ================================================================
    COUMBA ARENA — Jeu de cartes UNO éducatif 2 joueurs
