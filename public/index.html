@@ -298,7 +298,37 @@ nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:0} /* MOD
 #page-duel #q-total{color:#F5F3EE !important;-webkit-text-fill-color:#F5F3EE !important} /* MODIFIÉ */
 #page-duel .duel-cat{color:#C9991A !important;-webkit-text-fill-color:#C9991A !important} /* MODIFIÉ — accent doré */
 /* Préserver la lisibilité des choix : texte clair par défaut, état correct/wrong garde sa teinte sémantique */
-#page-duel .q-choice{color:#F5F3EE !important;-webkit-text-fill-color:#F5F3EE !important} /* MODIFIÉ */
+/* MODIFIÉ — P4 PROD FIX : avant, mes règles forçaient texte clair F5F3EE sur les choix.
+   MAIS la couche thème "Académie" (ligne ~1458) force aussi le BACKGROUND en crème
+   (var(--aca-creme) = #F5F3EE) → texte clair sur fond clair = INVISIBLE (rectangles vides
+   observés chez Kaiser sur desktop).
+   FIX robuste : aligner les .q-choice sur fond crème + texte navy + bordure or. Combinaison
+   à fort contraste qui fonctionne sur DESKTOP (couche Académie active) ET sur MOBILE
+   (couche académique pas toujours active). Garantit lisibilité dans tous les contextes. */
+#page-duel .q-choice{
+  background:#F5F3EE !important;
+  color:#002B5C !important;
+  -webkit-text-fill-color:#002B5C !important;
+  border:1.5px solid #C9991A !important;
+  font-weight:600 !important;
+} /* MODIFIÉ — P4 fond crème, texte navy, bordure or */
+#page-duel .q-choice:hover:not(.disabled){
+  background:#fdf6e3 !important;
+  border-color:#a87d12 !important;
+} /* MODIFIÉ — P4 hover lisible */
+#page-duel .q-choice.correct{
+  background:#d4f5e0 !important;
+  color:#0d6b3b !important;
+  -webkit-text-fill-color:#0d6b3b !important;
+  border-color:#10B981 !important;
+} /* MODIFIÉ — P4 correct : fond vert clair + texte vert foncé (contraste max) */
+#page-duel .q-choice.wrong{
+  background:#fde2e2 !important;
+  color:#9b2020 !important;
+  -webkit-text-fill-color:#9b2020 !important;
+  border-color:#ef4444 !important;
+} /* MODIFIÉ — P4 wrong : fond rouge clair + texte rouge foncé */
+#page-duel .q-choice.disabled{opacity:.65 !important} /* MODIFIÉ — P4 disabled subtil mais lisible */
 #page-duel .q-choice.correct{color:#10B981 !important;-webkit-text-fill-color:#10B981 !important} /* MODIFIÉ — vert succès préservé */
 #page-duel .q-choice.wrong{color:#ef4444 !important;-webkit-text-fill-color:#ef4444 !important} /* MODIFIÉ — rouge erreur préservé */
 .q-choices{display:flex;flex-direction:column;gap:9px}
@@ -4621,21 +4651,31 @@ function _startDuelQuiz(){
   const strt=document.getElementById('streak-them'); if(strt)strt.textContent='0 bonne(s)';
   _loadDuelQ();_startDuelTimer();_pollLiveDuel();
 }
+/* MODIFIÉ — P2 PROD FIX : extract du tick + premier tick IMMÉDIAT pour eviter d'attendre
+   2s avant de voir le score adverse au lancement du duel. Mon score serveur (my_score
+   retourné par /answer) est aussi synchronisé pour éviter divergence client/serveur. */
 function _pollLiveDuel(){
-  dState.liveInt=setInterval(()=>{
-    if(!document.getElementById('d-screen-duel').classList.contains('active')){clearInterval(dState.liveInt);return;}
+  function _liveTick(){ // MODIFIÉ — fn nommée pour appel direct + setInterval
+    if(!document.getElementById('d-screen-duel').classList.contains('active')){clearInterval(dState.liveInt);dState.liveInt=null;return;} // MODIFIÉ
     const jwt=_getJwt();if(!jwt||!_duelLive.code)return;
-    fetch('/duels/'+_duelLive.code+'/live',{headers:{'Authorization':'Bearer '+jwt}})
-      .then(r=>r.json()).then(d=>{
-        if(!d.success||!d.duel)return;
+    fetch('/duels/'+_duelLive.code+'/live',{headers:{'Authorization':'Bearer '+jwt},cache:'no-store'}) // MODIFIÉ — cache:no-store défensif
+      .then(r=>r.ok?r.json():null).then(d=>{
+        if(!d||!d.success||!d.duel)return;
         const scores=d.duel.scores||[];
         const myId=_duelLive.myUserId;
-        // Trouver le score adverse : l'entrée dont user_id != myId
-        const myScore=scores.find(s=>s.user_id===myId);
-        const themScore=scores.find(s=>s.user_id!==myId);
-        // Mettre à jour le score adverse affiché
-        if(themScore){
-          const newThemScore=themScore.score||0;
+        const myScoreObj=scores.find(s=>s.user_id===myId);
+        const themScoreObj=scores.find(s=>s.user_id!==myId);
+        /* MODIFIÉ — Mon score : aligne sur serveur (authoritative) si divergence */
+        if(myScoreObj){
+          const newMyScore=myScoreObj.score||0;
+          if(newMyScore!==dState.scores.me){
+            dState.scores.me=newMyScore;
+            updateDuelUI();
+          }
+        }
+        /* Score adverse */
+        if(themScoreObj){
+          const newThemScore=themScoreObj.score||0;
           if(newThemScore!==dState.scores.them){
             const diff=newThemScore-dState.scores.them;
             dState.scores.them=newThemScore;
@@ -4643,41 +4683,29 @@ function _pollLiveDuel(){
             updateDuelUI();
           }
         }
-        // MODIFIÉ — Mettre à jour le nom adverse si pas encore défini, via ids dédiés (P2)
-        if(themScore&&themScore.user_id){
-          const oppObj=d.duel.creator_id===themScore.user_id?d.duel.creator:d.duel.joiner;
-          if(oppObj?.name&&_duelLive.oppName!==oppObj.name){
+        /* Nom adverse */
+        if(themScoreObj&&themScoreObj.user_id){
+          const oppObj=d.duel.creator_id===themScoreObj.user_id?d.duel.creator:d.duel.joiner;
+          if(oppObj&&oppObj.name&&_duelLive.oppName!==oppObj.name){
             _duelLive.oppName=oppObj.name;
-            const el=document.getElementById('player-them-name'); // MODIFIÉ
-            if(el)el.textContent=oppObj.name;
-            const av=document.getElementById('player-them-av'); // MODIFIÉ
-            if(av)av.textContent=oppObj.name.slice(0,2).toUpperCase();
-          }
-        }
-        /* MODIFIÉ — P4 fallback : si themScore manquant mais l'autre joueur existe dans duel.joiner/creator,
-           on identifie quand même l'adversaire pour fixer le nom dès le 1er poll. */
-        if(!themScore){
-          var _myId2=_duelLive.myUserId; // MODIFIÉ — renommé pour éviter conflit avec const myId déclaré plus haut
-          var _oppId2=(d.duel.creator_id===_myId2)?d.duel.joiner_id:d.duel.creator_id;
-          if(_oppId2){
-            var oppObj2=(d.duel.creator_id===_oppId2)?d.duel.creator:d.duel.joiner;
-            if(oppObj2&&oppObj2.name&&_duelLive.oppName!==oppObj2.name){
-              _duelLive.oppName=oppObj2.name;
-              var el2=document.getElementById('player-them-name'); if(el2) el2.textContent=oppObj2.name;
-              var av2=document.getElementById('player-them-av'); if(av2) av2.textContent=oppObj2.name.slice(0,2).toUpperCase();
-            }
+            const el=document.getElementById('player-them-name'); if(el) el.textContent=oppObj.name;
+            const av=document.getElementById('player-them-av'); if(av) av.textContent=oppObj.name.slice(0,2).toUpperCase();
           }
         }
         if(d.duel.status==='finished'){
           clearInterval(dState.liveInt);dState.liveInt=null;
-          const myFinal=myScore?myScore.score:dState.scores.me;
-          const thFinal=themScore?themScore.score:dState.scores.them;
+          const myFinal=myScoreObj?myScoreObj.score:dState.scores.me;
+          const thFinal=themScoreObj?themScoreObj.score:dState.scores.them;
           dState.scores.me=myFinal;dState.scores.them=thFinal;
           showResult(myFinal>=thFinal);
         }
       }).catch(()=>{});
-  },2000);
+  }
+  _liveTick(); // MODIFIÉ — PREMIER POLL IMMÉDIAT (score adverse visible <1s au lieu de 2s)
+  dState.liveInt=setInterval(_liveTick,2000); // MODIFIÉ — interval inchangé 2s
 }
+/* MODIFIÉ — ancienne implementation _pollLiveDuel supprimee (remplacee par version
+   ci-dessus avec premier tick immediat + sync my_score serveur). */
 function _loadDuelQ(){
   const qs=_duelLive.questions;const numQ=_duelLive.numQuestions;
   if(!qs||qs.length===0||dState.qIndex>=numQ){showResult(dState.scores.me>=dState.scores.them);return;}
@@ -4688,6 +4716,14 @@ function _loadDuelQ(){
   if(cEl)cEl.innerHTML=q.choices.map((c,i)=>`<button class="q-choice" onclick="duelAnswer(${i})">${String.fromCharCode(65+i)}. ${escapeHtml(c)}</button>`).join('');
   dState.answered=false;
 }
+/* MODIFIÉ — P1 PROD FIX (cause racine du scoring 0-0) : le backend attend choice_index
+   (l'index de la proposition cliquée) mais l'ancien code envoyait { correct:bool, score:int }
+   → backend lisait choice_index=undefined → Number(undefined)===Number(expected) → false →
+   TOUTES les réponses comptées fausses côté serveur → scores backend toujours à 0 → /live
+   retournait 0 pour les 2 joueurs.
+   FIX : on envoie choice_index:idx. Le backend valide via questions_safe figé serveur.
+   On synchronise dState.scores.me sur my_score authoritative renvoyé par le backend
+   (pour éviter toute divergence client/serveur). */
 function duelAnswer(idx){
   if(dState.answered)return;dState.answered=true;
   const q=_duelLive.questions[dState.qIndex%_duelLive.questions.length];const ok=idx===q.correct;
@@ -4698,7 +4734,30 @@ function duelAnswer(idx){
   else{dState.streaks.me=0;RA_SFX.error();showToast('✗ Réponse : '+q.choices[q.correct]);} // MODIFIÉ
   updateDuelUI();
   const jwt=_getJwt();
-  if(jwt&&_duelLive.code){fetch('/duels/'+_duelLive.code+'/answer',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt},body:JSON.stringify({q_index:dState.qIndex,correct:ok,score:dState.scores.me})}).catch(()=>{});}
+  if(jwt&&_duelLive.code){
+    /* MODIFIÉ — P1 : envoie choice_index (attendu par backend) + garde correct/score pour fallback legacy */
+    fetch('/duels/'+_duelLive.code+'/answer',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt},
+      body: JSON.stringify({
+        q_index: dState.qIndex,
+        choice_index: idx, // MODIFIÉ — P1 CAUSE RACINE : ce champ était absent → backend voyait NaN
+        correct: ok,        // legacy fallback
+        score: dState.scores.me // legacy fallback (rétro-compat duels créés avant le fix anti-triche)
+      })
+    })
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(d){
+      /* MODIFIÉ — P1 : synchronise score local sur la valeur AUTHORITATIVE serveur.
+         Si divergence (ex: streak côté client surestimé), on s'aligne pour que le
+         polling /live et l'écran de résultat soient cohérents des deux côtés. */
+      if (d && d.success !== false && typeof d.my_score === 'number') {
+        dState.scores.me = d.my_score; // MODIFIÉ — score serveur fait foi
+        updateDuelUI();
+      }
+    })
+    .catch(function(){});
+  }
   setTimeout(_duelNextQ,2400);
 }
 function _duelNextQ(){dState.qIndex++;if(dState.qIndex>=_duelLive.numQuestions){showResult(dState.scores.me>=dState.scores.them);return;}_resetDuelTimer();_loadDuelQ();}
@@ -4739,39 +4798,75 @@ function _startDuelTimer(){
         const cs=document.querySelectorAll('.q-choice');if(cs[q.correct])cs[q.correct].classList.add('correct');
         showToast('⏱ Temps écoulé !');
         const jwt=_getJwt();
-        if(jwt&&_duelLive.code){fetch('/duels/'+_duelLive.code+'/answer',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt},body:JSON.stringify({q_index:dState.qIndex,correct:false,score:dState.scores.me})}).catch(()=>{});}
+        /* MODIFIÉ — P1 : timeout = choice_index sentinel -1 (aucune réponse) → backend traite comme fausse */
+        if(jwt&&_duelLive.code){fetch('/duels/'+_duelLive.code+'/answer',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt},body:JSON.stringify({q_index:dState.qIndex,choice_index:-1,correct:false,score:dState.scores.me})}).catch(()=>{});} // MODIFIÉ — P1 ajout choice_index:-1
         setTimeout(_duelNextQ,1500);
       }
     }
   },1000);
 }
 function _resetDuelTimer(){clearInterval(dState.timerInt);_startDuelTimer();}
-/* MODIFIÉ — showResult : injection des VRAIS noms (myName + oppName) sur les labels et le winner-name.
-   Le label gauche reste "Toi" (par convention demandée), le label droit affiche le vrai pseudo
-   adverse. winner-name affiche le pseudo du gagnant (Toi si je gagne, vrai pseudo adverse sinon). */
+/* MODIFIÉ — P3 PROD FIX : showResult fait UN DERNIER fetch /live pour obtenir les scores
+   AUTHORITATIFS serveur (et les noms des 2 joueurs depuis creator/joiner). Garantit que
+   les DEUX clients affichent les MÊMES scores et le MÊME vainqueur (cohérence symétrique).
+   Fallback sur les valeurs locales si le fetch échoue. Aucune valeur démo. */
 function showResult(iWin){
   clearInterval(dState.timerInt);clearInterval(dState.liveInt);dState.liveInt=null;
-  const meS=dState.scores.me,thS=dState.scores.them;
+  /* MODIFIÉ — Render synchrone immédiat avec valeurs locales (pas d'attente UI) */
+  _renderResultScreen(dState.scores.me, dState.scores.them, _duelLive.myName, _duelLive.oppName, null);
+  /* MODIFIÉ — P3 : enrichit ensuite avec données serveur authoritatives (async) */
+  const jwt=_getJwt();
+  if (jwt && _duelLive.code) {
+    fetch('/duels/'+_duelLive.code+'/live', { headers:{'Authorization':'Bearer '+jwt}, cache:'no-store' })
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(d){
+        if (!d || !d.success || !d.duel) return;
+        const duel = d.duel;
+        const myId = _duelLive.myUserId || _getMyUserId();
+        const scoresArr = duel.scores || [];
+        const myAuth = scoresArr.find(function(s){ return s.user_id === myId; });
+        const themAuth = scoresArr.find(function(s){ return s.user_id !== myId; });
+        const meS = myAuth ? myAuth.score : dState.scores.me;
+        const thS = themAuth ? themAuth.score : dState.scores.them;
+        /* Noms : préfère creator/joiner du serveur (cohérence inter-clients) */
+        const oppObj = (duel.creator_id === myId) ? duel.joiner : duel.creator;
+        const meObj  = (duel.creator_id === myId) ? duel.creator : duel.joiner;
+        const myName  = (meObj && meObj.name) || _duelLive.myName || _getMyName() || 'Toi';
+        const oppName = (oppObj && oppObj.name) || _duelLive.oppName || 'Adversaire';
+        /* Aligne dState pour cohérence ultérieure */
+        dState.scores.me = meS; dState.scores.them = thS;
+        _duelLive.myName = myName; _duelLive.oppName = oppName;
+        _renderResultScreen(meS, thS, myName, oppName, duel);
+      })
+      .catch(function(){});
+  }
+}
+
+/* MODIFIÉ — P3 : rendu réutilisable de l'écran résultat avec valeurs explicites (pas de
+   donnée démo). Symétrique entre les 2 joueurs car alimenté par les MÊMES valeurs serveur. */
+function _renderResultScreen(meS, thS, myName, oppName, duel){ // MODIFIÉ
+  meS = Number(meS)||0; thS = Number(thS)||0;
+  myName = String(myName||'Toi').trim() || 'Toi';
+  oppName = String(oppName||'Adversaire').trim() || 'Adversaire';
+  const iWin = meS >= thS;
   const fme=document.getElementById('final-score-me'),fth=document.getElementById('final-score-them');
   if(fme)fme.textContent=meS.toLocaleString('fr-FR');if(fth)fth.textContent=thS.toLocaleString('fr-FR');
-  /* MODIFIÉ — Labels colonne avec vrais joueurs */
-  const myName=_duelLive.myName||_getMyName()||'Toi';
-  const oppName=_duelLive.oppName||'Adversaire';
-  const labMe=document.getElementById('result-label-me'); if(labMe) labMe.textContent='Toi'; // MODIFIÉ — convention "Toi"
-  const labThem=document.getElementById('result-label-them'); if(labThem) labThem.textContent=oppName; // MODIFIÉ — vrai pseudo adverse
+  const labMe=document.getElementById('result-label-me'); if(labMe) labMe.textContent='Toi'; // MODIFIÉ
+  const labThem=document.getElementById('result-label-them'); if(labThem) labThem.textContent=oppName; // MODIFIÉ
   const trophy=document.getElementById('winner-trophy'),wname=document.getElementById('winner-name'),ptsEl=document.getElementById('pts-gain');
-  if(iWin){if(trophy)trophy.textContent='🏆';if(wname)wname.textContent=myName;if(ptsEl){ptsEl.textContent='+120';ptsEl.className='pts-value gain';}launchConfetti();RA_FX.fireworks();RA_SFX.bravo();} // MODIFIÉ — winner-name = vrai myName
-  else{if(trophy)trophy.textContent='😤';if(wname)wname.textContent=oppName;if(ptsEl){ptsEl.textContent='-40';ptsEl.className='pts-value loss';}} // MODIFIÉ — winner-name = vrai oppName
+  if (meS === thS) {
+    if(trophy)trophy.textContent='🤝'; if(wname)wname.textContent='Égalité'; if(ptsEl){ptsEl.textContent='+0';ptsEl.className='pts-value';}
+  } else if (iWin) {
+    if(trophy)trophy.textContent='🏆'; if(wname)wname.textContent=myName; if(ptsEl){ptsEl.textContent='+120';ptsEl.className='pts-value gain';}
+    try { launchConfetti(); RA_FX.fireworks(); RA_SFX.bravo(); } catch(_){}
+  } else {
+    if(trophy)trophy.textContent='😤'; if(wname)wname.textContent=oppName; if(ptsEl){ptsEl.textContent='-40';ptsEl.className='pts-value loss';}
+  }
   document.querySelectorAll('.screen-d').forEach(s=>{s.classList.remove('active');s.style.display='none';});
   const t=document.getElementById('d-screen-result');if(t){t.style.display='';t.classList.add('active');}
-  // Opt-in : faire compter ce score au classement ?
   if (window.RAScore && _duelLive.packId) {
     const _w = t ? t.querySelector('[onclick*="dGoTo"]') : null;
-    RAScore.offerSave({
-      container: t,
-      before: _w ? _w.closest('div') : null,
-      packId: _duelLive.packId, score: meS, total: meS + thS
-    });
+    RAScore.offerSave({ container:t, before:_w?_w.closest('div'):null, packId:_duelLive.packId, score:meS, total:meS+thS });
   }
 }
 function launchConfetti(){
