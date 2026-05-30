@@ -289,6 +289,18 @@ nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:0} /* MOD
 .vs-text{font-family:'Bebas Neue',cursive;font-size:1.2rem;letter-spacing:3px;color:var(--muted);writing-mode:vertical-rl;text-orientation:mixed;transform:rotate(180deg)}
 .q-panel{background:var(--bg2);border-top:1px solid var(--gb);padding:28px;flex:1}
 .q-text{font-family:'Montserrat',sans-serif;font-size:.95rem;font-weight:600;line-height:1.6;margin-bottom:20px}
+/* P1 — Lisibilité duel : couche thème Académie force des couleurs sombres qui rendent
+   le texte de la question bleu-sur-bleu. On force le texte clair F5F3EE sur le fond
+   bleu marine de #page-duel. Les choix A/B/C/D conservent leur couleur var(--text) */
+#page-duel .q-text{color:#F5F3EE !important;-webkit-text-fill-color:#F5F3EE !important} /* MODIFIÉ */
+#page-duel .duel-round{color:#F5F3EE !important;-webkit-text-fill-color:#F5F3EE !important} /* MODIFIÉ */
+#page-duel #q-current{color:#F5F3EE !important;-webkit-text-fill-color:#F5F3EE !important} /* MODIFIÉ */
+#page-duel #q-total{color:#F5F3EE !important;-webkit-text-fill-color:#F5F3EE !important} /* MODIFIÉ */
+#page-duel .duel-cat{color:#C9991A !important;-webkit-text-fill-color:#C9991A !important} /* MODIFIÉ — accent doré */
+/* Préserver la lisibilité des choix : texte clair par défaut, état correct/wrong garde sa teinte sémantique */
+#page-duel .q-choice{color:#F5F3EE !important;-webkit-text-fill-color:#F5F3EE !important} /* MODIFIÉ */
+#page-duel .q-choice.correct{color:#10B981 !important;-webkit-text-fill-color:#10B981 !important} /* MODIFIÉ — vert succès préservé */
+#page-duel .q-choice.wrong{color:#ef4444 !important;-webkit-text-fill-color:#ef4444 !important} /* MODIFIÉ — rouge erreur préservé */
 .q-choices{display:flex;flex-direction:column;gap:9px}
 .q-choice{background:var(--bg3);border:1px solid var(--gb);color:var(--text);font-family:'Inter',sans-serif;font-size:.83rem;padding:12px 16px;cursor:pointer;text-align:left;border-radius:2px;transition:all .2s}
 .q-choice:hover:not(.disabled){border-color:var(--border);background:var(--gold-dim)}
@@ -2688,8 +2700,8 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
         <!-- Moi -->
         <div class="player-panel" id="player-me">
           <div style="display:flex;align-items:center;gap:12px">
-            <div class="player-av" style="background:rgba(34,211,238,.15);color:var(--cyan);border-color:var(--cyan)">AN</div>
-            <div><div style="font-weight:700">Abdou N.</div><div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted)">REGUL ARENA · Fondateur</div></div>
+            <div class="player-av" id="player-me-av" style="background:rgba(34,211,238,.15);color:var(--cyan);border-color:var(--cyan)">—</div><!-- MODIFIÉ — id dédié, valeur démo retirée -->
+            <div><div style="font-weight:700" id="player-me-name">—</div><div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted)" id="player-me-sub">Toi</div></div><!-- MODIFIÉ — ids dédiés, valeurs démo retirées -->
           </div>
           <div class="score-display" id="score-me" aria-live="polite" aria-label="Mon score">0</div>
           <div class="delta-badge" id="delta-me" aria-hidden="true">+100</div>
@@ -2708,8 +2720,8 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
         <!-- Adversaire -->
         <div class="player-panel" id="player-them">
           <div style="display:flex;align-items:center;gap:12px;justify-content:flex-end">
-            <div><div style="font-weight:700;text-align:right">KofiDansso</div><div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted);text-align:right">Ecobank CI · Conformité</div></div>
-            <div class="player-av" style="background:rgba(201,153,26,.15);color:var(--gold);border-color:var(--gold)">KD</div>
+            <div><div style="font-weight:700;text-align:right" id="player-them-name">—</div><div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted);text-align:right" id="player-them-sub">Adversaire</div></div><!-- MODIFIÉ — ids dédiés, valeurs démo retirées -->
+            <div class="player-av" id="player-them-av" style="background:rgba(201,153,26,.15);color:var(--gold);border-color:var(--gold)">—</div><!-- MODIFIÉ — id dédié, valeur démo retirée -->
           </div>
           <div class="score-display" id="score-them" style="text-align:right" aria-live="polite" aria-label="Score adversaire">0</div>
           <div class="delta-badge" id="delta-them" style="align-self:flex-end" aria-hidden="true">+100</div>
@@ -2729,16 +2741,16 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
       <div class="result-banner" id="winner-banner">
         <span class="winner-trophy" id="winner-trophy" aria-label="Trophée">🏆</span>
         <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Vainqueur du duel</div>
-        <div style="font-family:'Bebas Neue',cursive;font-size:2.2rem;letter-spacing:3px;margin-bottom:18px;background:linear-gradient(135deg,var(--gold),var(--gold-b));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text" id="winner-name">Abdou N.</div>
+        <div style="font-family:'Bebas Neue',cursive;font-size:2.2rem;letter-spacing:3px;margin-bottom:18px;background:linear-gradient(135deg,var(--gold),var(--gold-b));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text" id="winner-name">—</div><!-- MODIFIÉ — valeur démo retirée, alimentée par showResult() -->
         <div style="display:flex;justify-content:center;gap:44px;margin-bottom:22px">
           <div style="text-align:center">
-            <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:2px;color:var(--muted)">Abdou N.</div>
-            <div style="font-family:'Bebas Neue',cursive;font-size:2.5rem;color:var(--gold)" id="final-score-me">1 450</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:2px;color:var(--muted)" id="result-label-me">Toi</div><!-- MODIFIÉ — id dédié, label "Toi" pour joueur courant -->
+            <div style="font-family:'Bebas Neue',cursive;font-size:2.5rem;color:var(--gold)" id="final-score-me">0</div><!-- MODIFIÉ — score démo 1 450 → 0, alimenté par showResult() -->
           </div>
           <div style="font-family:'Bebas Neue',cursive;font-size:1.5rem;color:var(--muted);align-self:center">vs</div>
           <div style="text-align:center">
-            <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:2px;color:var(--muted)">KofiDansso</div>
-            <div style="font-family:'Bebas Neue',cursive;font-size:2.5rem;color:var(--silver)" id="final-score-them">1 200</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:2px;color:var(--muted)" id="result-label-them">—</div><!-- MODIFIÉ — id dédié, vrai pseudo adversaire alimenté par showResult() -->
+            <div style="font-family:'Bebas Neue',cursive;font-size:2.5rem;color:var(--silver)" id="final-score-them">0</div><!-- MODIFIÉ — score démo 1 200 → 0, alimenté par showResult() -->
           </div>
         </div>
         <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:2px;color:var(--muted);margin-bottom:6px">Points gagnés</div>
@@ -4404,7 +4416,13 @@ function _duelTryResumeOnLoad(){ // MODIFIÉ
       _duelLive.timerSec = duel.timer_sec || snap.timerSec || 30;
       _duelLive.myName = snap.myName || _getMyName() || 'Moi';
       _duelLive.myUserId = _getMyUserId();
-      _duelLive.questions = (typeof _duel_unionQuestions==='function')? _duel_unionQuestions(_duelLive.packsIds) : [];
+      /* MODIFIÉ — P3 : si duel est active, charge la séquence figée par le serveur (sinon
+         fallback union locale juste pour aperçu, mais sera réécrite au prochain poll). */
+      if (Array.isArray(duel.questions_safe) && duel.questions_safe.length) {
+        _duelLive.questions = duel.questions_safe.slice(); // MODIFIÉ
+      } else {
+        _duelLive.questions = (typeof _duel_unionQuestions==='function')? _duel_unionQuestions(_duelLive.packsIds) : [];
+      }
       _duelLive.oppName = snap.isCreator
         ? ((duel.joiner && duel.joiner.name) || snap.oppName || 'En attente...')
         : ((duel.creator && duel.creator.name) || snap.oppName || 'Créateur');
@@ -4476,7 +4494,16 @@ function lancerDuel(){
   const jwt=_getJwt();if(!jwt)return;
   fetch('/duels/'+_duelLive.code+'/start',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt}})
     .then(r=>r.json()).then(d=>{
-      if(d.success){clearInterval(_duelLive.pollInt);_duelLive.pollInt=null;_duelIntroThenStart();} // MODIFIÉ — intro anthem+arenaIntro avant duel
+      if(d.success){
+        /* MODIFIÉ — P3 : récupère la séquence de questions FIGÉE PAR LE SERVEUR au /start.
+           Garantit que créateur et joiner ont la MÊME séquence (même pack, même ordre).
+           Fallback sur _duel_unionQuestions si questions_safe absent (backend ancien). */
+        if (d.duel && Array.isArray(d.duel.questions_safe) && d.duel.questions_safe.length) {
+          _duelLive.questions = d.duel.questions_safe.slice(); // MODIFIÉ
+          _duelLive.numQuestions = d.duel.num_questions || _duelLive.numQuestions; // MODIFIÉ — confirme num
+        }
+        clearInterval(_duelLive.pollInt);_duelLive.pollInt=null;_duelClearPersisted();_duelIntroThenStart(); // MODIFIÉ — clear persist + intro anthem+arenaIntro avant duel
+      }
       else showToast('❌ '+(d.error||'Erreur lancement'));
     }).catch(()=>showToast('❌ Connexion impossible'));
 }
@@ -4531,7 +4558,13 @@ function _pollForStart(){ // MODIFIÉ
           var packsIdsFromSrv=Array.isArray(d.duel.packs_ids)?d.duel.packs_ids:(d.duel.pack_id?[d.duel.pack_id]:[]);
           _duelLive.packsIds=packsIdsFromSrv.slice();
           _duelLive.numQuestions=d.duel.num_questions||_duelLive.numQuestions;_duelLive.timerSec=d.duel.timer_sec||_duelLive.timerSec;
-          _duelLive.questions=_duel_unionQuestions(packsIdsFromSrv); // MODIFIÉ — union
+          /* MODIFIÉ — P3 : récupère la séquence FIGÉE par le serveur (même que créateur).
+             Fallback sur _duel_unionQuestions(packsIds) si questions_safe absent (backend ancien). */
+          if (Array.isArray(d.duel.questions_safe) && d.duel.questions_safe.length) {
+            _duelLive.questions = d.duel.questions_safe.slice(); // MODIFIÉ — sequence figée serveur (même que créateur)
+          } else {
+            _duelLive.questions=_duel_unionQuestions(packsIdsFromSrv); // fallback rétro-compat
+          }
           clearInterval(_duelLive.pollInt);_duelLive.pollInt=null;_duelClearPersisted();_duelIntroThenStart(); // MODIFIÉ — clear persist + intro
         }
       }).catch(()=>{});
@@ -4541,24 +4574,30 @@ function _pollForStart(){ // MODIFIÉ
 }
 
 /* ── QUIZ en duel ─────────────────────────────────────────── */
+/* MODIFIÉ — _startDuelQuiz : injection fiable des noms/avatars via ids DÉDIÉS
+   (avant : querySelector fragile par attribut style="font-weight:700" + class .player-av).
+   Réinitialise aussi les scores affichés à 0 pour éviter tout reliquat. */
 function _startDuelQuiz(){
   dState.scores={me:0,them:0};dState.streaks={me:0,them:0};dState.qIndex=0;dState.answered=false;
   // MODIFIÉ — affichage multi-pack : concatène les labels si plusieurs packs (fallback mono)
   var packsList=(_duelLive.packsIds&&_duelLive.packsIds.length)?_duelLive.packsIds:[_duelLive.packId];
   var catLabel=_duel_packsLabel(packsList);
-  const catEl=document.querySelector('.duel-cat');if(catEl&&catLabel)catEl.textContent=catLabel;
+  const catEl=document.querySelector('#page-duel .duel-cat');if(catEl&&catLabel)catEl.textContent=catLabel; // MODIFIÉ — sélecteur scopé #page-duel
   const totalEl=document.getElementById('q-total');if(totalEl)totalEl.textContent=_duelLive.numQuestions;
-  // Noms réels des joueurs
-  const myName=_duelLive.myName||_getMyName()||'Moi';
+  /* MODIFIÉ — Noms réels des joueurs via ids dédiés (P2) */
+  const myName=_duelLive.myName||_getMyName()||'Toi';
   const oppName=_duelLive.oppName||'Adversaire';
-  const meNameEl=document.querySelector('#player-me .lb-name-main, #player-me [style*="font-weight:700"]');
-  if(meNameEl)meNameEl.textContent=myName;
-  const meAvEl=document.querySelector('#player-me .player-av');
-  if(meAvEl)meAvEl.textContent=myName.slice(0,2).toUpperCase();
-  const themNameEl=document.querySelector('#player-them [style*="font-weight:700"]');
-  if(themNameEl)themNameEl.textContent=oppName;
-  const themAvEl=document.querySelector('#player-them .player-av');
-  if(themAvEl)themAvEl.textContent=oppName.slice(0,2).toUpperCase();
+  const meNameEl=document.getElementById('player-me-name'); if(meNameEl)meNameEl.textContent=myName; // MODIFIÉ
+  const meSubEl=document.getElementById('player-me-sub'); if(meSubEl)meSubEl.textContent='Toi'; // MODIFIÉ
+  const meAvEl=document.getElementById('player-me-av'); if(meAvEl)meAvEl.textContent=(myName||'?').slice(0,2).toUpperCase(); // MODIFIÉ
+  const themNameEl=document.getElementById('player-them-name'); if(themNameEl)themNameEl.textContent=oppName; // MODIFIÉ
+  const themSubEl=document.getElementById('player-them-sub'); if(themSubEl)themSubEl.textContent='Adversaire'; // MODIFIÉ
+  const themAvEl=document.getElementById('player-them-av'); if(themAvEl)themAvEl.textContent=(oppName||'?').slice(0,2).toUpperCase(); // MODIFIÉ
+  /* MODIFIÉ — Reset visuel des compteurs score / streak (évite affichage 1 450 résiduel) */
+  const sme=document.getElementById('score-me'); if(sme)sme.textContent='0';
+  const sth=document.getElementById('score-them'); if(sth)sth.textContent='0';
+  const strm=document.getElementById('streak-me'); if(strm)strm.textContent='🔥 0 bonne(s)';
+  const strt=document.getElementById('streak-them'); if(strt)strt.textContent='0 bonne(s)';
   _loadDuelQ();_startDuelTimer();_pollLiveDuel();
 }
 function _pollLiveDuel(){
@@ -4583,15 +4622,29 @@ function _pollLiveDuel(){
             updateDuelUI();
           }
         }
-        // Mettre à jour le nom adverse si pas encore défini
+        // MODIFIÉ — Mettre à jour le nom adverse si pas encore défini, via ids dédiés (P2)
         if(themScore&&themScore.user_id){
           const oppObj=d.duel.creator_id===themScore.user_id?d.duel.creator:d.duel.joiner;
           if(oppObj?.name&&_duelLive.oppName!==oppObj.name){
             _duelLive.oppName=oppObj.name;
-            const el=document.querySelector('#player-them [style*="font-weight:700"]');
+            const el=document.getElementById('player-them-name'); // MODIFIÉ
             if(el)el.textContent=oppObj.name;
-            const av=document.querySelector('#player-them .player-av');
+            const av=document.getElementById('player-them-av'); // MODIFIÉ
             if(av)av.textContent=oppObj.name.slice(0,2).toUpperCase();
+          }
+        }
+        /* MODIFIÉ — P4 fallback : si themScore manquant mais l'autre joueur existe dans duel.joiner/creator,
+           on identifie quand même l'adversaire pour fixer le nom dès le 1er poll. */
+        if(!themScore){
+          var _myId2=_duelLive.myUserId; // MODIFIÉ — renommé pour éviter conflit avec const myId déclaré plus haut
+          var _oppId2=(d.duel.creator_id===_myId2)?d.duel.joiner_id:d.duel.creator_id;
+          if(_oppId2){
+            var oppObj2=(d.duel.creator_id===_oppId2)?d.duel.creator:d.duel.joiner;
+            if(oppObj2&&oppObj2.name&&_duelLive.oppName!==oppObj2.name){
+              _duelLive.oppName=oppObj2.name;
+              var el2=document.getElementById('player-them-name'); if(el2) el2.textContent=oppObj2.name;
+              var av2=document.getElementById('player-them-av'); if(av2) av2.textContent=oppObj2.name.slice(0,2).toUpperCase();
+            }
           }
         }
         if(d.duel.status==='finished'){
@@ -4672,14 +4725,22 @@ function _startDuelTimer(){
   },1000);
 }
 function _resetDuelTimer(){clearInterval(dState.timerInt);_startDuelTimer();}
+/* MODIFIÉ — showResult : injection des VRAIS noms (myName + oppName) sur les labels et le winner-name.
+   Le label gauche reste "Toi" (par convention demandée), le label droit affiche le vrai pseudo
+   adverse. winner-name affiche le pseudo du gagnant (Toi si je gagne, vrai pseudo adverse sinon). */
 function showResult(iWin){
   clearInterval(dState.timerInt);clearInterval(dState.liveInt);dState.liveInt=null;
   const meS=dState.scores.me,thS=dState.scores.them;
   const fme=document.getElementById('final-score-me'),fth=document.getElementById('final-score-them');
   if(fme)fme.textContent=meS.toLocaleString('fr-FR');if(fth)fth.textContent=thS.toLocaleString('fr-FR');
+  /* MODIFIÉ — Labels colonne avec vrais joueurs */
+  const myName=_duelLive.myName||_getMyName()||'Toi';
+  const oppName=_duelLive.oppName||'Adversaire';
+  const labMe=document.getElementById('result-label-me'); if(labMe) labMe.textContent='Toi'; // MODIFIÉ — convention "Toi"
+  const labThem=document.getElementById('result-label-them'); if(labThem) labThem.textContent=oppName; // MODIFIÉ — vrai pseudo adverse
   const trophy=document.getElementById('winner-trophy'),wname=document.getElementById('winner-name'),ptsEl=document.getElementById('pts-gain');
-  if(iWin){if(trophy)trophy.textContent='🏆';if(wname)wname.textContent='Toi';if(ptsEl){ptsEl.textContent='+120';ptsEl.className='pts-value gain';}launchConfetti();RA_FX.fireworks();RA_SFX.bravo();} // MODIFIÉ
-  else{if(trophy)trophy.textContent='😤';if(wname)wname.textContent='Adversaire';if(ptsEl){ptsEl.textContent='-40';ptsEl.className='pts-value loss';}}
+  if(iWin){if(trophy)trophy.textContent='🏆';if(wname)wname.textContent=myName;if(ptsEl){ptsEl.textContent='+120';ptsEl.className='pts-value gain';}launchConfetti();RA_FX.fireworks();RA_SFX.bravo();} // MODIFIÉ — winner-name = vrai myName
+  else{if(trophy)trophy.textContent='😤';if(wname)wname.textContent=oppName;if(ptsEl){ptsEl.textContent='-40';ptsEl.className='pts-value loss';}} // MODIFIÉ — winner-name = vrai oppName
   document.querySelectorAll('.screen-d').forEach(s=>{s.classList.remove('active');s.style.display='none';});
   const t=document.getElementById('d-screen-result');if(t){t.style.display='';t.classList.add('active');}
   // Opt-in : faire compter ce score au classement ?
@@ -4698,8 +4759,12 @@ function launchConfetti(){
   for(let i=0;i<80;i++){const p=document.createElement('div');p.className='confetti-piece';const col=cols[Math.floor(Math.random()*cols.length)];const sh=Math.random()>.5?'50%':'0%';p.style.cssText=`left:${Math.random()*100}%;width:${4+Math.random()*8}px;height:${4+Math.random()*12}px;background:${col};border-radius:${sh};position:absolute;top:-10px;animation:confettiDrop ${2+Math.random()*3}s ${Math.random()*1.5}s linear forwards;`;c.appendChild(p);}
   setTimeout(()=>{if(c)c.innerHTML='';},6000);
 }
+/* MODIFIÉ — shareResult : utilise les VRAIS scores sans fallback démo (1450/1200 retirés)
+   et inclut le vrai pseudo adverse dans le message partagé. */
 function shareResult(){
-  const txt='⚔️ Duel REGUL ARENA\n'+(dState.scores.me>dState.scores.them?'✅ Victoire':'❌ Défaite')+'\n📈 Score : '+(dState.scores.me||1450).toLocaleString()+' vs '+(dState.scores.them||1200).toLocaleString()+'\n🔗 regularena.com';
+  const oppName=_duelLive.oppName||'Adversaire'; // MODIFIÉ
+  const me=dState.scores.me||0,th=dState.scores.them||0; // MODIFIÉ — fallback 0 au lieu de 1450/1200
+  const txt='⚔️ Duel REGUL ARENA vs '+oppName+'\n'+(me>th?'✅ Victoire':(me<th?'❌ Défaite':'⚖️ Égalité'))+'\n📈 Score : '+me.toLocaleString('fr-FR')+' vs '+th.toLocaleString('fr-FR')+'\n🔗 regularena.com'; // MODIFIÉ
   if(navigator.share)navigator.share({title:'REGUL ARENA',text:txt}).catch(()=>{});
   else{navigator.clipboard.writeText(txt).catch(()=>{});showToast('📋 Résultat copié !');}
 }

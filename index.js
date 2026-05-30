@@ -721,6 +721,16 @@ function _duelFull(code) {
   let packsIdsArr = null;
   try { if (duel.packs_ids) packsIdsArr = JSON.parse(duel.packs_ids); } catch(_) {}
   if (!Array.isArray(packsIdsArr) || !packsIdsArr.length) packsIdsArr = duel.pack_id ? [duel.pack_id] : ['general'];
+  /* MODIFIÉ — P3 : sérialise les questions tirées au /start pour que LES DEUX JOUEURS aient
+     EXACTEMENT la même séquence (anti-désynchronisation). Avant : chaque client tirait son
+     propre random localement -> séquences différentes. Désormais, dès status='active',
+     questions_safe est exposé (contient correct pour la validation locale instantanée ; OK
+     car le duel est déjà lancé : pas d'avantage à pré-lire). Tant que status!='active',
+     questions_safe reste null pour respecter le FIX anti-triche. */
+  let questionsSafe = null;
+  if (duel.status === 'active' && duel.questions_json) {
+    try { questionsSafe = JSON.parse(duel.questions_json); } catch(_) { questionsSafe = null; }
+  }
   return {
     id: duel.id,
     code: duel.code,
@@ -734,6 +744,7 @@ function _duelFull(code) {
     created_at: duel.created_at,
     started_at: duel.started_at || null,
     questions_json: duel.questions_json || '[]',
+    questions_safe: questionsSafe, // MODIFIÉ — P3 séquence figée partagée entre les 2 joueurs (null tant que pas active)
     creator, // { id, name, country } | null
     joiner,  // { id, name, country } | null
     scores   // [{ user_id, score, questions_answered, finished }]
