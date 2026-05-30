@@ -1063,6 +1063,35 @@ input,select,textarea{font-size:max(16px,.84rem)!important}
 .rat-badge.zone-uemoa{background:rgba(0,43,92,.3);color:#7da8e8;border:1px solid rgba(0,43,92,.5)}
 .rat-badge.zone-cemac{background:rgba(40,80,40,.3);color:#7dce8a;border:1px solid rgba(40,80,40,.5)}
 .rat-meta{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap;margin-top:4px}
+/* BROADCAST AJOUT — Card Diffusion en direct (créateur uniquement) */
+.rat-diffusion-card{background:#002B5C;border:2px solid #C9991A;border-radius:10px;padding:20px 22px;margin-bottom:16px;color:#fff;animation:ratDiffFadeIn .35s ease-out}
+@keyframes ratDiffFadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.rat-diffusion-head{margin-bottom:14px}
+.rat-diffusion-ttl{font-family:'Playfair Display',Georgia,serif;font-size:1.15rem;font-weight:700;color:#C9991A !important;-webkit-text-fill-color:#C9991A !important;margin:0 0 4px}
+.rat-diffusion-sub{font-family:'IBM Plex Sans',sans-serif;font-size:.82rem;color:#cfdcef;line-height:1.4}
+.rat-diffusion-form{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.rat-diff-input{flex:1;min-width:220px;background:rgba(255,255,255,.06);border:1px solid rgba(201,153,26,.35);color:#fff;padding:10px 12px;border-radius:6px;font-family:'IBM Plex Sans',sans-serif;font-size:.88rem;outline:none;transition:border-color .15s}
+.rat-diff-input::placeholder{color:rgba(255,255,255,.4)}
+.rat-diff-input:focus{border-color:#C9991A;background:rgba(255,255,255,.09)}
+.rat-diff-save{background:#C9991A;color:#002B5C;border:none;padding:10px 16px;border-radius:6px;font-family:'IBM Plex Sans',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;transition:background .15s,transform .15s}
+.rat-diff-save:hover{background:#e6b938;transform:translateY(-1px)}
+.rat-diff-feedback{font-size:.78rem;margin-bottom:8px;display:none;line-height:1.4}
+.rat-share-box{display:flex;flex-direction:column;gap:8px;background:rgba(0,0,0,.18);border-radius:6px;padding:12px 14px;margin-top:6px}
+.rat-share-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.rat-share-lbl{font-size:.72rem;color:#C9991A;font-weight:700;text-transform:uppercase;letter-spacing:.05em;flex-shrink:0;min-width:170px}
+.rat-share-url{flex:1;min-width:180px;font-family:'IBM Plex Mono','JetBrains Mono',monospace;font-size:.74rem;color:#fff;background:rgba(255,255,255,.06);padding:7px 10px;border-radius:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rat-share-copy{background:#C9991A;color:#002B5C;border:none;padding:7px 12px;border-radius:5px;font-size:.74rem;font-weight:700;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;transition:background .15s;flex-shrink:0}
+.rat-share-copy:hover:not([disabled]){background:#e6b938}
+.rat-share-copy.copied{background:#27ae60;color:#fff}
+@media(max-width:600px){
+  .rat-diffusion-card{padding:16px 14px}
+  .rat-diff-input{min-width:0;width:100%}
+  .rat-diff-save{width:100%;justify-content:center}
+  .rat-diffusion-form{flex-direction:column;align-items:stretch}
+  .rat-share-lbl{min-width:0}
+  .rat-share-url{font-size:.68rem}
+}
+
 .rat-tabs{display:flex;gap:0;border-bottom:1px solid var(--sep);margin-bottom:20px}
 .rat-tab{background:none;border:none;border-bottom:2px solid transparent;padding:10px 18px;font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:1.5px;color:var(--muted);cursor:pointer;text-transform:uppercase;transition:all .2s;margin-bottom:-1px}
 .rat-tab.active{border-bottom-color:var(--gold);color:var(--gold)}
@@ -2167,16 +2196,7 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
           <button class="chat-send" onclick="sendChat()" aria-label="Envoyer">↑</button>
         </div>
       </div>
-      <!-- BROADCAST AJOUT — Configuration stream + Partager le live -->
-      <div class="card" style="margin-top:14px;padding:16px">
-        <div style="font-family:'Bebas Neue',cursive;font-size:.9rem;letter-spacing:2px;color:var(--gold);margin-bottom:10px">🎥 Diffusion en direct</div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <input type="url" id="dash-youtube-url" class="form-input" style="flex:1;min-width:240px" placeholder="https://youtube.com/watch?v=..." maxlength="200">
-          <button class="btn-gold" style="padding:10px 18px;font-size:.75rem" onclick="_broadcastSaveYoutubeFromDashboard()">💾 Enregistrer URL</button>
-        </div>
-        <div style="font-size:.72rem;color:var(--muted);margin-top:6px" id="dash-youtube-feedback">Colle l'URL de ta diffusion YouTube pour la lier à la vue spectateur. Laisse vide pour utiliser le Match Viewer natif.</div>
-        <div id="dash-share-box" style="margin-top:14px"></div>
-      </div>
+      <!-- (Card "Diffusion en direct" déplacée vers #t-screen-ra-view — la vraie vue tournoi) -->
     </div>
   </div>
 
@@ -2336,6 +2356,9 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
         <div id="rat-v-progress" style="height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-l));border-radius:2px;transition:width .4s;width:0%"></div><!-- TOURNOI AJOUT -->
       </div><!-- TOURNOI AJOUT -->
     </div><!-- TOURNOI AJOUT -->
+
+    <!-- BROADCAST AJOUT — Card "Diffusion en direct" (créateur uniquement, tous statuts) -->
+    <div id="rat-v-diffusion"></div>
 
     <!-- Tabs : Classement / Bracket / Chat -->
     <div class="rat-tabs"><!-- TOURNOI AJOUT -->
@@ -6235,9 +6258,108 @@ function _renderView(r){
   }
   actions.innerHTML = btns;
 
+  // BROADCAST AJOUT — Card "Diffusion en direct" (créateur uniquement, tous statuts)
+  var isCreatorReally = !!(myPart && r.creator && myPart.user_id === r.creator.id);
+  _renderDiffusionCard(t, isCreatorReally);
+
   // ranking
   _renderRanking(parts, t.status);
 }
+
+/* BROADCAST AJOUT — rendu de la card Diffusion en direct dans #rat-v-diffusion */
+function _renderDiffusionCard(t, isCreator){
+  var box = document.getElementById('rat-v-diffusion');
+  if (!box) return;
+  if (!isCreator) { box.innerHTML = ''; return; }
+  var code = t.code || '';
+  var yt = t.youtube_live_url || '';
+  var origin = 'https://www.regularena.com';
+  var watchUrl = origin + '/#watch/' + code;
+  var broadcastUrl = origin + '/#broadcast/' + code;
+  function _row(label, url, has){
+    var safe = String(url).replace(/'/g, "&#39;").replace(/"/g, '&quot;');
+    return '<div class="rat-share-row">'
+      + '<span class="rat-share-lbl">' + label + '</span>'
+      + '<span class="rat-share-url" title="' + safe + '">' + safe + '</span>'
+      + '<button class="rat-share-copy" onclick="raT_copyShareLink(this, \'' + safe + '\')" ' + (has ? '' : 'disabled style="opacity:.4;cursor:not-allowed"') + '>📋 Copier</button>'
+      + '</div>';
+  }
+  var rows = '';
+  if (yt) rows += _row('🎥 YouTube Live', yt, true);
+  rows += _row('📺 Vue spectateur web', watchUrl, true);
+  rows += _row('🎬 Vue régie OBS', broadcastUrl, true);
+
+  box.innerHTML = ''
+    + '<div class="rat-diffusion-card">'
+    +   '<div class="rat-diffusion-head">'
+    +     '<div class="rat-diffusion-ttl">🎥 Diffusion en direct (optionnel)</div>'
+    +     '<div class="rat-diffusion-sub">Diffuse ton tournoi sur YouTube/Twitch + partage les liens spectateur et régie OBS</div>'
+    +   '</div>'
+    +   '<div class="rat-diffusion-form">'
+    +     '<input type="url" id="rat-diff-yt-input" class="rat-diff-input" placeholder="https://youtube.com/watch?v=..." maxlength="200" value="' + yt.replace(/"/g, '&quot;') + '">'
+    +     '<button class="rat-diff-save" onclick="raT_saveDiffusionUrl(\'' + code + '\')">💾 Enregistrer URL</button>'
+    +   '</div>'
+    +   '<div class="rat-diff-feedback" id="rat-diff-feedback"></div>'
+    +   '<div class="rat-share-box">' + rows + '</div>'
+    + '</div>';
+}
+
+/* BROADCAST AJOUT — Save URL YouTube (PATCH /tournaments/:code/config) — exposé via window.raT_saveDiffusionUrl */
+async function _ratSaveYoutubeUrl(code){
+  var inp = document.getElementById('rat-diff-yt-input');
+  var fb = document.getElementById('rat-diff-feedback');
+  if (!inp) return;
+  var url = (inp.value || '').trim();
+  if (url && typeof _broadcastParseYouTubeUrl === 'function' && !_broadcastParseYouTubeUrl(url)) {
+    if (fb) { fb.textContent = '⚠️ URL YouTube invalide'; fb.style.color = '#e74c3c'; fb.style.display = 'block'; }
+    return;
+  }
+  var jwt = null;
+  try { jwt = localStorage.getItem('ra_jwt') || sessionStorage.getItem('ra_jwt'); } catch(e) {}
+  if (!jwt) { showToast('🔐 Connecte-toi pour configurer la diffusion'); return; }
+  try {
+    var r = await fetch('/tournaments/' + code + '/config', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + jwt },
+      body: JSON.stringify({ youtube_live_url: url })
+    });
+    var d = await r.json();
+    if (r.ok && (d.success !== false)) {
+      if (fb) { fb.textContent = '✓ URL enregistrée — les spectateurs verront le live YouTube'; fb.style.color = '#27ae60'; fb.style.display = 'block'; }
+      showToast('✓ URL YouTube enregistrée');
+      try { window.RA_SFX && RA_SFX.correct && RA_SFX.correct(); } catch(e) {}
+      /* Recharger la vue pour mettre à jour la ligne YouTube Live dans la share-box */
+      if (typeof raT_loadView === 'function') setTimeout(function(){ raT_loadView(code); }, 600);
+    } else {
+      if (fb) { fb.textContent = '❌ ' + ((d && d.error) || "Échec de l'enregistrement"); fb.style.color = '#e74c3c'; fb.style.display = 'block'; }
+      showToast('❌ ' + ((d && d.error) || 'Erreur'));
+    }
+  } catch(e) {
+    if (fb) { fb.textContent = '❌ Erreur réseau'; fb.style.color = '#e74c3c'; fb.style.display = 'block'; }
+    showToast('❌ Erreur réseau');
+  }
+}
+
+/* BROADCAST AJOUT — Copy d'un lien vers le presse-papier + toast — exposé via window.raT_copyShareLink */
+function _ratCopyLink(btn, txt){
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt);
+    } else {
+      var ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    }
+    var old = btn.textContent;
+    btn.textContent = '✓ Copié';
+    btn.classList.add('copied');
+    showToast('🔗 Lien copié ✓');
+    try { window.RA_SFX && RA_SFX.click && RA_SFX.click(); } catch(e) {}
+    setTimeout(function(){ btn.classList.remove('copied'); btn.textContent = old; }, 1600);
+  } catch(e) { showToast('❌ Impossible de copier'); }
+}
+
+/* BROADCAST AJOUT — Exposition des handlers onclick à window (sortie d'IIFE) */
+window.raT_saveDiffusionUrl = function(code){ return _ratSaveYoutubeUrl(code); };
+window.raT_copyShareLink = function(btn, txt){ return _ratCopyLink(btn, txt); };
 
 function _renderRanking(parts, status){
   var el = document.getElementById('rat-v-ranking-list');
