@@ -3900,6 +3900,7 @@ const TOURNOI_PACKS_AVAILABLE = [
   { id: 'general',        label: 'Pack Général',           icon: '📋' },
   { id: 'umoa-bale',      label: 'UMOA Bâle',              icon: '⚡' },
   { id: 'rfe-uemoa',      label: 'RFE UEMOA',              icon: '🌍' },
+  { id: 'pcb-umoa',       label: 'PCB UMOA',               icon: '📒' },
   { id: 'cima-assurance', label: 'CIMA Assurance',         icon: '💼' },
   { id: 'syscohada',      label: 'SYSCOHADA',              icon: '📑' },
   { id: 'rfe-cemac',      label: 'RFE CEMAC',              icon: '🏛️' }
@@ -7477,6 +7478,16 @@ const BIBLIO_PACKS = [
     description: 'Décisions 013 & 014/CM/UMOA + FODEP — fonds propres, ratios prudentiels, supervision consolidée et déclaration.',
     nb_quiz_lie: 112,
     pack_quiz_id: 'umoa-bale'
+  },
+  {
+    id: 'pcb-umoa',
+    label: 'Plan Comptable Bancaire Révisé UMOA',
+    icone: '📒',
+    couleur: '#1B5E20',
+    source: 'assets/biblio_pcb_umoa.json',
+    description: 'Décision N°357-11-2016 BCEAO — cadre conceptuel, classes de comptes, états financiers.',
+    nb_quiz_lie: 68,
+    pack_quiz_id: 'pcb-umoa'
   }
 ];
 
@@ -8676,7 +8687,8 @@ async function _broadcastSaveYoutubeFromDashboard(){
 /* ═══ PACKS DE QUIZ — structure déclarative (extensible) ═══ */
 const QUIZ_PACKS = [
   { id:'umoa-bale', label:'Quiz Express UMOA Bâle', icon:'⚡', source:'assets/quizzes_umoa_bale.json', description:'Dispositif Prudentiel UMOA 2016', cover_color:'#002B5C' },
-  { id:'rfe-uemoa', label:'Pack Relations Financières Extérieures UEMOA', icon:'🌍', source:'assets/quizzes_rfe_uemoa.json', description:'Règlement RFE UEMOA + Note BCEAO 013-04-2026', cover_color:'#1A3A6C' }
+  { id:'rfe-uemoa', label:'Pack Relations Financières Extérieures UEMOA', icon:'🌍', source:'assets/quizzes_rfe_uemoa.json', description:'Règlement RFE UEMOA + Note BCEAO 013-04-2026', cover_color:'#1A3A6C' },
+  { id:'pcb-umoa', label:'Plan Comptable Bancaire Révisé UMOA', icon:'📒', source:'assets/quizzes_pcb_umoa.json', description:'Décision N°357-11-2016 BCEAO — cadre conceptuel, 8 classes de comptes, états financiers', cover_color:'#1B5E20' }
 ];
 const RAPacks = (function(){
   const cache = {};

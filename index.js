@@ -1372,7 +1372,7 @@ function _broadcastValidYouTube(url) {
 }
 
 /* Pack IDs connus (alignés avec QUIZ_PACKS frontend) — ajouter ici toute nouvelle entrée future */
-const _KNOWN_PACK_IDS = ['general','umoa-bale','rfe-uemoa','cima-assurance','syscohada','rfe-cemac'];
+const _KNOWN_PACK_IDS = ['general','umoa-bale','rfe-uemoa','cima-assurance','syscohada','rfe-cemac','pcb-umoa'];
 
 function _validPacksIds(arr) {
   if (!Array.isArray(arr)) return false;
