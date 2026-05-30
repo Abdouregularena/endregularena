@@ -182,7 +182,14 @@ try { db.exec('CREATE INDEX IF NOT EXISTS idx_tp_tid_score ON tournament_partici
  'ALTER TABLE tournament_participants ADD COLUMN qualified INTEGER NOT NULL DEFAULT 0', // TOURNOI AJOUT
  /* BROADCAST AJOUT — colonne URL YouTube Live (optionnelle, sur la table tournaments existante) */
  'ALTER TABLE tournaments ADD COLUMN youtube_live_url TEXT',
+ /* TOURNOI EDIT — colonne packs_ids JSON array (rétro-compat : pack_id reste source legacy) */
+ 'ALTER TABLE tournaments ADD COLUMN packs_ids TEXT',
 ].forEach(sql => { try { db.exec(sql); } catch(_) {} }); // TOURNOI AJOUT
+
+/* TOURNOI EDIT — migration douce : peupler packs_ids pour les tournois existants */
+try {
+  db.exec("UPDATE tournaments SET packs_ids = '[\"' || pack_id || '\"]' WHERE pack_id IS NOT NULL AND pack_id != '' AND (packs_ids IS NULL OR packs_ids = '')");
+} catch(_) {}
 
 // TOURNOI AJOUT — nouvelles tables module tournoi
 db.exec(`
@@ -959,11 +966,24 @@ function _tFull(code) { // TOURNOI AJOUT
 
 /* POST /tournament/create */
 app.post('/tournament/create', requireAuth, (req, res) => { // TOURNOI AJOUT
-  const { name, zone, pack_id, max_players, start_date } = req.body || {}; // TOURNOI AJOUT
+  const { name, zone, pack_id, packs_ids, max_players, start_date } = req.body || {}; // TOURNOI EDIT — packs_ids
   if (!name || !zone) return err(res, 400, 'name et zone requis'); // TOURNOI AJOUT
+  const trimmedName = String(name).trim(); // TOURNOI EDIT
+  if (trimmedName.length < 3 || trimmedName.length > 80) return err(res, 400, 'Nom du tournoi : 3 à 80 caractères'); // TOURNOI EDIT
   if (!['uemoa','cemac','inter','country'].includes(zone)) return err(res, 400, 'Zone invalide'); // TOURNOI AJOUT
   const mp = Number(max_players); // TOURNOI AJOUT
   if (![8,16,32].includes(mp)) return err(res, 400, 'max_players doit être 8, 16 ou 32'); // TOURNOI AJOUT
+  /* TOURNOI EDIT — packs_ids prioritaire sur pack_id legacy */
+  let finalPacks;
+  if (Array.isArray(packs_ids) && packs_ids.length) {
+    if (!_validPacksIds(packs_ids)) return err(res, 400, 'Sélectionne 1 à 5 packs valides');
+    finalPacks = packs_ids;
+  } else if (pack_id && _KNOWN_PACK_IDS.includes(pack_id)) {
+    finalPacks = [pack_id];
+  } else {
+    finalPacks = ['general'];
+  }
+  if (start_date && !_validStartDate(start_date)) return err(res, 400, 'Date de début invalide ou trop ancienne'); // TOURNOI EDIT
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id); // TOURNOI AJOUT
   if (!user) return err(res, 401, 'Session expirée, reconnecte-toi'); // MODIFIÉ — anti-crash user undefined
   if (!_peutRejoindre(user.country, user.country, zone)) { // TOURNOI AJOUT
@@ -975,11 +995,11 @@ app.post('/tournament/create', requireAuth, (req, res) => { // TOURNOI AJOUT
     code = 'T-' + rand; // TOURNOI AJOUT
     if (!db.prepare('SELECT id FROM tournaments WHERE code = ?').get(code)) break; // TOURNOI AJOUT
   } // TOURNOI AJOUT
-  const result = db.prepare( // TOURNOI AJOUT
-    'INSERT INTO tournaments (code, creator_id, name, pack_id, max_players, status, country, zone, start_date) VALUES (?,?,?,?,?,?,?,?,?)' // TOURNOI AJOUT
-  ).run(code, req.user.id, name.trim().slice(0,80), pack_id || 'general', mp, 'waiting', user.country || '', zone, start_date || ''); // TOURNOI AJOUT
+  const result = db.prepare( // TOURNOI EDIT — ajout packs_ids
+    'INSERT INTO tournaments (code, creator_id, name, pack_id, packs_ids, max_players, status, country, zone, start_date) VALUES (?,?,?,?,?,?,?,?,?,?)'
+  ).run(code, req.user.id, trimmedName.slice(0,80), finalPacks[0], JSON.stringify(finalPacks), mp, 'waiting', user.country || '', zone, start_date || '');
   db.prepare('INSERT INTO tournament_participants (tournament_id, user_id) VALUES (?,?)').run(result.lastInsertRowid, req.user.id); // TOURNOI AJOUT
-  notifyAllExcept(req.user.id, 'tournament_created', '🏆 ' + user.name + ' crée le tournoi "' + name.trim() + '" ! Code : ' + code); // TOURNOI AJOUT
+  notifyAllExcept(req.user.id, 'tournament_created', '🏆 ' + user.name + ' crée le tournoi "' + trimmedName + '" ! Code : ' + code); // TOURNOI AJOUT
   return ok(res, { code, id: result.lastInsertRowid }); // TOURNOI AJOUT
 }); // TOURNOI AJOUT
 
@@ -1113,6 +1133,10 @@ app.post('/tournament/:code/generate-bracket', requireAuth, (req, res) => { // T
   if (!['qualif','waiting'].includes(t.status)) return err(res, 400, 'Phase invalide pour générer un bracket'); // TOURNOI AJOUT
   const participants = db.prepare('SELECT * FROM tournament_participants WHERE tournament_id = ? ORDER BY score DESC').all(t.id); // TOURNOI AJOUT
   if (participants.length < 2) return err(res, 400, 'Minimum 2 participants requis'); // TOURNOI AJOUT
+  /* TOURNOI EDIT — rotation des packs sur les duels (équilibrage proportionnel) */
+  let packsList;
+  try { packsList = t.packs_ids ? JSON.parse(t.packs_ids) : null; } catch(_) { packsList = null; }
+  if (!Array.isArray(packsList) || !packsList.length) packsList = [t.pack_id || 'general'];
   db.prepare('DELETE FROM tournament_matches WHERE tournament_id = ?').run(t.id); // TOURNOI AJOUT
   const mIns = db.prepare('INSERT INTO tournament_matches (tournament_id, round, player1_id, player2_id, duel_code, status) VALUES (?,?,?,?,?,?)'); // TOURNOI AJOUT
   const dIns = db.prepare('INSERT INTO duels (code, creator_id, pack_id, num_questions, timer_sec) VALUES (?,?,?,?,?)'); // TOURNOI AJOUT
@@ -1126,7 +1150,9 @@ app.post('/tournament/:code/generate-bracket', requireAuth, (req, res) => { // T
         dCode = genCode('D'); // TOURNOI AJOUT
         if (!db.prepare('SELECT id FROM duels WHERE code = ?').get(dCode)) break; // TOURNOI AJOUT
       } // TOURNOI AJOUT
-      dIns.run(dCode, p1.user_id, t.pack_id || 'general', 10, 30); // TOURNOI AJOUT
+      /* Rotation round-robin sur la liste de packs : match 0 → pack 0, match 1 → pack 1, etc. */
+      const packForMatch = packsList[i % packsList.length];
+      dIns.run(dCode, p1.user_id, packForMatch, 10, 30);
       mIns.run(t.id, 1, p1.user_id, p2.user_id, dCode, 'pending'); // TOURNOI AJOUT
     } // TOURNOI AJOUT
   }); // TOURNOI AJOUT
@@ -1335,21 +1361,112 @@ app.post('/tournaments/:code/support', requireAuth, (req, res) => {
   return ok(res, { id: info.lastInsertRowid, emoji });
 });
 
-/* PATCH /tournaments/:code/config — créateur uniquement, update youtube_live_url */
+/* PATCH /tournaments/:code/config — créateur uniquement.
+   Champs supportés : youtube_live_url, name, start_date, packs_ids
+   - youtube_live_url : modifiable à tout statut
+   - name, start_date, packs_ids : modifiables uniquement si status === 'waiting' */
 function _broadcastValidYouTube(url) {
   if (!url) return true; // vide = autorisé (champ optionnel)
   if (typeof url !== 'string') return false;
   return /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|embed\/|live\/)|youtu\.be\/)[A-Za-z0-9_-]{11}/.test(url.trim());
 }
+
+/* Pack IDs connus (alignés avec QUIZ_PACKS frontend) — ajouter ici toute nouvelle entrée future */
+const _KNOWN_PACK_IDS = ['general','umoa-bale','rfe-uemoa','cima-assurance','syscohada','rfe-cemac'];
+
+function _validPacksIds(arr) {
+  if (!Array.isArray(arr)) return false;
+  if (arr.length < 1 || arr.length > 5) return false;
+  for (const p of arr) {
+    if (typeof p !== 'string' || !p.trim()) return false;
+    if (!_KNOWN_PACK_IDS.includes(p.trim())) return false;
+  }
+  return true;
+}
+
+function _validStartDate(s) {
+  if (!s) return true; // vide = OK (champ optionnel)
+  if (typeof s !== 'string') return false;
+  const d = new Date(s);
+  if (isNaN(d.getTime())) return false;
+  // Tolérance : -1h dans le passé (horloge serveur peut dériver)
+  if (d.getTime() < Date.now() - 60 * 60 * 1000) return false;
+  return true;
+}
+
 app.patch('/tournaments/:code/config', requireAuth, (req, res) => {
   const code = String(req.params.code || '').trim().toUpperCase();
-  const t = db.prepare('SELECT id, creator_id FROM tournaments WHERE code = ?').get(code);
+  const t = db.prepare('SELECT id, creator_id, status FROM tournaments WHERE code = ?').get(code);
   if (!t) return err(res, 404, 'Tournoi introuvable');
   if (t.creator_id !== req.user.id) return err(res, 403, 'Réservé au créateur du tournoi');
-  const url = (req.body && req.body.youtube_live_url) || '';
-  if (!_broadcastValidYouTube(url)) return err(res, 400, 'URL YouTube invalide');
-  db.prepare('UPDATE tournaments SET youtube_live_url = ? WHERE id = ?').run(url.trim(), t.id);
-  return ok(res, { youtube_live_url: url.trim() });
+  const body = req.body || {};
+  const updates = [];
+  const params = [];
+
+  // youtube_live_url — modifiable à tout statut
+  if (Object.prototype.hasOwnProperty.call(body, 'youtube_live_url')) {
+    const url = body.youtube_live_url || '';
+    if (!_broadcastValidYouTube(url)) return err(res, 400, 'URL YouTube invalide');
+    updates.push('youtube_live_url = ?');
+    params.push(url.trim());
+  }
+
+  // Champs structurels : refusés si tournoi démarré
+  const hasStructural = ['name', 'start_date', 'packs_ids'].some(k => Object.prototype.hasOwnProperty.call(body, k));
+  if (hasStructural && t.status !== 'waiting') {
+    return err(res, 400, 'Impossible de modifier un tournoi déjà démarré');
+  }
+
+  if (Object.prototype.hasOwnProperty.call(body, 'name')) {
+    const n = String(body.name || '').trim();
+    if (n.length < 3 || n.length > 80) return err(res, 400, 'Nom du tournoi : 3 à 80 caractères');
+    updates.push('name = ?');
+    params.push(n);
+  }
+  if (Object.prototype.hasOwnProperty.call(body, 'start_date')) {
+    if (!_validStartDate(body.start_date)) return err(res, 400, 'Date de début invalide ou trop ancienne');
+    updates.push('start_date = ?');
+    params.push(String(body.start_date || '').trim());
+  }
+  if (Object.prototype.hasOwnProperty.call(body, 'packs_ids')) {
+    if (!_validPacksIds(body.packs_ids)) return err(res, 400, 'Sélectionne 1 à 5 packs valides');
+    updates.push('packs_ids = ?');
+    params.push(JSON.stringify(body.packs_ids));
+    // Met aussi à jour pack_id (legacy) avec le premier de la liste pour rétro-compat
+    updates.push('pack_id = ?');
+    params.push(body.packs_ids[0]);
+  }
+
+  if (!updates.length) return err(res, 400, 'Aucun champ à mettre à jour');
+  params.push(t.id);
+  db.prepare('UPDATE tournaments SET ' + updates.join(', ') + ' WHERE id = ?').run(...params);
+  return ok(res, { updated: updates.length, tournament: _tFull(code) });
+});
+
+/* DELETE /tournaments/:code — créateur uniquement, tous statuts.
+   Cascade manuelle (tournament_participants/matches/match_sheets ont déjà ON DELETE CASCADE
+   mais on supprime aussi tournament_chat et tournament_supports). */
+app.delete('/tournaments/:code', requireAuth, (req, res) => {
+  const code = String(req.params.code || '').trim().toUpperCase();
+  const t = db.prepare('SELECT id, creator_id, name, status FROM tournaments WHERE code = ?').get(code);
+  if (!t) return err(res, 404, 'Tournoi introuvable');
+  if (t.creator_id !== req.user.id) return err(res, 403, 'Réservé au créateur du tournoi');
+  const tx = db.transaction(() => {
+    try { db.prepare('DELETE FROM tournament_chat WHERE tournament_id = ?').run(t.id); } catch(_) {}
+    try { db.prepare('DELETE FROM tournament_supports WHERE tournament_id = ?').run(t.id); } catch(_) {}
+    try { db.prepare('DELETE FROM tournament_match_sheets WHERE tournament_id = ?').run(t.id); } catch(_) {}
+    try { db.prepare('DELETE FROM tournament_matches WHERE tournament_id = ?').run(t.id); } catch(_) {}
+    try { db.prepare('DELETE FROM tournament_participants WHERE tournament_id = ?').run(t.id); } catch(_) {}
+    db.prepare('DELETE FROM tournaments WHERE id = ?').run(t.id);
+  });
+  try {
+    tx();
+    console.log('[tournament DELETE] code=' + code + ' name="' + t.name + '" status=' + t.status + ' by user_id=' + req.user.id);
+    return ok(res, { deleted_code: code });
+  } catch(e) {
+    console.error('[tournament DELETE] échec', e);
+    return err(res, 500, 'Suppression échouée');
+  }
 });
 
 /* ================================================================

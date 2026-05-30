@@ -1063,6 +1063,60 @@ input,select,textarea{font-size:max(16px,.84rem)!important}
 .rat-badge.zone-uemoa{background:rgba(0,43,92,.3);color:#7da8e8;border:1px solid rgba(0,43,92,.5)}
 .rat-badge.zone-cemac{background:rgba(40,80,40,.3);color:#7dce8a;border:1px solid rgba(40,80,40,.5)}
 .rat-meta{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap;margin-top:4px}
+/* TOURNOI EDIT — Boutons Modifier / Supprimer dans le dashboard tournoi */
+.t-act-edit,.t-act-delete{background:transparent;border:1.5px solid;padding:7px 14px;font-family:'IBM Plex Sans',sans-serif;font-size:.72rem;font-weight:600;cursor:pointer;border-radius:6px;transition:background .15s,color .15s,transform .15s;letter-spacing:.02em}
+.t-act-edit{color:#C9991A;border-color:rgba(201,153,26,.55)}
+.t-act-edit:hover{background:#C9991A;color:#002B5C;transform:translateY(-1px)}
+.t-act-delete{color:#e74c3c;border-color:rgba(231,76,60,.45)}
+.t-act-delete:hover{background:#e74c3c;color:#fff;transform:translateY(-1px)}
+
+/* TOURNOI EDIT — Chips multi-packs dans #t-screen-create */
+.t-packs-chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 6px}
+.t-pack-chip{background:#F5F3EE;border:1.5px solid #C9991A;color:#002B5C;padding:8px 14px;border-radius:22px;font-family:'IBM Plex Sans',sans-serif;font-size:.84rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background .15s,color .15s,transform .15s,border-color .15s;user-select:none}
+.t-pack-chip:hover{background:#fdf6e3;transform:translateY(-1px)}
+.t-pack-chip.selected{background:#C9991A;color:#002B5C;border-color:#C9991A;box-shadow:0 2px 6px rgba(201,153,26,.3)}
+.t-pack-chip-icon{font-size:1rem;line-height:1}
+.t-pack-chip-check{background:#002B5C;color:#C9991A;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:bold;margin-left:2px}
+.t-packs-help{font-size:.72rem;color:var(--muted);margin-top:4px;font-family:'IBM Plex Sans',sans-serif}
+.t-packs-selected{font-size:.78rem;color:#C9991A;margin-top:6px;font-family:'IBM Plex Sans',sans-serif;font-weight:600;line-height:1.4}
+.t-packs-selected.empty{color:var(--muted);font-weight:400;font-style:italic}
+
+/* TOURNOI EDIT — Modales Modifier/Supprimer */
+.t-modal-overlay{position:fixed;inset:0;background:rgba(0,17,36,.78);display:none;align-items:center;justify-content:center;z-index:9000;padding:20px;animation:tModalFadeIn .2s ease-out}
+.t-modal-overlay.open{display:flex}
+@keyframes tModalFadeIn{from{opacity:0}to{opacity:1}}
+.t-modal{background:#001D3A;border:2px solid #C9991A;border-radius:14px;padding:24px 26px;max-width:560px;width:100%;color:#fff;font-family:'IBM Plex Sans',sans-serif;max-height:90vh;overflow-y:auto;animation:tModalSlideUp .25s ease-out}
+@keyframes tModalSlideUp{from{transform:translateY(20px);opacity:.5}to{transform:none;opacity:1}}
+.t-modal-title{font-family:'Playfair Display',Georgia,serif;font-size:1.4rem;color:#C9991A !important;-webkit-text-fill-color:#C9991A !important;margin:0 0 14px;font-weight:700}
+.t-modal-group{margin-bottom:14px}
+.t-modal-label{display:block;font-size:.82rem;color:#cfdcef;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
+.t-modal-input{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(201,153,26,.35);color:#fff;padding:10px 12px;border-radius:6px;font-family:'IBM Plex Sans',sans-serif;font-size:.92rem;outline:none;transition:border-color .15s;box-sizing:border-box}
+.t-modal-input::placeholder{color:rgba(255,255,255,.4)}
+.t-modal-input:focus{border-color:#C9991A;background:rgba(255,255,255,.09)}
+.t-modal-warn{font-size:.78rem;color:#C9991A;background:rgba(201,153,26,.12);border-left:3px solid #C9991A;padding:8px 12px;border-radius:0 6px 6px 0;line-height:1.5;margin:12px 0}
+.t-modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
+.t-modal-btn{padding:10px 20px;border-radius:6px;font-family:'IBM Plex Sans',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;border:none;transition:background .15s,transform .15s}
+.t-modal-btn-cancel{background:transparent;color:#cfdcef;border:1px solid rgba(255,255,255,.18)}
+.t-modal-btn-cancel:hover{background:rgba(255,255,255,.06)}
+.t-modal-btn-save{background:#C9991A;color:#002B5C}
+.t-modal-btn-save:hover{background:#e6b938;transform:translateY(-1px)}
+.t-modal-btn-danger{background:#7a1f1f;color:#fff;opacity:.4;cursor:not-allowed}
+.t-modal-btn-danger.ready{background:#c0392b;opacity:1;cursor:pointer}
+.t-modal-btn-danger.ready:hover{background:#e0463b;transform:translateY(-1px)}
+.t-modal-deletelist{font-size:.85rem;color:#cfdcef;line-height:1.7;margin:8px 0 14px;padding-left:20px}
+.t-modal-deletelist li{margin-bottom:2px}
+.t-modal-deletelist strong{color:#fff}
+.t-modal-codehint{background:rgba(201,153,26,.18);color:#C9991A;padding:4px 8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-weight:700;letter-spacing:.05em;display:inline-block}
+
+@media(max-width:600px){
+  .t-modal{padding:20px 18px}
+  .t-modal-title{font-size:1.2rem}
+  .t-modal-actions{flex-direction:column}
+  .t-modal-btn{width:100%}
+  .t-packs-chips{gap:6px}
+  .t-pack-chip{padding:7px 11px;font-size:.78rem}
+}
+
 /* BROADCAST AJOUT — Card Diffusion en direct (créateur uniquement) */
 .rat-diffusion-card{background:#002B5C;border:2px solid #C9991A;border-radius:10px;padding:20px 22px;margin-bottom:16px;color:#fff;animation:ratDiffFadeIn .35s ease-out}
 @keyframes ratDiffFadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
@@ -2061,17 +2115,12 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
               <label class="form-label" for="t-name">Nom du tournoi</label>
               <input type="text" id="t-name" class="form-input" placeholder="BCEAO Masters 2026" maxlength="60" oninput="updateCode()">
             </div>
+            <!-- TOURNOI EDIT — sélecteur multi-packs en chips (remplace #t-theme mono) -->
             <div class="form-group">
-              <label class="form-label" for="t-theme">Thème réglementaire</label>
-              <select id="t-theme" class="form-select">
-                <option value="">Choisir un thème →</option>
-                <option>Réglementation prudentielle BCEAO</option>
-                <option>LBC-FT &amp; Conformité</option>
-                <option>Monnaie électronique</option>
-                <option>Supervision COBAC</option>
-                <option>Systèmes de paiement UEMOA</option>
-                <option>Finance islamique</option>
-              </select>
+              <label class="form-label">📚 Thèmes du tournoi (1 à 5 packs)</label>
+              <div id="t-packs-chips" class="t-packs-chips" role="group" aria-label="Sélection des packs de quiz"><!-- chips injectées dynamiquement --></div>
+              <div class="t-packs-help" id="t-packs-help">Sélectionne entre 1 et 5 packs de questions pour ce tournoi</div>
+              <div class="t-packs-selected" id="t-packs-selected">Aucun pack sélectionné</div>
             </div>
             <div class="form-group">
               <label class="form-label" for="t-date">Date de début</label>
@@ -3846,21 +3895,138 @@ function updateCode() {
 function copyCode() { navigator.clipboard.writeText(tCode).catch(()=>{}); showToast('🔐 Code '+tCode+' copié !'); }
 function shareWAT() { window.open('https://wa.me/?text='+encodeURIComponent('🏆 Tournoi REGUL ARENA\n🔐 Code : '+tCode+'\n🔗 regularena.com/tournoi/'+tCode),'_blank'); }
 function setPart(btn,n) { document.getElementById('part-opts').querySelectorAll('.popt').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
+/* TOURNOI EDIT — registre statique des packs disponibles (aligné avec QUIZ_PACKS frontend + _KNOWN_PACK_IDS backend) */
+const TOURNOI_PACKS_AVAILABLE = [
+  { id: 'general',        label: 'Pack Général',           icon: '📋' },
+  { id: 'umoa-bale',      label: 'UMOA Bâle',              icon: '⚡' },
+  { id: 'rfe-uemoa',      label: 'RFE UEMOA',              icon: '🌍' },
+  { id: 'cima-assurance', label: 'CIMA Assurance',         icon: '💼' },
+  { id: 'syscohada',      label: 'SYSCOHADA',              icon: '📑' },
+  { id: 'rfe-cemac',      label: 'RFE CEMAC',              icon: '🏛️' }
+];
+/* État sélection (initial : pack Général sélectionné) */
+let _tCreateSelectedPacks = ['general'];
+
+function _renderTournoiPacksChips(containerId, selectedArr, onChange){
+  const c = document.getElementById(containerId);
+  if (!c) return;
+  c.innerHTML = TOURNOI_PACKS_AVAILABLE.map(function(p){
+    const sel = selectedArr.indexOf(p.id) >= 0;
+    return '<button type="button" class="t-pack-chip' + (sel ? ' selected' : '') + '" data-pack="' + p.id + '" aria-pressed="' + sel + '">'
+      + '<span class="t-pack-chip-icon">' + p.icon + '</span>'
+      + '<span class="t-pack-chip-label">' + p.label + '</span>'
+      + (sel ? '<span class="t-pack-chip-check">✓</span>' : '')
+      + '</button>';
+  }).join('');
+  /* Attache les handlers */
+  c.querySelectorAll('.t-pack-chip').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      const id = btn.getAttribute('data-pack');
+      const idx = selectedArr.indexOf(id);
+      if (idx >= 0) {
+        if (selectedArr.length <= 1) { showToast('⚠️ Au moins 1 pack requis'); return; }
+        selectedArr.splice(idx, 1);
+      } else {
+        if (selectedArr.length >= 5) { showToast('⚠️ Maximum 5 packs par tournoi'); return; }
+        selectedArr.push(id);
+      }
+      _renderTournoiPacksChips(containerId, selectedArr, onChange);
+      if (typeof onChange === 'function') onChange(selectedArr);
+    });
+  });
+}
+
+function _renderTournoiPacksSelected(targetId, arr){
+  const el = document.getElementById(targetId);
+  if (!el) return;
+  if (!arr.length) { el.textContent = 'Aucun pack sélectionné'; el.classList.add('empty'); return; }
+  el.classList.remove('empty');
+  const labels = arr.map(function(id){
+    const p = TOURNOI_PACKS_AVAILABLE.find(x => x.id === id);
+    return p ? (p.icon + ' ' + p.label) : id;
+  });
+  el.textContent = 'Sélectionnés (' + arr.length + ') : ' + labels.join(' · ');
+}
+
+/* Initialise les chips à l'ouverture de la page création */
+function _initTournoiCreateForm(){
+  _tCreateSelectedPacks = ['general'];
+  _renderTournoiPacksChips('t-packs-chips', _tCreateSelectedPacks, function(arr){
+    _renderTournoiPacksSelected('t-packs-selected', arr);
+  });
+  _renderTournoiPacksSelected('t-packs-selected', _tCreateSelectedPacks);
+}
+/* Auto-init quand le formulaire devient visible */
+(function(){
+  function _wire(){
+    const screen = document.getElementById('t-screen-create');
+    if (!screen) return;
+    const obs = new MutationObserver(function(){
+      if (screen.classList.contains('active') || (screen.style && screen.style.display !== 'none')) {
+        const c = document.getElementById('t-packs-chips');
+        if (c && !c.children.length) _initTournoiCreateForm();
+      }
+    });
+    obs.observe(screen, { attributes: true, attributeFilter: ['class', 'style'] });
+    /* Init immédiat si déjà visible */
+    if (document.getElementById('t-packs-chips') && !document.getElementById('t-packs-chips').children.length) _initTournoiCreateForm();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _wire);
+  else _wire();
+})();
+
 function createTournament() {
-  const name = document.getElementById('t-name').value || 'Tournoi REGUL ARENA';
+  const name = (document.getElementById('t-name').value || '').trim();
   const jwt = (function(){ try{return localStorage.getItem('ra_jwt');}catch(e){} try{return sessionStorage.getItem('ra_jwt');}catch(e){} return null; })();
   if (!jwt) { showToast('⚠️ Connecte-toi pour créer un tournoi'); return; }
-  fetch('/tournaments', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt}, body: JSON.stringify({pack_id: document.getElementById('t-pack')?.value || 'general', max_players: 8}) })
+  /* Validation client */
+  if (name.length < 3 || name.length > 80) { showToast('⚠️ Nom du tournoi : 3 à 80 caractères'); return; }
+  if (!_tCreateSelectedPacks || _tCreateSelectedPacks.length < 1) { showToast('⚠️ Sélectionne au moins 1 pack'); return; }
+  if (_tCreateSelectedPacks.length > 5) { showToast('⚠️ Maximum 5 packs par tournoi'); return; }
+  const dateRaw = (document.getElementById('t-date')?.value || '').trim();
+  if (dateRaw) {
+    const d = new Date(dateRaw);
+    if (isNaN(d.getTime())) { showToast('⚠️ Date de début invalide'); return; }
+  }
+  const secteur = document.getElementById('t-secteur')?.value || 'uemoa';
+  /* Récupère format participants depuis les boutons .popt actifs */
+  const partActive = document.querySelector('#part-opts .popt.active');
+  let maxPlayers = 8;
+  if (partActive) {
+    const m = partActive.textContent.match(/(\d+)/);
+    if (m) maxPlayers = Number(m[1]);
+  }
+  if (![8, 16, 32].includes(maxPlayers)) maxPlayers = 8;
+
+  const payload = {
+    name: name,
+    zone: secteur,
+    packs_ids: _tCreateSelectedPacks.slice(),
+    max_players: maxPlayers,
+    start_date: dateRaw || ''
+  };
+  fetch('/tournament/create', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + jwt },
+    body: JSON.stringify(payload)
+  })
     .then(r => r.json())
     .then(d => {
-      if (d.success) {
+      if (d.success !== false && d.code) {
         tCode = d.code;
         document.querySelectorAll('.t-code-display').forEach(el => el.textContent = tCode);
-        showToast('🏟 '+name+' créé ! Code : '+tCode);
-        setTimeout(()=>tGoTo('dashboard'), 500);
-      } else { showToast('❌ '+(d.error||'Erreur création tournoi')); }
+        showToast('🏟 ' + name + ' créé ! Code : ' + tCode);
+        /* Redirige vers la VRAIE vue dashboard (raT_loadView) */
+        if (typeof raT_loadView === 'function') {
+          setTimeout(function(){ raT_loadView(tCode); }, 500);
+        } else {
+          setTimeout(function(){ tGoTo('dashboard'); }, 500);
+        }
+      } else {
+        showToast('❌ ' + (d.error || 'Erreur création tournoi'));
+      }
     })
-    .catch(() => { showToast('🏟 '+name+' créé ! Code : '+tCode); setTimeout(()=>tGoTo('dashboard'), 500); });
+    .catch(() => { showToast('❌ Erreur réseau'); });
 }
 function renderBracket() {
   const svg = document.getElementById('bracket-svg'), lines = document.getElementById('bracket-lines'), slots = document.getElementById('bracket-slots');
@@ -6233,8 +6399,10 @@ function _renderView(r){
   document.getElementById('rat-v-progress').style.width = pct + '%';
 
   var meta = document.getElementById('rat-v-meta');
+  /* TOURNOI EDIT — affichage multi-packs dans la meta */
+  var packsDisplay = _ratPacksDisplay(t);
   meta.innerHTML = '<span>Code : <strong style="color:var(--light)">' + _esc(t.code) + '</strong></span>'
-    + '<span>Pack : ' + _esc(t.pack_id) + '</span>'
+    + '<span>' + packsDisplay + '</span>'
     + (r.creator ? '<span>Créateur : ' + _esc(r.creator.name) + '</span>' : '')
     + (t.start_date ? '<span>Début : ' + t.start_date.replace('T',' ').slice(0,16) + '</span>' : '');
 
@@ -6245,12 +6413,17 @@ function _renderView(r){
   btns += '<button class="btn-ghost" style="font-size:.72rem;padding:7px 12px" onclick="raT_shareWA(\''+_esc(t.code)+'\',\''+_esc(t.name)+'\')">📱 WhatsApp</button>';
 
   // boutons créateur
-  if(myPart && myPart.user_id === (r.creator && r.creator.id)){
+  var isCreatorReally = !!(myPart && r.creator && myPart.user_id === r.creator.id);
+  if(isCreatorReally){
     if(t.status === 'waiting'){
       btns += '<button class="btn-primary" style="font-size:.78rem" onclick="raT_startQualif(\''+t.code+'\')">▶ Lancer qualifs</button>';
+      /* TOURNOI EDIT — bouton Modifier (waiting uniquement) */
+      btns += '<button class="t-act-edit" onclick="raT_openEditModal(\''+t.code+'\')">✏️ Modifier</button>';
     } else if(t.status === 'qualif'){
       btns += '<button class="btn-primary" style="font-size:.78rem" onclick="raT_generateBracket(\''+t.code+'\')">⚡ Générer bracket</button>';
     }
+    /* TOURNOI EDIT — bouton Supprimer (tous statuts pour le créateur) */
+    btns += '<button class="t-act-delete" onclick="raT_openDeleteModal(\''+t.code+'\')">🗑️ Supprimer</button>';
   }
   // bouton qualifier (si inscrit + qualif ouverte + pas encore qualifié)
   if(myPart && t.status === 'qualif' && !(myPart.score > 0)){
@@ -6259,11 +6432,29 @@ function _renderView(r){
   actions.innerHTML = btns;
 
   // BROADCAST AJOUT — Card "Diffusion en direct" (créateur uniquement, tous statuts)
-  var isCreatorReally = !!(myPart && r.creator && myPart.user_id === r.creator.id);
   _renderDiffusionCard(t, isCreatorReally);
 
   // ranking
   _renderRanking(parts, t.status);
+}
+
+/* TOURNOI EDIT — formatage de l'affichage des packs */
+function _ratPacksDisplay(t){
+  var ids = [];
+  try { if (t.packs_ids) ids = JSON.parse(t.packs_ids); } catch(_) {}
+  if (!Array.isArray(ids) || !ids.length) ids = t.pack_id ? [t.pack_id] : [];
+  if (!ids.length) return 'Pack : —';
+  var labels = ids.map(function(id){
+    if (typeof TOURNOI_PACKS_AVAILABLE !== 'undefined') {
+      var p = TOURNOI_PACKS_AVAILABLE.find(function(x){ return x.id === id; });
+      if (p) return p.icon + ' ' + p.label;
+    }
+    return id;
+  });
+  if (ids.length === 1) return 'Pack : ' + _esc(labels[0]);
+  var shown = labels.slice(0, 3).map(_esc).join(' + ');
+  if (labels.length > 3) shown += ' …';
+  return 'Packs (' + ids.length + ') : ' + shown;
 }
 
 /* BROADCAST AJOUT — rendu de la card Diffusion en direct dans #rat-v-diffusion */
@@ -6360,6 +6551,191 @@ function _ratCopyLink(btn, txt){
 /* BROADCAST AJOUT — Exposition des handlers onclick à window (sortie d'IIFE) */
 window.raT_saveDiffusionUrl = function(code){ return _ratSaveYoutubeUrl(code); };
 window.raT_copyShareLink = function(btn, txt){ return _ratCopyLink(btn, txt); };
+
+/* ═══════════════════════════════════════════════════════════
+   TOURNOI EDIT — Modale "Modifier" + Modale "Supprimer"
+   ═══════════════════════════════════════════════════════════ */
+
+/* État de la modale Modifier */
+let _ratEditState = { code: null, selectedPacks: [] };
+
+function _ratOpenModal(html){
+  let overlay = document.getElementById('rat-modal-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'rat-modal-overlay';
+    overlay.className = 't-modal-overlay';
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', function(ev){
+      if (ev.target === overlay) _ratCloseModal();
+    });
+    document.addEventListener('keydown', function(ev){
+      if (ev.key === 'Escape' && overlay.classList.contains('open')) _ratCloseModal();
+    });
+  }
+  overlay.innerHTML = html;
+  overlay.classList.add('open');
+}
+function _ratCloseModal(){
+  const o = document.getElementById('rat-modal-overlay');
+  if (o) { o.classList.remove('open'); o.innerHTML = ''; }
+}
+
+/* ─── Modale "Modifier le tournoi" ─── */
+window.raT_openEditModal = async function(code){
+  /* Récupère l'état actuel du tournoi pour pré-remplir */
+  let t = null;
+  try {
+    const r = await _apiFetch('/tournament/' + code);
+    if (r && r.ok && r.tournament) t = r.tournament;
+  } catch(e) {}
+  if (!t) { showToast('❌ Impossible de charger le tournoi'); return; }
+  if (t.status !== 'waiting') { showToast('⚠️ Modifications limitées : tournoi déjà démarré'); /* on continue quand même pour permettre l'édition de packs vides → backend refusera proprement */ }
+  /* Init des packs sélectionnés depuis t.packs_ids ou t.pack_id */
+  let initialPacks = [];
+  try { if (t.packs_ids) initialPacks = JSON.parse(t.packs_ids); } catch(_) {}
+  if (!Array.isArray(initialPacks) || !initialPacks.length) initialPacks = t.pack_id ? [t.pack_id] : ['general'];
+  _ratEditState = { code: code, selectedPacks: initialPacks.slice() };
+
+  const dateInit = (t.start_date || '').slice(0, 16); /* "YYYY-MM-DDTHH:mm" pour datetime-local */
+  const html = ''
+    + '<div class="t-modal" role="dialog" aria-labelledby="rat-edit-title">'
+    +   '<div class="t-modal-title" id="rat-edit-title">✏️ Modifier le tournoi</div>'
+    +   '<div class="t-modal-group">'
+    +     '<label class="t-modal-label" for="rat-edit-name">Nom du tournoi</label>'
+    +     '<input type="text" class="t-modal-input" id="rat-edit-name" maxlength="80" value="' + String(t.name || '').replace(/"/g, '&quot;') + '">'
+    +   '</div>'
+    +   '<div class="t-modal-group">'
+    +     '<label class="t-modal-label" for="rat-edit-date">Date et heure de début</label>'
+    +     '<input type="datetime-local" class="t-modal-input" id="rat-edit-date" value="' + dateInit + '">'
+    +   '</div>'
+    +   '<div class="t-modal-group">'
+    +     '<label class="t-modal-label">Thèmes (1 à 5)</label>'
+    +     '<div id="rat-edit-chips" class="t-packs-chips"></div>'
+    +     '<div id="rat-edit-selected" class="t-packs-selected"></div>'
+    +   '</div>'
+    +   '<div class="t-modal-warn">⚠️ Modification possible tant que le tournoi est en attente. Après lancement, seul l\'URL YouTube reste modifiable.</div>'
+    +   '<div class="t-modal-actions">'
+    +     '<button class="t-modal-btn t-modal-btn-cancel" onclick="raT_closeModal()">Annuler</button>'
+    +     '<button class="t-modal-btn t-modal-btn-save" onclick="raT_submitEdit()">💾 Enregistrer</button>'
+    +   '</div>'
+    + '</div>';
+  _ratOpenModal(html);
+  /* Rendu des chips après injection */
+  _renderTournoiPacksChips('rat-edit-chips', _ratEditState.selectedPacks, function(arr){
+    _renderTournoiPacksSelected('rat-edit-selected', arr);
+  });
+  _renderTournoiPacksSelected('rat-edit-selected', _ratEditState.selectedPacks);
+  /* Focus sur le champ nom */
+  setTimeout(function(){ const n = document.getElementById('rat-edit-name'); if (n) n.focus(); }, 100);
+};
+
+window.raT_closeModal = function(){ _ratCloseModal(); };
+
+window.raT_submitEdit = async function(){
+  const code = _ratEditState.code;
+  if (!code) return;
+  const name = (document.getElementById('rat-edit-name')?.value || '').trim();
+  const dateRaw = (document.getElementById('rat-edit-date')?.value || '').trim();
+  const packs = _ratEditState.selectedPacks.slice();
+  if (name.length < 3 || name.length > 80) { showToast('⚠️ Nom : 3 à 80 caractères'); return; }
+  if (!packs.length) { showToast('⚠️ Sélectionne au moins 1 pack'); return; }
+  if (packs.length > 5) { showToast('⚠️ Maximum 5 packs'); return; }
+  if (dateRaw) {
+    const d = new Date(dateRaw);
+    if (isNaN(d.getTime())) { showToast('⚠️ Date invalide'); return; }
+  }
+  let jwt = null;
+  try { jwt = localStorage.getItem('ra_jwt') || sessionStorage.getItem('ra_jwt'); } catch(e) {}
+  if (!jwt) { showToast('🔐 Reconnecte-toi'); return; }
+  const payload = { name: name, start_date: dateRaw || '', packs_ids: packs };
+  try {
+    const r = await fetch('/tournaments/' + code + '/config', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + jwt },
+      body: JSON.stringify(payload)
+    });
+    const d = await r.json();
+    if (r.ok && d.success !== false) {
+      showToast('✓ Tournoi modifié');
+      _ratCloseModal();
+      try { window.RA_SFX && RA_SFX.correct && RA_SFX.correct(); } catch(_) {}
+      if (typeof raT_loadView === 'function') setTimeout(function(){ raT_loadView(code); }, 300);
+    } else {
+      showToast('❌ ' + ((d && d.error) || 'Erreur'));
+    }
+  } catch(e) { showToast('❌ Erreur réseau'); }
+};
+
+/* ─── Modale "Supprimer le tournoi" ─── */
+window.raT_openDeleteModal = async function(code){
+  let t = null;
+  try {
+    const r = await _apiFetch('/tournament/' + code);
+    if (r && r.ok && r.tournament) t = r.tournament;
+  } catch(e) {}
+  if (!t) { showToast('❌ Impossible de charger le tournoi'); return; }
+  _ratEditState = { code: code, expectedCode: t.code, deleteName: t.name };
+  const html = ''
+    + '<div class="t-modal" role="dialog" aria-labelledby="rat-del-title">'
+    +   '<div class="t-modal-title" id="rat-del-title">⚠️ SUPPRIMER LE TOURNOI</div>'
+    +   '<div style="font-size:.92rem;color:#fff;line-height:1.5;margin-bottom:8px"><strong>Cette action est IRRÉVERSIBLE.</strong> Elle va effacer définitivement :</div>'
+    +   '<ul class="t-modal-deletelist">'
+    +     '<li>Le tournoi <strong>"' + String(t.name || '').replace(/[<>]/g, '') + '"</strong></li>'
+    +     '<li>Tous les participants inscrits</li>'
+    +     '<li>Tous les matchs et scores associés</li>'
+    +     '<li>Le chat et les supports spectateurs</li>'
+    +   '</ul>'
+    +   '<div class="t-modal-group">'
+    +     '<label class="t-modal-label" for="rat-del-confirm">Tape le code du tournoi pour confirmer : <span class="t-modal-codehint">' + code + '</span></label>'
+    +     '<input type="text" class="t-modal-input" id="rat-del-confirm" placeholder="Code du tournoi" autocomplete="off" oninput="raT_checkDeleteCode()">'
+    +   '</div>'
+    +   '<div class="t-modal-actions">'
+    +     '<button class="t-modal-btn t-modal-btn-cancel" onclick="raT_closeModal()">Annuler</button>'
+    +     '<button class="t-modal-btn t-modal-btn-danger" id="rat-del-submit" onclick="raT_submitDelete()" disabled>🗑️ SUPPRIMER DÉFINITIVEMENT</button>'
+    +   '</div>'
+    + '</div>';
+  _ratOpenModal(html);
+  setTimeout(function(){ const n = document.getElementById('rat-del-confirm'); if (n) n.focus(); }, 100);
+};
+
+window.raT_checkDeleteCode = function(){
+  const expected = (_ratEditState.expectedCode || '').toUpperCase();
+  const typed = (document.getElementById('rat-del-confirm')?.value || '').trim().toUpperCase();
+  const btn = document.getElementById('rat-del-submit');
+  if (!btn) return;
+  if (typed === expected && expected.length) {
+    btn.disabled = false;
+    btn.classList.add('ready');
+  } else {
+    btn.disabled = true;
+    btn.classList.remove('ready');
+  }
+};
+
+window.raT_submitDelete = async function(){
+  const code = _ratEditState.code;
+  if (!code) return;
+  let jwt = null;
+  try { jwt = localStorage.getItem('ra_jwt') || sessionStorage.getItem('ra_jwt'); } catch(e) {}
+  if (!jwt) { showToast('🔐 Reconnecte-toi'); return; }
+  try {
+    const r = await fetch('/tournaments/' + code, {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + jwt }
+    });
+    const d = await r.json();
+    if (r.ok && d.success !== false) {
+      showToast('🗑️ Tournoi supprimé');
+      _ratCloseModal();
+      try { window.RA_SFX && RA_SFX.click && RA_SFX.click(); } catch(_) {}
+      /* Redirect vers liste tournois */
+      if (typeof raT_goTo === 'function') setTimeout(function(){ raT_goTo('ra-home'); }, 400);
+    } else {
+      showToast('❌ ' + ((d && d.error) || 'Suppression échouée'));
+    }
+  } catch(e) { showToast('❌ Erreur réseau'); }
+};
 
 function _renderRanking(parts, status){
   var el = document.getElementById('rat-v-ranking-list');
