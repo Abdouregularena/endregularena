@@ -273,6 +273,14 @@ function err(res, status, message) {
 /* â”€â”€ MIDDLEWARE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const app = express();
 
+// FIX 304 — désactive le cache navigateur sur le polling duels & notifications
+app.use((req, res, next) => {
+  if (req.path.startsWith('/duels') || req.path.startsWith('/notifications')) {
+    res.set('Cache-Control', 'no-store');
+  }
+  next();
+});
+
 app.set('trust proxy', 1);
 app.use(helmet({
   contentSecurityPolicy: {
