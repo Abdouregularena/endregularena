@@ -2575,14 +2575,16 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
       </div>
       <div class="card duel-col" style="padding:22px"><!-- MODIFIÉ — classe duel-col : flex:1 1 280px, s'empile en colonne sur mobile -->
         <div style="font-family:'Bebas Neue',cursive;font-size:.95rem;letter-spacing:2px;color:var(--gold);margin-bottom:16px">⚙️ Paramètres</div>
-        <div class="form-group"><!-- MODIFIÉ — select remplacé par card picker dynamique -->
-          <label class="form-label">Pack réglementaire</label><!-- MODIFIÉ -->
-          <select id="d-pack" style="display:none" aria-hidden="true"><!-- MODIFIÉ — valeur cachée, lue par createDuel() -->
+        <div class="form-group"><!-- MODIFIÉ — multi-pack picker (chips toggle, 1 à 5 packs) -->
+          <label class="form-label">📚 Packs réglementaires (1 à 5)</label><!-- MODIFIÉ -->
+          <select id="d-pack" style="display:none" aria-hidden="true"><!-- MODIFIÉ — select caché conservé pour rétro-compat (premier pack sélectionné) -->
             <option value="bceao-politique-monetaire">Politique monétaire BCEAO</option>
           </select><!-- MODIFIÉ -->
-          <div id="d-pack-cards" class="d-pack-cards"><!-- MODIFIÉ — grille de cartes, peuplée par _duel_initPacks() -->
+          <div id="d-pack-cards" class="d-pack-cards"><!-- MODIFIÉ — grille de cartes/chips multi-select, peuplée par _duel_initPacks() -->
             <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);padding:12px;text-align:center">Chargement des packs…</div><!-- MODIFIÉ -->
           </div><!-- MODIFIÉ -->
+          <div id="d-pack-selected" style="font-size:.72rem;color:var(--gold);margin-top:6px;font-family:'IBM Plex Sans',sans-serif;font-weight:600;line-height:1.4">Aucun pack sélectionné</div><!-- MODIFIÉ — compteur "Sélectionnés (N)" -->
+          <div style="font-size:.62rem;color:var(--muted);margin-top:2px;font-family:'JetBrains Mono',monospace">Tap pour ajouter/retirer · max 5 packs · les questions du duel sont tirées de l'union</div><!-- MODIFIÉ — helper -->
         </div><!-- MODIFIÉ -->
         <div class="form-group">
           <div class="form-label">Questions</div>
@@ -4247,50 +4249,93 @@ function dGoTo(screen) {
   if(screen==='duel') _startDuelQuiz();
 }
 
-/* MODIFIÉ — initialise la grille de cartes pack sur l'écran de création duel */
+/* MODIFIÉ — initialise la grille de cartes pack en mode MULTI-SÉLECTION (chips toggle)
+   sur l'écran de création duel. Calque le pattern des chips multi-pack du tournoi. */
+window._dCreateSelectedPacks=window._dCreateSelectedPacks||[]; // MODIFIÉ — état global persistant entre re-renders
 function _duel_initPacks(){ // MODIFIÉ
   var grid=document.getElementById('d-pack-cards'); // MODIFIÉ
   var sel=document.getElementById('d-pack'); // MODIFIÉ
   if(!grid||typeof PACKS==='undefined'||!PACKS.length) return; // MODIFIÉ
-  if(grid.getAttribute('data-duel-populated')) return; // MODIFIÉ — init une seule fois
-  var firstId=PACKS[0].id; // MODIFIÉ
-  // peupler le select caché
-  sel.innerHTML=PACKS.map(function(p){ // MODIFIÉ
-    return '<option value="'+p.id+'">'+p.label+'</option>'; // MODIFIÉ
-  }).join(''); // MODIFIÉ
-  sel.value=firstId; // MODIFIÉ
-  // construire les cartes visuelles
-  grid.innerHTML=PACKS.map(function(p,i){ // MODIFIÉ
-    var zoneLabel=p.zone||''; // MODIFIÉ
-    var active=i===0?' active':''; // MODIFIÉ — première carte sélectionnée par défaut
-    return '<div class="d-pack-card'+active+'" onclick="_duel_selectPack(this,\''+p.id+'\')" data-pack="'+p.id+'">' // MODIFIÉ
-      +'<div class="d-pack-name">'+escapeHtml(p.label)+'</div>' // MODIFIÉ
-      +(zoneLabel?'<div class="d-pack-zone">'+escapeHtml(zoneLabel)+'</div>':'') // MODIFIÉ
-      +'</div>'; // MODIFIÉ
-  }).join(''); // MODIFIÉ
-  grid.setAttribute('data-duel-populated','1'); // MODIFIÉ
+  // MODIFIÉ — init des packs sélectionnés : si vide ou contient des ids inconnus, on remet le 1er pack
+  if(!window._dCreateSelectedPacks.length || !window._dCreateSelectedPacks.every(function(id){ return PACKS.find(function(p){return p.id===id;}); })){
+    window._dCreateSelectedPacks=[PACKS[0].id];
+  }
+  // MODIFIÉ — peuple le select caché (rétro-compat : valeur = premier pack sélectionné, lu par d'éventuels anciens hooks)
+  sel.innerHTML=PACKS.map(function(p){ return '<option value="'+p.id+'">'+p.label+'</option>'; }).join('');
+  sel.value=window._dCreateSelectedPacks[0];
+  _duel_renderPacksChips(grid);
+  grid.setAttribute('data-duel-populated','1');
+  _duel_renderSelectedLabel(); // MODIFIÉ — affichage compteur "Sélectionnés (N)"
 } // MODIFIÉ
 
-function _duel_selectPack(card,packId){ // MODIFIÉ
-  document.querySelectorAll('#d-pack-cards .d-pack-card').forEach(function(c){ c.classList.remove('active'); }); // MODIFIÉ
-  card.classList.add('active'); // MODIFIÉ
-  var sel=document.getElementById('d-pack'); // MODIFIÉ
-  if(sel) sel.value=packId; // MODIFIÉ — sync valeur lue par createDuel()
-} // MODIFIÉ
+function _duel_renderPacksChips(grid){ // MODIFIÉ — rendu des chips avec état multi-select
+  if(!grid) grid=document.getElementById('d-pack-cards');
+  if(!grid) return;
+  grid.innerHTML=PACKS.map(function(p){
+    var zoneLabel=p.zone||'';
+    var sel=window._dCreateSelectedPacks.indexOf(p.id)>=0;
+    return '<div class="d-pack-card'+(sel?' active':'')+'" onclick="_duel_togglePack(this,\''+p.id+'\')" data-pack="'+p.id+'" role="button" aria-pressed="'+sel+'">'
+      +'<div class="d-pack-name">'+escapeHtml(p.label)+'</div>'
+      +(zoneLabel?'<div class="d-pack-zone">'+escapeHtml(zoneLabel)+'</div>':'')
+      +'</div>';
+  }).join('');
+}
+
+function _duel_renderSelectedLabel(){ // MODIFIÉ — affichage compteur sous la grille (si zone helper présente)
+  var el=document.getElementById('d-pack-selected');
+  if(!el) return;
+  if(!window._dCreateSelectedPacks.length){ el.textContent='Aucun pack sélectionné'; el.classList.add('empty'); return; }
+  el.classList.remove('empty');
+  var labels=window._dCreateSelectedPacks.map(function(id){ var p=PACKS.find(function(x){return x.id===id;}); return p?p.label:id; });
+  el.textContent='Sélectionnés ('+labels.length+') : '+labels.join(' · ');
+}
+
+/* MODIFIÉ — _duel_togglePack (remplace _duel_selectPack mono) : toggle add/remove, min 1, max 5 */
+function _duel_togglePack(card,packId){ // MODIFIÉ — nouveau nom multi-select
+  var arr=window._dCreateSelectedPacks; var idx=arr.indexOf(packId);
+  if(idx>=0){ if(arr.length<=1){ showToast('⚠ Au moins 1 pack requis'); return; } arr.splice(idx,1); }
+  else{ if(arr.length>=5){ showToast('⚠ Maximum 5 packs par duel'); return; } arr.push(packId); }
+  _duel_renderPacksChips();
+  _duel_renderSelectedLabel();
+  // MODIFIÉ — sync select caché avec premier pack (rétro-compat hooks éventuels)
+  var sel=document.getElementById('d-pack');
+  if(sel) sel.value=arr[0]||'';
+}
+/* MODIFIÉ — rétro-compat : alias de l'ancien nom au cas où un handler tiers l'appelle */
+function _duel_selectPack(card,packId){ return _duel_togglePack(card,packId); }
+/* MODIFIÉ — utilitaire : reconstitue les questions à partir de l'UNION de plusieurs packs (côté frontend) */
+function _duel_unionQuestions(packIds){ // MODIFIÉ — multi-pack
+  if(!Array.isArray(packIds)||!packIds.length) return [];
+  var pool=[];
+  packIds.forEach(function(id){ var p=PACKS.find(function(x){return x.id===id;}); if(p&&Array.isArray(p.questions)) pool=pool.concat(p.questions); });
+  return pool;
+}
+/* MODIFIÉ — utilitaire : label concaténé des packs ("UMOA Bâle + RFE UEMOA") pour affichage */
+function _duel_packsLabel(packIds){ // MODIFIÉ
+  if(!Array.isArray(packIds)||!packIds.length) return '';
+  var labels=packIds.map(function(id){ var p=PACKS.find(function(x){return x.id===id;}); return p?p.label:id; });
+  if(labels.length===1) return labels[0];
+  if(labels.length<=3) return labels.join(' + ');
+  return labels.slice(0,3).join(' + ')+' +'+(labels.length-3);
+}
+
 /* ── CRÉER un duel ────────────────────────────────────────── */
 function createDuel(){
   const jwt=_getJwt();if(!jwt){RAAuth.showAuthWall('duel');return;}
-  const packId=document.getElementById('d-pack')?.value||'bceao-politique-monetaire';
+  // MODIFIÉ — lecture de la sélection multi-pack (chips), fallback sur select caché pour rétro-compat
+  var packsIds=(window._dCreateSelectedPacks&&window._dCreateSelectedPacks.length)?window._dCreateSelectedPacks.slice():null;
+  if(!packsIds){ var legacy=document.getElementById('d-pack')?.value; packsIds=legacy?[legacy]:['general']; }
+  if(packsIds.length<1||packsIds.length>5){ showToast('⚠ Sélectionne entre 1 et 5 packs'); return; }
   const numQ=parseInt(document.querySelector('#d-q-opts .popt.active')?.dataset?.val||'5');
   const timerS=parseInt(document.querySelector('#d-timer-opts .popt.active')?.dataset?.val||'30');
   fetch('/duels',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt},
-    body:JSON.stringify({pack_id:packId,num_questions:numQ,timer_sec:timerS})})
+    body:JSON.stringify({pack_id:packsIds[0],packs_ids:packsIds,num_questions:numQ,timer_sec:timerS})}) // MODIFIÉ — envoie packs_ids[]
     .then(r=>r.json())
     .then(d=>{
       if(!d.success||!d.code){showToast('❌ Erreur création duel');return;}
-      _duelLive.code=d.code;_duelLive.packId=packId;_duelLive.numQuestions=numQ;_duelLive.timerSec=timerS;_duelLive.isCreator=true;
+      _duelLive.code=d.code;_duelLive.packId=packsIds[0];_duelLive.packsIds=packsIds.slice();_duelLive.numQuestions=numQ;_duelLive.timerSec=timerS;_duelLive.isCreator=true; // MODIFIÉ — _duelLive.packsIds
       _duelLive.myUserId=_getMyUserId();_duelLive.myName=_getMyName()||'Moi';_duelLive.oppName='En attente...';
-      const pack=PACKS.find(p=>p.id===packId);_duelLive.questions=pack?pack.questions:[];
+      _duelLive.questions=_duel_unionQuestions(packsIds); // MODIFIÉ — union des packs sélectionnés
       _showWaitScreen(d.code);_pollForJoiner();
     })
     .catch(()=>showToast('❌ Connexion impossible'));
@@ -4306,15 +4351,20 @@ function _showWaitScreen(code){
   const ps=document.getElementById('wait-poll-status');if(ps)ps.textContent="En attente d'un joueur...";
   RA_SFX.waiting(); // MODIFIÉ — boucle d'attente pendant écran wait créateur
 }
-function _pollForJoiner(){
-  _duelLive.pollInt=setInterval(()=>{
+/* MODIFIÉ — Polling créateur en attente du joiner.
+   Améliorations :
+   - PREMIER POLL IMMÉDIAT (avant le setInterval) pour détection <1s si le joiner est déjà là
+   - Intervalle réduit à 1500ms (au lieu de 3000) pour détection ≤3s comme exigé par le brief
+   - Lecture défensive de joiner_id et joiner.name (compatible avec le contrat _duelFull explicite) */
+function _pollForJoiner(){ // MODIFIÉ
+  function _tick(){ // MODIFIÉ — extracted en fonction nommée pour réutilisation
     const jwt=_getJwt();if(!jwt)return;
-    fetch('/duels/'+_duelLive.code,{headers:{'Authorization':'Bearer '+jwt}})
+    fetch('/duels/'+_duelLive.code,{headers:{'Authorization':'Bearer '+jwt},cache:'no-store'}) // MODIFIÉ — cache:'no-store' en plus du Cache-Control serveur
       .then(r=>r.json()).then(d=>{
-        if(!d.success||!d.duel)return;
+        if(!d||!d.success||!d.duel)return;
         const duel=d.duel;
         if(duel.joiner_id){
-          const joinerName=duel.joiner?.name||'Un joueur';
+          const joinerName=(duel.joiner&&duel.joiner.name)||'Un joueur';
           _duelLive.oppName=joinerName;
           const ps=document.getElementById('wait-poll-status');
           if(ps)ps.textContent=joinerName+' a rejoint !';
@@ -4322,7 +4372,9 @@ function _pollForJoiner(){
         }
         if(duel.status==='active'){clearInterval(_duelLive.pollInt);_duelLive.pollInt=null;dGoTo('duel');}
       }).catch(()=>{});
-  },3000);
+  }
+  _tick(); // MODIFIÉ — PREMIER POLL IMMÉDIAT (réactivité <1s si joiner déjà présent)
+  _duelLive.pollInt=setInterval(_tick,1500); // MODIFIÉ — intervalle 1500ms au lieu de 3000
 }
 // MODIFIÉ — récupère le code pays du profil JWT ou localStorage
 function _getPlayerCountry(){
@@ -4361,9 +4413,13 @@ function joinDuelByCode(){
       _duelLive.code=rawCode;_duelLive.isCreator=false;
       _duelLive.myUserId=_getMyUserId();_duelLive.myName=_getMyName()||'Moi';
       if(d.duel){
-        _duelLive.packId=d.duel.pack_id;_duelLive.numQuestions=d.duel.num_questions||5;_duelLive.timerSec=d.duel.timer_sec||30;
-        const pack=PACKS.find(p=>p.id===_duelLive.packId);_duelLive.questions=pack?pack.questions:[];
-        const crName=d.duel.creator?.name||'Créateur';
+        _duelLive.packId=d.duel.pack_id;
+        // MODIFIÉ — lecture défensive de packs_ids (array) avec fallback sur pack_id
+        var packsIdsFromSrv=Array.isArray(d.duel.packs_ids)?d.duel.packs_ids:(d.duel.pack_id?[d.duel.pack_id]:[]);
+        _duelLive.packsIds=packsIdsFromSrv.slice(); // MODIFIÉ — _duelLive.packsIds
+        _duelLive.numQuestions=d.duel.num_questions||5;_duelLive.timerSec=d.duel.timer_sec||30;
+        _duelLive.questions=_duel_unionQuestions(packsIdsFromSrv); // MODIFIÉ — union des packs choisis par le créateur
+        const crName=(d.duel.creator&&d.duel.creator.name)||'Créateur';
         _duelLive.oppName=crName;
         const avEl=document.getElementById('ws-creator-av');if(avEl)avEl.textContent=crName.slice(0,2).toUpperCase();
         const nmEl=document.getElementById('ws-creator-name');if(nmEl)nmEl.textContent=crName;
@@ -4375,26 +4431,37 @@ function joinDuelByCode(){
       _pollForStart();
     }).catch(()=>showToast('❌ Connexion impossible'));
 }
-function _pollForStart(){
-  _duelLive.pollInt=setInterval(()=>{
+/* MODIFIÉ — Polling rejoignant en attente du start.
+   - PREMIER POLL IMMÉDIAT
+   - Intervalle 1500ms (au lieu de 3000) */
+function _pollForStart(){ // MODIFIÉ
+  function _tick(){
     const jwt=_getJwt();if(!jwt)return;
-    fetch('/duels/'+_duelLive.code,{headers:{'Authorization':'Bearer '+jwt}})
+    fetch('/duels/'+_duelLive.code,{headers:{'Authorization':'Bearer '+jwt},cache:'no-store'}) // MODIFIÉ
       .then(r=>r.json()).then(d=>{
-        if(!d.success||!d.duel)return;
+        if(!d||!d.success||!d.duel)return;
         if(d.duel.status==='active'){
-          _duelLive.packId=d.duel.pack_id||_duelLive.packId;_duelLive.numQuestions=d.duel.num_questions||_duelLive.numQuestions;_duelLive.timerSec=d.duel.timer_sec||_duelLive.timerSec;
-          const pack=PACKS.find(p=>p.id===_duelLive.packId);_duelLive.questions=pack?pack.questions:[];
+          _duelLive.packId=d.duel.pack_id||_duelLive.packId;
+          // MODIFIÉ — reprise multi-pack au start aussi
+          var packsIdsFromSrv=Array.isArray(d.duel.packs_ids)?d.duel.packs_ids:(d.duel.pack_id?[d.duel.pack_id]:[]);
+          _duelLive.packsIds=packsIdsFromSrv.slice();
+          _duelLive.numQuestions=d.duel.num_questions||_duelLive.numQuestions;_duelLive.timerSec=d.duel.timer_sec||_duelLive.timerSec;
+          _duelLive.questions=_duel_unionQuestions(packsIdsFromSrv); // MODIFIÉ — union
           clearInterval(_duelLive.pollInt);_duelLive.pollInt=null;_duelIntroThenStart(); // MODIFIÉ — intro anthem+arenaIntro avant duel
         }
       }).catch(()=>{});
-  },3000);
+  }
+  _tick(); // MODIFIÉ — PREMIER POLL IMMÉDIAT
+  _duelLive.pollInt=setInterval(_tick,1500); // MODIFIÉ — 1500ms
 }
 
 /* ── QUIZ en duel ─────────────────────────────────────────── */
 function _startDuelQuiz(){
   dState.scores={me:0,them:0};dState.streaks={me:0,them:0};dState.qIndex=0;dState.answered=false;
-  const pack=PACKS.find(p=>p.id===_duelLive.packId);
-  const catEl=document.querySelector('.duel-cat');if(catEl&&pack)catEl.textContent=pack.label;
+  // MODIFIÉ — affichage multi-pack : concatène les labels si plusieurs packs (fallback mono)
+  var packsList=(_duelLive.packsIds&&_duelLive.packsIds.length)?_duelLive.packsIds:[_duelLive.packId];
+  var catLabel=_duel_packsLabel(packsList);
+  const catEl=document.querySelector('.duel-cat');if(catEl&&catLabel)catEl.textContent=catLabel;
   const totalEl=document.getElementById('q-total');if(totalEl)totalEl.textContent=_duelLive.numQuestions;
   // Noms réels des joueurs
   const myName=_duelLive.myName||_getMyName()||'Moi';

@@ -16,7 +16,7 @@ const Database     = require('better-sqlite3');
 const { Resend }   = require('resend');
 const crypto       = require('crypto');
 const path         = require('path');
-const { pickQuestions } = require('./packs'); // FIX anti-triche : source serveur pour les questions de duel
+const { pickQuestions, getPack } = require('./packs'); // FIX anti-triche : source serveur pour les questions de duel // MODIFIÉ — import getPack pour le tirage multi-pack
 
 /* â”€â”€ CONFIG â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const PORT         = process.env.PORT || 3000;
@@ -164,7 +164,11 @@ db.exec(`
  // au format frontend. NULL ou '[]' = duel pas encore démarré côté serveur.
  'ALTER TABLE duels ADD COLUMN questions_json TEXT NOT NULL DEFAULT \'[]\'',
  'ALTER TABLE duels ADD COLUMN started_at TEXT',
+ 'ALTER TABLE duels ADD COLUMN packs_ids TEXT', // MODIFIÉ — multi-pack au duel (JSON array, fallback sur pack_id)
 ].forEach(sql => { try { db.exec(sql); } catch(_) {} });
+
+/* MODIFIÉ — migration douce : peuple packs_ids depuis pack_id pour les duels existants */
+try { db.exec("UPDATE duels SET packs_ids = '[\"' || pack_id || '\"]' WHERE pack_id IS NOT NULL AND pack_id != '' AND (packs_ids IS NULL OR packs_ids = '')"); } catch(_) {}
 try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_duel_scores_uq ON duel_scores (duel_id, user_id)'); } catch(_) {}
 try { db.exec('CREATE INDEX IF NOT EXISTS idx_notif_user ON notifications (user_id, seen, created_at DESC)'); } catch(_) {}
 // FIX performance : index manquants sur messages et dm
@@ -703,24 +707,84 @@ app.post('/notifications/seen-all', requireAuth, (req, res) => {
 });
 
 /* ── DUELS ──────────────────────────────────────────────────────── */
+/* MODIFIÉ — _duelFull : contrat de réponse explicite, garantit le shape attendu par le frontend.
+   Avant : spread { ...duel, creator, joiner, scores } — fragile en cas d'évolution du schéma SQL.
+   Après : extraction explicite de chaque champ, packs_ids parsé en array, joiner toujours présent
+   (null si pas de joiner), ce qui évite que le frontend voie un objet incohérent. */
 function _duelFull(code) {
   const duel = db.prepare('SELECT * FROM duels WHERE code = ?').get(code);
   if (!duel) return null;
-  const creator = db.prepare('SELECT id, name, country FROM users WHERE id = ?').get(duel.creator_id);
-  const joiner  = duel.joiner_id ? db.prepare('SELECT id, name, country FROM users WHERE id = ?').get(duel.joiner_id) : null;
-  const scores  = db.prepare('SELECT user_id, score, questions_answered, finished FROM duel_scores WHERE duel_id = ?').all(duel.id);
-  return { ...duel, creator, joiner, scores };
+  const creator = db.prepare('SELECT id, name, country FROM users WHERE id = ?').get(duel.creator_id) || null;
+  const joiner  = duel.joiner_id ? (db.prepare('SELECT id, name, country FROM users WHERE id = ?').get(duel.joiner_id) || null) : null;
+  const scores  = db.prepare('SELECT user_id, score, questions_answered, finished FROM duel_scores WHERE duel_id = ?').all(duel.id) || [];
+  // MODIFIÉ — packs_ids parsé en array (rétro-compat sur pack_id)
+  let packsIdsArr = null;
+  try { if (duel.packs_ids) packsIdsArr = JSON.parse(duel.packs_ids); } catch(_) {}
+  if (!Array.isArray(packsIdsArr) || !packsIdsArr.length) packsIdsArr = duel.pack_id ? [duel.pack_id] : ['general'];
+  return {
+    id: duel.id,
+    code: duel.code,
+    creator_id: duel.creator_id, // MODIFIÉ — exposé explicitement
+    joiner_id: duel.joiner_id || null, // MODIFIÉ — null clair (jamais 0)
+    pack_id: duel.pack_id || 'general', // rétro-compat
+    packs_ids: packsIdsArr, // MODIFIÉ — multi-pack array
+    num_questions: duel.num_questions,
+    timer_sec: duel.timer_sec,
+    status: duel.status,
+    created_at: duel.created_at,
+    started_at: duel.started_at || null,
+    questions_json: duel.questions_json || '[]',
+    creator, // { id, name, country } | null
+    joiner,  // { id, name, country } | null
+    scores   // [{ user_id, score, questions_answered, finished }]
+  };
+}
+
+/* MODIFIÉ — Tirage de questions depuis l'UNION de plusieurs packs (multi-pack au duel)
+   Calque pickQuestions(packId, count) de packs.js, mais agrège les questions de tous les packs
+   listés dans packsIds avant le Fisher-Yates. Garantit qu'aucune question ne se répète tant
+   que la pile globale n'est pas épuisée (modulo si count > pool). */
+function _pickQuestionsMulti(packsIds, count) {
+  if (!Array.isArray(packsIds) || !packsIds.length) return null;
+  let pool = [];
+  for (const id of packsIds) {
+    const p = getPack(id);
+    if (p && Array.isArray(p.questions)) pool = pool.concat(p.questions);
+  }
+  if (!pool.length) return null;
+  // Fisher-Yates sur l'union
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  const out = [];
+  for (let i = 0; i < count; i++) out.push(pool[i % pool.length]);
+  return out;
 }
 
 app.post('/duels', requireAuth, (req, res) => {
-  const { pack_id, num_questions = 10, timer_sec = 30 } = req.body || {};
+  // MODIFIÉ — accepte packs_ids[] en plus de pack_id (rétro-compat).
+  // packs_ids prioritaire si présent et valide (1 à 5 entrées), sinon fallback sur pack_id legacy.
+  const { pack_id, packs_ids, num_questions = 10, timer_sec = 30 } = req.body || {};
+  let finalPacks;
+  if (Array.isArray(packs_ids) && packs_ids.length >= 1 && packs_ids.length <= 5
+      && packs_ids.every(p => typeof p === 'string' && p.trim().length > 0)) {
+    finalPacks = packs_ids.map(p => p.trim());
+  } else if (pack_id && typeof pack_id === 'string') {
+    finalPacks = [pack_id.trim()];
+  } else {
+    finalPacks = ['general'];
+  }
   let code;
   for (let i = 0; i < 10; i++) {
     code = genCode('D');
     if (!db.prepare('SELECT id FROM duels WHERE code = ?').get(code)) break;
   }
-  db.prepare('INSERT INTO duels (code, creator_id, pack_id, num_questions, timer_sec) VALUES (?, ?, ?, ?, ?)')
-    .run(code, req.user.id, pack_id || 'general', Math.min(20, Math.max(5, Number(num_questions))), Math.min(60, Math.max(15, Number(timer_sec))));
+  // MODIFIÉ — pack_id legacy = premier de la liste pour rétro-compat (route /start mono-pack fallback)
+  db.prepare('INSERT INTO duels (code, creator_id, pack_id, packs_ids, num_questions, timer_sec) VALUES (?, ?, ?, ?, ?, ?)')
+    .run(code, req.user.id, finalPacks[0], JSON.stringify(finalPacks),
+         Math.min(20, Math.max(5, Number(num_questions))),
+         Math.min(60, Math.max(15, Number(timer_sec))));
   notifyAllExcept(req.user.id, 'duel_created', `🥊 ${req.user.name} vous défie en duel ! Code : ${code}`);
   return ok(res, { code, duel: _duelFull(code) });
 });
@@ -757,9 +821,15 @@ app.post('/duels/:code/start', requireAuth, (req, res) => {
   // serveur. Avant ce point, aucune question n'est exposée — donc impossible
   // de lire le pack à l'avance. Après ce point, le pack est figé pour les deux
   // joueurs (mêmes questions, même ordre).
-  const picked = pickQuestions(duel.pack_id, duel.num_questions);
+  // MODIFIÉ — multi-pack : parse packs_ids JSON et tire de l'UNION des packs, fallback sur pack_id mono.
+  let packsForDuel = null;
+  try { if (duel.packs_ids) packsForDuel = JSON.parse(duel.packs_ids); } catch(_) {}
+  if (!Array.isArray(packsForDuel) || !packsForDuel.length) packsForDuel = [duel.pack_id || 'general'];
+  const picked = packsForDuel.length > 1
+    ? _pickQuestionsMulti(packsForDuel, duel.num_questions) // MODIFIÉ — union multi-packs
+    : pickQuestions(packsForDuel[0], duel.num_questions);   // mono-pack legacy (conserve perf)
   if (!picked || picked.length === 0) {
-    return err(res, 500, 'Pack introuvable ou vide côté serveur');
+    return err(res, 500, 'Pack(s) introuvable(s) ou vide(s) côté serveur');
   }
   const questionsJson = JSON.stringify(picked);
   const startedAt = new Date().toISOString();
