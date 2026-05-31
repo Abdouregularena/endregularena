@@ -2154,6 +2154,73 @@ input:focus, textarea:focus, select:focus {
   border-radius:4px !important;
 }
 
+/* ================================================================
+   AUDIT MOBILE COMPLET — 375px / 390px / 768px
+   Hamburger/mobile-nav déjà implémentés — on n'y touche pas.
+   On ajoute uniquement ce qui manque avec les vrais sélecteurs.
+================================================================ */
+
+/* ── 1. Overflow global anti-débordement ── */
+html { overflow-x:hidden !important; max-width:100vw !important }
+body { overflow-x:hidden !important }
+* { box-sizing:border-box !important }
+
+/* ── 2. Mobile-nav drawer — couleurs gold cohérentes ── */
+@media(max-width:768px) {
+  .mobile-nav button { color:#C8973A !important; font-weight:700 !important }
+  .mobile-nav button:hover { color:#FFFFFF !important; background:rgba(200,151,58,.15) !important }
+
+  /* ── 3. Hero mobile (vrais sélecteurs : .hero, .hero-title, .hero-ctas) ── */
+  .hero { padding:40px 16px 32px !important; text-align:center !important }
+  .hero-title { font-size:clamp(2rem,8vw,3.5rem) !important }
+  .hero-desc  { font-size:clamp(.9rem,3.5vw,1.1rem) !important }
+  .hero-ctas  { flex-direction:column !important; gap:12px !important }
+  .hero-ctas > * { width:100% !important; text-align:center !important; justify-content:center !important }
+  .stats-strip { grid-template-columns:repeat(3,1fr) !important; gap:8px !important }
+  .stat-item   { font-size:.8rem !important }
+
+  /* ── 4. Packs ── */
+  .packs-grid { grid-template-columns:repeat(2,1fr) !important; gap:12px !important; padding:0 12px !important }
+
+  /* ── 5. Modes — 1 colonne (override des règles précédentes) ── */
+  .modes-grid { grid-template-columns:1fr !important; gap:16px !important; padding:0 16px !important }
+  .mode-card  { padding:24px 16px !important }
+
+  /* ── 6. Badges ── */
+  .badges-grid { grid-template-columns:repeat(3,1fr) !important; gap:12px !important }
+
+  /* ── 7. Duel screens ── */
+  .duel-layout,.tournoi-layout { flex-direction:column !important; gap:24px !important }
+
+  /* ── 8. Tournoi ── */
+  #t-screen-create { padding:20px 16px !important }
+  #t-screen-create input,
+  #t-screen-create select { width:100% !important }
+
+  /* ── 9. Footer ── */
+  .footer-tags    { flex-wrap:wrap !important; justify-content:center !important; gap:8px !important }
+  footer          { text-align:center !important; padding:20px 16px !important }
+
+  /* ── 10. Tickers ── */
+  .live-ticker    { font-size:.7rem !important }
+  .sponsors-label { font-size:.55rem !important }
+  .sponsor-logo   { font-size:.9rem !important }
+
+  /* ── Touch targets min 44px ── */
+  button, a[role="button"], .btn-gold, .btn-ghost,
+  .nav-links button, .mobile-nav button { min-height:44px !important }
+
+  /* ── Texte minimum 14px ── */
+  body, p, li, span, label { font-size:max(.875rem,14px) }
+}
+
+/* ── 375px / iPhone SE ── */
+@media(max-width:400px) {
+  .packs-grid  { grid-template-columns:1fr !important }
+  .badges-grid { grid-template-columns:repeat(2,1fr) !important }
+  .hero-title  { font-size:clamp(1.9rem,10vw,2.8rem) !important }
+}
+
 /* ── Navbar — liens gold gras + logo badge gold ── */
 /* Liens de navigation (tous les boutons dans .nav-links) */
 .nav-links button { color:#C8973A !important; font-weight:700 !important }
