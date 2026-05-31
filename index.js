@@ -1968,6 +1968,68 @@ function publicUser(u) {
 
 
 /* â”€â”€ START â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+// middleware réutilisable — à placer en haut de index.js
+function requireAdmin(req, res, next) {
+  const auth = req.headers.authorization;
+  if (!auth?.startsWith('Bearer ')) return res.status(401).json({ error: 'Token manquant' });
+  try {
+    const decoded = jwt.verify(auth.slice(7), process.env.JWT_SECRET);
+    if (decoded.role !== 'admin') return res.status(403).json({ error: 'Accès refusé' });
+    req.user = decoded;
+    next();
+  } catch { res.status(401).json({ error: 'Token invalide' }); }
+}
+
+// ─── GET /admin/stats ─────────────────────────────────────
+app.get('/admin/stats', requireAdmin, async (req, res) => {
+  try {
+    const [users, newUsers, orgs, scores, duels, badges] = await Promise.all([
+
+      // total inscrits
+      pool.query(`SELECT COUNT(*) FROM users`),
+
+      // inscrits ces 7 derniers jours
+      pool.query(`SELECT COUNT(*) FROM users
+        WHERE created_at >= NOW() - INTERVAL '7 days'`),
+
+      // organisations distinctes
+      pool.query(`SELECT COUNT(DISTINCT organisation) FROM users
+        WHERE organisation IS NOT NULL`),
+
+      // scores enregistrés
+      pool.query(`SELECT COUNT(*) FROM scores`),
+
+      // duels (total + en cours)
+      pool.query(`SELECT
+          COUNT(*) AS total,
+          COUNT(*) FILTER (WHERE status = 'pending') AS en_attente,
+          COUNT(*) FILTER (WHERE status = 'active')  AS actifs
+        FROM duels`),
+
+      // badges distribués
+      pool.query(`SELECT COUNT(*) FROM user_badges`),
+    ]);
+
+    res.json({
+      utilisateurs: {
+        total:       +users.rows[0].count,
+        nouveaux_7j: +newUsers.rows[0].count,
+        organisations: +orgs.rows[0].count,
+      },
+      scores: { total: +scores.rows[0].count },
+      duels: {
+        total:      +duels.rows[0].total,
+        en_attente: +duels.rows[0].en_attente,
+        actifs:     +duels.rows[0].actifs,
+      },
+      badges: { distribues: +badges.rows[0].count },
+      generé_le: new Date().toISOString(),
+    });
+  } catch (err) {
+    console.error('[admin/stats]', err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
 app.listen(PORT, () => {
   console.log(`âœ… REGUL ARENA API â€” port ${PORT}`);
   console.log(`   DB : regularena.db`);
