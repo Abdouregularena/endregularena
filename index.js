@@ -1447,6 +1447,20 @@ app.get('/admin/stats', requireAdmin, (req, res) => {
   }
 });
 
+// ─── GET /admin/users ──────────────────────────────────────
+app.get('/admin/users', requireAdmin, (req, res) => {
+  try {
+    const users = db.prepare(`
+      SELECT id, name, email, profile, country, etablissement,
+             email_verified, role, created_at
+      FROM users ORDER BY created_at DESC LIMIT 200
+    `).all();
+    res.json({ users, total: users.length });
+  } catch (e) {
+    console.error('[admin/users]', e);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
 /* ── STATIC ──────────────────────────────────────────────────────── */
 
 app.use(express.static(path.join(__dirname, 'public')));
