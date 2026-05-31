@@ -1981,58 +1981,38 @@ function requireAdmin(req, res, next) {
 }
 
 // ─── GET /admin/stats ─────────────────────────────────────
-app.get('/admin/stats', requireAdmin, async (req, res) => {
+// ─── GET /admin/stats ──────────────────────────────────────
+app.get('/admin/stats', requireAdmin, (req, res) => {
   try {
-    const [users, newUsers, orgs, scores, duels, badges] = await Promise.all([
-
-      // total inscrits
-      pool.query(`SELECT COUNT(*) FROM users`),
-
-      // inscrits ces 7 derniers jours
-      pool.query(`SELECT COUNT(*) FROM users
-        WHERE created_at >= NOW() - INTERVAL '7 days'`),
-
-      // organisations distinctes
-      pool.query(`SELECT COUNT(DISTINCT organisation) FROM users
-        WHERE organisation IS NOT NULL`),
-
-      // scores enregistrés
-      pool.query(`SELECT COUNT(*) FROM scores`),
-
-      // duels (total + en cours)
-      pool.query(`SELECT
-          COUNT(*) AS total,
-          COUNT(*) FILTER (WHERE status = 'pending') AS en_attente,
-          COUNT(*) FILTER (WHERE status = 'active')  AS actifs
-        FROM duels`),
-
-      // badges distribués
-      pool.query(`SELECT COUNT(*) FROM user_badges`),
-    ]);
+    const totalUsers     = db.prepare(`SELECT COUNT(*) as n FROM users`).get();
+    const verifiedUsers  = db.prepare(`SELECT COUNT(*) as n FROM users WHERE email_verified=1`).get();
+    const newUsers7d     = db.prepare(`SELECT COUNT(*) as n FROM users WHERE created_at >= datetime('now','-7 days')`).get();
+    const byProfile      = db.prepare(`SELECT profile, COUNT(*) as n FROM users GROUP BY profile`).all();
+    const byCountry      = db.prepare(`SELECT country, COUNT(*) as n FROM users GROUP BY country ORDER BY n DESC LIMIT 10`).all();
+    const totalScores    = db.prepare(`SELECT COUNT(*) as n FROM user_scores`).get();
+    const totalDuels     = db.prepare(`SELECT COUNT(*) as n FROM duels`).get();
+    const activeDuels    = db.prepare(`SELECT COUNT(*) as n FROM duels WHERE status='active'`).get();
+    const finishedDuels  = db.prepare(`SELECT COUNT(*) as n FROM duels WHERE status='finished'`).get();
+    const totalTournois  = db.prepare(`SELECT COUNT(*) as n FROM tournaments`).get();
+    const feedbacks      = db.prepare(`SELECT COUNT(*) as n FROM feedback`).get();
+    const notifyList     = db.prepare(`SELECT COUNT(*) as n FROM notify_list`).get();
 
     res.json({
       utilisateurs: {
-        total:       +users.rows[0].count,
-        nouveaux_7j: +newUsers.rows[0].count,
-        organisations: +orgs.rows[0].count,
+        total:        totalUsers.n,
+        verifies:     verifiedUsers.n,
+        nouveaux_7j:  newUsers7d.n,
+        par_profil:   byProfile,
+        par_pays:     byCountry,
       },
-      scores: { total: +scores.rows[0].count },
-      duels: {
-        total:      +duels.rows[0].total,
-        en_attente: +duels.rows[0].en_attente,
-        actifs:     +duels.rows[0].actifs,
-      },
-      badges: { distribues: +badges.rows[0].count },
-      generé_le: new Date().toISOString(),
+      scores:   { total: totalScores.n },
+      duels:    { total: totalDuels.n, actifs: activeDuels.n, termines: finishedDuels.n },
+      tournois: { total: totalTournois.n },
+      feedback: { total: feedbacks.n },
+      tournoi_2027: { inscrits_notif: notifyList.n },
+      genere_le: new Date().toISOString(),
     });
-  } catch (err) {
-    console.error('[admin/stats]', err);
+  } catch (e) {
+    console.error('[admin/stats]', e);
     res.status(500).json({ error: 'Erreur serveur' });
   }
-});
-app.listen(PORT, () => {
-  console.log(`âœ… REGUL ARENA API â€” port ${PORT}`);
-  console.log(`   DB : regularena.db`);
-  console.log(`   JWT_SECRET : ${JWT_SECRET === 'changez-moi-en-production' ? 'âš  PAR DÃ‰FAUT â€” &#224; changer' : 'âœ“ configur&#233;'}`);
-  console.log(`   RESEND_KEY : ${RESEND_KEY ? 'âœ“ configur&#233;' : 'âš  manquant â€” emails d&#233;sactiv&#233;s'}`);
-});
