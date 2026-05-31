@@ -1528,7 +1528,26 @@ body { padding-top: 52px !important; padding-bottom: 32px !important; } /* MODIF
 #ra-step1 li[style*="color:rgba(34,211,238"]    { color: #C8D8FF !important; }
 /* "Déjà inscrit ?" div wrapper — capturé par [style*=muted] ci-dessus */
 
-/* ── 13. Pas de régression sur fonds clairs ── */
+/* ── 13. Feedback section — règles précises avec !important ──
+   Scope : .feedback-section (fond bg2 = très sombre)
+   Couvre : labels, spans (optionnel), charcount, texte succès ── */
+
+/* Labels "TYPE DE RETOUR", "VOTRE NOTE", "NOM", "EMAIL..." */
+.feedback-section .form-label { color: #FFFFFF !important; }
+
+/* "(optionnel)" spans inline — [style*=muted] capte les inline styles */
+.feedback-section [style*="color:var(--muted)"] { color: rgba(255,255,255,.65) !important; }
+
+/* Compteur "0 / 1200 caractères" — inline style sur #fb-charcount */
+#fb-charcount { color: rgba(255,255,255,.70) !important; }
+
+/* Description intro de la section */
+.feedback-section > .feedback-inner > p { color: rgba(255,255,255,.80) !important; }
+
+/* Texte succès "Votre message a bien été reçu..." */
+.feedback-success p { color: rgba(255,255,255,.80) !important; }
+
+/* ── 14. Pas de régression sur fonds clairs ── */
 /* Les éléments sur fond blanc/beige (#F5F0E8, white) restent
    inchangés : ils n'appartiennent pas aux contextes ci-dessus */
 
