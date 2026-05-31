@@ -1925,12 +1925,10 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
 /* Separateurs · entre les liens */
 .ra-contact-footer-legal span[style*="color:var(--muted)"] { color:rgba(238,240,245,.5) !important }
 
-/* ── Ticker haut — bannière partenaires/institutions ── */
-/* Couleur identique au ticker bas (.ticker-item = var(--gold) = #C9991A) */
-.sponsors-label { color:rgba(238,240,245,.5) !important }
-.sponsor-logo   { color:#C8B97A !important }
-.sponsor-logo:hover { color:var(--gold) !important }
-.sponsor-dot    { background:#C8B97A !important; opacity:.5 !important }
+/* ── Ticker haut — bannière partenaires/institutions → tout en gold ── */
+.sponsors-banner, .sponsors-banner * { color:var(--gold) !important }
+.sponsors-label  { opacity:.7 !important }
+.sponsor-dot     { background:var(--gold) !important; opacity:.4 !important }
 
 /* ── Footer bas de page (<footer> .footer-copy) ── */
 .footer-copy                  { color:#EEF0F5 !important }
