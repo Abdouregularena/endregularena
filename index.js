@@ -2015,4 +2015,3 @@ app.get('/admin/stats', requireAdmin, (req, res) => {
   } catch (e) {
     console.error('[admin/stats]', e);
     res.status(500).json({ error: 'Erreur serveur' });
-  }
