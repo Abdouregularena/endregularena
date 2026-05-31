@@ -295,8 +295,9 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
-const limiterStrict = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, standardHeaders: true, legacyHeaders: false });
-const limiterLoose  = rateLimit({ windowMs: 15 * 60 * 1000, max: 60, standardHeaders: true, legacyHeaders: false });
+const _devSkip = (req) => ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(req.ip);
+const limiterStrict = rateLimit({ windowMs: 5 * 60 * 1000, max: 50, standardHeaders: true, legacyHeaders: false, skip: _devSkip });
+const limiterLoose  = rateLimit({ windowMs: 5 * 60 * 1000, max: 200, standardHeaders: true, legacyHeaders: false, skip: _devSkip });
 
 /* â”€â”€ AUTH MIDDLEWARE (routes prot&#233;g&#233;es futures) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function requireAuth(req, res, next) {
