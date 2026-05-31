@@ -3561,11 +3561,11 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
   <div class="feedback-inner">
     <div class="section-label" style="justify-content:flex-start">Votre avis compte</div>
     <h2 class="section-title" id="feedback-title" style="font-size:clamp(1.8rem,4vw,2.8rem)">Feedback &amp; <span class="g">Suggestions</span></h2>
-    <p style="color:var(--muted);font-size:.88rem;line-height:1.6;margin-bottom:28px;max-width:540px">REGUL ARENA s'améliore grâce à vous. Partagez vos suggestions, signalez une erreur réglementaire ou proposez de nouveaux sujets.</p>
+    <p style="color:#FFFFFF;font-size:.88rem;line-height:1.6;margin-bottom:28px;max-width:540px">REGUL ARENA s'améliore grâce à vous. Partagez vos suggestions, signalez une erreur réglementaire ou proposez de nouveaux sujets.</p>
 
     <!-- Type de feedback -->
     <div style="margin-bottom:14px">
-      <div class="form-label" style="margin-bottom:9px">Type de retour</div>
+      <div class="form-label" style="margin-bottom:9px;color:#FFFFFF">Type de retour</div>
       <div class="feedback-type-btns" id="ftype-group">
         <button class="ftype-btn active" onclick="setFType(this,'suggestion')">💡 Suggestion</button>
         <button class="ftype-btn" onclick="setFType(this,'bug')">🐛 Erreur / Bug</button>
@@ -3577,7 +3577,7 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
 
     <!-- Étoiles -->
     <div style="margin-bottom:18px">
-      <div class="form-label" style="margin-bottom:9px">Votre note</div>
+      <div class="form-label" style="margin-bottom:9px;color:#FFFFFF">Votre note</div>
       <div class="feedback-stars" id="fstars" role="group" aria-label="Note">
         <button class="fstar" onclick="setFStar(1)" aria-label="1 étoile">⭐</button>
         <button class="fstar" onclick="setFStar(2)" aria-label="2 étoiles">⭐</button>
@@ -3591,17 +3591,17 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
     <div id="feedback-form">
       <div class="feedback-grid">
         <div class="form-group" style="margin-bottom:0">
-          <label class="form-label" for="fb-name">Prénom &amp; Nom <span style="color:var(--muted)">(optionnel)</span></label>
+          <label class="form-label" style="color:#FFFFFF" for="fb-name">Prénom &amp; Nom <span style="color:rgba(255,255,255,.6)">(optionnel)</span></label>
           <input type="text" id="fb-name" class="form-input" placeholder="Votre nom..." aria-label="Nom" maxlength="80">
         </div>
         <div class="form-group" style="margin-bottom:0">
-          <label class="form-label" for="fb-email">Email institutionnel <span style="color:var(--muted)">(optionnel)</span></label>
+          <label class="form-label" style="color:#FFFFFF" for="fb-email">Email institutionnel <span style="color:rgba(255,255,255,.6)">(optionnel)</span></label>
           <input type="email" id="fb-email" class="form-input" placeholder="prenom@banque.sn..." aria-label="Email" maxlength="120">
         </div>
         <textarea id="fb-message" class="feedback-textarea" placeholder="Décrivez votre suggestion, votre retour ou votre idée... Soyez précis, toutes les suggestions sont lues par l'équipe." aria-label="Votre message" maxlength="1200"></textarea>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
-        <span style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted)" id="fb-charcount">0 / 1200 caractères</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:rgba(255,255,255,.7)" id="fb-charcount">0 / 1200 caractères</span>
         <button class="btn-gold" onclick="submitFeedback()" style="padding:12px 32px">📨 Envoyer mon feedback</button>
       </div>
     </div>
