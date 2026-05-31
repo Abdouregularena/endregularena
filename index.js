@@ -240,10 +240,22 @@ function expiresAt(hours = TOKEN_TTL_H) {
 function signJWT(user) {
   return jwt.sign(
     { id: user.id, email: user.email, name: user.name, profile: user.profile,
-      is_verified: user.email_verified === 1 },
+      role: user.role || 'user', is_verified: user.email_verified === 1 },
     JWT_SECRET,
     { expiresIn: '7d' }
   );
+}
+
+/* Middleware admin — vérifie JWT + claim role === 'admin' dans le token */
+function requireAdmin(req, res, next) {
+  const auth = req.headers.authorization;
+  if (!auth?.startsWith('Bearer ')) return res.status(401).json({ error: 'Token manquant' });
+  try {
+    const decoded = jwt.verify(auth.slice(7), JWT_SECRET);
+    if (decoded.role !== 'admin') return res.status(403).json({ error: 'Accès refusé' });
+    req.user = decoded;
+    next();
+  } catch { res.status(401).json({ error: 'Token invalide' }); }
 }
 
 function ok(res, data = {}) {
@@ -1781,6 +1793,63 @@ app.get('/org/members', requireAuth, (req, res) => {
     'SELECT om.role, om.joined_at, u.id, u.name, u.email, u.country FROM org_members om JOIN users u ON u.id = om.user_id WHERE om.org_id = ? ORDER BY om.joined_at ASC'
   ).all(orgId);
   return ok(res, { org: { id: org.id, name: org.name }, members });
+});
+
+/* ================================================================
+   ADMIN — routes protégées par requireAdmin (JWT role=admin)
+   curl -H 'Authorization: Bearer <admin_jwt>' /admin/stats
+================================================================ */
+
+// GET /admin/stats — tableau de bord global
+app.get('/admin/stats', requireAdmin, (req, res) => {
+  try {
+    const totalUsers    = db.prepare(`SELECT COUNT(*) as n FROM users`).get();
+    const verifiedUsers = db.prepare(`SELECT COUNT(*) as n FROM users WHERE email_verified=1`).get();
+    const newUsers7d    = db.prepare(`SELECT COUNT(*) as n FROM users WHERE created_at >= datetime('now','-7 days')`).get();
+    const byProfile     = db.prepare(`SELECT profile, COUNT(*) as n FROM users GROUP BY profile`).all();
+    const byCountry     = db.prepare(`SELECT country, COUNT(*) as n FROM users GROUP BY country ORDER BY n DESC LIMIT 10`).all();
+    const totalScores   = db.prepare(`SELECT COUNT(*) as n FROM user_scores`).get();
+    const totalDuels    = db.prepare(`SELECT COUNT(*) as n FROM duels`).get();
+    const activeDuels   = db.prepare(`SELECT COUNT(*) as n FROM duels WHERE status='active'`).get();
+    const finishedDuels = db.prepare(`SELECT COUNT(*) as n FROM duels WHERE status='finished'`).get();
+    const totalTournois = db.prepare(`SELECT COUNT(*) as n FROM tournaments`).get();
+    const feedbacks     = db.prepare(`SELECT COUNT(*) as n FROM feedback`).get();
+    const notifyList    = db.prepare(`SELECT COUNT(*) as n FROM notify_list`).get();
+    res.json({
+      utilisateurs: { total: totalUsers.n, verifies: verifiedUsers.n, nouveaux_7j: newUsers7d.n, par_profil: byProfile, par_pays: byCountry },
+      scores:   { total: totalScores.n },
+      duels:    { total: totalDuels.n, actifs: activeDuels.n, termines: finishedDuels.n },
+      tournois: { total: totalTournois.n },
+      feedback: { total: feedbacks.n },
+      tournoi_2027: { inscrits_notif: notifyList.n },
+      genere_le: new Date().toISOString(),
+    });
+  } catch (e) {
+    console.error('[admin/stats]', e);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+// GET /setup-admin-x7k2 — promotion one-shot de l'email admin (route secrète)
+app.get('/setup-admin-x7k2', (req, res) => {
+  db.prepare("UPDATE users SET role='admin' WHERE email='abdou.ndao@regularena.com'").run();
+  const user = db.prepare("SELECT id,email,role FROM users WHERE email=?").get('abdou.ndao@regularena.com');
+  res.json(user);
+});
+
+// GET /admin/users — liste des 200 derniers inscrits
+app.get('/admin/users', requireAdmin, (req, res) => {
+  try {
+    const users = db.prepare(`
+      SELECT id, name, email, profile, country, etablissement,
+             email_verified, role, created_at
+      FROM users ORDER BY created_at DESC LIMIT 200
+    `).all();
+    res.json({ users, total: users.length });
+  } catch (e) {
+    console.error('[admin/users]', e);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
