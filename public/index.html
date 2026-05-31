@@ -1414,6 +1414,97 @@ body { padding-top: 52px !important; padding-bottom: 32px !important; } /* MODIF
   #d-screen-result [style*="font-size:2.5rem"] { font-size: 1.5rem !important; }
 }
 
+/* ================================================================
+   LISIBILITÉ UNIVERSELLE — FONDS SOMBRES
+   ----------------------------------------------------------------
+   Approche : surcharge de var(--muted) par héritage CSS custom
+   property. Tous les éléments utilisant color:var(--muted) (inline
+   ou via classe) héritent automatiquement de la valeur allégée
+   dans les contextes sombres — aucun changement HTML requis.
+
+   Contextes cibles :
+     • Modals gate inscription (background: var(--bg2) = #080C14)
+     • Section feedback/suggestions (idem)
+     • Écrans duel d'attente (idem)
+================================================================ */
+
+/* ── 1. Uplift var(--muted) dans les contextes sombres ── */
+/* Tous les inline style="color:var(--muted)" et classes utilisant
+   var(--muted) héritent automatiquement de cette valeur allégée */
+.ra-gate-modal {
+  color: var(--text);
+  --muted: rgba(238,240,245,.72);
+}
+.feedback-section {
+  color: var(--text);
+  --muted: rgba(238,240,245,.70);
+}
+#d-screen-wait,
+#d-screen-join,
+#d-screen-waiting-start {
+  --muted: rgba(238,240,245,.68);
+}
+
+/* ── 2. Gate desc — corps de texte slides inscription ── */
+/* .ra-gate-desc{color:var(--muted)} → résout maintenant en clair,
+   mais on force légèrement au-dessus pour maximiser le contraste */
+.ra-gate-desc { color: rgba(238,240,245,.82) !important; }
+
+/* ── 3. Listes gate — items ✓ et texte associé ── */
+.ra-gate-modal li { color: var(--text); }
+.ra-gate-modal p  { color: rgba(238,240,245,.82); }
+
+/* ── 4. Labels gate inline (retour, hints, footer-modal) ── */
+/* Capturés par l'override --muted ci-dessus ; on s'assure
+   que les spans neutres n'héritent pas d'une couleur trop sombre */
+.ra-gate-step label,
+.ra-gate-step small { color: rgba(238,240,245,.75); }
+
+/* ── 5. Bouton "Renvoyer l'email" (style inline color:var(--muted)) ── */
+/* L'override --muted suffit, mais on renforce pour le bouton ghost */
+.ra-gate-modal .ra-btn-main[style*="color:var(--muted)"] {
+  color: rgba(238,240,245,.70) !important;
+}
+
+/* ── 6. Feedback — texte description + boutons type ── */
+.feedback-section p  { color: rgba(238,240,245,.82); }
+.feedback-section li { color: rgba(238,240,245,.80); }
+/* ftype-btn utilise var(--muted) — override --muted suffit,
+   on renforce quand même pour les navigateurs anciens */
+.ftype-btn            { color: rgba(238,240,245,.68); }
+.ftype-btn.active     { color: var(--gold); } /* override : or en actif */
+
+/* ── 7. Étoiles feedback (opacity .3 → trop sombres) ── */
+/* Les fstar inactives sont opacity:.3 sur un fond sombre,
+   on remonte légèrement pour rester visibles */
+.fstar { opacity: .45; color: var(--gold); }
+.fstar.active, .fstar:hover { opacity: 1; }
+
+/* ── 8. Texte info cyan dans gate (déjà OK, renforcement) ── */
+/* "ℹ Accepté : email de ta banque..." — déjà rgba(34,211,238,.7) */
+/* Pas de changement — cyan sur fond sombre = bon contraste */
+
+/* ── 9. Duel waiting screens — sous-titres muted ── */
+/* L'override --muted sur #d-screen-wait etc. suffit.
+   On cible aussi les cartes imbriquées */
+#d-screen-wait .card,
+#d-screen-join .card,
+#d-screen-waiting-start .card {
+  --muted: rgba(238,240,245,.68);
+}
+
+/* ── 10. Résultat duel — banner et points ── */
+/* result-banner a un fond gold-dim (semi-transparent sombre) */
+.result-banner p,
+.result-banner small,
+.result-banner [style*="color:var(--muted)"] {
+  color: rgba(238,240,245,.80) !important;
+}
+
+/* ── 11. Pas de régression sur fonds clairs ── */
+/* Les éléments sur fond blanc/beige (#F5F0E8, white) restent
+   inchangés : ils n'appartiennent pas aux contextes ci-dessus */
+
 /* ═══════════════════════════════════════════════════════════
    BIBLIOTHÈQUE RÉGLEMENTAIRE — CSS scopé (zero conflit)
    Toutes les règles sont sous #page-bibliotheque
