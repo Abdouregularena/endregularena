@@ -2030,6 +2030,44 @@ p, li, label { color:var(--text-primary, #EEF0F5) }
 /* Sur fonds clairs — classes déclaratives (pas encore utilisées) */
 .bg-light p, .bg-light li, .bg-beige p { color:#0D1B2A !important }
 
+/* ================================================================
+   DESIGN SYSTEM BLOC 3 — Accessibilité + Polish final
+================================================================ */
+
+/* ── 1. Focus visible — accessibilité clavier ── */
+*:focus-visible {
+  outline:2px solid #C8973A !important;
+  outline-offset:3px !important;
+  border-radius:4px;
+}
+
+/* ── 2. Transitions globales douces ── */
+a, button, .btn, .card, input, textarea, select {
+  transition:all .18s ease !important;
+}
+
+/* ── 3. Images & icônes ── */
+img { max-width:100%; height:auto }
+.emoji-icon { font-size:1.5rem; line-height:1 }
+
+/* ── 4. Scrollbar stylée (Chrome/Edge) ── */
+::-webkit-scrollbar { width:6px }
+::-webkit-scrollbar-track { background:#0D1B2A }
+::-webkit-scrollbar-thumb { background:#C8973A; border-radius:3px }
+
+/* ── 5. Sélection texte ── */
+::selection { background:#C8973A; color:#0D1B2A }
+
+/* ── 6. Placeholder global (fallback — overridé par règles spécifiques) ── */
+::placeholder { color:rgba(238,240,245,.4) !important; font-style:italic }
+
+/* ── 7. Lisibilité — line-height et letter-spacing ── */
+/* Sans !important : les classes spécifiques (.section-title letter-spacing:2px
+   etc.) gardent la priorité automatiquement via spécificité CSS. */
+p, li { line-height:1.7 }
+h1, h2, h3 { letter-spacing:-.02em; line-height:1.2 }
+.label, .tag, .badge-name { letter-spacing:.08em; font-size:.75rem }
+
 /* ── Navbar — liens gold gras + logo badge gold ── */
 /* Liens de navigation (tous les boutons dans .nav-links) */
 .nav-links button { color:#C8973A !important; font-weight:700 !important }
