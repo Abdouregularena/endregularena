@@ -1448,11 +1448,7 @@ app.get('/admin/stats', requireAdmin, (req, res) => {
 });
 
 /* ── STATIC ──────────────────────────────────────────────────────── */
-app.get('/setup-admin-x7k2', (req, res) => {
-  db.prepare("UPDATE users SET role='admin' WHERE email='abdou.ndao@regularena.com'").run();
-  const user = db.prepare("SELECT id,email,role FROM users WHERE email=?").get('abdou.ndao@regularena.com');
-  res.json(user);
-});
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('/api', (req, res) => res.json({ status: 'ok', message: 'API REGUL ARENA en ligne' }));
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
