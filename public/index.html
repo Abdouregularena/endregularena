@@ -1912,6 +1912,34 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
 .ra-contact-footer{background:var(--aca-bleu-d) !important;color:#cdd8e6 !important}
 .ra-contact-footer a{color:#cdd8e6 !important}
 
+/* ================================================================
+   LISIBILITÉ FINALE — après ACA (gagne sur tous les !important ACA)
+   Placement : dernier bloc du <style> pour priorité cascade max.
+================================================================ */
+
+/* ── Footer contact/partenariat (.ra-contact-footer) ── */
+.ra-contact-tagline           { color:#EEF0F5 !important }
+.ra-contact-footer-legal      { color:rgba(238,240,245,.75) !important }
+.ra-contact-footer-legal a    { color:#EEF0F5 !important }
+.ra-contact-footer-legal a:hover { color:var(--gold) !important }
+/* Separateurs · entre les liens */
+.ra-contact-footer-legal span[style*="color:var(--muted)"] { color:rgba(238,240,245,.5) !important }
+
+/* ── Footer bas de page (<footer> .footer-copy) ── */
+.footer-copy                  { color:#EEF0F5 !important }
+footer .footer-copy a         { color:#EEF0F5 !important }
+footer .footer-copy a:hover   { color:var(--gold) !important }
+
+/* ── Badges — noms sous les icônes ── */
+/* .badge-name avait color:var(--muted) sur fond --bg2 sombre */
+.badge-name { color:#EEF0F5 !important }
+
+/* ── Section 4 modes — descriptifs des cartes ── */
+/* .mode-desc avait color:var(--muted) — ACA overridait avec var(--aca-clair) */
+.mode-desc                    { color:#EEF0F5 !important }
+/* Badge "2027" (mode-badge.soon) — couleur atténuée */
+.mode-badge.soon              { color:rgba(238,240,245,.65) !important }
+
 </style>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
