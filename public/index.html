@@ -1925,6 +1925,24 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
 /* Separateurs · entre les liens */
 .ra-contact-footer-legal span[style*="color:var(--muted)"] { color:rgba(238,240,245,.5) !important }
 
+/* ── Navbar — liens gold gras + logo badge gold ── */
+/* Liens de navigation (tous les boutons dans .nav-links) */
+.nav-links button { color:#C8973A !important; font-weight:700 !important }
+/* Hover / actif : légèrement plus clair pour feedback visuel */
+.nav-links button:hover,
+.nav-links button.active { color:#E8B520 !important; background:var(--gold-dim) !important }
+/* Logo REGUL ARENA — fond gold, texte navy gras (badge style) */
+.nav-logo {
+  background-color:#C8973A !important;
+  color:#0D1B2A !important;
+  font-weight:900 !important;
+  padding:4px 10px !important;
+  border-radius:4px !important;
+}
+.nav-logo span { color:#0D1B2A !important }
+/* Quiz pill — déjà gold bg + navy text correct, on renforce le gras */
+#ra-quiz-pill { font-weight:700 !important }
+
 /* ── Ticker haut — bannière partenaires/institutions → tout en gold ── */
 .sponsors-banner, .sponsors-banner * { color:#C8973A !important; font-weight:700 !important }
 .sponsors-label  { opacity:.7 !important; font-weight:700 !important }
