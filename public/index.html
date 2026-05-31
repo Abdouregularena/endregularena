@@ -1501,7 +1501,34 @@ body { padding-top: 52px !important; padding-bottom: 32px !important; } /* MODIF
   color: rgba(238,240,245,.80) !important;
 }
 
-/* ── 11. Pas de régression sur fonds clairs ── */
+/* ── 11. Gate AUTH overlay (#ra-auth-overlay) — règles précises ──
+   Scope : modal "INSCRIPTION REQUISE" / "Accès compétitif"
+   Méthode : !important pour passer au-dessus des inline styles ── */
+
+/* "Pour jouer en duel..." et desc de toutes les étapes */
+#ra-auth-overlay .ra-gate-desc  { color: #FFFFFF !important; }
+/* Listes ✓ : tous les <li> dans le gate auth */
+#ra-auth-overlay ul li          { color: #FFFFFF !important; }
+/* "INSCRIPTION REQUISE" label */
+#ra-auth-overlay .ra-gate-pretitle { color: rgba(255,255,255,.70) !important; }
+/* Tout élément avec style="...color:var(--muted)..." dans l'overlay :
+   couvre "✕ Fermer", "Déjà inscrit ?", "← Retour", "← Modifier",
+   "En attente...", "📨 Renvoyer l'email", "Accès débloqué" */
+#ra-auth-overlay [style*="color:var(--muted)"] { color: #FFFFFF !important; }
+/* Texte bleu info "Accepté : email de ta banque..." → #C8D8FF */
+#ra-auth-step1 li[style*="color:rgba(34,211,238"] { color: #C8D8FF !important; }
+
+/* ── 12. Gate QUIZ overlay (#ra-gate-overlay) — mêmes règles ──
+   Scope : modal "Rejoins l'arène" (après 3 quiz gratuits) ── */
+#ra-gate-overlay .ra-gate-desc  { color: #FFFFFF !important; }
+#ra-gate-overlay ul li          { color: #FFFFFF !important; }
+#ra-gate-overlay .ra-gate-pretitle { color: rgba(255,255,255,.70) !important; }
+#ra-gate-overlay [style*="color:var(--muted)"] { color: #FFFFFF !important; }
+/* Texte bleu info dans le gate quiz si présent */
+#ra-step1 li[style*="color:rgba(34,211,238"]    { color: #C8D8FF !important; }
+/* "Déjà inscrit ?" div wrapper — capturé par [style*=muted] ci-dessus */
+
+/* ── 13. Pas de régression sur fonds clairs ── */
 /* Les éléments sur fond blanc/beige (#F5F0E8, white) restent
    inchangés : ils n'appartiennent pas aux contextes ci-dessus */
 
