@@ -408,6 +408,13 @@ nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:0} /* MOD
 .feedback-textarea{width:100%;background:var(--bg3);border:1px solid var(--gb);color:var(--text);font-family:'Inter',sans-serif;font-size:.85rem;padding:13px 16px;border-radius:2px;outline:none;resize:vertical;min-height:110px;transition:border-color .2s;grid-column:1/-1}
 .feedback-textarea:focus{border-color:var(--border)}
 .feedback-textarea::placeholder{color:var(--muted)}
+/* Texte tapé dans la textarea — blanc sur fond sombre */
+.feedback-section textarea,
+#fb-message,
+.feedback-section textarea:focus{color:#FFFFFF!important;caret-color:#FFFFFF!important}
+/* Inputs texte/email — fond clair donc texte sombre */
+.feedback-section input[type="text"],
+.feedback-section input[type="email"]{color:#1a2640!important}
 .feedback-type-btns{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
 .ftype-btn{background:var(--bg3);border:1px solid var(--gb);color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:1.5px;padding:7px 14px;cursor:pointer;transition:all .2s;border-radius:1px;text-transform:uppercase}
 .ftype-btn.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold)}
