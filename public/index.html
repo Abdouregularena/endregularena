@@ -35,6 +35,17 @@
    Architecture : SPA 6 modules | Palette BCEAO | WCAG 2.1 AA
 ================================================================ */
 :root {
+  /* ── Nouvelles variables design system moderne ── */
+  --blue-cobalt:       #2563EB;
+  --blue-cobalt-hover: #1D4ED8;
+  --slate-dark:        #1E293B;
+  --bg-light:          #F8FAFC;
+  --green-success:     #059669;
+  --shadow-sm:         0 4px 6px -1px rgba(0,0,0,.10);
+  --shadow-md:         0 8px 24px -4px rgba(0,0,0,.15);
+  --radius-btn:        8px;
+  --radius-card:       12px;
+  /* ── Variables existantes ── */
   --gold:      #C9991A; --gold-l: #E8B520; --gold-b: #FFD27A;
   --gold-dim:  rgba(201,153,26,.12); --gold-f: rgba(201,153,26,.06);
   --gold-glow: rgba(201,153,26,.35); --border: rgba(201,153,26,.22);
@@ -2067,6 +2078,81 @@ img { max-width:100%; height:auto }
 p, li { line-height:1.7 }
 h1, h2, h3 { letter-spacing:-.02em; line-height:1.2 }
 .label, .tag, .badge-name { letter-spacing:.08em; font-size:.75rem }
+
+/* ================================================================
+   DESIGN SYSTEM BLOC 4 — Refonte moderne Inter + cobalt + cards + inputs
+================================================================ */
+
+/* ── 2. Typographie Inter ── */
+/* Inter déjà importé en ligne 28 — pas de doublon HTTP */
+/* body déjà Inter — on renforce sur éléments courants */
+p, li, label, input, textarea, button, a {
+  font-family:'Inter', sans-serif;
+  line-height:1.6;
+}
+/* h1/h2/h3 : spécificité 0,0,0,1 — classes Bebas Neue gagnent automatiquement */
+h1, h2, h3 { font-family:'Inter',sans-serif; font-weight:700; letter-spacing:-.02em; line-height:1.2 }
+
+/* ── 3. Boutons modernisés ── */
+.btn-gold, .btn-primary, button[class*="btn"] {
+  border-radius:var(--radius-btn) !important;
+  padding:12px 24px !important;
+  font-weight:600 !important;
+  font-family:'Inter',sans-serif !important;
+  transition:background .18s ease, box-shadow .18s ease, transform .12s ease !important;
+  box-shadow:var(--shadow-sm) !important;
+}
+.btn-gold:hover, .btn-primary:hover {
+  transform:translateY(-1px) !important;
+  box-shadow:var(--shadow-md) !important;
+}
+/* Nouveau bouton CTA cobalt (additif) */
+.btn-cta { background:var(--blue-cobalt) !important; color:#FFFFFF !important; border:none !important }
+.btn-cta:hover { background:var(--blue-cobalt-hover) !important }
+
+/* ── 4. Cards modernisées ── */
+.card, .pack-card, .badge-card, .mode-card,
+.score-card, .duel-card, [class*="-card"] {
+  border-radius:var(--radius-card) !important;
+  box-shadow:var(--shadow-sm) !important;
+  transition:transform .18s ease, box-shadow .18s ease !important;
+}
+[class*="-card"]:hover {
+  transform:translateY(-3px) !important;
+  box-shadow:var(--shadow-md) !important;
+}
+
+/* ── 5. Inputs modernisés ── */
+input[type="text"], input[type="email"],
+input[type="password"], textarea, select {
+  border-radius:8px !important;
+  border:1.5px solid rgba(37,99,235,.25) !important;
+  padding:10px 14px !important;
+  font-family:'Inter',sans-serif !important;
+  transition:border-color .18s ease, box-shadow .18s ease !important;
+}
+input:focus, textarea:focus, select:focus {
+  border-color:var(--blue-cobalt) !important;
+  box-shadow:0 0 0 3px rgba(37,99,235,.15) !important;
+  outline:none !important;
+}
+
+/* ── 6. Notifications / succès ── */
+.success, .alert-success, [class*="success"] { color:var(--green-success) !important }
+.toast-success, .notif-success { background:var(--green-success) !important; color:#FFFFFF !important }
+
+/* ── 7. Scrollbar mise à jour (cobalt) ── */
+::-webkit-scrollbar { width:6px }
+::-webkit-scrollbar-track { background:var(--bg-light) }
+::-webkit-scrollbar-thumb { background:var(--blue-cobalt); border-radius:3px }
+::selection { background:rgba(37,99,235,.2); color:var(--slate-dark) }
+
+/* ── 8. Focus accessibilité (cobalt — surcharge bloc 3 gold) ── */
+*:focus-visible {
+  outline:2px solid var(--blue-cobalt) !important;
+  outline-offset:3px !important;
+  border-radius:4px !important;
+}
 
 /* ── Navbar — liens gold gras + logo badge gold ── */
 /* Liens de navigation (tous les boutons dans .nav-links) */
