@@ -67,4 +67,13 @@ db.exec(`
 `);
 
 console.log('✅  Base de données initialisée :', dbPath);
+
+// ── Migrations (idempotentes) ─────────────────────────────
+[
+  `ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'user'`,
+].forEach(sql => {
+  try { db.exec(sql); console.log('✅  Migration OK :', sql.slice(0, 50)); }
+  catch (e) { /* colonne déjà existante — normal */ }
+});
+
 db.close();
