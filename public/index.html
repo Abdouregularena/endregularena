@@ -26,6 +26,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
 <style>
 /* ================================================================
@@ -1926,6 +1927,69 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
 .ra-contact-footer a:hover { color:#FFFFFF !important }
 /* Forts : strong (noms propres) restent gold */
 .ra-contact-footer strong { color:#C8973A !important }
+
+/* ================================================================
+   DESIGN SYSTEM — Plus Jakarta Sans + boutons + cards + spacing
+   Placement après ACA pour priorité cascade maximale.
+================================================================ */
+
+/* ── 1. Typographie — Plus Jakarta Sans comme police par défaut ── */
+/* Appliqué sur body SANS !important pour que Bebas Neue, JetBrains
+   Mono et Montserrat gardent leur priorité sur leurs éléments. */
+body { font-family:'Plus Jakarta Sans','Inter',sans-serif }
+
+/* Variables texte sémantiques */
+:root {
+  --text-primary:   #EEF0F5;
+  --text-secondary: rgba(238,240,245,.70);
+  --text-muted:     rgba(238,240,245,.45);
+}
+
+/* Paragraphes descriptifs → text-secondary */
+p:not([style*="color"]) { color:var(--text-secondary) }
+
+/* ── 2. Nouveaux boutons design system (additifs) ── */
+.btn-primary {
+  background:#C8973A; color:#0D1B2A;
+  font-weight:700; padding:12px 24px;
+  border-radius:8px; border:none;
+  cursor:pointer; transition:opacity .2s;
+  display:inline-flex; align-items:center; gap:8px;
+}
+.btn-primary:hover { opacity:.85 }
+
+.btn-secondary {
+  background:transparent; color:#C8973A;
+  font-weight:700; padding:11px 23px;
+  border-radius:8px; border:2px solid #C8973A;
+  cursor:pointer; transition:all .2s;
+  display:inline-flex; align-items:center; gap:8px;
+}
+.btn-secondary:hover { background:#C8973A; color:#0D1B2A }
+
+.btn-tertiary {
+  background:transparent; color:#EEF0F5;
+  font-weight:600; padding:11px 23px;
+  border-radius:8px; border:1px solid rgba(238,240,245,.3);
+  cursor:pointer; transition:all .2s;
+  display:inline-flex; align-items:center; gap:8px;
+}
+.btn-tertiary:hover { border-color:rgba(238,240,245,.6) }
+
+/* ── 3. Spacing section ── */
+.section { padding:80px 40px !important }
+@media(max-width:768px) { .section { padding:48px 20px !important } }
+
+/* ── 4. Cards — ombres douces et border-radius augmenté ── */
+.card, .pack-card, .badge-card {
+  border-radius:12px !important;
+  box-shadow:0 4px 20px rgba(0,0,0,.12) !important;
+  transition:transform .2s, box-shadow .2s !important;
+}
+.card:hover, .pack-card:hover, .badge-card:hover {
+  transform:translateY(-2px) !important;
+  box-shadow:0 8px 30px rgba(0,0,0,.18) !important;
+}
 
 /* ── Navbar — liens gold gras + logo badge gold ── */
 /* Liens de navigation (tous les boutons dans .nav-links) */
