@@ -13,7 +13,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'change_me_in_production';
 // ── Helpers ───────────────────────────────────────────────
 function issueJWT(user) {
   return jwt.sign(
-    { sub: user.id, email: user.email, name: user.name },
+{ sub: user.id, email: user.email, name: user.name, role: user.role },
     JWT_SECRET,
     { expiresIn: '30d' }
   );
