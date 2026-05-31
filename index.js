@@ -1,9 +1,9 @@
 'use strict';
 
 /* ================================================================
-   REGUL ARENA — Backend API
-   Stack : Express · better-sqlite3 · JWT · Resend · Helmet
-   Routes : /auth/* · /feedback · /feedback/notify
+   REGUL ARENA â€” Backend API
+   Stack : Express &#183; better-sqlite3 &#183; JWT &#183; Resend &#183; Helmet
+   Routes : /auth/* &#183; /feedback &#183; /feedback/notify
 ================================================================ */
 
 require('dotenv').config();
@@ -16,20 +16,21 @@ const Database     = require('better-sqlite3');
 const { Resend }   = require('resend');
 const crypto       = require('crypto');
 const path         = require('path');
-const { pickQuestions, getPack } = require('./packs');
+const { pickQuestions } = require('./packs'); // FIX anti-triche : source serveur pour les questions de duel
 
-/* ── CONFIG ──────────────────────────────────────────────────────── */
-const PORT       = process.env.PORT || 3000;
-const JWT_SECRET = process.env.JWT_SECRET || 'changez-moi-en-production';
-const RESEND_KEY = process.env.RESEND_API_KEY || '';
-const FROM_EMAIL = process.env.FROM_EMAIL || 'noreply@regularena.com';
-const BASE_URL   = process.env.BASE_URL || 'https://endregularena-production.up.railway.app';
+/* â”€â”€ CONFIG â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+const PORT         = process.env.PORT || 3000;
+const JWT_SECRET   = process.env.JWT_SECRET || 'changez-moi-en-production';
+const RESEND_KEY   = process.env.RESEND_API_KEY || '';
+const FROM_EMAIL   = process.env.FROM_EMAIL || 'noreply@regularena.com';
+// SOURCE DE VERITE UNIQUE
+const BASE_URL = process.env.BASE_URL || 'https://endregularena-production.up.railway.app';
 const TOKEN_TTL_H = 24;
 
 const resend = new Resend(RESEND_KEY);
 
-/* ── BASE DE DONNÉES SQLite ──────────────────────────────────────── */
-const db = new Database(process.env.DB_PATH || path.join(__dirname, 'regularena.db'));
+/* â”€â”€ BASE DE DONNÃ‰ES SQLite â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+const db = new Database(process.env.DB_PATH || path.join(__dirname, 'regularena.db')); // MODIFIÉ — persistance : DB_PATH → volume Railway (ex: /data/regularena.db)
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
 
@@ -44,6 +45,7 @@ db.exec(`
     email_verified INTEGER NOT NULL DEFAULT 0,
     created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
   );
+
   CREATE TABLE IF NOT EXISTS confirm_tokens (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -51,6 +53,7 @@ db.exec(`
     expires_at TEXT    NOT NULL,
     used       INTEGER NOT NULL DEFAULT 0
   );
+
   CREATE TABLE IF NOT EXISTS login_tokens (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
     email      TEXT NOT NULL,
@@ -58,6 +61,7 @@ db.exec(`
     expires_at TEXT NOT NULL,
     used       INTEGER NOT NULL DEFAULT 0
   );
+
   CREATE TABLE IF NOT EXISTS feedback (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
     type       TEXT NOT NULL DEFAULT 'general',
@@ -65,11 +69,13 @@ db.exec(`
     email      TEXT,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
+
   CREATE TABLE IF NOT EXISTS notify_list (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
     email      TEXT NOT NULL UNIQUE,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
+
   CREATE TABLE IF NOT EXISTS user_scores (
     id        INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id   INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -78,6 +84,7 @@ db.exec(`
     total     INTEGER NOT NULL DEFAULT 0,
     played_at TEXT    NOT NULL DEFAULT (datetime('now'))
   );
+
   CREATE TABLE IF NOT EXISTS duels (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
     code          TEXT    NOT NULL UNIQUE,
@@ -89,6 +96,7 @@ db.exec(`
     status        TEXT    NOT NULL DEFAULT 'waiting',
     created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
   );
+
   CREATE TABLE IF NOT EXISTS duel_scores (
     id                 INTEGER PRIMARY KEY AUTOINCREMENT,
     duel_id            INTEGER NOT NULL REFERENCES duels(id) ON DELETE CASCADE,
@@ -98,6 +106,7 @@ db.exec(`
     finished           INTEGER NOT NULL DEFAULT 0,
     UNIQUE(duel_id, user_id)
   );
+
   CREATE TABLE IF NOT EXISTS tournaments (
     id           INTEGER PRIMARY KEY AUTOINCREMENT,
     code         TEXT    NOT NULL UNIQUE,
@@ -108,6 +117,7 @@ db.exec(`
     status       TEXT    NOT NULL DEFAULT 'waiting',
     created_at   TEXT    NOT NULL DEFAULT (datetime('now'))
   );
+
   CREATE TABLE IF NOT EXISTS tournament_participants (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
     tournament_id INTEGER NOT NULL REFERENCES tournaments(id) ON DELETE CASCADE,
@@ -117,6 +127,7 @@ db.exec(`
     rank          INTEGER,
     UNIQUE(tournament_id, user_id)
   );
+
   CREATE TABLE IF NOT EXISTS messages (
     id      INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL REFERENCES users(id),
@@ -124,6 +135,7 @@ db.exec(`
     content TEXT    NOT NULL,
     sent_at TEXT    NOT NULL DEFAULT (datetime('now'))
   );
+
   CREATE TABLE IF NOT EXISTS dm (
     id      INTEGER PRIMARY KEY AUTOINCREMENT,
     from_id INTEGER NOT NULL REFERENCES users(id),
@@ -131,6 +143,7 @@ db.exec(`
     content TEXT    NOT NULL,
     sent_at TEXT    NOT NULL DEFAULT (datetime('now'))
   );
+
   CREATE TABLE IF NOT EXISTS notifications (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id    INTEGER NOT NULL REFERENCES users(id),
@@ -141,34 +154,40 @@ db.exec(`
   );
 `);
 
-/* ── Migrations ──────────────────────────────────────────────────── */
-[
-  'ALTER TABLE duels ADD COLUMN num_questions INTEGER NOT NULL DEFAULT 10',
-  'ALTER TABLE duels ADD COLUMN timer_sec INTEGER NOT NULL DEFAULT 30',
-  'ALTER TABLE duel_scores ADD COLUMN questions_answered INTEGER NOT NULL DEFAULT 0',
-  'ALTER TABLE duel_scores ADD COLUMN finished INTEGER NOT NULL DEFAULT 0',
-  'ALTER TABLE duels ADD COLUMN questions_json TEXT NOT NULL DEFAULT \'[]\'',
-  'ALTER TABLE duels ADD COLUMN started_at TEXT',
-  'ALTER TABLE duels ADD COLUMN packs_ids TEXT',
-  'ALTER TABLE tournaments ADD COLUMN country TEXT NOT NULL DEFAULT ""',
-  'ALTER TABLE tournaments ADD COLUMN zone TEXT NOT NULL DEFAULT "uemoa"',
-  'ALTER TABLE tournaments ADD COLUMN start_date TEXT NOT NULL DEFAULT ""',
-  'ALTER TABLE tournament_participants ADD COLUMN qualified INTEGER NOT NULL DEFAULT 0',
-  'ALTER TABLE tournaments ADD COLUMN youtube_live_url TEXT',
-  'ALTER TABLE tournaments ADD COLUMN packs_ids TEXT',
-  'ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT \'user\'',
+/* ALTER TABLE migrations — colonnes ajoutées après le déploiement initial */
+['ALTER TABLE duels ADD COLUMN num_questions INTEGER NOT NULL DEFAULT 10',
+ 'ALTER TABLE duels ADD COLUMN timer_sec INTEGER NOT NULL DEFAULT 30',
+ 'ALTER TABLE duel_scores ADD COLUMN questions_answered INTEGER NOT NULL DEFAULT 0',
+ 'ALTER TABLE duel_scores ADD COLUMN finished INTEGER NOT NULL DEFAULT 0',
+ // FIX anti-triche — questions tirées et figées par le serveur au start du duel.
+ // Stocke un tableau JSON [{q, choices, correct, source/reference}] identique
+ // au format frontend. NULL ou '[]' = duel pas encore démarré côté serveur.
+ 'ALTER TABLE duels ADD COLUMN questions_json TEXT NOT NULL DEFAULT \'[]\'',
+ 'ALTER TABLE duels ADD COLUMN started_at TEXT',
+ // BUG2 FIX — index de question partagé entre les deux clients : avance dès qu'un joueur répond correctement
+ 'ALTER TABLE duels ADD COLUMN current_q_index INTEGER NOT NULL DEFAULT 0',
 ].forEach(sql => { try { db.exec(sql); } catch(_) {} });
-
-try { db.exec("UPDATE duels SET packs_ids = '[\"' || pack_id || '\"]' WHERE pack_id IS NOT NULL AND pack_id != '' AND (packs_ids IS NULL OR packs_ids = '')"); } catch(_) {}
-try { db.exec("UPDATE tournaments SET packs_ids = '[\"' || pack_id || '\"]' WHERE pack_id IS NOT NULL AND pack_id != '' AND (packs_ids IS NULL OR packs_ids = '')"); } catch(_) {}
 try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_duel_scores_uq ON duel_scores (duel_id, user_id)'); } catch(_) {}
 try { db.exec('CREATE INDEX IF NOT EXISTS idx_notif_user ON notifications (user_id, seen, created_at DESC)'); } catch(_) {}
+// FIX performance : index manquants sur messages et dm
 try { db.exec('CREATE INDEX IF NOT EXISTS idx_messages_zone ON messages (zone, sent_at)'); } catch(_) {}
 try { db.exec('CREATE INDEX IF NOT EXISTS idx_dm_conv ON dm (from_id, to_id, sent_at)'); } catch(_) {}
 try { db.exec('CREATE INDEX IF NOT EXISTS idx_dm_to ON dm (to_id, from_id, sent_at)'); } catch(_) {}
+
 try { db.exec('CREATE INDEX IF NOT EXISTS idx_user_scores_user ON user_scores (user_id, played_at)'); } catch(_) {}
 try { db.exec('CREATE INDEX IF NOT EXISTS idx_tp_tid_score ON tournament_participants (tournament_id, score)'); } catch(_) {}
 
+// TOURNOI AJOUT — migrations nouvelles colonnes tables existantes
+['ALTER TABLE tournaments ADD COLUMN country TEXT NOT NULL DEFAULT ""',   // TOURNOI AJOUT
+ 'ALTER TABLE tournaments ADD COLUMN zone TEXT NOT NULL DEFAULT "uemoa"', // TOURNOI AJOUT
+ 'ALTER TABLE tournaments ADD COLUMN start_date TEXT NOT NULL DEFAULT ""',// TOURNOI AJOUT
+ 'ALTER TABLE tournament_participants ADD COLUMN qualified INTEGER NOT NULL DEFAULT 0', // TOURNOI AJOUT
+ // FEATURE 1/2 — invitation bêta + CGU
+ 'ALTER TABLE users ADD COLUMN cgu_accepted_at TEXT',
+ 'ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT "user"',
+].forEach(sql => { try { db.exec(sql); } catch(_) {} }); // TOURNOI AJOUT
+
+// TOURNOI AJOUT — nouvelles tables module tournoi
 db.exec(`
   CREATE TABLE IF NOT EXISTS tournament_matches (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -197,30 +216,9 @@ db.exec(`
     content       TEXT NOT NULL,
     sent_at       TEXT NOT NULL DEFAULT (datetime('now'))
   );
-  CREATE TABLE IF NOT EXISTS tournament_supports (
-    id            INTEGER PRIMARY KEY AUTOINCREMENT,
-    tournament_id INTEGER NOT NULL,
-    user_id       INTEGER,
-    pseudo        TEXT,
-    emoji         TEXT NOT NULL,
-    created_at    TEXT DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (tournament_id) REFERENCES tournaments(id)
-  );
-  CREATE TABLE IF NOT EXISTS coumba_games (
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    code       TEXT    NOT NULL UNIQUE,
-    player1_id INTEGER NOT NULL REFERENCES users(id),
-    player2_id INTEGER REFERENCES users(id),
-    state_json TEXT    NOT NULL DEFAULT '{}',
-    status     TEXT    NOT NULL DEFAULT 'waiting',
-    created_at TEXT    NOT NULL DEFAULT (datetime('now'))
-  );
-`);
+`); // TOURNOI AJOUT
 
-try { db.exec('CREATE INDEX IF NOT EXISTS idx_supports_tournament ON tournament_supports(tournament_id, created_at)'); } catch(_) {}
-try { db.exec('CREATE INDEX IF NOT EXISTS idx_tournament_chat_tid ON tournament_chat(tournament_id, id)'); } catch(_) {}
-
-/* ── HELPERS ─────────────────────────────────────────────────────── */
+/* ── NOTIFICATIONS HELPER ──────────────────────────────────────────── */
 function notifyAllExcept(excludeUserId, type, message) {
   const users = db.prepare('SELECT id FROM users WHERE email_verified = 1 AND id != ? ORDER BY RANDOM() LIMIT 50').all(excludeUserId);
   const insert = db.prepare('INSERT INTO notifications (user_id, type, message) VALUES (?, ?, ?)');
@@ -228,7 +226,10 @@ function notifyAllExcept(excludeUserId, type, message) {
   tx();
 }
 
-function genToken(bytes = 32) { return crypto.randomBytes(bytes).toString('hex'); }
+/* â”€â”€ HELPERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+function genToken(bytes = 32) {
+  return crypto.randomBytes(bytes).toString('hex');
+}
 
 function expiresAt(hours = TOKEN_TTL_H) {
   const d = new Date();
@@ -239,38 +240,22 @@ function expiresAt(hours = TOKEN_TTL_H) {
 function signJWT(user) {
   return jwt.sign(
     { id: user.id, email: user.email, name: user.name, profile: user.profile,
-      role: user.role || 'user', is_verified: user.email_verified === 1 },
+      is_verified: user.email_verified === 1 },
     JWT_SECRET,
     { expiresIn: '7d' }
   );
 }
 
-function ok(res, data = {}) { return res.status(200).json({ success: true, ...data }); }
-function err(res, status, message) { return res.status(status).json({ success: false, error: message }); }
-
-function genCode(prefix) {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  const rand = (n) => Array.from({length:n}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
-  return `${prefix}-${rand(3)}-${rand(3)}`;
+function ok(res, data = {}) {
+  return res.status(200).json({ success: true, ...data });
 }
 
-function publicUser(u) {
-  return { id: u.id, name: u.name, email: u.email, profile: u.profile, country: u.country, etablissement: u.etablissement };
+function err(res, status, message) {
+  return res.status(status).json({ success: false, error: message });
 }
 
-function escEmail(str) {
-  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-/* ── MIDDLEWARE ──────────────────────────────────────────────────── */
+/* â”€â”€ MIDDLEWARE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const app = express();
-
-app.use((req, res, next) => {
-  if (req.path.startsWith('/duels') || req.path.startsWith('/notifications')) {
-    res.set('Cache-Control', 'no-store');
-  }
-  next();
-});
 
 app.set('trust proxy', 1);
 app.use(helmet({
@@ -278,59 +263,56 @@ app.use(helmet({
     directives: {
       defaultSrc:    ["'self'"],
       scriptSrc:     ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"],
-      scriptSrcAttr: ["'unsafe-inline'"],
+      scriptSrcAttr: ["'unsafe-inline'"],   // autorise onclick= et autres event handlers inline
       styleSrc:      ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc:       ["'self'", "https://fonts.gstatic.com"],
-      connectSrc:    ["'self'", "https://www.regularena.com", "https://regularena.com", "https://endregularena-production.up.railway.app"],
+      connectSrc: ["'self'", "https://www.regularena.com", "https://regularena.com", "https://endregularena-production.up.railway.app"],
       imgSrc:        ["'self'", "data:"],
       frameAncestors:["'none'"],
     },
   },
 }));
-
 app.use((req, res, next) => {
-  const allowed = ['https://www.regularena.com','https://regularena.com','https://endregularena-production.up.railway.app'];
+   const allowed = ['https://www.regularena.com','https://regularena.com','https://endregularena-production.up.railway.app'];
   if (allowed.includes(req.headers.origin)) res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS,PATCH,DELETE');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
   next();
-});
+}); // MODIFIÉ — CORS manuel
 
 app.use(express.json());
 
 const limiterStrict = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, standardHeaders: true, legacyHeaders: false });
 const limiterLoose  = rateLimit({ windowMs: 15 * 60 * 1000, max: 60, standardHeaders: true, legacyHeaders: false });
 
+/* â”€â”€ AUTH MIDDLEWARE (routes prot&#233;g&#233;es futures) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function requireAuth(req, res, next) {
   const header = req.headers['authorization'] || '';
   const token  = header.startsWith('Bearer ') ? header.slice(7) : null;
-  if (!token) return err(res, 401, 'Non authentifié');
+  if (!token) return err(res, 401, 'Non authentifi&#233;');
   try {
     req.user = jwt.verify(token, JWT_SECRET);
     next();
   } catch {
-    return err(res, 401, 'Token invalide ou expiré');
+    return err(res, 401, 'Token invalide ou expir&#233;');
   }
-}
-
-function requireAdmin(req, res, next) {
-  const auth = req.headers.authorization;
-  if (!auth?.startsWith('Bearer ')) return res.status(401).json({ error: 'Token manquant' });
-  try {
-    const decoded = jwt.verify(auth.slice(7), JWT_SECRET);
-    if (decoded.role !== 'admin') return res.status(403).json({ error: 'Accès refusé' });
-    req.user = decoded;
-    next();
-  } catch { res.status(401).json({ error: 'Token invalide' }); }
 }
 
 /* ================================================================
    ROUTES AUTH
 ================================================================ */
 
+/* POST /auth/register
+   Body : { name, email, profile, country, etablissement }
+   &#8594; cr&#233;e ou retrouve l'utilisateur, envoie email de confirmation
+*/
 app.post('/auth/register', limiterStrict, async (req, res) => {
-  const { name, email, profile, country, etablissement = '' } = req.body || {};
+  const { name, email, profile, country, etablissement = '', invite_code, cgu_accepted } = req.body || {};
+
+  // FEATURE 2 — CGU obligatoires
+  if (cgu_accepted !== true) return err(res, 400, 'Vous devez accepter les CGU.');
+
   if (!name || !email) return err(res, 400, 'Nom et email requis');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return err(res, 400, 'Email invalide');
   if (name.length < 2 || name.length > 80) return err(res, 400, 'Nom invalide');
@@ -338,57 +320,82 @@ app.post('/auth/register', limiterStrict, async (req, res) => {
   const cleanName  = name.trim();
   const cleanEmail = email.trim().toLowerCase();
 
-  let user = db.prepare('SELECT * FROM users WHERE email = ?').get(cleanEmail);
-  if (!user) {
-    const result = db.prepare(
-      'INSERT INTO users (name, email, profile, country, etablissement) VALUES (?, ?, ?, ?, ?)'
-    ).run(cleanName, cleanEmail, profile || 'professionnel', country || '', etablissement);
-    user = db.prepare('SELECT * FROM users WHERE id = ?').get(result.lastInsertRowid);
+  // FEATURE 1 — vérification code invitation (bêta fermée si BETA_CLOSED=true)
+  const BETA_CLOSED = process.env.BETA_CLOSED === 'true';
+  if (BETA_CLOSED) {
+    if (!invite_code) return err(res, 403, 'Inscription sur invitation uniquement.');
+    const inv = db.prepare('SELECT * FROM invitations WHERE code = ? AND used = 0').get(invite_code.trim());
+    if (!inv) return err(res, 403, "Code d'invitation invalide ou déjà utilisé.");
+    if (inv.email && inv.email.toLowerCase() !== cleanEmail) {
+      return err(res, 403, 'Ce code d\'invitation est réservé à une autre adresse email.');
+    }
+    // stocker pour marquer comme utilisé après création réussie
+    req._invitation = inv;
   }
 
+  // Upsert user
+  let user = db.prepare('SELECT * FROM users WHERE email = ?').get(cleanEmail);
+
+  if (!user) {
+    const result = db.prepare(
+      "INSERT INTO users (name, email, profile, country, etablissement, cgu_accepted_at) VALUES (?, ?, ?, ?, ?, datetime('now'))"
+    ).run(cleanName, cleanEmail, profile || 'professionnel', country || '', etablissement);
+    user = db.prepare('SELECT * FROM users WHERE id = ?').get(result.lastInsertRowid);
+  } else {
+    db.prepare("UPDATE users SET cgu_accepted_at = datetime('now') WHERE id = ?").run(user.id);
+  }
+
+  // G&#233;n&#233;rer token de confirmation
   const token = genToken();
-  db.prepare('INSERT INTO confirm_tokens (user_id, token, expires_at) VALUES (?, ?, ?)').run(user.id, token, expiresAt(TOKEN_TTL_H));
+  db.prepare(
+    'INSERT INTO confirm_tokens (user_id, token, expires_at) VALUES (?, ?, ?)'
+  ).run(user.id, token, expiresAt(TOKEN_TTL_H));
 
-  db.prepare('UPDATE users SET email_verified = 1 WHERE id = ?').run(user.id);
-  user = db.prepare('SELECT * FROM users WHERE id = ?').get(user.id);
-
+  // Envoyer email via Resend
   const confirmUrl = `${BASE_URL}/auth/verify?token=${token}`;
   try {
-    await resend.emails.send({
+    const sendResult = await resend.emails.send({
       from: `REGUL ARENA <${FROM_EMAIL}>`,
       to:   cleanEmail,
-      subject: 'Bienvenue sur REGUL ARENA',
+      subject: 'Confirme ton inscription — REGUL ARENA',
       html: emailConfirmHTML(cleanName, confirmUrl),
       headers: { 'X-Entity-Ref-ID': crypto.randomUUID() },
     });
+    if (sendResult.error) {
+      console.error('Resend error:', JSON.stringify(sendResult.error));
+      return err(res, 500, 'Erreur envoi email — réessaie dans quelques instants');
+    }
   } catch (e) {
-    console.warn('[register] email non envoyé (non bloquant):', e && e.message);
+    console.error('Resend exception:', e.message);
+    return err(res, 500, 'Erreur envoi email — réessaie dans quelques instants');
   }
 
-  return ok(res, { token: signJWT(user), user: publicUser(user), message: 'Compte créé' });
-});
-
-app.post('/auth/login-direct', limiterStrict, (req, res) => {
-  const { email } = req.body || {};
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return err(res, 400, 'Email invalide');
-  const cleanEmail = email.trim().toLowerCase();
-  let user = db.prepare('SELECT * FROM users WHERE email = ?').get(cleanEmail);
-  if (!user) return err(res, 404, "Aucun compte avec cet email. Inscris-toi d'abord.");
-  if (user.email_verified !== 1) {
-    db.prepare('UPDATE users SET email_verified = 1 WHERE id = ?').run(user.id);
-    user = db.prepare('SELECT * FROM users WHERE id = ?').get(user.id);
+  // FEATURE 1 — marquer l'invitation comme utilisée après succès
+  if (req._invitation) {
+    db.prepare('UPDATE invitations SET used = 1 WHERE id = ?').run(req._invitation.id);
   }
-  return ok(res, { token: signJWT(user), user: publicUser(user), message: 'Connecté' });
+
+  return ok(res, { message: 'Email de confirmation envoyé' });
 });
 
+
+/* POST /auth/resend
+   Body : { email }
+   &#8594; renvoie le dernier lien de confirmation
+*/
 app.post('/auth/resend', limiterStrict, async (req, res) => {
   const { email } = req.body || {};
   if (!email) return err(res, 400, 'Email requis');
+
   const cleanEmail = email.trim().toLowerCase();
   const user = db.prepare('SELECT * FROM users WHERE email = ?').get(cleanEmail);
-  if (!user) return err(res, 404, 'Aucun compte trouvé pour cet email');
+  if (!user) return err(res, 404, 'Aucun compte trouv&#233; pour cet email');
+
   const token = genToken();
-  db.prepare('INSERT INTO confirm_tokens (user_id, token, expires_at) VALUES (?, ?, ?)').run(user.id, token, expiresAt(TOKEN_TTL_H));
+  db.prepare(
+    'INSERT INTO confirm_tokens (user_id, token, expires_at) VALUES (?, ?, ?)'
+  ).run(user.id, token, expiresAt(TOKEN_TTL_H));
+
   const confirmUrl = `${BASE_URL}/auth/verify?token=${token}`;
   try {
     const sendResult = await resend.emails.send({
@@ -398,19 +405,37 @@ app.post('/auth/resend', limiterStrict, async (req, res) => {
       html: emailConfirmHTML(user.name, confirmUrl),
       headers: { 'X-Entity-Ref-ID': crypto.randomUUID() },
     });
-    if (sendResult.error) { console.error('Resend error:', JSON.stringify(sendResult.error)); return err(res, 500, 'Erreur envoi email'); }
-  } catch (e) { console.error('Resend exception:', e.message); return err(res, 500, 'Erreur envoi email'); }
+    if (sendResult.error) {
+      console.error('Resend error:', JSON.stringify(sendResult.error));
+      return err(res, 500, 'Erreur envoi email');
+    }
+  } catch (e) {
+    console.error('Resend exception:', e.message);
+    return err(res, 500, 'Erreur envoi email');
+  }
+
   return ok(res, { message: 'Email renvoyé' });
 });
 
+
+/* POST /auth/resend-verification
+   Body : { email }
+   → génère un nouveau token et renvoie l'email de confirmation
+   Utilisé par le frontend quand le lien est expiré ou déjà utilisé
+*/
 app.post('/auth/resend-verification', limiterStrict, async (req, res) => {
   const { email } = req.body || {};
   if (!email) return err(res, 400, 'Email requis');
+
   const cleanEmail = email.trim().toLowerCase();
   const user = db.prepare('SELECT * FROM users WHERE email = ?').get(cleanEmail);
   if (!user) return err(res, 404, 'Aucun compte trouvé pour cet email');
+
   const token = genToken();
-  db.prepare('INSERT INTO confirm_tokens (user_id, token, expires_at) VALUES (?, ?, ?)').run(user.id, token, expiresAt(TOKEN_TTL_H));
+  db.prepare(
+    'INSERT INTO confirm_tokens (user_id, token, expires_at) VALUES (?, ?, ?)'
+  ).run(user.id, token, expiresAt(TOKEN_TTL_H));
+
   const confirmUrl = `${BASE_URL}/auth/verify?token=${token}`;
   try {
     const sendResult = await resend.emails.send({
@@ -420,107 +445,153 @@ app.post('/auth/resend-verification', limiterStrict, async (req, res) => {
       html: emailConfirmHTML(user.name, confirmUrl),
       headers: { 'X-Entity-Ref-ID': crypto.randomUUID() },
     });
-    if (sendResult.error) return err(res, 500, 'Erreur envoi email — réessaie dans quelques instants');
-  } catch (e) { return err(res, 500, 'Erreur envoi email — réessaie dans quelques instants'); }
+    if (sendResult.error) {
+      console.error('Resend error:', JSON.stringify(sendResult.error));
+      return err(res, 500, 'Erreur envoi email — réessaie dans quelques instants');
+    }
+  } catch (e) {
+    console.error('Resend exception:', e.message);
+    return err(res, 500, 'Erreur envoi email — réessaie dans quelques instants');
+  }
+
   return ok(res, { message: 'Nouveau lien envoyé' });
 });
 
+
+/* GET /auth/verify?token=xxx
+   &#8594; v&#233;rifie le token, marque email comme confirm&#233;, retourne JWT + user
+*/
 app.get('/auth/verify', limiterLoose, (req, res) => {
   const { token } = req.query;
   if (!token) return res.redirect(302, `${BASE_URL}/?confirm_error=missing`);
+
+  // Cherche le token sans filtre used=0 pour détecter les clics doubles
   const row = db.prepare('SELECT * FROM confirm_tokens WHERE token = ?').get(token);
+
   if (!row) return res.redirect(302, `${BASE_URL}/?confirm_error=invalid`);
+
+  // Si l'utilisateur est déjà vérifié (clic double sur le lien), on le connecte directement
   const existingUser = db.prepare('SELECT * FROM users WHERE id = ?').get(row.user_id);
   if (existingUser && existingUser.email_verified === 1) {
-    return res.redirect(302, `${BASE_URL}/?confirmed=true&jwt=${encodeURIComponent(signJWT(existingUser))}`);
+    const jwtToken = signJWT(existingUser);
+    return res.redirect(302, `${BASE_URL}/?confirmed=true&jwt=${encodeURIComponent(jwtToken)}`);
   }
+
   if (row.used === 1) return res.redirect(302, `${BASE_URL}/?confirm_error=invalid`);
   if (new Date(row.expires_at) < new Date()) return res.redirect(302, `${BASE_URL}/?confirm_error=expired`);
+
   db.prepare('UPDATE confirm_tokens SET used = 1 WHERE id = ?').run(row.id);
   db.prepare('UPDATE users SET email_verified = 1 WHERE id = ?').run(row.user_id);
+
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(row.user_id);
-  return res.redirect(302, `${BASE_URL}/?confirmed=true&jwt=${encodeURIComponent(signJWT(user))}`);
+  const jwtToken = signJWT(user);
+  return res.redirect(302, `${BASE_URL}/?confirmed=true&jwt=${encodeURIComponent(jwtToken)}`);
 });
 
+
+/* GET /auth/login-verify?login_token=xxx
+   &#8594; connexion magique (lien email)
+*/
 app.get('/auth/login-verify', limiterLoose, (req, res) => {
   const { login_token } = req.query;
   if (!login_token) return err(res, 400, 'Token manquant');
-  const row = db.prepare('SELECT * FROM login_tokens WHERE token = ? AND used = 0').get(login_token);
-  if (!row) return err(res, 400, 'Lien invalide ou déjà utilisé');
-  if (new Date(row.expires_at) < new Date()) return err(res, 400, 'Lien expiré');
+
+  const row = db.prepare(
+    'SELECT * FROM login_tokens WHERE token = ? AND used = 0'
+  ).get(login_token);
+
+  if (!row) return err(res, 400, 'Lien invalide ou d&#233;j&#224; utilis&#233;');
+  if (new Date(row.expires_at) < new Date()) return err(res, 400, 'Lien expir&#233;');
+
   db.prepare('UPDATE login_tokens SET used = 1 WHERE id = ?').run(row.id);
+
   const user = db.prepare('SELECT * FROM users WHERE email = ?').get(row.email);
   if (!user) return err(res, 404, 'Compte introuvable');
+
   return ok(res, { token: signJWT(user), user: publicUser(user) });
 });
 
+
+/* GET /auth/me   Header : Authorization: Bearer <jwt>
+   &#8594; valide le JWT, retourne user + is_verified pour restaurer la session
+*/
 app.get('/auth/me', requireAuth, (req, res) => {
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id);
   if (!user) return err(res, 404, 'Compte introuvable');
   return ok(res, { user: { ...publicUser(user), is_verified: user.email_verified === 1 } });
 });
 
+
 /* ================================================================
    ROUTES FEEDBACK
 ================================================================ */
 
+/* POST /feedback
+   Body : { type, message|content, email?, name?, stars? }
+*/
 app.post('/feedback', limiterLoose, async (req, res) => {
   const { type = 'general', message, content, email = '', name = '', stars = 5 } = req.body || {};
   const text = (message || content || '').trim();
   if (!text || text.length < 2) return err(res, 400, 'Contenu requis');
-  db.prepare('INSERT INTO feedback (type, content, email) VALUES (?, ?, ?)').run(type, text.slice(0, 2000), email.slice(0, 120));
-  const esc  = (s) => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const when = new Date().toLocaleString('fr-FR', { timeZone: 'Africa/Dakar' }) + ' (Dakar)';
-  const ip   = (req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '').toString().split(',')[0].trim();
-  const ua   = (req.headers['user-agent'] || '').toString();
-  const html = `<div style="font-family:sans-serif;max-width:600px">
-    <h2 style="color:#C9991A">Nouveau feedback REGUL ARENA</h2>
-    <table style="width:100%;border-collapse:collapse">
-      <tr><td style="padding:6px 0;color:#888;width:130px">Categorie</td><td><strong>${esc(type)}</strong></td></tr>
-      <tr><td style="padding:6px 0;color:#888">Note</td><td>${'⭐'.repeat(Math.min(5, Number(stars)||0))} (${Number(stars)||0}/5)</td></tr>
-      <tr><td style="padding:6px 0;color:#888">Nom</td><td>${name ? esc(name) : '—'}</td></tr>
-      <tr><td style="padding:6px 0;color:#888">Email</td><td>${email ? esc(email) : '—'}</td></tr>
-      <tr><td style="padding:6px 0;color:#888">Date / heure</td><td>${esc(when)}</td></tr>
-      <tr><td style="padding:6px 0;color:#888">IP</td><td>${esc(ip) || '—'}</td></tr>
-      <tr><td style="padding:6px 0;color:#888">Navigateur</td><td style="font-size:11px;color:#666">${esc(ua) || '—'}</td></tr>
-    </table>
-    <hr style="margin:16px 0;border-color:#333">
-    <div style="background:#111;padding:16px;border-radius:4px;white-space:pre-wrap;color:#EEF0F5">${esc(text)}</div>
-  </div>`;
-  const subject = `[REGUL ARENA] Feedback — ${type} (${Number(stars)||0}★)`;
-  let emailSent = false;
+
+  db.prepare(
+    'INSERT INTO feedback (type, content, email) VALUES (?, ?, ?)'
+  ).run(type, text.slice(0, 2000), email.slice(0, 120));
+
   try {
-    const payload = { from: FROM_EMAIL, to: 'abdou.ndao@regularena.com', cc: 'contact@regularena.com', subject, html };
-    if (email) payload.reply_to = email;
-    await resend.emails.send(payload);
-    emailSent = true;
-  } catch (e1) {
-    try {
-      const fb = { from: FROM_EMAIL, to: 'abddou200485@gmail.com', subject: '[FALLBACK] ' + subject, html };
-      if (email) fb.reply_to = email;
-      await resend.emails.send(fb);
-      emailSent = true;
-    } catch (e2) { console.error('[feedback] fallback échoué:', e2 && e2.message); }
-  }
-  if (!emailSent) return err(res, 502, "Feedback enregistré, mais l'email n'a pas pu être envoyé.");
-  return ok(res, { message: 'Feedback envoyé', emailSent: true });
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: 'contact@regularena.com',
+      subject: `[REGUL ARENA] Feedback — ${type} (${stars}★)`,
+      html: `<div style="font-family:sans-serif;max-width:600px">
+        <h2 style="color:#C9991A">Nouveau feedback REGUL ARENA</h2>
+        <table style="width:100%;border-collapse:collapse">
+          <tr><td style="padding:6px 0;color:#888;width:120px">Type</td><td><strong>${type}</strong></td></tr>
+          <tr><td style="padding:6px 0;color:#888">Note</td><td>${'⭐'.repeat(Math.min(5, Number(stars)||0))}</td></tr>
+          ${name ? `<tr><td style="padding:6px 0;color:#888">Nom</td><td>${name}</td></tr>` : ''}
+          ${email ? `<tr><td style="padding:6px 0;color:#888">Email</td><td>${email}</td></tr>` : ''}
+        </table>
+        <hr style="margin:16px 0;border-color:#333">
+        <div style="background:#111;padding:16px;border-radius:4px;white-space:pre-wrap;color:#EEF0F5">${text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+      </div>`,
+    });
+  } catch (_) { /* non-bloquant */ }
+
+  return ok(res, { message: 'Feedback enregistre' });
 });
 
+
+/* POST /feedback/notify
+   Body : { email }
+   &#8594; liste d'attente tournoi 2027
+*/
 app.post('/feedback/notify', limiterLoose, (req, res) => {
   const { email } = req.body || {};
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return err(res, 400, 'Email invalide');
-  try { db.prepare('INSERT INTO notify_list (email) VALUES (?)').run(email.trim().toLowerCase()); } catch {}
-  return ok(res, { message: "Inscrit à la liste d'alerte" });
+
+  try {
+    db.prepare('INSERT INTO notify_list (email) VALUES (?)').run(email.trim().toLowerCase());
+  } catch {
+    // email d&#233;j&#224; dans la liste â€” silencieux
+  }
+
+  return ok(res, { message: 'Inscrit &#224; la liste d\'alerte' });
 });
 
-/* ================================================================
-   SCORES
-================================================================ */
 
+/* ── HELPERS ────────────────────────────────────────────────────── */
+function genCode(prefix) {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const rand = (n) => Array.from({length:n}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
+  return `${prefix}-${rand(3)}-${rand(3)}`;
+}
+
+/* ── SCORES ─────────────────────────────────────────────────────── */
 app.post('/scores', requireAuth, (req, res) => {
   const { pack_id, score, total } = req.body || {};
   if (!pack_id || score == null || total == null) return err(res, 400, 'pack_id, score, total requis');
-  db.prepare('INSERT INTO user_scores (user_id, pack_id, score, total) VALUES (?, ?, ?, ?)').run(req.user.id, pack_id, Number(score), Number(total));
+  db.prepare('INSERT INTO user_scores (user_id, pack_id, score, total) VALUES (?, ?, ?, ?)')
+    .run(req.user.id, pack_id, Number(score), Number(total));
   return ok(res, { message: 'Score enregistré' });
 });
 
@@ -534,6 +605,7 @@ app.delete('/scores/me', requireAuth, (req, res) => {
   return ok(res, { message: 'Historique supprimé' });
 });
 
+/* POST /scores/reset — réinitialise tous les scores solo du joueur connecté */
 app.post('/scores/reset', requireAuth, (req, res) => {
   db.prepare('DELETE FROM user_scores WHERE user_id = ?').run(req.user.id);
   return ok(res, { message: 'Score réinitialisé avec succès' });
@@ -567,12 +639,11 @@ app.get('/leaderboard', (req, res) => {
   return ok(res, { leaderboard: rows, my_rank: myRank });
 });
 
-/* ================================================================
-   NOTIFICATIONS
-================================================================ */
-
+/* ── NOTIFICATIONS ──────────────────────────────────────────────── */
 app.get('/notifications', requireAuth, (req, res) => {
-  const rows = db.prepare('SELECT id, type, message, seen, created_at FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT 50').all(req.user.id);
+  const rows = db.prepare(
+    'SELECT id, type, message, seen, created_at FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT 50'
+  ).all(req.user.id);
   const unread = rows.filter(r => !r.seen).length;
   return ok(res, { notifications: rows, unread });
 });
@@ -587,65 +658,25 @@ app.post('/notifications/seen-all', requireAuth, (req, res) => {
   return ok(res, { message: 'Tout marqué comme lu' });
 });
 
-/* ================================================================
-   DUELS
-================================================================ */
-
+/* ── DUELS ──────────────────────────────────────────────────────── */
 function _duelFull(code) {
   const duel = db.prepare('SELECT * FROM duels WHERE code = ?').get(code);
   if (!duel) return null;
-  const creator = db.prepare('SELECT id, name, country FROM users WHERE id = ?').get(duel.creator_id) || null;
-  const joiner  = duel.joiner_id ? (db.prepare('SELECT id, name, country FROM users WHERE id = ?').get(duel.joiner_id) || null) : null;
-  const scores  = db.prepare('SELECT user_id, score, questions_answered, finished FROM duel_scores WHERE duel_id = ?').all(duel.id) || [];
-  let packsIdsArr = null;
-  try { if (duel.packs_ids) packsIdsArr = JSON.parse(duel.packs_ids); } catch(_) {}
-  if (!Array.isArray(packsIdsArr) || !packsIdsArr.length) packsIdsArr = duel.pack_id ? [duel.pack_id] : ['general'];
-  let questionsSafe = null;
-  if (duel.status === 'active' && duel.questions_json) {
-    try { questionsSafe = JSON.parse(duel.questions_json); } catch(_) { questionsSafe = null; }
-  }
-  return {
-    id: duel.id, code: duel.code,
-    creator_id: duel.creator_id, joiner_id: duel.joiner_id || null,
-    pack_id: duel.pack_id || 'general', packs_ids: packsIdsArr,
-    num_questions: duel.num_questions, timer_sec: duel.timer_sec,
-    status: duel.status, created_at: duel.created_at, started_at: duel.started_at || null,
-    questions_json: duel.questions_json || '[]', questions_safe: questionsSafe,
-    creator, joiner, scores
-  };
-}
-
-function _pickQuestionsMulti(packsIds, count) {
-  if (!Array.isArray(packsIds) || !packsIds.length) return null;
-  let pool = [];
-  for (const id of packsIds) {
-    const p = getPack(id);
-    if (p && Array.isArray(p.questions)) pool = pool.concat(p.questions);
-  }
-  if (!pool.length) return null;
-  for (let i = pool.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [pool[i], pool[j]] = [pool[j], pool[i]];
-  }
-  const out = [];
-  for (let i = 0; i < count; i++) out.push(pool[i % pool.length]);
-  return out;
+  const creator = db.prepare('SELECT id, name, country FROM users WHERE id = ?').get(duel.creator_id);
+  const joiner  = duel.joiner_id ? db.prepare('SELECT id, name, country FROM users WHERE id = ?').get(duel.joiner_id) : null;
+  const scores  = db.prepare('SELECT user_id, score, questions_answered, finished FROM duel_scores WHERE duel_id = ?').all(duel.id);
+  return { ...duel, creator, joiner, scores };
 }
 
 app.post('/duels', requireAuth, (req, res) => {
-  const { pack_id, packs_ids, num_questions = 10, timer_sec = 30 } = req.body || {};
-  let finalPacks;
-  if (Array.isArray(packs_ids) && packs_ids.length >= 1 && packs_ids.length <= 5 && packs_ids.every(p => typeof p === 'string' && p.trim().length > 0)) {
-    finalPacks = packs_ids.map(p => p.trim());
-  } else if (pack_id && typeof pack_id === 'string') {
-    finalPacks = [pack_id.trim()];
-  } else {
-    finalPacks = ['general'];
-  }
+  const { pack_id, num_questions = 10, timer_sec = 30 } = req.body || {};
   let code;
-  for (let i = 0; i < 10; i++) { code = genCode('D'); if (!db.prepare('SELECT id FROM duels WHERE code = ?').get(code)) break; }
-  db.prepare('INSERT INTO duels (code, creator_id, pack_id, packs_ids, num_questions, timer_sec) VALUES (?, ?, ?, ?, ?, ?)')
-    .run(code, req.user.id, finalPacks[0], JSON.stringify(finalPacks), Math.min(20, Math.max(5, Number(num_questions))), Math.min(60, Math.max(15, Number(timer_sec))));
+  for (let i = 0; i < 10; i++) {
+    code = genCode('D');
+    if (!db.prepare('SELECT id FROM duels WHERE code = ?').get(code)) break;
+  }
+  db.prepare('INSERT INTO duels (code, creator_id, pack_id, num_questions, timer_sec) VALUES (?, ?, ?, ?, ?)')
+    .run(code, req.user.id, pack_id || 'general', Math.min(20, Math.max(5, Number(num_questions))), Math.min(60, Math.max(15, Number(timer_sec))));
   notifyAllExcept(req.user.id, 'duel_created', `🥊 ${req.user.name} vous défie en duel ! Code : ${code}`);
   return ok(res, { code, duel: _duelFull(code) });
 });
@@ -675,64 +706,154 @@ app.post('/duels/:code/start', requireAuth, (req, res) => {
   const duel = db.prepare('SELECT * FROM duels WHERE code = ?').get(req.params.code);
   if (!duel) return err(res, 404, 'Duel introuvable');
   if (duel.creator_id !== req.user.id) return err(res, 403, 'Seul le créateur peut démarrer');
-  if (!duel.joiner_id) return err(res, 400, "Personne n'a encore rejoint");
+  if (!duel.joiner_id) return err(res, 400, 'Personne n\'a encore rejoint');
   if (duel.status === 'active') return ok(res, { message: 'Déjà actif', duel: _duelFull(req.params.code) });
-  let packsForDuel = null;
-  try { if (duel.packs_ids) packsForDuel = JSON.parse(duel.packs_ids); } catch(_) {}
-  if (!Array.isArray(packsForDuel) || !packsForDuel.length) packsForDuel = [duel.pack_id || 'general'];
-  const picked = packsForDuel.length > 1 ? _pickQuestionsMulti(packsForDuel, duel.num_questions) : pickQuestions(packsForDuel[0], duel.num_questions);
-  if (!picked || picked.length === 0) return err(res, 500, 'Pack(s) introuvable(s) ou vide(s) côté serveur');
-  db.prepare('UPDATE duels SET status = ?, questions_json = ?, started_at = ? WHERE code = ?').run('active', JSON.stringify(picked), new Date().toISOString(), req.params.code);
+
+  // FIX anti-triche — c'est ICI que les questions sont tirées et figées côté
+  // serveur. Avant ce point, aucune question n'est exposée — donc impossible
+  // de lire le pack à l'avance. Après ce point, le pack est figé pour les deux
+  // joueurs (mêmes questions, même ordre).
+  const picked = pickQuestions(duel.pack_id, duel.num_questions);
+  if (!picked || picked.length === 0) {
+    return err(res, 500, 'Pack introuvable ou vide côté serveur');
+  }
+  const questionsJson = JSON.stringify(picked);
+  const startedAt = new Date().toISOString();
+
+  db.prepare('UPDATE duels SET status = ?, questions_json = ?, started_at = ? WHERE code = ?')
+    .run('active', questionsJson, startedAt, req.params.code);
+
   return ok(res, { message: 'Duel lancé', duel: _duelFull(req.params.code) });
 });
 
+/* GET /duels/:code/question/:index
+   FIX anti-triche — sert UNE question à la fois, sans la bonne réponse.
+   Le joueur doit avoir terminé toutes les questions précédentes pour
+   accéder à l'index suivant (anti-skip / anti-prefetch).
+*/
 app.get('/duels/:code/question/:index', requireAuth, (req, res) => {
   const duel = db.prepare('SELECT * FROM duels WHERE code = ?').get(req.params.code);
   if (!duel) return err(res, 404, 'Duel introuvable');
   if (duel.status !== 'active') return err(res, 400, 'Duel non actif');
-  if (duel.creator_id !== req.user.id && duel.joiner_id !== req.user.id) return err(res, 403, 'Accès refusé');
+  if (duel.creator_id !== req.user.id && duel.joiner_id !== req.user.id) {
+    return err(res, 403, 'Accès refusé');
+  }
+
   const idx = Number(req.params.index);
-  if (!Number.isInteger(idx) || idx < 0 || idx >= duel.num_questions) return err(res, 400, 'Index hors plage');
-  const score = db.prepare('SELECT questions_answered FROM duel_scores WHERE duel_id = ? AND user_id = ?').get(duel.id, req.user.id);
+  if (!Number.isInteger(idx) || idx < 0 || idx >= duel.num_questions) {
+    return err(res, 400, 'Index hors plage');
+  }
+
+  // Anti-prefetch : on autorise uniquement l'accès à la question courante
+  // (= questions_answered) ou à la précédente (pour relecture éventuelle).
+  const score = db.prepare('SELECT questions_answered FROM duel_scores WHERE duel_id = ? AND user_id = ?')
+    .get(duel.id, req.user.id);
   const answered = score ? score.questions_answered : 0;
-  if (idx > answered) return err(res, 403, 'Question pas encore débloquée');
+  if (idx > answered) {
+    return err(res, 403, 'Question pas encore débloquée');
+  }
+
   let questions;
   try { questions = JSON.parse(duel.questions_json); } catch(_) { questions = []; }
   if (idx >= questions.length) return err(res, 500, 'Question introuvable');
+
   const q = questions[idx];
-  return ok(res, { question: { index: idx, q: q.q, choices: q.choices, reference: q.source || q.reference || 'BCEAO/CIMA 2026' }, total: duel.num_questions });
+  // CRITIQUE : ne jamais renvoyer le champ `correct` au client.
+  return ok(res, {
+    question: {
+      index:   idx,
+      q:       q.q,
+      choices: q.choices,
+      reference: q.source || q.reference || 'BCEAO/CIMA 2026',
+    },
+    total: duel.num_questions,
+  });
 });
 
 app.post('/duels/:code/answer', requireAuth, (req, res) => {
+  // FIX anti-triche — le client envoie choice_index (index du choix cliqué).
+  // Le serveur valide contre questions_json, calcule le score, fait foi.
+  // Fallback : si choice_index absent, on accepte le booléen `correct` du client
+  // (rétrocompatibilité clients antérieurs au fix). Le score client `score` n'est
+  // plus jamais utilisé comme source de vérité.
   const { q_index, choice_index, correct: legacyCorrect, score: legacyScore } = req.body || {};
   if (q_index == null) return err(res, 400, 'q_index requis');
+
   const duel = db.prepare('SELECT * FROM duels WHERE code = ?').get(req.params.code);
   if (!duel) return err(res, 404, 'Duel introuvable');
   if (duel.status !== 'active') return err(res, 400, 'Duel non actif');
-  if (duel.creator_id !== req.user.id && duel.joiner_id !== req.user.id) return err(res, 403, 'Accès refusé');
+  if (duel.creator_id !== req.user.id && duel.joiner_id !== req.user.id) {
+    return err(res, 403, 'Accès refusé');
+  }
+
+  // ── VERROU DE QUESTION ────────────────────────────────────────────
+  // Si current_q_index a déjà dépassé q_index, l'autre joueur a répondu
+  // correctement à cette question en premier.  On renvoie { locked:true }
+  // sans accorder de points ni modifier quoi que ce soit en base.
+  // curl exemple : POST /duels/D-ABC-123/answer -d '{"q_index":2,"choice_index":1}'
+  if (Number(q_index) < duel.current_q_index) {
+    const existing = db.prepare('SELECT score FROM duel_scores WHERE duel_id = ? AND user_id = ?')
+      .get(duel.id, req.user.id);
+    return ok(res, {
+      locked:           true,
+      correct:          null,
+      points_earned:    0,
+      my_score:         existing ? existing.score : 0,
+      current_q_index:  duel.current_q_index,
+    });
+  }
+
+  // Lecture des questions stockées
   let questions = [];
   try { questions = JSON.parse(duel.questions_json || '[]'); } catch(_) {}
-  const existing = db.prepare('SELECT * FROM duel_scores WHERE duel_id = ? AND user_id = ?').get(duel.id, req.user.id);
+
+  // Lecture du score actuel du joueur
+  const existing = db.prepare('SELECT * FROM duel_scores WHERE duel_id = ? AND user_id = ?')
+    .get(duel.id, req.user.id);
   const prevAnswered = existing ? existing.questions_answered : 0;
   const prevScore    = existing ? existing.score : 0;
-  let isCorrect = false, pointsEarned = 0, serverValidated = false;
+
+  let isCorrect = false;
+  let pointsEarned = 0;
+  let serverValidated = false;
+
   if (questions.length > 0 && questions[q_index]) {
     serverValidated = true;
-    isCorrect = Number(choice_index) === Number(questions[q_index].correct);
+    const expected = questions[q_index].correct;
+    // Priorité 1 : choice_index envoyé → validation stricte côté serveur
+    // Priorité 2 : choice_index absent → on accepte le booléen `correct` du client
+    //              (clients antérieurs qui n'envoient pas encore choice_index)
+    if (choice_index !== undefined && choice_index !== null) {
+      isCorrect = Number(choice_index) === Number(expected);
+    } else {
+      isCorrect = !!legacyCorrect;
+    }
     if (isCorrect) pointsEarned = 100;
   } else {
-    console.warn(`[duel ${duel.code}] fallback legacy`);
+    // Fallback : questions_json vide (duel créé avant le fix serveur)
+    console.warn(`[duel ${duel.code}] fallback legacy : questions_json vide, accept client correct`);
     isCorrect = !!legacyCorrect;
-    pointsEarned = Math.max(0, (Number(legacyScore) || 0) - prevScore);
+    pointsEarned = isCorrect ? 100 : 0;
   }
+
   const newScore = prevScore + pointsEarned;
   const newAnswered = prevAnswered + 1;
   const finished = newAnswered >= duel.num_questions ? 1 : 0;
+
+  // Transaction pour éliminer la race condition (point 4 de l'audit)
+  let newQIndex = duel.current_q_index;
   const tx = db.transaction(() => {
     if (!existing) {
-      db.prepare('INSERT INTO duel_scores (duel_id, user_id, score, questions_answered, finished) VALUES (?, ?, ?, ?, ?)').run(duel.id, req.user.id, newScore, newAnswered, finished);
+      db.prepare('INSERT INTO duel_scores (duel_id, user_id, score, questions_answered, finished) VALUES (?, ?, ?, ?, ?)')
+        .run(duel.id, req.user.id, newScore, newAnswered, finished);
     } else {
-      db.prepare('UPDATE duel_scores SET score = ?, questions_answered = ?, finished = ? WHERE duel_id = ? AND user_id = ?').run(newScore, newAnswered, finished, duel.id, req.user.id);
+      db.prepare('UPDATE duel_scores SET score = ?, questions_answered = ?, finished = ? WHERE duel_id = ? AND user_id = ?')
+        .run(newScore, newAnswered, finished, duel.id, req.user.id);
+    }
+    // BUG2 FIX — avance l'index partagé uniquement si bonne réponse ET index pas encore avancé
+    if (isCorrect && duel.current_q_index === Number(q_index)) {
+      newQIndex = duel.current_q_index + 1;
+      db.prepare('UPDATE duels SET current_q_index = ? WHERE id = ?').run(newQIndex, duel.id);
     }
     if (finished) {
       const allDone = db.prepare('SELECT COUNT(*) AS n FROM duel_scores WHERE duel_id = ? AND finished = 1').get(duel.id).n;
@@ -740,7 +861,20 @@ app.post('/duels/:code/answer', requireAuth, (req, res) => {
     }
   });
   tx();
-  return ok(res, { correct: isCorrect, correct_index: serverValidated ? questions[q_index].correct : null, points_earned: pointsEarned, my_score: newScore, server_validated: serverValidated, live: _duelFull(req.params.code) });
+
+  // Réponse : on indique au client si sa réponse était correcte ET quelle
+  // était la bonne réponse (pour affichage feedback). On envoie aussi le
+  // score authoritative pour que le client se synchronise.
+  const correctIndex = serverValidated ? questions[q_index].correct : null;
+  return ok(res, {
+    correct:          isCorrect,
+    correct_index:    correctIndex,
+    points_earned:    pointsEarned,
+    my_score:         newScore,
+    server_validated: serverValidated,
+    current_q_index:  newQIndex,
+    live:             _duelFull(req.params.code),
+  });
 });
 
 app.get('/duels/:code/live', requireAuth, (req, res) => {
@@ -749,399 +883,357 @@ app.get('/duels/:code/live', requireAuth, (req, res) => {
   return ok(res, { duel: d });
 });
 
-/* ── Routes legacy tournois ──────────────────────────────────────── */
-app.post('/tournaments', requireAuth, (req, res) => err(res, 410, 'Route obsolète — utiliser POST /tournament/create'));
+/* ── TOURNOIS legacy /tournaments/* — désactivées, utiliser /tournament/* ── */
+app.post('/tournaments', requireAuth, (req, res) => {
+  return err(res, 410, 'Route obsolète — utiliser POST /tournament/create');
+});
+
 app.get('/tournaments/:code', requireAuth, (req, res) => {
   const t = db.prepare('SELECT * FROM tournaments WHERE code = ?').get(req.params.code);
   if (!t) return err(res, 404, 'Tournoi introuvable');
-  const participants = db.prepare('SELECT u.name, u.country, tp.score, tp.rank FROM tournament_participants tp JOIN users u ON u.id = tp.user_id WHERE tp.tournament_id = ?').all(t.id);
+  const participants = db.prepare(`
+    SELECT u.name, u.country, tp.score, tp.rank
+    FROM tournament_participants tp JOIN users u ON u.id = tp.user_id
+    WHERE tp.tournament_id = ?
+  `).all(t.id);
   return ok(res, { tournament: t, participants });
 });
-app.post('/tournaments/:code/join',  requireAuth, (req, res) => err(res, 410, 'Route obsolète — utiliser POST /tournament/join'));
-app.post('/tournaments/:code/start', requireAuth, (req, res) => err(res, 410, 'Route obsolète — utiliser POST /tournament/:code/start-qualif'));
-app.post('/tournaments/:code/score', requireAuth, (req, res) => err(res, 410, 'Route obsolète — utiliser POST /tournament/qualify'));
+
+app.post('/tournaments/:code/join', requireAuth, (req, res) => {
+  return err(res, 410, 'Route obsolète — utiliser POST /tournament/join');
+});
+
+app.post('/tournaments/:code/start', requireAuth, (req, res) => {
+  return err(res, 410, 'Route obsolète — utiliser POST /tournament/:code/start-qualif');
+});
+
+// SECURITE FIX : route legacy /tournaments/:code/score désactivée — scores acceptés côté client sans validation.
+// Utiliser /tournament/qualify à la place (validation serveur).
+app.post('/tournaments/:code/score', requireAuth, (req, res) => {
+  return err(res, 410, 'Route obsolète — utiliser POST /tournament/qualify');
+});
 
 /* ================================================================
-   TOURNOI AVANCÉ — /tournament/*
+   ROUTES TOURNOI AVANCÉ — /tournament/* (TOURNOI AJOUT)
 ================================================================ */
 
-const UEMOA_PAYS = ['SN','CI','BF','ML','BJ','NE','TG','GW'];
-const CEMAC_PAYS = ['CM','GA','CG','CF','GQ','TD'];
-const _KNOWN_PACK_IDS = ['general','umoa-bale','rfe-uemoa','cima-assurance','syscohada','rfe-cemac','pcb-umoa'];
+const UEMOA_PAYS = ['SN','CI','BF','ML','BJ','NE','TG','GW']; // TOURNOI AJOUT
+const CEMAC_PAYS = ['CM','GA','CG','CF','GQ','TD']; // TOURNOI AJOUT
 
-function _zoneOf(country) {
-  if (UEMOA_PAYS.includes(country)) return 'uemoa';
-  if (CEMAC_PAYS.includes(country)) return 'cemac';
-  return null;
-}
+function _zoneOf(country) { // TOURNOI AJOUT
+  if (UEMOA_PAYS.includes(country)) return 'uemoa'; // TOURNOI AJOUT
+  if (CEMAC_PAYS.includes(country)) return 'cemac'; // TOURNOI AJOUT
+  return null; // TOURNOI AJOUT
+} // TOURNOI AJOUT
 
-function _peutRejoindre(userCountry, tCountry, tZone) {
-  if (!userCountry) return false;
-  if (tZone === 'uemoa') return UEMOA_PAYS.includes(userCountry);
-  if (tZone === 'cemac') return CEMAC_PAYS.includes(userCountry);
-  if (tZone === 'inter') return UEMOA_PAYS.includes(userCountry) || CEMAC_PAYS.includes(userCountry);
-  if (tZone === 'country') return tCountry === userCountry;
-  return false;
-}
+function _peutRejoindre(userCountry, tCountry, tZone) { // TOURNOI AJOUT
+  if (!userCountry) return false; // TOURNOI AJOUT
+  if (tZone === 'uemoa') return UEMOA_PAYS.includes(userCountry); // TOURNOI AJOUT
+  if (tZone === 'cemac') return CEMAC_PAYS.includes(userCountry); // TOURNOI AJOUT
+  if (tZone === 'inter') return UEMOA_PAYS.includes(userCountry) || CEMAC_PAYS.includes(userCountry); // TOURNOI AJOUT
+  if (tZone === 'country') return tCountry === userCountry; // TOURNOI AJOUT
+  return false; // TOURNOI AJOUT
+} // TOURNOI AJOUT
 
-function _validPacksIds(arr) {
-  if (!Array.isArray(arr) || arr.length < 1 || arr.length > 5) return false;
-  return arr.every(p => typeof p === 'string' && p.trim() && _KNOWN_PACK_IDS.includes(p.trim()));
-}
+function _tFull(code) { // TOURNOI AJOUT
+  const t = db.prepare('SELECT * FROM tournaments WHERE code = ?').get(code); // TOURNOI AJOUT
+  if (!t) return null; // TOURNOI AJOUT
+  const participants = db.prepare( // TOURNOI AJOUT
+    'SELECT tp.*, u.name, u.country, u.etablissement FROM tournament_participants tp JOIN users u ON u.id = tp.user_id WHERE tp.tournament_id = ? ORDER BY tp.score DESC, COALESCE(tp.rank,9999) ASC' // TOURNOI AJOUT
+  ).all(t.id); // TOURNOI AJOUT
+  const matches = db.prepare( // TOURNOI AJOUT
+    'SELECT tm.*, u1.name AS p1_name, u1.country AS p1_country, u2.name AS p2_name, u2.country AS p2_country, uw.name AS winner_name FROM tournament_matches tm LEFT JOIN users u1 ON u1.id = tm.player1_id LEFT JOIN users u2 ON u2.id = tm.player2_id LEFT JOIN users uw ON uw.id = tm.winner_id WHERE tm.tournament_id = ? ORDER BY tm.round, tm.id' // TOURNOI AJOUT
+  ).all(t.id); // TOURNOI AJOUT
+  const creator = db.prepare('SELECT id, name, country FROM users WHERE id = ?').get(t.creator_id); // TOURNOI AJOUT
+  return { ...t, participants, matches, creator }; // TOURNOI AJOUT
+} // TOURNOI AJOUT
 
-function _validStartDate(s) {
-  if (!s) return true;
-  if (typeof s !== 'string') return false;
-  const d = new Date(s);
-  if (isNaN(d.getTime())) return false;
-  return d.getTime() >= Date.now() - 60 * 60 * 1000;
-}
+/* POST /tournament/create */
+app.post('/tournament/create', requireAuth, (req, res) => { // TOURNOI AJOUT
+  const { name, zone, pack_id, max_players, start_date } = req.body || {}; // TOURNOI AJOUT
+  if (!name || !zone) return err(res, 400, 'name et zone requis'); // TOURNOI AJOUT
+  if (!['uemoa','cemac','inter','country'].includes(zone)) return err(res, 400, 'Zone invalide'); // TOURNOI AJOUT
+  const mp = Number(max_players); // TOURNOI AJOUT
+  if (![8,16,32].includes(mp)) return err(res, 400, 'max_players doit être 8, 16 ou 32'); // TOURNOI AJOUT
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id); // TOURNOI AJOUT
+  if (!user) return err(res, 401, 'Session expirée, reconnecte-toi'); // MODIFIÉ — anti-crash user undefined
+  if (!_peutRejoindre(user.country, user.country, zone)) { // TOURNOI AJOUT
+    return err(res, 403, 'Vous ne pouvez pas créer un tournoi hors de votre zone'); // TOURNOI AJOUT
+  } // TOURNOI AJOUT
+  let code; // TOURNOI AJOUT
+  for (let i = 0; i < 10; i++) { // TOURNOI AJOUT
+    const rand = crypto.randomBytes(2).toString('hex').toUpperCase(); // TOURNOI AJOUT
+    code = 'T-' + rand; // TOURNOI AJOUT
+    if (!db.prepare('SELECT id FROM tournaments WHERE code = ?').get(code)) break; // TOURNOI AJOUT
+  } // TOURNOI AJOUT
+  const result = db.prepare( // TOURNOI AJOUT
+    'INSERT INTO tournaments (code, creator_id, name, pack_id, max_players, status, country, zone, start_date) VALUES (?,?,?,?,?,?,?,?,?)' // TOURNOI AJOUT
+  ).run(code, req.user.id, name.trim().slice(0,80), pack_id || 'general', mp, 'waiting', user.country || '', zone, start_date || ''); // TOURNOI AJOUT
+  db.prepare('INSERT INTO tournament_participants (tournament_id, user_id) VALUES (?,?)').run(result.lastInsertRowid, req.user.id); // TOURNOI AJOUT
+  notifyAllExcept(req.user.id, 'tournament_created', '🏆 ' + user.name + ' crée le tournoi "' + name.trim() + '" ! Code : ' + code); // TOURNOI AJOUT
+  return ok(res, { code, id: result.lastInsertRowid }); // TOURNOI AJOUT
+}); // TOURNOI AJOUT
 
-function _tFull(code) {
-  const t = db.prepare('SELECT * FROM tournaments WHERE code = ?').get(code);
-  if (!t) return null;
-  const participants = db.prepare('SELECT tp.*, u.name, u.country, u.etablissement FROM tournament_participants tp JOIN users u ON u.id = tp.user_id WHERE tp.tournament_id = ? ORDER BY tp.score DESC, COALESCE(tp.rank,9999) ASC').all(t.id);
-  const matches = db.prepare('SELECT tm.*, u1.name AS p1_name, u1.country AS p1_country, u2.name AS p2_name, u2.country AS p2_country, uw.name AS winner_name FROM tournament_matches tm LEFT JOIN users u1 ON u1.id = tm.player1_id LEFT JOIN users u2 ON u2.id = tm.player2_id LEFT JOIN users uw ON uw.id = tm.winner_id WHERE tm.tournament_id = ? ORDER BY tm.round, tm.id').all(t.id);
-  const creator = db.prepare('SELECT id, name, country FROM users WHERE id = ?').get(t.creator_id);
-  return { ...t, participants, matches, creator };
-}
+/* POST /tournament/join */
+app.post('/tournament/join', requireAuth, (req, res) => { // TOURNOI AJOUT
+  const { code } = req.body || {}; // TOURNOI AJOUT
+  if (!code) return err(res, 400, 'code requis'); // TOURNOI AJOUT
+  const t = db.prepare('SELECT * FROM tournaments WHERE code = ?').get(code.trim().toUpperCase()); // TOURNOI AJOUT
+  if (!t) return err(res, 404, 'Tournoi introuvable'); // TOURNOI AJOUT
+  if (!['waiting','qualif'].includes(t.status)) return err(res, 400, 'Inscriptions fermées pour ce tournoi'); // TOURNOI AJOUT
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id); // TOURNOI AJOUT
+  if (!_peutRejoindre(user.country, t.country, t.zone)) { // TOURNOI AJOUT
+    const z = t.zone === 'country' ? ('pays ' + t.country) : ('zone ' + t.zone.toUpperCase()); // TOURNOI AJOUT
+    return err(res, 403, 'Ce tournoi est réservé à la ' + z + '. Votre pays (' + (user.country || '?') + ') n\'est pas éligible.'); // TOURNOI AJOUT
+  } // TOURNOI AJOUT
+  const already = db.prepare('SELECT id FROM tournament_participants WHERE tournament_id = ? AND user_id = ?').get(t.id, req.user.id); // TOURNOI AJOUT
+  if (already) return ok(res, { message: 'Déjà inscrit', tournament: _tFull(t.code) }); // TOURNOI AJOUT
+  const count = db.prepare('SELECT COUNT(*) AS n FROM tournament_participants WHERE tournament_id = ?').get(t.id).n; // TOURNOI AJOUT
+  if (count >= t.max_players) return err(res, 400, 'Tournoi complet (' + count + '/' + t.max_players + ')'); // TOURNOI AJOUT
+  db.prepare('INSERT INTO tournament_participants (tournament_id, user_id) VALUES (?,?)').run(t.id, req.user.id); // TOURNOI AJOUT
+  db.prepare('INSERT INTO notifications (user_id, type, message) VALUES (?,?,?)').run(t.creator_id, 'tournament_joined', '🏟 ' + user.name + ' a rejoint "' + t.name + '" ! (' + (count+1) + '/' + t.max_players + ')'); // TOURNOI AJOUT
+  return ok(res, { message: 'Inscrit au tournoi', tournament: _tFull(t.code) }); // TOURNOI AJOUT
+}); // TOURNOI AJOUT
 
-app.post('/tournament/create', requireAuth, (req, res) => {
-  const { name, zone, pack_id, packs_ids, max_players, start_date } = req.body || {};
-  if (!name || !zone) return err(res, 400, 'name et zone requis');
-  const trimmedName = String(name).trim();
-  if (trimmedName.length < 3 || trimmedName.length > 80) return err(res, 400, 'Nom du tournoi : 3 à 80 caractères');
-  if (!['uemoa','cemac','inter','country'].includes(zone)) return err(res, 400, 'Zone invalide');
-  const mp = Number(max_players);
-  if (![8,16,32].includes(mp)) return err(res, 400, 'max_players doit être 8, 16 ou 32');
-  let finalPacks;
-  if (Array.isArray(packs_ids) && packs_ids.length) {
-    if (!_validPacksIds(packs_ids)) return err(res, 400, 'Sélectionne 1 à 5 packs valides');
-    finalPacks = packs_ids;
-  } else if (pack_id && _KNOWN_PACK_IDS.includes(pack_id)) {
-    finalPacks = [pack_id];
-  } else {
-    finalPacks = ['general'];
-  }
-  if (start_date && !_validStartDate(start_date)) return err(res, 400, 'Date de début invalide ou trop ancienne');
-  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id);
-  if (!user) return err(res, 401, 'Session expirée, reconnecte-toi');
-  if (!_peutRejoindre(user.country, user.country, zone)) return err(res, 403, 'Vous ne pouvez pas créer un tournoi hors de votre zone');
-  let code;
-  for (let i = 0; i < 10; i++) { const rand = crypto.randomBytes(2).toString('hex').toUpperCase(); code = 'T-' + rand; if (!db.prepare('SELECT id FROM tournaments WHERE code = ?').get(code)) break; }
-  const result = db.prepare('INSERT INTO tournaments (code, creator_id, name, pack_id, packs_ids, max_players, status, country, zone, start_date) VALUES (?,?,?,?,?,?,?,?,?,?)')
-    .run(code, req.user.id, trimmedName.slice(0,80), finalPacks[0], JSON.stringify(finalPacks), mp, 'waiting', user.country || '', zone, start_date || '');
-  db.prepare('INSERT INTO tournament_participants (tournament_id, user_id) VALUES (?,?)').run(result.lastInsertRowid, req.user.id);
-  notifyAllExcept(req.user.id, 'tournament_created', '🏆 ' + user.name + ' crée le tournoi "' + trimmedName + '" ! Code : ' + code);
-  return ok(res, { code, id: result.lastInsertRowid });
-});
+/* GET /tournament/list */
+app.get('/tournament/list', requireAuth, (req, res) => { // TOURNOI AJOUT
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id); // TOURNOI AJOUT
+  if (!user) return err(res, 401, 'Session expirée, reconnecte-toi'); // MODIFIÉ — anti-crash user undefined
+  const uZone = _zoneOf(user.country); // TOURNOI AJOUT
+  // SECURITE FIX : utiliser des paramètres SQLite au lieu de l'interpolation de chaîne (anti-injection SQL)
+  const BASE_OPEN_SQL = `SELECT t.*, u.name AS creator_name, (SELECT COUNT(*) FROM tournament_participants tp WHERE tp.tournament_id = t.id) AS nb FROM tournaments t JOIN users u ON u.id = t.creator_id WHERE t.status IN ('waiting','qualif','elim')`; // SECURITE FIX
+  const open = uZone // SECURITE FIX
+    ? db.prepare(BASE_OPEN_SQL + ` AND (t.zone = ? OR t.zone = 'inter') ORDER BY t.created_at DESC LIMIT 30`).all(uZone) // SECURITE FIX
+    : db.prepare(BASE_OPEN_SQL + ` ORDER BY t.created_at DESC LIMIT 30`).all(); // SECURITE FIX
+  const mine = db.prepare( // TOURNOI AJOUT
+    'SELECT t.*, u.name AS creator_name, (SELECT COUNT(*) FROM tournament_participants tp WHERE tp.tournament_id = t.id) AS nb FROM tournaments t JOIN users u ON u.id = t.creator_id JOIN tournament_participants tp2 ON tp2.tournament_id = t.id AND tp2.user_id = ? ORDER BY t.created_at DESC LIMIT 20' // TOURNOI AJOUT
+  ).all(req.user.id); // TOURNOI AJOUT
+  return ok(res, { open, mine }); // TOURNOI AJOUT
+}); // TOURNOI AJOUT
 
-app.post('/tournament/join', requireAuth, (req, res) => {
-  const { code } = req.body || {};
-  if (!code) return err(res, 400, 'code requis');
-  const t = db.prepare('SELECT * FROM tournaments WHERE code = ?').get(code.trim().toUpperCase());
-  if (!t) return err(res, 404, 'Tournoi introuvable');
-  if (!['waiting','qualif'].includes(t.status)) return err(res, 400, 'Inscriptions fermées pour ce tournoi');
-  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id);
-  if (!_peutRejoindre(user.country, t.country, t.zone)) return err(res, 403, 'Ce tournoi est réservé à la zone ' + t.zone.toUpperCase() + '. Votre pays (' + (user.country || '?') + ') n\'est pas éligible.');
-  const already = db.prepare('SELECT id FROM tournament_participants WHERE tournament_id = ? AND user_id = ?').get(t.id, req.user.id);
-  if (already) return ok(res, { message: 'Déjà inscrit', tournament: _tFull(t.code) });
-  const count = db.prepare('SELECT COUNT(*) AS n FROM tournament_participants WHERE tournament_id = ?').get(t.id).n;
-  if (count >= t.max_players) return err(res, 400, 'Tournoi complet (' + count + '/' + t.max_players + ')');
-  db.prepare('INSERT INTO tournament_participants (tournament_id, user_id) VALUES (?,?)').run(t.id, req.user.id);
-  db.prepare('INSERT INTO notifications (user_id, type, message) VALUES (?,?,?)').run(t.creator_id, 'tournament_joined', '🏟 ' + user.name + ' a rejoint "' + t.name + '" ! (' + (count+1) + '/' + t.max_players + ')');
-  return ok(res, { message: 'Inscrit au tournoi', tournament: _tFull(t.code) });
-});
+/* POST /tournament/qualify */
+app.post('/tournament/qualify', requireAuth, (req, res) => { // TOURNOI AJOUT
+  const { tournament_id, score, total, questions_json } = req.body || {}; // TOURNOI AJOUT
+  if (!tournament_id || score == null || total == null) return err(res, 400, 'tournament_id, score, total requis')
+     if (Number(score) < 0 || Number(score) > Number(total)) return err(res, 400, 'Score invalide'); // SECURITE FIX
+  if (Number(total) <= 0 || Number(total) > 20) return err(res, 400, 'Total invalide'); // SECURITE FIX
+  if (Number(score) > 2000) return err(res, 400, 'Score suspect'); // SECURITE FIX; // TOURNOI AJOUT
+  const t = db.prepare('SELECT * FROM tournaments WHERE id = ?').get(Number(tournament_id)); // TOURNOI AJOUT
+  if (!t) return err(res, 404, 'Tournoi introuvable'); // TOURNOI AJOUT
+  if (!['qualif','waiting'].includes(t.status)) return err(res, 400, 'Phase de qualification non active'); // TOURNOI AJOUT
+  const part = db.prepare('SELECT * FROM tournament_participants WHERE tournament_id = ? AND user_id = ?').get(t.id, req.user.id); // TOURNOI AJOUT
+  if (!part) return err(res, 403, 'Non inscrit à ce tournoi'); // TOURNOI AJOUT
+  if (part.score > 0) return err(res, 400, 'Qualification déjà soumise (score : ' + part.score + ')'); // TOURNOI AJOUT
+  db.prepare('UPDATE tournament_participants SET score = ?, total = ? WHERE tournament_id = ? AND user_id = ?') // TOURNOI AJOUT
+    .run(Number(score), Number(total), t.id, req.user.id); // TOURNOI AJOUT
+  const allPart = db.prepare('SELECT * FROM tournament_participants WHERE tournament_id = ? ORDER BY score DESC').all(t.id); // TOURNOI AJOUT
+  const qualifN = Math.floor(t.max_players / 2); // TOURNOI AJOUT
+  allPart.forEach((p, i) => { // TOURNOI AJOUT
+    db.prepare('UPDATE tournament_participants SET rank = ?, qualified = ? WHERE id = ?').run(i + 1, i < qualifN ? 1 : 0, p.id); // TOURNOI AJOUT
+  }); // TOURNOI AJOUT
+  try { // TOURNOI AJOUT
+    db.prepare('INSERT INTO tournament_match_sheets (tournament_id, match_id, player_id, questions_json, score) VALUES (?,?,?,?,?)') // TOURNOI AJOUT
+      .run(t.id, null, req.user.id, JSON.stringify(questions_json || []), Number(score)); // TOURNOI AJOUT
+  } catch(_) {} // TOURNOI AJOUT
+  const myRank = allPart.findIndex(p => p.user_id === req.user.id) + 1; // TOURNOI AJOUT
+  const user = db.prepare('SELECT name FROM users WHERE id = ?').get(req.user.id); // TOURNOI AJOUT
+  if (t.creator_id !== req.user.id) { // TOURNOI AJOUT
+    db.prepare('INSERT INTO notifications (user_id, type, message) VALUES (?,?,?)') // TOURNOI AJOUT
+      .run(t.creator_id, 'tournament_qualified', '⚡ ' + user.name + ' — qualification : ' + score + '/' + total + ' pts (#' + myRank + ')'); // TOURNOI AJOUT
+  } // TOURNOI AJOUT
+  return ok(res, { message: 'Score de qualification enregistré', rank: myRank }); // TOURNOI AJOUT
+}); // TOURNOI AJOUT
 
-app.get('/tournament/list', requireAuth, (req, res) => {
-  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id);
-  if (!user) return err(res, 401, 'Session expirée, reconnecte-toi');
-  const uZone = _zoneOf(user.country);
-  const BASE_SQL = `SELECT t.*, u.name AS creator_name, (SELECT COUNT(*) FROM tournament_participants tp WHERE tp.tournament_id = t.id) AS nb FROM tournaments t JOIN users u ON u.id = t.creator_id WHERE t.status IN ('waiting','qualif','elim')`;
-  const open = uZone
-    ? db.prepare(BASE_SQL + ` AND (t.zone = ? OR t.zone = 'inter') ORDER BY t.created_at DESC LIMIT 30`).all(uZone)
-    : db.prepare(BASE_SQL + ` ORDER BY t.created_at DESC LIMIT 30`).all();
-  const mine = db.prepare('SELECT t.*, u.name AS creator_name, (SELECT COUNT(*) FROM tournament_participants tp WHERE tp.tournament_id = t.id) AS nb FROM tournaments t JOIN users u ON u.id = t.creator_id JOIN tournament_participants tp2 ON tp2.tournament_id = t.id AND tp2.user_id = ? ORDER BY t.created_at DESC LIMIT 20').all(req.user.id);
-  return ok(res, { open, mine });
-});
+/* GET /tournament/match-sheet/:matchId */
+app.get('/tournament/match-sheet/:matchId', requireAuth, (req, res) => { // TOURNOI AJOUT
+  const midRaw = req.params.matchId; // TOURNOI AJOUT
+  let sheets; // TOURNOI AJOUT
+  if (midRaw === 'qualify') { // TOURNOI AJOUT
+    const tId = Number(req.query.tournament_id); // TOURNOI AJOUT
+    sheets = db.prepare('SELECT tms.*, u.name FROM tournament_match_sheets tms JOIN users u ON u.id = tms.player_id WHERE tms.tournament_id = ? AND tms.match_id IS NULL').all(tId); // TOURNOI AJOUT
+  } else { // TOURNOI AJOUT
+    sheets = db.prepare('SELECT tms.*, u.name FROM tournament_match_sheets tms JOIN users u ON u.id = tms.player_id WHERE tms.match_id = ?').all(Number(midRaw)); // TOURNOI AJOUT
+  } // TOURNOI AJOUT
+  return ok(res, { sheets }); // TOURNOI AJOUT
+}); // TOURNOI AJOUT
 
-app.post('/tournament/qualify', requireAuth, (req, res) => {
-  const { tournament_id, score, total, questions_json } = req.body || {};
-  if (!tournament_id || score == null || total == null) return err(res, 400, 'tournament_id, score, total requis');
-  if (Number(score) < 0 || Number(score) > Number(total)) return err(res, 400, 'Score invalide');
-  if (Number(total) <= 0 || Number(total) > 20) return err(res, 400, 'Total invalide');
-  if (Number(score) > 2000) return err(res, 400, 'Score suspect');
-  const t = db.prepare('SELECT * FROM tournaments WHERE id = ?').get(Number(tournament_id));
-  if (!t) return err(res, 404, 'Tournoi introuvable');
-  if (!['qualif','waiting'].includes(t.status)) return err(res, 400, 'Phase de qualification non active');
-  const part = db.prepare('SELECT * FROM tournament_participants WHERE tournament_id = ? AND user_id = ?').get(t.id, req.user.id);
-  if (!part) return err(res, 403, 'Non inscrit à ce tournoi');
-  if (part.score > 0) return err(res, 400, 'Qualification déjà soumise (score : ' + part.score + ')');
-  db.prepare('UPDATE tournament_participants SET score = ?, total = ? WHERE tournament_id = ? AND user_id = ?').run(Number(score), Number(total), t.id, req.user.id);
-  const allPart = db.prepare('SELECT * FROM tournament_participants WHERE tournament_id = ? ORDER BY score DESC').all(t.id);
-  const qualifN = Math.floor(t.max_players / 2);
-  allPart.forEach((p, i) => { db.prepare('UPDATE tournament_participants SET rank = ?, qualified = ? WHERE id = ?').run(i + 1, i < qualifN ? 1 : 0, p.id); });
-  try { db.prepare('INSERT INTO tournament_match_sheets (tournament_id, match_id, player_id, questions_json, score) VALUES (?,?,?,?,?)').run(t.id, null, req.user.id, JSON.stringify(questions_json || []), Number(score)); } catch(_) {}
-  const myRank = allPart.findIndex(p => p.user_id === req.user.id) + 1;
-  const user = db.prepare('SELECT name FROM users WHERE id = ?').get(req.user.id);
-  if (t.creator_id !== req.user.id) db.prepare('INSERT INTO notifications (user_id, type, message) VALUES (?,?,?)').run(t.creator_id, 'tournament_qualified', '⚡ ' + user.name + ' — qualification : ' + score + '/' + total + ' pts (#' + myRank + ')');
-  return ok(res, { message: 'Score de qualification enregistré', rank: myRank });
-});
+/* GET /tournament/:code */
+app.get('/tournament/:code', requireAuth, (req, res) => { // TOURNOI AJOUT
+  const t = _tFull(req.params.code); // TOURNOI AJOUT
+  if (!t) return err(res, 404, 'Tournoi introuvable'); // TOURNOI AJOUT
+  const myPart = t.participants.find(p => p.user_id === req.user.id) || null; // TOURNOI AJOUT
+  return ok(res, { tournament: t, participants: t.participants, matches: t.matches, creator: t.creator, my_participant: myPart }); // TOURNOI AJOUT
+}); // TOURNOI AJOUT
 
-app.get('/tournament/match-sheet/:matchId', requireAuth, (req, res) => {
-  const midRaw = req.params.matchId;
-  let sheets;
-  if (midRaw === 'qualify') {
-    sheets = db.prepare('SELECT tms.*, u.name FROM tournament_match_sheets tms JOIN users u ON u.id = tms.player_id WHERE tms.tournament_id = ? AND tms.match_id IS NULL').all(Number(req.query.tournament_id));
-  } else {
-    sheets = db.prepare('SELECT tms.*, u.name FROM tournament_match_sheets tms JOIN users u ON u.id = tms.player_id WHERE tms.match_id = ?').all(Number(midRaw));
-  }
-  return ok(res, { sheets });
-});
+/* GET /tournament/:id/bracket */
+app.get('/tournament/:id/bracket', requireAuth, (req, res) => { // TOURNOI AJOUT
+  const id = Number(req.params.id); // TOURNOI AJOUT
+  if (!id) return err(res, 400, 'id numérique requis'); // TOURNOI AJOUT
+  const t = db.prepare('SELECT * FROM tournaments WHERE id = ?').get(id); // TOURNOI AJOUT
+  if (!t) return err(res, 404, 'Tournoi introuvable'); // TOURNOI AJOUT
+  const matches = db.prepare( // TOURNOI AJOUT
+    'SELECT tm.*, u1.name AS p1_name, u1.country AS p1_country, u2.name AS p2_name, u2.country AS p2_country, uw.name AS winner_name FROM tournament_matches tm LEFT JOIN users u1 ON u1.id = tm.player1_id LEFT JOIN users u2 ON u2.id = tm.player2_id LEFT JOIN users uw ON uw.id = tm.winner_id WHERE tm.tournament_id = ? ORDER BY tm.round, tm.id' // TOURNOI AJOUT
+  ).all(id); // TOURNOI AJOUT
+  const participants = db.prepare( // TOURNOI AJOUT
+    'SELECT tp.*, u.name, u.country FROM tournament_participants tp JOIN users u ON u.id = tp.user_id WHERE tp.tournament_id = ? ORDER BY COALESCE(tp.rank,9999) ASC, tp.score DESC' // TOURNOI AJOUT
+  ).all(id); // TOURNOI AJOUT
+  return ok(res, { tournament: t, matches, participants }); // TOURNOI AJOUT
+}); // TOURNOI AJOUT
 
-app.get('/tournament/:code', requireAuth, (req, res) => {
-  const t = _tFull(req.params.code);
-  if (!t) return err(res, 404, 'Tournoi introuvable');
-  const myPart = t.participants.find(p => p.user_id === req.user.id) || null;
-  return ok(res, { tournament: t, participants: t.participants, matches: t.matches, creator: t.creator, my_participant: myPart });
-});
+/* POST /tournament/:code/start-qualif */
+app.post('/tournament/:code/start-qualif', requireAuth, (req, res) => { // TOURNOI AJOUT
+  const t = db.prepare('SELECT * FROM tournaments WHERE code = ?').get(req.params.code); // TOURNOI AJOUT
+  if (!t) return err(res, 404, 'Tournoi introuvable'); // TOURNOI AJOUT
+  if (t.creator_id !== req.user.id) return err(res, 403, 'Seul le créateur peut lancer les qualifications'); // TOURNOI AJOUT
+  if (t.status !== 'waiting') return err(res, 400, 'Statut invalide — attendu: waiting'); // TOURNOI AJOUT
+  db.prepare('UPDATE tournaments SET status = ? WHERE code = ?').run('qualif', req.params.code); // TOURNOI AJOUT
+  const parts = db.prepare('SELECT user_id FROM tournament_participants WHERE tournament_id = ?').all(t.id); // TOURNOI AJOUT
+  const ins = db.prepare('INSERT INTO notifications (user_id, type, message) VALUES (?,?,?)'); // TOURNOI AJOUT
+  const tx = db.transaction(() => parts.forEach(p => { // TOURNOI AJOUT
+    if (p.user_id !== req.user.id) ins.run(p.user_id, 'tournament_qualif_start', '⚡ Qualifications ouvertes pour "' + t.name + '" ! Code : ' + t.code); // TOURNOI AJOUT
+  })); // TOURNOI AJOUT
+  tx(); // TOURNOI AJOUT
+  return ok(res, { message: 'Phase de qualification lancée' }); // TOURNOI AJOUT
+}); // TOURNOI AJOUT
 
-app.get('/tournament/:id/bracket', requireAuth, (req, res) => {
-  const id = Number(req.params.id);
-  if (!id) return err(res, 400, 'id numérique requis');
-  const t = db.prepare('SELECT * FROM tournaments WHERE id = ?').get(id);
-  if (!t) return err(res, 404, 'Tournoi introuvable');
-  const matches = db.prepare('SELECT tm.*, u1.name AS p1_name, u1.country AS p1_country, u2.name AS p2_name, u2.country AS p2_country, uw.name AS winner_name FROM tournament_matches tm LEFT JOIN users u1 ON u1.id = tm.player1_id LEFT JOIN users u2 ON u2.id = tm.player2_id LEFT JOIN users uw ON uw.id = tm.winner_id WHERE tm.tournament_id = ? ORDER BY tm.round, tm.id').all(id);
-  const participants = db.prepare('SELECT tp.*, u.name, u.country FROM tournament_participants tp JOIN users u ON u.id = tp.user_id WHERE tp.tournament_id = ? ORDER BY COALESCE(tp.rank,9999) ASC, tp.score DESC').all(id);
-  return ok(res, { tournament: t, matches, participants });
-});
+/* POST /tournament/:code/generate-bracket */
+app.post('/tournament/:code/generate-bracket', requireAuth, (req, res) => { // TOURNOI AJOUT
+  const t = db.prepare('SELECT * FROM tournaments WHERE code = ?').get(req.params.code); // TOURNOI AJOUT
+  if (!t) return err(res, 404, 'Tournoi introuvable'); // TOURNOI AJOUT
+  if (t.creator_id !== req.user.id) return err(res, 403, 'Seul le créateur peut générer le bracket'); // TOURNOI AJOUT
+  if (!['qualif','waiting'].includes(t.status)) return err(res, 400, 'Phase invalide pour générer un bracket'); // TOURNOI AJOUT
+  const participants = db.prepare('SELECT * FROM tournament_participants WHERE tournament_id = ? ORDER BY score DESC').all(t.id); // TOURNOI AJOUT
+  if (participants.length < 2) return err(res, 400, 'Minimum 2 participants requis'); // TOURNOI AJOUT
+  db.prepare('DELETE FROM tournament_matches WHERE tournament_id = ?').run(t.id); // TOURNOI AJOUT
+  const mIns = db.prepare('INSERT INTO tournament_matches (tournament_id, round, player1_id, player2_id, duel_code, status) VALUES (?,?,?,?,?,?)'); // TOURNOI AJOUT
+  const dIns = db.prepare('INSERT INTO duels (code, creator_id, pack_id, num_questions, timer_sec) VALUES (?,?,?,?,?)'); // TOURNOI AJOUT
+  const tx = db.transaction(() => { // TOURNOI AJOUT
+    const pairs = Math.floor(participants.length / 2); // TOURNOI AJOUT
+    for (let i = 0; i < pairs; i++) { // TOURNOI AJOUT
+      const p1 = participants[i * 2]; // TOURNOI AJOUT
+      const p2 = participants[i * 2 + 1]; // TOURNOI AJOUT
+      let dCode; // TOURNOI AJOUT
+      for (let j = 0; j < 10; j++) { // TOURNOI AJOUT
+        dCode = genCode('D'); // TOURNOI AJOUT
+        if (!db.prepare('SELECT id FROM duels WHERE code = ?').get(dCode)) break; // TOURNOI AJOUT
+      } // TOURNOI AJOUT
+      dIns.run(dCode, p1.user_id, t.pack_id || 'general', 10, 30); // TOURNOI AJOUT
+      mIns.run(t.id, 1, p1.user_id, p2.user_id, dCode, 'pending'); // TOURNOI AJOUT
+    } // TOURNOI AJOUT
+  }); // TOURNOI AJOUT
+  tx(); // TOURNOI AJOUT
+  db.prepare('UPDATE tournaments SET status = ? WHERE code = ?').run('elim', req.params.code); // TOURNOI AJOUT
+  const allParts = db.prepare('SELECT user_id FROM tournament_participants WHERE tournament_id = ?').all(t.id); // TOURNOI AJOUT
+  const nIns = db.prepare('INSERT INTO notifications (user_id, type, message) VALUES (?,?,?)'); // TOURNOI AJOUT
+  const nTx = db.transaction(() => allParts.forEach(p => nIns.run(p.user_id, 'tournament_bracket', '🏆 Bracket généré pour "' + t.name + '" ! Les matchs d\'élimination débutent.'))); // TOURNOI AJOUT
+  nTx(); // TOURNOI AJOUT
+  return ok(res, { message: 'Bracket généré', tournament: _tFull(req.params.code) }); // TOURNOI AJOUT
+}); // TOURNOI AJOUT
 
-app.post('/tournament/:code/start-qualif', requireAuth, (req, res) => {
-  const t = db.prepare('SELECT * FROM tournaments WHERE code = ?').get(req.params.code);
-  if (!t) return err(res, 404, 'Tournoi introuvable');
-  if (t.creator_id !== req.user.id) return err(res, 403, 'Seul le créateur peut lancer les qualifications');
-  if (t.status !== 'waiting') return err(res, 400, 'Statut invalide — attendu: waiting');
-  db.prepare('UPDATE tournaments SET status = ? WHERE code = ?').run('qualif', req.params.code);
-  const parts = db.prepare('SELECT user_id FROM tournament_participants WHERE tournament_id = ?').all(t.id);
-  const ins = db.prepare('INSERT INTO notifications (user_id, type, message) VALUES (?,?,?)');
-  const tx = db.transaction(() => parts.forEach(p => { if (p.user_id !== req.user.id) ins.run(p.user_id, 'tournament_qualif_start', '⚡ Qualifications ouvertes pour "' + t.name + '" ! Code : ' + t.code); }));
-  tx();
-  return ok(res, { message: 'Phase de qualification lancée' });
-});
-
-app.post('/tournament/:code/generate-bracket', requireAuth, (req, res) => {
-  const t = db.prepare('SELECT * FROM tournaments WHERE code = ?').get(req.params.code);
-  if (!t) return err(res, 404, 'Tournoi introuvable');
-  if (t.creator_id !== req.user.id) return err(res, 403, 'Seul le créateur peut générer le bracket');
-  if (!['qualif','waiting'].includes(t.status)) return err(res, 400, 'Phase invalide pour générer un bracket');
-  const participants = db.prepare('SELECT * FROM tournament_participants WHERE tournament_id = ? ORDER BY score DESC').all(t.id);
-  if (participants.length < 2) return err(res, 400, 'Minimum 2 participants requis');
-  let packsList;
-  try { packsList = t.packs_ids ? JSON.parse(t.packs_ids) : null; } catch(_) { packsList = null; }
-  if (!Array.isArray(packsList) || !packsList.length) packsList = [t.pack_id || 'general'];
-  db.prepare('DELETE FROM tournament_matches WHERE tournament_id = ?').run(t.id);
-  const mIns = db.prepare('INSERT INTO tournament_matches (tournament_id, round, player1_id, player2_id, duel_code, status) VALUES (?,?,?,?,?,?)');
-  const dIns = db.prepare('INSERT INTO duels (code, creator_id, pack_id, num_questions, timer_sec) VALUES (?,?,?,?,?)');
-  const tx = db.transaction(() => {
-    const pairs = Math.floor(participants.length / 2);
-    for (let i = 0; i < pairs; i++) {
-      const p1 = participants[i * 2], p2 = participants[i * 2 + 1];
-      let dCode;
-      for (let j = 0; j < 10; j++) { dCode = genCode('D'); if (!db.prepare('SELECT id FROM duels WHERE code = ?').get(dCode)) break; }
-      const packForMatch = packsList[i % packsList.length];
-      dIns.run(dCode, p1.user_id, packForMatch, 10, 30);
-      mIns.run(t.id, 1, p1.user_id, p2.user_id, dCode, 'pending');
-    }
-  });
-  tx();
-  db.prepare('UPDATE tournaments SET status = ? WHERE code = ?').run('elim', req.params.code);
-  const allParts = db.prepare('SELECT user_id FROM tournament_participants WHERE tournament_id = ?').all(t.id);
-  const nIns = db.prepare('INSERT INTO notifications (user_id, type, message) VALUES (?,?,?)');
-  const nTx = db.transaction(() => allParts.forEach(p => nIns.run(p.user_id, 'tournament_bracket', '🏆 Bracket généré pour "' + t.name + '" ! Les matchs d\'élimination débutent.')));
-  nTx();
-  return ok(res, { message: 'Bracket généré', tournament: _tFull(req.params.code) });
-});
-
-app.post('/tournament/match/:matchId/record', requireAuth, (req, res) => {
-  const matchId = Number(req.params.matchId);
-  const { winner_id } = req.body || {};
-  if (!winner_id) return err(res, 400, 'winner_id requis');
-  const match = db.prepare('SELECT * FROM tournament_matches WHERE id = ?').get(matchId);
-  if (!match) return err(res, 404, 'Match introuvable');
-  const wId = Number(winner_id);
+/* POST /tournament/match/:matchId/record */
+app.post('/tournament/match/:matchId/record', requireAuth, (req, res) => { // TOURNOI AJOUT
+  const matchId = Number(req.params.matchId); // TOURNOI AJOUT
+  const { winner_id, duel_code } = req.body || {}; // TOURNOI AJOUT
+  if (!winner_id) return err(res, 400, 'winner_id requis'); // TOURNOI AJOUT
+  const match = db.prepare('SELECT * FROM tournament_matches WHERE id = ?').get(matchId); // TOURNOI AJOUT
+  if (!match) return err(res, 404, 'Match introuvable'); // TOURNOI AJOUT
+  const wId = Number(winner_id); // TOURNOI AJOUT
   if (wId !== req.user.id) return err(res, 403, 'Tu ne peux déclarer que ta propre victoire');
   if (match.player1_id !== wId && match.player2_id !== wId) return err(res, 400, 'winner_id invalide');
-  if (!match.duel_code) return err(res, 400, 'Duel non associé à ce match');
+ if (!match.duel_code) return err(res, 400, 'Duel non associé à ce match'); // SECURITE FIX
   const duel = db.prepare('SELECT status FROM duels WHERE code = ?').get(match.duel_code);
   if (!duel || duel.status !== 'finished') return err(res, 400, 'Duel pas encore terminé');
-  db.prepare('UPDATE tournament_matches SET winner_id = ?, status = ? WHERE id = ?').run(wId, 'done', matchId);
-  return ok(res, { message: 'Résultat enregistré' });
-});
+  db.prepare('UPDATE tournament_matches SET winner_id = ?, status = ? WHERE id = ?').run(wId, 'done', matchId); // TOURNOI AJOUT
+  return ok(res, { message: 'Résultat enregistré' }); // TOURNOI AJOUT
+}); // TOURNOI AJOUT
 
-/* ── Tournament chat (participants) ─────────────────────────────── */
-app.get('/tournament-chat/:tournamentId', requireAuth, (req, res) => {
-  const tId = Number(req.params.tournamentId);
-  if (!tId) return err(res, 400, 'tournamentId invalide');
-  const isParticipant = db.prepare('SELECT id FROM tournament_participants WHERE tournament_id = ? AND user_id = ?').get(tId, req.user.id);
-  if (!isParticipant) return err(res, 403, 'Accès réservé aux participants du tournoi');
-  const msgs = db.prepare('SELECT tc.id, tc.content, tc.sent_at, u.name, u.country FROM tournament_chat tc JOIN users u ON u.id = tc.user_id WHERE tc.tournament_id = ? ORDER BY tc.sent_at DESC LIMIT 60').all(tId).reverse();
-  return ok(res, { messages: msgs });
-});
+/* GET /tournament-chat/:tournamentId */
+app.get('/tournament-chat/:tournamentId', requireAuth, (req, res) => { // TOURNOI AJOUT
+  const tId = Number(req.params.tournamentId); // TOURNOI AJOUT
+  if (!tId) return err(res, 400, 'tournamentId invalide'); // TOURNOI AJOUT
+  // SECURITE FIX : lecture du chat réservée aux participants du tournoi
+  const isParticipant = db.prepare('SELECT id FROM tournament_participants WHERE tournament_id = ? AND user_id = ?').get(tId, req.user.id); // SECURITE FIX
+  if (!isParticipant) return err(res, 403, 'Accès réservé aux participants du tournoi'); // SECURITE FIX
+  const msgs = db.prepare( // TOURNOI AJOUT
+    'SELECT tc.id, tc.content, tc.sent_at, u.name, u.country FROM tournament_chat tc JOIN users u ON u.id = tc.user_id WHERE tc.tournament_id = ? ORDER BY tc.sent_at DESC LIMIT 60' // TOURNOI AJOUT
+  ).all(tId).reverse(); // TOURNOI AJOUT
+  return ok(res, { messages: msgs }); // TOURNOI AJOUT
+}); // TOURNOI AJOUT
 
-app.post('/tournament-chat/:tournamentId', requireAuth, (req, res) => {
-  const tId = Number(req.params.tournamentId);
-  if (!tId) return err(res, 400, 'tournamentId invalide');
-  const { content } = req.body || {};
-  if (!content || !content.trim()) return err(res, 400, 'Message vide');
-  const t = db.prepare('SELECT id FROM tournaments WHERE id = ?').get(tId);
-  if (!t) return err(res, 404, 'Tournoi introuvable');
-  const isParticipant = db.prepare('SELECT id FROM tournament_participants WHERE tournament_id = ? AND user_id = ?').get(tId, req.user.id);
-  if (!isParticipant) return err(res, 403, 'Accès réservé aux participants du tournoi');
-  db.prepare('INSERT INTO tournament_chat (tournament_id, user_id, content) VALUES (?,?,?)').run(tId, req.user.id, content.trim().slice(0, 500));
-  return ok(res, { message: 'Message envoyé' });
-});
-
-/* ── Broadcast (live + spectateur) ──────────────────────────────── */
-const _BROADCAST_BANNED = ['putain','connard','connasse','salope','salaud','enculé','encule','enculer','merde','fdp','ntm'];
-function _broadcastClean(msg) {
-  if (typeof msg !== 'string') return '';
-  const trimmed = msg.trim().slice(0, 200);
-  if (!trimmed) return '';
-  const lc = trimmed.toLowerCase();
-  if (_BROADCAST_BANNED.some(w => lc.includes(w))) return null;
-  if (/https?:\/\/|www\./i.test(trimmed)) return null;
-  return trimmed;
-}
-function _broadcastValidEmoji(e) { return ['⚡','🔥','👏','❤️'].includes(e); }
-function _broadcastValidYouTube(url) {
-  if (!url) return true;
-  if (typeof url !== 'string') return false;
-  return /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|embed\/|live\/)|youtu\.be\/)[A-Za-z0-9_-]{11}/.test(url.trim());
-}
-
-app.get('/tournaments/:code/live', (req, res) => {
-  const code = String(req.params.code || '').trim().toUpperCase();
-  const t = db.prepare('SELECT id, code, name, status, max_players, pack_id, country, zone, start_date, youtube_live_url, creator_id FROM tournaments WHERE code = ?').get(code);
-  if (!t) return err(res, 404, 'Tournoi introuvable');
-  const leaderboard = db.prepare('SELECT u.id, u.name, u.country, tp.score, tp.rank FROM tournament_participants tp JOIN users u ON u.id = tp.user_id WHERE tp.tournament_id = ? ORDER BY tp.score DESC, COALESCE(tp.rank, 9999) ASC LIMIT 10').all(t.id);
-  const currentMatch = db.prepare('SELECT tm.id, tm.round, tm.status, tm.duel_code, u1.name AS p1_name, u1.country AS p1_country, u2.name AS p2_name, u2.country AS p2_country FROM tournament_matches tm LEFT JOIN users u1 ON u1.id = tm.player1_id LEFT JOIN users u2 ON u2.id = tm.player2_id WHERE tm.tournament_id = ? AND tm.status = \'active\' ORDER BY tm.round DESC, tm.id ASC LIMIT 1').get(t.id);
-  let currentQuestion = null;
-  if (currentMatch && currentMatch.duel_code) {
-    try {
-      const duel = db.prepare('SELECT questions_json, started_at, timer_sec, num_questions FROM duels WHERE code = ?').get(currentMatch.duel_code);
-      if (duel && duel.questions_json) {
-        const qs = JSON.parse(duel.questions_json);
-        if (Array.isArray(qs) && qs.length) {
-          const elapsed = duel.started_at ? Math.max(0, Math.floor((Date.now() - new Date(duel.started_at + 'Z').getTime()) / 1000)) : 0;
-          const idx = Math.min(qs.length - 1, Math.floor(elapsed / Math.max(10, duel.timer_sec || 30)));
-          const q = qs[idx];
-          if (q) currentQuestion = { index: idx, total: duel.num_questions || qs.length, q: q.q, choices: q.choices, source: q.source || q.reference || '' };
-        }
-      }
-    } catch(_) {}
-  }
-  const recent_chat = db.prepare('SELECT tc.id, tc.content, tc.sent_at, u.name AS pseudo FROM tournament_chat tc JOIN users u ON u.id = tc.user_id WHERE tc.tournament_id = ? ORDER BY tc.id DESC LIMIT 10').all(t.id).reverse();
-  const recent_supports = db.prepare("SELECT id, emoji, pseudo, created_at FROM tournament_supports WHERE tournament_id = ? AND created_at >= datetime('now', '-60 seconds') ORDER BY id DESC LIMIT 20").all(t.id);
-  return ok(res, { tournament: { id: t.id, code: t.code, name: t.name, status: t.status, max_players: t.max_players, pack_id: t.pack_id, country: t.country, zone: t.zone, start_date: t.start_date, youtube_live_url: t.youtube_live_url || '', creator_id: t.creator_id }, leaderboard_top10: leaderboard, current_match: currentMatch || null, current_question: currentQuestion, status: t.status, youtube_live_url: t.youtube_live_url || '', recent_chat, recent_supports });
-});
-
-app.get('/tournaments/:code/chat', (req, res) => {
-  const code = String(req.params.code || '').trim().toUpperCase();
-  const t = db.prepare('SELECT id FROM tournaments WHERE code = ?').get(code);
-  if (!t) return err(res, 404, 'Tournoi introuvable');
-  const since = Number(req.query.since) || 0;
-  const rows = db.prepare('SELECT tc.id, tc.content AS message, tc.sent_at AS created_at, u.name AS pseudo, u.id AS user_id FROM tournament_chat tc JOIN users u ON u.id = tc.user_id WHERE tc.tournament_id = ? AND tc.id > ? ORDER BY tc.id ASC LIMIT 100').all(t.id, since);
-  return ok(res, { messages: rows, last_id: rows.length ? rows[rows.length-1].id : since });
-});
-
-app.post('/tournaments/:code/chat', requireAuth, (req, res) => {
-  const code = String(req.params.code || '').trim().toUpperCase();
-  const t = db.prepare('SELECT id FROM tournaments WHERE code = ?').get(code);
-  if (!t) return err(res, 404, 'Tournoi introuvable');
-  const raw = (req.body && req.body.message) || (req.body && req.body.content) || '';
-  const clean = _broadcastClean(raw);
-  if (clean === null) return err(res, 400, 'Message rejeté (URL ou contenu inapproprié)');
-  if (!clean) return err(res, 400, 'Message vide ou trop long (200 caractères max)');
-  const info = db.prepare('INSERT INTO tournament_chat (tournament_id, user_id, content) VALUES (?,?,?)').run(t.id, req.user.id, clean);
-  const u = db.prepare('SELECT name FROM users WHERE id = ?').get(req.user.id) || {};
-  return ok(res, { id: info.lastInsertRowid, pseudo: u.name || 'Anonyme', message: clean });
-});
-
-app.get('/tournaments/:code/support', (req, res) => {
-  const code = String(req.params.code || '').trim().toUpperCase();
-  const t = db.prepare('SELECT id FROM tournaments WHERE code = ?').get(code);
-  if (!t) return err(res, 404, 'Tournoi introuvable');
-  const sinceId = Number(req.query.since) || 0;
-  const rows = db.prepare("SELECT id, emoji, pseudo, created_at FROM tournament_supports WHERE tournament_id = ? AND id > ? AND created_at >= datetime('now', '-60 seconds') ORDER BY id ASC LIMIT 50").all(t.id, sinceId);
-  return ok(res, { supports: rows, last_id: rows.length ? rows[rows.length-1].id : sinceId });
-});
-
-app.post('/tournaments/:code/support', requireAuth, (req, res) => {
-  const code = String(req.params.code || '').trim().toUpperCase();
-  const t = db.prepare('SELECT id FROM tournaments WHERE code = ?').get(code);
-  if (!t) return err(res, 404, 'Tournoi introuvable');
-  const emoji = (req.body && req.body.emoji) || '';
-  if (!_broadcastValidEmoji(emoji)) return err(res, 400, 'Emoji invalide (autorisés : ⚡ 🔥 👏 ❤️)');
-  const u = db.prepare('SELECT name FROM users WHERE id = ?').get(req.user.id) || {};
-  const info = db.prepare('INSERT INTO tournament_supports (tournament_id, user_id, pseudo, emoji) VALUES (?,?,?,?)').run(t.id, req.user.id, u.name || '', emoji);
-  try { db.prepare("DELETE FROM tournament_supports WHERE tournament_id = ? AND created_at < datetime('now', '-5 minutes')").run(t.id); } catch(_) {}
-  return ok(res, { id: info.lastInsertRowid, emoji });
-});
-
-app.patch('/tournaments/:code/config', requireAuth, (req, res) => {
-  const code = String(req.params.code || '').trim().toUpperCase();
-  const t = db.prepare('SELECT id, creator_id, status FROM tournaments WHERE code = ?').get(code);
-  if (!t) return err(res, 404, 'Tournoi introuvable');
-  if (t.creator_id !== req.user.id) return err(res, 403, 'Réservé au créateur du tournoi');
-  const body = req.body || {};
-  const updates = [], params = [];
-  if (Object.prototype.hasOwnProperty.call(body, 'youtube_live_url')) {
-    const url = body.youtube_live_url || '';
-    if (!_broadcastValidYouTube(url)) return err(res, 400, 'URL YouTube invalide');
-    updates.push('youtube_live_url = ?'); params.push(url.trim());
-  }
-  const hasStructural = ['name', 'start_date', 'packs_ids'].some(k => Object.prototype.hasOwnProperty.call(body, k));
-  if (hasStructural && t.status !== 'waiting') return err(res, 400, 'Impossible de modifier un tournoi déjà démarré');
-  if (Object.prototype.hasOwnProperty.call(body, 'name')) {
-    const n = String(body.name || '').trim();
-    if (n.length < 3 || n.length > 80) return err(res, 400, 'Nom du tournoi : 3 à 80 caractères');
-    updates.push('name = ?'); params.push(n);
-  }
-  if (Object.prototype.hasOwnProperty.call(body, 'start_date')) {
-    if (!_validStartDate(body.start_date)) return err(res, 400, 'Date de début invalide ou trop ancienne');
-    updates.push('start_date = ?'); params.push(String(body.start_date || '').trim());
-  }
-  if (Object.prototype.hasOwnProperty.call(body, 'packs_ids')) {
-    if (!_validPacksIds(body.packs_ids)) return err(res, 400, 'Sélectionne 1 à 5 packs valides');
-    updates.push('packs_ids = ?'); params.push(JSON.stringify(body.packs_ids));
-    updates.push('pack_id = ?'); params.push(body.packs_ids[0]);
-  }
-  if (!updates.length) return err(res, 400, 'Aucun champ à mettre à jour');
-  params.push(t.id);
-  db.prepare('UPDATE tournaments SET ' + updates.join(', ') + ' WHERE id = ?').run(...params);
-  return ok(res, { updated: updates.length, tournament: _tFull(code) });
-});
-
-app.delete('/tournaments/:code', requireAuth, (req, res) => {
-  const code = String(req.params.code || '').trim().toUpperCase();
-  const t = db.prepare('SELECT id, creator_id, name, status FROM tournaments WHERE code = ?').get(code);
-  if (!t) return err(res, 404, 'Tournoi introuvable');
-  if (t.creator_id !== req.user.id) return err(res, 403, 'Réservé au créateur du tournoi');
-  const tx = db.transaction(() => {
-    try { db.prepare('DELETE FROM tournament_chat WHERE tournament_id = ?').run(t.id); } catch(_) {}
-    try { db.prepare('DELETE FROM tournament_supports WHERE tournament_id = ?').run(t.id); } catch(_) {}
-    try { db.prepare('DELETE FROM tournament_match_sheets WHERE tournament_id = ?').run(t.id); } catch(_) {}
-    try { db.prepare('DELETE FROM tournament_matches WHERE tournament_id = ?').run(t.id); } catch(_) {}
-    try { db.prepare('DELETE FROM tournament_participants WHERE tournament_id = ?').run(t.id); } catch(_) {}
-    db.prepare('DELETE FROM tournaments WHERE id = ?').run(t.id);
-  });
-  try { tx(); return ok(res, { deleted_code: code }); }
-  catch(e) { console.error('[tournament DELETE] échec', e); return err(res, 500, 'Suppression échouée'); }
-});
+/* POST /tournament-chat/:tournamentId */
+app.post('/tournament-chat/:tournamentId', requireAuth, (req, res) => { // TOURNOI AJOUT
+  const tId = Number(req.params.tournamentId); // TOURNOI AJOUT
+  if (!tId) return err(res, 400, 'tournamentId invalide'); // TOURNOI AJOUT
+  const { content } = req.body || {}; // TOURNOI AJOUT
+  if (!content || !content.trim()) return err(res, 400, 'Message vide'); // TOURNOI AJOUT
+  const t = db.prepare('SELECT id FROM tournaments WHERE id = ?').get(tId); // TOURNOI AJOUT
+  if (!t) return err(res, 404, 'Tournoi introuvable'); // TOURNOI AJOUT
+  // SECURITE FIX : écriture du chat réservée aux participants du tournoi
+  const isParticipant = db.prepare('SELECT id FROM tournament_participants WHERE tournament_id = ? AND user_id = ?').get(tId, req.user.id); // SECURITE FIX
+  if (!isParticipant) return err(res, 403, 'Accès réservé aux participants du tournoi'); // SECURITE FIX
+  db.prepare('INSERT INTO tournament_chat (tournament_id, user_id, content) VALUES (?,?,?)') // TOURNOI AJOUT
+    .run(tId, req.user.id, content.trim().slice(0, 500)); // TOURNOI AJOUT
+  return ok(res, { message: 'Message envoyé' }); // TOURNOI AJOUT
+}); // TOURNOI AJOUT
 
 /* ================================================================
-   COUMBA ARENA
+   TABLES FEATURES — invitation bêta, feedback question, organisations
 ================================================================ */
+db.exec(`
+  CREATE TABLE IF NOT EXISTS invitations (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    code       TEXT    NOT NULL UNIQUE,
+    email      TEXT,
+    used       INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
+  CREATE TABLE IF NOT EXISTS question_feedback (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    question_id TEXT,
+    pack_id     TEXT,
+    user_id     INTEGER REFERENCES users(id),
+    type        TEXT    NOT NULL DEFAULT 'erreur',
+    message     TEXT    NOT NULL,
+    created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
+  CREATE TABLE IF NOT EXISTS organisations (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    name          TEXT    NOT NULL,
+    admin_user_id INTEGER NOT NULL REFERENCES users(id),
+    created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
+  CREATE TABLE IF NOT EXISTS org_members (
+    org_id    INTEGER NOT NULL REFERENCES organisations(id) ON DELETE CASCADE,
+    user_id   INTEGER NOT NULL REFERENCES users(id),
+    role      TEXT    NOT NULL DEFAULT 'member',
+    joined_at TEXT    NOT NULL DEFAULT (datetime('now')),
+    UNIQUE(org_id, user_id)
+  );
+  CREATE TABLE IF NOT EXISTS org_invitations (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    org_id     INTEGER NOT NULL REFERENCES organisations(id) ON DELETE CASCADE,
+    email      TEXT    NOT NULL,
+    code       TEXT    NOT NULL UNIQUE,
+    used       INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
+`);
+
+/* ================================================================
+   COUMBA ARENA — Jeu de cartes UNO éducatif 2 joueurs
+================================================================ */
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS coumba_games (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    code       TEXT    NOT NULL UNIQUE,
+    player1_id INTEGER NOT NULL REFERENCES users(id),
+    player2_id INTEGER REFERENCES users(id),
+    state_json TEXT    NOT NULL DEFAULT '{}',
+    status     TEXT    NOT NULL DEFAULT 'waiting',
+    created_at TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
+`);
 
 const COUMBA_VF = [
   {q:"Le ratio de solvabilité minimum exigé par la BCEAO pour les banques est de 8%.", a:true},
@@ -1180,7 +1272,8 @@ function coumbaNewDeck() {
   const deck = [];
   for (const c of ['r','b','g','o']) {
     for (let n = 1; n <= 9; n++) deck.push({c, v: String(n)});
-    deck.push({c, v:'+2'}); deck.push({c, v:'sk'});
+    deck.push({c, v:'+2'});
+    deck.push({c, v:'sk'});
   }
   for (let i = 0; i < 3; i++) deck.push({c:'w', v:'w'});
   for (let i = 0; i < 3; i++) deck.push({c:'w', v:'+4'});
@@ -1189,7 +1282,10 @@ function coumbaNewDeck() {
 
 function coumbaShuffle(arr) {
   const a = [...arr];
-  for (let i = a.length-1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; }
+  for (let i = a.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
   return a;
 }
 
@@ -1208,13 +1304,18 @@ function coumbaGetState(code) {
   return {...g, player1: p1, player2: p2, state};
 }
 
+/* POST /coumba — créer une partie */
 app.post('/coumba', requireAuth, (req, res) => {
   let code;
-  for (let i = 0; i < 10; i++) { code = genCode('C'); if (!db.prepare('SELECT id FROM coumba_games WHERE code = ?').get(code)) break; }
+  for (let i = 0; i < 10; i++) {
+    code = genCode('C');
+    if (!db.prepare('SELECT id FROM coumba_games WHERE code = ?').get(code)) break;
+  }
   db.prepare('INSERT INTO coumba_games (code, player1_id) VALUES (?,?)').run(code, req.user.id);
   return ok(res, {code, game: coumbaGetState(code)});
 });
 
+/* POST /coumba/:code/join */
 app.post('/coumba/:code/join', requireAuth, (req, res) => {
   const g = db.prepare('SELECT * FROM coumba_games WHERE code = ?').get(req.params.code);
   if (!g) return err(res, 404, 'Partie introuvable');
@@ -1226,6 +1327,7 @@ app.post('/coumba/:code/join', requireAuth, (req, res) => {
   return ok(res, {message:'Rejoint', game: coumbaGetState(req.params.code)});
 });
 
+/* POST /coumba/:code/start */
 app.post('/coumba/:code/start', requireAuth, (req, res) => {
   const g = db.prepare('SELECT * FROM coumba_games WHERE code = ?').get(req.params.code);
   if (!g) return err(res, 404, 'Partie introuvable');
@@ -1233,7 +1335,8 @@ app.post('/coumba/:code/start', requireAuth, (req, res) => {
   if (!g.player2_id) return err(res, 400, "En attente d'un adversaire");
   if (g.status === 'active') return ok(res, {message:'Déjà active', game: coumbaGetState(req.params.code)});
   const deck = coumbaNewDeck();
-  const hand1 = deck.splice(0, 7), hand2 = deck.splice(0, 7);
+  const hand1 = deck.splice(0, 7);
+  const hand2 = deck.splice(0, 7);
   let firstIdx = deck.findIndex(c => c.v !== '+4' && c.v !== 'w');
   if (firstIdx < 0) firstIdx = 0;
   const [topCard] = deck.splice(firstIdx, 1);
@@ -1242,6 +1345,7 @@ app.post('/coumba/:code/start', requireAuth, (req, res) => {
   return ok(res, {game: coumbaGetState(req.params.code)});
 });
 
+/* GET /coumba/:code/state */
 app.get('/coumba/:code/state', requireAuth, (req, res) => {
   const g = coumbaGetState(req.params.code);
   if (!g) return err(res, 404, 'Partie introuvable');
@@ -1252,10 +1356,23 @@ app.get('/coumba/:code/state', requireAuth, (req, res) => {
   const top = g.state.discard ? g.state.discard[g.state.discard.length-1] : null;
   const myNum = isP1 ? 1 : 2;
   let pendingForMe = null;
-  if (g.state.pending && g.state.pending.target === myNum) pendingForMe = {q: g.state.pending.q, effect: g.state.pending.effect};
-  return ok(res, { status: g.status, code: g.code, player1: g.player1, player2: g.player2, my_hand: myHand, opp_count: oppCount, top_card: top, deck_count: (g.state.deck||[]).length, is_my_turn: g.state.cur === myNum, pending: pendingForMe, winner_id: g.state.winner_id||null, msg: g.state.msg||'', my_player: myNum, cur: g.state.cur });
+  if (g.state.pending && g.state.pending.target === myNum) {
+    pendingForMe = {q: g.state.pending.q, effect: g.state.pending.effect};
+  }
+  return ok(res, {
+    status: g.status, code: g.code,
+    player1: g.player1, player2: g.player2,
+    my_hand: myHand, opp_count: oppCount,
+    top_card: top, deck_count: (g.state.deck||[]).length,
+    is_my_turn: g.state.cur === myNum,
+    pending: pendingForMe,
+    winner_id: g.state.winner_id||null,
+    msg: g.state.msg||'',
+    my_player: myNum, cur: g.state.cur,
+  });
 });
 
+/* POST /coumba/:code/play */
 app.post('/coumba/:code/play', requireAuth, (req, res) => {
   const {card_index, chosen_color} = req.body || {};
   const g = db.prepare('SELECT * FROM coumba_games WHERE code = ?').get(req.params.code);
@@ -1263,13 +1380,15 @@ app.post('/coumba/:code/play', requireAuth, (req, res) => {
   if (g.status !== 'active') return err(res, 400, 'Partie non active');
   if (g.player1_id !== req.user.id && g.player2_id !== req.user.id) return err(res, 403, 'Accès refusé');
   let state; try { state = JSON.parse(g.state_json); } catch(_) { return err(res, 500, 'État corrompu'); }
-  const isP1 = g.player1_id === req.user.id, myNum = isP1 ? 1 : 2;
+  const isP1 = g.player1_id === req.user.id;
+  const myNum = isP1 ? 1 : 2;
   if (state.cur !== myNum) return err(res, 400, "Ce n'est pas ton tour");
   if (state.pending) return err(res, 400, 'Réponds à la question en attente');
   const myHand = isP1 ? state.hand1 : state.hand2;
   const idx = Number(card_index);
   if (!Number.isInteger(idx)||idx<0||idx>=myHand.length) return err(res, 400, 'Index invalide');
-  const card = myHand[idx], top = state.discard[state.discard.length-1];
+  const card = myHand[idx];
+  const top = state.discard[state.discard.length-1];
   if (!coumbaCanPlay(card, top)) return err(res, 400, 'Carte non jouable');
   if ((card.v==='w'||card.v==='+4') && !['r','b','g','o'].includes(chosen_color)) return err(res, 400, 'Couleur requise');
   myHand.splice(idx, 1);
@@ -1277,7 +1396,8 @@ app.post('/coumba/:code/play', requireAuth, (req, res) => {
   const played = (card.v==='w'||card.v==='+4') ? {...card, c:chosen_color} : card;
   state.discard.push(played);
   if (myHand.length === 0) {
-    state.winner_id = req.user.id; state.msg = '🏆 Victoire !';
+    state.winner_id = req.user.id;
+    state.msg = `🏆 Victoire !`;
     db.prepare('UPDATE coumba_games SET status=?, state_json=? WHERE code=?').run('finished', JSON.stringify(state), g.code);
     db.prepare('INSERT INTO user_scores (user_id, pack_id, score, total) VALUES (?,?,?,?)').run(req.user.id,'coumba',100,100);
     return ok(res, {win:true});
@@ -1286,32 +1406,42 @@ app.post('/coumba/:code/play', requireAuth, (req, res) => {
   if (card.v==='+2'||card.v==='+4'||card.v==='sk') {
     const vf = COUMBA_VF[Math.floor(Math.random()*COUMBA_VF.length)];
     state.pending = {q:vf.q, a:vf.a, target:oppNum, effect:card.v};
-    state.cur = oppNum; state.msg = `⚠️ Question pour le joueur ${oppNum} !`;
+    state.cur = oppNum;
+    state.msg = `⚠️ Question pour le joueur ${oppNum} !`;
   } else {
-    state.cur = oppNum; state.msg = `Tour du joueur ${oppNum}`;
+    state.cur = oppNum;
+    state.msg = `Tour du joueur ${oppNum}`;
   }
   db.prepare('UPDATE coumba_games SET state_json=? WHERE code=?').run(JSON.stringify(state), g.code);
   return ok(res, {ok:true});
 });
 
+/* POST /coumba/:code/draw */
 app.post('/coumba/:code/draw', requireAuth, (req, res) => {
   const g = db.prepare('SELECT * FROM coumba_games WHERE code = ?').get(req.params.code);
   if (!g) return err(res, 404, 'Partie introuvable');
   if (g.status !== 'active') return err(res, 400, 'Partie non active');
   if (g.player1_id !== req.user.id && g.player2_id !== req.user.id) return err(res, 403, 'Accès refusé');
   let state; try { state = JSON.parse(g.state_json); } catch(_) { return err(res, 500, 'État corrompu'); }
-  const isP1 = g.player1_id === req.user.id, myNum = isP1 ? 1 : 2;
+  const isP1 = g.player1_id === req.user.id;
+  const myNum = isP1 ? 1 : 2;
   if (state.cur !== myNum) return err(res, 400, "Ce n'est pas ton tour");
   if (state.pending) return err(res, 400, 'Réponds à la question en attente');
-  if (state.deck.length === 0) { const top = state.discard.pop(); state.deck = coumbaShuffle(state.discard); state.discard = [top]; }
+  if (state.deck.length === 0) {
+    const top = state.discard.pop();
+    state.deck = coumbaShuffle(state.discard);
+    state.discard = [top];
+  }
   const drawn = state.deck.length > 0 ? state.deck.splice(0,1) : [];
   if (isP1) state.hand1.push(...drawn); else state.hand2.push(...drawn);
   const oppNum = myNum===1?2:1;
-  state.cur = oppNum; state.msg = `Joueur ${myNum} pioche. Tour du joueur ${oppNum}.`;
+  state.cur = oppNum;
+  state.msg = `Joueur ${myNum} pioche. Tour du joueur ${oppNum}.`;
   db.prepare('UPDATE coumba_games SET state_json=? WHERE code=?').run(JSON.stringify(state), g.code);
   return ok(res, {drawn, ok:true});
 });
 
+/* POST /coumba/:code/answer */
 app.post('/coumba/:code/answer', requireAuth, (req, res) => {
   const {answer} = req.body || {};
   const g = db.prepare('SELECT * FROM coumba_games WHERE code = ?').get(req.params.code);
@@ -1320,11 +1450,13 @@ app.post('/coumba/:code/answer', requireAuth, (req, res) => {
   if (g.player1_id !== req.user.id && g.player2_id !== req.user.id) return err(res, 403, 'Accès refusé');
   let state; try { state = JSON.parse(g.state_json); } catch(_) { return err(res, 500, 'État corrompu'); }
   if (!state.pending) return err(res, 400, 'Aucune question en attente');
-  const isP1 = g.player1_id === req.user.id, myNum = isP1 ? 1 : 2;
+  const isP1 = g.player1_id === req.user.id;
+  const myNum = isP1 ? 1 : 2;
   if (state.pending.target !== myNum) return err(res, 400, 'Cette question ne te concerne pas');
   const userAnswer = answer===true||answer==='true';
   const correct = userAnswer === state.pending.a;
-  const effect = state.pending.effect, oppNum = myNum===1?2:1;
+  const effect = state.pending.effect;
+  const oppNum = myNum===1?2:1;
   const myHand = isP1 ? state.hand1 : state.hand2;
   if (!correct) {
     let drawN = effect==='+2'?2:effect==='+4'?4:0;
@@ -1333,9 +1465,11 @@ app.post('/coumba/:code/answer', requireAuth, (req, res) => {
       if (state.deck.length>0) myHand.push(state.deck.splice(0,1)[0]);
     }
     if (isP1) state.hand1=myHand; else state.hand2=myHand;
-    state.cur = oppNum; state.msg = `❌ Mauvaise réponse — ${effect==='sk'?'tour passé':drawN+' cartes piochées'}. Tour du joueur ${oppNum}.`;
+    state.cur = oppNum;
+    state.msg = `❌ Mauvaise réponse — ${effect==='sk'?'tour passé':drawN+' cartes piochées'}. Tour du joueur ${oppNum}.`;
   } else {
-    state.cur = myNum; state.msg = `✅ Bonne réponse — pénalité annulée ! Tour du joueur ${myNum}.`;
+    state.cur = myNum;
+    state.msg = `✅ Bonne réponse — pénalité annulée ! Tour du joueur ${myNum}.`;
   }
   const correctAnswer = state.pending.a;
   state.pending = null;
@@ -1343,16 +1477,17 @@ app.post('/coumba/:code/answer', requireAuth, (req, res) => {
   return ok(res, {correct, correct_answer:correctAnswer, ok:true});
 });
 
-/* ================================================================
-   CHAT & DM
-================================================================ */
-
+/* ── CHAT ────────────────────────────────────────────────────────── */
 const VALID_ZONES = ['uemoa', 'cemac', 'general'];
 
 app.get('/chat/:zone', requireAuth, (req, res) => {
   const zone = req.params.zone;
   if (!VALID_ZONES.includes(zone)) return err(res, 400, 'Zone invalide');
-  const msgs = db.prepare('SELECT m.id, m.content, m.sent_at, u.name, u.country FROM messages m JOIN users u ON u.id = m.user_id WHERE m.zone = ? ORDER BY m.sent_at DESC LIMIT 50').all(zone).reverse();
+  const msgs = db.prepare(`
+    SELECT m.id, m.content, m.sent_at, u.name, u.country
+    FROM messages m JOIN users u ON u.id = m.user_id
+    WHERE m.zone = ? ORDER BY m.sent_at DESC LIMIT 50
+  `).all(zone).reverse();
   return ok(res, { messages: msgs });
 });
 
@@ -1361,14 +1496,23 @@ app.post('/chat/:zone', requireAuth, (req, res) => {
   if (!VALID_ZONES.includes(zone)) return err(res, 400, 'Zone invalide');
   const { content } = req.body || {};
   if (!content || !content.trim()) return err(res, 400, 'Message vide');
-  db.prepare('INSERT INTO messages (user_id, zone, content) VALUES (?, ?, ?)').run(req.user.id, zone, content.trim().slice(0, 500));
+  const clean = content.trim().slice(0, 500);
+  db.prepare('INSERT INTO messages (user_id, zone, content) VALUES (?, ?, ?)').run(req.user.id, zone, clean);
   return ok(res, { message: 'Message envoyé' });
 });
 
+/* ── DM ──────────────────────────────────────────────────────────── */
 app.get('/dm/:userId', requireAuth, (req, res) => {
   const otherId = Number(req.params.userId);
   if (!otherId || otherId === req.user.id) return err(res, 400, 'userId invalide');
-  const msgs = db.prepare('SELECT d.id, d.content, d.sent_at, u.name, CASE WHEN d.from_id = ? THEN 1 ELSE 0 END AS is_mine FROM dm d JOIN users u ON u.id = d.from_id WHERE (d.from_id = ? AND d.to_id = ?) OR (d.from_id = ? AND d.to_id = ?) ORDER BY d.sent_at ASC LIMIT 100').all(req.user.id, req.user.id, otherId, otherId, req.user.id);
+  // FIX : colonnes from_id/to_id (table dm) — sender_id/receiver_id n'existent pas
+  const msgs = db.prepare(`
+    SELECT d.id, d.content, d.sent_at, u.name,
+           CASE WHEN d.from_id = ? THEN 1 ELSE 0 END AS is_mine
+    FROM dm d JOIN users u ON u.id = d.from_id
+    WHERE (d.from_id = ? AND d.to_id = ?) OR (d.from_id = ? AND d.to_id = ?)
+    ORDER BY d.sent_at ASC LIMIT 100
+  `).all(req.user.id, req.user.id, otherId, otherId, req.user.id);
   return ok(res, { messages: msgs });
 });
 
@@ -1379,98 +1523,286 @@ app.post('/dm/:userId', requireAuth, (req, res) => {
   if (!content || !content.trim()) return err(res, 400, 'Message vide');
   const receiver = db.prepare('SELECT id FROM users WHERE id = ?').get(receiverId);
   if (!receiver) return err(res, 404, 'Destinataire introuvable');
+  // FIX : colonnes from_id/to_id (table dm) — sender_id/receiver_id n'existent pas
   db.prepare('INSERT INTO dm (from_id, to_id, content) VALUES (?, ?, ?)').run(req.user.id, receiverId, content.trim().slice(0, 500));
   return ok(res, { message: 'Message envoyé' });
 });
 
+/* â”€â”€ STATIC + HEALTH CHECK â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 /* ================================================================
-   QUIZ UEMOA OFFICIELS
+   ROUTES QUIZ UEMOA OFFICIELS
 ================================================================ */
-
 const QUIZ_UEMOA = require('./data/quiz_uemoa.json');
 
-app.get('/api/quiz/uemoa', (req, res) => ok(res, { quiz: QUIZ_UEMOA }));
+/* GET /api/quiz/uemoa — tous les packs */
+app.get('/api/quiz/uemoa', (req, res) => {
+  return ok(res, { quiz: QUIZ_UEMOA });
+});
 
+/* GET /api/quiz/uemoa/mode/:mode — questions filtrées par mode de jeu
+   Déclaré AVANT /api/quiz/uemoa/:packId pour éviter le conflit de routing */
 app.get('/api/quiz/uemoa/mode/:mode', (req, res) => {
   const mode = req.params.mode.toLowerCase();
   if (!['solo', 'duel', 'tournoi'].includes(mode)) return err(res, 400, 'Mode invalide — valeurs : solo, duel, tournoi');
   const questions = [];
   QUIZ_UEMOA.packs.forEach(pack => {
-    pack.questions.filter(q => q.modes.includes(mode)).forEach(q => questions.push({ ...q, pack_id: pack.id, pack_label: pack.label, pack_color: pack.color }));
+    pack.questions
+      .filter(q => q.modes.includes(mode))
+      .forEach(q => questions.push({ ...q, pack_id: pack.id, pack_label: pack.label, pack_color: pack.color }));
   });
   return ok(res, { mode, questions, total: questions.length });
 });
 
+/* GET /api/quiz/uemoa/:packId — un pack spécifique (P1 à P5) */
 app.get('/api/quiz/uemoa/:packId', (req, res) => {
   const pack = QUIZ_UEMOA.packs.find(p => p.id === req.params.packId.toUpperCase());
   if (!pack) return err(res, 404, 'Pack introuvable — valeurs : P1, P2, P3, P4, P5');
   return ok(res, { pack });
 });
 
-app.get('/revision/uemoa', (req, res) => res.sendFile(path.join(__dirname, 'regul_arena_quiz_uemoa_officiel.html')));
+/* GET /revision/uemoa — page de révision officielle BCEAO */
+app.get('/revision/uemoa', (req, res) => {
+  res.sendFile(path.join(__dirname, 'regul_arena_quiz_uemoa_officiel.html'));
+});
 
-/* ── PWA ─────────────────────────────────────────────────────────── */
-app.use('/.well-known', express.static(path.join(__dirname, 'public', '.well-known'), { dotfiles: 'allow' }));
-app.get('/manifest.json', (req, res) => { res.setHeader('Content-Type', 'application/manifest+json'); res.sendFile(path.join(__dirname, 'public', 'manifest.json')); });
-app.get('/sw.js', (req, res) => { res.setHeader('Content-Type', 'application/javascript'); res.setHeader('Service-Worker-Allowed', '/'); res.setHeader('Cache-Control', 'no-cache'); res.sendFile(path.join(__dirname, 'public', 'sw.js')); });
+/* ── PWA / TWA ─────────────────────────────────────────────────────── */
+/* Sert le dossier .well-known (dotfiles bloqués par Express par défaut) */
+app.use('/.well-known', express.static(path.join(__dirname, 'public', '.well-known'), {
+  dotfiles: 'allow'
+}));
+
+/* Forcer le bon Content-Type pour manifest.json et sw.js */
+app.get('/manifest.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/manifest+json');
+  res.sendFile(path.join(__dirname, 'public', 'manifest.json'));
+});
+
+app.get('/sw.js', (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript');
+  res.setHeader('Service-Worker-Allowed', '/');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.sendFile(path.join(__dirname, 'public', 'sw.js'));
+});
+/* ─────────────────────────────────────────────────────────────────── */
 
 /* ================================================================
-   ADMIN
+   FEATURE 1 — INVITATION BÊTA
 ================================================================ */
 
-app.get('/admin/stats', requireAdmin, (req, res) => {
-  try {
-    const totalUsers    = db.prepare(`SELECT COUNT(*) as n FROM users`).get();
-    const verifiedUsers = db.prepare(`SELECT COUNT(*) as n FROM users WHERE email_verified=1`).get();
-    const newUsers7d    = db.prepare(`SELECT COUNT(*) as n FROM users WHERE created_at >= datetime('now','-7 days')`).get();
-    const byProfile     = db.prepare(`SELECT profile, COUNT(*) as n FROM users GROUP BY profile`).all();
-    const byCountry     = db.prepare(`SELECT country, COUNT(*) as n FROM users GROUP BY country ORDER BY n DESC LIMIT 10`).all();
-    const totalScores   = db.prepare(`SELECT COUNT(*) as n FROM user_scores`).get();
-    const totalDuels    = db.prepare(`SELECT COUNT(*) as n FROM duels`).get();
-    const activeDuels   = db.prepare(`SELECT COUNT(*) as n FROM duels WHERE status='active'`).get();
-    const finishedDuels = db.prepare(`SELECT COUNT(*) as n FROM duels WHERE status='finished'`).get();
-    const totalTournois = db.prepare(`SELECT COUNT(*) as n FROM tournaments`).get();
-    const feedbacks     = db.prepare(`SELECT COUNT(*) as n FROM feedback`).get();
-    const notifyList    = db.prepare(`SELECT COUNT(*) as n FROM notify_list`).get();
-    res.json({
-      utilisateurs: { total: totalUsers.n, verifies: verifiedUsers.n, nouveaux_7j: newUsers7d.n, par_profil: byProfile, par_pays: byCountry },
-      scores:   { total: totalScores.n },
-      duels:    { total: totalDuels.n, actifs: activeDuels.n, termines: finishedDuels.n },
-      tournois: { total: totalTournois.n },
-      feedback: { total: feedbacks.n },
-      tournoi_2027: { inscrits_notif: notifyList.n },
-      genere_le: new Date().toISOString(),
-    });
-  } catch (e) {
-    console.error('[admin/stats]', e);
-    res.status(500).json({ error: 'Erreur serveur' });
-  }
+function isAdmin(user) {
+  const list = (process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
+  return list.includes((user.email || '').toLowerCase());
+}
+
+/* POST /auth/invite — admin uniquement
+   curl -X POST /auth/invite -H 'Authorization: Bearer JWT' -d '{"email":"alice@bank.com"}'
+*/
+app.post('/auth/invite', requireAuth, (req, res) => {
+  if (!isAdmin(req.user)) return err(res, 403, 'Accès réservé aux administrateurs.');
+  const { email } = req.body || {};
+  const cleanEmail = email ? email.trim().toLowerCase() : null;
+  const code = crypto.randomUUID();
+  db.prepare('INSERT INTO invitations (code, email) VALUES (?, ?)').run(code, cleanEmail || null);
+  const link = `${BASE_URL}/register?invite=${code}`;
+  return ok(res, { code, link, email: cleanEmail });
 });
 
-// ─── GET /admin/users ──────────────────────────────────────
-app.get('/admin/users', requireAdmin, (req, res) => {
-  try {
-    const users = db.prepare(`
-      SELECT id, name, email, profile, country, etablissement,
-             email_verified, role, created_at
-      FROM users ORDER BY created_at DESC LIMIT 200
-    `).all();
-    res.json({ users, total: users.length });
-  } catch (e) {
-    console.error('[admin/users]', e);
-    res.status(500).json({ error: 'Erreur serveur' });
-  }
+/* GET /auth/check-invite?code=xxx — public
+   curl '/auth/check-invite?code=UUID'
+*/
+app.get('/auth/check-invite', limiterLoose, (req, res) => {
+  const { code } = req.query;
+  if (!code) return ok(res, { valid: false });
+  const inv = db.prepare('SELECT * FROM invitations WHERE code = ? AND used = 0').get(code.trim());
+  if (!inv) return ok(res, { valid: false });
+  return ok(res, { valid: true, email: inv.email || null });
 });
-/* ── STATIC ──────────────────────────────────────────────────────── */
+
+/* ================================================================
+   FEATURE 6 — FEEDBACK PAR QUESTION
+================================================================ */
+
+/* POST /feedback/question — JWT optionnel
+   curl -X POST /feedback/question -d '{"question_id":"q1","pack_id":"bceao-supervision","type":"erreur","message":"La réponse B est incorrecte"}'
+*/
+app.post('/feedback/question', limiterLoose, (req, res) => {
+  const { question_id, pack_id, type, message } = req.body || {};
+  if (!message || typeof message !== 'string' || message.trim().length < 5) {
+    return err(res, 400, 'Message trop court (minimum 5 caractères)');
+  }
+  if (message.trim().length > 300) return err(res, 400, 'Message trop long (maximum 300 caractères)');
+  const allowedTypes = ['erreur', 'suggestion', 'autre'];
+  const cleanType = allowedTypes.includes(type) ? type : 'autre';
+
+  let userId = null;
+  const hdr = req.headers['authorization'] || '';
+  const tok = hdr.startsWith('Bearer ') ? hdr.slice(7) : null;
+  if (tok) { try { const p = jwt.verify(tok, JWT_SECRET); userId = p.id; } catch(_) {} }
+
+  db.prepare(
+    'INSERT INTO question_feedback (question_id, pack_id, user_id, type, message) VALUES (?, ?, ?, ?, ?)'
+  ).run(question_id || null, pack_id || null, userId, cleanType, message.trim());
+
+  return ok(res, { message: 'Merci, votre retour a été transmis.' });
+});
+
+/* ================================================================
+   FEATURE 5 — RÉFÉRENCES RÉGLEMENTAIRES PAR PACK
+================================================================ */
+
+const REGULATORY_REFS = {
+  'bceao-politique-monetaire': [
+    { code: 'Statuts BCEAO', titre: "Statuts de la Banque Centrale des États de l'Afrique de l'Ouest", url: null },
+    { code: 'Traité UMOA révisé', titre: 'Traité de l\'Union Monétaire Ouest Africaine', url: null },
+    { code: 'Circulaire BCEAO n°003-03-2024', titre: 'Taux directeur de la BCEAO', url: null },
+  ],
+  'bceao-supervision': [
+    { code: 'Instruction BCEAO 026-11-2016', titre: 'Supervision bancaire dans l\'UEMOA', url: null },
+    { code: 'Loi bancaire UEMOA', titre: 'Loi portant réglementation bancaire dans l\'UEMOA', url: null },
+    { code: 'Traité UMOA Art. 50', titre: 'Commission Bancaire de l\'UMOA — attributions', url: null },
+  ],
+  'bceao-change': [
+    { code: 'Règlement 09/2010/CM/UEMOA', titre: 'Réglementation des changes dans l\'UEMOA', url: null },
+    { code: 'Instruction BCEAO 94-05', titre: 'Comptes en devises dans l\'UEMOA', url: null },
+  ],
+  'bceao-microfinance': [
+    { code: 'Règlement 15/2002/CM/UEMOA', titre: 'Réglementation des Systèmes Financiers Décentralisés', url: null },
+    { code: 'Instruction BCEAO 016-12-2010', titre: 'Instructions aux SFD de l\'UEMOA', url: null },
+  ],
+  'bceao-lcbft': [
+    { code: 'Directive UEMOA 2015/05', titre: 'Lutte contre le blanchiment de capitaux et le financement du terrorisme', url: null },
+    { code: 'Instruction BCEAO 2018-01', titre: 'Identification des clients — dispositif LCB-FT', url: null },
+  ],
+  'general': [
+    { code: 'Traité UMOA révisé', titre: 'Union Monétaire Ouest Africaine', url: null },
+    { code: 'Convention COBAC 1990', titre: 'Supervision bancaire en zone CEMAC', url: null },
+    { code: 'Accords de Bâle III', titre: 'Cadre prudentiel international — BRI', url: null },
+  ],
+};
+
+/* GET /packs/:id/refs — public
+   curl '/packs/bceao-supervision/refs'
+*/
+app.get('/packs/:id/refs', (req, res) => {
+  const refs = REGULATORY_REFS[req.params.id] || [];
+  return ok(res, { pack_id: req.params.id, regulatory_refs: refs });
+});
+
+/* ================================================================
+   FEATURE 4 — FLOW INVITATION ORGANISATION
+================================================================ */
+
+/* POST /org/invite — JWT requis, user doit être admin de l'org
+   curl -X POST /org/invite -H 'Authorization: Bearer JWT' -d '{"org_id":1,"email":"bob@bank.com"}'
+*/
+app.post('/org/invite', requireAuth, async (req, res) => {
+  const { org_id, email } = req.body || {};
+  if (!org_id || !email) return err(res, 400, 'org_id et email requis');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return err(res, 400, 'Email invalide');
+
+  const org = db.prepare('SELECT * FROM organisations WHERE id = ?').get(Number(org_id));
+  if (!org) return err(res, 404, 'Organisation introuvable');
+  if (org.admin_user_id !== req.user.id) return err(res, 403, "Seul l'administrateur de l'organisation peut inviter des membres");
+
+  const cleanEmail = email.trim().toLowerCase();
+  const code = crypto.randomUUID();
+  db.prepare('INSERT INTO org_invitations (org_id, email, code) VALUES (?, ?, ?)').run(org.id, cleanEmail, code);
+
+  const link = `${BASE_URL}/join-org?code=${code}`;
+
+  if (process.env.RESEND_API_KEY) {
+    try {
+      await resend.emails.send({
+        from: `REGUL ARENA <${FROM_EMAIL}>`,
+        to: cleanEmail,
+        subject: `Invitation à rejoindre ${org.name} sur REGUL ARENA`,
+        html: `<div style="font-family:sans-serif;max-width:560px;margin:0 auto;background:#080C14;color:#EEF0F5;border:1px solid rgba(201,153,26,.2);border-radius:4px;padding:40px">
+          <div style="font-size:22px;font-weight:900;letter-spacing:6px;color:#C9991A;margin-bottom:8px">REGUL ARENA</div>
+          <p style="color:#7A8499">Vous avez été invité(e) à rejoindre <strong style="color:#EEF0F5">${escEmail(org.name)}</strong> sur REGUL ARENA.</p>
+          <div style="text-align:center;margin:32px 0">
+            <a href="${link}" style="display:inline-block;background:linear-gradient(135deg,#C9991A,#E8B520);color:#03050A;font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;text-decoration:none;padding:16px 40px;border-radius:2px">Rejoindre l'organisation →</a>
+          </div>
+          <p style="color:#4a5568;font-size:12px">Ce lien est à usage unique. Si vous n'êtes pas concerné(e), ignorez cet email.</p>
+        </div>`,
+        headers: { 'X-Entity-Ref-ID': crypto.randomUUID() },
+      });
+    } catch(e) { console.error('[org/invite] email error:', e.message); }
+  }
+
+  return ok(res, { code, link, email: cleanEmail, org_name: org.name });
+});
+
+/* GET /org/join?code=xxx — public
+   curl '/org/join?code=UUID'
+*/
+app.get('/org/join', limiterLoose, (req, res) => {
+  const { code } = req.query;
+  if (!code) return ok(res, { valid: false });
+  const inv = db.prepare('SELECT oi.*, o.name AS org_name FROM org_invitations oi JOIN organisations o ON o.id = oi.org_id WHERE oi.code = ? AND oi.used = 0').get(code.trim());
+  if (!inv) return ok(res, { valid: false });
+  return ok(res, { valid: true, org_name: inv.org_name, email: inv.email });
+});
+
+/* POST /org/join — JWT requis
+   curl -X POST /org/join -H 'Authorization: Bearer JWT' -d '{"code":"UUID"}'
+*/
+app.post('/org/join', requireAuth, (req, res) => {
+  const { code } = req.body || {};
+  if (!code) return err(res, 400, 'code requis');
+  const inv = db.prepare('SELECT oi.*, o.name AS org_name FROM org_invitations oi JOIN organisations o ON o.id = oi.org_id WHERE oi.code = ? AND oi.used = 0').get(code.trim());
+  if (!inv) return err(res, 400, "Code d'invitation invalide ou déjà utilisé.");
+
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id);
+  if (inv.email && inv.email.toLowerCase() !== (user.email || '').toLowerCase()) {
+    return err(res, 403, 'Ce code est réservé à une autre adresse email.');
+  }
+
+  try {
+    db.prepare('INSERT INTO org_members (org_id, user_id, role) VALUES (?, ?, ?)').run(inv.org_id, req.user.id, 'member');
+  } catch(e) {
+    if (e.message?.includes('UNIQUE')) return err(res, 409, 'Vous êtes déjà membre de cette organisation.');
+    throw e;
+  }
+  db.prepare('UPDATE org_invitations SET used = 1 WHERE id = ?').run(inv.id);
+  return ok(res, { message: `Vous avez rejoint ${inv.org_name} avec succès !`, org_name: inv.org_name });
+});
+
+/* GET /org/members?org_id=xxx — JWT requis
+   curl -H 'Authorization: Bearer JWT' '/org/members?org_id=1'
+*/
+app.get('/org/members', requireAuth, (req, res) => {
+  const orgId = Number(req.query.org_id);
+  if (!orgId) return err(res, 400, 'org_id requis');
+  const org = db.prepare('SELECT * FROM organisations WHERE id = ?').get(orgId);
+  if (!org) return err(res, 404, 'Organisation introuvable');
+  const isMember = db.prepare('SELECT id FROM org_members WHERE org_id = ? AND user_id = ?').get(orgId, req.user.id);
+  if (!isMember && org.admin_user_id !== req.user.id) return err(res, 403, "Accès réservé aux membres de l'organisation");
+  const members = db.prepare(
+    'SELECT om.role, om.joined_at, u.id, u.name, u.email, u.country FROM org_members om JOIN users u ON u.id = om.user_id WHERE om.org_id = ? ORDER BY om.joined_at ASC'
+  ).all(orgId);
+  return ok(res, { org: { id: org.id, name: org.name }, members });
+});
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('/api', (req, res) => res.json({ status: 'ok', message: 'API REGUL ARENA en ligne' }));
-app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+// SPA catch-all : renvoie index.html pour les routes frontend uniquement.
+// Les chemins d'API sont déjà gérés par leurs handlers ; cette exclusion explicite
+// évite qu'un mauvais ordre de déclaration future ne renvoie du HTML à la place de JSON.
+app.get('*', (req, res, next) => {
+  const p = req.path;
+  if (p.startsWith('/auth/') || p.startsWith('/api/') || p.startsWith('/org/') ||
+      p.startsWith('/feedback/') || p.startsWith('/packs/') || p.startsWith('/scores/') ||
+      p.startsWith('/duels/') || p.startsWith('/tournament') || p.startsWith('/leaderboard') ||
+      p.startsWith('/chat/') || p.startsWith('/dm/') || p.startsWith('/notifications')) {
+    return next(); // laisse Express renvoyer 404 JSON plutôt qu'index.html
+  }
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 
 /* ================================================================
    TEMPLATES EMAIL
 ================================================================ */
-
 function emailConfirmHTML(name, url) {
   return `<!DOCTYPE html>
 <html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -1480,32 +1812,36 @@ function emailConfirmHTML(name, url) {
 <table width="560" cellpadding="0" cellspacing="0" style="background:#080C14;border:1px solid rgba(201,153,26,.2);border-radius:4px;overflow:hidden">
   <tr><td style="background:linear-gradient(135deg,#002B5C,#001a3a);padding:32px 40px;text-align:center">
     <div style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:26px;font-weight:900;letter-spacing:6px;color:#C9991A">REGUL ARENA</div>
-    <div style="font-size:11px;letter-spacing:3px;color:rgba(201,153,26,.6);margin-top:4px">MAÎTRISE RÉGLEMENTAIRE BANCAIRE</div>
+    <div style="font-size:11px;letter-spacing:3px;color:rgba(201,153,26,.6);margin-top:4px">MA&#206;TRISE R&#201;GLEMENTAIRE BANCAIRE</div>
   </td></tr>
   <tr><td style="padding:40px 40px 24px">
     <p style="color:#EEF0F5;font-size:16px;margin:0 0 12px">Bonjour <strong style="color:#C9991A">${escEmail(name)}</strong>,</p>
-    <p style="color:#7A8499;font-size:14px;line-height:1.7;margin:0 0 32px">Ton compte REGUL ARENA est prêt. Clique sur le bouton ci-dessous pour confirmer ton adresse email et accéder à la plateforme.</p>
+    <p style="color:#7A8499;font-size:14px;line-height:1.7;margin:0 0 32px">Ton compte REGUL ARENA est pr&#234;t. Clique sur le bouton ci-dessous pour confirmer ton adresse email et acc&#233;der &#224; la plateforme.</p>
     <div style="text-align:center;margin-bottom:32px">
-      <a href="${url}" style="display:inline-block;background:linear-gradient(135deg,#C9991A,#E8B520);color:#03050A;font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;text-decoration:none;padding:16px 40px;border-radius:2px">Confirmer mon compte →</a>
+      <a href="${url}" style="display:inline-block;background:linear-gradient(135deg,#C9991A,#E8B520);color:#03050A;font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;text-decoration:none;padding:16px 40px;border-radius:2px">Confirmer mon compte &#8594;</a>
     </div>
-    <p style="color:#4a5568;font-size:12px;line-height:1.6;margin:0">Ce lien est valable 24 heures. Si tu n'es pas à l'origine de cette demande, ignore cet email.</p>
+    <p style="color:#4a5568;font-size:12px;line-height:1.6;margin:0">Ce lien est valable 24 heures. Si tu n'es pas &#224; l'origine de cette demande, ignore cet email.</p>
   </td></tr>
   <tr><td style="border-top:1px solid rgba(255,255,255,.06);padding:20px 40px;text-align:center">
-    <p style="color:#4a5568;font-size:11px;letter-spacing:1px;margin:0">© 2026 REGUL ARENA · Initiative privée · Abdou NDAO · Dakar, Sénégal</p>
+    <p style="color:#4a5568;font-size:11px;letter-spacing:1px;margin:0">&#169; 2026 REGUL ARENA &#183; Initiative priv&#233;e &#183; Abdou NDAO &#183; Dakar, S&#233;n&#233;gal</p>
   </td></tr>
 </table></td></tr></table>
 </body></html>`;
 }
 
-/* ── START ───────────────────────────────────────────────────────── */
+function escEmail(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function publicUser(u) {
+  return { id: u.id, name: u.name, email: u.email, profile: u.profile, country: u.country, etablissement: u.etablissement };
+}
+
+
+/* â”€â”€ START â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 app.listen(PORT, () => {
-  console.log(`✅ REGUL ARENA API — port ${PORT}`);
-  console.log(`   DB : ${process.env.DB_PATH || 'regularena.db'}`);
-  console.log(`   JWT_SECRET : ${JWT_SECRET === 'changez-moi-en-production' ? '⚠ PAR DÉFAUT — à changer' : '✔ configuré'}`);
-  console.log(`   RESEND_KEY : ${RESEND_KEY ? '✔ configuré' : '⚠ manquant — emails désactivés'}`);
-});
-app.get('/setup-admin-x7k2', (req, res) => {
-  db.prepare("UPDATE users SET role='admin' WHERE email='abdou.ndao@regularena.com'").run();
-  const user = db.prepare("SELECT id,email,role FROM users WHERE email=?").get('abdou.ndao@regularena.com');
-  res.json(user);
+  console.log(`âœ… REGUL ARENA API â€” port ${PORT}`);
+  console.log(`   DB : regularena.db`);
+  console.log(`   JWT_SECRET : ${JWT_SECRET === 'changez-moi-en-production' ? 'âš  PAR DÃ‰FAUT â€” &#224; changer' : 'âœ“ configur&#233;'}`);
+  console.log(`   RESEND_KEY : ${RESEND_KEY ? 'âœ“ configur&#233;' : 'âš  manquant â€” emails d&#233;sactiv&#233;s'}`);
 });
