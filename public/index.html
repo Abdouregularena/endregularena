@@ -1917,13 +1917,15 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
    Placement : dernier bloc du <style> pour priorité cascade max.
 ================================================================ */
 
-/* ── Footer contact/partenariat (.ra-contact-footer) ── */
-.ra-contact-tagline           { color:#EEF0F5 !important }
-.ra-contact-footer-legal      { color:rgba(238,240,245,.75) !important }
-.ra-contact-footer-legal a    { color:#EEF0F5 !important }
-.ra-contact-footer-legal a:hover { color:var(--gold) !important }
-/* Separateurs · entre les liens */
-.ra-contact-footer-legal span[style*="color:var(--muted)"] { color:rgba(238,240,245,.5) !important }
+/* ── Footer contact/partenariat (.ra-contact-footer) — tout en gold ── */
+.ra-contact-footer *,
+.ra-contact-footer a,
+.ra-contact-footer p,
+.ra-contact-footer h2,
+.ra-contact-footer h3   { color:#C8973A !important }
+.ra-contact-footer a:hover { color:#FFFFFF !important }
+/* Forts : strong (noms propres) restent gold */
+.ra-contact-footer strong { color:#C8973A !important }
 
 /* ── Navbar — liens gold gras + logo badge gold ── */
 /* Liens de navigation (tous les boutons dans .nav-links) */
