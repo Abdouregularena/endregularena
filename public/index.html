@@ -1942,15 +1942,16 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
   border-radius:4px !important;
 }
 .nav-logo span { color:#0D1B2A !important }
-/* Quiz pill "0/3 QUIZ" + bouton "Jouer" — texte gold gras, sans bordure */
+/* Quiz pill "0/3 QUIZ" + bouton "Jouer" — texte blanc gras, sans bordure */
 #ra-quiz-pill, .nav-cta {
   background:transparent !important;
-  color:#C8973A !important;
+  color:#FFFFFF !important;
   font-weight:700 !important;
   border:none !important;
   box-shadow:none !important;
   outline:none !important;
   clip-path:none !important;
+  -webkit-text-fill-color:#FFFFFF !important;
 }
 
 /* ── Ticker haut — bannière partenaires/institutions → tout en gold ── */
@@ -2276,7 +2277,7 @@ footer .footer-copy a:hover   { color:var(--gold) !important }
       <div id="ra-nav-user-av" class="ra-nav-user-av" aria-hidden="true">?</div>
       <span id="ra-nav-user-name" class="ra-nav-user-name"></span>
     </div>
-    <button class="nav-cta" onclick="showPage('solo')" aria-label="Jouer maintenant">⚔ Jouer</button>
+    <button class="nav-cta" onclick="showPage('solo')" aria-label="Jouer maintenant" style="color:#FFFFFF!important;font-weight:700!important;background:transparent!important;border:none!important">⚔ Jouer</button>
     <button class="nav-hamburger" id="nav-hamburger" onclick="toggleMobileNav()" aria-label="Menu" aria-expanded="false" aria-controls="mobile-nav-menu">
       <span></span><span></span><span></span>
     </button>
