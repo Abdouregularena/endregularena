@@ -411,7 +411,9 @@ nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:0} /* MOD
 /* Texte tapé dans la textarea — blanc sur fond sombre */
 .feedback-section textarea,
 #fb-message,
-.feedback-section textarea:focus{color:#FFFFFF!important;caret-color:#FFFFFF!important}
+.feedback-section textarea:focus{color:#FFFFFF!important;caret-color:#FFFFFF!important;background-color:#1e3055!important}
+/* Surcharge de toute règle ACA ou globale sur #fb-message */
+#fb-message{color:#FFFFFF!important;background-color:#1e3055!important;caret-color:#FFFFFF!important}
 /* Inputs texte/email — fond clair donc texte sombre */
 .feedback-section input[type="text"],
 .feedback-section input[type="email"]{color:#1a2640!important}
@@ -3605,7 +3607,7 @@ nav{background:var(--aca-bleu) !important;backdrop-filter:blur(10px);border-bott
           <label class="form-label" style="color:#FFFFFF" for="fb-email">Email institutionnel <span style="color:rgba(255,255,255,.6)">(optionnel)</span></label>
           <input type="email" id="fb-email" class="form-input" placeholder="prenom@banque.sn..." aria-label="Email" maxlength="120">
         </div>
-        <textarea id="fb-message" class="feedback-textarea" placeholder="Décrivez votre suggestion, votre retour ou votre idée... Soyez précis, toutes les suggestions sont lues par l'équipe." aria-label="Votre message" maxlength="1200"></textarea>
+        <textarea id="fb-message" class="feedback-textarea" placeholder="Décrivez votre suggestion, votre retour ou votre idée... Soyez précis, toutes les suggestions sont lues par l'équipe." aria-label="Votre message" maxlength="1200" style="color:#FFFFFF!important;background-color:#1e3055!important;caret-color:#FFFFFF!important"></textarea>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
         <span style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:rgba(255,255,255,.7)" id="fb-charcount">0 / 1200 caractères</span>
