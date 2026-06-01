@@ -9320,35 +9320,44 @@ updateProgress();
   /* ── Helpers d'injection ──────────────────────────────────── */
   function _bibEsc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-  /* Injecte les QCM depuis quizzes_rfe_uemoa.json dans l'onglet QCM (data-pack="P4") */
+  /* Injecte les QCM depuis quizzes_*.json — structure identique aux cartes statiques */
   function _injectQCM(questions, packId) {
     var container = document.getElementById('bib-tab-qcm');
     if (!container) return;
-    if (document.getElementById('bib-json-qcm-' + packId)) return; // déjà injecté
+    if (document.getElementById('bib-json-qcm-' + packId)) return;
     var wrapper = document.createElement('div');
     wrapper.id = 'bib-json-qcm-' + packId;
+    // Étiquette de module (comme les cartes statiques)
+    var lbl = document.createElement('div');
+    lbl.className = 'module-label';
+    lbl.setAttribute('data-pack', packId);
+    lbl.textContent = 'Pack ' + packId + ' — données JSON';
+    wrapper.appendChild(lbl);
     questions.forEach(function(q, i) {
-      var qid = packId + '_JSON_Q' + (i+1);
       var choices = (q.choices || q.options || []);
-      var correct = q.answer != null ? q.answer : q.correct;
-      var searchTerms = (q.q || q.question || '').toLowerCase() + ' ' + (q.cat || '') + ' ' + packId.toLowerCase();
+      var correct  = q.answer != null ? q.answer : (q.correct != null ? q.correct : 0);
+      var qText    = q.q || q.question || '';
+      var catText  = q.cat || 'Réglementation';
       var card = document.createElement('div');
       card.className = 'qcm-card';
       card.setAttribute('data-pack', packId);
-      card.setAttribute('data-q', searchTerms);
-      card.innerHTML = '<div class="qcm-id">' + _bibEsc(qid) + ' · ' + _bibEsc(q.cat||'RFE UEMOA') + '</div>' +
-        '<div class="qcm-question">' + _bibEsc(q.q || q.question) + '</div>' +
-        '<div class="qcm-options">' + choices.map(function(c,j){
+      card.setAttribute('data-q', (qText + ' ' + catText + ' ' + packId).toLowerCase());
+      // Structure identique aux cartes statiques (options-list + option-letter + show-answer-btn)
+      card.innerHTML =
+        '<div class="qcm-id">' + _bibEsc(packId + '_Q' + (i+1)) + ' · ' + _bibEsc(catText) + '</div>' +
+        '<div class="qcm-question">' + _bibEsc(qText) + '</div>' +
+        '<div class="options-list">' + choices.map(function(c,j){
           return '<div class="option' + (j===correct?' correct':'') + '">' +
             '<span class="option-letter">' + String.fromCharCode(65+j) + '</span> ' + _bibEsc(c) + '</div>';
         }).join('') + '</div>' +
+        '<button class="show-answer-btn" onclick="bibToggleAnswer(this)">▶ Voir l\'explication</button>' +
         '<div class="answer-reveal">' + _bibEsc(q.source||q.ref||'') + '</div>';
       wrapper.appendChild(card);
     });
     container.appendChild(wrapper);
   }
 
-  /* Injecte les flash cards depuis biblio_rfe_uemoa.json dans l'onglet Flash */
+  /* Injecte les flash cards — structure identique aux cartes statiques (flash-face requis pour backface-visibility) */
   function _injectFlash(cards, packId) {
     var container = document.getElementById('bib-tab-flash');
     if (!container) return;
@@ -9357,16 +9366,24 @@ updateProgress();
     wrapper.id = 'bib-json-flash-' + packId;
     wrapper.className = 'flash-grid';
     cards.forEach(function(c) {
+      var recto = c.recto || c.terme || '';
+      var verso  = c.verso || c.definition || '';
+      var hint   = c.categorie || c.source || packId;
       var card = document.createElement('div');
       card.className = 'flash-card';
       card.setAttribute('data-pack', packId);
-      card.setAttribute('data-term', (c.terme||c.recto||'').toLowerCase());
-      card.setAttribute('data-def',  (c.definition||c.verso||'').toLowerCase());
+      card.setAttribute('data-term', recto.toLowerCase());
+      card.setAttribute('data-def',  verso.toLowerCase());
+      // Utilise flash-face (requis pour backface-visibility:hidden du flip CSS)
       card.innerHTML = '<div class="flash-inner">' +
-        '<div class="flash-front"><div class="flash-cat">' + _bibEsc(c.source||packId) + '</div>' +
-          '<div class="flash-term">' + _bibEsc(c.terme||c.recto) + '</div></div>' +
-        '<div class="flash-back"><div class="flash-def">' + _bibEsc(c.definition||c.verso) + '</div>' +
-          (c.source?'<div class="flash-ref">' + _bibEsc(c.source) + '</div>':'') + '</div>' +
+        '<div class="flash-face flash-front">' +
+          '<div class="flash-hint">' + _bibEsc(hint) + '</div>' +
+          '<div class="flash-term">' + _bibEsc(recto) + '</div>' +
+        '</div>' +
+        '<div class="flash-face flash-back">' +
+          '<div class="flash-definition">' + _bibEsc(verso) + '</div>' +
+          (c.source ? '<div class="flash-ref">' + _bibEsc(c.source) + '</div>' : '') +
+        '</div>' +
       '</div>';
       card.addEventListener('click', function(){ card.classList.toggle('flipped'); });
       wrapper.appendChild(card);
@@ -9374,23 +9391,26 @@ updateProgress();
     container.appendChild(wrapper);
   }
 
-  /* Injecte les mémos depuis biblio_rfe_uemoa.json dans l'onglet Mémos */
+  /* Injecte les mémos — champs JSON : concept, moyen, explication, exemple, source */
   function _injectMnemo(mnemos, packId) {
     var container = document.getElementById('bib-tab-mnemo');
     if (!container) return;
     if (document.getElementById('bib-json-mnemo-' + packId)) return;
     var wrapper = document.createElement('div');
     wrapper.id = 'bib-json-mnemo-' + packId;
+    wrapper.className = 'mnemo-grid';
     mnemos.forEach(function(m) {
       var card = document.createElement('div');
       card.className = 'mnemo-card';
       card.setAttribute('data-pack', packId);
-      card.innerHTML = '<div class="mnemo-header">' +
-        '<span class="mnemo-cat">' + _bibEsc(m.categorie||m.cat||packId) + '</span>' +
-        '<span class="mnemo-title">' + _bibEsc(m.titre||m.title||'') + '</span>' +
-      '</div>' +
-      '<div class="mnemo-body">' + _bibEsc(m.contenu||m.content||m.texte||'') + '</div>' +
-      (m.source?'<div class="mnemo-ref">' + _bibEsc(m.source) + '</div>':'');
+      // Mapping JSON → classes CSS statiques (mnemo-concept, mnemo-formule, mnemo-detail, mnemo-ref)
+      card.innerHTML =
+        (m.concept ? '<div class="mnemo-concept">' + _bibEsc(m.concept) + '</div>' : '') +
+        (m.moyen   ? '<div class="mnemo-formule">' + _bibEsc(m.moyen)   + '</div>' : '') +
+        (m.explication ? '<div class="mnemo-detail">' + _bibEsc(m.explication) +
+          (m.exemple ? '<br><em style="color:var(--bib-muted)">' + _bibEsc(m.exemple) + '</em>' : '') +
+          '</div>' : '') +
+        (m.source  ? '<div class="mnemo-ref">' + _bibEsc(m.source) + '</div>' : '');
       wrapper.appendChild(card);
     });
     container.appendChild(wrapper);
