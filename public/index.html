@@ -9203,39 +9203,136 @@ updateProgress();
     if (cnt) cnt.textContent = visible + ' carte' + (visible > 1 ? 's' : '');
   };
 
+  /* ── Helpers d'injection ──────────────────────────────────── */
+  function _bibEsc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  /* Injecte les QCM depuis quizzes_rfe_uemoa.json dans l'onglet QCM (data-pack="P4") */
+  function _injectQCM(questions, packId) {
+    var container = document.getElementById('bib-tab-qcm');
+    if (!container) return;
+    if (document.getElementById('bib-json-qcm-' + packId)) return; // déjà injecté
+    var wrapper = document.createElement('div');
+    wrapper.id = 'bib-json-qcm-' + packId;
+    questions.forEach(function(q, i) {
+      var qid = packId + '_JSON_Q' + (i+1);
+      var choices = (q.choices || q.options || []);
+      var correct = q.answer != null ? q.answer : q.correct;
+      var searchTerms = (q.q || q.question || '').toLowerCase() + ' ' + (q.cat || '') + ' ' + packId.toLowerCase();
+      var card = document.createElement('div');
+      card.className = 'qcm-card';
+      card.setAttribute('data-pack', packId);
+      card.setAttribute('data-q', searchTerms);
+      card.innerHTML = '<div class="qcm-id">' + _bibEsc(qid) + ' · ' + _bibEsc(q.cat||'RFE UEMOA') + '</div>' +
+        '<div class="qcm-question">' + _bibEsc(q.q || q.question) + '</div>' +
+        '<div class="qcm-options">' + choices.map(function(c,j){
+          return '<div class="option' + (j===correct?' correct':'') + '">' +
+            '<span class="option-letter">' + String.fromCharCode(65+j) + '</span> ' + _bibEsc(c) + '</div>';
+        }).join('') + '</div>' +
+        '<div class="answer-reveal">' + _bibEsc(q.source||q.ref||'') + '</div>';
+      wrapper.appendChild(card);
+    });
+    container.appendChild(wrapper);
+  }
+
+  /* Injecte les flash cards depuis biblio_rfe_uemoa.json dans l'onglet Flash */
+  function _injectFlash(cards, packId) {
+    var container = document.getElementById('bib-tab-flash');
+    if (!container) return;
+    if (document.getElementById('bib-json-flash-' + packId)) return;
+    var wrapper = document.createElement('div');
+    wrapper.id = 'bib-json-flash-' + packId;
+    wrapper.className = 'flash-grid';
+    cards.forEach(function(c) {
+      var card = document.createElement('div');
+      card.className = 'flash-card';
+      card.setAttribute('data-pack', packId);
+      card.setAttribute('data-term', (c.terme||c.recto||'').toLowerCase());
+      card.setAttribute('data-def',  (c.definition||c.verso||'').toLowerCase());
+      card.innerHTML = '<div class="flash-inner">' +
+        '<div class="flash-front"><div class="flash-cat">' + _bibEsc(c.source||packId) + '</div>' +
+          '<div class="flash-term">' + _bibEsc(c.terme||c.recto) + '</div></div>' +
+        '<div class="flash-back"><div class="flash-def">' + _bibEsc(c.definition||c.verso) + '</div>' +
+          (c.source?'<div class="flash-ref">' + _bibEsc(c.source) + '</div>':'') + '</div>' +
+      '</div>';
+      card.addEventListener('click', function(){ card.classList.toggle('flipped'); });
+      wrapper.appendChild(card);
+    });
+    container.appendChild(wrapper);
+  }
+
+  /* Injecte les mémos depuis biblio_rfe_uemoa.json dans l'onglet Mémos */
+  function _injectMnemo(mnemos, packId) {
+    var container = document.getElementById('bib-tab-mnemo');
+    if (!container) return;
+    if (document.getElementById('bib-json-mnemo-' + packId)) return;
+    var wrapper = document.createElement('div');
+    wrapper.id = 'bib-json-mnemo-' + packId;
+    mnemos.forEach(function(m) {
+      var card = document.createElement('div');
+      card.className = 'mnemo-card';
+      card.setAttribute('data-pack', packId);
+      card.innerHTML = '<div class="mnemo-header">' +
+        '<span class="mnemo-cat">' + _bibEsc(m.categorie||m.cat||packId) + '</span>' +
+        '<span class="mnemo-title">' + _bibEsc(m.titre||m.title||'') + '</span>' +
+      '</div>' +
+      '<div class="mnemo-body">' + _bibEsc(m.contenu||m.content||m.texte||'') + '</div>' +
+      (m.source?'<div class="mnemo-ref">' + _bibEsc(m.source) + '</div>':'');
+      wrapper.appendChild(card);
+    });
+    container.appendChild(wrapper);
+  }
+
   /* Initialisation quand la page bibliothèque devient visible */
   window._bibInit = function() {
+    if (window._bibInitDone) return;
+    window._bibInitDone = true;
     bibUpdateProgress();
 
-    // Charger les sources officielles des JSON additionnels et les afficher
-    // dans un bandeau "Textes de référence" sous le pack-selector
-    var packs = [
-      { file: 'assets/biblio_rfe_uemoa.json', pack: 'P4' },
-      { file: 'assets/biblio_pcb_umoa.json',  pack: 'P1' },
-      { file: 'assets/biblio_umoa_bale.json', pack: 'P3' }
+    var JSON_PACKS = [
+      { bibFile: 'assets/biblio_rfe_uemoa.json',   quizFile: 'assets/quizzes_rfe_uemoa.json', packId: 'P4' },
+      { bibFile: 'assets/biblio_pcb_umoa.json',    quizFile: 'assets/quizzes_pcb_umoa.json',  packId: 'P1' },
+      { bibFile: 'assets/biblio_umoa_bale.json',   quizFile: 'assets/quizzes_umoa_bale.json', packId: 'P3' }
     ];
-    var infoZone = document.getElementById('bib-sources-banner');
-    if (!infoZone) {
-      infoZone = document.createElement('div');
-      infoZone.id = 'bib-sources-banner';
-      infoZone.style.cssText = 'padding:10px 48px;background:rgba(0,229,255,.05);border-bottom:1px solid rgba(0,229,255,.12);font-size:11px;color:#5a6380;font-family:DM Mono,monospace;display:none';
-      var packSel = document.querySelector('#page-bibliotheque .pack-selector');
-      if (packSel) packSel.insertAdjacentElement('afterend', infoZone);
-    }
-    packs.forEach(function(p) {
-      fetch(p.file).then(function(r){ return r.ok ? r.json() : null; }).then(function(d) {
-        if (!d || !d.sources) return;
-        var key = 'bib-src-' + p.pack;
-        if (document.getElementById(key)) return;
-        var el = document.createElement('div');
-        el.id = key;
-        el.setAttribute('data-pack-src', p.pack);
-        el.innerHTML = '<strong style="color:#00e5ff">Textes ' + p.pack + ' :</strong> ' +
-          d.sources.map(function(s){ return s.split('(')[0].trim(); }).join(' · ');
-        el.style.marginBottom = '4px';
-        infoZone.appendChild(el);
-        infoZone.style.display = 'block';
-      }).catch(function(){});
+
+    JSON_PACKS.forEach(function(p) {
+      // Charger et injecter le quiz JSON
+      fetch(p.quizFile)
+        .then(function(r){ return r.ok ? r.json() : null; })
+        .then(function(d){ if (Array.isArray(d) && d.length) _injectQCM(d, p.packId); })
+        .catch(function(){});
+
+      // Charger et injecter biblio (flash, mémos)
+      fetch(p.bibFile)
+        .then(function(r){ return r.ok ? r.json() : null; })
+        .then(function(d){
+          if (!d) return;
+          if (d.flash_cards && d.flash_cards.length) _injectFlash(d.flash_cards, p.packId);
+          if (d.mnemotechniques && d.mnemotechniques.length) _injectMnemo(d.mnemotechniques, p.packId);
+          // Bandeau sources
+          if (d.sources && d.sources.length) {
+            var infoZone = document.getElementById('bib-sources-banner');
+            if (!infoZone) {
+              infoZone = document.createElement('div');
+              infoZone.id = 'bib-sources-banner';
+              infoZone.style.cssText = 'padding:8px 48px;background:rgba(0,229,255,.05);border-bottom:1px solid rgba(0,229,255,.12);font-size:11px;color:#5a6380;font-family:"DM Mono",monospace;display:none';
+              var packSel = document.querySelector('#page-bibliotheque .pack-selector');
+              if (packSel) packSel.insertAdjacentElement('afterend', infoZone);
+            }
+            var key = 'bib-src-' + p.packId;
+            if (!document.getElementById(key)) {
+              var el = document.createElement('div');
+              el.id = key;
+              el.style.marginBottom = '3px';
+              el.innerHTML = '<strong style="color:#00e5ff">' + p.packId + ' :</strong> ' +
+                d.sources.map(function(s){ return _bibEsc(s.split('(')[0].trim()); }).join(' · ');
+              infoZone.appendChild(el);
+              infoZone.style.display = 'block';
+            }
+          }
+          // Mise à jour du compteur de l'onglet
+          setTimeout(bibUpdateProgress, 300);
+        })
+        .catch(function(){});
     });
   };
 })();
