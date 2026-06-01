@@ -2359,6 +2359,16 @@ body { overflow-x:hidden !important }
 .live-ticker { background-color:#F5F0E8 !important; color:#0D1B2A !important; font-weight:700 !important }
 .live-ticker *, .live-ticker span, .live-ticker li { color:#0D1B2A !important; font-weight:700 !important }
 
+/* ── Feedback flottant — éviter chevauchement ticker bas ── */
+#feedback-btn, .feedback-float, .chat-widget,
+[id*="feedback"][style*="fixed"],
+[class*="feedback"][style*="fixed"] {
+  bottom:70px !important; right:16px !important; z-index:100 !important;
+}
+@media(max-width:768px) {
+  #feedback-btn, .feedback-float { bottom:60px !important; right:12px !important; }
+}
+
 /* ── Ticker haut — bannière partenaires/institutions → tout en gold ── */
 .sponsors-banner, .sponsors-banner * { color:#C8973A !important; font-weight:700 !important }
 .sponsors-label  { opacity:.7 !important; font-weight:700 !important }
@@ -9196,6 +9206,37 @@ updateProgress();
   /* Initialisation quand la page bibliothèque devient visible */
   window._bibInit = function() {
     bibUpdateProgress();
+
+    // Charger les sources officielles des JSON additionnels et les afficher
+    // dans un bandeau "Textes de référence" sous le pack-selector
+    var packs = [
+      { file: 'assets/biblio_rfe_uemoa.json', pack: 'P4' },
+      { file: 'assets/biblio_pcb_umoa.json',  pack: 'P1' },
+      { file: 'assets/biblio_umoa_bale.json', pack: 'P3' }
+    ];
+    var infoZone = document.getElementById('bib-sources-banner');
+    if (!infoZone) {
+      infoZone = document.createElement('div');
+      infoZone.id = 'bib-sources-banner';
+      infoZone.style.cssText = 'padding:10px 48px;background:rgba(0,229,255,.05);border-bottom:1px solid rgba(0,229,255,.12);font-size:11px;color:#5a6380;font-family:DM Mono,monospace;display:none';
+      var packSel = document.querySelector('#page-bibliotheque .pack-selector');
+      if (packSel) packSel.insertAdjacentElement('afterend', infoZone);
+    }
+    packs.forEach(function(p) {
+      fetch(p.file).then(function(r){ return r.ok ? r.json() : null; }).then(function(d) {
+        if (!d || !d.sources) return;
+        var key = 'bib-src-' + p.pack;
+        if (document.getElementById(key)) return;
+        var el = document.createElement('div');
+        el.id = key;
+        el.setAttribute('data-pack-src', p.pack);
+        el.innerHTML = '<strong style="color:#00e5ff">Textes ' + p.pack + ' :</strong> ' +
+          d.sources.map(function(s){ return s.split('(')[0].trim(); }).join(' · ');
+        el.style.marginBottom = '4px';
+        infoZone.appendChild(el);
+        infoZone.style.display = 'block';
+      }).catch(function(){});
+    });
   };
 })();
 
