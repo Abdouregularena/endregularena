@@ -2221,6 +2221,62 @@ body { overflow-x:hidden !important }
   .hero-title  { font-size:clamp(1.9rem,10vw,2.8rem) !important }
 }
 
+/* ================================================================
+   RESTAURATION BIBLIOTHÈQUE — priorité maximale post-ACA/Bloc4
+   Les règles ACA (.pack-btn !important) et Bloc4 (button[class*=btn])
+   écrasaient les styles scopés #page-bibliotheque sans !important.
+   Ce bloc les rétablit avec !important + ID pour gagner sur tout.
+================================================================ */
+#page-bibliotheque .bib-nav {
+  display:flex !important; gap:4px !important; overflow-x:auto !important;
+  background:var(--bib-bg) !important; padding:0 48px !important;
+  border-bottom:1px solid var(--bib-border) !important; position:relative !important; z-index:2 !important;
+}
+#page-bibliotheque .tab-btn {
+  background:none !important; border:none !important;
+  border-bottom:2px solid transparent !important;
+  color:var(--bib-muted) !important;
+  font-family:'DM Mono',monospace !important;
+  font-size:12px !important; padding:16px 20px !important;
+  min-height:unset !important; border-radius:0 !important;
+  box-shadow:none !important; transform:none !important;
+  white-space:nowrap !important; letter-spacing:1px !important; text-transform:uppercase !important;
+}
+#page-bibliotheque .tab-btn:hover { color:var(--bib-text) !important }
+#page-bibliotheque .tab-btn.active {
+  color:var(--bib-accent1) !important;
+  border-bottom-color:var(--bib-accent1) !important;
+}
+#page-bibliotheque .pack-selector {
+  display:flex !important; gap:10px !important; overflow-x:auto !important;
+  padding:16px 48px !important; background:var(--bib-surface) !important;
+  border-bottom:1px solid var(--bib-border) !important;
+  align-items:center !important; position:relative !important; z-index:2 !important;
+}
+#page-bibliotheque .pack-btn {
+  background:var(--bib-surface2) !important; border:1px solid var(--bib-border) !important;
+  border-radius:20px !important; padding:6px 14px !important;
+  font-family:'DM Mono',monospace !important; font-size:11px !important;
+  color:var(--bib-muted) !important; cursor:pointer !important;
+  min-height:unset !important; box-shadow:none !important;
+  transform:none !important; white-space:nowrap !important; font-weight:400 !important;
+}
+#page-bibliotheque .pack-btn:hover {
+  color:var(--bib-text) !important; border-color:var(--bib-muted) !important;
+  transform:none !important; background:var(--bib-surface2) !important;
+}
+#page-bibliotheque .pack-btn.active { color:var(--bib-bg) !important; font-weight:600 !important }
+#page-bibliotheque .pack-btn[data-pack="all"].active { background:var(--bib-accent1) !important; border-color:var(--bib-accent1) !important }
+#page-bibliotheque .pack-btn[data-pack="P1"].active  { background:var(--bib-accent2) !important; border-color:var(--bib-accent2) !important }
+#page-bibliotheque .pack-btn[data-pack="P2"].active  { background:var(--bib-accent1) !important; border-color:var(--bib-accent1) !important }
+#page-bibliotheque .pack-btn[data-pack="P3"].active  { background:var(--bib-accent3) !important; border-color:var(--bib-accent3) !important }
+#page-bibliotheque .pack-btn[data-pack="P4"].active  { background:var(--bib-accent4) !important; border-color:var(--bib-accent4) !important }
+#page-bibliotheque .pack-btn[data-pack="P5"].active  { background:var(--bib-accent5) !important; border-color:var(--bib-accent5) !important }
+/* Bib-main et contenu — pas de min-height imposé par mobile rules */
+#page-bibliotheque .bib-main { display:block !important }
+#page-bibliotheque .tab-content { display:none !important }
+#page-bibliotheque .tab-content.active { display:block !important }
+
 /* ── Navbar — liens gold gras + logo badge gold ── */
 /* Liens de navigation (tous les boutons dans .nav-links) */
 .nav-links button { color:#C8973A !important; font-weight:700 !important }
