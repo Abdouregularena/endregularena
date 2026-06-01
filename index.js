@@ -392,6 +392,46 @@ app.post('/auth/register', limiterStrict, async (req, res) => {
 });
 
 
+/* POST /auth/login
+   Body : { email }
+   → envoie un magic link de connexion aux utilisateurs déjà vérifiés.
+   Réponse identique que le compte existe ou non (anti-énumération).
+   curl -X POST /auth/login -d '{"email":"user@banque.sn"}'
+*/
+app.post('/auth/login', limiterStrict, async (req, res) => {
+  const { email } = req.body || {};
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+    return err(res, 400, 'Email invalide');
+  }
+  const cleanEmail = email.trim().toLowerCase();
+  const user = db.prepare('SELECT * FROM users WHERE email = ? AND email_verified = 1').get(cleanEmail);
+
+  // Anti-énumération : toujours répondre la même chose
+  if (!user) {
+    return ok(res, { message: 'Si cet email est inscrit, vous recevrez un lien de connexion.' });
+  }
+
+  const token = genToken();
+  db.prepare('INSERT INTO login_tokens (email, token, expires_at) VALUES (?, ?, ?)')
+    .run(cleanEmail, token, expiresAt(1)); // expire après 1h
+
+  const loginUrl = `${BASE_URL}/auth/login-verify?login_token=${token}`;
+  try {
+    await resend.emails.send({
+      from: `REGUL ARENA <${FROM_EMAIL}>`,
+      to:   cleanEmail,
+      subject: 'Votre lien de connexion — REGUL ARENA',
+      html: emailConfirmHTML(user.name, loginUrl),
+      headers: { 'X-Entity-Ref-ID': crypto.randomUUID() },
+    });
+  } catch (e) {
+    console.error('[/auth/login] email error:', e.message);
+    return err(res, 500, 'Erreur envoi email — réessaie dans quelques instants');
+  }
+
+  return ok(res, { message: 'Lien de connexion envoyé. Vérifiez votre boîte mail.' });
+});
+
 /* POST /auth/resend
    Body : { email }
    &#8594; renvoie le dernier lien de confirmation

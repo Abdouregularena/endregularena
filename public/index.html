@@ -4034,7 +4034,7 @@ async function apiCall(method, path, body) {
 /* ───────────────────────────────────────────────────────────
    CORE : Navigation SPA
    ─────────────────────────────────────────────────────────── */
-const PAGES = ['landing','classement','tournois','duel','solo','premium','invitation','quizExpress'];
+const PAGES = ['landing','classement','tournois','duel','solo','premium','invitation','quizExpress','bibliotheque'];
 const pageInits = {};
 
 function showPage(id) {
@@ -5460,7 +5460,21 @@ const RAGate = (() => {
     const etablissement=profile==='etudiant'?(document.getElementById('ra-etablissement')?.value?.trim()||''):''; // MODIFIÉ
     const invite_code=document.getElementById('ra-invite-code')?.value||undefined;
     const cgu_accepted=document.getElementById('ra-cgu-check')?.checked===true;
-    if(!state.emailValid||!name){gToast('⚠ Remplis tous les champs correctement');return;}
+    if(!state.emailValid){gToast('⚠ Email invalide');return;}
+
+    // LOGIN MODE — magic link, pas de register
+    if(state.loginMode){
+      const ce=document.getElementById('ra-confirm-email');if(ce)ce.textContent=email;
+      goStep(3);
+      apiCall('POST','/auth/login',{email}).then(r=>{
+        if(!r.ok){gToast('⚠ '+(r.data?.error||'Erreur — réessaie'));goStep(2);}
+        else{gToast('📧 Lien de connexion envoyé à '+email);}
+      });
+      return;
+    }
+
+    // REGISTER MODE
+    if(!name){gToast('⚠ Remplis tous les champs correctement');return;}
     if(!cgu_accepted){gToast('⚠ Vous devez accepter les CGU pour continuer');return;}
     const ce=document.getElementById('ra-confirm-email');if(ce)ce.textContent=email;
     goStep(3);
@@ -5704,7 +5718,22 @@ const RAAuth = (() => {
     const profile = document.getElementById('ra-auth-profile')?.value;
     const country = document.getElementById('ra-auth-country')?.value;
     const etablissement = profile==='etudiant'?(document.getElementById('ra-auth-etablissement')?.value?.trim()||''):''; // MODIFIÉ
-    if (!_emailValid || !name) { _toast('⚠ Remplis tous les champs correctement'); return; }
+    if (!_emailValid) { _toast('⚠ Email invalide'); return; }
+
+    // LOGIN MODE — envoie un magic link, pas besoin de nom/profil/CGU
+    if (_loginMode) {
+      const ce = document.getElementById('ra-auth-confirm-email');
+      if (ce) ce.textContent = email;
+      _goStep(3);
+      apiCall('POST','/auth/login',{email}).then(r=>{
+        if(!r.ok){ _toast('⚠ '+(r.data?.error||'Erreur — réessaie')); _goStep(2); }
+        else { _toast('📧 Lien de connexion envoyé à '+email); }
+      });
+      return;
+    }
+
+    // REGISTER MODE — vérifications complètes
+    if (!name) { _toast('⚠ Remplis tous les champs correctement'); return; }
     const ce = document.getElementById('ra-auth-confirm-email');
     if (ce) ce.textContent = email;
     _goStep(3);
