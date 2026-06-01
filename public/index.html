@@ -2223,10 +2223,61 @@ body { overflow-x:hidden !important }
 
 /* ================================================================
    RESTAURATION BIBLIOTHÈQUE — priorité maximale post-ACA/Bloc4
-   Les règles ACA (.pack-btn !important) et Bloc4 (button[class*=btn])
-   écrasaient les styles scopés #page-bibliotheque sans !important.
-   Ce bloc les rétablit avec !important + ID pour gagner sur tout.
+   Les règles ACA (.pack-btn !important, html/body color/bg) et
+   Bloc4 (button[class*=btn], [class*=-card]) écrasaient les styles
+   scopés #page-bibliotheque sans !important.
+   Ce bloc les rétablit avec #page-bibliotheque + !important.
 ================================================================ */
+/* Fond et couleur du conteneur racine (ACA impose cream sur body) */
+#page-bibliotheque {
+  background:var(--bib-bg) !important;
+  color:var(--bib-text) !important;
+}
+/* Toutes les zones dark de la biblio */
+#page-bibliotheque .bib-header,
+#page-bibliotheque .bib-main,
+#page-bibliotheque .bib-nav,
+#page-bibliotheque .pack-selector {
+  background:var(--bib-bg) !important;
+}
+/* Titres — ACA les force en bleu navy + Playfair, on restore */
+#page-bibliotheque h1,
+#page-bibliotheque h2,
+#page-bibliotheque h3,
+#page-bibliotheque .bib-h1 {
+  font-family:'Syne',sans-serif !important;
+  color:var(--bib-text) !important;
+  -webkit-text-fill-color:initial !important;
+}
+/* Texte général biblio — ACA body color #1d2733 saigne sur les éléments sans color propre */
+#page-bibliotheque p,
+#page-bibliotheque span,
+#page-bibliotheque li,
+#page-bibliotheque label { color:var(--bib-text) !important }
+/* Muted elements */
+#page-bibliotheque .bib-subtitle,
+#page-bibliotheque .bib-muted,
+#page-bibliotheque .pack-label,
+#page-bibliotheque .bib-source-badge { color:var(--bib-muted) !important }
+/* Cards QCM et flash — ACA [class*=-card] impose transform/shadow */
+#page-bibliotheque [class*="card"],
+#page-bibliotheque .qcm-card,
+#page-bibliotheque .flash-card {
+  transform:none !important;
+  background:var(--bib-surface) !important;
+  border:1px solid var(--bib-border) !important;
+  border-radius:var(--bib-radius) !important;
+  color:var(--bib-text) !important;
+}
+#page-bibliotheque [class*="card"]:hover { transform:none !important }
+/* Search input dans biblio */
+#page-bibliotheque input[type="text"],
+#page-bibliotheque .search-input {
+  background:var(--bib-surface) !important;
+  border:1px solid var(--bib-border) !important;
+  color:var(--bib-text) !important;
+  border-radius:8px !important;
+}
 #page-bibliotheque .bib-nav {
   display:flex !important; gap:4px !important; overflow-x:auto !important;
   background:var(--bib-bg) !important; padding:0 48px !important;
