@@ -3346,5 +3346,16 @@ window.addEventListener('load', function(){
   }, true);                                                     // MODIFIÉ
 })();
 </script>
+  <script>
+(function() {
+  var p = new URLSearchParams(window.location.search);
+  var t = p.get('login_token');
+  if (t) {
+    localStorage.setItem('ra_jwt', t);
+    window.history.replaceState({}, '', '/');
+    window.location.reload();
+  }
+})();
+</script>
 </body>
 </html>
