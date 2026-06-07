@@ -3342,8 +3342,7 @@ window.addEventListener('load', function(){
     document.addEventListener(ev, start, { passive:true, capture:true }); // MODIFIÉ
   });                                                           // MODIFIÉ
   document.addEventListener('click', function(e){               // MODIFIÉ : arrêt définitif au clic sur un bouton/lien
-  if(e.target.closest('button, a, .btn, .btn-out, .btn-sm, [onclick]') && onHome()) 
-    window.raThemeStop();
+    if(e.target.closest('button, a, .btn, .btn-out, .btn-sm, [onclick]')) window.raThemeStop(); // MODIFIÉ
   }, true);                                                     // MODIFIÉ
 })();
 </script>
