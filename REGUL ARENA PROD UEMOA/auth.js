@@ -190,17 +190,7 @@ router.get('/login-verify', async (req, res) => {
     const user      = db.prepare('SELECT * FROM users WHERE id=?').get(check.user_id);
     const jwt_token = issueJWT(user);
 
-    return res.json({
-      ok:    true,
-      token: jwt_token,
-      user: {
-        id:      user.id,
-        name:    user.name,
-        email:   user.email,
-        profile: user.profile,
-        country: user.country,
-      },
-    });
+return res.redirect(`${process.env.BASE_URL}/?login_token=${jwt_token}`);
 
   } catch (err) {
     console.error('[/auth/login-verify]', err);
