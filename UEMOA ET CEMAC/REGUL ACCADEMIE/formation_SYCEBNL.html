@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SYCEBNL — Formation</title>
+<style>
+:root{--vert:#2E6B4F;--vert-fonce:#1c4731;--or:#C9991A;--creme:#F3F6F4;--texte:#19241e;--gris:#5b6b62}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--creme);color:var(--texte);line-height:1.6}
+h1,h2,h3{font-family:Georgia,serif;color:var(--vert-fonce)}
+header{background:linear-gradient(135deg,var(--vert),var(--vert-fonce));color:#fff;padding:22px 18px;position:sticky;top:0;z-index:50;box-shadow:0 2px 12px rgba(0,0,0,.18)}
+header h1{color:#fff;font-size:1.22rem}header .sub{font-size:.78rem;opacity:.85;margin-top:4px;font-family:inherit}
+.badge{display:inline-block;background:var(--or);color:#1c1300;font-size:.68rem;font-weight:700;padding:3px 9px;border-radius:20px;margin-top:8px;letter-spacing:.5px}
+nav{background:#fff;border-bottom:2px solid var(--or);padding:8px;display:flex;gap:6px;overflow-x:auto;position:sticky;top:84px;z-index:40}
+nav button{flex:0 0 auto;background:var(--creme);border:1px solid #d6e0da;color:var(--vert-fonce);font-size:.78rem;font-weight:600;padding:7px 12px;border-radius:8px;cursor:pointer;white-space:nowrap}
+nav button.actif{background:var(--vert);color:#fff;border-color:var(--vert)}
+main{max-width:820px;margin:0 auto;padding:20px 16px 80px}
+.module{display:none;animation:fade .3s}.module.actif{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
+.module h2{font-size:1.4rem;border-bottom:3px solid var(--or);padding-bottom:8px;margin-bottom:6px}
+.module .titre-ref{font-size:.78rem;color:var(--gris);margin-bottom:18px;font-style:italic}
+.carte{background:#fff;border-radius:12px;padding:16px 18px;margin-bottom:16px;box-shadow:0 1px 6px rgba(0,0,0,.06);border-left:4px solid var(--vert)}
+.carte h3{font-size:1.02rem;margin-bottom:8px}.carte p{margin-bottom:8px;font-size:.94rem}
+.carte ul{margin:6px 0 6px 20px;font-size:.92rem}.carte li{margin-bottom:5px}
+.cle{background:linear-gradient(135deg,#fff8e6,#fdf0c8);border-left:4px solid var(--or);border-radius:8px;padding:12px 14px;margin:12px 0;font-size:.9rem}.cle b{color:var(--vert-fonce)}
+table.tab{width:100%;border-collapse:collapse;margin:10px 0;font-size:.84rem}
+table.tab th{background:var(--vert);color:#fff;padding:8px;text-align:left}
+table.tab td{padding:7px 8px;border-bottom:1px solid #e3eae6}table.tab tr:nth-child(even){background:#f7faf8}
+.chiffre{font-weight:700;color:var(--or)}
+.quiz{background:#fff;border-radius:12px;padding:18px;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.q{margin-bottom:18px;padding-bottom:14px;border-bottom:1px dashed #ddd}
+.q p.enonce{font-weight:600;margin-bottom:8px;font-size:.93rem}
+.q .opt{display:block;background:var(--creme);border:1px solid #d3ddd7;border-radius:8px;padding:9px 12px;margin-bottom:6px;cursor:pointer;font-size:.9rem}
+.q .opt:hover{border-color:var(--or)}.q .opt.bon{background:#d8f0e0;border-color:#1c8a4e}.q .opt.faux{background:#f8d7da;border-color:#c0392b}
+.expli{font-size:.82rem;color:var(--gris);margin-top:6px;display:none;background:#f1f6f3;padding:8px 10px;border-radius:6px;border-left:3px solid var(--vert)}
+.score{text-align:center;font-size:1.1rem;font-weight:700;color:var(--vert-fonce);margin-top:10px;padding:12px;background:#fff8e6;border-radius:10px}
+footer{text-align:center;font-size:.72rem;color:var(--gris);padding:24px 16px}
+#paywall{position:fixed;inset:0;background:linear-gradient(135deg,var(--vert-fonce),#0c2418);color:#fff;z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+#paywall .box{background:#fff;color:var(--texte);max-width:420px;width:100%;border-radius:18px;padding:26px 22px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+#paywall h2{font-size:1.3rem;margin-bottom:6px}#paywall .prix{font-size:2rem;font-weight:800;color:var(--or);margin:8px 0}
+#paywall p{font-size:.88rem;color:var(--gris);margin-bottom:14px}
+#paywall .pay-btn{display:block;width:100%;border:none;border-radius:10px;padding:13px;font-size:.95rem;font-weight:700;cursor:pointer;margin-bottom:9px}
+.btn-acheter{background:var(--or);color:#1c1300}.btn-code{background:var(--vert);color:#fff}.btn-demo{background:transparent;color:var(--gris);border:1px solid #ccc!important}
+#paywall .modes{font-size:.82rem;background:var(--creme);border-radius:10px;padding:12px;margin-bottom:14px;text-align:left}#paywall .modes b{color:var(--vert-fonce)}#paywall .wa{color:#0A8a3d;font-weight:700}
+#zone-code{display:none;margin-top:10px}#zone-code input{width:100%;padding:11px;border:2px solid #ddd;border-radius:9px;font-size:.95rem;margin-bottom:8px;text-align:center;letter-spacing:1px}
+#msg-code{font-size:.82rem;min-height:18px;margin-bottom:6px}
+.demo-bandeau{position:fixed;bottom:0;left:0;right:0;background:var(--or);color:#1c1300;text-align:center;font-size:.8rem;font-weight:700;padding:8px;z-index:90;display:none}
+</style>
+<style id="ra-platform">/* REGUL ACADEMIE: acces gere par la plateforme */#paywall,#demoBandeau,.demo-bandeau{display:none!important}</style>
+</head>
+<body>
+<div id="paywall"><div class="box">
+  <div class="badge" style="background:var(--vert);color:#fff">FORMATION CERTIFIANTE</div>
+  <h2>SYCEBNL</h2>
+  <p style="margin-top:6px">Système Comptable OHADA des Entités à But Non Lucratif : associations, fondations, projets de développement.</p>
+  <div class="prix">5 000 FCFA</div>
+  <div class="modes"><b>Pour acheter :</b><br>1. Payez 5 000 FCFA via <b>Orange Money</b>, <b>Wave</b> ou dépôt au <span class="wa">77 515 61 58</span><br>2. Envoyez la capture + votre n° sur <b>WhatsApp</b> au <span class="wa">+221 77 515 61 58</span><br>3. Recevez votre <b>code d'activation</b> et saisissez-le ci-dessous.</div>
+  <button class="pay-btn btn-acheter" onclick="ouvrirWhatsApp()">📲 Acheter via WhatsApp</button>
+  <button class="pay-btn btn-code" onclick="toggleCode()">🔑 J'ai déjà un code</button>
+  <div id="zone-code"><input id="inp-tel" type="tel" placeholder="Votre n° de téléphone (ex: 771234567)"><input id="inp-code" type="text" placeholder="Votre code d'activation"><div id="msg-code"></div><button class="pay-btn btn-acheter" onclick="validerCode()">Activer la formation</button></div>
+  <button class="pay-btn btn-demo" onclick="lancerDemo()">👀 Essayer en mode démo</button>
+</div></div>
+<div class="demo-bandeau" id="demoBandeau">MODE DÉMO — <span id="demoClics">8</span> consultations restantes · Achetez pour un accès illimité</div>
+
+<header><h1>SYCEBNL</h1><div class="sub">Système Comptable OHADA des Entités à But Non Lucratif (UMOA)</div><span class="badge">9 classes · 4 parties</span></header>
+
+<nav id="nav">
+  <button class="actif" onclick="aller('m0',this)">Vue d'ensemble</button>
+  <button onclick="aller('m1',this)">Cadre juridique</button>
+  <button onclick="aller('m2',this)">Plan de comptes</button>
+  <button onclick="aller('m3',this)">Opérations spécifiques</button>
+  <button onclick="aller('m4',this)">États financiers</button>
+  <button onclick="aller('mq',this)">🎯 Quiz final</button>
+</nav>
+
+<main>
+<section id="m0" class="module actif">
+  <h2>Vue d'ensemble</h2>
+  <div class="titre-ref">SYCEBNL (SYCEBUNOL) — référentiel OHADA des EBNL</div>
+  <div class="carte"><h3>Qu'est-ce que le SYCEBNL ?</h3>
+    <p>Le <b>Système Comptable des Entités à But Non Lucratif (SYCEBUNOL)</b> est un système d'organisation de l'information financière visant à présenter des états financiers reflétant l'<b>image fidèle</b> de la situation financière, de la performance et de la trésorerie des EBNL.</p>
+    <div class="cle">Il s'applique à trois familles : les <b>associations et assimilées</b>, les <b>fondations, fonds de dotation et assimilés</b>, et les <b>projets de développement et assimilés</b>.</div>
+  </div>
+  <div class="carte"><h3>Les 4 parties du référentiel</h3>
+    <table class="tab"><tr><th>Partie</th><th>Objet</th></tr>
+      <tr><td>1</td><td>Dispositions juridiques, définitions et cadre conceptuel</td></tr>
+      <tr><td>2</td><td>Structure, contenu et fonctionnement des comptes</td></tr>
+      <tr><td>3</td><td>Opérations et problèmes spécifiques</td></tr>
+      <tr><td>4</td><td>Présentation des états financiers</td></tr>
+    </table>
+  </div>
+  <div class="carte"><h3>Sigles à connaître</h3>
+    <p>EBNL = Entité à But Non Lucratif · HAO = Hors Activités Ordinaires · RAO = Résultat des Activités Ordinaires · VNC = Valeur Nette Comptable · SMT = Système Minimal de Trésorerie.</p>
+  </div>
+</section>
+
+<section id="m1" class="module">
+  <h2>Cadre juridique & conceptuel</h2>
+  <div class="titre-ref">Partie 1 — Acte uniforme, définitions, cadre conceptuel</div>
+  <div class="carte"><h3>Fondement</h3>
+    <p>Les normes comptables des EBNL reposent sur un <b>Acte uniforme</b> et un système comptable spécifique. Elles n'abordent que les transactions propres à ces entités.</p>
+    <ul>
+      <li>Section 1 : dispositions générales</li>
+      <li>Section 2 : états financiers annuels</li>
+      <li>Section 3 : moyens de contrôle</li>
+      <li>Section 4 : dispositions pénales</li>
+    </ul>
+  </div>
+  <div class="carte"><h3>Spécificité par rapport au SYSCOHADA</h3>
+    <div class="cle">Là où une entreprise parle de <b>capital</b> et de <b>bénéfice</b>, l'EBNL raisonne en <b>fonds propres</b>, <b>fonds affectés</b> et <b>fonds reportés</b> : il n'y a pas de propriétaire ni de distribution de résultat.</div>
+  </div>
+</section>
+
+<section id="m2" class="module">
+  <h2>Structure du plan de comptes</h2>
+  <div class="titre-ref">Partie 2 — 9 classes</div>
+  <div class="carte"><h3>Répartition des classes</h3>
+    <p>Les comptes sont regroupés en <b>9 classes</b> : <b>5 classes de bilan</b> (1 à 5), <b>3 classes de gestion</b> (6, 7, 8) et <b>1 classe</b> particulière (9).</p>
+    <table class="tab"><tr><th>Classe</th><th>Comptes</th></tr>
+      <tr><td>1</td><td>Ressources durables (ressources propres et dettes financières)</td></tr>
+      <tr><td>2</td><td>Actif immobilisé</td></tr>
+      <tr><td>3</td><td>Stocks</td></tr>
+      <tr><td>4</td><td>Tiers (créances et dettes)</td></tr>
+      <tr><td>5</td><td>Trésorerie</td></tr>
+      <tr><td>6</td><td>Charges des activités ordinaires</td></tr>
+      <tr><td>7</td><td>Produits des activités ordinaires</td></tr>
+      <tr><td>8</td><td>Autres charges et autres produits (HAO)</td></tr>
+      <tr><td>9</td><td>Contributions volontaires en nature et leur emploi</td></tr>
+    </table>
+  </div>
+  <div class="carte"><h3>La classe 9 — la grande spécificité</h3>
+    <div class="cle">La <b>classe 9</b> enregistre les <b>contributions volontaires en nature</b> (bénévolat, dons en nature, mises à disposition). Leur comptabilisation <b>n'impacte ni le bilan ni le compte de résultat</b> : c'est une comptabilité d'information distincte.</div>
+  </div>
+</section>
+
+<section id="m3" class="module">
+  <h2>Opérations & problèmes spécifiques</h2>
+  <div class="titre-ref">Partie 3</div>
+  <div class="carte"><h3>Fonds des EBNL</h3>
+    <ul>
+      <li><b>Fonds propres</b> des associations, fondations et assimilées</li>
+      <li><b>Fonds affectés et fonds reportés</b> (ressources liées à une affectation précise)</li>
+      <li><b>Fonds propres des projets de développement</b> et assimilés</li>
+    </ul>
+  </div>
+  <div class="carte"><h3>Ressources typiques</h3>
+    <ul>
+      <li><b>Dons</b> (en numéraire ou en nature)</li>
+      <li><b>Cotisations des membres</b> et versements des fondateurs</li>
+      <li>Subventions et financements de bailleurs</li>
+    </ul>
+    <div class="cle">Le principe d'<b>affectation</b> est central : une ressource reçue pour un projet précis et non consommée est reportée en <b>fonds reportés</b>, pas en résultat.</div>
+  </div>
+</section>
+
+<section id="m4" class="module">
+  <h2>Présentation des états financiers</h2>
+  <div class="titre-ref">Partie 4</div>
+  <div class="carte"><h3>Trois régimes de présentation</h3>
+    <ul>
+      <li>États financiers des <b>associations, fondations et assimilées</b></li>
+      <li>États financiers des <b>projets de développement et assimilés</b></li>
+      <li>États financiers du <b>Système Minimal de Trésorerie (SMT)</b></li>
+    </ul>
+  </div>
+  <div class="carte"><h3>Le SMT</h3>
+    <div class="cle">Le <b>Système Minimal de Trésorerie (SMT)</b> est un régime allégé fondé sur une comptabilité de trésorerie (encaissements/décaissements), réservé aux plus petites entités.</div>
+  </div>
+</section>
+
+<section id="mq" class="module">
+  <h2>🎯 Quiz final — 16 questions</h2>
+  <div class="titre-ref">Validez vos acquis.</div>
+  <div class="quiz" id="quizZone"></div>
+  <div class="score" id="scoreZone" style="display:none"></div>
+</section>
+</main>
+<footer>Formation © REGUL ARENA — usage personnel · SYCEBNL (Système Comptable OHADA des EBNL)<br>Contact / support : +221 77 515 61 58</footer>
+
+<script>
+const SECRET="SYCEBNLACAD2024ABDOU";const PRODUIT="SYCEBNL";const WA="221775156158";
+const LS_LIC="lic_"+PRODUIT;const LS_DEV="dev_"+PRODUIT;
+function computeKey(phone){var clean=(phone||"").replace(/[^0-9]/g,'');if(clean.length>9)clean=clean.slice(-9);var raw=SECRET+clean;var h1=0,h2=0,h3=0;for(var i=0;i<raw.length;i++){var c=raw.charCodeAt(i);h1=((h1*31)+c*17+i*7)&0x7FFFFFFF;h2=((h2*37)+c*13+(i+1)*11)&0x7FFFFFFF;h3=((h3*41)+c*19+(i+2)*3)&0x7FFFFFFF;}var chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';var p1='',p2='',p3='';var n1=h1,n2=h2,n3=h3;for(var j=0;j<4;j++){p1+=chars[n1%chars.length];n1=Math.floor(n1/chars.length);p2+=chars[n2%chars.length];n2=Math.floor(n2/chars.length);p3+=chars[n3%chars.length];n3=Math.floor(n3/chars.length);}return p1+'-'+p2+'-'+p3;}
+function getDevice(){let d=localStorage.getItem(LS_DEV);if(!d){d="D"+Math.random().toString(36).slice(2,10).toUpperCase()+Date.now().toString(36).toUpperCase();localStorage.setItem(LS_DEV,d);}return d;}
+function verifierLicence(){try{const lic=JSON.parse(localStorage.getItem(LS_LIC)||"null");if(!lic)return false;if(computeKey(lic.tel)!==(lic.code||"").toUpperCase())return false;if(lic.device!==getDevice())return false;return true;}catch(e){return false;}}
+function deverrouiller(){document.getElementById("paywall").style.display="none";document.getElementById("demoBandeau").style.display="none";modeDemo=false;}
+function ouvrirWhatsApp(){const txt=encodeURIComponent("Bonjour, je souhaite acheter la formation \"SYCEBNL\" (5000 FCFA). Voici ma capture de paiement et mon numéro :");window.open("https://wa.me/"+WA+"?text="+txt,"_blank");}
+function toggleCode(){const z=document.getElementById("zone-code");z.style.display=z.style.display==="block"?"none":"block";}
+function validerCode(){const tel=document.getElementById("inp-tel").value.trim();const code=document.getElementById("inp-code").value.trim().toUpperCase();const msg=document.getElementById("msg-code");if(!tel||!code){msg.style.color="#c0392b";msg.textContent="Renseignez votre numéro et votre code.";return;}if(computeKey(tel)===code){localStorage.setItem(LS_LIC,JSON.stringify({tel:tel,code:code,device:getDevice()}));msg.style.color="#0A8a3d";msg.textContent="✅ Activation réussie !";setTimeout(deverrouiller,500);}else{msg.style.color="#c0392b";msg.textContent="❌ Code invalide pour ce numéro.";}}
+let modeDemo=false,clicsDemo=8;
+function lancerDemo(){modeDemo=true;document.getElementById("paywall").style.display="none";const b=document.getElementById("demoBandeau");b.style.display="block";document.getElementById("demoClics").textContent=clicsDemo;}
+function consommerClicDemo(){if(!modeDemo)return true;clicsDemo--;document.getElementById("demoClics").textContent=Math.max(clicsDemo,0);if(clicsDemo<=0){document.getElementById("paywall").style.display="flex";document.getElementById("demoBandeau").style.display="none";return false;}return true;}
+function aller(id,btn){if(modeDemo&&!consommerClicDemo())return;document.querySelectorAll(".module").forEach(m=>m.classList.remove("actif"));document.getElementById(id).classList.add("actif");document.querySelectorAll("nav button").forEach(b=>b.classList.remove("actif"));if(btn)btn.classList.add("actif");window.scrollTo({top:0,behavior:"smooth"});}
+const QUIZ=[
+ {q:"Que signifie SYCEBNL / SYCEBUNOL ?",o:["Système Comptable OHADA des Entités à But Non Lucratif","Syndicat des Comptables du Bénin","Société de Crédit Bancaire"],b:0,e:"Système Comptable OHADA des Entités à But Non Lucratif."},
+ {q:"À quelles entités s'applique le SYCEBNL ?",o:["Aux sociétés cotées","Aux associations, fondations et projets de développement","Aux banques"],b:1,e:"Associations, fondations/fonds de dotation, projets de développement."},
+ {q:"Combien de parties compose le référentiel ?",o:["3","4","5"],b:1,e:"4 parties (juridique, comptes, opérations spécifiques, états financiers)."},
+ {q:"Combien de classes compte le plan de comptes ?",o:["8","9","10"],b:1,e:"9 classes (5 bilan, 3 gestion, 1 spécifique)."},
+ {q:"Combien de classes de bilan ?",o:["4","5","6"],b:1,e:"5 classes de bilan, numérotées de 1 à 5."},
+ {q:"Que contient la classe 9 ?",o:["Les emprunts","Les contributions volontaires en nature","La trésorerie"],b:1,e:"Classe 9 = contributions volontaires en nature et leur emploi."},
+ {q:"La comptabilisation de la classe 9 impacte-t-elle le bilan ?",o:["Oui","Non","Seulement le résultat"],b:1,e:"Non : elle n'impacte ni le bilan ni le compte de résultat."},
+ {q:"Que sont les classes 6 et 7 ?",o:["Charges et produits des activités ordinaires","Bilan et annexe","Trésorerie et stocks"],b:0,e:"Classe 6 = charges ; classe 7 = produits (activités ordinaires)."},
+ {q:"Au lieu de 'capital', l'EBNL parle de :",o:["Fonds propres","Dividendes","Actions"],b:0,e:"Fonds propres, fonds affectés, fonds reportés."},
+ {q:"Sur quel fondement reposent les normes du SYCEBNL ?",o:["Un Acte uniforme","Une loi nationale unique","Un règlement OMC"],b:0,e:"Un Acte uniforme + un système comptable spécifique."},
+ {q:"Que signifie HAO ?",o:["Hors Activités Ordinaires","Haute Autorité OHADA","Honoraires Annuels"],b:0,e:"HAO = Hors Activités Ordinaires (classe 8)."},
+ {q:"Quel régime allégé existe pour les plus petites entités ?",o:["Le TFT","Le SMT","Le SMIG"],b:1,e:"Le Système Minimal de Trésorerie (SMT)."},
+ {q:"Une ressource reçue pour un projet précis et non consommée est :",o:["Comptabilisée en bénéfice","Reportée en fonds reportés","Distribuée aux membres"],b:1,e:"Elle est reportée en fonds reportés (principe d'affectation)."},
+ {q:"La classe 5 enregistre :",o:["Les stocks","La trésorerie","Les charges"],b:1,e:"Classe 5 = trésorerie."},
+ {q:"Quel objectif principal poursuit le SYCEBNL ?",o:["Maximiser le profit","Présenter l'image fidèle des EBNL","Calculer l'impôt sur les sociétés"],b:1,e:"Image fidèle de la situation financière des EBNL."},
+ {q:"Les cotisations des membres sont une ressource typique des :",o:["Banques","EBNL","Sociétés anonymes"],b:1,e:"Oui — cotisations et versements des fondateurs."}
+];
+function rendreQuiz(){const z=document.getElementById("quizZone");z.innerHTML="";QUIZ.forEach((item,i)=>{const div=document.createElement("div");div.className="q";let html='<p class="enonce">'+(i+1)+". "+item.q+'</p>';item.o.forEach((opt,j)=>{html+='<span class="opt" onclick="repondre('+i+','+j+',this)">'+opt+'</span>';});html+='<div class="expli" id="exp'+i+'">'+item.e+'</div>';div.innerHTML=html;z.appendChild(div);});}
+let reponses={};
+function repondre(i,j,el){if(modeDemo&&!consommerClicDemo())return;if(reponses[i]!==undefined)return;reponses[i]=j;const opts=el.parentNode.querySelectorAll(".opt");opts[QUIZ[i].b].classList.add("bon");if(j!==QUIZ[i].b)el.classList.add("faux");document.getElementById("exp"+i).style.display="block";if(Object.keys(reponses).length===QUIZ.length)afficherScore();}
+function afficherScore(){let s=0;QUIZ.forEach((item,i)=>{if(reponses[i]===item.b)s++;});const z=document.getElementById("scoreZone");z.style.display="block";let msg=s>=13?"🏆 Excellent, vous maîtrisez le SYCEBNL !":s>=8?"👍 Bon niveau, révisez les parties faibles.":"📚 À retravailler — relisez les modules.";z.innerHTML="Score : "+s+" / "+QUIZ.length+"<br>"+msg;z.scrollIntoView({behavior:"smooth"});}
+rendreQuiz();getDevice();if(verifierLicence()){deverrouiller();}
+</script>
+<script src="../js/son-universel.js"></script> <!-- MODIFIÉ : son universel -->
+</body>
+</html>

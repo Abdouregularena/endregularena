@@ -1,0 +1,823 @@
+<!-- ================================================================
+     REGUL ARENA — Composant Quiz
+     Barre de progression, feedback par question, feuille de résultats
+     ================================================================ -->
+
+<!-- ── ÉCRAN QUIZ ───────────────────────────────────────────────── -->
+<div class="quiz-screen" id="quizScreen" role="main" aria-label="Quiz réglementaire">
+
+  <!-- Header quiz sticky -->
+  <div class="quiz-bar">
+    <div class="quiz-bar-left">
+      <button class="quiz-exit-btn" id="quizExitBtn" aria-label="Quitter le quiz">✕</button>
+      <div class="quiz-pack-label" id="quizPackLabel">Pack Conformité KYC</div>
+    </div>
+
+    <div class="quiz-progress-wrap">
+      <!-- Barre de progression visuelle -->
+      <div class="qprog-track" role="progressbar" aria-valuenow="1" aria-valuemin="1" aria-valuemax="10">
+        <div class="qprog-fill" id="qprogFill"></div>
+        <div class="qprog-steps" id="qprogSteps">
+          <!-- JS injecte les puces -->
+        </div>
+      </div>
+      <div class="qprog-meta">
+        <span class="qprog-current" id="qprogCurrent">1</span>
+        <span class="qprog-sep">/</span>
+        <span class="qprog-total" id="qprogTotal">10</span>
+      </div>
+    </div>
+
+    <div class="quiz-bar-right">
+      <!-- Timer -->
+      <div class="quiz-timer" id="quizTimer" aria-live="polite">
+        <span class="timer-icon">⏱</span>
+        <span class="timer-val" id="timerVal">30</span>
+      </div>
+      <!-- Score courant -->
+      <div class="quiz-live-score">
+        <span class="score-val" id="quizLiveScore">0</span>
+        <span class="score-lbl">pts</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Corps question -->
+  <div class="quiz-body">
+    <!-- Zone : institution / thème -->
+    <div class="question-meta">
+      <span class="institution-tag bceao" id="qInstitution">BCEAO</span>
+      <span class="q-theme" id="qTheme">Lutte contre le Blanchiment</span>
+      <span class="q-difficulty" id="qDifficulty">⚡ Intermédiaire</span>
+    </div>
+
+    <!-- Texte de la question — Montserrat Medium -->
+    <h3 class="question-text" id="questionText" aria-live="polite">
+      Quel document doit être collecté lors de l'entrée en relation d'affaires avec
+      une personne physique selon l'Instruction n°016-2022 de la BCEAO ?
+    </h3>
+
+    <!-- Réponses -->
+    <div class="quiz-choices" id="quizChoices" role="list">
+      <button class="q-choice" role="listitem" data-index="0">
+        <span class="choice-letter">A</span>
+        <span class="choice-text">Un justificatif de domicile récent</span>
+      </button>
+      <button class="q-choice" role="listitem" data-index="1">
+        <span class="choice-letter">B</span>
+        <span class="choice-text">Une pièce d'identité officielle en cours de validité</span>
+      </button>
+      <button class="q-choice" role="listitem" data-index="2">
+        <span class="choice-letter">C</span>
+        <span class="choice-text">Un extrait de casier judiciaire</span>
+      </button>
+      <button class="q-choice" role="listitem" data-index="3">
+        <span class="choice-letter">D</span>
+        <span class="choice-text">Une déclaration sur l'honneur</span>
+      </button>
+    </div>
+
+    <!-- ── FEEDBACK PAR QUESTION ─────────────────────────── -->
+    <div class="q-feedback" id="qFeedback" aria-live="assertive" hidden>
+      <div class="q-feedback-header">
+        <span class="feedback-icon" id="feedbackIcon">✓</span>
+        <div>
+          <div class="feedback-verdict" id="feedbackVerdict">Bonne réponse !</div>
+          <div class="feedback-pts" id="feedbackPts">+100 pts</div>
+        </div>
+      </div>
+
+      <!-- Explication réglementaire — Roboto -->
+      <p class="feedback-explanation" id="feedbackExplanation">
+        L'article 12 de l'Instruction n°016-2022/SP/BCEAO exige la collecte d'une
+        pièce d'identité officielle (CIN, passeport, titre de séjour) lors de tout
+        entrée en relation avec une personne physique.
+      </p>
+
+      <!-- Citation source — Merriweather Italic -->
+      <blockquote class="feedback-quote" id="feedbackQuote">
+        « Toute personne assujettie doit identifier son client au moyen d'un
+        document officiel en cours de validité comportant sa photographie. »
+        <cite class="cite-ref">Instruction BCEAO n°016-2022, Art. 12 al. 1</cite>
+      </blockquote>
+
+      <button class="btn-next-q" id="btnNextQ">
+        Question suivante
+        <span>→</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── FEUILLE DE RÉSULTATS ─────────────────────────────────────── -->
+<div class="results-sheet" id="resultsSheet" hidden>
+
+  <!-- En-tête résultats -->
+  <div class="results-header">
+    <div class="results-trophy" id="resultsTrophy">🏆</div>
+    <h1 class="results-title h1">Fin de partie</h1>
+    <p class="results-subtitle">Pack · <span id="resultPackName">Conformité KYC</span></p>
+  </div>
+
+  <!-- Score principal -->
+  <div class="results-score-card">
+    <div class="rs-score-main">
+      <span class="score" id="resultScore">850</span>
+      <span class="rs-pts-lbl">points</span>
+    </div>
+    <div class="rs-metrics">
+      <div class="rs-metric">
+        <span class="score rs-big" id="resultCorrect">7</span>
+        <span class="rs-lbl">bonnes</span>
+      </div>
+      <div class="rs-metric-sep">/</div>
+      <div class="rs-metric">
+        <span class="score rs-big" id="resultTotal">10</span>
+        <span class="rs-lbl">total</span>
+      </div>
+      <div class="rs-metric-sep">·</div>
+      <div class="rs-metric">
+        <span class="score rs-big rs-pct" id="resultPct">70%</span>
+        <span class="rs-lbl">réussite</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tableau détaillé par question -->
+  <div class="results-detail">
+    <h3 class="h3" style="margin-bottom:1.2rem">
+      Détail par question & <span style="color:var(--gold)">références officielles</span>
+    </h3>
+
+    <div class="results-table" id="resultsTable">
+      <!-- JS injecte les lignes -->
+      <!-- Exemple de ligne injectée : -->
+      <div class="rt-row rt-correct">
+        <div class="rt-num">01</div>
+        <div class="rt-question-col">
+          <div class="rt-q-text">Définition de la personne politiquement exposée selon la BCEAO</div>
+          <div class="rt-given">
+            <span class="rt-label">Votre réponse :</span>
+            <span class="rt-answer correct-answer">Toute personne exposée à des risques particuliers en raison de ses fonctions…</span>
+          </div>
+        </div>
+        <div class="rt-verdict">✓</div>
+        <div class="rt-ref-col">
+          <span class="institution-tag bceao">BCEAO</span>
+          <span class="rt-ref-text">Instruction 016-2022, Art. 3</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions finales -->
+  <div class="results-actions">
+    <button class="btn-zone" id="btnReplay">
+      Rejouer ce pack
+    </button>
+    <button class="btn-zone btn-zone-cemac" id="btnShareResult">
+      Partager mon score
+    </button>
+    <button class="btn-ghost-sm" id="btnBackHome">
+      Retour à l'accueil
+    </button>
+  </div>
+</div>
+
+<style>
+/* ================================================================
+   QUIZ — Styles
+   ================================================================ */
+
+/* ── Quiz bar ─────────────────────────────────────────────── */
+.quiz-bar {
+  position:        sticky;
+  top:             56px;
+  z-index:         100;
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  gap:             16px;
+  padding:         10px 28px;
+  background:      var(--bg2);
+  border-bottom:   1px solid var(--gb);
+  backdrop-filter: blur(12px);
+}
+
+.quiz-bar-left,
+.quiz-bar-right {
+  display:     flex;
+  align-items: center;
+  gap:         12px;
+  flex-shrink: 0;
+}
+
+/* Bouton quitter */
+.quiz-exit-btn {
+  background:  none;
+  border:      1px solid var(--gb);
+  color:       var(--muted);
+  font-family: var(--font-mono);
+  font-size:   0.8rem;
+  width:       32px;
+  height:      32px;
+  cursor:      pointer;
+  border-radius: 3px;
+  transition:  all 0.2s;
+  display:     flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quiz-exit-btn:hover {
+  border-color: var(--red);
+  color:        var(--red);
+  background:   rgba(239, 68, 68, 0.08);
+}
+
+/* Label pack — Lato */
+.quiz-pack-label {
+  font-family:    var(--font-heading);
+  font-size:      0.72rem;
+  font-weight:    700;
+  letter-spacing: 1px;
+  color:          var(--muted);
+  text-transform: uppercase;
+}
+
+/* Barre de progression */
+.quiz-progress-wrap {
+  flex:        1;
+  display:     flex;
+  align-items: center;
+  gap:         10px;
+  max-width:   420px;
+}
+
+.qprog-track {
+  flex:          1;
+  height:        6px;
+  background:    var(--bg3);
+  border-radius: 3px;
+  overflow:      visible;
+  position:      relative;
+}
+
+.qprog-fill {
+  height:        100%;
+  background:    linear-gradient(90deg, var(--gold), var(--gold-b));
+  border-radius: 3px;
+  transition:    width 0.4s ease;
+  box-shadow:    0 0 6px var(--gold-glow);
+}
+
+.qprog-steps {
+  position:  absolute;
+  top:       -3px;
+  left:      0;
+  right:     0;
+  display:   flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.qprog-step {
+  width:         12px;
+  height:        12px;
+  border-radius: 50%;
+  background:    var(--bg3);
+  border:        2px solid var(--gb);
+  transition:    all 0.3s;
+}
+
+.qprog-step.done    { background: var(--gold); border-color: var(--gold); }
+.qprog-step.current { background: var(--gold-b); border-color: var(--gold-b); box-shadow: 0 0 6px var(--gold-glow); }
+.qprog-step.correct { background: var(--green); border-color: var(--green); }
+.qprog-step.wrong   { background: var(--red);   border-color: var(--red); }
+
+.qprog-meta {
+  font-family:    var(--font-display);
+  font-size:      1rem;
+  letter-spacing: 1px;
+  color:          var(--text);
+  white-space:    nowrap;
+}
+
+.qprog-sep { color: var(--muted); margin: 0 2px; }
+
+/* Timer */
+.quiz-timer {
+  display:     flex;
+  align-items: center;
+  gap:         5px;
+  font-family: var(--font-display);
+  font-size:   1.5rem;
+  letter-spacing: 2px;
+  color:       var(--text);
+  transition:  color 0.3s;
+}
+
+.quiz-timer.urgent { color: var(--red); animation: timerUrgent 0.5s ease-in-out infinite; }
+
+.timer-icon {
+  font-family: var(--font-body);
+  font-size:   0.9rem;
+}
+
+/* Score live */
+.quiz-live-score {
+  display:     flex;
+  align-items: baseline;
+  gap:         3px;
+}
+
+.score-val {
+  font-family: var(--font-display);
+  font-size:   1.4rem;
+  letter-spacing: 2px;
+  color:       var(--gold);
+}
+
+.score-lbl {
+  font-family: var(--font-mono);
+  font-size:   0.6rem;
+  letter-spacing: 1.5px;
+  color:       var(--muted);
+  text-transform: uppercase;
+}
+
+/* ── Corps question ───────────────────────────────────────── */
+.quiz-body {
+  max-width:  700px;
+  margin:     0 auto;
+  padding:    40px 28px 60px;
+}
+
+/* Meta question */
+.question-meta {
+  display:       flex;
+  align-items:   center;
+  gap:           8px;
+  margin-bottom: 20px;
+  flex-wrap:     wrap;
+}
+
+.q-theme {
+  font-family:    var(--font-mono);
+  font-size:      0.62rem;
+  letter-spacing: 2px;
+  color:          var(--muted);
+  text-transform: uppercase;
+}
+
+.q-difficulty {
+  font-family:  var(--font-heading);
+  font-size:    0.7rem;
+  font-weight:  700;
+  color:        var(--cyan);
+}
+
+/* Texte question — Montserrat Bold */
+.question-text {
+  font-family:   var(--font-title); /* Montserrat */
+  font-size:     clamp(1rem, 2vw, 1.2rem);
+  font-weight:   600;
+  line-height:   var(--lh-normal);
+  color:         var(--text);
+  margin-bottom: 28px;
+}
+
+/* Choix de réponse */
+.quiz-choices {
+  display:       flex;
+  flex-direction: column;
+  gap:           10px;
+  margin-bottom: 20px;
+}
+
+.q-choice {
+  display:       flex;
+  align-items:   center;
+  gap:           14px;
+  background:    var(--bg3);
+  border:        1px solid var(--gb);
+  color:         var(--text);
+  font-family:   var(--font-body); /* Roboto */
+  font-size:     0.88rem;
+  padding:       14px 18px;
+  cursor:        pointer;
+  text-align:    left;
+  border-radius: 3px;
+  transition:    all 0.2s;
+  width:         100%;
+}
+
+.q-choice:hover:not(:disabled) {
+  border-color: var(--border);
+  background:   var(--gold-dim);
+  transform:    translateX(3px);
+}
+
+.choice-letter {
+  font-family:   var(--font-display);
+  font-size:     1rem;
+  letter-spacing: 1px;
+  color:         var(--gold);
+  min-width:     20px;
+  text-align:    center;
+}
+
+.choice-text { flex: 1; line-height: 1.45; }
+
+/* États réponses */
+.q-choice.correct {
+  border-color: var(--green);
+  background:   var(--green-dim);
+  color:        var(--green);
+}
+.q-choice.correct .choice-letter { color: var(--green); }
+
+.q-choice.wrong {
+  border-color: var(--red);
+  background:   var(--red-dim);
+  color:        var(--red);
+  opacity:      0.85;
+}
+.q-choice.wrong .choice-letter { color: var(--red); }
+
+.q-choice:disabled {
+  cursor:  not-allowed;
+  opacity: 0.5;
+}
+
+/* ── Feedback par question ────────────────────────────────── */
+.q-feedback {
+  background:    var(--bg2);
+  border:        1px solid var(--gb);
+  border-radius: 4px;
+  padding:       24px;
+  margin-top:    20px;
+  animation:     feedbackSlide 0.3s ease;
+}
+
+.q-feedback[hidden] { display: none; }
+
+.q-feedback.correct-feedback {
+  border-color: var(--green);
+  background:   var(--green-dim);
+}
+
+.q-feedback.wrong-feedback {
+  border-color: var(--red);
+  background:   var(--red-dim);
+}
+
+.q-feedback-header {
+  display:       flex;
+  align-items:   center;
+  gap:           12px;
+  margin-bottom: 14px;
+}
+
+.feedback-icon {
+  font-size:   1.6rem;
+  width:       40px;
+  height:      40px;
+  display:     flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background:  var(--green-dim);
+  border:      2px solid var(--green);
+  flex-shrink: 0;
+}
+
+.wrong-feedback .feedback-icon {
+  background: var(--red-dim);
+  border-color: var(--red);
+}
+
+/* Verdict — Lato Bold */
+.feedback-verdict {
+  font-family:    var(--font-heading);
+  font-size:      1rem;
+  font-weight:    900;
+  color:          var(--green);
+  letter-spacing: 0.5px;
+}
+
+.wrong-feedback .feedback-verdict { color: var(--red); }
+
+.feedback-pts {
+  font-family: var(--font-display);
+  font-size:   1.1rem;
+  letter-spacing: 2px;
+  color:       var(--gold);
+}
+
+/* Explication — Roboto Regular */
+.feedback-explanation {
+  font-family: var(--font-body);
+  font-size:   0.87rem;
+  line-height: var(--lh-relaxed);
+  color:       var(--text);
+  margin-bottom: 16px;
+}
+
+/* Citation réglementaire — Merriweather Italic */
+.feedback-quote {
+  font-family:   var(--font-quote);
+  font-size:     0.8rem;
+  font-style:    italic;
+  font-weight:   300;
+  line-height:   var(--lh-relaxed);
+  color:         var(--silver);
+  border-left:   3px solid var(--gold);
+  padding:       0.6em 1em;
+  margin:        0 0 16px;
+  background:    rgba(201, 153, 26, 0.04);
+}
+
+.btn-next-q {
+  display:        inline-flex;
+  align-items:    center;
+  gap:            8px;
+  background:     linear-gradient(135deg, var(--gold), var(--gold-l));
+  color:          var(--bg);
+  font-family:    var(--font-title);
+  font-weight:    800;
+  font-size:      0.72rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  border:         none;
+  padding:        11px 22px;
+  cursor:         pointer;
+  clip-path:      polygon(7px 0, 100% 0, calc(100% - 7px) 100%, 0 100%);
+  transition:     all 0.2s;
+}
+
+.btn-next-q:hover {
+  box-shadow: 0 4px 20px var(--gold-glow);
+  transform:  translateY(-1px);
+}
+
+/* ================================================================
+   FEUILLE DE RÉSULTATS
+   ================================================================ */
+
+.results-sheet {
+  max-width:  760px;
+  margin:     0 auto;
+  padding:    60px 28px;
+}
+
+.results-sheet[hidden] { display: none; }
+
+/* Header */
+.results-header {
+  text-align:    center;
+  margin-bottom: 36px;
+}
+
+.results-trophy {
+  font-size:     4rem;
+  display:       block;
+  margin-bottom: 14px;
+  animation:     trophyBounce 0.6s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+.results-title {
+  font-family:    var(--font-title); /* Montserrat */
+  font-size:      clamp(2rem, 5vw, 3rem);
+  font-weight:    800;
+  color:          var(--gold);
+  margin-bottom:  6px;
+  letter-spacing: -0.02em;
+}
+
+.results-subtitle {
+  font-family: var(--font-body);
+  font-size:   0.88rem;
+  color:       var(--muted);
+}
+
+/* Score card principale */
+.results-score-card {
+  background:    var(--bg2);
+  border:        1px solid var(--border);
+  border-radius: 6px;
+  padding:       32px 40px;
+  margin-bottom: 32px;
+  text-align:    center;
+}
+
+.rs-score-main {
+  display:       flex;
+  align-items:   baseline;
+  justify-content: center;
+  gap:           8px;
+  margin-bottom: 24px;
+}
+
+.rs-score-main .score {
+  font-family:    var(--font-display);
+  font-size:      5rem;
+  letter-spacing: 3px;
+  color:          var(--gold);
+  line-height:    1;
+}
+
+.rs-pts-lbl {
+  font-family: var(--font-mono);
+  font-size:   0.75rem;
+  letter-spacing: 2px;
+  color:       var(--muted);
+  text-transform: uppercase;
+  align-self:  flex-end;
+  margin-bottom: 8px;
+}
+
+.rs-metrics {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  gap:             16px;
+  flex-wrap:       wrap;
+}
+
+.rs-metric {
+  text-align: center;
+}
+
+.rs-big {
+  font-family:    var(--font-display);
+  font-size:      2.2rem;
+  letter-spacing: 2px;
+  color:          var(--text);
+  display:        block;
+}
+
+.rs-pct { color: var(--green); }
+
+.rs-lbl {
+  font-family:    var(--font-mono);
+  font-size:      0.58rem;
+  letter-spacing: 2px;
+  color:          var(--muted);
+  text-transform: uppercase;
+}
+
+.rs-metric-sep {
+  font-family: var(--font-display);
+  font-size:   1.5rem;
+  color:       var(--border);
+}
+
+/* Tableau détaillé */
+.results-table {
+  display:       flex;
+  flex-direction: column;
+  gap:           2px;
+  background:    var(--border);
+  border:        1px solid var(--border);
+  border-radius: 4px;
+  overflow:      hidden;
+  margin-bottom: 32px;
+}
+
+.rt-row {
+  display:         grid;
+  grid-template-columns: 36px 1fr 32px 180px;
+  align-items:     center;
+  gap:             14px;
+  padding:         14px 18px;
+  background:      var(--bg2);
+  transition:      background 0.2s;
+}
+
+.rt-row:hover { background: var(--bg3); }
+
+.rt-row.rt-correct { border-left: 3px solid var(--green); }
+.rt-row.rt-wrong   { border-left: 3px solid var(--red); }
+
+.rt-num {
+  font-family: var(--font-display);
+  font-size:   1.1rem;
+  letter-spacing: 1px;
+  color:       var(--muted);
+}
+
+.rt-q-text {
+  font-family:   var(--font-body); /* Roboto */
+  font-size:     0.82rem;
+  line-height:   1.45;
+  color:         var(--text);
+  margin-bottom: 5px;
+}
+
+.rt-given {
+  display:     flex;
+  align-items: center;
+  gap:         6px;
+  flex-wrap:   wrap;
+}
+
+.rt-label {
+  font-family:    var(--font-mono);
+  font-size:      0.55rem;
+  letter-spacing: 1px;
+  color:          var(--muted);
+  text-transform: uppercase;
+}
+
+.rt-answer {
+  font-family: var(--font-body);
+  font-size:   0.76rem;
+  color:       var(--muted);
+  font-style:  italic;
+}
+
+.correct-answer { color: var(--green); }
+.wrong-answer   { color: var(--red); }
+
+.rt-verdict {
+  font-size:   1.1rem;
+  text-align:  center;
+}
+
+.rt-correct .rt-verdict { color: var(--green); }
+.rt-wrong   .rt-verdict { color: var(--red); }
+
+.rt-ref-col {
+  display:     flex;
+  flex-direction: column;
+  gap:         4px;
+}
+
+.rt-ref-text {
+  font-family:    var(--font-quote); /* Merriweather */
+  font-size:      0.65rem;
+  font-style:     italic;
+  color:          var(--muted);
+  line-height:    1.4;
+}
+
+/* Actions résultats */
+.results-actions {
+  display:         flex;
+  align-items:     center;
+  gap:             12px;
+  flex-wrap:       wrap;
+  justify-content: center;
+  padding-top:     8px;
+}
+
+.btn-ghost-sm {
+  background:     transparent;
+  border:         1px solid var(--gb);
+  color:          var(--muted);
+  font-family:    var(--font-heading);
+  font-weight:    700;
+  font-size:      0.72rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding:        10px 20px;
+  cursor:         pointer;
+  border-radius:  3px;
+  transition:     all 0.2s;
+}
+
+.btn-ghost-sm:hover {
+  border-color: var(--border);
+  color:        var(--text);
+}
+
+/* ── Animations ───────────────────────────────────────────── */
+@keyframes timerUrgent {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+@keyframes feedbackSlide {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes trophyBounce {
+  0%   { transform: scale(0.3) rotate(-10deg); opacity: 0; }
+  60%  { transform: scale(1.15) rotate(3deg);  opacity: 1; }
+  100% { transform: scale(1) rotate(0); }
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .quiz-bar { padding: 8px 16px; gap: 8px; }
+  .quiz-progress-wrap { max-width: 180px; }
+  .quiz-body { padding: 28px 16px 48px; }
+  .rt-row { grid-template-columns: 28px 1fr 28px; }
+  .rt-ref-col { display: none; }
+  .results-sheet { padding: 40px 16px; }
+  .results-score-card { padding: 24px 20px; }
+  .rs-score-main .score { font-size: 3.5rem; }
+}
+</style>

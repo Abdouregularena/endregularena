@@ -1,0 +1,197 @@
+[
+ {
+  "pack": "tec",
+  "question": "De quoi est composé le TEC ?",
+  "options": [
+   "D'une NTS et d'un tableau des droits et taxes",
+   "D'une seule liste de prix",
+   "D'un code pénal"
+  ],
+  "bonne": 0,
+  "article": "",
+  "support": "Tarif Extérieur Commun de l'UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "tec",
+  "question": "Sur quoi est basée la nomenclature du TEC ?",
+  "options": [
+   "Le Système Harmonisé et la nomenclature CEDEAO",
+   "Le code des douanes français",
+   "Les normes IFRS"
+  ],
+  "bonne": 0,
+  "article": "",
+  "support": "Tarif Extérieur Commun de l'UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "tec",
+  "question": "Combien de sections compte le Système Harmonisé ?",
+  "options": [
+   "12",
+   "21",
+   "99"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "Tarif Extérieur Commun de l'UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "tec",
+  "question": "Combien de chapitres ?",
+  "options": [
+   "50",
+   "99",
+   "150"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "Tarif Extérieur Commun de l'UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "tec",
+  "question": "Combien de chiffres du code sont communs au monde entier ?",
+  "options": [
+   "4",
+   "6",
+   "8"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "Tarif Extérieur Commun de l'UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "tec",
+  "question": "Combien de Règles Générales Interprétatives existe-t-il ?",
+  "options": [
+   "3",
+   "6",
+   "10"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "Tarif Extérieur Commun de l'UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "tec",
+  "question": "Selon la RGI 1, le classement est d'abord déterminé par :",
+  "options": [
+   "Le prix",
+   "Les libellés des positions et les notes légales",
+   "Le pays d'origine"
+  ],
+  "bonne": 1,
+  "article": "RGI 1",
+  "support": "Tarif Extérieur Commun de l'UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "tec",
+  "question": "Les emballages et étuis (RGI 5) suivent :",
+  "options": [
+   "Un taux fixe de 10%",
+   "Le régime de leur contenu",
+   "La catégorie 4"
+  ],
+  "bonne": 1,
+  "article": "RGI 5",
+  "support": "Tarif Extérieur Commun de l'UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "tec",
+  "question": "Comment se détermine la valeur en douane ?",
+  "options": [
+   "Code d'évaluation de l'OMC (art. VII GATT)",
+   "Au prix du marché local",
+   "Par décision du transporteur"
+  ],
+  "bonne": 0,
+  "article": "",
+  "support": "Tarif Extérieur Commun de l'UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "tec",
+  "question": "Quelle section couvre les produits du règne végétal ?",
+  "options": [
+   "Section I",
+   "Section II",
+   "Section IV"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "Tarif Extérieur Commun de l'UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "tec",
+  "question": "Droit de douane de la catégorie 0 ?",
+  "options": [
+   "0 %",
+   "5 %",
+   "10 %"
+  ],
+  "bonne": 0,
+  "article": "",
+  "support": "Tarif Extérieur Commun de l'UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "tec",
+  "question": "Droit de douane des biens de consommation finale (catégorie 3) ?",
+  "options": [
+   "10 %",
+   "20 %",
+   "35 %"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "Tarif Extérieur Commun de l'UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "tec",
+  "question": "Taux le plus élevé du TEC (catégorie 4) ?",
+  "options": [
+   "20 %",
+   "30 %",
+   "35 %"
+  ],
+  "bonne": 2,
+  "article": "",
+  "support": "Tarif Extérieur Commun de l'UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "tec",
+  "question": "Les notes de sections et de chapitres :",
+  "options": [
+   "Sont facultatives",
+   "Priment et précisent inclusions/exclusions",
+   "Ne concernent que l'export"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "Tarif Extérieur Commun de l'UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "tec",
+  "question": "À quelles marchandises s'applique le TEC ?",
+  "options": [
+   "Aux échanges internes UEMOA seulement",
+   "Aux importations des pays tiers",
+   "Aux exportations uniquement"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "Tarif Extérieur Commun de l'UEMOA",
+  "lien": ""
+ }
+]

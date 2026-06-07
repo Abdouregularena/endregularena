@@ -1,0 +1,210 @@
+[
+ {
+  "pack": "sycebnl",
+  "question": "Que signifie SYCEBNL / SYCEBUNOL ?",
+  "options": [
+   "Système Comptable OHADA des Entités à But Non Lucratif",
+   "Syndicat des Comptables du Bénin",
+   "Société de Crédit Bancaire"
+  ],
+  "bonne": 0,
+  "article": "",
+  "support": "SYCEBNL — Système Comptable OHADA des EBNL",
+  "lien": ""
+ },
+ {
+  "pack": "sycebnl",
+  "question": "À quelles entités s'applique le SYCEBNL ?",
+  "options": [
+   "Aux sociétés cotées",
+   "Aux associations, fondations et projets de développement",
+   "Aux banques"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "SYCEBNL — Système Comptable OHADA des EBNL",
+  "lien": ""
+ },
+ {
+  "pack": "sycebnl",
+  "question": "Combien de parties compose le référentiel ?",
+  "options": [
+   "3",
+   "4",
+   "5"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "SYCEBNL — Système Comptable OHADA des EBNL",
+  "lien": ""
+ },
+ {
+  "pack": "sycebnl",
+  "question": "Combien de classes compte le plan de comptes ?",
+  "options": [
+   "8",
+   "9",
+   "10"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "SYCEBNL — Système Comptable OHADA des EBNL",
+  "lien": ""
+ },
+ {
+  "pack": "sycebnl",
+  "question": "Combien de classes de bilan ?",
+  "options": [
+   "4",
+   "5",
+   "6"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "SYCEBNL — Système Comptable OHADA des EBNL",
+  "lien": ""
+ },
+ {
+  "pack": "sycebnl",
+  "question": "Que contient la classe 9 ?",
+  "options": [
+   "Les emprunts",
+   "Les contributions volontaires en nature",
+   "La trésorerie"
+  ],
+  "bonne": 1,
+  "article": "Classe 9",
+  "support": "SYCEBNL — Système Comptable OHADA des EBNL",
+  "lien": ""
+ },
+ {
+  "pack": "sycebnl",
+  "question": "La comptabilisation de la classe 9 impacte-t-elle le bilan ?",
+  "options": [
+   "Oui",
+   "Non",
+   "Seulement le résultat"
+  ],
+  "bonne": 1,
+  "article": "Classe 9",
+  "support": "SYCEBNL — Système Comptable OHADA des EBNL",
+  "lien": ""
+ },
+ {
+  "pack": "sycebnl",
+  "question": "Que sont les classes 6 et 7 ?",
+  "options": [
+   "Charges et produits des activités ordinaires",
+   "Bilan et annexe",
+   "Trésorerie et stocks"
+  ],
+  "bonne": 0,
+  "article": "Classe 6",
+  "support": "SYCEBNL — Système Comptable OHADA des EBNL",
+  "lien": ""
+ },
+ {
+  "pack": "sycebnl",
+  "question": "Au lieu de 'capital', l'EBNL parle de :",
+  "options": [
+   "Fonds propres",
+   "Dividendes",
+   "Actions"
+  ],
+  "bonne": 0,
+  "article": "",
+  "support": "SYCEBNL — Système Comptable OHADA des EBNL",
+  "lien": ""
+ },
+ {
+  "pack": "sycebnl",
+  "question": "Sur quel fondement reposent les normes du SYCEBNL ?",
+  "options": [
+   "Un Acte uniforme",
+   "Une loi nationale unique",
+   "Un règlement OMC"
+  ],
+  "bonne": 0,
+  "article": "",
+  "support": "SYCEBNL — Système Comptable OHADA des EBNL",
+  "lien": ""
+ },
+ {
+  "pack": "sycebnl",
+  "question": "Que signifie HAO ?",
+  "options": [
+   "Hors Activités Ordinaires",
+   "Haute Autorité OHADA",
+   "Honoraires Annuels"
+  ],
+  "bonne": 0,
+  "article": "Classe 8",
+  "support": "SYCEBNL — Système Comptable OHADA des EBNL",
+  "lien": ""
+ },
+ {
+  "pack": "sycebnl",
+  "question": "Quel régime allégé existe pour les plus petites entités ?",
+  "options": [
+   "Le TFT",
+   "Le SMT",
+   "Le SMIG"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "SYCEBNL — Système Comptable OHADA des EBNL",
+  "lien": ""
+ },
+ {
+  "pack": "sycebnl",
+  "question": "Une ressource reçue pour un projet précis et non consommée est :",
+  "options": [
+   "Comptabilisée en bénéfice",
+   "Reportée en fonds reportés",
+   "Distribuée aux membres"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "SYCEBNL — Système Comptable OHADA des EBNL",
+  "lien": ""
+ },
+ {
+  "pack": "sycebnl",
+  "question": "La classe 5 enregistre :",
+  "options": [
+   "Les stocks",
+   "La trésorerie",
+   "Les charges"
+  ],
+  "bonne": 1,
+  "article": "Classe 5",
+  "support": "SYCEBNL — Système Comptable OHADA des EBNL",
+  "lien": ""
+ },
+ {
+  "pack": "sycebnl",
+  "question": "Quel objectif principal poursuit le SYCEBNL ?",
+  "options": [
+   "Maximiser le profit",
+   "Présenter l'image fidèle des EBNL",
+   "Calculer l'impôt sur les sociétés"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "SYCEBNL — Système Comptable OHADA des EBNL",
+  "lien": ""
+ },
+ {
+  "pack": "sycebnl",
+  "question": "Les cotisations des membres sont une ressource typique des :",
+  "options": [
+   "Banques",
+   "EBNL",
+   "Sociétés anonymes"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "SYCEBNL — Système Comptable OHADA des EBNL",
+  "lien": ""
+ }
+]

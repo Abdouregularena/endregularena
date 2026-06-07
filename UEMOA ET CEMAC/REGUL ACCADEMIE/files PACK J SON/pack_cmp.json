@@ -1,0 +1,262 @@
+[
+ {
+  "pack": "cmp",
+  "question": "Quel décret est abrogé et remplacé par le Code 2022 ?",
+  "options": [
+   "Décret n° 2014-1212",
+   "Décret n° 2005-576",
+   "Décret n° 2020-978"
+  ],
+  "bonne": 0,
+  "article": "",
+  "support": "Code des Marchés Publics du Sénégal — Décret n° 2022-2295",
+  "lien": ""
+ },
+ {
+  "pack": "cmp",
+  "question": "Quels sont les 4 principes des marchés publics ?",
+  "options": [
+   "Rapidité, secret, économie, audit",
+   "Liberté d'accès, égalité, transparence, intégrité",
+   "Concurrence, prix, qualité, délai"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "Code des Marchés Publics du Sénégal — Décret n° 2022-2295",
+  "lien": ""
+ },
+ {
+  "pack": "cmp",
+  "question": "Seuil de l'appel d'offres ouvert pour les TRAVAUX de l'État ?",
+  "options": [
+   "50 000 000 FCFA",
+   "70 000 000 FCFA",
+   "100 000 000 FCFA"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "Code des Marchés Publics du Sénégal — Décret n° 2022-2295",
+  "lien": ""
+ },
+ {
+  "pack": "cmp",
+  "question": "Seuil pour fournitures et services courants de l'État ?",
+  "options": [
+   "50 000 000 FCFA",
+   "60 000 000 FCFA",
+   "70 000 000 FCFA"
+  ],
+  "bonne": 0,
+  "article": "",
+  "support": "Code des Marchés Publics du Sénégal — Décret n° 2022-2295",
+  "lien": ""
+ },
+ {
+  "pack": "cmp",
+  "question": "Qui approuve un marché de l'État ≥ 300 millions FCFA ?",
+  "options": [
+   "Le Ministre dépensier",
+   "Le Gouverneur",
+   "Le Ministre chargé des Finances"
+  ],
+  "bonne": 2,
+  "article": "",
+  "support": "Code des Marchés Publics du Sénégal — Décret n° 2022-2295",
+  "lien": ""
+ },
+ {
+  "pack": "cmp",
+  "question": "Fourchette du montant de la garantie de soumission ?",
+  "options": [
+   "1 % à 3 %",
+   "3 % à 5 %",
+   "5 % à 10 %"
+  ],
+  "bonne": 0,
+  "article": "",
+  "support": "Code des Marchés Publics du Sénégal — Décret n° 2022-2295",
+  "lien": ""
+ },
+ {
+  "pack": "cmp",
+  "question": "Montant maximal de la garantie de bonne exécution ?",
+  "options": [
+   "3 %",
+   "5 %",
+   "10 %"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "Code des Marchés Publics du Sénégal — Décret n° 2022-2295",
+  "lien": ""
+ },
+ {
+  "pack": "cmp",
+  "question": "Un avenant ne peut pas faire dépasser le montant initial de plus de :",
+  "options": [
+   "20 %",
+   "30 %",
+   "50 %"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "Code des Marchés Publics du Sénégal — Décret n° 2022-2295",
+  "lien": ""
+ },
+ {
+  "pack": "cmp",
+  "question": "Part maximale pouvant être sous-traitée ?",
+  "options": [
+   "30 %",
+   "40 %",
+   "50 %"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "Code des Marchés Publics du Sénégal — Décret n° 2022-2295",
+  "lien": ""
+ },
+ {
+  "pack": "cmp",
+  "question": "Plafond de l'avance forfaitaire de démarrage ?",
+  "options": [
+   "20 %",
+   "40 %",
+   "60 %"
+  ],
+  "bonne": 0,
+  "article": "",
+  "support": "Code des Marchés Publics du Sénégal — Décret n° 2022-2295",
+  "lien": ""
+ },
+ {
+  "pack": "cmp",
+  "question": "Montant total maximal des avances ?",
+  "options": [
+   "40 %",
+   "60 %",
+   "80 %"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "Code des Marchés Publics du Sénégal — Décret n° 2022-2295",
+  "lien": ""
+ },
+ {
+  "pack": "cmp",
+  "question": "Délai de dépôt des offres pour un AO ouvert NATIONAL ?",
+  "options": [
+   "15 jours",
+   "30 jours",
+   "45 jours"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "Code des Marchés Publics du Sénégal — Décret n° 2022-2295",
+  "lien": ""
+ },
+ {
+  "pack": "cmp",
+  "question": "Délai de règlement (paiement) d'un marché ?",
+  "options": [
+   "30 jours",
+   "45 jours",
+   "60 jours"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "Code des Marchés Publics du Sénégal — Décret n° 2022-2295",
+  "lien": ""
+ },
+ {
+  "pack": "cmp",
+  "question": "Plafond du montant cumulé des pénalités de retard ?",
+  "options": [
+   "5 %",
+   "10 %",
+   "15 %"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "Code des Marchés Publics du Sénégal — Décret n° 2022-2295",
+  "lien": ""
+ },
+ {
+  "pack": "cmp",
+  "question": "Marge de préférence communautaire en appel d'offres international ?",
+  "options": [
+   "10 %",
+   "15 %",
+   "20 %"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "Code des Marchés Publics du Sénégal — Décret n° 2022-2295",
+  "lien": ""
+ },
+ {
+  "pack": "cmp",
+  "question": "Mode de passation des marchés appliqué par principe ?",
+  "options": [
+   "Entente directe",
+   "Appel d'offres restreint",
+   "Appel d'offres ouvert"
+  ],
+  "bonne": 2,
+  "article": "",
+  "support": "Code des Marchés Publics du Sénégal — Décret n° 2022-2295",
+  "lien": ""
+ },
+ {
+  "pack": "cmp",
+  "question": "Délai du recours gracieux préalable ?",
+  "options": [
+   "3 jours",
+   "5 jours francs et ouvrés",
+   "10 jours"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "Code des Marchés Publics du Sénégal — Décret n° 2022-2295",
+  "lien": ""
+ },
+ {
+  "pack": "cmp",
+  "question": "Délai pour rendre la décision du CRD en matière de passation ?",
+  "options": [
+   "7 jours ouvrables",
+   "15 jours",
+   "30 jours"
+  ],
+  "bonne": 0,
+  "article": "",
+  "support": "Code des Marchés Publics du Sénégal — Décret n° 2022-2295",
+  "lien": ""
+ },
+ {
+  "pack": "cmp",
+  "question": "Durée maximale d'un accord-cadre ?",
+  "options": [
+   "1 an",
+   "3 ans",
+   "5 ans"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "Code des Marchés Publics du Sénégal — Décret n° 2022-2295",
+  "lien": ""
+ },
+ {
+  "pack": "cmp",
+  "question": "Qui assure le contrôle A PRIORI de la passation ?",
+  "options": [
+   "L'organe de régulation",
+   "L'organe de contrôle des marchés publics",
+   "La Cour des Comptes"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "Code des Marchés Publics du Sénégal — Décret n° 2022-2295",
+  "lien": ""
+ }
+]

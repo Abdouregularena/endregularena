@@ -1,0 +1,18 @@
+# ============================================================
+# REGUL ARENA — Forçage UTF-8 (corrige les caractères corrompus)
+# À placer dans le MÊME dossier que index.html (sur OVH)
+# ============================================================
+
+# Force l'en-tête HTTP Content-Type en UTF-8 (prioritaire sur la balise meta)
+AddDefaultCharset UTF-8
+
+<IfModule mod_mime.c>
+  AddCharset UTF-8 .html .htm .css .js .json .svg
+</IfModule>
+
+# Sécurité : type correct pour le HTML servi en UTF-8
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html|htm)$">
+    Header set Content-Type "text/html; charset=UTF-8"
+  </FilesMatch>
+</IfModule>

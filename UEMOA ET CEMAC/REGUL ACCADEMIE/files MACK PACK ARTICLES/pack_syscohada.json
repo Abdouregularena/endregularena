@@ -1,0 +1,236 @@
+[
+ {
+  "pack": "syscohada",
+  "question": "Que signifie SYSCOHADA ?",
+  "options": [
+   "Système Comptable OHADA",
+   "Syndicat Comptable Africain",
+   "Société Comptable Harmonisée"
+  ],
+  "bonne": 0,
+  "article": "",
+  "support": "SYSCOHADA Révisé (en vigueur 01/01/2018)",
+  "lien": ""
+ },
+ {
+  "pack": "syscohada",
+  "question": "Depuis quand le SYSCOHADA Révisé est-il en vigueur ?",
+  "options": [
+   "1er janvier 2017",
+   "1er janvier 2018",
+   "1er janvier 2020"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "SYSCOHADA Révisé (en vigueur 01/01/2018)",
+  "lien": ""
+ },
+ {
+  "pack": "syscohada",
+  "question": "Combien de pays composent l'espace OHADA ?",
+  "options": [
+   "8",
+   "12",
+   "17"
+  ],
+  "bonne": 2,
+  "article": "",
+  "support": "SYSCOHADA Révisé (en vigueur 01/01/2018)",
+  "lien": ""
+ },
+ {
+  "pack": "syscohada",
+  "question": "Sur quelles normes internationales le Révisé s'aligne-t-il ?",
+  "options": [
+   "US GAAP",
+   "IFRS",
+   "Bâle III"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "SYSCOHADA Révisé (en vigueur 01/01/2018)",
+  "lien": ""
+ },
+ {
+  "pack": "syscohada",
+  "question": "Combien de classes compte le plan comptable SYSCOHADA ?",
+  "options": [
+   "7",
+   "8",
+   "9"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "SYSCOHADA Révisé (en vigueur 01/01/2018)",
+  "lien": ""
+ },
+ {
+  "pack": "syscohada",
+  "question": "La classe 1 regroupe :",
+  "options": [
+   "Les stocks",
+   "Les ressources durables",
+   "La trésorerie"
+  ],
+  "bonne": 1,
+  "article": "Classe 1",
+  "support": "SYSCOHADA Révisé (en vigueur 01/01/2018)",
+  "lien": ""
+ },
+ {
+  "pack": "syscohada",
+  "question": "Le compte 411 correspond à :",
+  "options": [
+   "Fournisseurs",
+   "Clients",
+   "Capital social"
+  ],
+  "bonne": 1,
+  "article": "Classe 4",
+  "support": "SYSCOHADA Révisé (en vigueur 01/01/2018)",
+  "lien": ""
+ },
+ {
+  "pack": "syscohada",
+  "question": "Le compte 401 correspond à :",
+  "options": [
+   "Clients",
+   "Fournisseurs",
+   "Banques"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "SYSCOHADA Révisé (en vigueur 01/01/2018)",
+  "lien": ""
+ },
+ {
+  "pack": "syscohada",
+  "question": "Quelle méthode de valorisation des stocks est INTERDITE ?",
+  "options": [
+   "CMUP",
+   "FIFO",
+   "LIFO"
+  ],
+  "bonne": 2,
+  "article": "",
+  "support": "SYSCOHADA Révisé (en vigueur 01/01/2018)",
+  "lien": ""
+ },
+ {
+  "pack": "syscohada",
+  "question": "Que signifie HAO (classe 8) ?",
+  "options": [
+   "Hors Activités Ordinaires",
+   "Haute Autorité OHADA",
+   "Honoraires Annuels Obligatoires"
+  ],
+  "bonne": 0,
+  "article": "Classe 8",
+  "support": "SYSCOHADA Révisé (en vigueur 01/01/2018)",
+  "lien": ""
+ },
+ {
+  "pack": "syscohada",
+  "question": "Le compte 521 correspond à :",
+  "options": [
+   "Caisse",
+   "Banques — comptes courants",
+   "Emprunts"
+  ],
+  "bonne": 1,
+  "article": "Classe 5",
+  "support": "SYSCOHADA Révisé (en vigueur 01/01/2018)",
+  "lien": ""
+ },
+ {
+  "pack": "syscohada",
+  "question": "Quel document est désormais obligatoire pour les grandes entreprises ?",
+  "options": [
+   "Le TFT",
+   "Le grand-livre",
+   "Le journal centralisateur"
+  ],
+  "bonne": 0,
+  "article": "",
+  "support": "SYSCOHADA Révisé (en vigueur 01/01/2018)",
+  "lien": ""
+ },
+ {
+  "pack": "syscohada",
+  "question": "Le compte 445 enregistre :",
+  "options": [
+   "TVA déductible",
+   "TVA collectée",
+   "Réserve légale"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "SYSCOHADA Révisé (en vigueur 01/01/2018)",
+  "lien": ""
+ },
+ {
+  "pack": "syscohada",
+  "question": "Que mesure le ratio d'autonomie financière ?",
+  "options": [
+   "Capitaux propres / Total passif",
+   "CA / Actif",
+   "Dettes / Trésorerie"
+  ],
+  "bonne": 0,
+  "article": "",
+  "support": "SYSCOHADA Révisé (en vigueur 01/01/2018)",
+  "lien": ""
+ },
+ {
+  "pack": "syscohada",
+  "question": "Quel est le critère n°1 des banques pour la capacité de remboursement ?",
+  "options": [
+   "Le chiffre d'affaires",
+   "La CAF",
+   "Le capital social"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "SYSCOHADA Révisé (en vigueur 01/01/2018)",
+  "lien": ""
+ },
+ {
+  "pack": "syscohada",
+  "question": "Seuil recommandé du ratio de liquidité générale ?",
+  "options": [
+   "> 0,5",
+   "> 1,5",
+   "> 3"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "SYSCOHADA Révisé (en vigueur 01/01/2018)",
+  "lien": ""
+ },
+ {
+  "pack": "syscohada",
+  "question": "Le compte 681 enregistre :",
+  "options": [
+   "Les ventes",
+   "Les dotations aux amortissements",
+   "Les emprunts"
+  ],
+  "bonne": 1,
+  "article": "Classe 6",
+  "support": "SYSCOHADA Révisé (en vigueur 01/01/2018)",
+  "lien": ""
+ },
+ {
+  "pack": "syscohada",
+  "question": "Quel dispositif est prévu pour les très petites entités ?",
+  "options": [
+   "Le SMT",
+   "Le TFT",
+   "L'IFRS 9"
+  ],
+  "bonne": 0,
+  "article": "",
+  "support": "SYSCOHADA Révisé (en vigueur 01/01/2018)",
+  "lien": ""
+ }
+]

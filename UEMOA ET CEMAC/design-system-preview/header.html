@@ -1,0 +1,469 @@
+<!-- ================================================================
+     REGUL ARENA — Composant Header / Navigation
+     Polices : Bebas Neue (logo), Lato (menus), Montserrat (CTA)
+     ================================================================ -->
+
+<header class="ra-header" id="ra-header">
+  <!-- Barre de progression quiz (cachée en dehors du quiz) -->
+  <div class="quiz-progress-bar" id="quizProgressBar" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quizProgressFill" style="width: 0%"></div>
+    <span class="quiz-progress-label" id="quizProgressLabel">Question 1/10</span>
+  </div>
+
+  <nav class="ra-nav" role="navigation" aria-label="Navigation principale">
+    <!-- Logo -->
+    <a class="ra-logo" href="/" aria-label="REGUL ARENA — Accueil">
+      <span class="ra-logo-main">REGUL</span>
+      <span class="ra-logo-accent">ARENA</span>
+    </a>
+
+    <!-- Liens nav desktop -->
+    <ul class="ra-nav-links" role="list">
+      <li><button class="ra-nav-btn active" data-page="home" aria-current="page">Accueil</button></li>
+      <li><button class="ra-nav-btn" data-page="jouer">Jouer</button></li>
+      <li><button class="ra-nav-btn" data-page="packs">Packs</button></li>
+      <li><button class="ra-nav-btn" data-page="pays">Pays</button></li>
+      <li><button class="ra-nav-btn" data-page="classement">Classement</button></li>
+    </ul>
+
+    <!-- Zone droite -->
+    <div class="ra-nav-right">
+      <!-- Indicateur quiz actif -->
+      <div class="ra-quiz-pill" id="ra-quiz-pill" aria-live="polite">
+        <span class="quiz-pill-dot"></span>
+        <span class="quiz-pill-text" id="quizPillText">Q1/10</span>
+      </div>
+
+      <!-- Bouton connexion / profil -->
+      <button class="ra-nav-cta" id="navAuthBtn" data-page="auth">
+        Connexion
+      </button>
+
+      <!-- Menu hamburger mobile -->
+      <button class="ra-hamburger" id="navHamburger" aria-label="Menu" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Drawer mobile -->
+  <div class="ra-mobile-menu" id="mobileMenu" aria-hidden="true">
+    <div class="ra-mobile-menu-inner">
+      <ul class="ra-mobile-links" role="list">
+        <li><button class="ra-mobile-btn active" data-page="home">🏠 Accueil</button></li>
+        <li><button class="ra-mobile-btn" data-page="jouer">⚔️ Jouer</button></li>
+        <li><button class="ra-mobile-btn" data-page="packs">📦 Packs</button></li>
+        <li><button class="ra-mobile-btn" data-page="pays">🌍 Pays</button></li>
+        <li><button class="ra-mobile-btn" data-page="classement">🏆 Classement</button></li>
+      </ul>
+
+      <!-- Zones institutionnelles -->
+      <div class="ra-mobile-zones">
+        <div class="zone-badge uemoa">
+          <span class="zone-flags">🇸🇳🇨🇮🇧🇫🇲🇱🇧🇯🇳🇪🇹🇬🇬🇼</span>
+          <span class="zone-label">UEMOA · 8 pays · BCEAO</span>
+        </div>
+        <div class="zone-badge cemac">
+          <span class="zone-flags">🇨🇲🇬🇦🇨🇬🇨🇫🇬🇶🇹🇩</span>
+          <span class="zone-label">CEMAC · 6 pays · BEAC / COBAC</span>
+        </div>
+      </div>
+
+      <button class="ra-nav-cta mobile-cta" data-page="auth">Se connecter</button>
+    </div>
+  </div>
+</header>
+
+<style>
+/* ── Header Styles ────────────────────────────────────────── */
+.ra-header {
+  position:   fixed;
+  top:        0;
+  left:       0;
+  right:      0;
+  z-index:    200;
+}
+
+/* Barre de progression quiz */
+.quiz-progress-bar {
+  height:     3px;
+  background: rgba(255,255,255,0.06);
+  position:   relative;
+  overflow:   visible;
+  display:    none;  /* activée via JS lors du quiz */
+}
+
+.quiz-progress-bar.active { display: block; }
+
+.quiz-progress-fill {
+  height:     100%;
+  background: linear-gradient(90deg, var(--gold), var(--gold-b));
+  border-radius: 0 2px 2px 0;
+  transition: width 0.4s ease;
+  box-shadow: 0 0 8px var(--gold-glow);
+}
+
+.quiz-progress-label {
+  position:     absolute;
+  right:        8px;
+  top:          5px;
+  font-family:  var(--font-mono);
+  font-size:    0.55rem;
+  letter-spacing: 2px;
+  color:        var(--gold);
+  text-transform: uppercase;
+  white-space:  nowrap;
+}
+
+/* Nav principale */
+.ra-nav {
+  display:       flex;
+  align-items:   center;
+  justify-content: space-between;
+  padding:       0 40px;
+  height:        56px;
+  background:    #001E42;
+  border-bottom: 2px solid var(--gold);
+}
+
+/* Logo */
+.ra-logo {
+  font-family:    'Bebas Neue', cursive;
+  font-size:      1.5rem;
+  letter-spacing: 3px;
+  text-decoration: none;
+  flex-shrink:    0;
+  cursor:         pointer;
+  display:        flex;
+  align-items:    center;
+  gap:            2px;
+}
+
+.ra-logo-main  { color: var(--text); }
+.ra-logo-accent { color: var(--gold); }
+
+/* Liens nav */
+.ra-nav-links {
+  display:    flex;
+  gap:        4px;
+  list-style: none;
+  margin:     0;
+  padding:    0;
+}
+
+.ra-nav-btn {
+  background:     none;
+  border:         none;
+  cursor:         pointer;
+  font-family:    var(--font-heading); /* Lato */
+  font-size:      0.72rem;
+  font-weight:    700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color:          rgba(255, 255, 255, 0.8);
+  padding:        8px 13px;
+  border-radius:  2px;
+  transition:     all 0.2s;
+  position:       relative;
+}
+
+.ra-nav-btn::after {
+  content:    '';
+  position:   absolute;
+  bottom:     -2px;
+  left:       50%;
+  transform:  translateX(-50%);
+  width:      0;
+  height:     2px;
+  background: var(--gold);
+  transition: width 0.2s;
+}
+
+.ra-nav-btn:hover,
+.ra-nav-btn.active {
+  color:      var(--gold);
+  background: var(--gold-dim);
+}
+
+.ra-nav-btn.active::after,
+.ra-nav-btn:hover::after {
+  width: 70%;
+}
+
+/* Zone droite */
+.ra-nav-right {
+  display:     flex;
+  align-items: center;
+  gap:         10px;
+}
+
+/* Pill quiz actif */
+.ra-quiz-pill {
+  display:        none;  /* montré en JS */
+  align-items:    center;
+  gap:            6px;
+  background:     var(--gold);
+  border-radius:  10px;
+  padding:        3px 11px;
+}
+
+.ra-quiz-pill.visible { display: flex; }
+
+.quiz-pill-dot {
+  width:        6px;
+  height:       6px;
+  border-radius: 50%;
+  background:   #001E42;
+  animation:    pulseDot 1.2s ease-in-out infinite;
+}
+
+.quiz-pill-text {
+  font-family:    var(--font-mono);
+  font-size:      0.6rem;
+  letter-spacing: 1.5px;
+  color:          #001E42;
+  font-weight:    700;
+  text-transform: uppercase;
+}
+
+/* CTA connexion */
+.ra-nav-cta {
+  background:     linear-gradient(135deg, var(--gold), var(--gold-l));
+  color:          var(--bg);
+  font-family:    var(--font-title); /* Montserrat */
+  font-weight:    800;
+  font-size:      0.72rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding:        9px 18px;
+  border:         none;
+  cursor:         pointer;
+  border-radius:  2px;
+  clip-path:      polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+  transition:     all 0.2s;
+}
+
+.ra-nav-cta:hover {
+  box-shadow: 0 4px 20px var(--gold-glow);
+  transform:  translateY(-1px);
+}
+
+/* Hamburger mobile */
+.ra-hamburger {
+  display:    none;
+  flex-direction: column;
+  gap:        5px;
+  background: none;
+  border:     none;
+  cursor:     pointer;
+  padding:    8px;
+}
+
+.ra-hamburger span {
+  display:       block;
+  width:         22px;
+  height:        2px;
+  background:    var(--text);
+  border-radius: 1px;
+  transition:    all 0.3s;
+}
+
+.ra-hamburger.open span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.ra-hamburger.open span:nth-child(2) {
+  opacity: 0;
+}
+.ra-hamburger.open span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* ── Mobile Menu ──────────────────────────────────────────── */
+.ra-mobile-menu {
+  display:    none;
+  background: #001230;
+  border-top: 1px solid var(--border);
+  overflow:   hidden;
+  max-height: 0;
+  transition: max-height 0.3s ease;
+}
+
+.ra-mobile-menu.open {
+  max-height: 600px;
+}
+
+.ra-mobile-menu-inner {
+  padding: 20px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ra-mobile-links {
+  list-style: none;
+  margin:     0;
+  padding:    0;
+  display:    flex;
+  flex-direction: column;
+  gap:        2px;
+}
+
+.ra-mobile-btn {
+  width:          100%;
+  background:     none;
+  border:         none;
+  text-align:     left;
+  cursor:         pointer;
+  font-family:    var(--font-heading); /* Lato */
+  font-size:      0.88rem;
+  font-weight:    700;
+  letter-spacing: 1px;
+  color:          rgba(255, 255, 255, 0.85);
+  padding:        12px 14px;
+  border-radius:  3px;
+  transition:     all 0.2s;
+}
+
+.ra-mobile-btn:hover,
+.ra-mobile-btn.active {
+  background: var(--gold-dim);
+  color:      var(--gold);
+  padding-left: 18px;
+}
+
+.ra-mobile-zones {
+  margin:  12px 0;
+  display: flex;
+  flex-direction: column;
+  gap:     6px;
+}
+
+.zone-badge {
+  padding:       10px 14px;
+  border-radius: 4px;
+  border-left:   3px solid;
+}
+
+.zone-badge.uemoa {
+  background:   rgba(201, 153, 26, 0.08);
+  border-color: var(--gold);
+}
+
+.zone-badge.cemac {
+  background:   rgba(34, 211, 238, 0.06);
+  border-color: var(--cyan);
+}
+
+.zone-flags {
+  display:      block;
+  font-size:    1.1rem;
+  letter-spacing: 4px;
+  margin-bottom: 3px;
+}
+
+.zone-label {
+  font-family:    var(--font-mono);
+  font-size:      0.6rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color:          var(--muted);
+}
+
+.mobile-cta {
+  margin-top:  8px;
+  width:       100%;
+  text-align:  center;
+  clip-path:   none;
+  border-radius: 4px;
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .ra-nav-links { display: none; }
+  .ra-hamburger { display: flex; }
+  .ra-nav       { padding: 0 20px; }
+  .ra-mobile-menu { display: block; }
+}
+
+@media (max-width: 480px) {
+  .ra-nav-cta { display: none; }
+}
+
+/* ── Animations ───────────────────────────────────────────── */
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+</style>
+
+<script>
+/* ── Header JS ─────────────────────────────────────────────── */
+(function() {
+  const hamburger  = document.getElementById('navHamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const navBtns    = document.querySelectorAll('.ra-nav-btn, .ra-mobile-btn');
+
+  // Toggle menu mobile
+  if (hamburger) {
+    hamburger.addEventListener('click', () => {
+      const isOpen = hamburger.classList.toggle('open');
+      hamburger.setAttribute('aria-expanded', isOpen);
+      mobileMenu.classList.toggle('open', isOpen);
+      mobileMenu.setAttribute('aria-hidden', !isOpen);
+    });
+  }
+
+  // Navigation active state
+  navBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      navBtns.forEach(b => b.classList.remove('active'));
+      // activer les deux (desktop + mobile)
+      const page = btn.dataset.page;
+      document.querySelectorAll(`[data-page="${page}"]`).forEach(el => {
+        if (el.classList.contains('ra-nav-btn') || el.classList.contains('ra-mobile-btn')) {
+          el.classList.add('active');
+        }
+      });
+      // Fermer menu mobile
+      if (hamburger) {
+        hamburger.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', false);
+        mobileMenu.classList.remove('open');
+      }
+    });
+  });
+
+  // Quiz progress public API
+  window.RAHeader = {
+    /**
+     * Afficher la barre de progression quiz
+     * @param {number} current  — question courante (1-based)
+     * @param {number} total    — total questions
+     */
+    setQuizProgress(current, total) {
+      const bar    = document.getElementById('quizProgressBar');
+      const fill   = document.getElementById('quizProgressFill');
+      const label  = document.getElementById('quizProgressLabel');
+      const pill   = document.getElementById('ra-quiz-pill');
+      const pillTx = document.getElementById('quizPillText');
+
+      const pct = Math.round((current / total) * 100);
+      if (bar)   { bar.classList.add('active'); }
+      if (fill)  { fill.style.width = pct + '%'; }
+      if (label) { label.textContent = `Question ${current}/${total}`; }
+      if (pill)  { pill.classList.add('visible'); }
+      if (pillTx){ pillTx.textContent = `Q${current}/${total}`; }
+    },
+
+    /** Cacher la barre de progression */
+    clearQuizProgress() {
+      const bar  = document.getElementById('quizProgressBar');
+      const pill = document.getElementById('ra-quiz-pill');
+      if (bar)  { bar.classList.remove('active'); }
+      if (pill) { pill.classList.remove('visible'); }
+    }
+  };
+})();
+</script>

@@ -1,0 +1,12 @@
+/* MODIFIÉ — feedback visuel sélection duel (bat le thème Académie !important) */
+#d-pack-cards .d-pack-card.active{
+  border:2px solid #C9991A !important;
+  background:#013A73 !important;
+  box-shadow:0 0 0 2px rgba(201,153,26,.45) !important;
+}
+#d-pack-cards .d-pack-card.active .d-pack-name{color:#E8B520 !important;-webkit-text-fill-color:#E8B520 !important}
+#d-q-opts .popt.active,#d-timer-opts .popt.active{
+  background:#C9991A !important;
+  border:1.5px solid #C9991A !important;
+  color:#002B5C !important;
+}

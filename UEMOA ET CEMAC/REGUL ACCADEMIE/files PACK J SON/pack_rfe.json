@@ -1,0 +1,702 @@
+[
+ {
+  "pack": "rfe",
+  "question": "Selon l'Article premier du Règlement n°09/2010/CM/UEMOA, quelle est la condition pour qu'une personne physique soit considérée comme 'résident' ?",
+  "options": [
+   "A. Avoir la nationalité d'un État membre de l'UEMOA",
+   "B. Avoir son principal centre d'intérêt dans un État membre de l'UEMOA",
+   "C. Disposer d'un compte bancaire dans un État membre de l'UEMOA",
+   "D. Résider depuis plus de 6 mois dans un État membre de l'UEMOA"
+  ],
+  "bonne": 1,
+  "article": "Article 1er",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Qu'est-ce qu'un 'intermédiaire agréé' selon la terminologie du Règlement RFE ?",
+  "options": [
+   "A. Tout commerçant autorisé à effectuer des opérations de change",
+   "B. Tout établissement de crédit installé dans l'UEMOA ayant reçu la qualité d'intermédiaire agréé par arrêté du Ministre des Finances",
+   "C. La BCEAO agissant pour le compte des États membres",
+   "D. Tout bureau de change autorisé par la BCEAO"
+  ],
+  "bonne": 1,
+  "article": "Article 1er",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Selon l'Article 2, quels organismes sont habilités à exécuter les opérations financières avec l'étranger ?",
+  "options": [
+   "A. Uniquement les banques commerciales",
+   "B. La BCEAO, l'Administration ou Office des Postes, les intermédiaires agréés et les agréés de change manuel",
+   "C. La BCEAO et les intermédiaires agréés uniquement",
+   "D. Tous les établissements financiers de l'UEMOA"
+  ],
+  "bonne": 1,
+  "article": "Article 2",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Quel est le délai maximum pour qu'un résident cède à une banque les revenus en devises encaissés à l'étranger ?",
+  "options": [
+   "A. 15 jours à compter de la date d'encaissement",
+   "B. 30 jours à compter de la date d'exigibilité du paiement",
+   "C. 60 jours à compter de la date d'expédition",
+   "D. 90 jours à compter de la date contractuelle"
+  ],
+  "bonne": 1,
+  "article": "Article 3",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Selon l'Article 3, quelle est la limite temporelle pour la date d'exigibilité du paiement en matière d'exportation ?",
+  "options": [
+   "A. 60 jours après l'expédition",
+   "B. 90 jours après l'expédition",
+   "C. 120 jours après l'expédition",
+   "D. 180 jours après l'expédition"
+  ],
+  "bonne": 2,
+  "article": "Article 3",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "En vertu de l'Article 4, en dessous de quel montant les transferts courants à l'étranger ne nécessitent aucune pièce justificative ?",
+  "options": [
+   "A. 100 000 FCFA",
+   "B. 250 000 FCFA",
+   "C. 500 000 FCFA",
+   "D. 1 000 000 FCFA"
+  ],
+  "bonne": 2,
+  "article": "Article 4",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Quel principe régit les opérations d'investissement, d'emprunt et de placement entre États membres de l'UEMOA (Article 6) ?",
+  "options": [
+   "A. Soumission à autorisation préalable de la BCEAO",
+   "B. Liberté totale sans restriction aucune",
+   "C. Déclaration obligatoire à la Direction des Finances Extérieures",
+   "D. Autorisation du Ministre des Finances requise"
+  ],
+  "bonne": 1,
+  "article": "Article 6",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Pour investir à l'étranger, un résident doit obligatoirement financer son investissement à hauteur d'au moins quel pourcentage par des emprunts à l'étranger (Article 10) ?",
+  "options": [
+   "A. 50%",
+   "B. 60%",
+   "C. 75%",
+   "D. 80%"
+  ],
+  "bonne": 2,
+  "article": "Article 10",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "L'importation et l'exportation d'or à destination de l'étranger sont soumises à quelles conditions selon l'Article 9 ?",
+  "options": [
+   "A. Déclaration à la BCEAO uniquement",
+   "B. Autorisation préalable du Ministre chargé des Finances",
+   "C. Autorisation de la BCEAO et du CREPMF",
+   "D. Libre, sans aucune autorisation"
+  ],
+  "bonne": 1,
+  "article": "Article 9",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Un voyageur résident peut exporter de l'or sans autorisation préalable dans quelle limite de poids (Article 9) ?",
+  "options": [
+   "A. 100 grammes",
+   "B. 250 grammes",
+   "C. 500 grammes",
+   "D. 1 000 grammes"
+  ],
+  "bonne": 2,
+  "article": "Article 9",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Qu'est-ce que la 'Zone franc' selon la terminologie du Règlement ?",
+  "options": [
+   "A. Les seuls États membres de l'UEMOA",
+   "B. Les États de l'UEMOA et de la CEMAC uniquement",
+   "C. Les États membres de l'UEMOA, la République Française et ses territoires, et d'autres États dont l'Institut d'émission dispose d'un compte d'opérations au Trésor français",
+   "D. Tous les États africains utilisant le franc CFA"
+  ],
+  "bonne": 2,
+  "article": "Article 1er",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Selon l'Article 10, quelle opération est dispensée de l'autorisation préalable du Ministre des Finances pour un investissement à l'étranger ?",
+  "options": [
+   "A. Toute prise de participation inférieure à 10% dans une société étrangère",
+   "B. L'achat de valeurs mobilières étrangères autorisées par le CREPMF",
+   "C. Les emprunts à l'étranger inférieurs à 500 millions FCFA",
+   "D. La création d'une succursale dans un pays de la Zone franc"
+  ],
+  "bonne": 1,
+  "article": "Article 10",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Qui est qualifié d''agréé de change manuel' selon l'Article 1er ?",
+  "options": [
+   "A. Tout établissement de crédit autorisé à effectuer des opérations de change",
+   "B. Toute personne physique ou morale installée dans l'UEMOA ayant reçu un agrément du Ministre des Finances pour les opérations de change manuel",
+   "C. La BCEAO dans ses fonctions de change",
+   "D. Tout commerçant effectuant des opérations de change avec les voyageurs"
+  ],
+  "bonne": 1,
+  "article": "Article 1er",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Selon l'Article 1er, une participation n'est PAS considérée comme 'investissement direct' lorsqu'elle ne dépasse pas quel pourcentage dans le capital d'une société ?",
+  "options": [
+   "A. 5%",
+   "B. 10%",
+   "C. 15%",
+   "D. 20%"
+  ],
+  "bonne": 1,
+  "article": "Article 1er",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Les transactions sur instruments dérivés de change (Article 12) doivent obligatoirement être :",
+  "options": [
+   "A. Déclarées à la BCEAO dans un délai de 48h",
+   "B. Adossées à des opérations commerciales ou financières",
+   "C. Autorisées individuellement par le Ministre des Finances",
+   "D. Réalisées exclusivement avec des banques de la Zone franc"
+  ],
+  "bonne": 1,
+  "article": "Article 12",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Quelle est la compétence de l'Administration ou de l'Office des Postes pour les transferts hors Zone franc sans pièces justificatives (Annexe I) ?",
+  "options": [
+   "A. 250 000 FCFA maximum",
+   "B. 500 000 FCFA maximum",
+   "C. 750 000 FCFA maximum",
+   "D. 1 000 000 FCFA maximum"
+  ],
+  "bonne": 1,
+  "article": "Annexe I, Art. 5",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "En vertu de l'Annexe II, quelle est la valeur minimale d'une importation en provenance hors Zone franc rendant la domiciliation bancaire obligatoire ?",
+  "options": [
+   "A. 1 000 000 FCFA",
+   "B. 5 000 000 FCFA",
+   "C. 10 000 000 FCFA",
+   "D. 25 000 000 FCFA"
+  ],
+  "bonne": 2,
+  "article": "Annexe II, Art. 3",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Qui sanctionne les infractions des établissements de crédit aux dispositions du Règlement RFE (Article 16) ?",
+  "options": [
+   "A. La Direction des Finances Extérieures de chaque État",
+   "B. La BCEAO et la Commission Bancaire de l'UMOA",
+   "C. Le Ministre chargé des Finances uniquement",
+   "D. Le CREPMF et la BCEAO conjointement"
+  ],
+  "bonne": 1,
+  "article": "Article 16",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Quel texte le Règlement n°09/2010/CM/UEMOA abroge-t-il (Article 21) ?",
+  "options": [
+   "A. Le Règlement n°R09/95/CM/UEMOA",
+   "B. Le Règlement n°R09/98/CM/UEMOA du 20 décembre 1998",
+   "C. La Directive n°04/2005/CM/UEMOA",
+   "D. L'Instruction n°01/2005/BCEAO"
+  ],
+  "bonne": 1,
+  "article": "Article 21",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Selon l'Article 11, comment les emprunts à l'étranger contractés par des résidents doivent-ils être réalisés lorsque les sommes sont mises à disposition dans le pays ?",
+  "options": [
+   "A. Directement entre les parties sans intermédiaire",
+   "B. Par l'entremise d'intermédiaires agréés sauf décision particulière du Ministre des Finances",
+   "C. Via la BCEAO exclusivement",
+   "D. Par l'Office des Postes pour les montants inférieurs à 1M FCFA"
+  ],
+  "bonne": 1,
+  "article": "Article 11",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Quelle instruction de la BCEAO traite spécifiquement de l'exécution des règlements avec l'étranger ou avec les non-résidents ?",
+  "options": [
+   "A. Instruction N°02/07/2011/RFE",
+   "B. Instruction N°01/07/2011/RFE",
+   "C. Instruction N°05/07/2011/RFE",
+   "D. Instruction N°08/07/2011/RFE"
+  ],
+  "bonne": 1,
+  "article": "Instruction 01/2011",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Quelle instruction encadre la délivrance des allocations en devises aux voyageurs résidents ?",
+  "options": [
+   "A. Instruction N°03/07/2011/RFE",
+   "B. Instruction N°04/07/2011/RFE",
+   "C. Instruction N°05/07/2011/RFE",
+   "D. Instruction N°06/07/2011/RFE"
+  ],
+  "bonne": 2,
+  "article": "Instruction 05/2011",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Quelle instruction définit les conditions d'exercice de l'activité d'agréé de change manuel ?",
+  "options": [
+   "A. Instruction N°05/07/2011/RFE",
+   "B. Instruction N°06/07/2011/RFE",
+   "C. Instruction N°07/07/2011/RFE",
+   "D. Instruction N°08/07/2011/RFE"
+  ],
+  "bonne": 1,
+  "article": "Instruction 06/2011",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Que couvre l'Instruction N°08/07/2011/RFE ?",
+  "options": [
+   "A. La domiciliation des exportations",
+   "B. Les opérations de reprise de devises",
+   "C. Les conditions d'ouverture et de fonctionnement des comptes étrangers de non-résidents et comptes en devises",
+   "D. Les allocations aux voyageurs"
+  ],
+  "bonne": 2,
+  "article": "Instruction 08/2011",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Selon l'Article 15, quelle est la responsabilité principale des intermédiaires habilités ?",
+  "options": [
+   "A. Approuver toutes les opérations de change de leurs clients",
+   "B. Veiller au respect des prescriptions du Règlement pour les opérations effectuées par leur entremise ou placées sous leur contrôle",
+   "C. Signaler toutes les opérations supérieures à 500 000 FCFA à la BCEAO",
+   "D. Obtenir une autorisation du Ministre des Finances pour chaque opération en capital"
+  ],
+  "bonne": 1,
+  "article": "Article 15",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Selon l'Article 8, quelle autorité doit préalablement autoriser l'émission ou la mise en vente de titres d'États étrangers dans l'UEMOA ?",
+  "options": [
+   "A. Le CREPMF uniquement",
+   "B. La BCEAO agissant pour le compte de l'Autorité en charge des RFE, préalablement au CREPMF",
+   "C. Le Ministre des Finances de chaque État concerné",
+   "D. La Commission de l'UEMOA"
+  ],
+  "bonne": 1,
+  "article": "Article 8",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Qu'entend-on par 'rapatriement du produit des recettes d'exportation' selon l'Article 1er ?",
+  "options": [
+   "A. Le transfert des bénéfices d'exportation sur un compte étranger",
+   "B. La perception effective dans le pays d'origine du produit des recettes d'exportation, constatée par une attestation de cession de devises",
+   "C. Le dépôt des recettes en devises auprès de la Direction des Finances Extérieures",
+   "D. La déclaration des recettes d'exportation à la BCEAO dans un délai de 30 jours"
+  ],
+  "bonne": 1,
+  "article": "Article 1er",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Qui peut modifier le Règlement n°09/2010/CM/UEMOA selon l'Article 19 ?",
+  "options": [
+   "A. La BCEAO par instruction",
+   "B. La Commission de l'UEMOA par directive",
+   "C. Le Conseil des Ministres de l'UEMOA sur proposition conjointe de la BCEAO et de la Commission de l'UEMOA, à l'initiative de la BCEAO",
+   "D. Le Président de la Commission de l'UEMOA"
+  ],
+  "bonne": 2,
+  "article": "Article 19",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Selon l'Annexe I, pour quels montants l'Administration ou Office des Postes peut-elle régler des importations de marchandises par son entremise ?",
+  "options": [
+   "A. Montants inférieurs à 500 000 FCFA",
+   "B. Montants inférieurs ou égaux à 1 000 000 FCFA",
+   "C. Montants inférieurs à 5 000 000 FCFA",
+   "D. Montants inférieurs à 10 000 000 FCFA"
+  ],
+  "bonne": 1,
+  "article": "Annexe I, Art. 5",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Concernant les instruments dérivés sur matières premières (Article 13), à quoi les transactions doivent-elles être adossées ?",
+  "options": [
+   "A. À des opérations commerciales ou financières générales",
+   "B. À des importations ou exportations de matières premières et produits de base effectuées par des résidents",
+   "C. À des autorisations spécifiques de la BCEAO",
+   "D. À des positions de change ouvertes des banques"
+  ],
+  "bonne": 1,
+  "article": "Article 13",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Combien d'instructions d'application accompagnent le Règlement n°09/2010/CM/UEMOA ?",
+  "options": [
+   "A. 8 instructions",
+   "B. 9 instructions",
+   "C. 10 instructions",
+   "D. 11 instructions"
+  ],
+  "bonne": 3,
+  "article": "Sommaire",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Quelle instruction porte sur la couverture du risque de change et du risque de prix pour les résidents ?",
+  "options": [
+   "A. Instruction N°02/07/2011/RFE",
+   "B. Instruction N°03/07/2011/RFE",
+   "C. Instruction N°04/07/2011/RFE",
+   "D. Instruction N°05/07/2011/RFE"
+  ],
+  "bonne": 2,
+  "article": "Instruction 04/2011",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Selon l'Article 14, à qui les intermédiaires habilités doivent-ils rendre compte des paiements émis ou reçus de l'étranger ?",
+  "options": [
+   "A. Au Ministère des Finances uniquement",
+   "B. À la BCEAO uniquement",
+   "C. À la Direction chargée des Finances Extérieures et à la BCEAO",
+   "D. Au CREPMF et à la Commission de l'UEMOA"
+  ],
+  "bonne": 2,
+  "article": "Article 14",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Qu'est-ce qu'un 'non-résident' selon la terminologie du Règlement ?",
+  "options": [
+   "A. Toute personne étrangère vivant dans l'UEMOA",
+   "B. Les personnes physiques ayant leur principal centre d'intérêt à l'étranger et les fonctionnaires étrangers en poste dans l'UEMOA, et les personnes morales pour leurs établissements à l'étranger",
+   "C. Toute personne n'ayant pas la nationalité d'un État membre de l'UEMOA",
+   "D. Les entreprises dont le siège social est en dehors de l'UEMOA"
+  ],
+  "bonne": 1,
+  "article": "Article 1er",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "L'Instruction N°09/07/2011/RFE concerne quelle procédure spécifique ?",
+  "options": [
+   "A. Les comptes rendus périodiques aux autorités de contrôle",
+   "B. La délivrance de l'autorisation aux entités non-résidentes désirant faire appel public à l'épargne dans l'UEMOA",
+   "C. Les opérations de reprise de devises",
+   "D. Les avoirs des établissements de crédit hors UEMOA"
+  ],
+  "bonne": 1,
+  "article": "Instruction 09/2011",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Selon l'Article 3, quelles devises étrangères doivent être cédées ou déposées chez un intermédiaire habilité ?",
+  "options": [
+   "A. Uniquement celles détenues par les résidents",
+   "B. Uniquement celles détenues par les non-résidents",
+   "C. Toutes devises étrangères détenues dans un État membre de l'UEMOA, qu'elles appartiennent à un résident ou à un non-résident",
+   "D. Uniquement les devises issues d'exportations"
+  ],
+  "bonne": 2,
+  "article": "Article 3",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Les résidents des autres pays de la Zone franc sont-ils assimilés aux résidents de l'UEMOA ?",
+  "options": [
+   "A. Non, ils sont toujours traités comme des non-résidents",
+   "B. Oui, mais avec des exceptions pour certaines opérations spécifiques",
+   "C. Oui, sans aucune exception",
+   "D. Seulement pour les opérations commerciales courantes"
+  ],
+  "bonne": 1,
+  "article": "Article 1er",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Quelle autorité délivre l'agrément à un agréé de change manuel selon l'Annexe I ?",
+  "options": [
+   "A. La BCEAO seule",
+   "B. Le Ministre chargé des Finances, après avis conforme de la BCEAO",
+   "C. La Commission de l'UEMOA",
+   "D. Le Ministre des Finances et le Gouverneur de la BCEAO conjointement"
+  ],
+  "bonne": 1,
+  "article": "Annexe I, Art. 11",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "L'Instruction N°10/07/2011/RFE traite de quel sujet spécifique ?",
+  "options": [
+   "A. Les comptes rendus périodiques",
+   "B. Les allocations en devises",
+   "C. Les avoirs détenus auprès des banques installées hors de l'UEMOA au titre des besoins courants des établissements de crédit",
+   "D. La domiciliation des exportations"
+  ],
+  "bonne": 2,
+  "article": "Instruction 10/2011",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Selon l'Article 17, la mise en œuvre du Règlement RFE s'applique sans préjudice de quelles autres dispositions légales ?",
+  "options": [
+   "A. Du droit commercial OHADA",
+   "B. Des dispositions relatives à la lutte contre le blanchiment de capitaux et le financement du terrorisme",
+   "C. Du règlement de l'UEMOA sur la concurrence",
+   "D. Des normes prudentielles de Bâle III"
+  ],
+  "bonne": 1,
+  "article": "Article 17",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Pour les opérations en capital à destination de l'étranger non prévues à l'Article 7 alinéa 1, quelle procédure est requise ?",
+  "options": [
+   "A. Déclaration à la BCEAO dans un délai de 30 jours",
+   "B. Demande d'autorisation de change soumise au Ministre chargé des Finances avec pièces justificatives",
+   "C. Notification à l'intermédiaire agréé 15 jours à l'avance",
+   "D. Autorisation conjointe du CREPMF et de la BCEAO"
+  ],
+  "bonne": 1,
+  "article": "Article 7",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Quelle instruction encadre les comptes rendus périodiques à adresser aux autorités de contrôle ?",
+  "options": [
+   "A. Instruction N°09/07/2011/RFE",
+   "B. Instruction N°10/07/2011/RFE",
+   "C. Instruction N°11/07/2011/RFE",
+   "D. Instruction N°08/07/2011/RFE"
+  ],
+  "bonne": 2,
+  "article": "Instruction 11/2011",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Selon l'Annexe II, quel document douanier atteste l'importation effective des marchandises ?",
+  "options": [
+   "A. La facture commerciale du fournisseur",
+   "B. Le connaissement maritime",
+   "C. Une attestation ou titre d'importation délivré par la Direction des Douanes en 6 exemplaires minimum",
+   "D. Le formulaire de change visé par la BCEAO"
+  ],
+  "bonne": 2,
+  "article": "Annexe II, Art. 7",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Selon l'Article 1er, combien de 'principal centre d'intérêt' une personne physique peut-elle posséder ?",
+  "options": [
+   "A. Un seul",
+   "B. Deux maximum",
+   "C. Autant que de pays de résidence",
+   "D. Le texte ne fixe pas de limite"
+  ],
+  "bonne": 0,
+  "article": "Article 1er",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Les transactions sur instruments dérivés de change (Article 12) sont autorisées avec quelles contreparties ?",
+  "options": [
+   "A. Uniquement avec les intermédiaires agréés de l'UEMOA",
+   "B. Avec les intermédiaires agréés ou les banques étrangères",
+   "C. Uniquement avec la BCEAO",
+   "D. Avec toute contrepartie dès lors que l'opération est adossée"
+  ],
+  "bonne": 1,
+  "article": "Article 12",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Selon l'Article 10, que doit faire un résident lorsqu'il liquide un investissement à l'étranger sans avoir obtenu d'autorisation de réinvestissement ?",
+  "options": [
+   "A. Déposer les fonds sur un compte étranger en francs",
+   "B. Rapatrier effectivement le produit dans son pays d'origine dans un délai d'un mois via un intermédiaire agréé",
+   "C. Déclarer le produit de la liquidation à la BCEAO dans un délai de 15 jours",
+   "D. Obtenir une autorisation a posteriori du Ministre des Finances"
+  ],
+  "bonne": 1,
+  "article": "Article 10",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Quel organisme, selon l'Annexe I, publie des notes et instructions aux intermédiaires agréés pour préciser l'application des textes RFE ?",
+  "options": [
+   "A. Le Ministre des Finances de chaque État membre",
+   "B. La Commission de l'UEMOA",
+   "C. La BCEAO sous son timbre",
+   "D. Le CREPMF"
+  ],
+  "bonne": 2,
+  "article": "Annexe I, Art. 2",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "La constitution d'investissements étrangers dans un État membre de l'UEMOA est-elle soumise à autorisation (Article 10) ?",
+  "options": [
+   "A. Oui, autorisation préalable du Ministre des Finances obligatoire",
+   "B. Oui, autorisation de la BCEAO requise",
+   "C. Non, elle est libre mais fait l'objet d'une déclaration statistique pour les investissements directs",
+   "D. Oui, déclaration obligatoire et autorisation du CREPMF"
+  ],
+  "bonne": 2,
+  "article": "Article 10",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Selon l'Article 7, lesquels de ces paiements à l'étranger un intermédiaire agréé peut-il exécuter sous sa responsabilité sans autorisation ministérielle préalable ?",
+  "options": [
+   "A. Tout transfert en capital quelle que soit sa nature",
+   "B. Le remboursement de dettes contractuelles et le transfert du produit de liquidation d'investissements ou valeurs mobilières par des non-résidents",
+   "C. Uniquement les investissements directs inférieurs à 10M FCFA",
+   "D. Les transferts liés aux emprunts obligataires"
+  ],
+  "bonne": 1,
+  "article": "Article 7",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "rfe",
+  "question": "Selon l'Annexe II, dans quel délai le Bureau des Douanes transmet-il un exemplaire du titre d'importation à la Direction des Finances Extérieures et à la BCEAO ?",
+  "options": [
+   "A. Dans les 3 jours suivant la réalisation de l'opération",
+   "B. Dans les 5 jours ouvrés suivant le dédouanement",
+   "C. Dans les 8 jours suivant la réalisation de l'opération",
+   "D. Dans les 15 jours suivant la réalisation de l'opération"
+  ],
+  "bonne": 2,
+  "article": "Annexe II, Art. 9",
+  "support": "Relations Financières Extérieures — Règlement n°09/2010/CM/UEMOA",
+  "lien": ""
+ }
+]

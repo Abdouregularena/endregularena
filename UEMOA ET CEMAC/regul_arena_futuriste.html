@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --c0:#000810;
+  --c1:#001428;
+  --c2:#002850;
+  --c3:#0A3D78;
+  --accent:#00C8FF;
+  --accent2:#0066FF;
+  --accent3:#00FF88;
+  --gold:#FFB800;
+  --warn:#FF4444;
+  --text:#B8D4F0;
+  --textbright:#E8F4FF;
+  --mono:'Share Tech Mono',monospace;
+  --title:'Orbitron',sans-serif;
+  --body:'Space Grotesk',sans-serif;
+}
+body{background:var(--c0);color:var(--text);font-family:var(--body);font-size:14px;overflow-x:hidden;}
+
+/* scanline overlay */
+body::before{
+  content:'';
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,200,255,.015) 2px,rgba(0,200,255,.015) 4px);
+  pointer-events:none;z-index:9999;
+}
+
+/* nav */
+.section-tabs{
+  position:sticky;top:0;z-index:100;
+  background:rgba(0,8,16,.95);
+  border-bottom:1px solid rgba(0,200,255,.2);
+  display:flex;gap:2px;padding:10px 20px;
+  backdrop-filter:blur(10px);
+}
+.tab{
+  font-family:var(--mono);
+  font-size:11px;letter-spacing:.12em;
+  color:rgba(0,200,255,.5);
+  background:transparent;
+  border:1px solid transparent;
+  border-radius:2px;
+  padding:6px 14px;cursor:pointer;
+  transition:all .2s;text-transform:uppercase;
+}
+.tab:hover,.tab.active{
+  color:var(--accent);
+  border-color:rgba(0,200,255,.4);
+  background:rgba(0,200,255,.08);
+}
+
+/* section wrapper */
+.sec{padding:60px 24px;max-width:1080px;margin:0 auto;}
+.sec+.sec{padding-top:0;}
+.sec-label{
+  font-family:var(--mono);
+  font-size:10px;letter-spacing:.18em;
+  color:var(--accent2);
+  text-transform:uppercase;
+  margin-bottom:10px;
+  display:flex;align-items:center;gap:8px;
+}
+.sec-label::before{content:'//';color:rgba(0,100,255,.4);}
+.sec-title{
+  font-family:var(--title);
+  font-size:26px;font-weight:700;
+  color:var(--textbright);
+  letter-spacing:.04em;
+  margin-bottom:6px;
+}
+.sec-sub{font-size:13px;color:rgba(184,212,240,.5);margin-bottom:32px;}
+
+/* corner-cut card */
+.hud-card{
+  background:rgba(0,20,40,.8);
+  border:1px solid rgba(0,200,255,.2);
+  position:relative;
+  clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,20px 100%,0 calc(100% - 20px));
+}
+.hud-card::before{
+  content:'';position:absolute;
+  top:0;left:0;right:0;bottom:0;
+  background:linear-gradient(135deg,rgba(0,200,255,.04) 0%,transparent 50%);
+  pointer-events:none;
+}
+
+hr.div{border:none;border-top:1px solid rgba(0,200,255,.1);max-width:1080px;margin:0 auto;}
+
+/* ── TOPBAR ── */
+.topbar{
+  display:flex;align-items:center;gap:16px;
+  padding:0 24px;height:56px;
+  background:rgba(0,8,16,.98);
+  border-bottom:1px solid rgba(0,200,255,.15);
+  justify-content:space-between;
+}
+.top-logo{
+  font-family:var(--title);
+  font-size:15px;font-weight:900;
+  letter-spacing:.15em;
+  color:var(--textbright);
+  display:flex;align-items:center;gap:8px;
+}
+.logo-box{
+  width:28px;height:28px;
+  background:var(--accent2);
+  clip-path:polygon(0 0,100% 0,100% 70%,70% 100%,0 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:900;color:white;
+  font-family:var(--title);
+}
+.top-stats{display:flex;gap:6px;}
+.top-stat{
+  display:flex;align-items:center;gap:5px;
+  background:rgba(0,200,255,.06);
+  border:1px solid rgba(0,200,255,.15);
+  padding:4px 10px;
+  clip-path:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%);
+  font-family:var(--mono);
+  font-size:11px;
+}
+.top-stat .lbl{color:rgba(0,200,255,.45);}
+.top-stat .val{color:var(--accent);font-weight:600;}
+.top-stat.g .val{color:var(--accent3);}
+.top-stat.o .val{color:var(--gold);}
+.top-right{display:flex;align-items:center;gap:8px;}
+.hud-btn{
+  width:32px;height:32px;
+  background:rgba(0,200,255,.08);
+  border:1px solid rgba(0,200,255,.2);
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:13px;
+  position:relative;
+}
+.notif-dot{
+  position:absolute;top:4px;right:4px;
+  width:6px;height:6px;
+  background:var(--warn);border-radius:50%;
+}
+.ava{
+  width:32px;height:32px;
+  background:linear-gradient(135deg,var(--accent2),var(--accent));
+  clip-path:polygon(0 0,100% 0,100% 70%,70% 100%,0 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--title);font-size:10px;font-weight:700;color:white;
+}
+
+/* ── LANDING ── */
+.hero-wrap{
+  background:rgba(0,8,16,.95);
+  border:1px solid rgba(0,200,255,.15);
+  overflow:hidden;
+  position:relative;
+}
+.hero-grid-bg{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(0,200,255,.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,200,255,.04) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+.hero-glow{
+  position:absolute;
+  top:-100px;right:10%;
+  width:400px;height:400px;
+  background:radial-gradient(circle,rgba(0,100,255,.15),transparent 70%);
+}
+.hero-inner{
+  position:relative;
+  padding:56px 48px;
+  display:grid;grid-template-columns:1fr 1fr;gap:48px;
+  align-items:center;
+}
+.hero-sys-tag{
+  font-family:var(--mono);
+  font-size:10px;letter-spacing:.15em;
+  color:var(--accent3);
+  display:flex;align-items:center;gap:6px;
+  margin-bottom:20px;
+}
+.pulse{
+  width:6px;height:6px;
+  background:var(--accent3);border-radius:50%;
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.7);}}
+
+.hero-h{
+  font-family:var(--title);
+  font-size:38px;font-weight:900;
+  color:var(--textbright);
+  line-height:1.05;
+  letter-spacing:.03em;
+  margin-bottom:16px;
+}
+.hero-h em{
+  font-style:normal;
+  color:transparent;
+  -webkit-text-stroke:1.5px var(--accent);
+}
+.hero-p{color:rgba(184,212,240,.55);font-size:14px;line-height:1.7;margin-bottom:32px;max-width:340px;}
+.hero-btns{display:flex;gap:10px;}
+.btn-hud{
+  font-family:var(--mono);
+  font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  padding:11px 22px;cursor:pointer;
+  background:var(--accent2);
+  color:white;border:none;
+  clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));
+  transition:all .2s;
+}
+.btn-hud:hover{background:var(--accent);color:var(--c0);}
+.btn-hud-o{
+  font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  padding:10px 22px;cursor:pointer;
+  background:transparent;
+  color:var(--accent);
+  border:1px solid rgba(0,200,255,.35);
+  clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));
+  transition:all .2s;
+}
+.btn-hud-o:hover{background:rgba(0,200,255,.08);}
+.hero-data{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.data-tile{
+  background:rgba(0,200,255,.05);
+  border:1px solid rgba(0,200,255,.12);
+  padding:20px;
+  clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,0 100%);
+}
+.data-tile .big{
+  font-family:var(--title);
+  font-size:26px;font-weight:700;
+  color:var(--textbright);
+  line-height:1;
+}
+.data-tile .big span{font-size:13px;color:var(--accent);margin-left:2px;}
+.data-tile .sm{font-size:11px;color:rgba(0,200,255,.45);margin-top:4px;font-family:var(--mono);letter-spacing:.05em;}
+.hero-bottom{
+  padding:14px 48px;
+  background:rgba(0,200,255,.04);
+  border-top:1px solid rgba(0,200,255,.1);
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+}
+.c-tag{
+  font-family:var(--mono);font-size:10px;
+  color:rgba(0,200,255,.6);
+  border:1px solid rgba(0,200,255,.15);
+  padding:2px 8px;
+  letter-spacing:.06em;
+}
+
+/* ── AUTH ── */
+.auth-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.auth-box{padding:36px;}
+.auth-box h3{
+  font-family:var(--title);
+  font-size:17px;font-weight:700;
+  color:var(--textbright);
+  letter-spacing:.08em;
+  margin-bottom:4px;
+}
+.auth-box .sub{
+  font-family:var(--mono);font-size:10px;
+  color:rgba(0,200,255,.4);letter-spacing:.08em;
+  margin-bottom:28px;text-transform:uppercase;
+}
+.f-group{margin-bottom:14px;}
+.f-label{
+  display:block;
+  font-family:var(--mono);font-size:10px;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(0,200,255,.5);
+  margin-bottom:5px;
+}
+.f-input{
+  width:100%;padding:9px 12px;
+  background:rgba(0,200,255,.04);
+  border:1px solid rgba(0,200,255,.15);
+  color:var(--textbright);
+  font-family:var(--mono);font-size:12px;
+  outline:none;
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%);
+  transition:border-color .2s,background .2s;
+}
+.f-input:focus{border-color:rgba(0,200,255,.5);background:rgba(0,200,255,.08);}
+.f-input::placeholder{color:rgba(0,200,255,.2);}
+.f-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.btn-submit{
+  width:100%;margin-top:8px;
+  padding:11px;cursor:pointer;
+  background:rgba(0,100,255,.6);
+  color:white;border:1px solid rgba(0,200,255,.3);
+  font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));
+  transition:all .2s;
+}
+.btn-submit:hover{background:rgba(0,200,255,.5);}
+.auth-foot{
+  text-align:center;font-family:var(--mono);
+  font-size:10px;color:rgba(0,200,255,.3);
+  margin-top:14px;letter-spacing:.05em;
+}
+.auth-foot a{color:var(--accent);text-decoration:none;}
+
+/* ── QUIZ ── */
+.quiz-wrap{
+  background:rgba(0,8,16,.97);
+  border:1px solid rgba(0,200,255,.15);
+  overflow:hidden;
+}
+.quiz-hud{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 24px;
+  background:rgba(0,200,255,.04);
+  border-bottom:1px solid rgba(0,200,255,.12);
+}
+.quiz-meta{display:flex;align-items:center;gap:14px;}
+.badge{
+  font-family:var(--mono);font-size:10px;letter-spacing:.1em;
+  color:var(--accent);
+  border:1px solid rgba(0,200,255,.25);
+  padding:4px 10px;
+  clip-path:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%);
+  text-transform:uppercase;
+}
+.prog-wrap{
+  width:220px;height:4px;
+  background:rgba(0,200,255,.08);
+  border:1px solid rgba(0,200,255,.1);
+}
+.prog-bar{
+  width:60%;height:100%;
+  background:linear-gradient(90deg,var(--accent2),var(--accent));
+}
+.q-count{font-family:var(--mono);font-size:11px;color:rgba(0,200,255,.4);}
+.timer{
+  font-family:var(--title);font-size:18px;font-weight:700;
+  color:var(--warn);
+  border:1px solid rgba(255,68,68,.25);
+  padding:6px 14px;
+  clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);
+}
+.quiz-body{
+  padding:36px 44px;
+  display:grid;grid-template-columns:1fr 280px;gap:28px;
+  align-items:start;
+}
+.q-num{
+  font-family:var(--mono);font-size:10px;letter-spacing:.15em;
+  color:var(--accent);text-transform:uppercase;margin-bottom:10px;
+}
+.q-text{
+  font-family:var(--title);
+  font-size:18px;font-weight:600;
+  color:var(--textbright);
+  line-height:1.5;margin-bottom:26px;
+  letter-spacing:.02em;
+}
+.opts{display:flex;flex-direction:column;gap:8px;}
+.opt{
+  display:flex;align-items:center;gap:12px;
+  background:rgba(0,200,255,.04);
+  border:1px solid rgba(0,200,255,.1);
+  padding:12px 16px;cursor:pointer;
+  clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,0 100%);
+  transition:all .2s;
+}
+.opt:hover{background:rgba(0,200,255,.09);border-color:rgba(0,200,255,.3);}
+.opt.sel{background:rgba(0,100,255,.15);border-color:rgba(0,200,255,.5);}
+.opt-k{
+  width:24px;height:24px;min-width:24px;
+  background:rgba(0,200,255,.08);
+  border:1px solid rgba(0,200,255,.2);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:10px;font-weight:600;color:var(--accent);
+  clip-path:polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,0 100%);
+}
+.opt.sel .opt-k{background:var(--accent2);border-color:var(--accent);color:white;}
+.opt-t{font-size:13px;color:rgba(184,212,240,.75);}
+.sidebar{display:flex;flex-direction:column;gap:12px;}
+.side-card{
+  background:rgba(0,200,255,.04);
+  border:1px solid rgba(0,200,255,.12);
+  padding:16px;
+  clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,0 100%);
+}
+.side-label{font-family:var(--mono);font-size:9px;letter-spacing:.15em;color:rgba(0,200,255,.35);text-transform:uppercase;margin-bottom:12px;}
+.score-big{
+  font-family:var(--title);font-size:38px;font-weight:900;
+  color:var(--accent);text-align:center;line-height:1;
+}
+.score-sm{font-family:var(--mono);font-size:9px;color:rgba(0,200,255,.3);text-align:center;margin-top:3px;letter-spacing:.1em;}
+.mini-g{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:12px;}
+.mini{background:rgba(0,200,255,.05);border:1px solid rgba(0,200,255,.08);padding:8px;text-align:center;}
+.mini .n{font-family:var(--title);font-size:16px;font-weight:700;}
+.mini .l{font-family:var(--mono);font-size:9px;color:rgba(0,200,255,.3);letter-spacing:.06em;margin-top:2px;}
+.mini.c .n{color:var(--accent3);}
+.mini.e .n{color:var(--warn);}
+.ref-box{
+  font-family:var(--mono);font-size:11px;
+  color:rgba(0,200,255,.65);
+  background:rgba(0,100,255,.08);
+  border:1px solid rgba(0,100,255,.2);
+  padding:10px;line-height:1.6;
+}
+.btn-val{
+  width:100%;padding:11px;cursor:pointer;
+  background:rgba(0,100,255,.5);
+  color:var(--accent);
+  border:1px solid rgba(0,200,255,.3);
+  font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));
+  transition:all .2s;
+}
+.btn-val:hover{background:rgba(0,200,255,.3);}
+
+/* ── RESULTS ── */
+.res-wrap{border:1px solid rgba(0,200,255,.15);overflow:hidden;}
+.res-head{
+  background:rgba(0,20,50,.9);
+  padding:36px 44px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid rgba(0,200,255,.15);
+  position:relative;overflow:hidden;
+}
+.res-head::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(0,200,255,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,200,255,.03) 1px,transparent 1px);
+  background-size:30px 30px;
+}
+.res-title{font-family:var(--title);font-size:24px;font-weight:900;color:var(--textbright);letter-spacing:.06em;position:relative;}
+.res-sub{font-family:var(--mono);font-size:10px;color:rgba(0,200,255,.35);letter-spacing:.1em;margin-top:6px;position:relative;}
+.score-ring{text-align:center;position:relative;}
+.ring-lbl{font-family:var(--mono);font-size:9px;letter-spacing:.15em;color:rgba(0,200,255,.35);text-transform:uppercase;margin-bottom:6px;}
+.ring-n{font-family:var(--title);font-size:52px;font-weight:900;color:white;line-height:1;}
+.ring-n span{font-size:20px;color:rgba(0,200,255,.4);}
+.grade{
+  display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.1em;
+  color:var(--gold);border:1px solid rgba(255,184,0,.3);
+  padding:3px 12px;margin-top:6px;text-transform:uppercase;
+}
+.res-body{padding:28px 44px;}
+.res-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px;}
+.r-tile{
+  background:rgba(0,200,255,.04);
+  border:1px solid rgba(0,200,255,.1);
+  padding:16px;text-align:center;
+  clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,0 100%);
+}
+.r-tile .ico{font-size:18px;margin-bottom:6px;}
+.r-tile .v{font-family:var(--title);font-size:20px;font-weight:700;color:var(--textbright);}
+.r-tile .lv{font-family:var(--mono);font-size:9px;color:rgba(0,200,255,.3);margin-top:3px;letter-spacing:.08em;text-transform:uppercase;}
+.rev-title{
+  font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(0,200,255,.4);margin-bottom:14px;padding-bottom:10px;
+  border-bottom:1px solid rgba(0,200,255,.08);
+}
+.rev-item{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:1px solid rgba(0,200,255,.05);}
+.rev-n{
+  width:22px;height:22px;min-width:22px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:10px;font-weight:600;
+  clip-path:polygon(0 0,calc(100% - 5px) 0,100% 5px,100% 100%,0 100%);
+  margin-top:1px;
+}
+.rev-n.ok{background:rgba(0,255,136,.15);color:var(--accent3);}
+.rev-n.ko{background:rgba(255,68,68,.15);color:var(--warn);}
+.rev-q{font-size:12px;font-weight:500;color:rgba(184,212,240,.75);margin-bottom:3px;}
+.rev-ref{font-family:var(--mono);font-size:10px;color:rgba(0,200,255,.4);}
+.res-foot{
+  padding:16px 44px;
+  background:rgba(0,200,255,.03);
+  border-top:1px solid rgba(0,200,255,.08);
+  display:flex;gap:10px;justify-content:flex-end;
+}
+.btn-sm{
+  font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  padding:9px 18px;cursor:pointer;
+  background:transparent;color:rgba(0,200,255,.6);
+  border:1px solid rgba(0,200,255,.2);
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%);
+  transition:all .2s;
+}
+.btn-sm:hover{background:rgba(0,200,255,.08);color:var(--accent);}
+.btn-sm-p{
+  font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  padding:9px 18px;cursor:pointer;
+  background:rgba(0,100,255,.5);color:var(--accent);
+  border:1px solid rgba(0,200,255,.3);
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));
+  transition:all .2s;
+}
+.btn-sm-p:hover{background:rgba(0,200,255,.3);}
+
+/* ── DASHBOARD ── */
+.dash-wrap{
+  display:grid;grid-template-columns:200px 1fr;
+  border:1px solid rgba(0,200,255,.15);
+  overflow:hidden;
+  min-height:560px;
+}
+.dash-side{
+  background:rgba(0,12,24,.98);
+  border-right:1px solid rgba(0,200,255,.1);
+  padding:20px 0;
+  display:flex;flex-direction:column;
+}
+.dash-logo{
+  font-family:var(--title);font-size:14px;font-weight:900;letter-spacing:.12em;
+  color:var(--textbright);
+  padding:0 18px 18px;
+  border-bottom:1px solid rgba(0,200,255,.08);
+  margin-bottom:12px;
+}
+.dash-logo span{color:var(--accent);}
+.nav-sec{
+  font-family:var(--mono);font-size:9px;letter-spacing:.15em;
+  color:rgba(0,200,255,.2);text-transform:uppercase;
+  padding:12px 18px 5px;
+}
+.nav-item{
+  display:flex;align-items:center;gap:8px;
+  padding:9px 18px;
+  font-size:12px;color:rgba(0,200,255,.4);
+  cursor:pointer;transition:all .15s;
+  border-left:2px solid transparent;
+}
+.nav-item:hover{color:var(--accent);background:rgba(0,200,255,.05);}
+.nav-item.active{color:var(--accent);background:rgba(0,100,255,.12);border-left-color:var(--accent);}
+.nav-item .ni{font-size:13px;width:16px;text-align:center;}
+.dash-main{
+  background:rgba(0,8,16,.95);
+  padding:24px 28px;
+  overflow-y:auto;
+}
+.dash-greet{font-family:var(--title);font-size:19px;font-weight:700;color:var(--textbright);letter-spacing:.04em;margin-bottom:3px;}
+.dash-dt{font-family:var(--mono);font-size:10px;color:rgba(0,200,255,.3);letter-spacing:.1em;margin-bottom:22px;}
+.kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.kpi{
+  background:rgba(0,200,255,.04);
+  border:1px solid rgba(0,200,255,.1);
+  padding:16px;
+  clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,0 100%);
+}
+.kpi-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.kpi-lbl{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:rgba(0,200,255,.35);}
+.kpi-ico{font-size:14px;}
+.kpi-v{font-family:var(--title);font-size:24px;font-weight:700;color:var(--textbright);}
+.kpi-d{font-family:var(--mono);font-size:10px;color:var(--accent3);margin-top:3px;letter-spacing:.05em;}
+.kpi-d.n{color:var(--warn);}
+.dash-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.dc{
+  background:rgba(0,200,255,.03);
+  border:1px solid rgba(0,200,255,.1);
+  padding:18px;
+}
+.dc-title{
+  font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(0,200,255,.45);
+  margin-bottom:14px;
+  display:flex;justify-content:space-between;
+}
+.dc-title a{color:var(--accent2);cursor:pointer;font-size:10px;}
+.lb-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(0,200,255,.05);}
+.lb-row:last-child{border-bottom:none;}
+.lb-rank{width:20px;font-family:var(--mono);font-size:10px;font-weight:600;color:rgba(0,200,255,.3);text-align:center;}
+.lb-rank.top{color:var(--gold);}
+.lb-av{
+  width:26px;height:26px;
+  background:rgba(0,100,255,.3);
+  clip-path:polygon(0 0,100% 0,100% 70%,70% 100%,0 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:9px;color:var(--accent);font-weight:600;
+}
+.lb-name{flex:1;font-size:12px;color:rgba(184,212,240,.7);}
+.lb-sc{font-family:var(--title);font-size:12px;font-weight:700;color:var(--accent);}
+.lb-row.me{background:rgba(0,100,255,.08);padding:7px 6px;border-color:rgba(0,200,255,.08);}
+.lb-row.me .lb-name{color:var(--textbright);font-weight:600;}
+.hist-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(0,200,255,.05);}
+.hist-row:last-child{border-bottom:none;}
+.hist-ico{
+  width:28px;height:28px;
+  border:1px solid rgba(0,200,255,.15);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;flex-shrink:0;
+}
+.hist-t{font-size:12px;color:rgba(184,212,240,.7);font-weight:500;}
+.hist-m{font-family:var(--mono);font-size:10px;color:rgba(0,200,255,.3);margin-top:1px;}
+.hist-sc{font-family:var(--title);font-size:13px;font-weight:700;}
+.hist-sc.hi{color:var(--accent3);}
+.hist-sc.lo{color:var(--warn);}
+</style>
+</head>
+<body>
+
+<nav class="section-tabs">
+  <button class="tab active" onclick="scroll('topbar')">Topbar</button>
+  <button class="tab" onclick="scroll('landing')">Landing</button>
+  <button class="tab" onclick="scroll('auth')">Auth</button>
+  <button class="tab" onclick="scroll('quiz')">Quiz</button>
+  <button class="tab" onclick="scroll('results')">Résultats</button>
+  <button class="tab" onclick="scroll('dashboard')">Dashboard</button>
+</nav>
+
+<!-- TOPBAR -->
+<div id="topbar" style="max-width:1080px;margin:0 auto;">
+  <div class="sec" style="padding-bottom:24px;">
+    <div class="sec-label">Topbar</div>
+    <div class="sec-title">NAVIGATION SYSTÈME</div>
+    <div class="sec-sub">En-tête global · 56px · Interface HUD</div>
+  </div>
+  <div style="max-width:1080px;margin:0 24px;border:1px solid rgba(0,200,255,.12);overflow:hidden;margin-bottom:32px;">
+    <div class="topbar">
+      <div class="top-logo">
+        <div class="logo-box">RA</div>
+        REGUL<span style="color:var(--accent);margin-left:2px;">ARENA</span>
+      </div>
+      <div class="top-stats">
+        <div class="top-stat o"><span class="lbl">SCR</span><span class="val">1 240</span></div>
+        <div class="top-stat"><span class="lbl">STK</span><span class="val">×7</span></div>
+        <div class="top-stat g"><span class="lbl">ACC</span><span class="val">78%</span></div>
+        <div class="top-stat"><span class="lbl">LVL</span><span class="val">12</span></div>
+      </div>
+      <div class="top-right">
+        <div class="hud-btn">🔔<div class="notif-dot"></div></div>
+        <div class="ava">AB</div>
+      </div>
+    </div>
+    <div style="padding:16px 24px;color:rgba(0,200,255,.2);font-family:var(--mono);font-size:11px;letter-spacing:.08em;">// CONTENU DE LA PAGE...</div>
+  </div>
+</div>
+
+<hr class="div">
+
+<!-- LANDING -->
+<div id="landing">
+  <div class="sec" style="padding-bottom:24px;">
+    <div class="sec-label">Landing</div>
+    <div class="sec-title">PAGE D'ACCUEIL</div>
+    <div class="sec-sub">Premier écran · visiteur non connecté</div>
+  </div>
+  <div style="max-width:1080px;margin:0 24px 40px;">
+    <div class="hero-wrap">
+      <div class="hero-grid-bg"></div>
+      <div class="hero-glow"></div>
+      <div class="hero-inner">
+        <div>
+          <div class="hero-sys-tag"><div class="pulse"></div>SYSTÈME ACTIF · 14 PAYS · v3.7.2</div>
+          <div class="hero-h">MAÎTRISEZ<br>LA <em>CONFORMITÉ</em><br>BANCAIRE.</div>
+          <p class="hero-p">Apprenez les réglementations BCEAO, BEAC, COBAC et UMOA par le jeu. Quiz, duels, tournois — progressez en compétition.</p>
+          <div class="hero-btns">
+            <button class="btn-hud">Démarrer →</button>
+            <button class="btn-hud-o">Voir démo</button>
+          </div>
+        </div>
+        <div class="hero-data">
+          <div class="data-tile"><div class="big">14<span>pays</span></div><div class="sm">UEMOA + CEMAC</div></div>
+          <div class="data-tile"><div class="big">500<span>+</span></div><div class="sm">QUESTIONS ACTIVES</div></div>
+          <div class="data-tile"><div class="big">3<span>modes</span></div><div class="sm">SOLO · DUEL · TRNOI</div></div>
+          <div class="data-tile"><div class="big">∞</div><div class="sm">SESSIONS ILLIMITÉES</div></div>
+        </div>
+      </div>
+      <div class="hero-bottom">
+        <span style="font-family:var(--mono);font-size:9px;color:rgba(0,200,255,.25);letter-spacing:.12em;margin-right:6px;">COUVERTURE //</span>
+        <span class="c-tag">🇸🇳 SN</span><span class="c-tag">🇨🇮 CI</span><span class="c-tag">🇧🇯 BJ</span>
+        <span class="c-tag">🇧🇫 BF</span><span class="c-tag">🇲🇱 ML</span><span class="c-tag">🇳🇪 NE</span>
+        <span class="c-tag">🇹🇬 TG</span><span class="c-tag">🇨🇲 CM</span><span class="c-tag">🇬🇦 GA</span>
+        <span class="c-tag">+ 5 AUTRES</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="div">
+
+<!-- AUTH -->
+<div id="auth">
+  <div class="sec" style="padding-bottom:24px;">
+    <div class="sec-label">Auth</div>
+    <div class="sec-title">AUTHENTIFICATION</div>
+    <div class="sec-sub">Accès sécurisé · protocole JWT</div>
+  </div>
+  <div style="max-width:1080px;margin:0 24px 40px;">
+    <div class="auth-grid">
+      <div class="hud-card"><div class="auth-box">
+        <h3>CONNEXION</h3>
+        <div class="sub">// Accès compte existant</div>
+        <div class="f-group">
+          <label class="f-label">Email</label>
+          <input class="f-input" type="email" placeholder="vous@institution.com">
+        </div>
+        <div class="f-group">
+          <label class="f-label">Mot de passe</label>
+          <input class="f-input" type="password" placeholder="••••••••">
+        </div>
+        <button class="btn-submit">Connexion ▶</button>
+        <div class="auth-foot">Pas de compte ? <a href="#">Créer un accès</a></div>
+      </div></div>
+      <div class="hud-card"><div class="auth-box">
+        <h3>INSCRIPTION</h3>
+        <div class="sub">// Créer un nouveau compte</div>
+        <div class="f-row">
+          <div class="f-group"><label class="f-label">Prénom</label><input class="f-input" placeholder="Abdou"></div>
+          <div class="f-group"><label class="f-label">Nom</label><input class="f-input" placeholder="Diallo"></div>
+        </div>
+        <div class="f-group"><label class="f-label">Email</label><input class="f-input" type="email" placeholder="vous@institution.com"></div>
+        <div class="f-group">
+          <label class="f-label">Pays</label>
+          <select class="f-input" style="cursor:pointer;">
+            <option>🇸🇳 Sénégal</option><option>🇨🇮 Côte d'Ivoire</option><option>🇨🇲 Cameroun</option>
+          </select>
+        </div>
+        <div class="f-group"><label class="f-label">Mot de passe</label><input class="f-input" type="password" placeholder="••••••••"></div>
+        <button class="btn-submit">Créer compte ▶</button>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<hr class="div">
+
+<!-- QUIZ -->
+<div id="quiz">
+  <div class="sec" style="padding-bottom:24px;">
+    <div class="sec-label">Quiz</div>
+    <div class="sec-title">INTERFACE DE JEU</div>
+    <div class="sec-sub">Mode solo · questions à choix multiples</div>
+  </div>
+  <div style="max-width:1080px;margin:0 24px 40px;">
+    <div class="quiz-wrap">
+      <div class="quiz-hud">
+        <div class="quiz-meta">
+          <div class="badge">🇸🇳 SN · BCEAO</div>
+          <div class="prog-wrap"><div class="prog-bar"></div></div>
+          <div class="q-count">06 / 10</div>
+        </div>
+        <div class="timer">⏱ 0:23</div>
+      </div>
+      <div class="quiz-body">
+        <div>
+          <div class="q-num">// Question 06 — Module BCEAO</div>
+          <div class="q-text">Selon la réglementation BCEAO, quel est le ratio de fonds propres minimum imposé aux établissements de crédit dans l'espace UEMOA ?</div>
+          <div class="opts">
+            <div class="opt"><div class="opt-k">A</div><div class="opt-t">6% des actifs pondérés par les risques</div></div>
+            <div class="opt sel"><div class="opt-k">B</div><div class="opt-t">8% des actifs pondérés par les risques (Bâle II adapté UEMOA)</div></div>
+            <div class="opt"><div class="opt-k">C</div><div class="opt-t">10% des actifs pondérés par les risques</div></div>
+            <div class="opt"><div class="opt-k">D</div><div class="opt-t">12% des actifs pondérés par les risques</div></div>
+          </div>
+        </div>
+        <div class="sidebar">
+          <div class="side-card">
+            <div class="side-label">// Score temps réel</div>
+            <div class="score-big">840</div>
+            <div class="score-sm">POINTS ACCUMULÉS</div>
+            <div class="mini-g">
+              <div class="mini c"><div class="n">5</div><div class="l">CORRECT</div></div>
+              <div class="mini e"><div class="n">0</div><div class="l">ERREUR</div></div>
+            </div>
+          </div>
+          <div class="side-card">
+            <div class="side-label">// Réf. réglementaire</div>
+            <div class="ref-box">📄 Instr. BCEAO n°001-06-2019<br>Fonds propres · Art. 12</div>
+          </div>
+          <button class="btn-val">Valider ▶▶</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="div">
+
+<!-- RESULTS -->
+<div id="results">
+  <div class="sec" style="padding-bottom:24px;">
+    <div class="sec-label">Résultats</div>
+    <div class="sec-title">FICHE DE FIN DE PARTIE</div>
+    <div class="sec-sub">Score · révision · références</div>
+  </div>
+  <div style="max-width:1080px;margin:0 24px 40px;">
+    <div class="res-wrap">
+      <div class="res-head">
+        <div>
+          <div class="res-title">// PARTIE TERMINÉE</div>
+          <div class="res-sub">SOLO · SÉNÉGAL · BCEAO · 10 QUESTIONS</div>
+        </div>
+        <div class="score-ring">
+          <div class="ring-lbl">Score final</div>
+          <div class="ring-n">840<span>/1000</span></div>
+          <div class="grade">🥇 EXCELLENT</div>
+        </div>
+      </div>
+      <div class="res-body">
+        <div class="res-grid">
+          <div class="r-tile"><div class="ico">✅</div><div class="v" style="color:var(--accent3)">8</div><div class="lv">Correctes</div></div>
+          <div class="r-tile"><div class="ico">❌</div><div class="v" style="color:var(--warn)">2</div><div class="lv">Fausses</div></div>
+          <div class="r-tile"><div class="ico">⏱</div><div class="v">4:12</div><div class="lv">Temps</div></div>
+          <div class="r-tile"><div class="ico">🏆</div><div class="v" style="color:var(--gold)">#4</div><div class="lv">Rang SN</div></div>
+        </div>
+        <div class="rev-title">// RÉVISION PAR QUESTION</div>
+        <div class="rev-item"><div class="rev-n ok">1</div><div><div class="rev-q">Définition du ratio de solvabilité BCEAO</div><div class="rev-ref">📄 Instruction BCEAO n°001-06-2019 · Art. 12</div></div></div>
+        <div class="rev-item"><div class="rev-n ok">2</div><div><div class="rev-q">Capital minimum requis pour une banque au Sénégal</div><div class="rev-ref">📄 Loi bancaire UMOA 2008 · Art. 23</div></div></div>
+        <div class="rev-item"><div class="rev-n ko">3</div><div><div class="rev-q">Délai de déclaration des incidents de paiement</div><div class="rev-ref">📄 Circulaire BCEAO n°003-2021 — Réponse correcte : 72h</div></div></div>
+        <div class="rev-item"><div class="rev-n ok">4</div><div><div class="rev-q">Organes de supervision dans la zone CEMAC</div><div class="rev-ref">📄 Convention COBAC 1992 · Art. 5-8</div></div></div>
+      </div>
+      <div class="res-foot">
+        <button class="btn-sm">📊 Leaderboard</button>
+        <button class="btn-sm">📤 Partager</button>
+        <button class="btn-sm-p">Rejouer ▶▶</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="div">
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="sec" style="padding-bottom:24px;">
+    <div class="sec-label">Dashboard</div>
+    <div class="sec-title">TABLEAU DE BORD</div>
+    <div class="sec-sub">KPIs · classements · historique</div>
+  </div>
+  <div style="max-width:1080px;margin:0 24px 60px;">
+    <div class="dash-wrap">
+      <div class="dash-side">
+        <div class="dash-logo">REGUL<span>ARENA</span></div>
+        <div class="nav-item active"><span class="ni">🏠</span> Accueil</div>
+        <div class="nav-item"><span class="ni">🎮</span> Jouer</div>
+        <div class="nav-item"><span class="ni">🏆</span> Classements</div>
+        <div class="nav-sec">// Compétition</div>
+        <div class="nav-item"><span class="ni">⚔️</span> Duels</div>
+        <div class="nav-item"><span class="ni">🎯</span> Tournois</div>
+        <div class="nav-sec">// Organisation</div>
+        <div class="nav-item"><span class="ni">🏦</span> Mon org.</div>
+        <div class="nav-item"><span class="ni">💬</span> Chat</div>
+        <div style="margin-top:auto;"><div class="nav-item"><span class="ni">⚙️</span> Paramètres</div></div>
+      </div>
+      <div class="dash-main">
+        <div class="dash-greet">BONJOUR, ABDOU ▶</div>
+        <div class="dash-dt">// DIMANCHE 24 MAI 2026 · SÉNÉGAL · BCEAO</div>
+        <div class="kpi-row">
+          <div class="kpi">
+            <div class="kpi-top"><span class="kpi-lbl">Score total</span><span class="kpi-ico">🏆</span></div>
+            <div class="kpi-v">12 840</div><div class="kpi-d">▲ +240 CETTE SEMAINE</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-top"><span class="kpi-lbl">Taux réussite</span><span class="kpi-ico">✅</span></div>
+            <div class="kpi-v">78%</div><div class="kpi-d">▲ +3% CE MOIS</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-top"><span class="kpi-lbl">Classement SN</span><span class="kpi-ico">📊</span></div>
+            <div class="kpi-v">#4</div><div class="kpi-d n">▼ −1 POSITION</div>
+          </div>
+        </div>
+        <div class="dash-row">
+          <div class="dc">
+            <div class="dc-title">// CLASSEMENT SÉNÉGAL <a>Tout voir →</a></div>
+            <div class="lb-row"><div class="lb-rank top">🥇</div><div class="lb-av">KD</div><div class="lb-name">Kofi Diatta</div><div class="lb-sc">15 200</div></div>
+            <div class="lb-row"><div class="lb-rank top">🥈</div><div class="lb-av">AN</div><div class="lb-name">Aïssatou Ndiaye</div><div class="lb-sc">14 780</div></div>
+            <div class="lb-row"><div class="lb-rank top">🥉</div><div class="lb-av">MS</div><div class="lb-name">Mamadou Sy</div><div class="lb-sc">13 990</div></div>
+            <div class="lb-row me"><div class="lb-rank" style="color:var(--accent);font-weight:700;">4</div><div class="lb-av">AB</div><div class="lb-name">Vous</div><div class="lb-sc">12 840</div></div>
+            <div class="lb-row"><div class="lb-rank">5</div><div class="lb-av">FB</div><div class="lb-name">Fatou Ba</div><div class="lb-sc">12 100</div></div>
+          </div>
+          <div class="dc">
+            <div class="dc-title">// HISTORIQUE RÉCENT <a>Tout voir →</a></div>
+            <div class="hist-row"><div class="hist-ico">🎮</div><div style="flex:1"><div class="hist-t">Solo · BCEAO Sénégal</div><div class="hist-m">Aujourd'hui · 10 Q</div></div><div class="hist-sc hi">+840</div></div>
+            <div class="hist-row"><div class="hist-ico">⚔️</div><div style="flex:1"><div class="hist-t">Duel vs Mamadou Sy</div><div class="hist-m">Hier · Victoire</div></div><div class="hist-sc hi">+200</div></div>
+            <div class="hist-row"><div class="hist-ico">🎯</div><div style="flex:1"><div class="hist-t">Tournoi COBAC</div><div class="hist-m">22 mai · Élim. R1</div></div><div class="hist-sc lo">−50</div></div>
+            <div class="hist-row"><div class="hist-ico">🎮</div><div style="flex:1"><div class="hist-t">Solo · UMOA Mali</div><div class="hist-m">21 mai · 10 Q</div></div><div class="hist-sc hi">+760</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function scroll(id){
+  document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>

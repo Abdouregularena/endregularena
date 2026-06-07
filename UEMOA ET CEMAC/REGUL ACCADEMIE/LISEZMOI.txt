@@ -1,0 +1,28 @@
+REGUL ACADÉMIE — MISE EN LIGNE (à faire dans l'ordre)
+
+ÉTAPE 1 — SUPABASE (le "cerveau", gratuit) ~10 min
+  1. supabase.com → New project (crée-le toi-même).
+  2. SQL Editor → New query → colle TOUT le fichier schema.sql → Run.
+  3. Authentication → Providers → Email : DÉCOCHE "Confirm email"
+     (sinon les étudiants doivent confirmer par mail avant de se connecter).
+  4. Settings → API → copie : Project URL  et  anon public key.
+
+ÉTAPE 2 — CONFIG (dans index.html, tout en haut du <script>)
+  SUPABASE_URL  = '...'      ← ta Project URL
+  SUPABASE_ANON = '...'      ← ta clé anon public
+  ADMIN_EMAILS  = ['ton-email']   ← l'e-mail avec lequel TU t'inscriras (back-office)
+  (PARCOURS_GRATUITS = 2  et  FORFAIT_FCFA = 15000  : ajuste si besoin)
+
+ÉTAPE 3 — OVH (mise en ligne)
+  - Espace client OVH → Hébergement → FTP-SSH → récupère hôte/identifiant/mot de passe.
+  - Avec FileZilla, connecte-toi et ouvre le dossier "www".
+  - Dépose dedans : index.html, le dossier formations/, et .htaccess.
+  - Multisite OVH : associe regulacademie.com (et .sn) à ce dossier www.
+
+ÉTAPE 4 — VÉRIFIER
+  - Ouvre https://ton-domaine → inscris-toi → tu dois voir le catalogue.
+  - Inscris-toi avec ton e-mail ADMIN → bouton "Admin" apparaît.
+  - Test paiement : un autre compte clique "Débloquer" → WhatsApp s'ouvre →
+    tu actives via Admin (e-mail + 365 jours).
+
+INSTITUTIONS : page "Institutions" → bouton WhatsApp = demande de licence annuelle.

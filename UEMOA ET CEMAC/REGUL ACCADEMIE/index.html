@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REGUL ACADÉMIE — Réglementation UEMOA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bleu:#002B5C;--or:#C9991A;--or2:#E8B520;--creme:#F5F3EE;--txt:#1d2733;--gris:#6b7785}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--creme);color:var(--txt);line-height:1.55}
+h1,h2,h3{font-family:'Playfair Display',Georgia,serif;color:var(--bleu)}
+a{color:var(--bleu)}
+header{background:var(--bleu);color:#fff;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:0 2px 12px rgba(0,0,0,.2)}
+.logo{display:flex;align-items:center;gap:10px;font-family:'Playfair Display';font-weight:800;font-size:1.15rem;color:#fff}
+.logo .ra{width:38px;height:38px;border-radius:50%;background:var(--or);color:var(--bleu);display:flex;align-items:center;justify-content:center;font-weight:800;border:2px solid var(--or2)}
+header nav{display:flex;gap:6px;flex-wrap:wrap}
+header nav button{background:transparent;border:1px solid rgba(255,255,255,.3);color:#fff;font:inherit;font-size:.82rem;padding:6px 11px;border-radius:8px;cursor:pointer}
+header nav button:hover{background:rgba(255,255,255,.12)}
+main{max-width:960px;margin:0 auto;padding:22px 16px 80px}
+.ecran{display:none}.ecran.actif{display:block}
+.card{background:#fff;border-radius:14px;padding:20px;box-shadow:0 1px 8px rgba(0,0,0,.06);margin-bottom:16px}
+.btn{background:var(--or);color:var(--bleu);border:none;border-radius:10px;padding:12px 16px;font:inherit;font-weight:600;cursor:pointer}
+.btn:hover{background:var(--or2)}
+.btn.bleu{background:var(--bleu);color:#fff}
+.btn.ghost{background:transparent;border:1px solid #ccc;color:var(--gris)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+input,select,textarea{width:100%;padding:11px;border:2px solid #e2ddd3;border-radius:9px;font:inherit;margin-bottom:10px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--or)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.formation{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 8px rgba(0,0,0,.07);display:flex;flex-direction:column;border-top:4px solid var(--or)}
+.formation .body{padding:16px;flex:1;display:flex;flex-direction:column}
+.formation h3{font-size:1.05rem;margin-bottom:4px}
+.formation .ref{font-size:.74rem;color:var(--gris);margin-bottom:8px}
+.formation .tag{font-size:.66rem;font-weight:700;padding:3px 8px;border-radius:20px;align-self:flex-start;margin-bottom:8px}
+.tag.gratuit{background:#d8f0e0;color:#1c8a4e}.tag.forfait{background:#fdf0c8;color:#8a6d1c}
+.formation .pb{height:6px;background:#eee;border-radius:6px;margin:8px 0;overflow:hidden}
+.formation .pb i{display:block;height:100%;background:var(--or);width:0}
+.formation .btn{margin-top:auto;text-align:center}
+.hero{text-align:center;padding:30px 18px;background:linear-gradient(135deg,var(--bleu),#013a7a);color:#fff;border-radius:16px;margin-bottom:20px}
+.hero h1{color:#fff;font-size:1.9rem}.hero p{opacity:.9;max-width:560px;margin:10px auto 0}
+.msg{font-size:.85rem;min-height:20px;margin-bottom:8px}.msg.err{color:#c0392b}.msg.ok{color:#1c8a4e}
+.banniere{background:#fff8e6;border:1px solid var(--or);border-radius:12px;padding:14px;margin-bottom:16px;font-size:.9rem}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{background:var(--bleu);color:#fff;padding:8px;text-align:left}td{padding:8px;border-bottom:1px solid #eee;vertical-align:top}
+.modal{position:fixed;inset:0;background:rgba(0,20,50,.7);display:none;align-items:center;justify-content:center;z-index:200;padding:18px}
+.modal.open{display:flex}.modal .box{background:#fff;border-radius:16px;max-width:440px;width:100%;padding:24px}
+.prix{font-size:2rem;font-weight:800;color:var(--or);font-family:'Playfair Display'}
+.wa{color:#0A8a3d;font-weight:700}
+#viewer{position:fixed;inset:0;background:#fff;z-index:300;display:none;flex-direction:column}
+#viewer .top{background:var(--bleu);color:#fff;padding:10px 14px;display:flex;justify-content:space-between;align-items:center}
+#viewer iframe{flex:1;border:none;width:100%}
+.footnote{font-size:.72rem;color:var(--gris);text-align:center;margin-top:24px}
+.marquee{overflow:hidden;background:var(--bleu);color:#fff;border-radius:10px;padding:9px 0;margin-bottom:14px;white-space:nowrap;font-size:.85rem} /* MODIFIÉ */
+.marquee span{display:inline-block;padding-left:100%;animation:defile 32s linear infinite}
+.marquee:hover span{animation-play-state:paused}
+@keyframes defile{to{transform:translateX(-100%)}}
+/* MODIFIÉ : bandes logos partenaires (haut + bas) */
+.bande-part{overflow:hidden;background:#fff;border-top:3px solid var(--or);border-bottom:3px solid var(--or);padding:11px 0;white-space:nowrap}
+.bande-part .piste{display:inline-block;padding-left:100%;animation:defile 26s linear infinite}
+.bande-part.rev .piste{animation-direction:reverse}
+.bande-part:hover .piste{animation-play-state:paused}
+.bande-part .item{display:inline-flex;align-items:center;gap:8px;margin:0 38px;font-family:'Playfair Display';font-weight:800;color:var(--bleu);font-size:1.02rem;letter-spacing:.4px}
+.bande-part .item img{height:30px;width:auto;vertical-align:middle} /* pour vrais logos plus tard */
+.bande-part .item .dr{height:19px;width:auto;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.15);vertical-align:-3px} /* MODIFIÉ : drapeau Sénégal */
+/* ---- DUEL (MODIFIÉ) ---- */
+.duel-list{display:flex;flex-direction:column;gap:8px}
+.duel-row{display:flex;justify-content:space-between;align-items:center;border:1px solid #e2ddd3;border-radius:10px;padding:10px 12px;font-size:.88rem;gap:8px}
+.duel-row b{color:var(--bleu)}
+.vs{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
+.vs .joueur{flex:1;text-align:center;background:#fff;border:2px solid #e2ddd3;border-radius:12px;padding:12px}
+.vs .joueur.lead{border-color:var(--or);box-shadow:0 0 0 3px rgba(201,153,26,.15)}
+.vs .joueur .sc{font-size:1.8rem;font-weight:800;font-family:'Playfair Display';color:var(--or)}
+.vs .mid{font-weight:800;color:var(--gris)}
+.chrono{height:8px;background:#eee;border-radius:8px;overflow:hidden;margin-bottom:14px}
+.chrono i{display:block;height:100%;background:var(--or);width:100%;transition:width .25s linear}
+.opt{display:block;width:100%;text-align:left;background:#fff;border:2px solid #e2ddd3;border-radius:10px;padding:13px;margin-bottom:9px;font:inherit;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--or)}
+.opt.bon{border-color:#1c8a4e;background:#e7f6ec}
+.opt.faux{border-color:#c0392b;background:#fbe9e7}
+.code-big{font-size:1.6rem;font-weight:800;letter-spacing:3px;color:var(--bleu);font-family:'Playfair Display'}
+.ref-cell{font-size:.78rem;color:var(--gris)}.ref-cell a{font-weight:600}
+.pill{display:inline-block;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:20px;background:#eef1f5;color:var(--bleu)}
+/* ---- GAMIFICATION (MODIFIÉ) ---- */
+#toastWrap{position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:400;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+.toast{background:#fff;border-left:5px solid var(--or);border-radius:12px;padding:12px 18px;box-shadow:0 8px 28px rgba(0,0,0,.22);font-weight:600;color:var(--bleu);display:flex;align-items:center;gap:10px;animation:toastIn .4s cubic-bezier(.18,.89,.32,1.28),toastOut .4s ease 1.9s forwards;max-width:90vw}
+.toast.ok{border-left-color:#1c8a4e}.toast.bad{border-left-color:#c0392b}.toast.win{border-left-color:var(--or);background:linear-gradient(135deg,#fff,#fff8e6)}
+.toast .em{font-size:1.6rem;line-height:1}
+@keyframes toastIn{from{opacity:0;transform:translateY(-24px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes toastOut{to{opacity:0;transform:translateY(-16px) scale(.95)}}
+.sticker{position:fixed;z-index:380;font-size:2.6rem;pointer-events:none;animation:stickPop .9s ease-out forwards}
+@keyframes stickPop{0%{opacity:0;transform:translate(-50%,-50%) scale(.3) rotate(-12deg)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.25) rotate(6deg)}100%{opacity:0;transform:translate(-50%,-130%) scale(1) rotate(0)}}
+.conf{position:fixed;top:-12px;width:11px;height:16px;z-index:370;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg);opacity:.9}}
+/* chrono coloré + pulsation */
+.chrono i.warn{background:#E8B520}.chrono i.danger{background:#c0392b}
+.chrono.low{animation:pulseChrono .6s ease-in-out infinite}
+@keyframes pulseChrono{0%,100%{box-shadow:0 0 0 0 rgba(192,57,43,.0)}50%{box-shadow:0 0 0 4px rgba(192,57,43,.25)}}
+#qChrono.low{color:#c0392b;font-weight:800;animation:tickScale .6s ease-in-out infinite}
+@keyframes tickScale{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
+/* score qui saute */
+.vs .joueur .sc.bump{animation:scoreBump .5s cubic-bezier(.18,.89,.32,1.28)}
+@keyframes scoreBump{0%{transform:scale(1)}40%{transform:scale(1.5);color:#1c8a4e}100%{transform:scale(1)}}
+.vs .joueur.lead{animation:leadGlow 1.6s ease-in-out infinite}
+@keyframes leadGlow{0%,100%{box-shadow:0 0 0 3px rgba(201,153,26,.15)}50%{box-shadow:0 0 0 6px rgba(201,153,26,.35)}}
+/* options : bonne réponse rebondit, fausse tremble */
+.opt.bon{animation:goodPop .5s ease}.opt.faux{animation:badShake .45s ease}
+@keyframes goodPop{0%{transform:scale(1)}50%{transform:scale(1.04)}100%{transform:scale(1)}}
+@keyframes badShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+/* halo plein écran flash bonne/mauvaise */
+#flash{position:fixed;inset:0;z-index:360;pointer-events:none;opacity:0}
+#flash.ok{background:radial-gradient(circle,rgba(28,138,78,.28),transparent 70%);animation:flashFx .6s ease}
+#flash.bad{background:radial-gradient(circle,rgba(192,57,43,.28),transparent 70%);animation:flashFx .6s ease}
+@keyframes flashFx{0%{opacity:0}30%{opacity:1}100%{opacity:0}}
+/* ---- CHAT DUEL / SALON (MODIFIÉ) ---- */
+#chatPanel{position:fixed;right:16px;bottom:16px;width:330px;max-width:calc(100vw - 24px);height:430px;max-height:72vh;background:#fff;border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.32);z-index:350;display:none;flex-direction:column;overflow:hidden;border:1px solid #e2ddd3}
+#chatPanel.open{display:flex}
+.chat-top{background:var(--bleu);color:#fff;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:.92rem}
+.chat-x{background:transparent;border:none;color:#fff;font-size:1.1rem;cursor:pointer}
+.chat-box{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:7px;background:var(--creme)}
+.chat-msg{max-width:82%;background:#fff;border:1px solid #e2ddd3;border-radius:12px;padding:7px 11px;font-size:.85rem;align-self:flex-start;word-break:break-word}
+.chat-msg.moi{align-self:flex-end;background:#fff8e6;border-color:var(--or)}
+.chat-nom{display:block;font-size:.68rem;font-weight:700;color:var(--gris);margin-bottom:2px}
+.chat-msg.moi .chat-nom{color:var(--or)}
+.chat-vide{color:var(--gris);font-size:.8rem;text-align:center;margin:auto}
+.chat-bar{display:flex;gap:6px;padding:10px;border-top:1px solid #eee}
+.chat-bar input{margin:0}.chat-bar .btn{padding:10px 14px}
+#viewer .top .vbtns{display:flex;gap:6px}
+#viewer .top .vbtns button{background:var(--or);color:var(--bleu);border:none;border-radius:8px;padding:6px 10px;font:inherit;font-weight:600;font-size:.8rem;cursor:pointer}
+/* ---- TOURNOI (MODIFIÉ) ---- */
+.t-mode{display:flex;gap:8px;margin-bottom:10px}
+.t-mode label{flex:1;border:2px solid #e2ddd3;border-radius:10px;padding:10px;cursor:pointer;font-size:.85rem;text-align:center}
+.t-mode input{display:none}
+.t-mode input:checked+label{border-color:var(--or);background:#fff8e6;font-weight:700}
+.t-jeu{display:grid;grid-template-columns:1fr 220px;gap:14px}
+@media(max-width:680px){.t-jeu{grid-template-columns:1fr}}
+.t-rank{background:#fff;border-radius:14px;padding:14px;box-shadow:0 1px 8px rgba(0,0,0,.06);align-self:start}
+.t-rank h3{font-size:.95rem;margin-bottom:8px}
+.t-row{display:flex;justify-content:space-between;align-items:center;padding:6px 8px;border-radius:8px;font-size:.85rem;gap:6px}
+.t-row+.t-row{margin-top:3px}
+.t-row.moi{background:#fff8e6}
+.t-row.out{opacity:.45;text-decoration:line-through}
+.t-row .pts{font-weight:800;color:var(--or);font-family:'Playfair Display'}
+.t-pos{width:22px;height:22px;border-radius:50%;background:var(--bleu);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0}
+.t-players{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.t-chip{background:#eef1f5;color:var(--bleu);border-radius:20px;padding:6px 12px;font-size:.82rem;font-weight:600}
+.t-chip.host{background:#fff8e6;border:1px solid var(--or)}
+.t-elim{display:inline-block;background:#fbe9e7;color:#c0392b;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:20px;margin-bottom:8px}
+.top-pack{display:flex;flex-direction:column;gap:5px}
+.top-pack .tp{display:flex;justify-content:space-between;font-size:.84rem;padding:5px 9px;background:#f7f5f0;border-radius:8px}
+.top-pack .tp b{color:var(--bleu)}.top-pack .tp .v{font-weight:800;color:var(--or)}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="logo"><span class="ra">RA</span> REGUL ACADÉMIE</div>
+  <nav id="navAuth" style="display:none">
+    <button onclick="aller('catalogue')">Formations</button>
+    <button id="btnDuel" onclick="aller('duel')">⚔️ Duels</button> <!-- MODIFIÉ -->
+    <button id="btnTournoi" onclick="aller('tournoi')">🏆 Tournoi</button> <!-- MODIFIÉ -->
+    <button onclick="aller('institutions')">Institutions</button>
+    <button id="btnCompte" onclick="aller('compte')">Mon compte</button>
+    <button id="btnAdmin" style="display:none" onclick="aller('admin')">Admin</button>
+    <button onclick="deconnexion()">Quitter</button>
+  </nav>
+</header>
+
+<!-- MODIFIÉ : bande partenaires HAUT (remplacer les .item par <img src="logo.png"> quand dispo) -->
+<div class="bande-part" id="partenairesHaut">
+  <span class="piste">
+    <span class="item">REGUL ARENA <svg class="dr" viewBox="0 0 9 6" role="img" aria-label="Drapeau du Senegal"><rect width="3" height="6" fill="#00853F"/><rect x="3" width="3" height="6" fill="#FDEF42"/><rect x="6" width="3" height="6" fill="#E31B23"/><polygon points="4.5,1.9 4.747,2.66 5.546,2.66 4.899,3.13 5.147,3.89 4.5,3.42 3.853,3.89 4.101,3.13 3.454,2.66 4.253,2.66" fill="#00853F"/></svg></span><span class="item">REGUL ARENA <svg class="dr" viewBox="0 0 9 6" role="img" aria-label="Drapeau du Senegal"><rect width="3" height="6" fill="#00853F"/><rect x="3" width="3" height="6" fill="#FDEF42"/><rect x="6" width="3" height="6" fill="#E31B23"/><polygon points="4.5,1.9 4.747,2.66 5.546,2.66 4.899,3.13 5.147,3.89 4.5,3.42 3.853,3.89 4.101,3.13 3.454,2.66 4.253,2.66" fill="#00853F"/></svg></span><span class="item">REGUL ARENA <svg class="dr" viewBox="0 0 9 6" role="img" aria-label="Drapeau du Senegal"><rect width="3" height="6" fill="#00853F"/><rect x="3" width="3" height="6" fill="#FDEF42"/><rect x="6" width="3" height="6" fill="#E31B23"/><polygon points="4.5,1.9 4.747,2.66 5.546,2.66 4.899,3.13 5.147,3.89 4.5,3.42 3.853,3.89 4.101,3.13 3.454,2.66 4.253,2.66" fill="#00853F"/></svg></span><span class="item">REGUL ARENA <svg class="dr" viewBox="0 0 9 6" role="img" aria-label="Drapeau du Senegal"><rect width="3" height="6" fill="#00853F"/><rect x="3" width="3" height="6" fill="#FDEF42"/><rect x="6" width="3" height="6" fill="#E31B23"/><polygon points="4.5,1.9 4.747,2.66 5.546,2.66 4.899,3.13 5.147,3.89 4.5,3.42 3.853,3.89 4.101,3.13 3.454,2.66 4.253,2.66" fill="#00853F"/></svg></span><span class="item">REGUL ARENA <svg class="dr" viewBox="0 0 9 6" role="img" aria-label="Drapeau du Senegal"><rect width="3" height="6" fill="#00853F"/><rect x="3" width="3" height="6" fill="#FDEF42"/><rect x="6" width="3" height="6" fill="#E31B23"/><polygon points="4.5,1.9 4.747,2.66 5.546,2.66 4.899,3.13 5.147,3.89 4.5,3.42 3.853,3.89 4.101,3.13 3.454,2.66 4.253,2.66" fill="#00853F"/></svg></span><span class="item">REGUL ARENA <svg class="dr" viewBox="0 0 9 6" role="img" aria-label="Drapeau du Senegal"><rect width="3" height="6" fill="#00853F"/><rect x="3" width="3" height="6" fill="#FDEF42"/><rect x="6" width="3" height="6" fill="#E31B23"/><polygon points="4.5,1.9 4.747,2.66 5.546,2.66 4.899,3.13 5.147,3.89 4.5,3.42 3.853,3.89 4.101,3.13 3.454,2.66 4.253,2.66" fill="#00853F"/></svg></span>
+  </span>
+</div>
+
+<main>
+  <!-- ÉCRAN AUTH -->
+  <section id="ec-auth" class="ecran actif">
+    <div class="hero">
+      <h1>La réglementation UEMOA, enfin maîtrisée</h1>
+      <p>Formations certifiantes pour les professionnels de la banque, de l'assurance et des finances publiques. <b>Lancement : accès intégral offert.</b></p> <!-- MODIFIÉ -->
+    </div>
+    <div class="card" style="max-width:420px;margin:0 auto">
+      <div id="tabAuth" style="display:flex;gap:8px;margin-bottom:14px">
+        <button class="btn bleu" style="flex:1" onclick="modeAuth('connexion')">Connexion</button>
+        <button class="btn ghost" style="flex:1" onclick="modeAuth('inscription')">Inscription</button>
+      </div>
+      <div id="champsInscription" style="display:none">
+        <input id="a-nom" placeholder="Nom complet">
+        <input id="a-tel" type="tel" placeholder="Téléphone (ex: 77 123 45 67)">
+        <select id="a-secteur"><!-- MODIFIÉ : secteur pour les stats sponsors -->
+          <option value="">Votre profil…</option>
+          <option>Banque</option>
+          <option>Assurance</option>
+          <option>Microfinance</option>
+          <option>Étudiant</option>
+          <option>Enseignant / Formateur</option>
+          <option>Autre</option>
+        </select>
+      </div>
+      <input id="a-email" type="email" placeholder="E-mail">
+      <input id="a-pass" type="password" placeholder="Mot de passe">
+      <div id="msgAuth" class="msg"></div>
+      <button class="btn" style="width:100%" id="btnAuth" onclick="soumettreAuth()">Se connecter</button>
+      <button class="btn ghost" style="width:100%;margin-top:8px" onclick="entrerDemo()">👁️ Découvrir en démo (sans compte)</button>
+    </div>
+  </section>
+
+  <!-- ÉCRAN CONFIRMATION INSCRIPTION -->
+  <section id="ec-confirm" class="ecran">
+    <div class="hero"><h1>Bienvenue 🎉</h1><p>Votre compte est créé. Accès intégral à toutes les formations et aux duels.</p></div> <!-- MODIFIÉ -->
+    <div class="card" style="max-width:420px;margin:0 auto;text-align:center">
+      <p id="confirmEmail" style="color:var(--gris);margin-bottom:14px"></p>
+      <button class="btn" style="width:100%" onclick="aller('catalogue')">Accéder aux formations</button> <!-- MODIFIÉ -->
+    </div>
+  </section>
+
+  <!-- ÉCRAN CATALOGUE -->
+  <section id="ec-catalogue" class="ecran">
+    <div id="banForfait" class="banniere" style="display:none"></div>
+    <h2 style="margin-bottom:14px">Catalogue des formations</h2>
+    <div class="grid" id="grilleFormations"></div>
+  </section>
+
+  <!-- ÉCRAN DUEL (MODIFIÉ) -->
+  <section id="ec-duel" class="ecran">
+    <div class="hero"><h1>⚔️ Duels réglementaires</h1><p>Défie un autre apprenant en temps réel sur un pack. Le plus rapide à répondre verrouille la question.</p></div>
+    <div id="topBanner" class="marquee" style="display:none"></div> <!-- MODIFIÉ : top scoreurs défilants -->
+
+    <!-- Lobby : créer / rejoindre -->
+    <div id="duelLobby">
+      <div class="card">
+        <h3 style="margin-bottom:10px">Créer un duel</h3>
+        <select id="d-pack"></select>
+        <div style="display:flex;gap:10px">
+          <select id="d-nb" style="flex:1"><option value="5">5 questions</option><option value="10" selected>10 questions</option><option value="15">15 questions</option></select>
+          <select id="d-timing" style="flex:1"><option value="10">10 s / question</option><option value="15" selected>15 s / question</option><option value="20">20 s / question</option><option value="30">30 s / question</option></select>
+        </div>
+        <div id="msgCreer" class="msg"></div>
+        <button class="btn" style="width:100%" onclick="creerDuel()">Créer & attendre un adversaire</button>
+        <button class="btn ghost" style="width:100%;margin-top:8px" onclick="salonDuPack()">💬 Salon de ce pack</button> <!-- MODIFIÉ : salon multi-joueurs du module -->
+      </div>
+      <div class="card">
+        <h3 style="margin-bottom:10px">Rejoindre par code</h3>
+        <div style="display:flex;gap:10px">
+          <input id="d-code" placeholder="Code du duel (6 lettres)" style="flex:1;text-transform:uppercase">
+          <button class="btn bleu" onclick="rejoindreCode()">Rejoindre</button>
+        </div>
+        <div id="msgRejoindre" class="msg"></div>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <h3>Duels ouverts en ligne</h3>
+          <button class="btn ghost" onclick="chargerLobby()">↻ Actualiser</button>
+        </div>
+        <div id="lobbyList" class="duel-list"></div>
+      </div>
+    </div>
+
+    <!-- Salle d'attente -->
+    <div id="duelAttente" class="card" style="display:none;text-align:center">
+      <h3>En attente d'un adversaire…</h3>
+      <p style="color:var(--gris);margin:8px 0">Partage ce code :</p>
+      <div class="code-big" id="attCode"></div>
+      <p style="color:var(--gris);margin:8px 0" id="attInfo"></p>
+      <button class="btn ghost" onclick="annulerAttente()">Annuler</button>
+    </div>
+
+    <!-- Match en cours -->
+    <div id="duelJeu" style="display:none">
+      <div class="vs">
+        <div class="joueur" id="jA"><div id="jAnom">—</div><div class="sc" id="jAsc">0</div></div>
+        <div class="mid">VS</div>
+        <div class="joueur" id="jB"><div id="jBnom">—</div><div class="sc" id="jBsc">0</div></div>
+      </div>
+      <div style="text-align:center;margin-bottom:10px"><button class="btn ghost" style="padding:7px 14px" onclick="Chat.duel()">💬 Chat avec l'adversaire</button></div> <!-- MODIFIÉ : chat privé du duel -->
+      <div style="display:flex;justify-content:space-between;font-size:.82rem;color:var(--gris);margin-bottom:6px">
+        <span id="qNum"></span><span id="qChrono"></span>
+      </div>
+      <div class="chrono"><i id="chronoBar"></i></div>
+      <div class="card">
+        <p style="font-weight:600;margin-bottom:12px" id="qText"></p>
+        <div id="qOptions"></div>
+        <div id="qInfo" class="msg" style="margin-top:6px"></div>
+      </div>
+    </div>
+
+    <!-- Feuille de match -->
+    <div id="duelFin" style="display:none">
+      <div class="card" style="text-align:center">
+        <h2 id="finTitre"></h2>
+        <p id="finScore" style="color:var(--gris);margin-top:6px"></p>
+        <div id="zoneScore" style="margin-top:12px"></div> <!-- MODIFIÉ : enregistrer son score -->
+      </div>
+      <div class="card">
+        <h3 style="margin-bottom:10px">Feuille de match</h3>
+        <div style="overflow-x:auto"><table id="finTable"></table></div>
+      </div>
+      <button class="btn" style="width:100%" onclick="quitterDuel()">Retour aux duels</button>
+    </div>
+  </section>
+
+  <!-- ÉCRAN TOURNOI (MODIFIÉ) -->
+  <section id="ec-tournoi" class="ecran">
+    <div class="hero"><h1>🏆 Tournoi réglementaire</h1><p>Plusieurs joueurs sur le même pack, en temps réel. Le premier à donner la bonne réponse verrouille la question.</p></div>
+
+    <!-- Lobby tournoi -->
+    <div id="tLobby">
+      <div class="card">
+        <h3 style="margin-bottom:10px">Créer un tournoi</h3>
+        <select id="t-pack"></select>
+        <div class="t-mode">
+          <input type="radio" name="tmode" id="tm-champ" value="championnat" checked><label for="tm-champ">🏅 Championnat<br><small>tout le monde joue toutes les manches, classement aux points</small></label>
+          <input type="radio" name="tmode" id="tm-elim" value="elimination"><label for="tm-elim">⚔️ Élimination directe<br><small>qui rate la manche est éliminé, dernier debout gagne</small></label>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <select id="t-max" style="flex:1"><option value="4">4 joueurs</option><option value="8" selected>8 joueurs</option><option value="16">16 joueurs</option><option value="32">32 joueurs</option></select>
+          <select id="t-nb" style="flex:1"><option value="5">5 manches</option><option value="7">7 manches</option><option value="10" selected>10 manches</option><option value="15">15 manches</option></select>
+          <select id="t-timing" style="flex:1"><option value="10">10 s</option><option value="15" selected>15 s</option><option value="20">20 s</option></select>
+        </div>
+        <div id="t-msgCreer" class="msg"></div>
+        <button class="btn" style="width:100%" onclick="creerTournoi()">Créer le tournoi</button>
+        <button class="btn ghost" style="width:100%;margin-top:8px" onclick="salonTournoiPack()">💬 Salon de ce pack</button>
+      </div>
+      <div class="card">
+        <h3 style="margin-bottom:10px">Rejoindre par code</h3>
+        <div style="display:flex;gap:10px">
+          <input id="t-code" placeholder="Code du tournoi (6 lettres)" style="flex:1;text-transform:uppercase">
+          <button class="btn bleu" onclick="rejoindreTournoi()">Rejoindre</button>
+        </div>
+        <div id="t-msgJoin" class="msg"></div>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <h3>⚡ Top scoreurs du pack</h3>
+          <button class="btn ghost" onclick="chargerTopPack()">↻</button>
+        </div>
+        <div id="t-topPack" class="top-pack"></div>
+      </div>
+    </div>
+
+    <!-- Salle d'attente tournoi -->
+    <div id="tAttente" class="card" style="display:none;text-align:center">
+      <h3 id="tAttTitre">En attente des joueurs…</h3>
+      <p style="color:var(--gris);margin:8px 0">Partage ce code :</p>
+      <div class="code-big" id="tAttCode"></div>
+      <p style="color:var(--gris);margin:8px 0" id="tAttInfo"></p>
+      <div class="t-players" id="tAttPlayers"></div>
+      <div id="t-msgAtt" class="msg"></div>
+      <button class="btn" id="tBtnStart" style="display:none" onclick="lancerTournoi()">▶️ Démarrer le tournoi</button>
+      <p id="tWaitHost" style="color:var(--gris);font-size:.85rem;display:none">En attente que l'organisateur démarre…</p>
+      <button class="btn ghost" style="margin-top:8px" onclick="quitterTournoi()">Quitter</button>
+    </div>
+
+    <!-- Tournoi en cours -->
+    <div id="tJeu" style="display:none">
+      <div id="tElimBadge" class="t-elim" style="display:none">❌ Tu es éliminé — mode spectateur</div>
+      <div style="display:flex;justify-content:space-between;font-size:.82rem;color:var(--gris);margin-bottom:6px">
+        <span id="tQNum"></span><span id="tQChrono"></span>
+      </div>
+      <div class="chrono"><i id="tChronoBar"></i></div>
+      <div class="t-jeu">
+        <div class="card">
+          <p style="font-weight:600;margin-bottom:12px" id="tQText"></p>
+          <div id="tQOptions"></div>
+          <div id="tQInfo" class="msg" style="margin-top:6px"></div>
+          <button class="btn ghost" style="margin-top:8px" onclick="Chat.salon(T.pack,T.pack_titre)">💬 Salon</button>
+        </div>
+        <div class="t-rank">
+          <h3>Classement live</h3>
+          <div id="tRank"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fin tournoi -->
+    <div id="tFin" style="display:none">
+      <div class="card" style="text-align:center">
+        <h2 id="tFinTitre">🏆 Tournoi terminé</h2>
+        <div id="tFinRank" style="margin-top:12px"></div>
+        <div id="tZoneScore" style="margin-top:12px"></div>
+      </div>
+      <button class="btn" style="width:100%" onclick="quitterTournoi()">Retour aux tournois</button>
+    </div>
+  </section>
+
+  <!-- ÉCRAN COMPTE -->
+  <section id="ec-compte" class="ecran">
+    <h2 style="margin-bottom:14px">Mon compte</h2>
+    <div class="card" id="infoCompte"></div>
+    <div class="card">
+      <h3 style="margin-bottom:10px">Ma progression</h3>
+      <div id="maProgression"></div>
+    </div>
+    <div class="card">
+      <h3 style="margin-bottom:10px">Mes badges</h3>
+      <div id="mesBadges"></div>
+    </div>
+    <div class="card">
+      <h3 style="margin-bottom:10px">Mon certificat</h3>
+      <p style="color:var(--gris);margin-bottom:12px">Téléchargez votre certificat de participation et partagez vos résultats.</p>
+      <button class="btn" onclick="genererCertificat()">📜 Télécharger mon certificat</button>
+      <button class="btn bleu" style="margin-left:8px" onclick="partagerResultats()">🔗 Partager mes résultats</button>
+    </div>
+    <div class="card">
+      <h3 style="margin-bottom:10px">Votre avis sur la plateforme</h3>
+      <div id="etoiles" style="font-size:1.9rem;cursor:pointer;color:#ddd;margin-bottom:8px">
+        <span data-n="1">★</span><span data-n="2">★</span><span data-n="3">★</span><span data-n="4">★</span><span data-n="5">★</span>
+      </div>
+      <textarea id="fb-comment" rows="3" placeholder="Commentaires, suggestions, idées d'amélioration…"></textarea>
+      <div id="msgFb" class="msg"></div>
+      <button class="btn" onclick="envoyerFeedback()">Envoyer mon avis</button>
+    </div>
+  </section>
+
+  <!-- ÉCRAN INSTITUTIONS -->
+  <section id="ec-institutions" class="ecran">
+    <div class="hero"><h1>Offre Institutions</h1><p>Banques, compagnies d'assurance, écoles : formez vos agents toute l'année sur des parcours personnalisés à votre réglementation interne.</p></div>
+    <div class="card">
+      <h3 style="margin-bottom:10px">Production sur commande</h3>
+      <p style="margin-bottom:12px">Accès annuel illimité pour vos agents · parcours sur mesure · tableau de bord de suivi · attestations. Décrivez votre besoin, nous revenons vers vous.</p>
+      <input id="i-org" placeholder="Nom de l'institution">
+      <input id="i-contact" placeholder="Nom + fonction du contact">
+      <input id="i-nb" type="number" placeholder="Nombre d'agents à former">
+      <button class="btn" onclick="demandeInstitution()">Envoyer la demande par e-mail</button> <!-- MODIFIÉ -->
+    </div>
+  </section>
+
+  <!-- ÉCRAN ADMIN -->
+  <section id="ec-admin" class="ecran">
+    <h2 style="margin-bottom:14px">Back-office</h2>
+    <div class="card">
+      <h3 style="margin-bottom:10px">Activer un forfait (paiement reçu)</h3>
+      <input id="adm-email" placeholder="E-mail du client à activer">
+      <input id="adm-jours" type="number" placeholder="Durée en jours (ex: 365)" value="365">
+      <div id="msgAdmin" class="msg"></div>
+      <button class="btn" onclick="activerForfait()">Activer le forfait</button>
+    </div>
+    <!-- IMPORT QUIZ POUR LES DUELS (MODIFIÉ) -->
+    <div class="card">
+      <h3 style="margin-bottom:6px">Importer des quiz (duels)</h3>
+      <p style="color:var(--gris);font-size:.82rem;margin-bottom:10px">Colle un tableau JSON. Format par question :<br>
+      <code>{"pack":"rfe","question":"…","options":["A","B","C","D"],"bonne":1,"article":"Art. 12","support":"Règlement n° 06/2024/CM/UEMOA","lien":"https://…"}</code></p>
+      <select id="q-pack-import"></select>
+      <textarea id="q-json" rows="6" placeholder='[ { "pack":"rfe", "question":"…", "options":["…","…"], "bonne":0, "article":"Art. 1", "support":"…", "lien":"" } ]'></textarea>
+      <div id="msgImport" class="msg"></div>
+      <button class="btn" onclick="importerQuiz()">Importer dans la banque de questions</button>
+    </div>
+    <!-- STATISTIQUES SPONSORS (MODIFIÉ) -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <h3>📊 Statistiques</h3>
+        <div style="display:flex;gap:6px"><button class="btn ghost" onclick="chargerStats()">↻</button><button class="btn" onclick="exporterStats()">⬇️ CSV</button></div>
+      </div>
+      <div id="statsBox"><p style="color:var(--gris)">Chargement…</p></div>
+    </div>
+    <div class="card">
+      <h3 style="margin-bottom:10px">Achats en attente</h3>
+      <div id="achatsAttente">—</div>
+    </div>
+  </section>
+
+  <p class="footnote">REGUL ACADÉMIE · regularena.net · contact@regularena.com</p> <!-- MODIFIÉ -->
+</main>
+
+<!-- MODIFIÉ : bande partenaires BAS -->
+<div class="bande-part rev" id="partenairesBas">
+  <span class="piste">
+    <span class="item">REGUL ARENA <svg class="dr" viewBox="0 0 9 6" role="img" aria-label="Drapeau du Senegal"><rect width="3" height="6" fill="#00853F"/><rect x="3" width="3" height="6" fill="#FDEF42"/><rect x="6" width="3" height="6" fill="#E31B23"/><polygon points="4.5,1.9 4.747,2.66 5.546,2.66 4.899,3.13 5.147,3.89 4.5,3.42 3.853,3.89 4.101,3.13 3.454,2.66 4.253,2.66" fill="#00853F"/></svg></span><span class="item">REGUL ARENA <svg class="dr" viewBox="0 0 9 6" role="img" aria-label="Drapeau du Senegal"><rect width="3" height="6" fill="#00853F"/><rect x="3" width="3" height="6" fill="#FDEF42"/><rect x="6" width="3" height="6" fill="#E31B23"/><polygon points="4.5,1.9 4.747,2.66 5.546,2.66 4.899,3.13 5.147,3.89 4.5,3.42 3.853,3.89 4.101,3.13 3.454,2.66 4.253,2.66" fill="#00853F"/></svg></span><span class="item">REGUL ARENA <svg class="dr" viewBox="0 0 9 6" role="img" aria-label="Drapeau du Senegal"><rect width="3" height="6" fill="#00853F"/><rect x="3" width="3" height="6" fill="#FDEF42"/><rect x="6" width="3" height="6" fill="#E31B23"/><polygon points="4.5,1.9 4.747,2.66 5.546,2.66 4.899,3.13 5.147,3.89 4.5,3.42 3.853,3.89 4.101,3.13 3.454,2.66 4.253,2.66" fill="#00853F"/></svg></span><span class="item">REGUL ARENA <svg class="dr" viewBox="0 0 9 6" role="img" aria-label="Drapeau du Senegal"><rect width="3" height="6" fill="#00853F"/><rect x="3" width="3" height="6" fill="#FDEF42"/><rect x="6" width="3" height="6" fill="#E31B23"/><polygon points="4.5,1.9 4.747,2.66 5.546,2.66 4.899,3.13 5.147,3.89 4.5,3.42 3.853,3.89 4.101,3.13 3.454,2.66 4.253,2.66" fill="#00853F"/></svg></span><span class="item">REGUL ARENA <svg class="dr" viewBox="0 0 9 6" role="img" aria-label="Drapeau du Senegal"><rect width="3" height="6" fill="#00853F"/><rect x="3" width="3" height="6" fill="#FDEF42"/><rect x="6" width="3" height="6" fill="#E31B23"/><polygon points="4.5,1.9 4.747,2.66 5.546,2.66 4.899,3.13 5.147,3.89 4.5,3.42 3.853,3.89 4.101,3.13 3.454,2.66 4.253,2.66" fill="#00853F"/></svg></span><span class="item">REGUL ARENA <svg class="dr" viewBox="0 0 9 6" role="img" aria-label="Drapeau du Senegal"><rect width="3" height="6" fill="#00853F"/><rect x="3" width="3" height="6" fill="#FDEF42"/><rect x="6" width="3" height="6" fill="#E31B23"/><polygon points="4.5,1.9 4.747,2.66 5.546,2.66 4.899,3.13 5.147,3.89 4.5,3.42 3.853,3.89 4.101,3.13 3.454,2.66 4.253,2.66" fill="#00853F"/></svg></span>
+  </span>
+</div>
+
+<!-- MODAL FORFAIT (conservé pour l'après-lancement) -->
+<div class="modal" id="modalForfait"><div class="box" style="text-align:center">
+  <h2>Forfait annuel illimité</h2>
+  <div class="prix" id="prixForfait">15 000 FCFA</div>
+  <p style="color:var(--gris);margin:8px 0 14px">Accès à toutes les formations pendant 1 an, certificats inclus.</p>
+  <div class="banniere" style="text-align:left">
+    <b>Pour activer :</b><br>1. Payez via <b>Orange Money</b> / <b>Wave</b> au <span class="wa">77 515 61 58</span><br>
+    2. Envoyez la capture + votre e-mail à <span class="wa">contact@regularena.com</span><br> <!-- MODIFIÉ -->
+    3. Votre forfait est activé sous quelques minutes.
+  </div>
+  <button class="btn" style="width:100%" onclick="payerWhatsApp()">📧 Envoyer ma preuve par e-mail</button> <!-- MODIFIÉ -->
+  <button class="btn ghost" style="width:100%;margin-top:8px" onclick="fermerForfait()">Plus tard</button>
+</div></div>
+
+<!-- VIEWER FORMATION -->
+<div id="viewer">
+  <div class="top">
+    <span id="viewerTitre"></span>
+    <div class="vbtns"> <!-- MODIFIÉ -->
+      <button onclick="duelDepuisModule()">⚔️ Duel</button> <!-- MODIFIÉ : rester dans son module -->
+      <button onclick="tournoiDepuisModule()">🏆 Tournoi</button> <!-- MODIFIÉ -->
+      <button onclick="salonDepuisModule()">💬 Salon</button> <!-- MODIFIÉ -->
+      <button onclick="fermerViewer()" style="background:transparent;border:1px solid #fff;color:#fff">✕</button> <!-- MODIFIÉ -->
+    </div>
+  </div>
+  <iframe id="viewerFrame"></iframe>
+</div>
+
+<!-- COUCHE GAMIFICATION (MODIFIÉ) -->
+<div id="toastWrap"></div>
+<div id="flash"></div>
+
+<!-- PANNEAU CHAT (MODIFIÉ) -->
+<div id="chatPanel">
+  <div class="chat-top"><span id="chatTitre">Chat</span><button class="chat-x" onclick="Chat.fermer()">✕</button></div>
+  <div id="chatBox" class="chat-box"></div>
+  <div class="chat-bar">
+    <input id="chatInput" placeholder="Écris un message…" maxlength="300" onkeydown="if(event.key==='Enter')Chat.envoyer()">
+    <button class="btn" onclick="Chat.envoyer()">➤</button>
+  </div>
+</div>
+
+<!-- AMBIANCE SONORE (MODIFIÉ) -->
+<audio id="bgm" src="./REGUL_ARENA_SONG.aac" loop preload="none"></audio>
+<button id="btnSon" title="Musique d'ambiance"
+  style="position:fixed;left:16px;bottom:16px;z-index:150;width:52px;height:52px;border-radius:50%;border:2px solid #E8B520;background:#002B5C;color:#fff;font-size:1.3rem;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.3)">🎵</button>
+<script>
+(function(){
+  var a=document.getElementById('bgm'),b=document.getElementById('btnSon');
+  a.volume=0.35;
+  function set(on){
+    if(on){a.play().then(()=>{b.textContent='🔊';try{localStorage.setItem('ra_son','1')}catch(e){}}).catch(()=>{b.textContent='🎵';});}
+    else{a.pause();b.textContent='🔇';try{localStorage.setItem('ra_son','0')}catch(e){}}
+  }
+  b.onclick=function(){ (a.paused)?set(true):set(false); };
+  // reprend la préférence dès la 1re interaction (autoplay bloqué au chargement)
+  try{ if(localStorage.getItem('ra_son')==='1'){ document.addEventListener('click',function once(){set(true);document.removeEventListener('click',once);},{once:true}); } else { b.textContent='🔇'; } }catch(e){}
+})();
+</script>
+
+<script>
+
+/* ===== CONFIGURATION ===== */
+const SUPABASE_URL  = 'https://yhantbakvqpgigmpwrft.supabase.co';
+const SUPABASE_ANON = 'sb_publishable_qkVENdANlv_oylMC5jHWRg_Jo8DzRYD';
+const WHATSAPP      = '221775156158';
+const CONTACT_EMAIL = 'contact@regularena.com'; // MODIFIÉ
+const FORFAIT_FCFA  = 15000;
+const PARCOURS_GRATUITS = 2;
+const ADMIN_EMAILS  = ['regul.arena2026@gmail.com'];
+const LANCEMENT     = true; // MODIFIÉ : true = accès intégral offert (lève les blocages)
+/* ========================= */
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+let session=null, profil=null, formations=[], progress={};
+let demo=false, justeInscrit=false;
+
+const $=id=>document.getElementById(id);
+window.aller=ec=>{document.querySelectorAll('.ecran').forEach(e=>e.classList.remove('actif'));$('ec-'+ec).classList.add('actif');if(ec==='compte')chargerCompte();if(ec==='admin'){chargerAchats();chargerStats();}if(ec==='duel')ouvrirDuels();if(ec==='tournoi')ouvrirTournoi();}; // MODIFIÉ
+
+let mode='connexion';
+window.modeAuth=m=>{mode=m;$('champsInscription').style.display=m==='inscription'?'block':'none';$('btnAuth').textContent=m==='inscription'?"Créer mon compte":"Se connecter";document.querySelectorAll('#tabAuth button').forEach((b,i)=>{b.className='btn '+((i===0)===(m==='connexion')?'bleu':'ghost');});};
+
+window.soumettreAuth=async()=>{
+  const email=$('a-email').value.trim(), pass=$('a-pass').value, m=$('msgAuth');
+  m.textContent='…';m.className='msg';
+  try{
+    if(mode==='inscription'){
+      const {data,error}=await sb.auth.signUp({email,password:pass,options:{data:{nom:$('a-nom').value,telephone:$('a-tel').value,secteur:$('a-secteur').value}}}); // MODIFIÉ : +secteur
+      if(error)throw error;
+      if(data.session){justeInscrit=true;}
+      else{m.className='msg ok';m.textContent="Compte créé ! Vérifie ta boîte mail puis connecte-toi.";modeAuth('connexion');}
+    }else{
+      const {error}=await sb.auth.signInWithPassword({email,password:pass});
+      if(error)throw error;
+    }
+  }catch(e){m.className='msg err';if(/already registered|already exists|exists/i.test(e.message||'')){m.textContent="Cet e-mail est déjà inscrit. Connecte-toi avec ton mot de passe.";modeAuth('connexion');}else m.textContent=e.message;} // MODIFIÉ
+};
+
+window.deconnexion=async()=>{await sb.auth.signOut();location.reload();};
+
+window.entrerDemo=async()=>{
+  demo=true;profil={};progress={};
+  $('navAuth').style.display='flex';$('btnCompte').style.display='none';$('btnAdmin').style.display='none';$('btnDuel').style.display='none';$('btnTournoi').style.display='none'; // MODIFIÉ : duel/tournoi nécessitent un compte
+  $('ec-auth').classList.remove('actif');
+  try{await chargerFormations();}catch(e){formations=[];}
+  rendreCatalogue();aller('catalogue');
+};
+
+async function init(){
+  const {data}=await sb.auth.getSession();
+  session=data.session;
+  sb.auth.onAuthStateChange((_e,s)=>{if(s&&!session){session=s;entrer();}});
+  if(session)entrer();
+}
+
+async function entrer(){
+  $('navAuth').style.display='flex';
+  $('ec-auth').classList.remove('actif');
+  if(ADMIN_EMAILS.includes(session.user.email))$('btnAdmin').style.display='inline-block';
+  await Promise.all([chargerProfil(),chargerFormations(),chargerProgress()]);
+  rendreCatalogue();
+  if(justeInscrit){justeInscrit=false;$('confirmEmail').textContent=session.user.email;aller('confirm');}
+  else aller('catalogue');
+}
+
+async function chargerProfil(){const {data}=await sb.from('profiles').select('*').eq('id',session.user.id).single();profil=data||{};}
+async function chargerFormations(){const {data}=await sb.from('formations').select('*').order('ordre');formations=data||[];}
+async function chargerProgress(){const {data}=await sb.from('progressions').select('*').eq('user_id',session.user.id);progress={};(data||[]).forEach(p=>progress[p.formation_slug]=p);}
+
+function aAcces(f){
+  if(LANCEMENT)return true; // MODIFIÉ : lancement -> tout est accessible
+  if(demo)return true;
+  if(f.gratuit)return true;
+  if(profil.forfait_actif && (!profil.forfait_expire || new Date(profil.forfait_expire)>=new Date()))return true;
+  const entamees=Object.keys(progress).length;
+  return entamees<PARCOURS_GRATUITS;
+}
+
+function rendreCatalogue(){
+  if(demo){
+    $('banForfait').style.display='block';
+    $('banForfait').innerHTML=`Mode démo : aperçu de tous les écrans. <button class="btn" style="padding:6px 12px;margin-left:6px" onclick="location.reload()">Créer un compte pour suivre ma progression</button>`;
+  }else if(LANCEMENT){ // MODIFIÉ : bannière lancement, plus de paywall
+    $('banForfait').style.display='block';
+    $('banForfait').innerHTML=`🎉 <b>Offre de lancement</b> : accès intégral à toutes les formations et aux duels, gratuitement.`;
+  }else{
+    const forfaitOn=profil.forfait_actif;
+    $('banForfait').style.display=forfaitOn?'none':'block';
+    if(!forfaitOn)$('banForfait').innerHTML=`Mode découverte : ${PARCOURS_GRATUITS} formations gratuites. <b>Forfait annuel ${FORFAIT_FCFA.toLocaleString()} FCFA</b> pour tout débloquer. <button class="btn" style="padding:6px 12px;margin-left:6px" onclick="ouvrirForfait()">Voir le forfait</button>`;
+  }
+  const g=$('grilleFormations');g.innerHTML='';
+  formations.forEach(f=>{
+    const p=progress[f.slug], pct=p?Math.round((p.modules_vus/5)*100):0;
+    const acces=aAcces(f);
+    const div=document.createElement('div');div.className='formation';
+    div.innerHTML=`<div class="body">
+      <span class="tag ${f.gratuit?'gratuit':'forfait'}">${f.gratuit?'GRATUIT':(LANCEMENT?'OFFERT':'FORFAIT')}</span>
+      <h3>${f.titre}</h3><div class="ref">${f.reference||''}</div>
+      <div class="pb"><i style="width:${pct}%"></i></div>
+      <button class="btn ${acces?'':'ghost'}">${acces?(p?'Continuer':'Commencer'):'🔒 Débloquer'}</button>
+    </div>`;
+    div.querySelector('button').onclick=()=>acces?ouvrirFormation(f):ouvrirForfait();
+    g.appendChild(div);
+  });
+}
+
+window.ouvrirFormation=async f=>{
+  ac();SFX.ouvre(); // MODIFIÉ
+  window._formCur=f; // MODIFIÉ : formation active (pour duel/salon du module)
+  $('viewerTitre').textContent=f.titre;
+  $('viewerFrame').src=f.fichier_url;
+  $('viewer').style.display='flex';
+  if(demo)return;
+  const cur=progress[f.slug]||{modules_vus:0};
+  const etait=cur.modules_vus||0; // MODIFIÉ
+  const maj={user_id:session.user.id,formation_slug:f.slug,modules_vus:Math.min(etait+1,5),maj_le:new Date().toISOString()};
+  await sb.from('progressions').upsert(maj);
+  progress[f.slug]={...cur,...maj};
+  window._formEvt={titre:f.titre,pct:Math.round(maj.modules_vus/5*100),fini:(maj.modules_vus===5&&etait<5),monte:(maj.modules_vus>etait)}; // MODIFIÉ
+};
+window.fermerViewer=()=>{
+  $('viewer').style.display='none';$('viewerFrame').src='';rendreCatalogue();
+  const e=window._formEvt; window._formEvt=null; // MODIFIÉ
+  if(e){
+    if(e.fini){SFX.win();confettis(90);toast('Formation terminée : '+e.titre,'🎓','win');verifierBadges();}
+    else if(e.monte){SFX.bon();toast('Progression : '+e.pct+'%','📈','ok');}
+  }
+};
+
+/* MODIFIÉ : badges débloqués selon les formations terminées */
+function infoBadges(){
+  const total=formations.length||1;
+  const faites=formations.filter(f=>{const p=progress[f.slug];return p&&p.modules_vus>=5;}).length;
+  const liste=[
+    {seuil:1,emo:'🥉',t:'Première formation terminée'},
+    {seuil:3,emo:'🥈',t:'Apprenant assidu'},
+    {seuil:total,emo:'🥇',t:'Maître de la réglementation UEMOA'}
+  ];
+  return {faites,total,liste};
+}
+function verifierBadges(){
+  const {faites,liste}=infoBadges();
+  let acquis;try{acquis=JSON.parse(localStorage.getItem('ra_badges')||'[]')}catch(e){acquis=[];}
+  liste.forEach(b=>{if(faites>=b.seuil&&!acquis.includes(b.t)){acquis.push(b.t);toast('Badge débloqué : '+b.t,b.emo,'win');sticker(b.emo);SFX.win();}});
+  try{localStorage.setItem('ra_badges',JSON.stringify(acquis))}catch(e){}
+}
+function rendreBadges(){
+  const z=$('mesBadges');if(!z)return;
+  const {faites,liste}=infoBadges();
+  z.innerHTML='<div style="display:flex;gap:14px;flex-wrap:wrap">'+liste.map(b=>{
+    const on=faites>=b.seuil;
+    return `<div style="text-align:center;opacity:${on?1:.35};filter:${on?'none':'grayscale(1)'}">
+      <div style="font-size:2.2rem">${b.emo}</div>
+      <div style="font-size:.72rem;font-weight:700;color:var(--bleu);max-width:90px">${b.t}</div>
+      <div style="font-size:.66rem;color:var(--gris)">${on?'Débloqué':b.seuil+' formation(s)'}</div>
+    </div>`;
+  }).join('')+'</div>';
+}
+
+window.ouvrirForfait=()=>{$('prixForfait').textContent=FORFAIT_FCFA.toLocaleString()+' FCFA';$('modalForfait').classList.add('open');};
+window.fermerForfait=()=>$('modalForfait').classList.remove('open');
+window.payerWhatsApp=async()=>{
+  await sb.from('achats').insert({user_id:session.user.id,type:'forfait',montant:FORFAIT_FCFA,statut:'en_attente'});
+  const sujet=encodeURIComponent('Activation forfait REGUL ACADÉMIE'); // MODIFIÉ
+  const corps=encodeURIComponent(`Bonjour, je souhaite activer le forfait REGUL ACADÉMIE (${FORFAIT_FCFA} FCFA). Mon e-mail : ${session.user.email}`); // MODIFIÉ
+  window.open(`mailto:${CONTACT_EMAIL}?subject=${sujet}&body=${corps}`,'_blank'); // MODIFIÉ
+};
+
+window.demandeInstitution=()=>{
+  const sujet=encodeURIComponent('Demande Institution REGUL ACADÉMIE'); // MODIFIÉ
+  const corps=encodeURIComponent(`Organisation : ${$('i-org').value}\nContact : ${$('i-contact').value}\nAgents : ${$('i-nb').value}`); // MODIFIÉ
+  window.open(`mailto:${CONTACT_EMAIL}?subject=${sujet}&body=${corps}`,'_blank'); // MODIFIÉ
+};
+
+async function chargerCompte(){
+  const exp=profil.forfait_expire?` (expire le ${profil.forfait_expire})`:'';
+  $('infoCompte').innerHTML=`<p><b>${profil.nom||session.user.email}</b></p><p style="color:var(--gris)">${session.user.email}</p>
+    <p style="margin-top:8px">Statut : <b>${LANCEMENT?'Accès lancement (intégral)':(profil.forfait_actif?'Forfait actif'+exp:'Mode découverte')}</b></p>`; // MODIFIÉ
+  let h='';formations.forEach(f=>{const p=progress[f.slug];if(p)h+=`<p>${f.titre} — ${Math.round((p.modules_vus/5)*100)}%</p>`;});
+  $('maProgression').innerHTML=h||'<p style="color:var(--gris)">Aucune formation entamée.</p>';
+  rendreBadges(); // MODIFIÉ
+  $('etoiles').querySelectorAll('span').forEach(s=>s.onclick=()=>setNote(+s.dataset.n));
+}
+
+/* ---- FEEDBACK + CERTIFICAT + PARTAGE ---- */
+let noteFb=0;
+const MOIS=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+function setNote(n){noteFb=n;$('etoiles').querySelectorAll('span').forEach(s=>s.style.color=(+s.dataset.n<=n)?'#E8B520':'#ddd');}
+
+window.envoyerFeedback=async()=>{
+  const m=$('msgFb');
+  if(!noteFb){m.className='msg err';m.textContent='Choisissez une note.';return;}
+  m.className='msg';m.textContent='…';
+  const {error}=await sb.from('feedbacks').insert({user_id:session.user.id,note:noteFb,commentaire:$('fb-comment').value.trim()});
+  if(error){m.className='msg err';m.textContent=error.message;}
+  else{m.className='msg ok';m.textContent='Merci pour votre retour !';$('fb-comment').value='';setNote(0);noteFb=0;}
+};
+
+window.genererCertificat=()=>{
+  const prenom=((profil.nom||session.user.email).split(' ')[0]||'Apprenant').replace(/^./,c=>c.toUpperCase());
+  const d=new Date(),mois=MOIS[d.getMonth()].replace(/^./,c=>c.toUpperCase())+' '+d.getFullYear();
+  const c=document.createElement('canvas');c.width=1200;c.height=850;const x=c.getContext('2d');
+  x.fillStyle='#F5F3EE';x.fillRect(0,0,1200,850);
+  x.strokeStyle='#C9991A';x.lineWidth=10;x.strokeRect(30,30,1140,790);x.lineWidth=2;x.strokeRect(50,50,1100,750);
+  x.textAlign='center';
+  x.beginPath();x.arc(600,165,52,0,7);x.fillStyle='#C9991A';x.fill();
+  x.fillStyle='#002B5C';x.font='bold 44px Georgia';x.fillText('RA',600,180);
+  x.font='bold 30px Georgia';x.fillText('REGUL ACADÉMIE',600,265);
+  x.font='42px Georgia';x.fillText('Certificat de participation',600,360);
+  x.fillStyle='#6b7785';x.font='22px Arial';x.fillText('Décerné à',600,425);
+  x.fillStyle='#002B5C';x.font='bold 52px Georgia';x.fillText(prenom,600,490);
+  x.fillStyle='#6b7785';x.font='20px Arial';x.fillText('pour son engagement dans les formations réglementaires UEMOA',600,540);
+  x.fillText(mois,600,575);
+  x.fillStyle='#002B5C';x.font='italic 32px Georgia';x.fillText('REGUL ACADÉMIE',600,705);
+  x.strokeStyle='#C9991A';x.lineWidth=2;x.beginPath();x.moveTo(470,725);x.lineTo(730,725);x.stroke();
+  x.fillStyle='#6b7785';x.font='16px Arial';x.fillText('Signature & cachet officiel',600,752);
+  const a=document.createElement('a');a.download=`Certificat_REGUL_ACADEMIE_${prenom}.png`;a.href=c.toDataURL('image/png');a.click();
+};
+
+window.partagerResultats=async()=>{
+  const n=Object.keys(progress).length;
+  const txt=`J'ai suivi ${n} formation(s) réglementaire(s) UEMOA sur REGUL ACADÉMIE 🎓`;
+  const url='https://regularena.net';
+  try{ if(navigator.share){await navigator.share({title:'REGUL ACADÉMIE',text:txt,url});return;} }catch(e){}
+  window.open(`https://wa.me/?text=${encodeURIComponent(txt+' '+url)}`,'_blank');
+};
+
+/* ===================== MODULE DUEL (MODIFIÉ) ===================== */
+let duel=null, duelChan=null, duelQ=[], duelPhase='', duelShown=-1, duelTimer=null, duelDeadline=0, duelPoll=null, duelRevealLock=false;
+let duelModulePack=null; // MODIFIÉ : filtre lobby quand on arrive depuis un module
+
+/* MODIFIÉ : mélange déterministe des options (identique pour les 2 joueurs) */
+function seedDe(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function rngDe(seed){return function(){seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function permOptions(i){
+  const idx=duelQ[i].options.map((_,k)=>k);
+  const r=rngDe(seedDe((duel.id||'')+'-'+i));
+  for(let j=idx.length-1;j>0;j--){const m=Math.floor(r()*(j+1));[idx[j],idx[m]]=[idx[m],idx[j]];}
+  return idx; // idx[positionAffichée] = indexOriginal
+}
+
+function ouvrirDuels(){
+  duelModulePack=null; // MODIFIÉ : navigation normale = tous les modules
+  // remplit les sélecteurs de packs (= formations)
+  const opts=formations.map(f=>`<option value="${f.slug}">${f.titre}</option>`).join('');
+  $('d-pack').innerHTML=opts; $('q-pack-import').innerHTML=opts;
+  vueDuel('lobby'); chargerLobby(); chargerTop(); // MODIFIÉ
+}
+function vueDuel(v){
+  $('duelLobby').style.display=v==='lobby'?'block':'none';
+  $('duelAttente').style.display=v==='attente'?'block':'none';
+  $('duelJeu').style.display=v==='jeu'?'block':'none';
+  $('duelFin').style.display=v==='fin'?'block':'none';
+}
+
+async function chargerTop(){ // MODIFIÉ : bandeau défilant des meilleurs par pack
+  const {data}=await sb.from('scores').select('nom,pack,points').order('points',{ascending:false});
+  const tb=$('topBanner');
+  if(!data||!data.length){tb.style.display='none';return;}
+  const titres={}; formations.forEach(f=>titres[f.slug]=f.titre);
+  const byPack={}; data.forEach(r=>{(byPack[r.pack]=byPack[r.pack]||[]).push(r);});
+  const parts=Object.keys(byPack).map(p=>{
+    const top=byPack[p].slice(0,5).map((r,i)=>`${i+1}. ${r.nom||'Joueur'} (${r.points} pts)`).join('  ·  ');
+    return `🏆 ${titres[p]||p} — ${top}`;
+  });
+  const txt=parts.join('        ✦        ');
+  tb.style.display='block';
+  tb.innerHTML='<span>'+txt+'        ✦        '+txt+'</span>';
+}
+
+window.enregistrerScore=async(pts)=>{
+  const m=$('msgScore');m.className='msg';m.textContent='…';
+  const {error}=await sb.rpc('enregistrer_score',{p_pack:duel.pack,p_nom:profil.nom||session.user.email,p_points:pts});
+  if(error){m.className='msg err';m.textContent=error.message;}
+  else{m.className='msg ok';m.textContent='Score enregistré ! Tu apparais au classement.';const b=$('btnSaveScore');if(b)b.disabled=true;}
+};
+
+async function chargerLobby(){
+  const {data}=await sb.from('duels').select('id,code,pack,pack_titre,nb_questions,timing,createur_nom,createur_id').eq('statut','ouvert').order('cree_le',{ascending:false}).limit(30); // MODIFIÉ : +pack
+  const list=(data||[]).filter(d=>d.createur_id!==session.user.id&&(!duelModulePack||d.pack===duelModulePack)); // MODIFIÉ : filtre module
+  if(!list.length){$('lobbyList').innerHTML='<p style="color:var(--gris)">Aucun duel ouvert. Crée le tien !</p>';return;}
+  $('lobbyList').innerHTML=list.map(d=>`<div class="duel-row"><div><b>${d.createur_nom||'Joueur'}</b> · ${d.pack_titre||d.pack}<br><span class="pill">${d.nb_questions} Q · ${d.timing}s</span> <span class="ref-cell">code ${d.code}</span></div><button class="btn" onclick="rejoindreId('${d.code}')">Rejoindre</button></div>`).join('');
+}
+
+async function quizDispo(pack){const {data}=await sb.from('quizz').select('id').eq('pack',pack);return (data||[]).map(r=>r.id);}
+function melange(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function genCode(){return Array.from({length:6},()=>String.fromCharCode(65+Math.floor(Math.random()*26))).join('');}
+
+window.creerDuel=async()=>{
+  const m=$('msgCreer');m.className='msg';m.textContent='…';
+  const pack=$('d-pack').value, nb=+$('d-nb').value, timing=+$('d-timing').value;
+  const ids=await quizDispo(pack);
+  if(ids.length<nb){m.className='msg err';m.textContent=`Seulement ${ids.length} question(s) disponible(s) pour ce pack. Importe-les d'abord (Admin) ou réduis le nombre.`;return;}
+  const choisies=melange(ids).slice(0,nb);
+  const pack_titre=(formations.find(f=>f.slug===pack)||{}).titre||pack;
+  const code=genCode();
+  const {data,error}=await sb.from('duels').insert({code,pack,pack_titre,nb_questions:nb,timing,questions:choisies,createur_id:session.user.id,createur_nom:profil.nom||session.user.email,statut:'ouvert'}).select().single();
+  if(error){m.className='msg err';m.textContent=error.message;return;}
+  duel=data; m.textContent='';
+  ecouterDuel(); afficherAttente();
+};
+
+function afficherAttente(){$('attCode').textContent=duel.code;$('attInfo').textContent=`${duel.pack_titre} · ${duel.nb_questions} questions · ${duel.timing}s`;vueDuel('attente');}
+
+window.annulerAttente=async()=>{ if(duel&&duel.statut==='ouvert'){try{await sb.from('duels').delete().eq('id',duel.id);}catch(e){}} stopDuel(); vueDuel('lobby'); chargerLobby(); };
+
+window.rejoindreCode=()=>rejoindreId($('d-code').value.trim().toUpperCase());
+window.rejoindreId=async(code)=>{
+  const m=$('msgRejoindre');m.className='msg';m.textContent='…';
+  if(!code){m.className='msg err';m.textContent='Entre un code.';return;}
+  const {data,error}=await sb.rpc('duel_join',{p_code:code,p_uid:session.user.id,p_nom:profil.nom||session.user.email});
+  if(error){m.className='msg err';m.textContent=error.message;return;}
+  if(!data||!data.length){m.className='msg err';m.textContent='Duel introuvable ou déjà complet.';return;}
+  duel=data[0]; m.textContent='';
+  ecouterDuel(); demarrerJeu();
+};
+
+function ecouterDuel(){
+  if(duelChan)sb.removeChannel(duelChan);
+  duelChan=sb.channel('duel-'+duel.id)
+    .on('broadcast',{event:'sync'},rafraichirDuel)
+    .on('broadcast',{event:'chat'},e=>Chat.recu(e.payload)) // MODIFIÉ : chat privé du duel
+    .subscribe();
+  clearInterval(duelPoll); duelPoll=setInterval(rafraichirDuel,4000); // filet de sécurité
+}
+async function rafraichirDuel(){
+  if(!duel)return;
+  const {data}=await sb.from('duels').select('*').eq('id',duel.id).single();
+  if(!data)return; const prev=duel; duel=data;
+  if(prev.statut==='ouvert'&&duel.statut==='en_cours'){demarrerJeu();return;} // adversaire arrivé
+  if(duel.statut==='termine'||duelPhase){majJeu();}
+}
+function bcast(){if(duelChan)duelChan.send({type:'broadcast',event:'sync',payload:{}});}
+
+function joueurs(){return [{id:duel.createur_id,nom:duel.createur_nom},{id:duel.adversaire_id,nom:duel.adversaire_nom}];}
+function scores(){
+  const s={}; const J=joueurs(); J.forEach(j=>s[j.id]=0);
+  Object.keys(duel.reponses||{}).forEach(k=>{const r=duel.reponses[k];if(r&&r.par&&duelQ[k]&&r.choix===duelQ[k].bonne)s[r.par]++;});
+  return s;
+}
+function premiereOuverte(){let c=0;while(duel.reponses&&duel.reponses[c]!=null)c++;return c;}
+
+async function demarrerJeu(){
+  // charge les questions (ordre figé)
+  const {data}=await sb.from('quizz').select('*').in('id',duel.questions);
+  const byId={}; (data||[]).forEach(q=>byId[q.id]=q);
+  duelQ=duel.questions.map(id=>byId[id]).filter(Boolean);
+  const J=joueurs();
+  $('jAnom').textContent=J[0].nom||'Joueur 1'; $('jBnom').textContent=J[1].nom||'Joueur 2';
+  vueDuel('jeu'); duelPhase='question'; duelShown=-1; prevScores={}; comboDuel=0; majJeu(); // MODIFIÉ
+}
+
+function majJeu(){
+  // scores
+  const s=scores(),J=joueurs();
+  $('jAsc').textContent=s[J[0].id]||0; $('jBsc').textContent=s[J[1].id]||0;
+  // MODIFIÉ : anime le score qui monte
+  [['jAsc',J[0].id],['jBsc',J[1].id]].forEach(([el,id])=>{
+    if((s[id]||0)>(prevScores[id]||0)){const n=$(el);n.classList.remove('bump');void n.offsetWidth;n.classList.add('bump');}
+  });
+  prevScores={...s};
+  $('jA').classList.toggle('lead',(s[J[0].id]||0)>(s[J[1].id]||0));
+  $('jB').classList.toggle('lead',(s[J[1].id]||0)>(s[J[0].id]||0));
+  if(duel.statut==='termine'||premiereOuverte()>=duel.nb_questions){return finirDuel();}
+  const cur=premiereOuverte();
+  // si la question affichée vient d'être verrouillée -> révèle puis avance
+  if(duelPhase==='question'&&duelShown>=0&&duel.reponses[duelShown]!=null&&!duelRevealLock){revele(duelShown);return;}
+  if(duelPhase==='question'&&cur!==duelShown){afficherQuestion(cur);}
+}
+
+function afficherQuestion(i){
+  clearInterval(duelTimer); duelRevealLock=false; duelShown=i; duelPhase='question';
+  const q=duelQ[i]; if(!q){return finirDuel();}
+  $('qNum').textContent=`Question ${i+1} / ${duel.nb_questions}`;
+  $('qText').textContent=q.question; $('qInfo').textContent='';
+  const perm=permOptions(i); // MODIFIÉ : ordre mélangé, onclick renvoie l'index original
+  $('qOptions').innerHTML=perm.map(orig=>`<button class="opt" onclick="repondre(${orig})">${q.options[orig]}</button>`).join('');
+  // chrono
+  duelDeadline=Date.now()+duel.timing*1000;
+  clearInterval(duelTimer);
+  $('chronoBar').className=''; // MODIFIÉ : reset couleur
+  duelTimer=setInterval(()=>{
+    const reste=Math.max(0,duelDeadline-Date.now());
+    const pct=reste/(duel.timing*1000)*100;
+    const bar=$('chronoBar'),wrap=bar.parentElement,sec=Math.ceil(reste/1000); // MODIFIÉ
+    bar.style.width=pct+'%';
+    $('qChrono').textContent=sec+'s';
+    bar.className=pct<25?'danger':(pct<55?'warn':''); // MODIFIÉ
+    wrap.classList.toggle('low',pct<25); // MODIFIÉ
+    $('qChrono').classList.toggle('low',sec<=3&&sec>0); // MODIFIÉ
+    if(sec<=3&&sec>0&&sec!==afficherQuestion._lastTick){afficherQuestion._lastTick=sec;SFX.tick();} // MODIFIÉ : tic-tac final
+    if(reste<=0){clearInterval(duelTimer); tempsEcoule(i);}
+  },200);
+}
+
+window.repondre=async(k)=>{
+  if(duelPhase!=='question')return;
+  ac();bip(520,.05,'square',.12,0); // MODIFIÉ : déblocage audio + clic
+  clearInterval(duelTimer);
+  $('qOptions').querySelectorAll('button').forEach(b=>b.disabled=true);
+  const {data}=await sb.rpc('duel_answer',{p_id:duel.id,p_q:duelShown,p_uid:session.user.id,p_nom:profil.nom||session.user.email,p_choix:k});
+  if(data&&data.length)duel=data[0];
+  bcast(); majJeu();
+};
+
+async function tempsEcoule(i){
+  if(duelShown!==i||duelPhase!=='question')return;
+  const {data}=await sb.rpc('duel_timeout',{p_id:duel.id,p_q:i});
+  if(data&&data.length)duel=data[0];
+  bcast(); majJeu();
+}
+
+function revele(i){
+  duelRevealLock=true; clearInterval(duelTimer);
+  const q=duelQ[i],r=duel.reponses[i];
+  const btns=$('qOptions').querySelectorAll('button');
+  const perm=permOptions(i); // MODIFIÉ : retrouve l'index original par position affichée
+  btns.forEach((b,k)=>{const orig=perm[k];b.disabled=true;if(orig===q.bonne)b.classList.add('bon');if(r&&r.par&&r.choix===orig&&orig!==q.bonne)b.classList.add('faux');});
+  if(r&&r.t)$('qInfo').innerHTML='⏱️ Temps écoulé — personne n\'a répondu.';
+  else if(r&&r.choix===q.bonne)$('qInfo').innerHTML=`✅ <b>${r.nom||'Adversaire'}</b> a trouvé en premier.`;
+  else $('qInfo').innerHTML=`❌ <b>${r.nom||'Adversaire'}</b> a répondu trop vite (mauvaise réponse).`;
+  // MODIFIÉ : retour gamifié selon le résultat du joueur courant
+  const moi=session&&session.user&&session.user.id;
+  if(r&&r.t){ comboDuel=0; SFX.faux(); toast('Temps écoulé !','⏱️','bad'); }
+  else if(r&&r.choix===q.bonne&&r.par===moi){
+    comboDuel++; SFX.bon(); flash('ok'); sticker('✅');
+    if(comboDuel>=3){sticker('🔥',innerWidth/2-70,innerHeight/2);toast('Série de '+comboDuel+' ! En feu !','🔥','win');}
+    else{const br=['Bravo !','Excellent !','Parfait !','Bien vu !','Tu assures !'];toast(br[Math.floor(Math.random()*br.length)],'🎉','ok');}
+  }
+  else if(r&&r.choix===q.bonne){ comboDuel=0; toast((r.nom||'Adversaire')+' a pris la main','⚡','bad'); }
+  else if(r&&r.par===moi){ comboDuel=0; SFX.faux(); flash('bad'); sticker('❌'); toast('Raté, reste concentré','💪','bad'); }
+  setTimeout(()=>{duelRevealLock=false;duelPhase='question';const cur=premiereOuverte();if(cur>=duel.nb_questions)finirDuel();else afficherQuestion(cur);},1900);
+}
+
+async function finirDuel(){
+  clearInterval(duelTimer);
+  duelPhase='fin';
+  if(duel.statut!=='termine'){try{await sb.rpc('duel_finir',{p_id:duel.id});}catch(e){}}
+  const s=scores(),J=joueurs();
+  const a=s[J[0].id]||0,b=s[J[1].id]||0;
+  let titre;
+  if(a===b)titre='🤝 Égalité !';
+  else{const g=(a>b?J[0]:J[1]); titre=(g.id===session.user.id?'🏆 Victoire !':'Défaite');}
+  // MODIFIÉ : célébration finale
+  comboDuel=0; prevScores={};
+  if(a===b){SFX.egal();toast('Match nul, belle bataille !','🤝','win');}
+  else if((a>b?J[0]:J[1]).id===session.user.id){SFX.win();confettis(110);toast('Victoire ! Tu domines 🏆','🏆','win');setTimeout(()=>confettis(60),500);}
+  else{SFX.lose();toast('Défaite, prends ta revanche !','💪','bad');}
+  $('finTitre').textContent=titre;
+  $('finScore').textContent=`${J[0].nom||'J1'} ${a} — ${b} ${J[1].nom||'J2'}`;
+  const mon=s[session.user.id]||0; // MODIFIÉ : proposer d'enregistrer son score
+  logEvenement('duel',duel.pack,duel.pack_titre,mon,{adversaire:(joueurs().find(j=>j.id!==session.user.id)||{}).nom||null}); // MODIFIÉ : journal sponsors
+  $('zoneScore').innerHTML=`<button class="btn" id="btnSaveScore" onclick="enregistrerScore(${mon})">💾 Enregistrer mon score (${mon} pts · ${duel.pack_titre})</button><div id="msgScore" class="msg" style="margin-top:8px"></div>`;
+  // feuille de match
+  let h='<tr><th>N°</th><th>Bonne réponse</th><th>Vainqueur</th><th>Référence officielle</th></tr>';
+  duelQ.forEach((q,i)=>{
+    const r=(duel.reponses||{})[i]||{};
+    const bonne=q.options[q.bonne];
+    let gagnant='—';
+    if(r.t)gagnant='⏱️ aucun';
+    else if(r.par&&r.choix===q.bonne)gagnant='✅ '+(r.nom||'');
+    else if(r.par)gagnant='❌ '+(r.nom||'')+' (faux)';
+    const lien=q.lien?` — <a href="${q.lien}" target="_blank">consulter</a>`:'';
+    const ref=`${q.support||''}${q.article?' · '+q.article:''}${lien}`;
+    h+=`<tr><td>${i+1}</td><td><b>${bonne}</b><br><span class="ref-cell">${q.question}</span></td><td>${gagnant}</td><td class="ref-cell">${ref||'—'}</td></tr>`;
+  });
+  $('finTable').innerHTML=h;
+  vueDuel('fin');
+}
+
+function stopDuel(){clearInterval(duelTimer);clearInterval(duelPoll);if(duelChan){sb.removeChannel(duelChan);duelChan=null;}duel=null;duelQ=[];duelPhase='';duelShown=-1;}
+window.quitterDuel=()=>{stopDuel();vueDuel('lobby');chargerLobby();};
+
+/* ===================== CHAT DUEL / SALON (MODIFIÉ) ===================== */
+const Chat={
+  mode:null, chan:null, pack:null,
+  uid(){return session&&session.user?session.user.id:'anon';},
+  nom(){return (profil&&profil.nom)||(session&&session.user&&session.user.email)||'Joueur';},
+  _ouvrir(mode,titre){this.mode=mode;$('chatTitre').textContent=titre;$('chatBox').innerHTML='<div class="chat-vide">Aucun message. Lance la discussion 👋</div>';$('chatPanel').classList.add('open');setTimeout(()=>$('chatInput').focus(),120);},
+  duel(){ // chat privé 1v1 (réutilise le canal du duel)
+    if(!duel||!duelChan){toast('Le chat privé s’active une fois le duel lancé.','💬');return;}
+    this._ouvrir('duel','Chat privé · adversaire');
+  },
+  salon(pack,titre){ // salon du module : tous les apprenants de ce pack
+    if(demo||!session){toast('Crée un compte pour rejoindre le salon.','💬');return;}
+    if(this.chan){sb.removeChannel(this.chan);this.chan=null;}
+    this.pack=pack;
+    this.chan=sb.channel('salon-'+pack).on('broadcast',{event:'chat'},e=>this.recu(e.payload)).subscribe();
+    this._ouvrir('salon','Salon · '+(titre||pack));
+  },
+  fermer(){$('chatPanel').classList.remove('open');if(this.mode==='salon'&&this.chan){sb.removeChannel(this.chan);this.chan=null;}this.mode=null;},
+  envoyer(){
+    const inp=$('chatInput'),txt=inp.value.trim();if(!txt||!this.mode)return;
+    const p={uid:this.uid(),nom:this.nom(),txt:txt.slice(0,300),ts:Date.now()};
+    const c=this.mode==='salon'?this.chan:duelChan;
+    if(c)c.send({type:'broadcast',event:'chat',payload:p});
+    this.afficher(p,true); inp.value=''; // broadcast non renvoyé à l'émetteur -> affichage local
+  },
+  recu(p){ if(!p)return; if($('chatPanel').classList.contains('open'))this.afficher(p,false); else toast((p.nom||'Joueur')+' : '+(''+p.txt).slice(0,42),'💬'); },
+  afficher(p,moi){
+    const b=$('chatBox');const v=b.querySelector('.chat-vide');if(v)v.remove();
+    const esc=s=>(''+s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+    const d=document.createElement('div');d.className='chat-msg'+(moi?' moi':'');
+    d.innerHTML=`<span class="chat-nom">${moi?'Moi':esc(p.nom||'Joueur')}</span>${esc(p.txt)}`;
+    b.appendChild(d);b.scrollTop=b.scrollHeight; if(!moi)bip(680,.06,'sine',.12,0);
+  }
+};
+window.Chat=Chat;
+
+/* MODIFIÉ : depuis l'écran de formation, agir sans quitter son module */
+window.salonDepuisModule=()=>{const f=window._formCur;if(f)Chat.salon(f.slug,f.titre);};
+window.duelDepuisModule=()=>{
+  const f=window._formCur; fermerViewer(); aller('duel');
+  if(f){const sel=$('d-pack');if([...sel.options].some(o=>o.value===f.slug))sel.value=f.slug;
+    duelModulePack=f.slug; const m=$('msgCreer');m.className='msg ok';m.textContent='Module : '+f.titre+' — crée un duel ou rejoins ci-dessous.';
+    chargerLobby();}
+};
+window.salonDuPack=()=>{const sel=$('d-pack'),f=formations.find(x=>x.slug===sel.value);Chat.salon(sel.value,f?f.titre:sel.value);};
+
+/* ===================== MODULE TOURNOI (MODIFIÉ) ===================== */
+let T=null, Tchan=null, Tphase='', TqIdx=-1, Ttimer=null, Tdeadline=0;
+let Tplayers={}, Tscores={}, Telim={}, Tcur=null;
+let Thost=false, TmesAnsQ=-1, Tlock=false;
+let TqHost=[];        // hôte : questions complètes {question,opts,bonneAff,article,support,lien}
+let TansThisQ={};     // hôte : uid -> a déjà répondu (juste/faux) pour la manche courante
+const Tuid=()=>session&&session.user?session.user.id:'anon';
+const Tnom=()=>(profil&&profil.nom)||(session&&session.user&&session.user.email)||'Joueur';
+
+function ouvrirTournoi(){
+  const opts=formations.map(f=>`<option value="${f.slug}">${f.titre}</option>`).join('');
+  $('t-pack').innerHTML=opts;
+  $('t-pack').onchange=chargerTopPack;
+  vueTournoi('lobby'); chargerTopPack();
+}
+function vueTournoi(v){
+  $('tLobby').style.display=v==='lobby'?'block':'none';
+  $('tAttente').style.display=v==='attente'?'block':'none';
+  $('tJeu').style.display=v==='jeu'?'block':'none';
+  $('tFin').style.display=v==='fin'?'block':'none';
+}
+
+window.chargerTopPack=async()=>{
+  const pack=$('t-pack').value; const z=$('t-topPack'); if(!pack){z.innerHTML='';return;}
+  const {data}=await sb.from('scores').select('nom,points').eq('pack',pack).order('points',{ascending:false}).limit(10);
+  if(!data||!data.length){z.innerHTML='<p style="color:var(--gris);font-size:.85rem">Aucun score pour ce pack. Sois le premier !</p>';return;}
+  z.innerHTML=data.map((r,i)=>`<div class="tp"><b>${i+1}. ${escTxt(r.nom||'Joueur')}</b><span class="v">${r.points} pts</span></div>`).join('');
+};
+function escTxt(s){return (''+s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+
+/* mélange des options côté hôte, mémorise l'index affiché de la bonne réponse */
+function prepQuestions(rows){
+  return rows.map(q=>{
+    const idx=q.options.map((_,k)=>k); melange(idx);
+    const opts=idx.map(k=>q.options[k]);
+    return {question:q.question,opts,bonneAff:idx.indexOf(q.bonne),article:q.article,support:q.support,lien:q.lien};
+  });
+}
+
+window.creerTournoi=async()=>{
+  const m=$('t-msgCreer');m.className='msg';m.textContent='…';
+  const pack=$('t-pack').value, nb=+$('t-nb').value, timing=+$('t-timing').value, max=+$('t-max').value;
+  const mode=document.querySelector('input[name="tmode"]:checked').value;
+  const {data}=await sb.from('quizz').select('*').eq('pack',pack);
+  if(!data||data.length<nb){m.className='msg err';m.textContent=`Seulement ${data?data.length:0} question(s) pour ce pack (Admin → importer).`;return;}
+  TqHost=prepQuestions(melange(data).slice(0,nb));
+  const pack_titre=(formations.find(f=>f.slug===pack)||{}).titre||pack;
+  const code=genCode();
+  T={code,pack,pack_titre,nb,timing,mode,max,hostId:Tuid()};
+  Thost=true; m.textContent='';
+  connecterTournoi(code,true);
+};
+
+window.rejoindreTournoi=()=>{
+  const code=$('t-code').value.trim().toUpperCase(), m=$('t-msgJoin');m.className='msg';
+  if(!code){m.className='msg err';m.textContent='Entre un code.';return;}
+  T={code,pack:'',pack_titre:'',nb:0,timing:15,mode:'championnat',max:0,hostId:null};
+  Thost=false; m.textContent='';
+  connecterTournoi(code,false);
+};
+
+function connecterTournoi(code,host){
+  if(Tchan)sb.removeChannel(Tchan);
+  Tplayers={};Tscores={};Telim={};Tcur=null;Tphase='attente';TqIdx=-1;TmesAnsQ=-1;Tlock=false;
+  Tchan=sb.channel('tour-'+code,{config:{presence:{key:Tuid()}}})
+    .on('presence',{event:'sync'},syncPresence)
+    .on('broadcast',{event:'config'},e=>{Object.assign(T,e.payload);majAttente();})
+    .on('broadcast',{event:'hello'},()=>{ if(Thost){envoiConfig();envoiEtat();} })
+    .on('broadcast',{event:'etat'},e=>recevoirEtat(e.payload))
+    .on('broadcast',{event:'rep'},e=>{ if(Thost)recevoirRep(e.payload); })
+    .on('broadcast',{event:'fin'},e=>afficherFinTournoi(e.payload))
+    .subscribe(async st=>{ if(st==='SUBSCRIBED'){ await Tchan.track({id:Tuid(),nom:Tnom()}); if(!host)Tchan.send({type:'broadcast',event:'hello',payload:{}}); } });
+  if(host){afficherAttenteTournoi();envoiConfig();}else{afficherAttenteTournoi();}
+}
+function envoiConfig(){Tchan&&Tchan.send({type:'broadcast',event:'config',payload:{pack:T.pack,pack_titre:T.pack_titre,nb:T.nb,timing:T.timing,mode:T.mode,max:T.max,hostId:T.hostId}});}
+
+function syncPresence(){
+  const st=Tchan.presenceState(); Tplayers={};
+  Object.keys(st).forEach(k=>{const meta=st[k][0]||{};Tplayers[meta.id||k]={id:meta.id||k,nom:meta.nom||'Joueur'};});
+  if(Tphase==='attente')majAttente(); else majRank();
+}
+
+function afficherAttenteTournoi(){
+  $('tAttCode').textContent=T.code;
+  $('tBtnStart').style.display=Thost?'inline-block':'none';
+  $('tWaitHost').style.display=Thost?'none':'block';
+  majAttente(); vueTournoi('attente');
+}
+function majAttente(){
+  $('tAttInfo').textContent=`${T.pack_titre||'…'} · ${T.nb||'?'} manches · ${T.timing}s · ${T.mode==='elimination'?'Élimination':'Championnat'} · max ${T.max||'?'}`;
+  const ids=Object.keys(Tplayers);
+  $('tAttPlayers').innerHTML=ids.map(id=>`<span class="t-chip${id===T.hostId?' host':''}">${id===T.hostId?'👑 ':''}${escTxt(Tplayers[id].nom)}${id===Tuid()?' (toi)':''}</span>`).join('')||'<span class="t-chip">…</span>';
+  $('tAttTitre').textContent=`Joueurs connectés : ${ids.length}${T.max?' / '+T.max:''}`;
+}
+
+window.lancerTournoi=async()=>{
+  if(!Thost)return;
+  const ids=Object.keys(Tplayers);
+  if(ids.length<2){const m=$('t-msgAtt');m.className='msg err';m.textContent='Il faut au moins 2 joueurs.';return;}
+  ids.forEach(id=>{Tscores[id]=0;Telim[id]=false;});
+  Tphase='jeu'; TqIdx=-1;
+  hostManche(0);
+};
+
+/* ---- HÔTE : déroulé des manches ---- */
+function hostManche(i){
+  if(i>=T.nb)return hostFinir();
+  const actifs=Object.keys(Tplayers).filter(id=>!Telim[id]);
+  if(T.mode==='elimination'&&actifs.length<=1)return hostFinir();
+  TqIdx=i; Tphase='question'; TansThisQ={};
+  const q=TqHost[i];
+  Tcur={q:i,num:i+1,total:T.nb,text:q.question,opts:q.opts,phase:'question',deadline:Date.now()+T.timing*1000,scores:Tscores,elim:Telim,players:Tplayers};
+  envoiEtat(); recevoirEtat(Tcur);
+  clearTimeout(Ttimer); Ttimer=setTimeout(()=>hostReveal(i,null),T.timing*1000);
+}
+function recevoirRep(p){
+  if(Tphase!=='question'||p.q!==TqIdx)return;
+  if(Telim[p.uid]||TansThisQ[p.uid])return;
+  TansThisQ[p.uid]=true;
+  const q=TqHost[TqIdx];
+  if(p.choix===q.bonneAff){ Tscores[p.uid]=(Tscores[p.uid]||0)+1; return hostReveal(TqIdx,{uid:p.uid,nom:p.nom}); } // 1ʳᵉ bonne réponse = verrou
+  // mauvaise réponse : le joueur est bloqué pour la manche ; on continue
+  const actifs=Object.keys(Tplayers).filter(id=>!Telim[id]);
+  if(actifs.every(id=>TansThisQ[id]))hostReveal(TqIdx,null); // tout le monde a raté -> révèle
+}
+function hostReveal(i,gagnant){
+  if(Tphase!=='question'||i!==TqIdx)return;
+  clearTimeout(Ttimer); Tphase='reveal';
+  const q=TqHost[i];
+  if(T.mode==='elimination'&&gagnant){ // élimine ceux qui n'ont pas trouvé
+    Object.keys(Tplayers).forEach(id=>{ if(!Telim[id]&&id!==gagnant.uid)Telim[id]=true; });
+  }
+  Tcur={q:i,num:i+1,total:T.nb,text:q.question,opts:q.opts,phase:'reveal',bonne:q.bonneAff,gagnant,scores:Tscores,elim:Telim,players:Tplayers,ref:`${q.support||''}${q.article?' · '+q.article:''}`};
+  envoiEtat(); recevoirEtat(Tcur);
+  clearTimeout(Ttimer); Ttimer=setTimeout(()=>hostManche(i+1),2200);
+}
+function hostFinir(){
+  Tphase='fin';
+  const classement=Object.keys(Tplayers).map(id=>({id,nom:Tplayers[id].nom,pts:Tscores[id]||0,elim:!!Telim[id]}))
+    .sort((a,b)=>(a.elim-b.elim)||(b.pts-a.pts));
+  Tchan&&Tchan.send({type:'broadcast',event:'fin',payload:{classement}});
+  afficherFinTournoi({classement});
+}
+function envoiEtat(){ if(Thost&&Tchan&&Tcur)Tchan.send({type:'broadcast',event:'etat',payload:Tcur}); }
+
+/* ---- TOUS : réception de l'état ---- */
+function recevoirEtat(p){
+  if(!p)return; Tcur=p; Tscores=p.scores||Tscores; Telim=p.elim||Telim;
+  if(Tphase==='attente'||Tphase==='fin'){ Tphase='jeu'; }
+  if(p.phase==='question'){ Tphase='question'; afficherMancheTournoi(p); }
+  else if(p.phase==='reveal'){ Tphase='reveal'; revealTournoi(p); }
+  vueTournoi('jeu');
+}
+function afficherMancheTournoi(p){
+  TqIdx=p.q; Tlock=false; TmesAnsQ=-1;
+  const elimine=!!Telim[Tuid()];
+  $('tElimBadge').style.display=elimine?'inline-block':'none';
+  $('tQNum').textContent=`Manche ${p.num} / ${p.total}`;
+  $('tQText').textContent=p.text; $('tQInfo').textContent='';
+  $('tQOptions').innerHTML=p.opts.map((o,k)=>`<button class="opt" ${elimine?'disabled':''} onclick="repondreTournoi(${k})">${escTxt(o)}</button>`).join('');
+  majRank();
+  Tdeadline=p.deadline||(Date.now()+T.timing*1000);
+  clearInterval(Ttimer); $('tChronoBar').className='';
+  const tk=setInterval(()=>{
+    const reste=Math.max(0,Tdeadline-Date.now()),pct=reste/(T.timing*1000)*100,sec=Math.ceil(reste/1000);
+    $('tChronoBar').style.width=pct+'%'; $('tQChrono').textContent=sec+'s';
+    $('tChronoBar').className=pct<25?'danger':(pct<55?'warn':'');
+    $('tChronoBar').parentElement.classList.toggle('low',pct<25);
+    if(sec<=3&&sec>0&&sec!==afficherMancheTournoi._t){afficherMancheTournoi._t=sec;SFX.tick();}
+    if(reste<=0)clearInterval(tk);
+  },200);
+  afficherMancheTournoi._iv=tk;
+}
+window.repondreTournoi=k=>{
+  if(Tphase!=='question'||Tlock||Telim[Tuid()]||TmesAnsQ===TqIdx)return;
+  ac();bip(520,.05,'square',.12,0);
+  TmesAnsQ=TqIdx; Tlock=true;
+  $('tQOptions').querySelectorAll('button').forEach(b=>b.disabled=true);
+  const p={uid:Tuid(),nom:Tnom(),q:TqIdx,choix:k};
+  if(Thost)recevoirRep(p); else Tchan.send({type:'broadcast',event:'rep',payload:p});
+};
+function revealTournoi(p){
+  clearInterval(afficherMancheTournoi._iv);
+  const btns=$('tQOptions').querySelectorAll('button');
+  btns.forEach((b,k)=>{b.disabled=true;if(k===p.bonne)b.classList.add('bon');});
+  const moi=Tuid();
+  if(p.gagnant){
+    $('tQInfo').innerHTML=`✅ <b>${escTxt(p.gagnant.nom)}</b> a trouvé en premier.`+(p.ref?` <span class="ref-cell">(${escTxt(p.ref)})</span>`:'');
+    if(p.gagnant.uid===moi){SFX.bon();flash('ok');sticker('✅');toast('Bonne réponse, tu prends la main !','🎉','win');}
+    else{toast(p.gagnant.nom+' a verrouillé la manche','⚡','bad');}
+  } else { $('tQInfo').innerHTML='⏱️ Personne n\'a trouvé.'; SFX.faux(); }
+  if(T.mode==='elimination'&&Telim[moi]&&p.gagnant&&p.gagnant.uid!==moi){$('tElimBadge').style.display='inline-block';flash('bad');toast('Tu es éliminé, mode spectateur','💪','bad');}
+  majRank();
+}
+function majRank(){
+  const z=$('tRank'); if(!z)return;
+  const arr=Object.keys(Tplayers).map(id=>({id,nom:Tplayers[id].nom,pts:Tscores[id]||0,elim:!!Telim[id]}))
+    .sort((a,b)=>(a.elim-b.elim)||(b.pts-a.pts));
+  z.innerHTML=arr.map((r,i)=>`<div class="t-row${r.id===Tuid()?' moi':''}${r.elim?' out':''}"><span><span class="t-pos">${i+1}</span> ${escTxt(r.nom)}</span><span class="pts">${r.pts}</span></div>`).join('');
+}
+function afficherFinTournoi(p){
+  clearTimeout(Ttimer); clearInterval(afficherMancheTournoi._iv); Tphase='fin';
+  const cl=p.classement||[]; const moi=Tuid();
+  const rang=cl.findIndex(r=>r.id===moi)+1;
+  let titre='🏆 Tournoi terminé';
+  if(cl[0]){ titre = cl[0].id===moi?'🏆 Tu remportes le tournoi !':`🏆 Vainqueur : ${escTxt(cl[0].nom)}`; }
+  $('tFinTitre').textContent=titre;
+  if(cl[0]&&cl[0].id===moi){SFX.win();confettis(120);}else if(rang<=3&&rang>0){SFX.bon();confettis(50);}else{SFX.lose();}
+  $('tFinRank').innerHTML=cl.map((r,i)=>`<div class="t-row${r.id===moi?' moi':''}${r.elim?' out':''}"><span><span class="t-pos">${i+1}</span> ${escTxt(r.nom)}</span><span class="pts">${r.pts} pts</span></div>`).join('');
+  const mon=(cl.find(r=>r.id===moi)||{}).pts||0;
+  logEvenement('tournoi',T.pack,T.pack_titre,mon,{mode:T.mode,rang:rang||null,joueurs:cl.length}); // MODIFIÉ : journal sponsors
+  $('tZoneScore').innerHTML=`<button class="btn" id="tBtnSave" onclick="enregistrerScoreTournoi(${mon})">💾 Enregistrer mon score (${mon} pts · ${escTxt(T.pack_titre)})</button><div id="tMsgScore" class="msg" style="margin-top:8px"></div>`;
+  vueTournoi('fin');
+}
+window.enregistrerScoreTournoi=async pts=>{
+  const m=$('tMsgScore');m.className='msg';m.textContent='…';
+  const {error}=await sb.rpc('enregistrer_score',{p_pack:T.pack,p_nom:profil.nom||session.user.email,p_points:pts});
+  if(error){m.className='msg err';m.textContent=error.message;}
+  else{m.className='msg ok';m.textContent='Score enregistré au classement du pack !';const b=$('tBtnSave');if(b)b.disabled=true;}
+};
+function stopTournoi(){clearTimeout(Ttimer);clearInterval(afficherMancheTournoi._iv);if(Tchan){sb.removeChannel(Tchan);Tchan=null;}T=null;Thost=false;Tphase='';TqIdx=-1;TqHost=[];}
+window.quitterTournoi=()=>{stopTournoi();vueTournoi('lobby');chargerTopPack();};
+
+/* depuis l'écran de formation : tournoi du module */
+window.tournoiDepuisModule=()=>{
+  const f=window._formCur; fermerViewer(); aller('tournoi');
+  if(f){const sel=$('t-pack');if([...sel.options].some(o=>o.value===f.slug)){sel.value=f.slug;chargerTopPack();}
+    const m=$('t-msgCreer');m.className='msg ok';m.textContent='Module : '+f.titre+' — crée ton tournoi ci-dessus.';}
+};
+window.salonTournoiPack=()=>{const sel=$('t-pack'),f=formations.find(x=>x.slug===sel.value);Chat.salon(sel.value,f?f.titre:sel.value);};
+
+/* ===================== JOURNAL & STATISTIQUES (MODIFIÉ) ===================== */
+/* Enregistre chaque partie jouée (fire-and-forget, sans bloquer si la table n'existe pas encore) */
+async function logEvenement(type,pack,pack_titre,points,meta){
+  if(demo||!session)return;
+  try{ await sb.from('evenements').insert({type,pack,pack_titre,user_id:session.user.id,nom:profil.nom||session.user.email,points:points||0,meta:meta||{}}); }catch(e){}
+}
+
+function statCarte(t,v){return `<div style="background:#f7f5f0;border-radius:10px;padding:12px;text-align:center"><div style="font-size:1.7rem;font-weight:800;font-family:'Playfair Display';color:var(--or)">${v??0}</div><div style="font-size:.76rem;color:var(--gris);margin-top:2px">${t}</div></div>`;}
+let _stats=null;
+window.chargerStats=async()=>{
+  const z=$('statsBox');if(!z)return; z.innerHTML='<p style="color:var(--gris)">Chargement…</p>';
+  const {data,error}=await sb.rpc('stats_admin');
+  if(error){z.innerHTML=`<p class="msg err">Stats indisponibles. As-tu exécuté le script SQL <b>stats_admin</b> dans Supabase ?<br><span style="color:var(--gris)">${escTxt(error.message)}</span></p>`;return;}
+  _stats=data;
+  const sect=data.par_secteur||{};
+  const sectHtml=Object.keys(sect).length?Object.keys(sect).map(k=>`<div class="tp"><b>${escTxt(k)}</b><span class="v">${sect[k]}</span></div>`).join(''):'<span style="color:var(--gris)">—</span>';
+  z.innerHTML=`
+    <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr))">
+      ${statCarte('👥 Inscrits',data.total_users)}
+      ${statCarte('🆕 Inscrits (30 j)',data.inscrits_30j)}
+      ${statCarte('💳 Forfaits actifs',data.forfaits_actifs)}
+      ${statCarte('📚 Apprenants actifs',data.apprenants_actifs)}
+      ${statCarte('🎓 Formations terminées',data.formations_terminees)}
+      ${statCarte('⚔️ Duels joués',data.duels_joues)}
+      ${statCarte('🏆 Tournois joués',data.tournois_joues)}
+      ${statCarte('📅 Parties (30 j)',data.parties_30j)}
+    </div>
+    <h4 style="margin:16px 0 8px;font-family:'Playfair Display';color:var(--bleu)">Répartition par profil</h4>
+    <div class="top-pack">${sectHtml}</div>
+    <p style="color:var(--gris);font-size:.74rem;margin-top:10px">Duels/tournois = participations enregistrées. Données agrégées, sans information personnelle.</p>`;
+};
+window.exporterStats=()=>{
+  if(!_stats){toast("Charge d'abord les statistiques.",'📊');return;}
+  const s=_stats, L=[['Indicateur','Valeur'],
+    ['Inscrits',s.total_users],['Inscrits 30j',s.inscrits_30j],['Forfaits actifs',s.forfaits_actifs],
+    ['Apprenants actifs',s.apprenants_actifs],['Formations terminees',s.formations_terminees],
+    ['Duels joues',s.duels_joues],['Tournois joues',s.tournois_joues],['Parties 30j',s.parties_30j]];
+  Object.keys(s.par_secteur||{}).forEach(k=>L.push(['Profil - '+k,s.par_secteur[k]]));
+  const csv=L.map(r=>r.join(';')).join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent('\ufeff'+csv);
+  a.download='REGUL_ACADEMIE_stats_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+};
+
+/* ---- ADMIN ---- */
+window.activerForfait=async()=>{
+  const m=$('msgAdmin');m.textContent='…';m.className='msg';
+  const {data,error}=await sb.rpc('activer_forfait',{p_email:$('adm-email').value.trim(),p_jours:parseInt($('adm-jours').value)||365});
+  if(error){m.className='msg err';m.textContent=error.message;}else{m.className='msg ok';m.textContent='Forfait activé.';}
+};
+window.importerQuiz=async()=>{ // MODIFIÉ : import des quiz validés dans la banque
+  const m=$('msgImport');m.className='msg';m.textContent='…';
+  let arr;
+  try{arr=JSON.parse($('q-json').value);}catch(e){m.className='msg err';m.textContent='JSON invalide.';return;}
+  if(!Array.isArray(arr)){m.className='msg err';m.textContent='Le JSON doit être un tableau [].';return;}
+  const pack=$('q-pack-import').value;
+  const rows=arr.map(q=>({pack:q.pack||pack,question:q.question,options:q.options,bonne:q.bonne,article:q.article||null,support:q.support||null,lien:q.lien||null}));
+  const {error}=await sb.from('quizz').insert(rows);
+  if(error){m.className='msg err';m.textContent=error.message;}else{m.className='msg ok';m.textContent=`${rows.length} question(s) importée(s) dans le pack "${pack}".`;$('q-json').value='';}
+};
+async function chargerAchats(){
+  const {data}=await sb.from('achats').select('*').eq('statut','en_attente').order('cree_le',{ascending:false});
+  if(!data||!data.length){$('achatsAttente').textContent='Aucun.';return;}
+  let h='<table><tr><th>Date</th><th>Montant</th><th>User</th></tr>';
+  data.forEach(a=>h+=`<tr><td>${new Date(a.cree_le).toLocaleDateString()}</td><td>${a.montant} FCFA</td><td>${a.user_id.slice(0,8)}…</td></tr>`);
+  $('achatsAttente').innerHTML=h+'</table>';
+}
+
+init();
+
+/* ===================== GAMIFICATION (MODIFIÉ) ===================== */
+/* Sons synthétisés (Web Audio, aucun fichier externe, marche hors-ligne) */
+let _ac=null;
+function ac(){try{if(!_ac)_ac=new(window.AudioContext||window.webkitAudioContext)();if(_ac.state==='suspended')_ac.resume();}catch(e){}return _ac;}
+function bip(freq,dur,type,vol,delay){const c=ac();if(!c)return;const t=c.currentTime+(delay||0);const o=c.createOscillator(),g=c.createGain();o.type=type||'sine';o.frequency.setValueAtTime(freq,t);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol||0.25,t+0.01);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+dur+0.02);}
+const SFX={
+  bon(){bip(660,.12,'sine',.3,0);bip(880,.18,'sine',.3,.1);bip(1180,.25,'sine',.28,.22);},
+  faux(){bip(200,.25,'sawtooth',.22,0);bip(150,.3,'sawtooth',.2,.12);},
+  tick(){bip(900,.06,'square',.14,0);},
+  win(){[523,659,784,1046,1318].forEach((f,i)=>bip(f,.3,'triangle',.3,i*.12));},
+  lose(){[392,330,262].forEach((f,i)=>bip(f,.35,'sine',.25,i*.16));},
+  egal(){bip(523,.2,'sine',.25,0);bip(523,.25,'sine',.25,.22);},
+  ouvre(){bip(440,.08,'sine',.18,0);bip(660,.1,'sine',.16,.07);} // MODIFIÉ : ouverture formation
+};
+/* Toast / push « Bravo ! » */
+function toast(msg,emoji,type){
+  const w=$('toastWrap');if(!w)return;
+  const d=document.createElement('div');d.className='toast '+(type||'');
+  d.innerHTML=(emoji?`<span class="em">${emoji}</span>`:'')+`<span>${msg}</span>`;
+  w.appendChild(d);setTimeout(()=>d.remove(),2400);
+}
+/* Sticker emoji qui jaillit (autour d'un point écran) */
+function sticker(emoji,x,y){
+  const s=document.createElement('div');s.className='sticker';s.textContent=emoji;
+  s.style.left=(x||innerWidth/2)+'px';s.style.top=(y||innerHeight/2)+'px';
+  document.body.appendChild(s);setTimeout(()=>s.remove(),950);
+}
+/* Flash plein écran */
+function flash(type){const f=$('flash');if(!f)return;f.className='';void f.offsetWidth;f.className=type;}
+/* Confettis */
+function confettis(n){
+  const cols=['#C9991A','#E8B520','#002B5C','#1c8a4e','#fff'];
+  for(let i=0;i<(n||80);i++){
+    const c=document.createElement('div');c.className='conf';
+    c.style.left=Math.random()*100+'vw';
+    c.style.background=cols[i%cols.length];
+    c.style.animationDuration=(2+Math.random()*2)+'s';
+    c.style.animationDelay=(Math.random()*.5)+'s';
+    c.style.transform='rotate('+(Math.random()*360)+'deg)';
+    document.body.appendChild(c);setTimeout(()=>c.remove(),4600);
+  }
+}
+let comboDuel=0; // série de bonnes réponses du joueur courant
+let prevScores={}; // pour détecter les hausses de score
+window.__gx={SFX,toast,sticker,flash,confettis};
+</script>
+</body>
+</html>

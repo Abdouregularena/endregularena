@@ -1,0 +1,310 @@
+[
+ {
+  "pack": "pcb",
+  "question": "Quelle décision institue le Plan Comptable Bancaire Révisé (PCB) de l'UMOA ?",
+  "options": [
+   "A. La Décision N°013/24/06/2016/CM/UMOA",
+   "B. La Décision N°357-11-2016",
+   "C. L'Instruction N°005-08-2017",
+   "D. Le Règlement n°09/2010/CM/UEMOA"
+  ],
+  "bonne": 1,
+  "article": "Préambule",
+  "support": "Plan Comptable Bancaire Révisé de l'UMOA — Décision N°357-11-2016",
+  "lien": ""
+ },
+ {
+  "pack": "pcb",
+  "question": "Combien de classes comprend le cadre comptable bancaire (Article 70) ?",
+  "options": [
+   "A. Six (6)",
+   "B. Sept (7)",
+   "C. Huit (8)",
+   "D. Dix (10)"
+  ],
+  "bonne": 2,
+  "article": "Article 70",
+  "support": "Plan Comptable Bancaire Révisé de l'UMOA — Décision N°357-11-2016",
+  "lien": ""
+ },
+ {
+  "pack": "pcb",
+  "question": "Que regroupe la Classe 2 du plan de comptes (Article 70) ?",
+  "options": [
+   "A. Les comptes de trésorerie",
+   "B. Les comptes d'opérations avec la clientèle",
+   "C. Les comptes de charges",
+   "D. Les engagements hors bilan"
+  ],
+  "bonne": 1,
+  "article": "Article 70",
+  "support": "Plan Comptable Bancaire Révisé de l'UMOA — Décision N°357-11-2016",
+  "lien": ""
+ },
+ {
+  "pack": "pcb",
+  "question": "À quelle classe sont rattachés les engagements hors bilan (Article 70) ?",
+  "options": [
+   "A. Classe 5",
+   "B. Classe 7",
+   "C. Classe 8",
+   "D. Classe 9"
+  ],
+  "bonne": 3,
+  "article": "Article 70",
+  "support": "Plan Comptable Bancaire Révisé de l'UMOA — Décision N°357-11-2016",
+  "lien": ""
+ },
+ {
+  "pack": "pcb",
+  "question": "Les comptes de charges et les comptes de produits correspondent respectivement aux classes (Article 70) :",
+  "options": [
+   "A. Classe 6 et Classe 7",
+   "B. Classe 4 et Classe 5",
+   "C. Classe 7 et Classe 6",
+   "D. Classe 5 et Classe 6"
+  ],
+  "bonne": 0,
+  "article": "Article 70",
+  "support": "Plan Comptable Bancaire Révisé de l'UMOA — Décision N°357-11-2016",
+  "lien": ""
+ },
+ {
+  "pack": "pcb",
+  "question": "Que regroupe la Classe 1 (Article 70) ?",
+  "options": [
+   "A. Les valeurs immobilisées",
+   "B. Les comptes de trésorerie et d'opérations avec les établissements de crédit et assimilés",
+   "C. Les provisions et fonds propres",
+   "D. Les opérations sur titres"
+  ],
+  "bonne": 1,
+  "article": "Article 70",
+  "support": "Plan Comptable Bancaire Révisé de l'UMOA — Décision N°357-11-2016",
+  "lien": ""
+ },
+ {
+  "pack": "pcb",
+  "question": "Quelles sont les deux hypothèses de base du PCB (Article 11) ?",
+  "options": [
+   "A. La prudence et la transparence",
+   "B. La continuité de l'exploitation et la comptabilité d'engagement",
+   "C. La permanence des méthodes et l'image fidèle",
+   "D. L'importance significative et la prééminence économique"
+  ],
+  "bonne": 1,
+  "article": "Article 11",
+  "support": "Plan Comptable Bancaire Révisé de l'UMOA — Décision N°357-11-2016",
+  "lien": ""
+ },
+ {
+  "pack": "pcb",
+  "question": "Qu'induit l'hypothèse de la comptabilité d'engagement (Article 13) ?",
+  "options": [
+   "A. L'enregistrement uniquement lors du règlement en trésorerie",
+   "B. L'enregistrement des effets financiers dès que les transactions interviennent, sans attendre le règlement",
+   "C. L'arrêt des comptes en optique liquidative",
+   "D. La compensation des charges et produits"
+  ],
+  "bonne": 1,
+  "article": "Article 13",
+  "support": "Plan Comptable Bancaire Révisé de l'UMOA — Décision N°357-11-2016",
+  "lien": ""
+ },
+ {
+  "pack": "pcb",
+  "question": "Que postule l'hypothèse de continuité de l'exploitation (Article 12) ?",
+  "options": [
+   "A. Que l'entité sera liquidée à court terme",
+   "B. Que l'entité poursuivra ses activités dans un avenir prévisible",
+   "C. Que les comptes sont arrêtés en optique liquidative",
+   "D. Que l'exercice dure moins de 12 mois"
+  ],
+  "bonne": 1,
+  "article": "Article 12",
+  "support": "Plan Comptable Bancaire Révisé de l'UMOA — Décision N°357-11-2016",
+  "lien": ""
+ },
+ {
+  "pack": "pcb",
+  "question": "Quelles sont les caractéristiques qualitatives requises de l'information financière (Article 14) ?",
+  "options": [
+   "A. Rentable, liquide, solvable, prudente, fidèle",
+   "B. Pertinente, fidèle, comparable, vérifiable et compréhensible",
+   "C. Sincère, régulière, prudente et permanente",
+   "D. Complète, exacte, datée et signée"
+  ],
+  "bonne": 1,
+  "article": "Article 14",
+  "support": "Plan Comptable Bancaire Révisé de l'UMOA — Décision N°357-11-2016",
+  "lien": ""
+ },
+ {
+  "pack": "pcb",
+  "question": "Quand une information est-elle dite pertinente (Article 15) ?",
+  "options": [
+   "A. Lorsqu'elle est certifiée par un commissaire aux comptes",
+   "B. Lorsqu'elle est susceptible d'influencer les décisions économiques des utilisateurs",
+   "C. Lorsqu'elle est publiée dans les délais légaux",
+   "D. Lorsqu'elle est exempte d'erreurs"
+  ],
+  "bonne": 1,
+  "article": "Article 15",
+  "support": "Plan Comptable Bancaire Révisé de l'UMOA — Décision N°357-11-2016",
+  "lien": ""
+ },
+ {
+  "pack": "pcb",
+  "question": "À quel principe comptable se rattache la règle de non-compensation (Article 22) ?",
+  "options": [
+   "A. À la prudence",
+   "B. À la transparence",
+   "C. à la spécialisation des exercices",
+   "D. À l'intangibilité du bilan d'ouverture"
+  ],
+  "bonne": 1,
+  "article": "Article 22",
+  "support": "Plan Comptable Bancaire Révisé de l'UMOA — Décision N°357-11-2016",
+  "lien": ""
+ },
+ {
+  "pack": "pcb",
+  "question": "Que prévoit le principe de prudence (Article 23) ?",
+  "options": [
+   "A. Autoriser des réserves occultes pour sécuriser le résultat",
+   "B. Surévaluer les actifs pour rassurer les déposants",
+   "C. Ne pas surévaluer les actifs/produits ni sous-évaluer les passifs/charges, sans réserves occultes ni provisions excessives",
+   "D. Comptabiliser uniquement lors de l'encaissement"
+  ],
+  "bonne": 2,
+  "article": "Article 23",
+  "support": "Plan Comptable Bancaire Révisé de l'UMOA — Décision N°357-11-2016",
+  "lien": ""
+ },
+ {
+  "pack": "pcb",
+  "question": "Que signifie le principe de spécialisation des exercices (Article 24) ?",
+  "options": [
+   "A. Rattacher à chaque exercice tous les produits et charges qui le concernent, et uniquement ceux-là",
+   "B. Spécialiser chaque agence dans un type d'opération",
+   "C. Compenser les produits et charges d'exercices différents",
+   "D. Reporter les charges sur l'exercice suivant"
+  ],
+  "bonne": 0,
+  "article": "Article 24",
+  "support": "Plan Comptable Bancaire Révisé de l'UMOA — Décision N°357-11-2016",
+  "lien": ""
+ },
+ {
+  "pack": "pcb",
+  "question": "Quelle est la durée de l'exercice comptable (Article 24) ?",
+  "options": [
+   "A. Six (6) mois",
+   "B. Douze (12) mois, coïncidant avec l'année civile",
+   "C. Variable selon l'établissement",
+   "D. Vingt-quatre (24) mois"
+  ],
+  "bonne": 1,
+  "article": "Article 24",
+  "support": "Plan Comptable Bancaire Révisé de l'UMOA — Décision N°357-11-2016",
+  "lien": ""
+ },
+ {
+  "pack": "pcb",
+  "question": "Qu'exige le principe d'intangibilité du bilan d'ouverture (Article 25) ?",
+  "options": [
+   "A. Que le bilan d'ouverture corresponde au bilan de clôture de l'exercice précédent",
+   "B. Que le bilan ne soit jamais modifié",
+   "C. Que le bilan soit certifié avant ouverture",
+   "D. Que l'actif soit égal au passif"
+  ],
+  "bonne": 0,
+  "article": "Article 25",
+  "support": "Plan Comptable Bancaire Révisé de l'UMOA — Décision N°357-11-2016",
+  "lien": ""
+ },
+ {
+  "pack": "pcb",
+  "question": "Que postule la prééminence de la réalité économique sur l'apparence juridique (Articles 27 et 29) ?",
+  "options": [
+   "A. Que le droit de propriété conditionne toujours l'existence d'un actif",
+   "B. Que les opérations sont comptabilisées selon leur substance économique, l'existence d'un actif n'étant pas liée à un droit de propriété",
+   "C. Que l'apparence juridique prime sur la substance",
+   "D. Que seules les opérations en devises sont concernées"
+  ],
+  "bonne": 1,
+  "article": "Articles 27 & 29",
+  "support": "Plan Comptable Bancaire Révisé de l'UMOA — Décision N°357-11-2016",
+  "lien": ""
+ },
+ {
+  "pack": "pcb",
+  "question": "Parmi les principes comptables énoncés à l'Article 20, lequel NE figure PAS ?",
+  "options": [
+   "A. La permanence des méthodes",
+   "B. La prudence",
+   "C. La rentabilité minimale",
+   "D. L'importance significative"
+  ],
+  "bonne": 2,
+  "article": "Article 20",
+  "support": "Plan Comptable Bancaire Révisé de l'UMOA — Décision N°357-11-2016",
+  "lien": ""
+ },
+ {
+  "pack": "pcb",
+  "question": "Quels sont les éléments constitutifs des états financiers (Article 28) ?",
+  "options": [
+   "A. Le bilan et le compte de résultat uniquement",
+   "B. Le bilan, le hors-bilan, le compte de résultat et les notes annexes",
+   "C. Le grand livre et la balance",
+   "D. Le bilan et les notes annexes uniquement"
+  ],
+  "bonne": 1,
+  "article": "Article 28",
+  "support": "Plan Comptable Bancaire Révisé de l'UMOA — Décision N°357-11-2016",
+  "lien": ""
+ },
+ {
+  "pack": "pcb",
+  "question": "Comment le PCB définit-il un actif (Article 29) ?",
+  "options": [
+   "A. Tout bien dont l'établissement est juridiquement propriétaire",
+   "B. Une ressource contrôlée du fait d'événements passés et dont l'établissement attend des avantages économiques futurs",
+   "C. Toute somme inscrite au passif du bilan",
+   "D. Un engagement reçu de la clientèle"
+  ],
+  "bonne": 1,
+  "article": "Article 29",
+  "support": "Plan Comptable Bancaire Révisé de l'UMOA — Décision N°357-11-2016",
+  "lien": ""
+ },
+ {
+  "pack": "pcb",
+  "question": "Qui regroupe les 'Autorités monétaires et de contrôle bancaire' (Article 5) ?",
+  "options": [
+   "A. La BCEAO, la Commission Bancaire et les Ministres chargés des Finances des États membres",
+   "B. Le CREPMF et la BRVM",
+   "C. Les seuls établissements de crédit",
+   "D. Les agences de notation et les médias"
+  ],
+  "bonne": 0,
+  "article": "Article 5",
+  "support": "Plan Comptable Bancaire Révisé de l'UMOA — Décision N°357-11-2016",
+  "lien": ""
+ },
+ {
+  "pack": "pcb",
+  "question": "Que signifie le principe de permanence des méthodes (Article 21) ?",
+  "options": [
+   "A. Les méthodes peuvent changer librement chaque année",
+   "B. Les méthodes d'évaluation et de présentation ne doivent pas être modifiées d'un exercice à l'autre, sauf changement exceptionnel décrit en annexe",
+   "C. Toutes les banques doivent utiliser des méthodes identiques",
+   "D. Les méthodes sont fixées par le commissaire aux comptes"
+  ],
+  "bonne": 1,
+  "article": "Article 21",
+  "support": "Plan Comptable Bancaire Révisé de l'UMOA — Décision N°357-11-2016",
+  "lien": ""
+ }
+]

@@ -1,0 +1,336 @@
+<!-- ================================================================
+     REGUL ARENA — Composant Packs
+     Grille de packs thématiques UEMOA / CEMAC
+     ================================================================ -->
+
+<section class="packs-section section" id="packs">
+  <div class="section-label">
+    <span>Catalogue de formation</span>
+  </div>
+  <h2 class="h2">Choisissez votre <span class="accent">Pack</span></h2>
+  <p class="muted" style="max-width:560px;margin-bottom:2rem">
+    Chaque pack couvre un domaine réglementaire précis, calibré sur les textes officiels
+    <span class="regul-keyword">BCEAO</span>, <span class="regul-keyword">BEAC</span>
+    et <span class="regul-keyword">COBAC</span>.
+  </p>
+
+  <!-- Filtres -->
+  <div class="packs-filters">
+    <button class="pf-btn active" data-filter="all">Tous</button>
+    <button class="pf-btn" data-filter="uemoa">
+      <span>🌍</span> UEMOA
+    </button>
+    <button class="pf-btn" data-filter="cemac">
+      <span>🌍</span> CEMAC
+    </button>
+    <button class="pf-btn" data-filter="commun">Commun</button>
+  </div>
+
+  <!-- Grille packs -->
+  <div class="packs-grid" id="packsGrid">
+
+    <!-- Pack 1 -->
+    <div class="pack-card" data-zone="uemoa" data-pack="kyc-uemoa">
+      <div class="pack-header">
+        <span class="institution-tag bceao">BCEAO</span>
+        <span class="pack-qcount">15 questions</span>
+      </div>
+      <div class="pack-icon">🔍</div>
+      <h3 class="pack-title h3">Conformité KYC</h3>
+      <p class="pack-desc muted">
+        Identification et vérification des clients, diligences renforcées,
+        tiers introducteurs selon l'Instruction n°016-2022.
+      </p>
+      <blockquote class="pack-quote">
+        « Connaître son client » — devoir fondamental de toute entité assujettie.
+        <cite class="cite-ref">Instruction BCEAO 016-2022, Titre III</cite>
+      </blockquote>
+      <div class="pack-footer">
+        <div class="pack-tags">
+          <span class="text-pill">LCB-FT</span>
+          <span class="text-pill">KYC</span>
+          <span class="text-pill">Diligences</span>
+        </div>
+        <button class="btn-pack" data-pack="kyc-uemoa">Jouer →</button>
+      </div>
+    </div>
+
+    <!-- Pack 2 -->
+    <div class="pack-card" data-zone="uemoa" data-pack="lcbft-uemoa">
+      <div class="pack-header">
+        <span class="institution-tag uemoa">UMOA</span>
+        <span class="pack-qcount">20 questions</span>
+      </div>
+      <div class="pack-icon">🛡️</div>
+      <h3 class="pack-title h3">LCB-FT Avancé</h3>
+      <p class="pack-desc muted">
+        Déclaration de soupçon, gel des avoirs, financement du terrorisme,
+        obligations de reporting dans l'espace UMOA.
+      </p>
+      <blockquote class="pack-quote">
+        Le signalement d'une opération suspecte doit intervenir
+        sans délai auprès de la Cellule Nationale de Traitement.
+        <cite class="cite-ref">Règlement UMOA 14-2002, Art. 22</cite>
+      </blockquote>
+      <div class="pack-footer">
+        <div class="pack-tags">
+          <span class="text-pill">LCB-FT</span>
+          <span class="text-pill">Soupçon</span>
+          <span class="text-pill">Gel avoirs</span>
+        </div>
+        <button class="btn-pack" data-pack="lcbft-uemoa">Jouer →</button>
+      </div>
+    </div>
+
+    <!-- Pack 3 -->
+    <div class="pack-card pack-featured" data-zone="cemac" data-pack="cobac-cemac">
+      <div class="pack-header">
+        <span class="institution-tag cobac">COBAC</span>
+        <span class="pack-qcount">18 questions</span>
+      </div>
+      <div class="pack-icon pack-icon-glow">⚖️</div>
+      <h3 class="pack-title h3">Réglementation COBAC</h3>
+      <p class="pack-desc muted">
+        Normes prudentielles, ratio de solvabilité, règles de liquidité,
+        surveillance bancaire de la CEMAC.
+      </p>
+      <blockquote class="pack-quote cemac-quote">
+        La COBAC statue sur toute question relative au respect des normes
+        de gestion applicables aux établissements de crédit.
+        <cite class="cite-ref">Convention COBAC, Art. 15</cite>
+      </blockquote>
+      <div class="pack-footer">
+        <div class="pack-tags">
+          <span class="text-pill cemac-pill">COBAC</span>
+          <span class="text-pill cemac-pill">Prudentiel</span>
+          <span class="text-pill cemac-pill">Bâle III</span>
+        </div>
+        <button class="btn-pack btn-pack-cemac" data-pack="cobac-cemac">Jouer →</button>
+      </div>
+    </div>
+
+    <!-- Pack 4 -->
+    <div class="pack-card" data-zone="commun" data-pack="basal-commun">
+      <div class="pack-header">
+        <span class="institution-tag bceao" style="margin-right:4px">BCEAO</span>
+        <span class="institution-tag beac">BEAC</span>
+        <span class="pack-qcount">12 questions</span>
+      </div>
+      <div class="pack-icon">📊</div>
+      <h3 class="pack-title h3">Bâle III Appliqué</h3>
+      <p class="pack-desc muted">
+        Fonds propres, ratios de liquidité LCR/NSFR, coussins contra-cycliques
+        dans les deux zones monétaires.
+      </p>
+      <blockquote class="pack-quote">
+        Le ratio de solvabilité minimal est fixé à 8% des actifs pondérés
+        par les risques, avec un coussin de conservation de 2,5%.
+        <cite class="cite-ref">Circulaire BCEAO/BEAC, Accord Bâle III</cite>
+      </blockquote>
+      <div class="pack-footer">
+        <div class="pack-tags">
+          <span class="text-pill">Bâle III</span>
+          <span class="text-pill">LCR</span>
+          <span class="text-pill">NSFR</span>
+        </div>
+        <button class="btn-pack" data-pack="basal-commun">Jouer →</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<style>
+/* ── Section packs ────────────────────────────────────────── */
+.packs-section { padding: 90px 40px; max-width: 1200px; margin: 0 auto; }
+
+/* Filtres */
+.packs-filters {
+  display:       flex;
+  gap:           6px;
+  margin-bottom: 32px;
+  flex-wrap:     wrap;
+}
+
+.pf-btn {
+  display:        flex;
+  align-items:    center;
+  gap:            5px;
+  background:     var(--bg2);
+  border:         1px solid var(--gb);
+  color:          var(--muted);
+  font-family:    var(--font-heading); /* Lato */
+  font-size:      0.72rem;
+  font-weight:    700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding:        8px 16px;
+  cursor:         pointer;
+  border-radius:  2px;
+  transition:     all 0.2s;
+}
+
+.pf-btn:hover { border-color: var(--border); color: var(--text); }
+
+.pf-btn.active {
+  background:   var(--gold-dim);
+  border-color: var(--gold);
+  color:        var(--gold);
+}
+
+/* Grille packs */
+.packs-grid {
+  display:               grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap:                   2px;
+  background:            var(--border);
+}
+
+/* Carte pack */
+.pack-card {
+  background:    var(--bg2);
+  padding:       32px 28px;
+  position:      relative;
+  overflow:      hidden;
+  transition:    all 0.3s;
+  border-top:    3px solid transparent;
+  display:       flex;
+  flex-direction: column;
+  gap:           12px;
+}
+
+.pack-card:hover {
+  background:       var(--bg3);
+  border-top-color: var(--gold);
+  transform:        translateY(-3px);
+  box-shadow:       0 8px 40px rgba(0, 0, 0, 0.4);
+}
+
+.pack-card[data-zone="cemac"]:hover {
+  border-top-color: var(--cyan);
+}
+
+.pack-card.pack-featured {
+  border-top-color: var(--gold);
+  background:       linear-gradient(180deg, rgba(201,153,26,0.04) 0%, var(--bg2) 100%);
+}
+
+/* Header pack */
+.pack-header {
+  display:     flex;
+  align-items: center;
+  gap:         6px;
+  flex-wrap:   wrap;
+}
+
+.pack-qcount {
+  font-family:    var(--font-mono);
+  font-size:      0.58rem;
+  letter-spacing: 2px;
+  color:          var(--muted);
+  text-transform: uppercase;
+  margin-left:    auto;
+}
+
+/* Icône pack */
+.pack-icon {
+  font-size:   2.4rem;
+  display:     block;
+  line-height: 1;
+}
+
+.pack-icon-glow { filter: drop-shadow(0 0 10px var(--gold)); }
+
+/* Titre — H3 Lato */
+.pack-title {
+  font-family:    var(--font-heading); /* Lato */
+  font-size:      1.1rem;
+  font-weight:    900;
+  color:          var(--text);
+  letter-spacing: 0.3px;
+  margin:         0;
+}
+
+/* Description — Roboto */
+.pack-desc {
+  font-family: var(--font-body);
+  font-size:   0.82rem;
+  line-height: var(--lh-normal);
+  margin:      0;
+  flex:        1;
+}
+
+/* Citation pack — Merriweather */
+.pack-quote {
+  font-family:   var(--font-quote);
+  font-size:     0.76rem;
+  font-style:    italic;
+  font-weight:   300;
+  line-height:   1.65;
+  color:         var(--silver);
+  border-left:   2px solid var(--gold);
+  padding:       0.5em 0.9em;
+  margin:        0;
+  background:    rgba(201,153,26,0.05);
+}
+
+.pack-quote::before { display: none; }
+
+.cemac-quote {
+  border-left-color: var(--cyan);
+  background:        rgba(34,211,238,0.04);
+}
+
+/* Footer pack */
+.pack-footer {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  gap:             10px;
+  padding-top:     4px;
+  flex-wrap:       wrap;
+}
+
+.pack-tags {
+  display:   flex;
+  gap:       4px;
+  flex-wrap: wrap;
+}
+
+/* Bouton jouer pack */
+.btn-pack {
+  background:     linear-gradient(135deg, var(--gold), var(--gold-l));
+  color:          var(--bg);
+  font-family:    var(--font-title); /* Montserrat */
+  font-weight:    800;
+  font-size:      0.7rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border:         none;
+  padding:        9px 18px;
+  cursor:         pointer;
+  clip-path:      polygon(7px 0, 100% 0, calc(100% - 7px) 100%, 0 100%);
+  transition:     all 0.2s;
+  white-space:    nowrap;
+}
+
+.btn-pack:hover {
+  box-shadow: 0 4px 16px var(--gold-glow);
+  transform:  translateY(-1px);
+}
+
+.btn-pack-cemac {
+  background: linear-gradient(135deg, var(--cyan), #0ea5e9);
+}
+
+.btn-pack-cemac:hover {
+  box-shadow: 0 4px 16px var(--cyan-glow);
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .packs-section { padding: 60px 20px; }
+  .packs-grid    { grid-template-columns: 1fr; }
+  .pack-card     { padding: 24px 20px; }
+}
+</style>

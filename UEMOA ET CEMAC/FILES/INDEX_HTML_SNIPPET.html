@@ -1,0 +1,37 @@
+<!-- ═══════════════════════════════════════════════
+     REGUL ARENA — Tags PWA à ajouter dans <head>
+     ═══════════════════════════════════════════════ -->
+
+<!-- 1. Lien vers le manifest -->
+<link rel="manifest" href="/manifest.json">
+
+<!-- 2. Theme color (barre de statut Android) -->
+<meta name="theme-color" content="#6d28d9">
+
+<!-- 3. Viewport (si pas déjà présent) -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+<!-- 4. Apple / iOS fallback (optionnel mais recommandé) -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="REGUL ARENA">
+<link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+
+<!-- ═══════════════════════════════════════════════
+     Script d'enregistrement du service worker
+     À placer avant la fermeture de </body>
+     ═══════════════════════════════════════════════ -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker
+        .register('/sw.js')
+        .then(function (reg) {
+          console.log('[PWA] Service worker enregistré :', reg.scope);
+        })
+        .catch(function (err) {
+          console.warn('[PWA] Échec enregistrement SW :', err);
+        });
+    });
+  }
+</script>

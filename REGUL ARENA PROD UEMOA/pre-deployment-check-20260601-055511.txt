@@ -1,0 +1,7 @@
+[0;34m[2026-06-01 05:55:11][0m Démarrage du rapport de validation...
+[0;34m[2026-06-01 05:55:11][0m Report: pre-deployment-check-20260601-055511.txt
+
+╔════════════════════════════════════════════════════════════╗
+║ 1. VÉRIFICATIONS DE L'INFRASTRUCTURE
+╚════════════════════════════════════════════════════════════╝
+[0;34m[2026-06-01 05:55:11][0m Vérification des outils installés...

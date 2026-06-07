@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>REGUL ARENA — Design System Preview</title>
+
+<!-- ── Google Fonts ─────────────────────────────────────── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;0,700;0,800;0,900;1,600&family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Lato:ital,wght@0,300;0,400;0,700;0,900;1,400&family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+/* ================================================================
+   REGUL ARENA — MASTER DESIGN SYSTEM
+   Intégration polices : Montserrat | Roboto | Merriweather | Lato
+   ================================================================ */
+
+/* ── Variables ─────────────────────────────────────────────────── */
+:root {
+  --font-display:   'Bebas Neue', 'Montserrat', cursive;
+  --font-title:     'Montserrat', sans-serif;
+  --font-heading:   'Lato', sans-serif;
+  --font-body:      'Roboto', sans-serif;
+  --font-quote:     'Merriweather', Georgia, serif;
+  --font-mono:      'JetBrains Mono', monospace;
+
+  --fs-hero:  clamp(4rem, 12vw, 8.5rem);
+  --fs-2xl:   clamp(2.5rem, 6vw, 4rem);
+  --fs-xl:    clamp(1.8rem, 4vw, 2.8rem);
+  --fs-lg:    clamp(1.3rem, 2.5vw, 1.9rem);
+  --fs-md:    clamp(1rem, 1.8vw, 1.3rem);
+  --fs-base:  0.9rem;
+  --fs-sm:    0.82rem;
+  --fs-xs:    0.72rem;
+  --fs-xxs:   0.62rem;
+
+  --lh-tight:   1.05;
+  --lh-snug:    1.3;
+  --lh-normal:  1.55;
+  --lh-relaxed: 1.75;
+
+  --gold:      #C9991A;
+  --gold-l:    #E8B520;
+  --gold-b:    #FFD27A;
+  --gold-dim:  rgba(201,153,26,.12);
+  --gold-f:    rgba(201,153,26,.06);
+  --gold-glow: rgba(201,153,26,.35);
+  --border:    rgba(201,153,26,.22);
+  --navy:      #002B5C;
+  --navy-l:    #003d7a;
+  --navy-dim:  rgba(0,43,92,.4);
+  --cyan:      #22D3EE;
+  --cyan-dim:  rgba(34,211,238,.08);
+  --cyan-glow: rgba(34,211,238,.3);
+  --green:     #10B981;
+  --green-dim: rgba(16,185,129,.12);
+  --red:       #EF4444;
+  --red-dim:   rgba(239,68,68,.1);
+  --silver:    #B0B8C8;
+  --muted:     #7A8499;
+  --bg:        #03050A;
+  --bg2:       #080C14;
+  --bg3:       #0E1320;
+  --glass:     rgba(8,12,20,.72);
+  --text:      #EEF0F5;
+  --sep:       rgba(255,255,255,.06);
+  --gb:        rgba(255,255,255,.07);
+}
+
+/* ── Reset ──────────────────────────────────────────────────────── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:var(--fs-base);line-height:var(--lh-normal);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* ── Fond bruité ──────────────────────────────────────────────── */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.3}
+
+/* ── NAVIGATION ─────────────────────────────────────────────────── */
+nav.ra-nav {
+  position:sticky;top:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 40px;height:56px;
+  background:#001E42;border-bottom:2px solid var(--gold);
+}
+.ra-logo{font-family:'Bebas Neue',cursive;font-size:1.5rem;letter-spacing:3px;text-decoration:none;display:flex;align-items:center;gap:2px}
+.ra-logo-main{color:var(--text)} .ra-logo-accent{color:var(--gold)}
+.ra-nav-links{display:flex;gap:4px;list-style:none}
+.ra-nav-btn{background:none;border:none;cursor:pointer;font-family:var(--font-heading);font-size:.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.8);padding:8px 13px;border-radius:2px;transition:all .2s}
+.ra-nav-btn:hover,.ra-nav-btn.active{color:var(--gold);background:var(--gold-dim)}
+.ra-nav-cta{background:linear-gradient(135deg,var(--gold),var(--gold-l));color:var(--bg);font-family:var(--font-title);font-weight:800;font-size:.7rem;letter-spacing:1px;text-transform:uppercase;padding:9px 18px;border:none;cursor:pointer;border-radius:2px;clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);transition:all .2s}
+.ra-nav-cta:hover{box-shadow:0 4px 20px var(--gold-glow);transform:translateY(-1px)}
+.ra-hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:8px}
+.ra-hamburger span{display:block;width:22px;height:2px;background:var(--text);border-radius:1px;transition:all .3s}
+
+/* ── TYPOGRAPHIE HIÉRARCHIQUE ───────────────────────────────────── */
+h1,.h1{font-family:var(--font-title);font-size:var(--fs-xl);font-weight:800;line-height:var(--lh-tight);letter-spacing:-0.02em;color:var(--gold);margin-bottom:.5em}
+h2,.h2{font-family:var(--font-title);font-size:var(--fs-lg);font-weight:700;line-height:var(--lh-snug);letter-spacing:-0.02em;color:var(--text);margin-bottom:.45em}
+h3,.h3{font-family:var(--font-heading);font-size:var(--fs-md);font-weight:700;line-height:var(--lh-snug);color:var(--text);margin-bottom:.4em}
+h4,.h4{font-family:var(--font-heading);font-size:var(--fs-xs);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.35em}
+h5,.h5{font-family:var(--font-heading);font-size:var(--fs-xxs);font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
+h6,.h6{font-family:var(--font-mono);font-size:var(--fs-xxs);font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+p{font-family:var(--font-body);font-size:var(--fs-base);line-height:var(--lh-normal);margin-bottom:1em}
+p.muted{color:var(--muted);font-size:var(--fs-sm)}
+p.lead{font-size:var(--fs-sm);font-weight:500;line-height:var(--lh-relaxed)}
+strong{font-weight:700} em,i{font-style:italic;color:var(--gold-b)}
+.score,.display-number{font-family:var(--font-display);letter-spacing:.05em;line-height:var(--lh-tight);color:var(--gold)}
+
+blockquote,.regul-quote{font-family:var(--font-quote);font-size:.82rem;font-style:italic;font-weight:300;line-height:var(--lh-relaxed);color:var(--silver);border-left:3px solid var(--gold);padding:.8em 1.2em;margin:1em 0;background:rgba(201,153,26,.06);border-radius:0 3px 3px 0;position:relative}
+blockquote::before,.regul-quote::before{content:'"';font-family:var(--font-quote);font-size:3.5em;font-style:normal;color:var(--gold);opacity:.25;position:absolute;top:-.15em;left:.25em;line-height:1}
+.cite-ref{font-family:var(--font-mono);font-size:.55rem;letter-spacing:.15em;color:var(--cyan);text-transform:uppercase;display:block;margin-top:.5em}
+.cite-inline{font-family:var(--font-quote);font-size:var(--fs-xs);font-style:italic;color:var(--gold-b)}
+.regul-keyword{font-family:var(--font-quote);font-style:italic;font-weight:700;color:var(--gold-b)}
+
+/* Institutions */
+.institution-tag{font-family:var(--font-mono);font-size:.55rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;padding:2px 8px;border-radius:2px;border:1px solid;display:inline-block}
+.institution-tag.bceao,.institution-tag.uemoa{color:var(--gold);border-color:var(--border);background:var(--gold-dim)}
+.institution-tag.beac,.institution-tag.cemac,.institution-tag.cobac{color:var(--cyan);border-color:rgba(34,211,238,.25);background:var(--cyan-dim)}
+
+/* ── SECTION BASE ────────────────────────────────────────────────── */
+.section{padding:90px 40px;max-width:1200px;margin:0 auto;position:relative;z-index:1}
+.section-label{font-family:var(--font-mono);font-size:.62rem;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:12px}
+.section-label::after{content:'';flex:1;max-width:60px;height:1px;background:var(--gold);opacity:.4}
+.h2 .accent,.h1 .accent{background:linear-gradient(135deg,var(--gold),var(--gold-b));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+/* ── HERO ─────────────────────────────────────────────────────────── */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 40px 80px;position:relative;overflow:hidden;z-index:1}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(201,153,26,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(201,153,26,.04) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black,transparent)}
+.hero-eyebrow{font-family:var(--font-mono);font-size:.7rem;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:22px;opacity:0;animation:fadeUp .6s .2s forwards}
+.hero-eyebrow::before,.hero-eyebrow::after{content:'—';margin:0 10px;opacity:.5}
+.hero-title{font-family:'Bebas Neue',cursive;font-size:var(--fs-hero);line-height:.9;letter-spacing:4px;margin-bottom:10px;opacity:0;animation:fadeUp .6s .35s forwards}
+.hero-title .gold{color:var(--gold)} .hero-title .outline{-webkit-text-stroke:1px rgba(201,153,26,.4);color:transparent}
+.hero-subtitle{font-family:var(--font-title);font-size:clamp(1rem,2.2vw,1.4rem);font-weight:600;color:var(--text);margin-bottom:10px;opacity:0;animation:fadeUp .6s .45s forwards;letter-spacing:-0.01em}
+.hero-band{background:var(--navy);border:1px solid rgba(0,43,92,.6);color:var(--gold-l);font-family:'Bebas Neue',cursive;font-size:clamp(1rem,2vw,1.5rem);letter-spacing:5px;padding:6px 40px;margin:14px 0 28px;opacity:0;animation:fadeUp .6s .5s forwards;clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%)}
+.hero-desc{font-family:var(--font-body);font-size:.95rem;color:var(--muted);max-width:540px;line-height:var(--lh-relaxed);margin-bottom:44px;opacity:0;animation:fadeUp .6s .65s forwards}
+.hero-desc strong{color:var(--text)}
+.hero-ctas{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;opacity:0;animation:fadeUp .6s .8s forwards}
+
+/* Stats strip */
+.stats-strip{display:flex;justify-content:center;gap:0;margin-top:68px;opacity:0;animation:fadeUp .6s 1s forwards;flex-wrap:wrap}
+.stat-item{text-align:center;padding:18px 36px;border-left:1px solid var(--border)}
+.stat-item:first-child{border-left:none}
+.stat-number{font-family:'Bebas Neue',cursive;font-size:2.6rem;color:var(--gold);letter-spacing:2px;display:block;line-height:1}
+.stat-label{font-size:.65rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:4px;font-family:var(--font-mono);display:block}
+
+/* ── BUTTONS ──────────────────────────────────────────────────────── */
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-l));color:var(--bg);font-family:var(--font-title);font-weight:800;font-size:.78rem;letter-spacing:1.5px;text-transform:uppercase;border:none;padding:13px 26px;cursor:pointer;clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);transition:all .3s;box-shadow:0 4px 20px var(--gold-dim);display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+.btn-gold:hover{box-shadow:0 8px 40px var(--gold-glow);transform:translateY(-2px)}
+.btn-ghost{background:var(--glass);border:1px solid var(--gb);color:var(--muted);font-family:var(--font-title);font-weight:600;font-size:.78rem;letter-spacing:1px;text-transform:uppercase;padding:12px 22px;cursor:pointer;border-radius:2px;transition:all .2s;display:inline-flex;align-items:center;gap:8px;backdrop-filter:blur(8px);text-decoration:none}
+.btn-ghost:hover{border-color:var(--border);color:var(--text)}
+
+/* ── ZONES SECTION ────────────────────────────────────────────────── */
+.zones-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-top:44px;background:var(--border);border:1px solid var(--border)}
+.zone-card{background:var(--bg2);padding:44px;position:relative;overflow:hidden;cursor:pointer;transition:background .3s;border-left:4px solid transparent}
+.zone-card:hover{background:var(--bg3)}
+.zone-uemoa{border-left-color:var(--gold)} .zone-cemac{border-left-color:var(--cyan)}
+.zone-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px;gap:12px;flex-wrap:wrap}
+.zone-name{font-family:var(--font-display);font-size:2.3rem;letter-spacing:3px;margin-bottom:4px;color:var(--gold)}
+.cemac-name{color:var(--cyan)}
+.zone-full-name{font-family:var(--font-body);font-size:.72rem;color:var(--muted);line-height:1.4;max-width:220px}
+.zone-institutions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+.zone-flags-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+.country-chip{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 10px;background:var(--gb);border:1px solid var(--sep);border-radius:4px;cursor:pointer;transition:all .2s;min-width:52px}
+.country-chip:hover{background:var(--gold-dim);border-color:var(--border);transform:translateY(-2px)}
+.zone-cemac .country-chip:hover{background:var(--cyan-dim);border-color:rgba(34,211,238,.3)}
+.cc-flag{font-size:1.5rem;line-height:1;display:block}
+.cc-name{font-family:var(--font-mono);font-size:.55rem;letter-spacing:1px;color:var(--muted);text-transform:uppercase;white-space:nowrap}
+.zone-quote{font-family:var(--font-quote);font-size:.82rem;font-style:italic;font-weight:300;line-height:var(--lh-relaxed);color:var(--silver);border-left:3px solid var(--gold);padding:.8em 1.2em;margin:0 0 22px;background:rgba(201,153,26,.06);border-radius:0 3px 3px 0}
+.zone-quote::before{display:none}
+.cemac-quote{border-left-color:var(--cyan);background:rgba(34,211,238,.04)}
+.texts-list{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0 22px}
+.text-pill{font-family:var(--font-mono);font-size:.55rem;letter-spacing:1px;padding:3px 9px;border-radius:2px;background:var(--gold-dim);color:var(--gold);border:1px solid var(--border);white-space:nowrap;text-transform:uppercase}
+.cemac-pill{background:var(--cyan-dim);color:var(--cyan);border-color:rgba(34,211,238,.2)}
+.btn-zone{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--gold),var(--gold-l));color:var(--bg);font-family:var(--font-title);font-weight:800;font-size:.75rem;letter-spacing:1.5px;text-transform:uppercase;border:none;padding:11px 22px;cursor:pointer;clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);transition:all .3s;margin-top:4px}
+.btn-zone:hover{box-shadow:0 6px 30px var(--gold-glow);transform:translateY(-2px)}
+.btn-zone-cemac{background:linear-gradient(135deg,var(--cyan),#0ea5e9);color:var(--bg)}
+.btn-zone-cemac:hover{box-shadow:0 6px 30px var(--cyan-glow)}
+.zone-bg-text{position:absolute;bottom:-20px;right:-10px;font-family:var(--font-display);font-size:7rem;opacity:.035;pointer-events:none;line-height:1;color:var(--text)}
+
+/* ── MODES ────────────────────────────────────────────────────────── */
+.modes-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-top:44px;background:var(--border)}
+.mode-card{background:var(--bg2);padding:30px 22px;text-align:center;position:relative;overflow:hidden;cursor:pointer;transition:all .3s;border-top:3px solid transparent}
+.mode-card:hover{background:var(--bg3);border-top-color:var(--gold);transform:translateY(-4px)}
+.mode-icon{font-size:2.4rem;display:block;margin-bottom:14px}
+.mode-name{font-family:var(--font-display);font-size:1.35rem;letter-spacing:2px;margin-bottom:7px}
+.mode-desc{font-family:var(--font-body);font-size:.78rem;color:var(--muted);line-height:1.55}
+.mode-badge{display:inline-block;margin-top:10px;padding:3px 10px;font-family:var(--font-mono);font-size:.58rem;letter-spacing:2px;background:var(--gold-dim);color:var(--gold);border:1px solid var(--border);border-radius:2px}
+.mode-badge.soon{background:rgba(0,43,92,.4);color:var(--cyan);border-color:var(--cyan-dim)}
+
+/* ── QUIZ BAR ─────────────────────────────────────────────────────── */
+.quiz-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 28px;background:var(--bg2);border-bottom:1px solid var(--gb);border-top:1px solid var(--gb)}
+.quiz-progress-wrap{flex:1;display:flex;align-items:center;gap:10px;max-width:420px}
+.qprog-track{flex:1;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden;position:relative}
+.qprog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-b));border-radius:4px;transition:width .4s ease;box-shadow:0 0 8px var(--gold-glow);width:40%}
+.qprog-meta{font-family:var(--font-display);font-size:1rem;letter-spacing:1px;color:var(--text);white-space:nowrap}
+.quiz-timer{display:flex;align-items:center;gap:5px;font-family:var(--font-display);font-size:1.5rem;letter-spacing:2px;color:var(--text)}
+.quiz-live-score{display:flex;align-items:baseline;gap:3px}
+.score-val{font-family:var(--font-display);font-size:1.4rem;letter-spacing:2px;color:var(--gold)}
+.score-lbl{font-family:var(--font-mono);font-size:.58rem;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase}
+
+/* ── QUIZ BODY ─────────────────────────────────────────────────────── */
+.quiz-body{max-width:700px;margin:0 auto;padding:40px 28px 60px}
+.question-meta{display:flex;align-items:center;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.q-theme{font-family:var(--font-mono);font-size:.62rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.q-difficulty{font-family:var(--font-heading);font-size:.7rem;font-weight:700;color:var(--cyan)}
+.question-text{font-family:var(--font-title);font-size:clamp(1rem,2vw,1.2rem);font-weight:600;line-height:var(--lh-normal);color:var(--text);margin-bottom:28px}
+.quiz-choices{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.q-choice{display:flex;align-items:center;gap:14px;background:var(--bg3);border:1px solid var(--gb);color:var(--text);font-family:var(--font-body);font-size:.88rem;padding:14px 18px;cursor:pointer;text-align:left;border-radius:3px;transition:all .2s;width:100%}
+.q-choice:hover{border-color:var(--border);background:var(--gold-dim);transform:translateX(3px)}
+.choice-letter{font-family:var(--font-display);font-size:1rem;letter-spacing:1px;color:var(--gold);min-width:20px;text-align:center}
+.choice-text{flex:1;line-height:1.45}
+.q-choice.correct{border-color:var(--green);background:var(--green-dim);color:var(--green)}
+.q-choice.correct .choice-letter{color:var(--green)}
+.q-choice.wrong{border-color:var(--red);background:var(--red-dim);color:var(--red)}
+
+/* Feedback question */
+.q-feedback{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:24px;margin-top:20px;animation:feedbackSlide .3s ease}
+.q-feedback-header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.feedback-icon{font-size:1.6rem;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:var(--green-dim);border:2px solid var(--green);flex-shrink:0}
+.feedback-verdict{font-family:var(--font-heading);font-size:1rem;font-weight:900;color:var(--green)}
+.feedback-pts{font-family:var(--font-display);font-size:1.1rem;letter-spacing:2px;color:var(--gold)}
+.feedback-explanation{font-family:var(--font-body);font-size:.87rem;line-height:var(--lh-relaxed);color:var(--text);margin-bottom:16px}
+.feedback-quote{font-family:var(--font-quote);font-size:.78rem;font-style:italic;font-weight:300;line-height:var(--lh-relaxed);color:var(--silver);border-left:3px solid var(--gold);padding:.6em 1em;margin:0 0 16px;background:rgba(201,153,26,.04)}
+.feedback-quote::before{display:none}
+.btn-next-q{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--gold),var(--gold-l));color:var(--bg);font-family:var(--font-title);font-weight:800;font-size:.72rem;letter-spacing:1.5px;text-transform:uppercase;border:none;padding:11px 22px;cursor:pointer;clip-path:polygon(7px 0,100% 0,calc(100% - 7px) 100%,0 100%);transition:all .2s}
+.btn-next-q:hover{box-shadow:0 4px 20px var(--gold-glow);transform:translateY(-1px)}
+
+/* Résultats */
+.results-score-card{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:32px 40px;margin-bottom:32px;text-align:center}
+.rs-score-main{display:flex;align-items:baseline;justify-content:center;gap:8px;margin-bottom:24px}
+.rs-score-main .score{font-family:var(--font-display);font-size:5rem;letter-spacing:3px;color:var(--gold);line-height:1}
+.rs-pts-lbl{font-family:var(--font-mono);font-size:.75rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase;align-self:flex-end;margin-bottom:8px}
+.rs-metrics{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap}
+.rs-big{font-family:var(--font-display);font-size:2.2rem;letter-spacing:2px;color:var(--text);display:block}
+.rs-pct{color:var(--green)}
+.rs-lbl{font-family:var(--font-mono);font-size:.58rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.rs-sep{font-family:var(--font-display);font-size:1.5rem;color:var(--border)}
+
+/* Tableau résultats */
+.results-table{display:flex;flex-direction:column;gap:2px;background:var(--border);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:32px}
+.rt-row{display:grid;grid-template-columns:36px 1fr 32px 180px;align-items:center;gap:14px;padding:14px 18px;background:var(--bg2);transition:background .2s}
+.rt-row:hover{background:var(--bg3)}
+.rt-row.rt-correct{border-left:3px solid var(--green)}
+.rt-row.rt-wrong{border-left:3px solid var(--red)}
+.rt-num{font-family:var(--font-display);font-size:1.1rem;letter-spacing:1px;color:var(--muted)}
+.rt-q-text{font-family:var(--font-body);font-size:.82rem;line-height:1.45;color:var(--text);margin-bottom:5px}
+.rt-answer{font-family:var(--font-body);font-size:.76rem;color:var(--muted);font-style:italic}
+.correct-answer{color:var(--green)} .wrong-answer{color:var(--red)}
+.rt-verdict{font-size:1.1rem;text-align:center}
+.rt-correct .rt-verdict{color:var(--green)} .rt-wrong .rt-verdict{color:var(--red)}
+.rt-ref-text{font-family:var(--font-quote);font-size:.65rem;font-style:italic;color:var(--muted);line-height:1.4}
+
+/* ── FOOTER ───────────────────────────────────────────────────────── */
+.ra-footer{background:#000D1A;border-top:1px solid var(--border);padding:60px 40px 30px;margin-top:80px}
+.footer-inner{max-width:1100px;margin:0 auto 40px;display:grid;grid-template-columns:1fr 1fr;gap:60px}
+.footer-brand{max-width:340px}
+.footer-tagline{font-family:var(--font-body);font-size:.85rem;line-height:var(--lh-relaxed);margin:14px 0 16px;color:var(--muted)}
+.footer-tagline em{color:var(--gold);font-style:normal}
+.footer-zones{display:flex;gap:6px;flex-wrap:wrap}
+.footer-nav{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+.footer-nav-group h4{font-family:var(--font-heading);font-size:.62rem;font-weight:700;letter-spacing:2.5px;color:var(--gold);text-transform:uppercase;margin-bottom:14px}
+.footer-nav-group ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+.footer-nav-group a{font-family:var(--font-body);font-size:.82rem;color:var(--muted);text-decoration:none;transition:color .2s}
+.footer-nav-group a:hover{color:var(--text)}
+.footer-bottom{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-top:24px;border-top:1px solid var(--sep)}
+
+/* ── ANIMATIONS ───────────────────────────────────────────────────── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes feedbackSlide{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes trophyBounce{0%{transform:scale(.3) rotate(-10deg);opacity:0}60%{transform:scale(1.15) rotate(3deg);opacity:1}100%{transform:scale(1) rotate(0)}}
+@keyframes pulseDot{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ── SEPARATEURS ─────────────────────────────────────────────────── */
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--gb),transparent);margin:0}
+
+/* ── TYPOGRAPHY DEMO SECTION ─────────────────────────────────────── */
+.typo-demo{max-width:800px;padding:80px 40px}
+.typo-sample{background:var(--bg2);border:1px solid var(--gb);border-radius:4px;padding:28px;margin-bottom:20px}
+.typo-label{font-family:var(--font-mono);font-size:.55rem;letter-spacing:3px;color:var(--cyan);text-transform:uppercase;margin-bottom:10px;display:block}
+
+/* ── RESPONSIVE ───────────────────────────────────────────────────── */
+@media(max-width:900px){
+  .ra-nav-links{display:none}
+  .ra-hamburger{display:flex}
+  .ra-nav{padding:0 20px}
+  .zones-grid{grid-template-columns:1fr}
+  .modes-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:768px){
+  .section{padding:60px 20px}
+  .zone-card{padding:30px 24px}
+  .rt-row{grid-template-columns:28px 1fr 28px}
+  .footer-inner{grid-template-columns:1fr;gap:36px}
+  .ra-footer{padding:40px 20px 24px}
+  .results-score-card{padding:24px 20px}
+  .rs-score-main .score{font-size:3.5rem}
+}
+@media(max-width:480px){
+  .hero{padding:100px 20px 60px}
+  .modes-grid{grid-template-columns:1fr}
+  .stat-item{padding:14px 20px}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     NAVIGATION
+════════════════════════════════════════════════════════════════════ -->
+<nav class="ra-nav" role="navigation">
+  <a class="ra-logo" href="#" aria-label="REGUL ARENA">
+    <span class="ra-logo-main">REGUL</span>
+    <span class="ra-logo-accent">ARENA</span>
+  </a>
+  <ul class="ra-nav-links">
+    <li><button class="ra-nav-btn active">Accueil</button></li>
+    <li><button class="ra-nav-btn">Jouer</button></li>
+    <li><button class="ra-nav-btn">Packs</button></li>
+    <li><button class="ra-nav-btn">Pays</button></li>
+    <li><button class="ra-nav-btn">Classement</button></li>
+  </ul>
+  <button class="ra-nav-cta">Connexion</button>
+  <button class="ra-hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     HERO
+════════════════════════════════════════════════════════════════════ -->
+<div class="hero">
+  <div class="hero-grid"></div>
+
+  <div class="hero-eyebrow">Formation gamifiée · 14 pays · 100% gratuit</div>
+
+  <!-- H1 affiché — Bebas Neue + Montserrat -->
+  <h1 class="hero-title">
+    <span class="gold">REGUL</span> <span class="outline">ARENA</span>
+  </h1>
+
+  <!-- Sous-titre — Montserrat Bold -->
+  <div class="hero-subtitle">Maîtrise Réglementaire Bancaire UEMOA &amp; CEMAC</div>
+
+  <div class="hero-band">BCEAO · BEAC · COBAC · UMOA · CEMAC</div>
+
+  <!-- Description — Roboto Regular -->
+  <p class="hero-desc">
+    La première plateforme de formation gamifiée sur la <strong>réglementation bancaire</strong>
+    pour les professionnels des 14 pays UEMOA &amp; CEMAC.
+    Quiz, duels, tournois — calibrés sur les textes officiels.
+  </p>
+
+  <div class="hero-ctas">
+    <button class="btn-gold">⚔️ Jouer maintenant</button>
+    <button class="btn-ghost">Découvrir les packs</button>
+  </div>
+
+  <!-- Stats — Bebas Neue -->
+  <div class="stats-strip">
+    <div class="stat-item">
+      <span class="stat-number">14</span>
+      <span class="stat-label">Pays couverts</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number">500+</span>
+      <span class="stat-label">Questions officielles</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number">4</span>
+      <span class="stat-label">Modes de jeu</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number">100%</span>
+      <span class="stat-label">Gratuit</span>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     MODES DE JEU
+════════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label"><span>Comment jouer</span></div>
+  <h2 class="h2"><span class="accent">4 modes</span> de compétition</h2>
+  <p class="muted" style="max-width:520px;margin-bottom:2.5rem">
+    Du quiz solo au tournoi inter-pays — chaque format teste un aspect différent
+    de la maîtrise réglementaire.
+  </p>
+
+  <div class="modes-grid">
+    <div class="mode-card">
+      <span class="mode-icon">🎯</span>
+      <div class="mode-name">Solo</div>
+      <p class="mode-desc">Quiz libre sur les packs thématiques. Progressez à votre rythme avec feedback immédiat.</p>
+      <span class="mode-badge">Disponible</span>
+    </div>
+    <div class="mode-card">
+      <span class="mode-icon">⚔️</span>
+      <div class="mode-name">Duel</div>
+      <p class="mode-desc">Affrontez un collègue en temps réel. Même questions, même timer — que le meilleur gagne.</p>
+      <span class="mode-badge">Disponible</span>
+    </div>
+    <div class="mode-card">
+      <span class="mode-icon">🏆</span>
+      <div class="mode-name">Tournoi</div>
+      <p class="mode-desc">Format éliminatoire au sein d'une institution. Bracket, classement final, trophée.</p>
+      <span class="mode-badge">Disponible</span>
+    </div>
+    <div class="mode-card">
+      <span class="mode-icon">🌍</span>
+      <div class="mode-name">Inter-Pays</div>
+      <p class="mode-desc">Compétition nationale : représentez votre pays contre les 13 autres nations UEMOA/CEMAC.</p>
+      <span class="mode-badge soon">2027</span>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     ZONES UEMOA & CEMAC
+════════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label"><span>Zones de compétition</span></div>
+  <h2 class="h2"><span class="accent">14 pays</span> · 2 zones monétaires</h2>
+  <p class="muted" style="max-width:600px;margin-bottom:2.5rem">
+    Chaque quiz est calibré sur les textes officiels de la banque centrale compétente.
+  </p>
+
+  <div class="zones-grid">
+    <!-- UEMOA -->
+    <div class="zone-card zone-uemoa">
+      <div class="zone-header">
+        <div>
+          <div class="zone-name">UEMOA</div>
+          <div class="zone-full-name">Union Économique et Monétaire Ouest-Africaine</div>
+        </div>
+        <div class="zone-institutions">
+          <span class="institution-tag bceao">BCEAO</span>
+          <span class="institution-tag uemoa">UMOA</span>
+        </div>
+      </div>
+      <div class="zone-flags-row">
+        <div class="country-chip"><span class="cc-flag">🇸🇳</span><span class="cc-name">Sénégal</span></div>
+        <div class="country-chip"><span class="cc-flag">🇨🇮</span><span class="cc-name">Côte d'Ivoire</span></div>
+        <div class="country-chip"><span class="cc-flag">🇧🇫</span><span class="cc-name">Burkina</span></div>
+        <div class="country-chip"><span class="cc-flag">🇲🇱</span><span class="cc-name">Mali</span></div>
+        <div class="country-chip"><span class="cc-flag">🇧🇯</span><span class="cc-name">Bénin</span></div>
+        <div class="country-chip"><span class="cc-flag">🇳🇪</span><span class="cc-name">Niger</span></div>
+        <div class="country-chip"><span class="cc-flag">🇹🇬</span><span class="cc-name">Togo</span></div>
+        <div class="country-chip"><span class="cc-flag">🇬🇼</span><span class="cc-name">Guinée-B.</span></div>
+      </div>
+      <!-- Citation Merriweather Italic -->
+      <blockquote class="zone-quote">
+        La <span class="regul-keyword">BCEAO</span> est l'Institut d'émission commun aux
+        États membres de l'Union Monétaire Ouest Africaine.
+        <cite class="cite-ref">— Traité UMOA, Article 1er</cite>
+      </blockquote>
+      <div class="texts-list">
+        <span class="text-pill">Instruction n°016-2022</span>
+        <span class="text-pill">Règlement KYC UMOA</span>
+        <span class="text-pill">Bâle III BCEAO</span>
+        <span class="text-pill">SYSCOHADA</span>
+      </div>
+      <button class="btn-zone">Jouer UEMOA →</button>
+      <div class="zone-bg-text">UEMOA</div>
+    </div>
+
+    <!-- CEMAC -->
+    <div class="zone-card zone-cemac">
+      <div class="zone-header">
+        <div>
+          <div class="zone-name cemac-name">CEMAC</div>
+          <div class="zone-full-name">Communauté Économique et Monétaire d'Afrique Centrale</div>
+        </div>
+        <div class="zone-institutions">
+          <span class="institution-tag beac">BEAC</span>
+          <span class="institution-tag cobac">COBAC</span>
+        </div>
+      </div>
+      <div class="zone-flags-row">
+        <div class="country-chip"><span class="cc-flag">🇨🇲</span><span class="cc-name">Cameroun</span></div>
+        <div class="country-chip"><span class="cc-flag">🇬🇦</span><span class="cc-name">Gabon</span></div>
+        <div class="country-chip"><span class="cc-flag">🇨🇬</span><span class="cc-name">Congo</span></div>
+        <div class="country-chip"><span class="cc-flag">🇨🇫</span><span class="cc-name">R.C.A.</span></div>
+        <div class="country-chip"><span class="cc-flag">🇬🇶</span><span class="cc-name">Guin. Éq.</span></div>
+        <div class="country-chip"><span class="cc-flag">🇹🇩</span><span class="cc-name">Tchad</span></div>
+      </div>
+      <blockquote class="zone-quote cemac-quote">
+        La <span class="regul-keyword">COBAC</span> est chargée de veiller au respect
+        par les établissements de crédit des dispositions législatives et réglementaires
+        édictées par les autorités nationales ou communautaires.
+        <cite class="cite-ref">— Convention COBAC, Article 3</cite>
+      </blockquote>
+      <div class="texts-list">
+        <span class="text-pill cemac-pill">Règlement COBAC R-2016</span>
+        <span class="text-pill cemac-pill">Instruction BEAC 2020</span>
+        <span class="text-pill cemac-pill">Bâle III BEAC</span>
+        <span class="text-pill cemac-pill">OHADA CEMAC</span>
+      </div>
+      <button class="btn-zone btn-zone-cemac">Jouer CEMAC →</button>
+      <div class="zone-bg-text">CEMAC</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     APERÇU QUIZ
+════════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label"><span>Quiz — Aperçu</span></div>
+  <h2 class="h2">Interface de <span class="accent">Quiz</span></h2>
+
+  <!-- Barre quiz -->
+  <div class="quiz-bar" style="border-radius:4px 4px 0 0;margin-top:2rem">
+    <div style="display:flex;align-items:center;gap:12px">
+      <span style="font-family:var(--font-heading);font-size:.7rem;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase">Pack Conformité KYC</span>
+    </div>
+    <div class="quiz-progress-wrap">
+      <div class="qprog-track"><div class="qprog-fill" style="width:40%"></div></div>
+      <div class="qprog-meta">4<span style="color:var(--muted);margin:0 2px">/</span>10</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="quiz-timer">⏱ <span>22</span></div>
+      <div class="quiz-live-score"><span class="score-val">350</span><span class="score-lbl">pts</span></div>
+    </div>
+  </div>
+
+  <!-- Corps question -->
+  <div class="quiz-body" style="border:1px solid var(--gb);border-top:none;border-radius:0 0 4px 4px;max-width:100%">
+    <div class="question-meta">
+      <span class="institution-tag bceao">BCEAO</span>
+      <span class="q-theme">Lutte contre le Blanchiment</span>
+      <span class="q-difficulty">⚡ Intermédiaire</span>
+    </div>
+
+    <!-- Montserrat Bold question -->
+    <h3 class="question-text">
+      Quel document doit être collecté lors de l'entrée en relation d'affaires avec
+      une personne physique selon l'Instruction n°016-2022 de la BCEAO ?
+    </h3>
+
+    <!-- Choix — Roboto -->
+    <div class="quiz-choices">
+      <button class="q-choice"><span class="choice-letter">A</span><span class="choice-text">Un justificatif de domicile récent</span></button>
+      <button class="q-choice correct"><span class="choice-letter">B</span><span class="choice-text">Une pièce d'identité officielle en cours de validité</span></button>
+      <button class="q-choice wrong"><span class="choice-letter">C</span><span class="choice-text">Un extrait de casier judiciaire</span></button>
+      <button class="q-choice"><span class="choice-letter">D</span><span class="choice-text">Une déclaration sur l'honneur</span></button>
+    </div>
+
+    <!-- Feedback — avec citation Merriweather -->
+    <div class="q-feedback">
+      <div class="q-feedback-header">
+        <div class="feedback-icon">✓</div>
+        <div>
+          <div class="feedback-verdict">Bonne réponse !</div>
+          <div class="feedback-pts">+100 pts</div>
+        </div>
+      </div>
+      <!-- Explication Roboto -->
+      <p class="feedback-explanation">
+        L'article 12 de l'Instruction n°016-2022/SP/BCEAO exige la collecte d'une
+        pièce d'identité officielle (CIN, passeport, titre de séjour) lors de toute
+        entrée en relation avec une personne physique.
+      </p>
+      <!-- Citation Merriweather Italic -->
+      <blockquote class="feedback-quote">
+        « Toute personne assujettie doit identifier son client au moyen d'un document
+        officiel en cours de validité comportant sa photographie. »
+        <cite class="cite-ref">Instruction BCEAO n°016-2022, Art. 12 al. 1</cite>
+      </blockquote>
+      <button class="btn-next-q">Question suivante →</button>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     FEUILLE DE RÉSULTATS
+════════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label"><span>Fin de partie</span></div>
+
+  <div style="max-width:760px">
+    <!-- Trophy + titre Montserrat -->
+    <div style="text-align:center;margin-bottom:36px">
+      <div style="font-size:4rem;margin-bottom:14px;animation:trophyBounce .6s ease">🏆</div>
+      <h1 style="font-family:var(--font-title);font-size:clamp(2rem,5vw,3rem);font-weight:800;color:var(--gold);margin-bottom:6px;letter-spacing:-0.02em">Fin de partie</h1>
+      <p style="color:var(--muted);font-family:var(--font-body);font-size:.88rem">Pack · Conformité KYC</p>
+    </div>
+
+    <!-- Score Bebas Neue -->
+    <div class="results-score-card">
+      <div class="rs-score-main">
+        <span class="score" style="font-size:5rem;letter-spacing:3px">850</span>
+        <span class="rs-pts-lbl">points</span>
+      </div>
+      <div class="rs-metrics">
+        <div style="text-align:center"><span class="rs-big">7</span><span class="rs-lbl">bonnes</span></div>
+        <span class="rs-sep">/</span>
+        <div style="text-align:center"><span class="rs-big">10</span><span class="rs-lbl">total</span></div>
+        <span class="rs-sep">·</span>
+        <div style="text-align:center"><span class="rs-big rs-pct">70%</span><span class="rs-lbl">réussite</span></div>
+      </div>
+    </div>
+
+    <!-- Tableau détaillé — Roboto + Merriweather pour les refs -->
+    <h3 class="h3" style="margin-bottom:1.2rem">
+      Détail par question & <span style="color:var(--gold)">références officielles</span>
+    </h3>
+    <div class="results-table">
+      <div class="rt-row rt-correct">
+        <div class="rt-num">01</div>
+        <div>
+          <div class="rt-q-text">Définition de la personne politiquement exposée selon la BCEAO</div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-family:var(--font-mono);font-size:.55rem;letter-spacing:1px;color:var(--muted);text-transform:uppercase">Réponse :</span>
+            <span class="rt-answer correct-answer">Toute personne exposée à des risques particuliers…</span>
+          </div>
+        </div>
+        <div class="rt-verdict">✓</div>
+        <div>
+          <span class="institution-tag bceao" style="margin-bottom:4px;display:inline-block">BCEAO</span>
+          <div class="rt-ref-text">Instruction 016-2022, Art. 3</div>
+        </div>
+      </div>
+      <div class="rt-row rt-wrong">
+        <div class="rt-num">02</div>
+        <div>
+          <div class="rt-q-text">Délai maximum de conservation des pièces KYC selon BCEAO</div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-family:var(--font-mono);font-size:.55rem;letter-spacing:1px;color:var(--muted);text-transform:uppercase">Réponse :</span>
+            <span class="rt-answer wrong-answer">5 ans — Réponse correcte : 10 ans</span>
+          </div>
+        </div>
+        <div class="rt-verdict">✗</div>
+        <div>
+          <span class="institution-tag bceao" style="margin-bottom:4px;display:inline-block">BCEAO</span>
+          <div class="rt-ref-text">Instruction 016-2022, Art. 31</div>
+        </div>
+      </div>
+      <div class="rt-row rt-correct">
+        <div class="rt-num">03</div>
+        <div>
+          <div class="rt-q-text">Autorité de supervision bancaire dans la zone CEMAC</div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-family:var(--font-mono);font-size:.55rem;letter-spacing:1px;color:var(--muted);text-transform:uppercase">Réponse :</span>
+            <span class="rt-answer correct-answer">La COBAC (Commission Bancaire de l'Afrique Centrale)</span>
+          </div>
+        </div>
+        <div class="rt-verdict">✓</div>
+        <div>
+          <span class="institution-tag cobac" style="margin-bottom:4px;display:inline-block">COBAC</span>
+          <div class="rt-ref-text">Convention COBAC, Art. 1er</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions finales — Montserrat Bold -->
+    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;padding-top:8px">
+      <button class="btn-zone">Rejouer ce pack</button>
+      <button class="btn-zone btn-zone-cemac">Partager mon score</button>
+      <button style="background:transparent;border:1px solid var(--gb);color:var(--muted);font-family:var(--font-heading);font-weight:700;font-size:.72rem;letter-spacing:1px;text-transform:uppercase;padding:10px 20px;cursor:pointer;border-radius:3px;transition:all .2s">Retour à l'accueil</button>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     TYPO SHOWCASE
+════════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label"><span>Système typographique</span></div>
+  <h2 class="h2">Hiérarchie des <span class="accent">polices</span></h2>
+
+  <div class="typo-demo" style="max-width:100%">
+
+    <div class="typo-sample">
+      <span class="typo-label">H1 — Montserrat ExtraBold 800 — Titres de page (doré)</span>
+      <h1 style="font-size:2.5rem">Réglementation Bancaire UEMOA</h1>
+    </div>
+
+    <div class="typo-sample">
+      <span class="typo-label">H2 — Montserrat Bold 700 — Sous-titres de section</span>
+      <h2 style="font-size:1.8rem">Conformité <span class="accent">KYC/LCB-FT</span></h2>
+    </div>
+
+    <div class="typo-sample">
+      <span class="typo-label">H3 — Lato Bold 700 — Titres de cartes</span>
+      <h3>Instruction n°016-2022 de la BCEAO</h3>
+    </div>
+
+    <div class="typo-sample">
+      <span class="typo-label">H4 — Lato Bold 700 — Menus / Labels de navigation</span>
+      <h4>Lutte contre le blanchiment · Section III</h4>
+    </div>
+
+    <div class="typo-sample">
+      <span class="typo-label">Corps — Roboto Regular 400 — Texte courant</span>
+      <p>La conformité bancaire est un ensemble de règles, procédures et contrôles qui permettent à un établissement de crédit de se conformer aux lois, règlements et normes applicables dans les pays où il opère. Dans l'espace UEMOA, ces règles sont principalement édictées par la BCEAO et l'UMOA.</p>
+    </div>
+
+    <div class="typo-sample">
+      <span class="typo-label">Citation — Merriweather Italic 300 — Textes réglementaires officiels</span>
+      <blockquote>
+        Tout établissement de crédit est tenu d'identifier et de vérifier l'identité de
+        ses clients au moyen de documents, données ou informations obtenus de sources
+        fiables et indépendantes.
+        <cite class="cite-ref">Instruction BCEAO n°016-2022, Article 8</cite>
+      </blockquote>
+    </div>
+
+    <div class="typo-sample">
+      <span class="typo-label">Display / Score — Bebas Neue — Nombres, scores, timers</span>
+      <div style="display:flex;align-items:baseline;gap:12px">
+        <span class="score" style="font-size:4rem">1250</span>
+        <span style="font-family:var(--font-display);font-size:2rem;color:var(--muted)">pts</span>
+        <span style="font-family:var(--font-display);font-size:2.5rem;color:var(--cyan)">⏱ 28</span>
+      </div>
+    </div>
+
+    <div class="typo-sample">
+      <span class="typo-label">Mono — JetBrains Mono — Codes, badges, étiquettes</span>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <span class="institution-tag bceao">BCEAO</span>
+        <span class="institution-tag beac">BEAC</span>
+        <span class="institution-tag cobac">COBAC</span>
+        <span class="text-pill">Art. 12 §1</span>
+        <span class="text-pill cemac-pill">R-2016/01</span>
+        <span style="font-family:var(--font-mono);font-size:.7rem;letter-spacing:2px;color:var(--gold)">Q4/10 · 350pts · ⚡ Intermédiaire</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════════════════════════════ -->
+<footer class="ra-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a class="ra-logo" href="#"><span class="ra-logo-main">REGUL</span><span class="ra-logo-accent">ARENA</span></a>
+      <p class="footer-tagline">La première plateforme de formation gamifiée en réglementation bancaire pour l'espace <em>UEMOA &amp; CEMAC</em>.</p>
+      <div class="footer-zones">
+        <span class="institution-tag bceao">BCEAO</span>
+        <span class="institution-tag beac">BEAC</span>
+        <span class="institution-tag cobac">COBAC</span>
+      </div>
+    </div>
+    <nav class="footer-nav">
+      <div class="footer-nav-group">
+        <h4 class="h4">Jouer</h4>
+        <ul>
+          <li><a href="#">Mode Solo</a></li>
+          <li><a href="#">Duel 1v1</a></li>
+          <li><a href="#">Tournois</a></li>
+          <li><a href="#">Classement</a></li>
+        </ul>
+      </div>
+      <div class="footer-nav-group">
+        <h4 class="h4">Ressources</h4>
+        <ul>
+          <li><a href="#">Packs thématiques</a></li>
+          <li><a href="#">Par pays</a></li>
+          <li><a href="/cgu.html">CGU</a></li>
+          <li><a href="/privacy.html">Confidentialité</a></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+  <div class="footer-bottom">
+    <span style="font-family:var(--font-mono);font-size:.6rem;letter-spacing:2px;color:var(--muted)">© 2026 REGUL ARENA — Initiative privée indépendante</span>
+    <span style="font-family:var(--font-quote);font-size:.7rem;font-style:italic;color:var(--muted)">Contenu à vocation pédagogique — textes officiels BCEAO, BEAC, COBAC</span>
+  </div>
+</footer>
+
+<script>
+// Mobile menu toggle
+const hamburger = document.querySelector('.ra-hamburger');
+const navLinks  = document.querySelector('.ra-nav-links');
+if (hamburger) {
+  hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('open');
+    if (navLinks) {
+      navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+      navLinks.style.flexDirection = 'column';
+      navLinks.style.position = 'absolute';
+      navLinks.style.top = '56px';
+      navLinks.style.left = '0';
+      navLinks.style.right = '0';
+      navLinks.style.background = '#001E42';
+      navLinks.style.padding = '16px 20px';
+      navLinks.style.borderBottom = '2px solid var(--gold)';
+      navLinks.style.zIndex = '199';
+    }
+  });
+}
+
+// Nav active state
+document.querySelectorAll('.ra-nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.ra-nav-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+// Animate reveals on scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.style.animation = 'fadeUp .6s ease forwards'; });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.mode-card, .zone-card, .typo-sample').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(20px)';
+  observer.observe(el);
+});
+</script>
+
+</body>
+</html>

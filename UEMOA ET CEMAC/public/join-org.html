@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rejoindre une organisation — REGUL ARENA</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Helvetica Neue',Arial,sans-serif;background:#03050A;color:#EEF0F5;line-height:1.7;min-height:100vh;display:flex;flex-direction:column}
+  .header{background:linear-gradient(135deg,#002B5C,#001a3a);padding:40px 40px 28px;text-align:center;border-bottom:1px solid rgba(201,153,26,.2)}
+  .logo{font-size:20px;font-weight:900;letter-spacing:6px;color:#C9991A;text-decoration:none;display:inline-block}
+  .logo-sub{font-size:10px;letter-spacing:3px;color:rgba(201,153,26,.6);margin-top:4px}
+  .main{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px}
+  .card{background:#080C14;border:1px solid rgba(201,153,26,.2);border-radius:4px;width:100%;max-width:440px;overflow:hidden;box-shadow:0 0 60px rgba(201,153,26,.06)}
+  .card-top{height:3px;background:linear-gradient(90deg,transparent,#C9991A,#002B5C,#C9991A,transparent)}
+  .card-body{padding:38px 36px}
+  .card-icon{font-size:2.4rem;margin-bottom:14px;display:block}
+  .card-pretitle{font-family:'Courier New',monospace;font-size:.65rem;letter-spacing:3px;color:#C9991A;text-transform:uppercase;margin-bottom:8px}
+  .card-title{font-size:1.6rem;font-weight:800;line-height:1.2;margin-bottom:18px}
+  .card-title span{color:#C9991A}
+  .card-desc{font-size:.85rem;color:#7A8499;margin-bottom:24px;line-height:1.7}
+  .org-name-box{background:rgba(0,43,92,.2);border:1px solid rgba(0,43,92,.4);border-radius:3px;padding:14px 18px;margin-bottom:24px;text-align:center}
+  .org-name-label{font-size:.65rem;font-family:'Courier New',monospace;letter-spacing:2px;color:#7A8499;text-transform:uppercase;margin-bottom:4px}
+  .org-name-val{font-size:1.1rem;font-weight:700;color:#22D3EE}
+  .btn{width:100%;padding:14px;background:linear-gradient(135deg,#C9991A,#E8B520);color:#03050A;font-size:.85rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;border:none;border-radius:2px;cursor:pointer;transition:opacity .2s}
+  .btn:hover{opacity:.9}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  .btn-secondary{background:transparent;border:1px solid rgba(255,255,255,.1);color:#7A8499;margin-top:10px}
+  .btn-secondary:hover{border-color:rgba(201,153,26,.3);color:#EEF0F5}
+  .status{display:none;padding:14px 16px;border-radius:3px;font-size:.84rem;margin-bottom:16px}
+  .status.error{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#ef4444}
+  .status.success{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);color:#10B981}
+  .status.info{background:rgba(34,211,238,.06);border:1px solid rgba(34,211,238,.15);color:#22D3EE}
+  .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(201,153,26,.3);border-top-color:#C9991A;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .footer{padding:20px;text-align:center;font-size:11px;color:#4a5568}
+  .footer a{color:#C9991A;text-decoration:none}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="/" class="logo">REGUL ARENA</a>
+  <div class="logo-sub">MAÎTRISE RÉGLEMENTAIRE BANCAIRE</div>
+</div>
+
+<div class="main">
+  <div class="card">
+    <div class="card-top"></div>
+    <div class="card-body">
+      <span class="card-icon">🏢</span>
+      <div class="card-pretitle">Invitation organisation</div>
+      <h1 class="card-title">Rejoindre <span id="org-name-title">l'organisation</span></h1>
+
+      <div id="status-box" class="status"></div>
+
+      <div id="loading-state">
+        <p class="card-desc"><span class="spinner"></span>Vérification du lien d'invitation…</p>
+      </div>
+
+      <div id="valid-state" style="display:none">
+        <div class="org-name-box">
+          <div class="org-name-label">Organisation</div>
+          <div class="org-name-val" id="org-name-display">—</div>
+        </div>
+        <p class="card-desc">En rejoignant cette organisation, vous accéderez à l'espace partagé de formation de votre équipe.</p>
+        <button class="btn" id="join-btn" onclick="joinOrg()">Rejoindre l'organisation →</button>
+        <button class="btn btn-secondary" onclick="window.location.href='/'">Retour à l'accueil</button>
+      </div>
+
+      <div id="invalid-state" style="display:none">
+        <p class="card-desc" style="color:#ef4444">Ce lien d'invitation est invalide ou a déjà été utilisé. Contactez l'administrateur de votre organisation pour obtenir un nouveau lien.</p>
+        <a href="/" style="display:block;text-align:center;color:#C9991A;font-size:.82rem;margin-top:8px">← Retour à l'accueil</a>
+      </div>
+
+      <div id="success-state" style="display:none;text-align:center">
+        <div style="font-size:2.5rem;margin-bottom:14px">🎉</div>
+        <div style="font-size:1rem;font-weight:700;color:#10B981;margin-bottom:8px">Organisation rejointe !</div>
+        <p class="card-desc">Vous faites maintenant partie de <strong id="success-org-name" style="color:#EEF0F5">l'organisation</strong>.</p>
+        <button class="btn" onclick="window.location.href='/'">Entrer dans l'arène →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <a href="/">REGUL ARENA</a> · <a href="/cgu.html">CGU</a> · <a href="/about.html">À propos</a>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const code = params.get('code');
+let orgName = '';
+
+function showStatus(msg, type) {
+  const b = document.getElementById('status-box');
+  b.textContent = msg; b.className = 'status ' + type; b.style.display = 'block';
+}
+
+function getJwt() {
+  try { return localStorage.getItem('ra_jwt'); } catch(e) {}
+  try { return sessionStorage.getItem('ra_jwt'); } catch(e) {}
+  return null;
+}
+
+async function init() {
+  if (!code) { showInvalid(); return; }
+
+  try {
+    const r = await fetch('/org/join?code=' + encodeURIComponent(code));
+    const d = await r.json();
+    if (!d.success || !d.valid) { showInvalid(); return; }
+    orgName = d.org_name || 'l\'organisation';
+    document.getElementById('org-name-title').textContent = orgName;
+    document.getElementById('org-name-display').textContent = orgName;
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('valid-state').style.display = 'block';
+
+    // Si non connecté, proposer la connexion
+    if (!getJwt()) {
+      showStatus('Connectez-vous pour rejoindre cette organisation.', 'info');
+      const btn = document.getElementById('join-btn');
+      btn.textContent = 'Se connecter pour rejoindre →';
+      btn.onclick = () => {
+        const redirect = encodeURIComponent('/join-org?code=' + code);
+        window.location.href = '/?login_redirect=' + redirect;
+      };
+    }
+  } catch(e) {
+    showInvalid();
+  }
+}
+
+function showInvalid() {
+  document.getElementById('loading-state').style.display = 'none';
+  document.getElementById('invalid-state').style.display = 'block';
+}
+
+async function joinOrg() {
+  const jwt = getJwt();
+  if (!jwt) {
+    const redirect = encodeURIComponent('/join-org?code=' + code);
+    window.location.href = '/?login_redirect=' + redirect;
+    return;
+  }
+
+  const btn = document.getElementById('join-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Traitement…';
+
+  try {
+    const r = await fetch('/org/join', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + jwt },
+      body: JSON.stringify({ code }),
+    });
+    const d = await r.json();
+    if (d.success) {
+      document.getElementById('valid-state').style.display = 'none';
+      document.getElementById('success-org-name').textContent = orgName;
+      document.getElementById('success-state').style.display = 'block';
+    } else {
+      showStatus(d.error || 'Erreur — réessayez.', 'error');
+      btn.disabled = false;
+      btn.textContent = 'Rejoindre l\'organisation →';
+    }
+  } catch(e) {
+    showStatus('Erreur réseau — vérifiez votre connexion.', 'error');
+    btn.disabled = false;
+    btn.textContent = 'Rejoindre l\'organisation →';
+  }
+}
+
+init();
+</script>
+</body>
+</html>

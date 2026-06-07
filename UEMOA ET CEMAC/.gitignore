@@ -1,0 +1,27 @@
+# --- Sauvegardes & ateliers locaux ---
+BACKUP REGULARENA/
+zioUEg0z
+
+# --- Documents de travail (audits internes, non versionnés) ---
+audit_*.docx
+
+# --- Node ---
+node_modules/
+
+# --- Variables d'environnement (jamais en clair dans le repo) ---
+.env
+.env.local
+.env.*.local
+
+# --- Base SQLite locale (la prod a son propre volume Railway /data) ---
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+regularena.db
+
+# --- OS / IDE ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

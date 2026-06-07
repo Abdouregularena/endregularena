@@ -1,0 +1,262 @@
+[
+ {
+  "pack": "cdd",
+  "question": "Quel règlement adopte le Code des Douanes de l'UEMOA ?",
+  "options": [
+   "Règlement n° 02/97/CM/UEMOA",
+   "Règlement n° 09/2001/CM/UEMOA",
+   "Règlement n° 05/99/CM/UEMOA"
+  ],
+  "bonne": 1,
+  "article": "",
+  "support": "Code des Douanes de l'UEMOA — Règlement n° 09/2001/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "cdd",
+  "question": "Date d'entrée en vigueur du Code ?",
+  "options": [
+   "1er janvier 2003",
+   "26 novembre 2002",
+   "6 août 1999"
+  ],
+  "bonne": 0,
+  "article": "Art. 2",
+  "support": "Code des Douanes de l'UEMOA — Règlement n° 09/2001/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "cdd",
+  "question": "Combien d'États composent le territoire douanier de l'Union ?",
+  "options": [
+   "6",
+   "7",
+   "8"
+  ],
+  "bonne": 2,
+  "article": "Art. 5",
+  "support": "Code des Douanes de l'UEMOA — Règlement n° 09/2001/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "cdd",
+  "question": "Largeur de la zone maritime du rayon des douanes ?",
+  "options": [
+   "12 km",
+   "20 km",
+   "50 km"
+  ],
+  "bonne": 1,
+  "article": "Art. 27",
+  "support": "Code des Douanes de l'UEMOA — Règlement n° 09/2001/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "cdd",
+  "question": "Les visites domiciliaires ne peuvent commencer :",
+  "options": [
+   "avant 4h ni après 21h",
+   "avant 6h ni après 20h",
+   "avant 5h ni après 22h"
+  ],
+  "bonne": 0,
+  "article": "Art. 33",
+  "support": "Code des Douanes de l'UEMOA — Règlement n° 09/2001/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "cdd",
+  "question": "Combien d'années les documents doivent-ils être conservés (droit de communication) ?",
+  "options": [
+   "1 an",
+   "3 ans",
+   "5 ans"
+  ],
+  "bonne": 1,
+  "article": "Art. 34",
+  "support": "Code des Douanes de l'UEMOA — Règlement n° 09/2001/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "cdd",
+  "question": "De quoi est composé le Tarif Extérieur Commun ?",
+  "options": [
+   "NTS + tableau des droits et taxes",
+   "Liste de prohibitions seule",
+   "Code OMC uniquement"
+  ],
+  "bonne": 0,
+  "article": "Art. 10",
+  "support": "Code des Douanes de l'UEMOA — Règlement n° 09/2001/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "cdd",
+  "question": "Sur quelles règles se fonde l'évaluation en douane ?",
+  "options": [
+   "Code d'évaluation de l'OMC (art. VII GATT)",
+   "Système Harmonisé seul",
+   "Règlement CEDEAO"
+  ],
+  "bonne": 0,
+  "article": "Art. 16",
+  "support": "Code des Douanes de l'UEMOA — Règlement n° 09/2001/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "cdd",
+  "question": "Délai pour déposer la déclaration sommaire après l'arrivée d'un navire ?",
+  "options": [
+   "12 heures",
+   "24 heures",
+   "48 heures"
+  ],
+  "bonne": 1,
+  "article": "Art. 43",
+  "support": "Code des Douanes de l'UEMOA — Règlement n° 09/2001/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "cdd",
+  "question": "Délai pour donner une destination douanière après déclaration sommaire ?",
+  "options": [
+   "15 jours",
+   "30 jours",
+   "48 heures"
+  ],
+  "bonne": 0,
+  "article": "Art. 71",
+  "support": "Code des Douanes de l'UEMOA — Règlement n° 09/2001/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "cdd",
+  "question": "Délai de séjour en magasins et aires de dédouanement ?",
+  "options": [
+   "15 jours",
+   "30 jours prorogeable à 90",
+   "1 an"
+  ],
+  "bonne": 1,
+  "article": "Art. 72",
+  "support": "Code des Douanes de l'UEMOA — Règlement n° 09/2001/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "cdd",
+  "question": "Par qui la déclaration en détail est-elle en principe faite ?",
+  "options": [
+   "Le transporteur",
+   "Un commissionnaire en douane agréé",
+   "Le Trésor public"
+  ],
+  "bonne": 1,
+  "article": "Art. 80",
+  "support": "Code des Douanes de l'UEMOA — Règlement n° 09/2001/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "cdd",
+  "question": "Mode de paiement de principe des droits et taxes ?",
+  "options": [
+   "Au comptant",
+   "À 30 jours",
+   "Par chèque uniquement"
+  ],
+  "bonne": 0,
+  "article": "Art. 94",
+  "support": "Code des Douanes de l'UEMOA — Règlement n° 09/2001/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "cdd",
+  "question": "Échéance des obligations cautionnées (crédit des droits) ?",
+  "options": [
+   "2 mois",
+   "15 jours",
+   "6 mois"
+  ],
+  "bonne": 0,
+  "article": "Art. 97",
+  "support": "Code des Douanes de l'UEMOA — Règlement n° 09/2001/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "cdd",
+  "question": "Quel mode de transport est exclu du régime de transit ?",
+  "options": [
+   "Routier",
+   "Maritime",
+   "Ferroviaire"
+  ],
+  "bonne": 1,
+  "article": "Art. 105",
+  "support": "Code des Douanes de l'UEMOA — Règlement n° 09/2001/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "cdd",
+  "question": "Combien de catégories d'entrepôt de stockage existe-t-il ?",
+  "options": [
+   "2",
+   "3",
+   "4"
+  ],
+  "bonne": 1,
+  "article": "Art. 119",
+  "support": "Code des Douanes de l'UEMOA — Règlement n° 09/2001/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "cdd",
+  "question": "Délai maximal de séjour en entrepôt de stockage ?",
+  "options": [
+   "6 mois",
+   "1 an",
+   "2 ans"
+  ],
+  "bonne": 1,
+  "article": "Art. 129",
+  "support": "Code des Douanes de l'UEMOA — Règlement n° 09/2001/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "cdd",
+  "question": "Durée maximale de l'admission temporaire ?",
+  "options": [
+   "6 mois",
+   "1 an",
+   "3 ans"
+  ],
+  "bonne": 1,
+  "article": "Art. 142",
+  "support": "Code des Douanes de l'UEMOA — Règlement n° 09/2001/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "cdd",
+  "question": "Durée maximale du dépôt de douane ?",
+  "options": [
+   "90 jours",
+   "120 jours",
+   "180 jours"
+  ],
+  "bonne": 1,
+  "article": "Art. 160",
+  "support": "Code des Douanes de l'UEMOA — Règlement n° 09/2001/CM/UEMOA",
+  "lien": ""
+ },
+ {
+  "pack": "cdd",
+  "question": "Que permet le régime du drawback ?",
+  "options": [
+   "La suspension totale de TVA",
+   "La restitution des droits à l'import lors de l'export",
+   "L'exonération des taxes intérieures"
+  ],
+  "bonne": 1,
+  "article": "Art. 153",
+  "support": "Code des Douanes de l'UEMOA — Règlement n° 09/2001/CM/UEMOA",
+  "lien": ""
+ }
+]

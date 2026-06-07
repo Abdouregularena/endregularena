@@ -1,0 +1,146 @@
+<!-- ================================================================
+     REGUL ARENA — Composant Footer
+     ================================================================ -->
+
+<footer class="ra-footer" role="contentinfo">
+  <div class="footer-inner">
+
+    <!-- Brand -->
+    <div class="footer-brand">
+      <a class="ra-logo" href="/" aria-label="REGUL ARENA">
+        <span class="ra-logo-main">REGUL</span>
+        <span class="ra-logo-accent">ARENA</span>
+      </a>
+      <p class="footer-tagline muted">
+        La première plateforme de formation gamifiée en réglementation bancaire
+        pour l'espace <em>UEMOA &amp; CEMAC</em>.
+      </p>
+      <div class="footer-zones">
+        <span class="institution-tag bceao">BCEAO</span>
+        <span class="institution-tag beac">BEAC</span>
+        <span class="institution-tag cobac">COBAC</span>
+      </div>
+    </div>
+
+    <!-- Navigation footer -->
+    <nav class="footer-nav" aria-label="Liens footer">
+      <div class="footer-nav-group">
+        <h4 class="h4">Jouer</h4>
+        <ul>
+          <li><a href="#" data-page="jouer">Mode Solo</a></li>
+          <li><a href="#" data-page="duel">Duel 1v1</a></li>
+          <li><a href="#" data-page="tournois">Tournois</a></li>
+          <li><a href="#" data-page="classement">Classement</a></li>
+        </ul>
+      </div>
+      <div class="footer-nav-group">
+        <h4 class="h4">Ressources</h4>
+        <ul>
+          <li><a href="#" data-page="packs">Packs thématiques</a></li>
+          <li><a href="#" data-page="pays">Par pays</a></li>
+          <li><a href="/cgu.html">CGU</a></li>
+          <li><a href="/privacy.html">Politique de confidentialité</a></li>
+        </ul>
+      </div>
+    </nav>
+
+  </div>
+
+  <div class="footer-bottom">
+    <span class="muted" style="font-family:var(--font-mono);font-size:0.6rem;letter-spacing:2px">
+      © 2026 REGUL ARENA — Initiative privée indépendante
+    </span>
+    <span class="footer-disclaimer muted">
+      Contenu à vocation pédagogique — textes officiels BCEAO, BEAC, COBAC
+    </span>
+  </div>
+</footer>
+
+<style>
+.ra-footer {
+  background:   #000D1A;
+  border-top:   1px solid var(--border);
+  padding:      60px 40px 30px;
+  margin-top:   80px;
+}
+
+.footer-inner {
+  max-width: 1100px;
+  margin:    0 auto 40px;
+  display:   grid;
+  grid-template-columns: 1fr 1fr;
+  gap:       60px;
+}
+
+.footer-brand { max-width: 340px; }
+
+.footer-tagline {
+  font-family: var(--font-body);
+  font-size:   0.85rem;
+  line-height: var(--lh-relaxed);
+  margin:      14px 0 16px;
+}
+
+.footer-tagline em { color: var(--gold); font-style: normal; }
+
+.footer-zones { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.footer-nav {
+  display:               grid;
+  grid-template-columns: 1fr 1fr;
+  gap:                   32px;
+}
+
+.footer-nav-group h4 {
+  font-family:    var(--font-heading); /* Lato */
+  font-size:      0.65rem;
+  font-weight:    700;
+  letter-spacing: 2.5px;
+  color:          var(--gold);
+  text-transform: uppercase;
+  margin-bottom:  14px;
+}
+
+.footer-nav-group ul {
+  list-style: none;
+  margin:     0;
+  padding:    0;
+  display:    flex;
+  flex-direction: column;
+  gap:        8px;
+}
+
+.footer-nav-group a {
+  font-family: var(--font-body);
+  font-size:   0.82rem;
+  color:       var(--muted);
+  text-decoration: none;
+  transition:  color 0.2s;
+}
+
+.footer-nav-group a:hover { color: var(--text); }
+
+.footer-bottom {
+  max-width:       1100px;
+  margin:          0 auto;
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  flex-wrap:       wrap;
+  gap:             10px;
+  padding-top:     24px;
+  border-top:      1px solid var(--sep);
+}
+
+.footer-disclaimer {
+  font-family: var(--font-quote);
+  font-size:   0.7rem;
+  font-style:  italic;
+}
+
+@media (max-width: 768px) {
+  .footer-inner { grid-template-columns: 1fr; gap: 36px; }
+  .ra-footer    { padding: 40px 20px 24px; }
+  .footer-bottom { flex-direction: column; text-align: center; }
+}
+</style>

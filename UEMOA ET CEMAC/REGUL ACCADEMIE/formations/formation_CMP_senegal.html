@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Code des Marchés Publics du Sénégal — Formation</title>
+<style>
+:root{
+  --vert:#0B6B3A;        /* vert institutionnel SN */
+  --vert-fonce:#063D21;
+  --or:#C9991A;
+  --or-clair:#E8B520;
+  --creme:#F5F3EE;
+  --texte:#1c2422;
+  --gris:#5b6b64;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--creme);color:var(--texte);line-height:1.6}
+h1,h2,h3{font-family:Georgia,'Times New Roman',serif;color:var(--vert-fonce)}
+
+/* ---------- HEADER ---------- */
+header{background:linear-gradient(135deg,var(--vert),var(--vert-fonce));color:#fff;padding:22px 18px;position:sticky;top:0;z-index:50;box-shadow:0 2px 12px rgba(0,0,0,.18)}
+header h1{color:#fff;font-size:1.25rem;line-height:1.25}
+header .sub{font-size:.78rem;opacity:.85;margin-top:4px;font-family:inherit}
+.badge{display:inline-block;background:var(--or);color:#1c1300;font-size:.68rem;font-weight:700;padding:3px 9px;border-radius:20px;margin-top:8px;letter-spacing:.5px}
+
+/* ---------- NAV ---------- */
+nav{background:#fff;border-bottom:2px solid var(--or);padding:8px;display:flex;gap:6px;overflow-x:auto;position:sticky;top:84px;z-index:40}
+nav button{flex:0 0 auto;background:var(--creme);border:1px solid #dcd6c8;color:var(--vert-fonce);font-size:.78rem;font-weight:600;padding:7px 12px;border-radius:8px;cursor:pointer;white-space:nowrap;transition:.15s}
+nav button.actif{background:var(--vert);color:#fff;border-color:var(--vert)}
+
+/* ---------- CONTENU ---------- */
+main{max-width:820px;margin:0 auto;padding:20px 16px 80px}
+.module{display:none;animation:fade .3s}
+.module.actif{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
+.module h2{font-size:1.4rem;border-bottom:3px solid var(--or);padding-bottom:8px;margin-bottom:6px}
+.module .titre-ref{font-size:.78rem;color:var(--gris);margin-bottom:18px;font-style:italic}
+
+.carte{background:#fff;border-radius:12px;padding:16px 18px;margin-bottom:16px;box-shadow:0 1px 6px rgba(0,0,0,.06);border-left:4px solid var(--vert)}
+.carte h3{font-size:1.02rem;margin-bottom:8px}
+.carte p{margin-bottom:8px;font-size:.94rem}
+.carte ul{margin:6px 0 6px 20px;font-size:.92rem}
+.carte li{margin-bottom:5px}
+.art{display:inline-block;background:var(--vert-fonce);color:#fff;font-size:.68rem;font-weight:700;padding:2px 7px;border-radius:5px;margin-left:4px;vertical-align:middle}
+.cle{background:linear-gradient(135deg,#fff8e6,#fdf0c8);border-left:4px solid var(--or);border-radius:8px;padding:12px 14px;margin:12px 0;font-size:.9rem}
+.cle b{color:var(--vert-fonce)}
+table.tab{width:100%;border-collapse:collapse;margin:10px 0;font-size:.84rem}
+table.tab th{background:var(--vert);color:#fff;padding:8px;text-align:left}
+table.tab td{padding:7px 8px;border-bottom:1px solid #e7e2d6}
+table.tab tr:nth-child(even){background:#faf8f2}
+.chiffre{font-weight:700;color:var(--or);}
+
+/* ---------- QUIZ ---------- */
+.quiz{background:#fff;border-radius:12px;padding:18px;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.quiz h3{margin-bottom:14px}
+.q{margin-bottom:18px;padding-bottom:14px;border-bottom:1px dashed #ddd}
+.q p.enonce{font-weight:600;margin-bottom:8px;font-size:.93rem}
+.q .opt{display:block;background:var(--creme);border:1px solid #ddd6c6;border-radius:8px;padding:9px 12px;margin-bottom:6px;cursor:pointer;font-size:.9rem;transition:.12s}
+.q .opt:hover{border-color:var(--or)}
+.q .opt.bon{background:#d8f0e0;border-color:var(--vert)}
+.q .opt.faux{background:#f8d7da;border-color:#c0392b}
+.expli{font-size:.82rem;color:var(--gris);margin-top:6px;display:none;background:#f3f6f4;padding:8px 10px;border-radius:6px;border-left:3px solid var(--vert)}
+.score{text-align:center;font-size:1.1rem;font-weight:700;color:var(--vert-fonce);margin-top:10px;padding:12px;background:#fff8e6;border-radius:10px}
+
+footer{text-align:center;font-size:.72rem;color:var(--gris);padding:24px 16px}
+
+/* ---------- PAYWALL ---------- */
+#paywall{position:fixed;inset:0;background:linear-gradient(135deg,var(--vert-fonce),#021a0e);color:#fff;z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+#paywall .box{background:#fff;color:var(--texte);max-width:420px;width:100%;border-radius:18px;padding:26px 22px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+#paywall h2{font-size:1.3rem;margin-bottom:6px}
+#paywall .prix{font-size:2rem;font-weight:800;color:var(--or);margin:8px 0}
+#paywall p{font-size:.88rem;color:var(--gris);margin-bottom:14px}
+#paywall .pay-btn{display:block;width:100%;border:none;border-radius:10px;padding:13px;font-size:.95rem;font-weight:700;cursor:pointer;margin-bottom:9px}
+.btn-acheter{background:var(--or);color:#1c1300}
+.btn-code{background:var(--vert);color:#fff}
+.btn-demo{background:transparent;color:var(--gris);border:1px solid #ccc!important}
+#paywall .modes{font-size:.82rem;background:var(--creme);border-radius:10px;padding:12px;margin-bottom:14px;text-align:left}
+#paywall .modes b{color:var(--vert-fonce)}
+#paywall .wa{color:var(--vert);font-weight:700}
+#zone-code{display:none;margin-top:10px}
+#zone-code input{width:100%;padding:11px;border:2px solid #ddd;border-radius:9px;font-size:.95rem;margin-bottom:8px;text-align:center;letter-spacing:1px}
+#msg-code{font-size:.82rem;min-height:18px;margin-bottom:6px}
+.demo-bandeau{position:fixed;bottom:0;left:0;right:0;background:var(--or);color:#1c1300;text-align:center;font-size:.8rem;font-weight:700;padding:8px;z-index:90;display:none}
+</style>
+<style id="ra-platform">/* REGUL ACADEMIE: acces gere par la plateforme */#paywall,#demoBandeau,.demo-bandeau{display:none!important}</style>
+</head>
+<body>
+
+<!-- ========== PAYWALL ========== -->
+<div id="paywall">
+  <div class="box">
+    <div class="badge" style="background:var(--vert);color:#fff">FORMATION CERTIFIANTE</div>
+    <h2>Code des Marchés Publics<br>du Sénégal</h2>
+    <p style="margin-top:6px">Décret n° 2022-2295 du 28 décembre 2022 — décrypté, structuré et illustré pour réussir vos examens et concours.</p>
+    <div class="prix">5 000 FCFA</div>
+
+    <div class="modes">
+      <b>Pour acheter :</b><br>
+      1. Payez 5 000 FCFA via <b>Orange Money</b>, <b>Wave</b> ou dépôt au <span class="wa">77 515 61 58</span><br>
+      2. Envoyez la capture + votre n° de téléphone sur <b>WhatsApp</b> au <span class="wa">+221 77 515 61 58</span><br>
+      3. Recevez votre <b>code d'activation</b> personnel et saisissez-le ci-dessous.
+    </div>
+
+    <button class="pay-btn btn-acheter" onclick="ouvrirWhatsApp()">📲 Acheter via WhatsApp</button>
+    <button class="pay-btn btn-code" onclick="toggleCode()">🔑 J'ai déjà un code</button>
+
+    <div id="zone-code">
+      <input id="inp-tel" type="tel" placeholder="Votre n° de téléphone (ex: 771234567)">
+      <input id="inp-code" type="text" placeholder="Votre code d'activation">
+      <div id="msg-code"></div>
+      <button class="pay-btn btn-acheter" onclick="validerCode()">Activer la formation</button>
+    </div>
+
+    <button class="pay-btn btn-demo" onclick="lancerDemo()">👀 Essayer en mode démo</button>
+  </div>
+</div>
+
+<div class="demo-bandeau" id="demoBandeau">MODE DÉMO — <span id="demoClics">8</span> consultations restantes · Achetez pour un accès illimité</div>
+
+<!-- ========== APPLICATION ========== -->
+<header>
+  <h1>Code des Marchés Publics du Sénégal</h1>
+  <div class="sub">Décret n° 2022-2295 du 28 décembre 2022 · Formation complète</div>
+  <span class="badge">9 titres · 154 articles</span>
+</header>
+
+<nav id="nav">
+  <button class="actif" onclick="aller('m0',this)">Vue d'ensemble</button>
+  <button onclick="aller('m1',this)">I. Dispositions générales</button>
+  <button onclick="aller('m2',this)">II. Préparation</button>
+  <button onclick="aller('m3',this)">III. Passation</button>
+  <button onclick="aller('m4',this)">IV. Exécution</button>
+  <button onclick="aller('m5',this)">V. Résiliation & sanctions</button>
+  <button onclick="aller('m6',this)">VI. Contrôle</button>
+  <button onclick="aller('m7',this)">VII. Sanctions</button>
+  <button onclick="aller('mq',this)">🎯 Quiz final</button>
+</nav>
+
+<main>
+
+<!-- MODULE 0 -->
+<section id="m0" class="module actif">
+  <h2>Vue d'ensemble</h2>
+  <div class="titre-ref">Rapport de présentation · structure du décret</div>
+
+  <div class="carte">
+    <h3>Ce que vous devez retenir d'abord</h3>
+    <p>Le décret <b>n° 2022-2295 du 28 décembre 2022</b> abroge et remplace le décret n° 2014-1212. Il fixe les règles de <b>préparation, passation, exécution et contrôle</b> des marchés publics au Sénégal.</p>
+    <div class="cle"><b>4 grands principes</b> (art. 1<sup>er</sup>) : liberté d'accès · égalité de traitement des candidats · transparence · intégrité des procédures. S'y ajoutent bonne gouvernance, efficacité et développement durable.</div>
+  </div>
+
+  <div class="carte">
+    <h3>Les innovations majeures</h3>
+    <ul>
+      <li>Meilleur encadrement du <b>champ d'application</b></li>
+      <li>Renforcement du régime de l'<b>accord-cadre</b></li>
+      <li>Intégration du <b>budget-programme</b></li>
+      <li>Prise en compte du <b>développement durable</b> (social, environnemental, économique)</li>
+      <li><b>Allotissement</b> favorisant les PME</li>
+      <li>Caractère <b>franc</b> des délais de recours</li>
+    </ul>
+  </div>
+
+  <div class="carte">
+    <h3>Les 9 titres</h3>
+    <table class="tab">
+      <tr><th>Titre</th><th>Objet</th></tr>
+      <tr><td>I</td><td>Dispositions générales</td></tr>
+      <tr><td>II</td><td>Préparation des marchés</td></tr>
+      <tr><td>III</td><td>Passation des marchés</td></tr>
+      <tr><td>IV</td><td>Conditions d'exécution</td></tr>
+      <tr><td>V</td><td>Résiliation, ajournement, sanctions, primes, différends</td></tr>
+      <tr><td>VI</td><td>Contrôle des marchés</td></tr>
+      <tr><td>VII</td><td>Sanctions pour non-respect de la réglementation</td></tr>
+      <tr><td>VIII</td><td>Dispositions diverses et transitoires</td></tr>
+      <tr><td>IX</td><td>Dispositions finales</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- MODULE 1 -->
+<section id="m1" class="module">
+  <h2>Titre I — Dispositions générales</h2>
+  <div class="titre-ref">Champ d'application · définitions clés <span class="art">art. 1 à 4</span></div>
+
+  <div class="carte">
+    <h3>Autorités contractantes <span class="art">art. 2</span></h3>
+    <ul>
+      <li>L'État, ses services déconcentrés, institutions constitutionnelles</li>
+      <li>Les collectivités territoriales</li>
+      <li>Les établissements publics (sauf ordres professionnels)</li>
+      <li>Les sociétés publiques</li>
+      <li>Agences et organismes financés majoritairement par fonds publics</li>
+      <li>Les institutions de protection sociale</li>
+    </ul>
+  </div>
+
+  <div class="carte">
+    <h3>Exclusions du champ <span class="art">art. 3</span></h3>
+    <p>Ne sont pas soumis au Code : services juridiques d'arbitrage/conseil, services financiers (titres, opérations bancaires), contrats de travail, et achats de <b>défense/sécurité</b> exigeant le secret.</p>
+  </div>
+
+  <div class="carte">
+    <h3>Définitions à connaître par cœur <span class="art">art. 4</span></h3>
+    <table class="tab">
+      <tr><th>Terme</th><th>Définition essentielle</th></tr>
+      <tr><td>Marché public</td><td>Contrat écrit à titre onéreux pour travaux, fournitures ou services</td></tr>
+      <tr><td>Accord-cadre</td><td>Fixe les termes de marchés subséquents pendant sa durée</td></tr>
+      <tr><td>Attributaire</td><td>Soumissionnaire retenu <b>avant</b> approbation</td></tr>
+      <tr><td>Titulaire</td><td>Attributaire dont le marché a été <b>approuvé</b></td></tr>
+      <tr><td>PME communautaire</td><td>CA annuel HT ≤ <span class="chiffre">2 milliards FCFA</span>, immatriculée UEMOA</td></tr>
+      <tr><td>Urgence impérieuse</td><td>Circonstances imprévisibles, irrésistibles, extérieures</td></tr>
+      <tr><td>Délais de recours</td><td>Toujours <b>francs et ouvrés</b></td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- MODULE 2 -->
+<section id="m2" class="module">
+  <h2>Titre II — Préparation des marchés</h2>
+  <div class="titre-ref">Besoins · prix · avenants · accords-cadres <span class="art">art. 5 à 26</span></div>
+
+  <div class="carte">
+    <h3>Plan de passation des marchés (PPM) <span class="art">art. 6</span></h3>
+    <ul>
+      <li>Communiqué à l'organe de contrôle au plus tard le <b>1<sup>er</sup> décembre</b> de l'année précédente</li>
+      <li>Avis général publié au plus tard le <b>15 janvier</b></li>
+      <li>Au moins <span class="chiffre">5 %</span> de la valeur des marchés réservés à l'ESS et aux PME nationales, dont <span class="chiffre">2 %</span> aux PME à direction féminine</li>
+    </ul>
+    <div class="cle"><b>Interdiction absolue</b> : fractionner les dépenses pour échapper aux règles <span class="art">art. 54</span>.</div>
+  </div>
+
+  <div class="carte">
+    <h3>Le prix <span class="art">art. 15 à 22</span></h3>
+    <ul>
+      <li><b>Forfaitaire</b>, <b>unitaire</b>, combiné ou exceptionnellement sur <b>dépenses contrôlées</b></li>
+      <li>Prix <b>ferme</b> ou <b>révisable</b></li>
+      <li>Révision <b>obligatoire</b> si la durée dépasse <b>12 mois</b></li>
+    </ul>
+  </div>
+
+  <div class="carte">
+    <h3>Avenants <span class="art">art. 23-24</span></h3>
+    <div class="cle">Un avenant ne peut <b>jamais</b> faire dépasser <span class="chiffre">30 %</span> du montant du marché initial (clauses d'actualisation/révision comprises). Au-delà → nouveau marché. Aucun avenant après réception provisoire.</div>
+  </div>
+
+  <div class="carte">
+    <h3>Accords-cadres & marchés à commande <span class="art">art. 25</span></h3>
+    <ul>
+      <li>Accord-cadre : durée max <span class="chiffre">3 ans</span> (fermé, fermé en 2 étapes, ou ouvert)</li>
+      <li>Marchés à commande/clientèle : 1 an renouvelable, max <b>3 ans</b></li>
+    </ul>
+  </div>
+</section>
+
+<!-- MODULE 3 -->
+<section id="m3" class="module">
+  <h2>Titre III — Passation des marchés</h2>
+  <div class="titre-ref">Le cœur de l'examen <span class="art">art. 27 à 92</span></div>
+
+  <div class="carte">
+    <h3>Approbation des marchés de l'État <span class="art">art. 29</span></h3>
+    <table class="tab">
+      <tr><th>Montant</th><th>Autorité approbatrice</th></tr>
+      <tr><td>≥ 300 000 000 FCFA</td><td>Ministre chargé des Finances</td></tr>
+      <tr><td>100 M ≤ montant &lt; 300 M</td><td>Ministre dépensier</td></tr>
+      <tr><td>&lt; 100 M (hors Dakar)</td><td>Gouverneur de région</td></tr>
+    </table>
+    <div class="cle">Règle d'or : les fonctions d'<b>autorité signataire</b> et d'<b>autorité approbatrice</b> ne peuvent jamais être cumulées.</div>
+  </div>
+
+  <div class="carte">
+    <h3>Seuils de l'appel d'offres ouvert <span class="art">art. 53</span></h3>
+    <table class="tab">
+      <tr><th>Type</th><th>État / CT / EP</th><th>Sociétés publiques / agences</th></tr>
+      <tr><td>Travaux</td><td><span class="chiffre">70 M</span></td><td><span class="chiffre">100 M</span></td></tr>
+      <tr><td>Fournitures/services</td><td><span class="chiffre">50 M</span></td><td><span class="chiffre">60 M</span></td></tr>
+      <tr><td>Prestations intellectuelles</td><td><span class="chiffre">50 M</span></td><td><span class="chiffre">60 M</span></td></tr>
+    </table>
+    <p style="font-size:.82rem;color:var(--gris)">En dessous des seuils → demande de renseignements et de prix (DRP) <span class="art">art. 79</span>.</p>
+  </div>
+
+  <div class="carte">
+    <h3>Les procédures de passation</h3>
+    <ul>
+      <li><b>Appel d'offres ouvert</b> = mode de principe <span class="art">art. 61</span></li>
+      <li>Appel d'offres restreint (après avis de l'organe de contrôle) <span class="art">art. 74</span></li>
+      <li>Appel d'offres en 2 étapes / avec pré-qualification / avec concours</li>
+      <li><b>Entente directe</b> (droit d'exclusivité, urgence impérieuse, secret…) <span class="art">art. 77</span></li>
+      <li>Prestations intellectuelles : manifestation d'intérêt + négociation <span class="art">art. 81</span></li>
+    </ul>
+    <div class="cle">L'attribution se fait à l'<b>offre conforme la moins disante</b> — jamais de négociation en appel d'offres <span class="art">art. 70</span>.</div>
+  </div>
+
+  <div class="carte">
+    <h3>Délais de dépôt des offres <span class="art">art. 64</span></h3>
+    <table class="tab">
+      <tr><th>Procédure</th><th>National</th><th>International</th></tr>
+      <tr><td>AO ouvert</td><td><span class="chiffre">30 j</span></td><td><span class="chiffre">45 j</span></td></tr>
+      <tr><td>AO restreint (urgence)</td><td>10 j</td><td>15 j</td></tr>
+      <tr><td>AO en 2 étapes (candidatures)</td><td colspan="2">45 j calendaires</td></tr>
+    </table>
+  </div>
+
+  <div class="carte">
+    <h3>Régimes préférentiels <span class="art">art. 48 à 52</span></h3>
+    <ul>
+      <li>Préférence communautaire (AOI) : offre nationale/UEMOA retenue si ≤ <span class="chiffre">15 %</span> au-dessus du moins disant</li>
+      <li>Marge de <span class="chiffre">5 %</span> : entreprises à direction féminine, jeunes, personnes handicapées, startups labellisées</li>
+      <li>Sous-traitance possible jusqu'à <span class="chiffre">40 %</span> du montant</li>
+    </ul>
+  </div>
+
+  <div class="carte">
+    <h3>Recours <span class="art">art. 89 à 92</span></h3>
+    <ul>
+      <li>Recours gracieux préalable : <span class="chiffre">5 jours</span> francs et ouvrés</li>
+      <li>Réponse de l'autorité : <b>3 jours</b> (silence = rejet implicite)</li>
+      <li>Recours au Comité de Règlement des Différends (CRD) : <b>3 jours</b> après réponse/délai</li>
+      <li>Décision du CRD : <span class="chiffre">7 jours</span> ouvrables</li>
+    </ul>
+  </div>
+</section>
+
+<!-- MODULE 4 -->
+<section id="m4" class="module">
+  <h2>Titre IV — Conditions d'exécution</h2>
+  <div class="titre-ref">Règlement · garanties · nantissement <span class="art">art. 93 à 127</span></div>
+
+  <div class="carte">
+    <h3>Avances <span class="art">art. 94 à 97</span></h3>
+    <ul>
+      <li>Total des avances : max <span class="chiffre">60 %</span> du montant initial</li>
+      <li>Avance forfaitaire de <b>démarrage</b> : max <span class="chiffre">20 %</span> (caution bancaire obligatoire)</li>
+      <li>Remboursement entre <b>40 %</b> et <b>80 %</b> d'avancement</li>
+    </ul>
+  </div>
+
+  <div class="carte">
+    <h3>Délais de paiement <span class="art">art. 107</span></h3>
+    <div class="cle">Règlement dans <span class="chiffre">45 jours</span>. Au-delà → <b>intérêts moratoires</b> automatiques au taux d'escompte de l'Institut d'émission + <b>2 %</b>.</div>
+  </div>
+
+  <div class="carte">
+    <h3>Les garanties <span class="art">art. 114 à 119</span></h3>
+    <table class="tab">
+      <tr><th>Garantie</th><th>Montant</th></tr>
+      <tr><td>De soumission</td><td><span class="chiffre">1 % à 3 %</span> de la valeur estimée</td></tr>
+      <tr><td>De bonne exécution</td><td>max <span class="chiffre">5 %</span> du montant</td></tr>
+      <tr><td>Retenue de garantie</td><td>max <span class="chiffre">5 %</span> des paiements</td></tr>
+    </table>
+    <p style="font-size:.82rem;color:var(--gris)">Pas de garantie de soumission pour les prestations intellectuelles. ESS et PME féminines peuvent en être dispensées.</p>
+  </div>
+</section>
+
+<!-- MODULE 5 -->
+<section id="m5" class="module">
+  <h2>Titre V — Résiliation, sanctions & différends</h2>
+  <div class="titre-ref"><span class="art">art. 128 à 140</span></div>
+
+  <div class="carte">
+    <h3>Résiliation</h3>
+    <ul>
+      <li>À l'initiative de l'<b>autorité</b> : manquement grave, marché devenu inutile, perte de capacité juridique <span class="art">art. 129</span></li>
+      <li>De <b>plein droit sans indemnité</b> : décès, redressement/liquidation judiciaire <span class="art">art. 130</span></li>
+      <li>À la demande du <b>titulaire</b> : carence de l'autorité, ajournement &gt; 3 mois <span class="art">art. 132</span></li>
+    </ul>
+  </div>
+
+  <div class="carte">
+    <h3>Pénalités <span class="art">art. 135-136</span></h3>
+    <div class="cle">Le montant cumulé des pénalités de retard ne peut excéder <span class="chiffre">10 %</span> du montant TTC du marché (avenants compris), sous peine de résiliation.</div>
+  </div>
+
+  <div class="carte">
+    <h3>Primes <span class="art">art. 138</span></h3>
+    <p>Primes pour réduction de délai : taux journalier ≤ celui des pénalités, réduction ≤ <b>1/10</b> du délai contractuel.</p>
+  </div>
+
+  <div class="carte">
+    <h3>Règlement des différends <span class="art">art. 139-140</span></h3>
+    <p>Règlement amiable devant le <b>CRD</b> (PV de conciliation sous 15 jours, prorogeable 15 j). À défaut, recours contentieux devant les juridictions compétentes ou arbitrage OHADA.</p>
+  </div>
+</section>
+
+<!-- MODULE 6 -->
+<section id="m6" class="module">
+  <h2>Titre VI — Contrôle des marchés</h2>
+  <div class="titre-ref"><span class="art">art. 141 à 146</span></div>
+
+  <div class="carte">
+    <h3>Les 4 niveaux de contrôle <span class="art">art. 141</span></h3>
+    <table class="tab">
+      <tr><th>Organe</th><th>Type de contrôle</th></tr>
+      <tr><td>Organe de contrôle des marchés publics</td><td>Contrôle <b>a priori</b></td></tr>
+      <tr><td>Cellule de passation des marchés</td><td>Marchés sous le seuil de revue</td></tr>
+      <tr><td>Contrôle interne de l'autorité</td><td>Contrôle <b>a posteriori</b></td></tr>
+      <tr><td>Organe de régulation des marchés publics</td><td>Contrôle <b>a posteriori</b> externe</td></tr>
+    </table>
+  </div>
+
+  <div class="carte">
+    <h3>À distinguer impérativement</h3>
+    <div class="cle"><b>Organe de contrôle</b> = revue préalable (a priori). <b>Organe de régulation</b> = audit, régulation, CRD, liste des exclus, rapport annuel (a posteriori). Question piège classique !</div>
+  </div>
+</section>
+
+<!-- MODULE 7 -->
+<section id="m7" class="module">
+  <h2>Titre VII — Sanctions pour non-respect</h2>
+  <div class="titre-ref"><span class="art">art. 147 à 150</span></div>
+
+  <div class="carte">
+    <h3>Agents publics <span class="art">art. 147-148</span></h3>
+    <p>Déférés devant la <b>chambre de discipline financière de la Cour des Comptes</b> notamment pour : avantage anormal à un candidat, conflit d'intérêt, <b>fractionnement</b> des dépenses, marché avec un candidat exclu.</p>
+  </div>
+
+  <div class="carte">
+    <h3>Candidats & titulaires <span class="art">art. 149-150</span></h3>
+    <p>Sanctions prononcées par le <b>CRD</b> en formation disciplinaire pour corruption, collusion, fausses déclarations, manœuvres frauduleuses.</p>
+    <ul>
+      <li><b>Confiscation</b> des garanties</li>
+      <li><b>Exclusion</b> du droit à concourir pour une durée déterminée</li>
+      <li>Résiliation ou substitution aux risques et périls du contrevenant</li>
+    </ul>
+  </div>
+
+  <div class="carte">
+    <h3>Bon à savoir</h3>
+    <p>Signé à Dakar le <b>28 décembre 2022</b> par le Président <b>Macky Sall</b> et le Premier Ministre <b>Amadou Ba</b>. Redevance de régulation, droits de timbre et d'enregistrement à la charge des <b>titulaires</b> <span class="art">art. 151</span>.</p>
+  </div>
+</section>
+
+<!-- QUIZ FINAL -->
+<section id="mq" class="module">
+  <h2>🎯 Quiz final — 20 questions</h2>
+  <div class="titre-ref">Validez vos acquis. Cliquez sur la bonne réponse.</div>
+  <div class="quiz" id="quizZone"></div>
+  <div class="score" id="scoreZone" style="display:none"></div>
+</section>
+
+</main>
+
+<footer>
+  Formation © REGUL ARENA — usage personnel · Code des Marchés Publics du Sénégal (Décret n° 2022-2295)<br>
+  Contact / support : +221 77 515 61 58
+</footer>
+
+<script>
+/* =====================================================
+   KIT DE PROTECTION — identique sur tous les produits
+   SECRET du produit : CMPACAD2024ABDOU
+   ⚠ computeKey() DOIT être STRICTEMENT IDENTIQUE
+     à celle de GENERATEUR_CLES.html, sinon les codes
+     générés ne valideront pas.
+===================================================== */
+const SECRET = "CMPACAD2024ABDOU";
+const PRODUIT = "CMP_SN";
+const WA = "221775156158";
+const LS_LIC = "lic_"+PRODUIT;     // {tel, code, device}
+const LS_DEV = "dev_"+PRODUIT;     // identifiant appareil
+
+// ⚠ STRICTEMENT IDENTIQUE à GENERATEUR_CLES.html
+function computeKey(phone){
+  var clean = (phone||"").replace(/[^0-9]/g,'');
+  if(clean.length > 9) clean = clean.slice(-9);
+  var raw = SECRET + clean;
+  var h1=0,h2=0,h3=0;
+  for(var i=0;i<raw.length;i++){
+    var c=raw.charCodeAt(i);
+    h1=((h1*31)+c*17+i*7)&0x7FFFFFFF;
+    h2=((h2*37)+c*13+(i+1)*11)&0x7FFFFFFF;
+    h3=((h3*41)+c*19+(i+2)*3)&0x7FFFFFFF;
+  }
+  var chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  var p1='',p2='',p3='';
+  var n1=h1,n2=h2,n3=h3;
+  for(var j=0;j<4;j++){
+    p1+=chars[n1%chars.length];n1=Math.floor(n1/chars.length);
+    p2+=chars[n2%chars.length];n2=Math.floor(n2/chars.length);
+    p3+=chars[n3%chars.length];n3=Math.floor(n3/chars.length);
+  }
+  return p1+'-'+p2+'-'+p3;
+}
+
+function getDevice(){
+  let d = localStorage.getItem(LS_DEV);
+  if(!d){
+    d = "D" + Math.random().toString(36).slice(2,10).toUpperCase() + Date.now().toString(36).toUpperCase();
+    localStorage.setItem(LS_DEV, d);
+  }
+  return d;
+}
+
+/* ---- Revalidation au démarrage ---- */
+function verifierLicence(){
+  try{
+    const lic = JSON.parse(localStorage.getItem(LS_LIC)||"null");
+    if(!lic) return false;
+    // le code doit toujours correspondre au téléphone
+    if(computeKey(lic.tel) !== (lic.code||"").toUpperCase()) return false;
+    // anti-partage : appareil enregistré = appareil courant
+    if(lic.device !== getDevice()) return false;
+    return true;
+  }catch(e){ return false; }
+}
+
+function deverrouiller(){
+  document.getElementById("paywall").style.display="none";
+  document.getElementById("demoBandeau").style.display="none";
+  modeDemo = false;
+}
+
+/* ---- Paywall actions ---- */
+function ouvrirWhatsApp(){
+  const txt = encodeURIComponent("Bonjour, je souhaite acheter la formation \"Code des Marchés Publics du Sénégal\" (5000 FCFA). Voici ma capture de paiement et mon numéro :");
+  window.open("https://wa.me/"+WA+"?text="+txt,"_blank");
+}
+function toggleCode(){
+  const z=document.getElementById("zone-code");
+  z.style.display = z.style.display==="block"?"none":"block";
+}
+function validerCode(){
+  const tel=document.getElementById("inp-tel").value.trim();
+  const code=document.getElementById("inp-code").value.trim().toUpperCase();
+  const msg=document.getElementById("msg-code");
+  if(!tel||!code){ msg.style.color="#c0392b"; msg.textContent="Renseignez votre numéro et votre code."; return; }
+  if(computeKey(tel)===code){
+    localStorage.setItem(LS_LIC, JSON.stringify({tel:tel, code:code, device:getDevice()}));
+    msg.style.color="#0B6B3A"; msg.textContent="✅ Activation réussie !";
+    setTimeout(deverrouiller,500);
+  }else{
+    msg.style.color="#c0392b"; msg.textContent="❌ Code invalide pour ce numéro.";
+  }
+}
+
+/* ---- Mode démo : 8 clics max, pas de sauvegarde ---- */
+let modeDemo=false, clicsDemo=8;
+function lancerDemo(){
+  modeDemo=true;
+  document.getElementById("paywall").style.display="none";
+  const b=document.getElementById("demoBandeau");
+  b.style.display="block";
+  document.getElementById("demoClics").textContent=clicsDemo;
+}
+function consommerClicDemo(){
+  if(!modeDemo) return true;
+  clicsDemo--;
+  document.getElementById("demoClics").textContent=Math.max(clicsDemo,0);
+  if(clicsDemo<=0){
+    document.getElementById("paywall").style.display="flex";
+    document.getElementById("demoBandeau").style.display="none";
+    return false;
+  }
+  return true;
+}
+
+/* =====================================================
+   NAVIGATION
+===================================================== */
+function aller(id, btn){
+  if(modeDemo && !consommerClicDemo()) return;
+  document.querySelectorAll(".module").forEach(m=>m.classList.remove("actif"));
+  document.getElementById(id).classList.add("actif");
+  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("actif"));
+  if(btn) btn.classList.add("actif");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* =====================================================
+   QUIZ
+===================================================== */
+const QUIZ=[
+ {q:"Quel décret est abrogé et remplacé par le Code 2022 ?",o:["Décret n° 2014-1212","Décret n° 2005-576","Décret n° 2020-978"],b:0,e:"Le décret n° 2014-1212 du 22 septembre 2014 est abrogé (art. 153)."},
+ {q:"Quels sont les 4 principes des marchés publics ?",o:["Rapidité, secret, économie, audit","Liberté d'accès, égalité, transparence, intégrité","Concurrence, prix, qualité, délai"],b:1,e:"Article 1er du décret."},
+ {q:"Seuil de l'appel d'offres ouvert pour les TRAVAUX de l'État ?",o:["50 000 000 FCFA","70 000 000 FCFA","100 000 000 FCFA"],b:1,e:"Art. 53 : 70 M pour les travaux (État/CT/EP)."},
+ {q:"Seuil pour fournitures et services courants de l'État ?",o:["50 000 000 FCFA","60 000 000 FCFA","70 000 000 FCFA"],b:0,e:"Art. 53 : 50 M (État) ; 60 M pour sociétés publiques."},
+ {q:"Qui approuve un marché de l'État ≥ 300 millions FCFA ?",o:["Le Ministre dépensier","Le Gouverneur","Le Ministre chargé des Finances"],b:2,e:"Art. 29."},
+ {q:"Fourchette du montant de la garantie de soumission ?",o:["1 % à 3 %","3 % à 5 %","5 % à 10 %"],b:0,e:"Art. 114 : entre 1 % et 3 % de la valeur estimée."},
+ {q:"Montant maximal de la garantie de bonne exécution ?",o:["3 %","5 %","10 %"],b:1,e:"Art. 116 : max 5 % du montant du marché."},
+ {q:"Un avenant ne peut pas faire dépasser le montant initial de plus de :",o:["20 %","30 %","50 %"],b:1,e:"Art. 24 : limite de 30 %."},
+ {q:"Part maximale pouvant être sous-traitée ?",o:["30 %","40 %","50 %"],b:1,e:"Art. 48 : jusqu'à 40 % du montant."},
+ {q:"Plafond de l'avance forfaitaire de démarrage ?",o:["20 %","40 %","60 %"],b:0,e:"Art. 97 : max 20 %."},
+ {q:"Montant total maximal des avances ?",o:["40 %","60 %","80 %"],b:1,e:"Art. 94 : max 60 % du montant initial."},
+ {q:"Délai de dépôt des offres pour un AO ouvert NATIONAL ?",o:["15 jours","30 jours","45 jours"],b:1,e:"Art. 64 : 30 j (national), 45 j (international)."},
+ {q:"Délai de règlement (paiement) d'un marché ?",o:["30 jours","45 jours","60 jours"],b:1,e:"Art. 107 : 45 jours, puis intérêts moratoires."},
+ {q:"Plafond du montant cumulé des pénalités de retard ?",o:["5 %","10 %","15 %"],b:1,e:"Art. 136 : 10 % du montant TTC sous peine de résiliation."},
+ {q:"Marge de préférence communautaire en appel d'offres international ?",o:["10 %","15 %","20 %"],b:1,e:"Art. 50 : 15 % au profit des offres nationales/UEMOA."},
+ {q:"Mode de passation des marchés appliqué par principe ?",o:["Entente directe","Appel d'offres restreint","Appel d'offres ouvert"],b:2,e:"Art. 61 : l'AO ouvert est le mode de principe."},
+ {q:"Délai du recours gracieux préalable ?",o:["3 jours","5 jours francs et ouvrés","10 jours"],b:1,e:"Art. 89."},
+ {q:"Délai pour rendre la décision du CRD en matière de passation ?",o:["7 jours ouvrables","15 jours","30 jours"],b:0,e:"Art. 92 : 7 jours ouvrables."},
+ {q:"Durée maximale d'un accord-cadre ?",o:["1 an","3 ans","5 ans"],b:1,e:"Art. 25 : ne doit pas dépasser 3 ans."},
+ {q:"Qui assure le contrôle A PRIORI de la passation ?",o:["L'organe de régulation","L'organe de contrôle des marchés publics","La Cour des Comptes"],b:1,e:"Art. 141-142 : l'organe de contrôle (a priori) ; la régulation fait l'a posteriori."}
+];
+
+function rendreQuiz(){
+  const z=document.getElementById("quizZone");
+  z.innerHTML="";
+  QUIZ.forEach((item,i)=>{
+    const div=document.createElement("div"); div.className="q";
+    let html='<p class="enonce">'+(i+1)+". "+item.q+'</p>';
+    item.o.forEach((opt,j)=>{
+      html+='<span class="opt" onclick="repondre('+i+','+j+',this)">'+opt+'</span>';
+    });
+    html+='<div class="expli" id="exp'+i+'">'+item.e+'</div>';
+    div.innerHTML=html;
+    z.appendChild(div);
+  });
+}
+let reponses={};
+function repondre(i,j,el){
+  if(modeDemo && !consommerClicDemo()) return;
+  if(reponses[i]!==undefined) return;
+  reponses[i]=j;
+  const parent=el.parentNode;
+  const opts=parent.querySelectorAll(".opt");
+  opts[QUIZ[i].b].classList.add("bon");
+  if(j!==QUIZ[i].b) el.classList.add("faux");
+  document.getElementById("exp"+i).style.display="block";
+  if(Object.keys(reponses).length===QUIZ.length) afficherScore();
+}
+function afficherScore(){
+  let s=0;
+  QUIZ.forEach((item,i)=>{ if(reponses[i]===item.b) s++; });
+  const z=document.getElementById("scoreZone");
+  z.style.display="block";
+  let msg = s>=16?"🏆 Excellent, vous maîtrisez le Code !" : s>=10?"👍 Bon niveau, révisez les modules faibles." : "📚 À retravailler — relisez les modules.";
+  z.innerHTML="Score : "+s+" / "+QUIZ.length+"<br>"+msg;
+  z.scrollIntoView({behavior:"smooth"});
+}
+
+/* =====================================================
+   INIT
+===================================================== */
+rendreQuiz();
+getDevice();
+if(verifierLicence()){
+  deverrouiller();
+}  // sinon le paywall reste affiché
+</script>
+</body>
+</html>

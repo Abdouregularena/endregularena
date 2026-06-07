@@ -1,0 +1,424 @@
+/* ================================================================
+   REGUL ARENA — Typography & Design System
+   Polices : Montserrat | Roboto | Merriweather | Lato
+   Hiérarchie typographique institutionnelle + gamifiée
+   ================================================================ */
+
+/* ── Google Fonts Import ──────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;0,700;0,800;0,900;1,600&family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Lato:ital,wght@0,300;0,400;0,700;0,900;1,400&family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ── CSS Custom Properties — Typographie ──────────────────── */
+:root {
+  /* Familles de polices */
+  --font-display:   'Bebas Neue', 'Montserrat', cursive;      /* scores, titres hero */
+  --font-title:     'Montserrat', sans-serif;                  /* H1, H2 — bold/extrabold */
+  --font-heading:   'Lato', sans-serif;                        /* H3, H4 — menus, sous-titres */
+  --font-body:      'Roboto', sans-serif;                      /* texte courant */
+  --font-quote:     'Merriweather', Georgia, serif;            /* citations réglementaires */
+  --font-mono:      'JetBrains Mono', monospace;               /* codes, étiquettes, scores */
+
+  /* Tailles — système fluide */
+  --fs-2xl:   clamp(3.5rem, 8vw, 7rem);     /* hero / score géant */
+  --fs-xl:    clamp(2.2rem, 5vw, 3.8rem);   /* section-title H1 */
+  --fs-lg:    clamp(1.5rem, 3vw, 2.2rem);   /* H2 */
+  --fs-md:    clamp(1.1rem, 2vw, 1.4rem);   /* H3 */
+  --fs-sm:    clamp(0.95rem, 1.5vw, 1.1rem);/* H4, corps mis en avant */
+  --fs-base:  0.9rem;                        /* texte courant */
+  --fs-sm2:   0.82rem;                       /* texte secondaire */
+  --fs-xs:    0.72rem;                       /* labels, métadonnées */
+  --fs-xxs:   0.62rem;                       /* badges, mono étiquettes */
+
+  /* Hauteurs de ligne */
+  --lh-tight:   1.05;  /* titres display */
+  --lh-snug:    1.3;   /* sous-titres */
+  --lh-normal:  1.55;  /* corps */
+  --lh-relaxed: 1.75;  /* citations, textes réglementaires */
+
+  /* Espacements lettre */
+  --ls-tight:  -0.02em;
+  --ls-normal:  0;
+  --ls-wide:    0.05em;
+  --ls-wider:   0.1em;
+  --ls-widest:  0.2em;
+
+  /* Palette de couleurs — REGUL ARENA */
+  --gold:       #C9991A;
+  --gold-l:     #E8B520;
+  --gold-b:     #FFD27A;
+  --gold-dim:   rgba(201, 153, 26, 0.12);
+  --gold-glow:  rgba(201, 153, 26, 0.35);
+  --border:     rgba(201, 153, 26, 0.22);
+  --navy:       #002B5C;
+  --navy-l:     #003d7a;
+  --navy-dim:   rgba(0, 43, 92, 0.4);
+  --cyan:       #22D3EE;
+  --cyan-dim:   rgba(34, 211, 238, 0.08);
+  --blue:       #4F8EF7;
+  --green:      #10B981;
+  --red:        #EF4444;
+  --purple:     #A855F7;
+  --silver:     #B0B8C8;
+  --bronze:     #CD7F32;
+  --bg:         #03050A;
+  --bg2:        #080C14;
+  --bg3:        #0E1320;
+  --glass:      rgba(8, 12, 20, 0.72);
+  --text:       #EEF0F5;
+  --muted:      #7A8499;
+  --sep:        rgba(255, 255, 255, 0.06);
+  --gb:         rgba(255, 255, 255, 0.07);
+}
+
+/* ── Reset ciblé ──────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background:    var(--bg);
+  color:         var(--text);
+  font-family:   var(--font-body);
+  font-size:     var(--fs-base);
+  line-height:   var(--lh-normal);
+  overflow-x:    hidden;
+  min-height:    100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ================================================================
+   HIÉRARCHIE TYPOGRAPHIQUE — H1 → H6
+   ================================================================ */
+
+/* H1 — Titre principal de page / section hero
+   Montserrat ExtraBold — doré sur fond bleu foncé */
+h1, .h1 {
+  font-family:    var(--font-title);
+  font-size:      var(--fs-xl);
+  font-weight:    800;
+  line-height:    var(--lh-tight);
+  letter-spacing: var(--ls-tight);
+  color:          var(--gold);
+  margin-bottom:  0.5em;
+}
+
+/* H1 sur fond sombre — variante blanche */
+.on-dark h1,
+.on-dark .h1,
+h1.white, .h1.white {
+  color: var(--text);
+}
+
+/* H1 avec accent doré inline */
+h1 .accent, .h1 .accent {
+  background:              linear-gradient(135deg, var(--gold), var(--gold-b));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip:         text;
+}
+
+/* H2 — Sous-titre de section
+   Montserrat Bold — blanc ou doré */
+h2, .h2 {
+  font-family:    var(--font-title);
+  font-size:      var(--fs-lg);
+  font-weight:    700;
+  line-height:    var(--lh-snug);
+  letter-spacing: var(--ls-tight);
+  color:          var(--text);
+  margin-bottom:  0.45em;
+}
+
+h2 .accent, .h2 .accent {
+  color: var(--gold);
+}
+
+/* H3 — Titre de carte / sous-section
+   Lato Bold */
+h3, .h3 {
+  font-family:    var(--font-heading);
+  font-size:      var(--fs-md);
+  font-weight:    700;
+  line-height:    var(--lh-snug);
+  letter-spacing: var(--ls-normal);
+  color:          var(--text);
+  margin-bottom:  0.4em;
+}
+
+/* H4 — Label de section / menu item
+   Lato Medium */
+h4, .h4 {
+  font-family:    var(--font-heading);
+  font-size:      var(--fs-sm);
+  font-weight:    700;
+  line-height:    var(--lh-snug);
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+  color:          var(--muted);
+  margin-bottom:  0.35em;
+}
+
+/* H5 / H6 — Micro-labels */
+h5, .h5 {
+  font-family:    var(--font-heading);
+  font-size:      var(--fs-xs);
+  font-weight:    700;
+  letter-spacing: var(--ls-wider);
+  text-transform: uppercase;
+  color:          var(--muted);
+}
+
+h6, .h6 {
+  font-family:    var(--font-mono);
+  font-size:      var(--fs-xxs);
+  font-weight:    500;
+  letter-spacing: var(--ls-widest);
+  text-transform: uppercase;
+  color:          var(--gold);
+}
+
+/* ================================================================
+   TEXTE COURANT — Roboto
+   ================================================================ */
+
+p {
+  font-family: var(--font-body);
+  font-size:   var(--fs-base);
+  line-height: var(--lh-normal);
+  color:       var(--text);
+  margin-bottom: 1em;
+}
+
+p.lead {
+  font-size:   var(--fs-sm2);
+  font-weight: 500;
+  color:       var(--text);
+  line-height: var(--lh-relaxed);
+}
+
+p.muted {
+  color:       var(--muted);
+  font-size:   var(--fs-sm2);
+  line-height: var(--lh-relaxed);
+}
+
+strong, b {
+  font-weight: 700;
+  color:       var(--text);
+}
+
+em, i {
+  font-style: italic;
+  color:      var(--gold-b);
+}
+
+/* ================================================================
+   CITATIONS RÉGLEMENTAIRES — Merriweather Italic
+   ================================================================ */
+
+/* Citation principale — article de texte réglementaire */
+blockquote,
+.regul-quote {
+  font-family:   var(--font-quote);
+  font-size:     clamp(0.85rem, 1.4vw, 1rem);
+  font-style:    italic;
+  font-weight:   300;
+  line-height:   var(--lh-relaxed);
+  color:         var(--silver);
+  border-left:   3px solid var(--gold);
+  padding:       1em 1.5em;
+  margin:        1.5em 0;
+  background:    var(--gold-dim);
+  border-radius: 0 4px 4px 0;
+  position:      relative;
+}
+
+blockquote::before,
+.regul-quote::before {
+  content:   '"';
+  font-family: var(--font-quote);
+  font-size:   3.5em;
+  font-style:  normal;
+  color:       var(--gold);
+  opacity:     0.3;
+  position:    absolute;
+  top:         -0.15em;
+  left:        0.25em;
+  line-height: 1;
+}
+
+/* Citation courte — inline dans une carte */
+.cite-inline {
+  font-family: var(--font-quote);
+  font-size:   var(--fs-xs);
+  font-style:  italic;
+  color:       var(--gold-b);
+  letter-spacing: 0.02em;
+}
+
+/* Référence de texte officiel */
+.cite-ref {
+  font-family:    var(--font-mono);
+  font-size:      var(--fs-xxs);
+  letter-spacing: var(--ls-wider);
+  color:          var(--cyan);
+  text-transform: uppercase;
+  display:        block;
+  margin-top:     0.5em;
+}
+
+/* ================================================================
+   NAVIGATION — Lato Medium
+   ================================================================ */
+
+.nav-item,
+.nav-link {
+  font-family:    var(--font-heading);
+  font-size:      var(--fs-xxs);
+  font-weight:    700;
+  letter-spacing: var(--ls-wider);
+  text-transform: uppercase;
+  color:          var(--text);
+  transition:     color 0.2s;
+}
+
+.nav-item:hover,
+.nav-link:hover,
+.nav-item.active,
+.nav-link.active {
+  color: var(--gold);
+}
+
+/* ================================================================
+   BOUTONS TYPOGRAPHIE
+   ================================================================ */
+
+.btn {
+  font-family:    var(--font-title);
+  font-weight:    700;
+  font-size:      var(--fs-xxs);
+  letter-spacing: var(--ls-wider);
+  text-transform: uppercase;
+}
+
+/* ================================================================
+   LABELS & BADGES — JetBrains Mono
+   ================================================================ */
+
+.label,
+.badge,
+.tag {
+  font-family:    var(--font-mono);
+  font-size:      var(--fs-xxs);
+  letter-spacing: var(--ls-widest);
+  text-transform: uppercase;
+}
+
+/* ================================================================
+   SCORES & DISPLAY — Bebas Neue
+   ================================================================ */
+
+.score,
+.timer,
+.display-number {
+  font-family:    var(--font-display);
+  letter-spacing: var(--ls-wider);
+  line-height:    var(--lh-tight);
+  color:          var(--gold);
+}
+
+/* ================================================================
+   TEXTES RÉGLEMENTAIRES SPÉCIAUX
+   ================================================================ */
+
+/* Titre d'un article réglementaire */
+.regul-article-title {
+  font-family:    var(--font-title);
+  font-size:      var(--fs-sm);
+  font-weight:    700;
+  color:          var(--gold);
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+  border-bottom:  1px solid var(--border);
+  padding-bottom: 0.5em;
+  margin-bottom:  0.75em;
+}
+
+/* Corps d'un article réglementaire */
+.regul-article-body {
+  font-family: var(--font-body);
+  font-size:   var(--fs-sm2);
+  font-weight: 300;
+  line-height: var(--lh-relaxed);
+  color:       var(--muted);
+}
+
+/* Mot-clé réglementaire mis en évidence */
+.regul-keyword {
+  font-family: var(--font-quote);
+  font-style:  italic;
+  font-weight: 700;
+  color:       var(--gold-b);
+}
+
+/* Institution (BCEAO, BEAC, etc.) */
+.institution-tag {
+  font-family:    var(--font-mono);
+  font-size:      var(--fs-xxs);
+  font-weight:    700;
+  letter-spacing: var(--ls-widest);
+  text-transform: uppercase;
+  padding:        2px 8px;
+  border-radius:  2px;
+  border:         1px solid;
+}
+
+.institution-tag.bceao,
+.institution-tag.uemoa {
+  color:        var(--gold);
+  border-color: var(--border);
+  background:   var(--gold-dim);
+}
+
+.institution-tag.beac,
+.institution-tag.cemac,
+.institution-tag.cobac {
+  color:        var(--cyan);
+  border-color: rgba(34, 211, 238, 0.25);
+  background:   var(--cyan-dim);
+}
+
+/* ================================================================
+   RESPONSIVE MOBILE — adaptations typographiques
+   ================================================================ */
+
+@media (max-width: 768px) {
+  h1, .h1 {
+    font-size: clamp(1.8rem, 7vw, 2.6rem);
+    letter-spacing: -0.01em;
+  }
+
+  h2, .h2 {
+    font-size: clamp(1.3rem, 5vw, 1.8rem);
+  }
+
+  h3, .h3 {
+    font-size: clamp(1.05rem, 4vw, 1.3rem);
+  }
+
+  blockquote,
+  .regul-quote {
+    font-size:   0.82rem;
+    padding:     0.8em 1.1em;
+    margin:      1em 0;
+  }
+
+  p { font-size: 0.87rem; }
+}
+
+@media (max-width: 480px) {
+  h1, .h1 { font-size: 1.7rem; }
+  h2, .h2 { font-size: 1.25rem; }
+  h3, .h3 { font-size: 1rem; }
+  p       { font-size: 0.85rem; }
+}

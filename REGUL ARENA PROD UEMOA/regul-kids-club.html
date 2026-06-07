@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REGUL ARENA KIDS — Le Club des Bâtisseurs (100% Gratuit)</title>
+<meta name="description" content="Plateforme éducative gratuite pour enfants de 6 à 15 ans : Maths, Français, Sciences, Logique, Codage et Culture. Offert par la communauté REGUL ARENA.">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0a1628; --navy2:#0f2040; --yellow:#FFD600; --orange:#FF8C00;
+    --green:#00C851; --blue:#2979FF; --purple:#AA00FF; --red:#FF3D00;
+    --pink:#FF5A9D; --teal:#1FBF92; --white:#FFFFFF;
+    --card-bg:rgba(255,255,255,0.05); --card-border:rgba(255,255,255,0.1);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Nunito',sans-serif;background:var(--navy);color:var(--white);overflow-x:hidden;}
+  #bg-canvas{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;}
+
+  /* NAV */
+  nav{position:fixed;top:0;width:100%;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:12px 28px;background:rgba(10,22,40,0.92);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,214,0,0.15);}
+  .nav-logo{display:flex;align-items:center;gap:10px;font-family:'Fredoka One',cursive;font-size:1.2rem;color:var(--yellow);cursor:pointer;}
+  .nav-free{background:var(--green);color:var(--navy);padding:5px 14px;border-radius:50px;font-family:'Fredoka One',cursive;font-size:.8rem;}
+  .nav-score{display:flex;align-items:center;gap:14px;font-weight:800;font-size:.85rem;}
+  .nav-score span{color:var(--yellow);}
+
+  .wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:90px 20px 60px;}
+
+  /* HERO */
+  .hero{text-align:center;padding:30px 0 10px;}
+  .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,200,81,.15);border:1px solid rgba(0,200,81,.5);color:var(--green);padding:6px 18px;border-radius:50px;font-size:.8rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-bottom:18px;animation:fadeDown .8s both;}
+  .hero h1{font-family:'Fredoka One',cursive;font-size:clamp(2.2rem,6vw,4rem);line-height:1.08;margin-bottom:16px;animation:fadeDown .9s .1s both;}
+  .hero h1 .y{color:var(--yellow);} .hero h1 .g{color:var(--green);} .hero h1 .b{color:#60b3ff;}
+  .hero-sub{font-size:clamp(.95rem,2.2vw,1.1rem);color:rgba(255,255,255,.66);max-width:600px;margin:0 auto 26px;font-weight:600;line-height:1.6;animation:fadeDown 1s .2s both;}
+  .kid-row{display:flex;gap:0;justify-content:center;align-items:center;margin-bottom:8px;animation:fadeDown 1s .3s both;}
+  .kid-av{width:48px;height:48px;border-radius:50%;border:3px solid var(--yellow);display:flex;align-items:center;justify-content:center;background:var(--navy2);font-size:1.5rem;margin-left:-6px;animation:float 3s ease-in-out infinite;}
+  .kid-av:first-child{margin-left:0;} .kid-av:nth-child(2){border-color:var(--green);animation-delay:.4s;} .kid-av:nth-child(3){border-color:var(--blue);animation-delay:.8s;} .kid-av:nth-child(4){border-color:var(--purple);animation-delay:1.2s;} .kid-av:nth-child(5){border-color:var(--pink);animation-delay:1.6s;}
+
+  .section-title{font-family:'Fredoka One',cursive;font-size:clamp(1.5rem,3.4vw,2.3rem);margin-bottom:6px;text-align:center;}
+  .section-sub{color:rgba(255,255,255,.55);font-size:.95rem;font-weight:600;text-align:center;margin-bottom:30px;}
+
+  /* AGE PICKER */
+  .age-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-bottom:14px;}
+  .age-card{background:var(--card-bg);border:2px solid var(--card-border);border-radius:22px;padding:26px 22px;text-align:center;cursor:pointer;transition:transform .25s,border-color .25s,box-shadow .25s;}
+  .age-card:hover{transform:translateY(-6px);}
+  .age-card.sel{box-shadow:0 12px 40px rgba(0,0,0,.4);}
+  .age-card[data-age="petits"]{} .age-card[data-age="petits"].sel,.age-card[data-age="petits"]:hover{border-color:var(--green);}
+  .age-card[data-age="moyens"].sel,.age-card[data-age="moyens"]:hover{border-color:var(--blue);}
+  .age-card[data-age="grands"].sel,.age-card[data-age="grands"]:hover{border-color:var(--purple);}
+  .age-emoji{font-size:3rem;margin-bottom:10px;}
+  .age-name{font-family:'Fredoka One',cursive;font-size:1.35rem;margin-bottom:4px;}
+  .age-card[data-age="petits"] .age-name{color:var(--green);}
+  .age-card[data-age="moyens"] .age-name{color:#60b3ff;}
+  .age-card[data-age="grands"] .age-name{color:#d580ff;}
+  .age-range{font-size:.82rem;font-weight:800;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.06em;}
+
+  /* SUBJECT GRID */
+  .subj-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px;}
+  .subj-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:22px;padding:24px;cursor:pointer;position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s;}
+  .subj-card:hover{transform:translateY(-6px);box-shadow:0 16px 44px rgba(0,0,0,.4);}
+  .subj-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;}
+  .subj-card.c-green::before{background:var(--green);box-shadow:0 0 16px var(--green);}
+  .subj-card.c-blue::before{background:var(--blue);box-shadow:0 0 16px var(--blue);}
+  .subj-card.c-orange::before{background:var(--orange);box-shadow:0 0 16px var(--orange);}
+  .subj-card.c-purple::before{background:var(--purple);box-shadow:0 0 16px var(--purple);}
+  .subj-card.c-pink::before{background:var(--pink);box-shadow:0 0 16px var(--pink);}
+  .subj-card.c-teal::before{background:var(--teal);box-shadow:0 0 16px var(--teal);}
+  .subj-icon{font-size:2.4rem;margin-bottom:12px;}
+  .subj-name{font-family:'Fredoka One',cursive;font-size:1.35rem;margin-bottom:4px;}
+  .subj-desc{font-size:.86rem;color:rgba(255,255,255,.6);font-weight:600;line-height:1.5;margin-bottom:14px;}
+  .subj-meta{display:flex;justify-content:space-between;align-items:center;font-size:.78rem;font-weight:800;color:rgba(255,255,255,.4);}
+  .subj-go{background:rgba(255,214,0,.12);color:var(--yellow);padding:5px 13px;border-radius:50px;border:1px solid rgba(255,214,0,.3);}
+
+  /* QUIZ */
+  .quiz-wrap{display:none;max-width:720px;margin:0 auto;}
+  .quiz-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
+  .back-btn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);color:#fff;padding:9px 18px;border-radius:50px;font-family:'Fredoka One',cursive;font-size:.85rem;cursor:pointer;transition:all .2s;}
+  .back-btn:hover{background:rgba(255,255,255,.14);}
+  .progress-bg{flex:1;min-width:140px;height:12px;background:rgba(255,255,255,.08);border-radius:50px;overflow:hidden;margin:0 14px;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--yellow));border-radius:50px;width:0;transition:width .4s;}
+  .q-count{font-family:'Fredoka One',cursive;font-size:.9rem;color:var(--yellow);}
+  .quiz-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:24px;padding:30px 26px;animation:popIn .35s ease;}
+  .q-tag{display:inline-block;font-size:.74rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--yellow);margin-bottom:10px;}
+  .q-text{font-family:'Fredoka One',cursive;font-size:clamp(1.15rem,2.6vw,1.5rem);line-height:1.4;margin-bottom:22px;}
+  .opt-grid{display:grid;gap:12px;}
+  .opt{background:rgba(255,255,255,.05);border:2px solid rgba(255,255,255,.12);border-radius:16px;padding:15px 18px;font-size:1rem;font-weight:700;color:#fff;cursor:pointer;text-align:left;transition:all .18s;display:flex;align-items:center;gap:12px;}
+  .opt:hover{border-color:var(--yellow);transform:translateX(4px);}
+  .opt .opt-letter{flex-shrink:0;width:30px;height:30px;border-radius:9px;background:rgba(255,214,0,.15);color:var(--yellow);display:flex;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:.95rem;}
+  .opt.correct{border-color:var(--green);background:rgba(0,200,81,.18);}
+  .opt.correct .opt-letter{background:var(--green);color:var(--navy);}
+  .opt.wrong{border-color:var(--red);background:rgba(255,61,0,.15);}
+  .opt.wrong .opt-letter{background:var(--red);color:#fff;}
+  .opt.disabled{pointer-events:none;opacity:.85;}
+  .explain{margin-top:18px;background:rgba(41,121,255,.08);border:1px solid rgba(41,121,255,.25);border-radius:14px;padding:14px 16px;font-size:.9rem;font-weight:600;line-height:1.55;color:rgba(255,255,255,.85);display:none;}
+  .explain.show{display:block;animation:fadeDown .3s;}
+  .explain b{color:#60b3ff;}
+  .next-btn{display:none;width:100%;margin-top:18px;padding:15px;border:none;border-radius:14px;background:var(--yellow);color:var(--navy);font-family:'Fredoka One',cursive;font-size:1.05rem;cursor:pointer;box-shadow:0 0 20px rgba(255,214,0,.4);transition:all .2s;}
+  .next-btn.show{display:block;}
+  .next-btn:hover{transform:translateY(-2px);box-shadow:0 0 34px rgba(255,214,0,.7);}
+
+  /* RESULT */
+  .result-card{display:none;max-width:560px;margin:0 auto;text-align:center;background:linear-gradient(135deg,rgba(255,214,0,.08),rgba(41,121,255,.06));border:2px solid rgba(255,214,0,.3);border-radius:24px;padding:40px 28px;animation:popIn .4s;}
+  .result-emoji{font-size:4.5rem;margin-bottom:10px;animation:float 2.5s ease-in-out infinite;}
+  .result-title{font-family:'Fredoka One',cursive;font-size:2rem;color:var(--yellow);margin-bottom:6px;}
+  .result-score{font-family:'Fredoka One',cursive;font-size:3rem;margin:10px 0;}
+  .result-stars{font-size:2rem;letter-spacing:6px;margin:8px 0 16px;}
+  .result-msg{color:rgba(255,255,255,.7);font-weight:600;line-height:1.6;margin-bottom:24px;}
+  .result-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+  .btn-pri{background:var(--yellow);color:var(--navy);border:none;padding:13px 26px;border-radius:50px;font-family:'Fredoka One',cursive;font-size:1rem;cursor:pointer;box-shadow:0 0 20px rgba(255,214,0,.4);transition:all .2s;}
+  .btn-pri:hover{transform:translateY(-2px);}
+  .btn-sec{background:rgba(255,255,255,.07);color:#fff;border:1px solid rgba(255,255,255,.2);padding:13px 26px;border-radius:50px;font-family:'Fredoka One',cursive;font-size:1rem;cursor:pointer;transition:all .2s;}
+  .btn-sec:hover{background:rgba(255,255,255,.14);}
+
+  /* BADGES */
+  .badges-strip{margin:40px auto 0;max-width:900px;background:var(--card-bg);border:1px solid var(--card-border);border-radius:22px;padding:24px;}
+  .badges-grid{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:16px;}
+  .badge{width:84px;text-align:center;opacity:.3;transition:opacity .3s,transform .3s;filter:grayscale(1);}
+  .badge.earned{opacity:1;filter:none;transform:scale(1.05);}
+  .badge-ic{font-size:2rem;}
+  .badge-lbl{font-size:.7rem;font-weight:800;color:rgba(255,255,255,.6);margin-top:3px;line-height:1.2;}
+
+  /* SECTION BOX */
+  .box{background:var(--card-bg);border:1px solid var(--card-border);border-radius:22px;padding:28px;margin-top:36px;}
+
+  /* ALPHA ROBOT GAME */
+  .robot-game{max-width:620px;margin:0 auto;text-align:center;}
+  .robot-big{font-size:4rem;margin-bottom:8px;animation:float 2s ease-in-out infinite;}
+  .robot-bubble{background:linear-gradient(135deg,rgba(170,0,255,.12),rgba(170,0,255,.04));border:1px solid rgba(170,0,255,.35);border-radius:18px;padding:18px 20px;font-size:.95rem;font-weight:600;line-height:1.6;margin-bottom:16px;text-align:left;}
+  .robot-bubble b{color:#d580ff;}
+  .energy-bg{background:rgba(255,255,255,.08);border-radius:50px;height:14px;overflow:hidden;margin:6px 0 4px;}
+  .energy-fill{height:100%;background:linear-gradient(90deg,var(--red),var(--orange),var(--green));border-radius:50px;width:20%;transition:width .8s;}
+
+  /* PARENT */
+  .parent-note{max-width:820px;margin:46px auto 0;background:linear-gradient(135deg,rgba(0,200,81,.08),rgba(41,121,255,.06));border:1px solid rgba(0,200,81,.3);border-radius:22px;padding:30px;}
+  .parent-note h3{font-family:'Fredoka One',cursive;font-size:1.3rem;color:var(--green);margin-bottom:10px;}
+  .parent-note p{font-size:.95rem;color:rgba(255,255,255,.72);font-weight:600;line-height:1.7;}
+  .parent-note a{color:var(--yellow);font-weight:800;text-decoration:none;}
+
+  footer{text-align:center;padding:40px 20px;color:rgba(255,255,255,.4);font-size:.82rem;font-weight:600;position:relative;z-index:1;}
+  footer b{color:var(--yellow);}
+
+  .hidden{display:none!important;}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(120px);background:linear-gradient(135deg,#0f2040,#0d1a30);border:2px solid rgba(0,200,81,.5);border-radius:18px;padding:14px 22px;font-family:'Fredoka One',cursive;font-size:.95rem;color:var(--green);z-index:500;box-shadow:0 0 36px rgba(0,200,81,.3);transition:transform .4s;}
+  .toast.show{transform:translateX(-50%) translateY(0);}
+
+  @keyframes fadeDown{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  @keyframes popIn{from{transform:scale(.86);opacity:0}to{transform:scale(1);opacity:1}}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
+
+  /* ===== ONBOARDING (saisie du prénom) ===== */
+  .onb-overlay{position:fixed;inset:0;z-index:600;background:rgba(5,11,26,.96);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;padding:20px;}
+  .onb-overlay.open{display:flex;}
+  .onb-card{background:linear-gradient(135deg,#0f2040,#0a1a36);border:2px solid rgba(170,0,255,.5);border-radius:28px;padding:36px 30px;max-width:440px;width:100%;text-align:center;animation:popIn .4s ease;box-shadow:0 0 60px rgba(170,0,255,.3);}
+  .onb-robot{font-size:4rem;animation:float 2s ease-in-out infinite;margin-bottom:8px;}
+  .onb-name{font-family:'Fredoka One',cursive;color:#d580ff;font-size:1.1rem;margin-bottom:14px;letter-spacing:.04em;}
+  .onb-bubble{background:rgba(170,0,255,.1);border:1px solid rgba(170,0,255,.3);border-radius:16px;padding:16px;font-size:.95rem;font-weight:600;line-height:1.6;margin-bottom:20px;}
+  .onb-bubble b{color:var(--yellow);}
+  .onb-field{margin-bottom:14px;text-align:left;}
+  .onb-field label{display:block;font-size:.78rem;font-weight:800;color:rgba(255,255,255,.55);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;}
+  .onb-field input{width:100%;padding:13px 16px;border-radius:13px;border:2px solid rgba(170,0,255,.3);background:rgba(255,255,255,.05);color:#fff;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:700;outline:none;transition:border-color .2s;}
+  .onb-field input:focus{border-color:var(--purple);}
+  .onb-go{width:100%;padding:15px;border:none;border-radius:14px;background:var(--purple);color:#fff;font-family:'Fredoka One',cursive;font-size:1.05rem;cursor:pointer;margin-top:6px;transition:all .2s;box-shadow:0 0 20px rgba(170,0,255,.4);}
+  .onb-go:hover{transform:translateY(-2px);box-shadow:0 0 34px rgba(170,0,255,.7);}
+
+  /* ===== AGENT KAISER (mascotte flottante) ===== */
+  .kaiser-fab{position:fixed;bottom:22px;right:22px;z-index:450;width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--blue));border:3px solid var(--yellow);display:flex;align-items:center;justify-content:center;font-size:2rem;cursor:pointer;box-shadow:0 6px 24px rgba(170,0,255,.5);animation:float 3s ease-in-out infinite;transition:transform .2s;}
+  .kaiser-fab:hover{transform:scale(1.1);}
+  .kaiser-fab .ping{position:absolute;top:-2px;right:-2px;width:16px;height:16px;background:var(--red);border-radius:50%;border:2px solid var(--navy);animation:pulse 1.2s infinite;}
+  .kaiser-bubble{position:fixed;bottom:96px;right:22px;z-index:450;max-width:330px;width:calc(100% - 44px);background:linear-gradient(135deg,#0f2040,#0a1a36);border:2px solid rgba(170,0,255,.5);border-radius:20px;border-bottom-right-radius:6px;padding:18px 20px;box-shadow:0 10px 40px rgba(0,0,0,.5);display:none;animation:popIn .3s ease;}
+  .kaiser-bubble.open{display:block;}
+  .kaiser-head{display:flex;align-items:center;gap:9px;margin-bottom:9px;}
+  .kaiser-ava{font-size:1.6rem;}
+  .kaiser-who{font-family:'Fredoka One',cursive;color:#d580ff;font-size:.95rem;}
+  .kaiser-who small{display:block;color:rgba(255,255,255,.4);font-family:'Nunito';font-weight:700;font-size:.68rem;letter-spacing:.04em;}
+  .kaiser-x{margin-left:auto;background:none;border:none;color:rgba(255,255,255,.4);font-size:1.2rem;cursor:pointer;line-height:1;}
+  .kaiser-txt{font-size:.92rem;font-weight:600;line-height:1.6;color:rgba(255,255,255,.85);}
+  .kaiser-txt b{color:var(--yellow);}
+
+  /* ===== STICKERS & ANIMATIONS ===== */
+  .sticker-pop{position:fixed;top:36%;left:50%;font-family:'Fredoka One',cursive;font-size:clamp(2.4rem,9vw,5rem);z-index:998;pointer-events:none;text-shadow:0 4px 0 rgba(0,0,0,.25),0 0 30px currentColor;animation:stickerPop 1.4s cubic-bezier(.2,1.4,.4,1) forwards;}
+  @keyframes stickerPop{
+    0%{transform:translate(-50%,-50%) scale(0) rotate(-18deg);opacity:0}
+    22%{transform:translate(-50%,-50%) scale(1.2) rotate(7deg);opacity:1}
+    65%{transform:translate(-50%,-55%) scale(1) rotate(-3deg);opacity:1}
+    100%{transform:translate(-50%,-95%) scale(.85) rotate(2deg);opacity:0}
+  }
+  /* bandeau de texte qui défile */
+  .marquee{width:100%;overflow:hidden;white-space:nowrap;background:linear-gradient(90deg,rgba(170,0,255,.22),rgba(41,121,255,.22));border:1px solid rgba(255,255,255,.12);border-radius:50px;margin-bottom:26px;}
+  .marquee div{display:inline-block;padding:9px 0;font-family:'Fredoka One',cursive;font-size:.85rem;color:var(--yellow);animation:scrollLeft 26s linear infinite;}
+  @keyframes scrollLeft{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+  .marquee:hover div{animation-play-state:paused;}
+
+  @media(max-width:768px){
+    nav{padding:10px 16px;} .nav-score{font-size:.78rem;gap:10px;}
+    .wrap{padding:80px 14px 40px;}
+    .kaiser-fab{width:56px;height:56px;font-size:1.7rem;bottom:16px;right:16px;}
+    .kaiser-bubble{bottom:82px;right:16px;}
+  }
+</style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+
+<nav>
+  <div class="nav-logo" onclick="goHome()">🏗️ REGUL ARENA KIDS</div>
+  <div class="nav-score">
+    <span id="nav-stars">⭐ 0</span>
+    <span id="nav-badges">🏅 0</span>
+    <div class="nav-free">100% GRATUIT</div>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- Bandeau défilant -->
+  <div class="marquee"><div id="marquee-txt">⭐ Apprends en t'amusant &nbsp;·&nbsp; 🏅 Gagne des badges &nbsp;·&nbsp; 💪 KAISER t'encourage &nbsp;·&nbsp; 🎉 100% gratuit &nbsp;·&nbsp; 🚀 De 6 à 15 ans &nbsp;·&nbsp; ❤️ Offert par REGUL ARENA &nbsp;·&nbsp; ⭐ Apprends en t'amusant &nbsp;·&nbsp; 🏅 Gagne des badges &nbsp;·&nbsp; 💪 KAISER t'encourage &nbsp;·&nbsp; 🎉 100% gratuit &nbsp;·&nbsp; 🚀 De 6 à 15 ans &nbsp;·&nbsp; ❤️ Offert par REGUL ARENA &nbsp;·&nbsp;</div></div>
+
+
+  <!-- ===== HOME ===== -->
+  <div id="home">
+    <section class="hero">
+      <div class="hero-badge">🎁 Offert par la communauté REGUL ARENA</div>
+      <h1>Apprendre en <span class="y">s'amusant</span>,<br>de <span class="g">6</span> à <span class="b">15 ans</span> !</h1>
+      <p class="hero-sub">Maths, Français, Sciences, Logique, Codage et Culture. Des centaines de défis, des badges à gagner, et c'est <b style="color:var(--green)">totalement gratuit</b>. Aucune inscription, aucun paiement.</p>
+      <div class="kid-row">
+        <div class="kid-av">🦁</div><div class="kid-av">🐘</div><div class="kid-av">🦒</div><div class="kid-av">🐢</div><div class="kid-av">🦜</div>
+      </div>
+    </section>
+
+    <h2 class="section-title" style="margin-top:30px">1. Choisis ton âge 👦👧</h2>
+    <p class="section-sub">Les questions s'adaptent au niveau de l'enfant.</p>
+    <div class="age-grid">
+      <div class="age-card sel" data-age="petits" onclick="pickAge('petits',this)">
+        <div class="age-emoji">🐣</div><div class="age-name">Les Petits</div><div class="age-range">6 – 8 ans</div>
+      </div>
+      <div class="age-card" data-age="moyens" onclick="pickAge('moyens',this)">
+        <div class="age-emoji">🚀</div><div class="age-name">Les Moyens</div><div class="age-range">9 – 11 ans</div>
+      </div>
+      <div class="age-card" data-age="grands" onclick="pickAge('grands',this)">
+        <div class="age-emoji">🧠</div><div class="age-name">Les Grands</div><div class="age-range">12 – 15 ans</div>
+      </div>
+    </div>
+
+    <h2 class="section-title" style="margin-top:40px">2. Choisis une matière 📚</h2>
+    <p class="section-sub" id="age-hint">Niveau sélectionné : <b style="color:var(--yellow)">Les Petits (6–8 ans)</b></p>
+    <div class="subj-grid" id="subj-grid"></div>
+
+    <!-- BADGES -->
+    <div class="badges-strip">
+      <h2 class="section-title" style="font-size:1.4rem;margin-bottom:0">🏅 Mes Badges</h2>
+      <p class="section-sub" style="margin-bottom:0">Gagne 80% ou plus à un quiz pour débloquer son badge !</p>
+      <div class="badges-grid" id="badges-grid"></div>
+    </div>
+
+    <!-- PARENT NOTE -->
+    <div class="parent-note">
+      <h3>👨‍👩‍👧 Un mot pour les parents</h3>
+      <p>Cette plateforme est un cadeau gratuit de la communauté <b style="color:var(--yellow)">REGUL ARENA</b> pour occuper intelligemment les enfants pendant les vacances. Pas de pub, pas d'achat, pas de collecte de données : tout fonctionne sur l'appareil de votre enfant. Vous pouvez l'utiliser hors-ligne une fois la page ouverte. Partagez-la librement autour de vous : <a href="#" onclick="shareApp();return false;">📲 Partager à un autre parent</a></p>
+    </div>
+  </div>
+
+  <!-- ===== QUIZ ===== -->
+  <div id="quiz" class="quiz-wrap">
+    <div class="quiz-top">
+      <button class="back-btn" onclick="goHome()">← Retour</button>
+      <div class="progress-bg"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="q-count" id="q-count">1/10</div>
+    </div>
+    <div class="quiz-card" id="quiz-card"></div>
+  </div>
+
+  <!-- ===== RESULT ===== -->
+  <div id="result" class="result-card"></div>
+
+  <!-- ===== ROBOT ===== -->
+  <div id="robot" class="robot-game hidden">
+    <button class="back-btn" onclick="goHome()" style="margin-bottom:20px">← Retour</button>
+    <div class="box">
+      <div class="robot-big">🤖</div>
+      <div class="robot-bubble" id="robot-msg"><b>BIP... BOUB... ALERTE !</b> Je suis Alpha-7, un robot explorateur. Un virus a effacé ma mémoire ! Réponds aux missions de logique pour recharger mon énergie et m'aider à sortir de l'Arène. 🚀</div>
+      <div class="energy-bg"><div class="energy-fill" id="energy-fill"></div></div>
+      <div style="font-size:.8rem;font-weight:800;color:rgba(255,255,255,.45);margin-bottom:18px">Énergie d'Alpha-7 : <span id="energy-pct">20</span>%</div>
+      <div id="robot-quiz"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ===== ONBOARDING : KAISER demande le prénom ===== -->
+<div class="onb-overlay" id="onb">
+  <div class="onb-card">
+    <div class="onb-robot">🤖</div>
+    <div class="onb-name">KAISER · ton guide</div>
+    <div class="onb-bubble">Salut, moi c'est <b>KAISER</b> ! 🚀 Je vais t'accompagner dans toutes tes aventures. Mais d'abord… <b>comment tu t'appelles ?</b></div>
+    <div class="onb-field">
+      <label>Mon prénom</label>
+      <input type="text" id="onb-prenom" placeholder="Ex : Awa, Moussa, Fatou…" maxlength="20" onkeydown="if(event.key==='Enter')finishOnb()">
+    </div>
+    <div class="onb-field">
+      <label>Mon nom (facultatif)</label>
+      <input type="text" id="onb-nom" placeholder="Ex : NDAO" maxlength="24" onkeydown="if(event.key==='Enter')finishOnb()">
+    </div>
+    <button class="onb-go" onclick="finishOnb()">C'est parti ! 🎉</button>
+  </div>
+</div>
+
+<!-- ===== AGENT KAISER FLOTTANT ===== -->
+<button class="kaiser-fab" id="kaiser-fab" onclick="toggleKaiser()" title="Parler à KAISER">🤖<span class="ping" id="kaiser-ping"></span></button>
+<div class="kaiser-bubble" id="kaiser-bubble">
+  <div class="kaiser-head">
+    <span class="kaiser-ava">🤖</span>
+    <span class="kaiser-who">KAISER<small>TON GUIDE IA</small></span>
+    <button class="kaiser-x" id="kaiser-mute" onclick="toggleMute(event)" title="Activer / couper la voix" style="margin-left:auto;margin-right:4px">🔊</button>
+    <button class="kaiser-x" onclick="toggleKaiser()" style="margin-left:0">×</button>
+  </div>
+  <div class="kaiser-txt" id="kaiser-txt"></div>
+</div>
+
+<footer>
+  🏗️ <b>REGUL ARENA KIDS</b> — Le Club des Bâtisseurs · 100% gratuit, sans pub, sans inscription.<br>
+  Un cadeau de la communauté REGUL ARENA pour les familles. © 2026
+</footer>
+
+<script>
+/* ============================================================
+   REGUL ARENA KIDS — moteur de quiz éducatif gratuit
+   Contenu 6–15 ans · 6 matières × 3 niveaux · + jeu robot
+   ============================================================ */
+
+/* ---------- BANQUE DE QUESTIONS ---------- */
+/* a = index de la bonne réponse (0-based) */
+const SUBJECTS = [
+  {id:'maths',   name:'Maths',            icon:'🔢', cls:'c-green',  desc:"Calcul, nombres, formes et défis chronométrés."},
+  {id:'francais',name:'Français',         icon:'📖', cls:'c-blue',   desc:"Lecture, vocabulaire, orthographe et grammaire."},
+  {id:'sciences',name:'Sciences & Nature',icon:'🔬', cls:'c-teal',   desc:"Le corps, les animaux, l'espace et la planète."},
+  {id:'logique', name:'Logique & Énigmes',icon:'🧩', cls:'c-orange', desc:"Suites, devinettes et casse-têtes malins."},
+  {id:'culture', name:'Culture & Sénégal',icon:'🌍', cls:'c-pink',   desc:"Géographie, drapeaux, histoire et le Sénégal."},
+  {id:'robot',   name:'Code & Robot',     icon:'💻', cls:'c-purple', desc:"Logique de programmation avec Alpha-7 le robot."}
+];
+
+const MATH_GEN = true; // les maths utilisent un générateur infini
+
+const BANK = {
+  /* ====================== MATHS (généré + base) ====================== */
+  maths:{
+    petits:[], moyens:[], grands:[] // remplis par le générateur
+  },
+
+  /* ====================== FRANÇAIS ====================== */
+  francais:{
+    petits:[
+      {q:"Quelle lettre vient après le 'A' ?",o:["B","C","Z","E"],a:0,e:"L'alphabet commence par A, <b>B</b>, C, D..."},
+      {q:"Combien de syllabes dans le mot « BA-NA-NE » ?",o:["1","2","3","4"],a:2,e:"BA-NA-NE = <b>3</b> syllabes."},
+      {q:"Quel mot désigne un animal ?",o:["Table","Chat","Bleu","Courir"],a:1,e:"Le <b>chat</b> est un animal. Les autres sont un objet, une couleur et une action."},
+      {q:"Le contraire de « grand » est :",o:["Haut","Petit","Long","Fort"],a:1,e:"Le contraire de grand est <b>petit</b>."},
+      {q:"On écrit : « Je ___ à l'école. »",o:["va","vas","vais","vont"],a:2,e:"Avec « je », on écrit <b>je vais</b>."},
+      {q:"Quel mot commence par la lettre 'S' ?",o:["Lune","Soleil","Arbre","Eau"],a:1,e:"<b>Soleil</b> commence par S."},
+      {q:"Le pluriel de « un chien » est :",o:["des chien","des chiens","un chiens","les chien"],a:1,e:"On ajoute un <b>s</b> : des chiens."},
+      {q:"Quel signe termine une question ?",o:[". (point)","! (exclamation)","? (interrogation)",", (virgule)"],a:2,e:"Une question se termine par <b>?</b>"},
+      {q:"« Maman » est :",o:["Un verbe","Un nom","Une couleur","Un nombre"],a:1,e:"Maman est un <b>nom</b> (une personne)."},
+      {q:"Combien de voyelles dans « ÉCOLE » ? (a,e,i,o,u,y)",o:["1","2","3","4"],a:2,e:"É, O, E = <b>3</b> voyelles."}
+    ],
+    moyens:[
+      {q:"Quel est le féminin de « acteur » ?",o:["acteuse","actrice","acteure","actrisse"],a:1,e:"Le féminin d'acteur est <b>actrice</b>."},
+      {q:"« Ils ___ au parc hier. » (verbe aller, passé composé)",o:["sont allés","ont allé","sont aller","vont"],a:0,e:"Avec « être » : ils <b>sont allés</b>."},
+      {q:"Quel mot est un adjectif ?",o:["Courir","Rapidement","Rapide","Course"],a:2,e:"<b>Rapide</b> qualifie un nom : c'est un adjectif."},
+      {q:"Le synonyme de « content » est :",o:["Triste","Heureux","Fatigué","Méchant"],a:1,e:"Content = <b>heureux</b>."},
+      {q:"Combien de temps a le verbe au présent : « nous mangeons » ?",o:["Passé","Présent","Futur","Conditionnel"],a:1,e:"C'est le <b>présent</b> de l'indicatif."},
+      {q:"Quel est l'homophone correct : « Il ___ content. »",o:["est","et","ai","es"],a:0,e:"« est » = verbe être (il est). <b>est</b>."},
+      {q:"Le contraire de « commencer » :",o:["Débuter","Finir","Continuer","Ouvrir"],a:1,e:"Le contraire de commencer est <b>finir</b>."},
+      {q:"Dans « le grand lion », quel est le nom ?",o:["le","grand","lion","aucun"],a:2,e:"Le nom est <b>lion</b> ; « grand » est l'adjectif."},
+      {q:"Quel mot s'écrit sans faute ?",o:["aujourdui","aujourd'hui","aujourdhui","ojourdui"],a:1,e:"On écrit <b>aujourd'hui</b> avec une apostrophe."},
+      {q:"Le pluriel de « un cheval » est :",o:["des chevals","des chevaux","des chevales","des cheval"],a:1,e:"Cheval → <b>chevaux</b> (pluriel irrégulier)."}
+    ],
+    grands:[
+      {q:"Quelle figure de style est : « Il pleut des cordes » ?",o:["Métaphore","Hyperbole","Comparaison","Personnification"],a:1,e:"C'est une <b>hyperbole</b> (exagération)."},
+      {q:"« Que je sois » est au mode :",o:["Indicatif","Subjonctif","Impératif","Conditionnel"],a:1,e:"C'est le <b>subjonctif</b> présent."},
+      {q:"Le COD dans « Je lis un livre » est :",o:["Je","lis","un livre","aucun"],a:2,e:"« un livre » répond à « je lis quoi ? » : c'est le <b>COD</b>."},
+      {q:"Un texte qui raconte une histoire est :",o:["Argumentatif","Narratif","Descriptif","Injonctif"],a:1,e:"Raconter = texte <b>narratif</b>."},
+      {q:"Le participe passé : « Les fleurs que j'ai ___ »",o:["cueilli","cueillie","cueillies","cueillis"],a:2,e:"Accord avec « fleurs » (COD avant) : <b>cueillies</b>."},
+      {q:"« Antonyme » signifie :",o:["Même sens","Sens contraire","Même son","Même orthographe"],a:1,e:"Un antonyme a le <b>sens contraire</b>."},
+      {q:"Quel connecteur exprime la cause ?",o:["Donc","Parce que","Cependant","Ensuite"],a:1,e:"<b>Parce que</b> introduit une cause."},
+      {q:"Une métaphore, contrairement à la comparaison, n'a pas :",o:["De sujet","De mot de comparaison (comme)","De verbe","De sens"],a:1,e:"La métaphore n'utilise pas <b>« comme »</b>."},
+      {q:"« Nous aurions chanté » est au :",o:["Futur","Conditionnel passé","Subjonctif","Plus-que-parfait"],a:1,e:"C'est le <b>conditionnel passé</b>."},
+      {q:"Le registre de langue de « bouquin » est :",o:["Soutenu","Courant","Familier","Vulgaire"],a:2,e:"« Bouquin » est <b>familier</b> ; le mot courant est « livre »."}
+    ]
+  },
+
+  /* ====================== SCIENCES ====================== */
+  sciences:{
+    petits:[
+      {q:"De quelle couleur est le ciel par une belle journée ?",o:["Vert","Bleu","Rouge","Noir"],a:1,e:"Le ciel est <b>bleu</b> le jour."},
+      {q:"Quel animal fait « Miaou » ?",o:["Le chien","Le chat","La vache","Le coq"],a:1,e:"Le <b>chat</b> fait miaou."},
+      {q:"Combien de pattes a une araignée ?",o:["4","6","8","10"],a:2,e:"Une araignée a <b>8</b> pattes."},
+      {q:"Que faut-il pour qu'une plante pousse ?",o:["Du chocolat","De l'eau et du soleil","Du sable","Du froid"],a:1,e:"Une plante a besoin d'<b>eau et de soleil</b>."},
+      {q:"L'eau gèle quand il fait :",o:["Très chaud","Très froid","Du vent","Du soleil"],a:1,e:"L'eau devient glace quand il fait <b>très froid</b>."},
+      {q:"Quel organe sert à voir ?",o:["L'oreille","Le nez","L'œil","La main"],a:2,e:"On voit avec les <b>yeux</b>."},
+      {q:"Le bébé de la vache s'appelle :",o:["Le poulain","Le veau","L'agneau","Le poussin"],a:1,e:"Le bébé de la vache est le <b>veau</b>."},
+      {q:"Le soleil se lève le :",o:["Soir","Matin","Midi","Jamais"],a:1,e:"Le soleil se lève le <b>matin</b>."},
+      {q:"Quel animal vit dans l'eau ?",o:["Le lion","Le poisson","L'oiseau","Le mouton"],a:1,e:"Le <b>poisson</b> vit dans l'eau."},
+      {q:"Combien de saisons y a-t-il dans une année ?",o:["2","3","4","5"],a:2,e:"Il y a <b>4</b> saisons."}
+    ],
+    moyens:[
+      {q:"Quelle planète habitons-nous ?",o:["Mars","La Terre","Jupiter","La Lune"],a:1,e:"Nous vivons sur la <b>Terre</b>."},
+      {q:"Que respirent les humains pour vivre ?",o:["L'azote","L'oxygène","Le CO2","L'hélium"],a:1,e:"On respire l'<b>oxygène</b>."},
+      {q:"L'étape où l'eau devient vapeur s'appelle :",o:["La fonte","L'évaporation","La condensation","La pluie"],a:1,e:"L'eau qui chauffe s'<b>évapore</b>."},
+      {q:"Combien d'os a (environ) le corps humain adulte ?",o:["50","106","206","500"],a:2,e:"Un adulte a environ <b>206</b> os."},
+      {q:"Quel organe pompe le sang ?",o:["Le poumon","Le cœur","Le foie","L'estomac"],a:1,e:"Le <b>cœur</b> pompe le sang."},
+      {q:"Les animaux qui mangent seulement des plantes sont :",o:["Carnivores","Herbivores","Omnivores","Insectivores"],a:1,e:"Mangeurs de plantes = <b>herbivores</b>."},
+      {q:"La force qui nous attire vers le sol est :",o:["Le vent","La gravité","La lumière","Le magnétisme"],a:1,e:"C'est la <b>gravité</b>."},
+      {q:"Le papillon était avant une :",o:["Fourmi","Chenille","Mouche","Abeille"],a:1,e:"Le papillon vient d'une <b>chenille</b>."},
+      {q:"Combien de planètes dans notre système solaire ?",o:["6","7","8","9"],a:2,e:"Il y a <b>8</b> planètes."},
+      {q:"L'eau est composée d'hydrogène et de :",o:["Carbone","Oxygène","Fer","Sel"],a:1,e:"L'eau = H₂O : hydrogène + <b>oxygène</b>."}
+    ],
+    grands:[
+      {q:"La photosynthèse produit de l'oxygène et :",o:["Du sucre (glucose)","Du sel","Du fer","De l'azote"],a:0,e:"Les plantes fabriquent du <b>glucose</b> et rejettent de l'oxygène."},
+      {q:"Quelle est l'unité de la force ?",o:["Le joule","Le watt","Le newton","Le volt"],a:2,e:"La force se mesure en <b>newtons</b> (N)."},
+      {q:"L'ADN se trouve dans :",o:["Les muscles seulement","Le noyau des cellules","Le sang seulement","Les os"],a:1,e:"L'ADN est dans le <b>noyau</b> de chaque cellule."},
+      {q:"La vitesse de la lumière est d'environ :",o:["300 km/h","3 000 km/s","300 000 km/s","30 km/s"],a:2,e:"≈ <b>300 000 km/s</b>."},
+      {q:"Un atome est composé de protons, neutrons et :",o:["Photons","Électrons","Molécules","Cellules"],a:1,e:"Les <b>électrons</b> tournent autour du noyau."},
+      {q:"Le gaz responsable de l'effet de serre le plus connu :",o:["Oxygène","Dioxyde de carbone (CO₂)","Azote","Hélium"],a:1,e:"Le <b>CO₂</b> est un gaz à effet de serre."},
+      {q:"La cellule sans noyau (bactérie) est dite :",o:["Eucaryote","Procaryote","Végétale","Animale"],a:1,e:"Une bactérie est <b>procaryote</b>."},
+      {q:"Sur quelle échelle mesure-t-on les séismes ?",o:["Celsius","Richter","Décibel","Newton"],a:1,e:"L'échelle de <b>Richter</b> mesure la magnitude."},
+      {q:"L'organe de l'appareil respiratoire est :",o:["Le rein","Le poumon","Le foie","La rate"],a:1,e:"Le <b>poumon</b> sert à respirer."},
+      {q:"Le changement d'un gaz en liquide s'appelle :",o:["Évaporation","Condensation","Sublimation","Fusion"],a:1,e:"Gaz → liquide = <b>condensation</b>."}
+    ]
+  },
+
+  /* ====================== LOGIQUE ====================== */
+  logique:{
+    petits:[
+      {q:"Quelle forme a 3 côtés ?",o:["Carré","Triangle","Cercle","Rectangle"],a:1,e:"Le <b>triangle</b> a 3 côtés."},
+      {q:"Suite : 2, 4, 6, ... ?",o:["7","8","9","10"],a:1,e:"On ajoute 2 à chaque fois : <b>8</b>."},
+      {q:"Lequel est différent ?",o:["🍎","🍌","🚗","🍓"],a:2,e:"La <b>voiture</b> n'est pas un fruit."},
+      {q:"Si tu as 3 bonbons et on t'en donne 2, tu en as :",o:["4","5","6","2"],a:1,e:"3 + 2 = <b>5</b>."},
+      {q:"Quelle couleur obtient-on avec bleu + jaune ?",o:["Rouge","Vert","Orange","Violet"],a:1,e:"Bleu + jaune = <b>vert</b>."},
+      {q:"Suite des formes : 🔺🔵🔺🔵🔺 ... ?",o:["🔺","🔵","🟦","🟥"],a:1,e:"Ça alterne : après 🔺 vient <b>🔵</b>."},
+      {q:"Le matin vient avant :",o:["L'aube","Le midi","La nuit d'avant","Hier"],a:1,e:"Le matin vient avant le <b>midi</b>."},
+      {q:"Combien de doigts sur 2 mains ?",o:["5","8","10","12"],a:2,e:"5 + 5 = <b>10</b> doigts."},
+      {q:"Lequel est le plus lourd ?",o:["Une plume","Un éléphant","Une feuille","Un grain de riz"],a:1,e:"L'<b>éléphant</b> est le plus lourd."},
+      {q:"Suite : 🌑🌓🌕🌓 ... ?",o:["🌕","🌑","☀️","⭐"],a:1,e:"La lune décroît : après 🌓 vient <b>🌑</b>."}
+    ],
+    moyens:[
+      {q:"Suite : 1, 1, 2, 3, 5, 8, ... ?",o:["11","12","13","10"],a:2,e:"Fibonacci : 5+8 = <b>13</b>."},
+      {q:"J'ai des villes mais pas de maisons, des forêts mais pas d'arbres. Qui suis-je ?",o:["Un rêve","Une carte","Un livre","Un jeu"],a:1,e:"Une <b>carte</b> géographique !"},
+      {q:"Si 5 chats attrapent 5 souris en 5 min, combien de temps pour 100 chats et 100 souris ?",o:["100 min","5 min","20 min","50 min"],a:1,e:"Toujours <b>5 minutes</b> : chaque chat attrape sa souris."},
+      {q:"Suite : 3, 6, 12, 24, ... ?",o:["36","48","30","60"],a:1,e:"On multiplie par 2 : <b>48</b>."},
+      {q:"Quel nombre complète : 7 + ? = 15 ?",o:["6","7","8","9"],a:2,e:"15 − 7 = <b>8</b>."},
+      {q:"Plus on en enlève, plus il devient grand. Qu'est-ce ?",o:["Un gâteau","Un trou","Un ballon","Une bougie"],a:1,e:"Un <b>trou</b> : on creuse, il grandit."},
+      {q:"Lequel ne va pas avec les autres ?",o:["Lundi","Mardi","Janvier","Jeudi"],a:2,e:"<b>Janvier</b> est un mois, les autres des jours."},
+      {q:"Suite : A, C, E, G, ... ?",o:["H","I","J","F"],a:1,e:"On saute une lettre : après G vient <b>I</b>."},
+      {q:"Combien de fois le chiffre 1 apparaît de 1 à 20 ?",o:["10","11","12","13"],a:2,e:"1,10,11(×2),12..19 → <b>12</b> fois."},
+      {q:"Un fermier a 17 moutons, tous meurent sauf 9. Combien reste-t-il ?",o:["8","9","17","0"],a:1,e:"Il reste les <b>9</b> survivants."}
+    ],
+    grands:[
+      {q:"Suite : 2, 6, 12, 20, 30, ... ?",o:["40","42","36","48"],a:1,e:"Écarts +4,+6,+8,+10 → +12 = <b>42</b>."},
+      {q:"Si tous les Bloops sont des Razzies et certains Razzies sont des Lazzies, alors :",o:["Tous les Bloops sont Lazzies","Certains Bloops peuvent être Lazzies","Aucun Bloop n'est Lazzie","Tous les Lazzies sont Bloops"],a:1,e:"On ne peut conclure que <b>« certains peuvent »</b>."},
+      {q:"Quel nombre manque : 4, 9, 16, 25, ... ?",o:["30","36","35","49"],a:1,e:"Carrés : 2²,3²,4²,5² → 6² = <b>36</b>."},
+      {q:"Combien de carrés dans une grille 3×3 (de toutes tailles) ?",o:["9","12","14","16"],a:2,e:"9 (1×1) + 4 (2×2) + 1 (3×3) = <b>14</b>."},
+      {q:"Un train part de Dakar à 120 km/h. En 2h30, il parcourt :",o:["240 km","300 km","250 km","360 km"],a:1,e:"120 × 2,5 = <b>300 km</b>."},
+      {q:"Suite logique : O, T, T, F, F, S, S, E, ... ? (initiales en anglais)",o:["N","E","T","O"],a:0,e:"One,Two...Nine → <b>N</b> (Nine)."},
+      {q:"Si 3 = 18, 4 = 32, 5 = 50, alors 6 = ?",o:["60","66","72","68"],a:2,e:"n × n × 2 : 6×6×2 = <b>72</b>."},
+      {q:"Deux pères et deux fils partagent 3 oranges, chacun en a une. Comment ?",o:["Impossible","Grand-père, père, fils","Ils trichent","Ils coupent"],a:1,e:"3 personnes : <b>grand-père, père, fils</b> = 2 pères + 2 fils."},
+      {q:"Probabilité d'obtenir « pile » 2 fois de suite ?",o:["1/2","1/3","1/4","1/8"],a:2,e:"1/2 × 1/2 = <b>1/4</b>."},
+      {q:"Quel mot se lit pareil à l'envers ?",o:["Maison","Kayak","Voiture","Soleil"],a:1,e:"<b>KAYAK</b> est un palindrome."}
+    ]
+  },
+
+  /* ====================== CULTURE & SÉNÉGAL ====================== */
+  culture:{
+    petits:[
+      {q:"Quelle est la capitale du Sénégal ?",o:["Thiès","Dakar","Saint-Louis","Kaolack"],a:1,e:"La capitale du Sénégal est <b>Dakar</b>."},
+      {q:"Quelles couleurs a le drapeau du Sénégal ?",o:["Bleu blanc rouge","Vert jaune rouge","Noir blanc","Bleu jaune"],a:1,e:"Vert, jaune, rouge avec une étoile verte."},
+      {q:"Combien de continents y a-t-il ?",o:["3","5","7","10"],a:2,e:"Il y a <b>7</b> continents."},
+      {q:"Quel est le plat sénégalais le plus connu ?",o:["Pizza","Thiéboudienne","Sushi","Burger"],a:1,e:"Le <b>thiéboudienne</b> (riz au poisson)."},
+      {q:"L'animal symbole du Sénégal (équipe nationale) est :",o:["Le Lion","L'Éléphant","Le Lièvre","L'Aigle"],a:0,e:"Les <b>Lions</b> de la Téranga !"},
+      {q:"Quelle langue parle-t-on beaucoup au Sénégal ?",o:["Espagnol","Wolof","Chinois","Russe"],a:1,e:"On parle beaucoup le <b>wolof</b> (et le français)."},
+      {q:"L'océan à côté du Sénégal est l'océan :",o:["Pacifique","Atlantique","Indien","Arctique"],a:1,e:"L'océan <b>Atlantique</b>."},
+      {q:"Combien de jours dans une semaine ?",o:["5","6","7","8"],a:2,e:"Il y a <b>7</b> jours."},
+      {q:"Quel sport préfère beaucoup d'enfants au Sénégal ?",o:["Hockey","Football","Ski","Golf"],a:1,e:"Le <b>football</b> !"},
+      {q:"Sur quel continent se trouve le Sénégal ?",o:["Europe","Asie","Afrique","Amérique"],a:2,e:"Le Sénégal est en <b>Afrique</b>."}
+    ],
+    moyens:[
+      {q:"L'île historique près de Dakar est :",o:["Île de Gorée","Île de Ngor","Madeleine","Carabane"],a:0,e:"L'<b>île de Gorée</b>, classée à l'UNESCO."},
+      {q:"Le fleuve qui borde le nord du Sénégal :",o:["Le Nil","Le Sénégal","Le Niger","Le Congo"],a:1,e:"Le fleuve <b>Sénégal</b>."},
+      {q:"Combien de pays composent l'UEMOA ?",o:["5","8","12","15"],a:1,e:"L'UEMOA compte <b>8</b> pays."},
+      {q:"La monnaie utilisée au Sénégal est :",o:["L'euro","Le franc CFA","Le dollar","Le dirham"],a:1,e:"Le <b>franc CFA</b> (FCFA)."},
+      {q:"Le plus grand désert du monde est :",o:["Gobi","Le Sahara","Kalahari","Atacama"],a:1,e:"Le <b>Sahara</b>, au nord de l'Afrique."},
+      {q:"Quel monument symbolise Dakar ?",o:["Tour Eiffel","Monument de la Renaissance","Big Ben","Colisée"],a:1,e:"Le <b>Monument de la Renaissance africaine</b>."},
+      {q:"Capitale de la Côte d'Ivoire (politique) :",o:["Abidjan","Yamoussoukro","Bouaké","Korhogo"],a:1,e:"La capitale officielle est <b>Yamoussoukro</b>."},
+      {q:"Combien de couleurs sur un drapeau du Mali ?",o:["2","3","4","5"],a:1,e:"Vert, jaune, rouge : <b>3</b> couleurs."},
+      {q:"Le plus haut sommet d'Afrique est le :",o:["Mont Blanc","Kilimandjaro","Everest","Atlas"],a:1,e:"Le <b>Kilimandjaro</b> (Tanzanie)."},
+      {q:"La langue officielle administrative du Sénégal :",o:["Anglais","Français","Arabe","Portugais"],a:1,e:"Le <b>français</b> est la langue officielle."}
+    ],
+    grands:[
+      {q:"En quelle année le Sénégal est-il devenu indépendant ?",o:["1958","1960","1962","1965"],a:1,e:"L'indépendance date de <b>1960</b>."},
+      {q:"Le premier président du Sénégal était :",o:["Abdou Diouf","Léopold Sédar Senghor","Abdoulaye Wade","Macky Sall"],a:1,e:"<b>Léopold Sédar Senghor</b>, aussi grand poète."},
+      {q:"L'organisation de la zone monétaire ouest-africaine est :",o:["CEDEAO","UEMOA","SADC","COMESA"],a:1,e:"L'<b>UEMOA</b> (8 pays partageant le FCFA)."},
+      {q:"La banque centrale du Sénégal s'appelle :",o:["BCEAO","BEAC","FMI","BAD"],a:0,e:"La <b>BCEAO</b> émet le FCFA en zone UEMOA."},
+      {q:"Le mot « Téranga » signifie :",o:["Courage","Hospitalité","Force","Liberté"],a:1,e:"« Téranga » veut dire <b>hospitalité</b> en wolof."},
+      {q:"Combien d'États membres compte la CEDEAO (≈) ?",o:["8","12","15","20"],a:2,e:"Environ <b>15</b> États membres."},
+      {q:"Le détroit qui sépare l'Afrique de l'Europe :",o:["Bosphore","Gibraltar","Magellan","Béring"],a:1,e:"Le détroit de <b>Gibraltar</b>."},
+      {q:"Le fleuve le plus long du monde est :",o:["Le Nil","L'Amazone","Le Congo","Le Sénégal"],a:0,e:"Le <b>Nil</b> (l'Amazone est le plus puissant)."},
+      {q:"Quelle ville sénégalaise fut capitale de l'AOF ?",o:["Dakar","Saint-Louis","Thiès","Ziguinchor"],a:1,e:"<b>Saint-Louis</b> fut capitale de l'AOF."},
+      {q:"Le siège de l'Union africaine se trouve à :",o:["Le Caire","Addis-Abeba","Nairobi","Dakar"],a:1,e:"À <b>Addis-Abeba</b> (Éthiopie)."}
+    ]
+  },
+
+  /* ====================== CODE & ROBOT (quiz concepts) ====================== */
+  robot:{
+    petits:[
+      {q:"Un ordinateur comprend des instructions qu'on appelle :",o:["Des chansons","Du code","Des dessins","Des odeurs"],a:1,e:"On donne du <b>code</b> à l'ordinateur."},
+      {q:"Pour faire avancer un robot, on lui dit :",o:["« Dors »","« Avance »","« Mange »","« Chante »"],a:1,e:"On donne l'ordre <b>« avance »</b>."},
+      {q:"Répéter 3 fois « saute » fait :",o:["1 saut","3 sauts","0 saut","10 sauts"],a:1,e:"Répéter 3 fois = <b>3 sauts</b>."},
+      {q:"Si je dis « tourne à droite » puis « avance », le robot :",o:["Recule","Tourne puis avance","Saute","S'arrête"],a:1,e:"Il fait les ordres dans l'<b>ordre</b>."},
+      {q:"Un robot fait exactement :",o:["Ce qu'il veut","Ce qu'on lui dit","Rien","Le contraire"],a:1,e:"Le robot obéit à <b>ce qu'on programme</b>."},
+      {q:"Lequel est une couleur dans Scratch ? (blocs)",o:["Le son du chat","Un bloc bleu = mouvement","Le clavier","La souris"],a:1,e:"Les blocs <b>bleus</b> servent au mouvement."},
+      {q:"Pour démarrer un programme, on clique sur :",o:["Le drapeau vert","La croix rouge","L'étoile","La lune"],a:0,e:"Le <b>drapeau vert</b> lance le jeu."},
+      {q:"Mettre les étapes dans le bon ordre, ça s'appelle :",o:["Dessiner","Un algorithme","Manger","Dormir"],a:1,e:"Une suite d'étapes = un <b>algorithme</b>."},
+      {q:"Si le robot rencontre un mur, un bon ordre est :",o:["Continuer tout droit","Tourner","Exploser","Crier"],a:1,e:"Il faut <b>tourner</b> pour l'éviter."},
+      {q:"Un bug, c'est :",o:["Un cadeau","Une erreur dans le code","Une couleur","Un robot"],a:1,e:"Un bug est une <b>erreur</b> à corriger."}
+    ],
+    moyens:[
+      {q:"Une « boucle » sert à :",o:["Arrêter le code","Répéter des actions","Effacer","Colorier"],a:1,e:"La <b>boucle</b> répète des instructions."},
+      {q:"« SI il pleut ALORS prends un parapluie » est :",o:["Une boucle","Une condition","Une variable","Un bug"],a:1,e:"C'est une <b>condition</b> (si...alors)."},
+      {q:"Une variable sert à :",o:["Garder une valeur en mémoire","Dessiner","Éteindre","Ralentir"],a:0,e:"Une <b>variable</b> stocke une donnée (ex: le score)."},
+      {q:"Combien de fois s'exécute : « répéter 5 fois [avance] » ?",o:["1","3","5","10"],a:2,e:"<b>5</b> fois."},
+      {q:"Le langage des blocs colorés pour enfants est :",o:["Python","Scratch","Java","HTML"],a:1,e:"<b>Scratch</b> utilise des blocs."},
+      {q:"Pour additionner score + 1 à chaque point, on modifie :",o:["Une boucle","Une variable","Une couleur","Le son"],a:1,e:"On change la <b>variable</b> score."},
+      {q:"Un robot suiveur de ligne lit le sol grâce à un :",o:["Haut-parleur","Capteur","Moteur","Écran"],a:1,e:"Un <b>capteur</b> détecte la ligne."},
+      {q:"« 0 et 1 » est le langage :",o:["Décimal","Binaire","Romain","Secret"],a:1,e:"L'ordinateur parle en <b>binaire</b> (0/1)."},
+      {q:"Tester son programme et corriger les erreurs s'appelle :",o:["Coder","Débugger","Imprimer","Dessiner"],a:1,e:"Corriger = <b>débugger</b>."},
+      {q:"Pour qu'un robot s'arrête avant le mur, on utilise une condition :",o:["SI distance petite ALORS stop","Répéter à l'infini avancer","Augmenter la vitesse","Aucune"],a:0,e:"<b>SI</b> le capteur voit le mur, <b>ALORS</b> stop."}
+    ],
+    grands:[
+      {q:"En Python, comment afficher un texte ?",o:["echo()","print()","say()","write()"],a:1,e:"On utilise <b>print(\"...\")</b>."},
+      {q:"Une « fonction » sert à :",o:["Ralentir","Réutiliser un bloc de code","Effacer","Colorier"],a:1,e:"Une <b>fonction</b> regroupe du code réutilisable."},
+      {q:"Que vaut 7 % 2 (modulo, le reste) ?",o:["0","1","3","2"],a:1,e:"7 ÷ 2 = 3 reste <b>1</b>."},
+      {q:"Une liste [10,20,30], l'élément d'index 0 est :",o:["10","20","30","0"],a:0,e:"En programmation on compte à partir de <b>0</b> : index 0 = 10."},
+      {q:"« while score < 10 » est une boucle :",o:["Définie (for)","Conditionnelle (tant que)","Infinie obligatoire","Inutile"],a:1,e:"<b>while</b> = tant que la condition est vraie."},
+      {q:"Le « bug » du an 2000 concernait :",o:["Les couleurs","Le stockage des dates","Le son","Les robots"],a:1,e:"Les <b>dates</b> stockées sur 2 chiffres."},
+      {q:"HTML sert à :",o:["Faire des calculs","Structurer une page web","Jouer du son","Piloter un moteur"],a:1,e:"<b>HTML</b> structure les pages web."},
+      {q:"Un algorithme de tri sert à :",o:["Effacer","Ranger des données dans l'ordre","Colorier","Ralentir"],a:1,e:"<b>Trier</b> = ranger (ex: du plus petit au plus grand)."},
+      {q:"Que fait : x = 5 ; x = x + 3 ; ?",o:["x vaut 5","x vaut 3","x vaut 8","Erreur"],a:2,e:"5 + 3 = <b>8</b>."},
+      {q:"L'intelligence artificielle apprend grâce à :",o:["La magie","Des données et des exemples","Le hasard seul","Rien"],a:1,e:"Une IA apprend de <b>données</b> et d'exemples."}
+    ]
+  }
+};
+
+/* ---------- GÉNÉRATEUR DE MATHS (questions infinies) ---------- */
+function rnd(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+function genMath(level){
+  let a,b,op,res,q,e;
+  if(level==='petits'){
+    const t=rnd(0,2);
+    if(t===0){a=rnd(1,10);b=rnd(1,10);res=a+b;q=`${a} + ${b} = ?`;e=`${a} + ${b} = <b>${res}</b>.`;}
+    else if(t===1){a=rnd(5,15);b=rnd(1,a);res=a-b;q=`${a} − ${b} = ?`;e=`${a} − ${b} = <b>${res}</b>.`;}
+    else{a=rnd(1,5);b=rnd(1,5);res=a*b;q=`${a} × ${b} = ?`;e=`${a} × ${b} = <b>${res}</b>.`;}
+  } else if(level==='moyens'){
+    const t=rnd(0,3);
+    if(t===0){a=rnd(2,12);b=rnd(2,12);res=a*b;q=`${a} × ${b} = ?`;e=`Table : <b>${res}</b>.`;}
+    else if(t===1){a=rnd(20,99);b=rnd(10,50);res=a+b;q=`${a} + ${b} = ?`;e=`= <b>${res}</b>.`;}
+    else if(t===2){b=rnd(2,9);res=rnd(2,12);a=b*res;q=`${a} ÷ ${b} = ?`;e=`${a} ÷ ${b} = <b>${res}</b>.`;}
+    else{a=rnd(30,99);b=rnd(10,a);res=a-b;q=`${a} − ${b} = ?`;e=`= <b>${res}</b>.`;}
+  } else { // grands
+    const t=rnd(0,4);
+    if(t===0){a=rnd(11,25);b=rnd(11,25);res=a*b;q=`${a} × ${b} = ?`;e=`= <b>${res}</b>.`;}
+    else if(t===1){a=rnd(2,12);res=a*a;q=`${a}² = ?`;e=`${a}×${a} = <b>${res}</b>.`;}
+    else if(t===2){res=rnd(3,15);a=res*res;q=`√${a} = ? (racine carrée)`;e=`√${a} = <b>${res}</b>.`;}
+    else if(t===3){a=rnd(40,90);res=Math.round(a*10/100*10)/10; q=`10% de ${a} = ?`; res=a/10; e=`10% = ÷10 = <b>${res}</b>.`;}
+    else{a=rnd(100,500);b=rnd(10,90);res=a-b;q=`${a} − ${b} = ?`;e=`= <b>${res}</b>.`;}
+  }
+  // fabrique 4 options
+  let opts=new Set([res]);
+  while(opts.size<4){opts.add(res+rnd(-6,6)*(rnd(0,1)?1:1) + (rnd(0,1)?rnd(1,3):-rnd(1,3)));}
+  let arr=[...opts].slice(0,4);
+  // garantir res présent
+  if(!arr.includes(res)){arr[0]=res;}
+  // mélange
+  arr.sort(()=>Math.random()-.5);
+  return {q,o:arr.map(String),a:arr.indexOf(res),e};
+}
+
+/* ---------- BADGES ---------- */
+const BADGE_DEFS=[
+  {id:'maths',ic:'🔢',lbl:'Pro des Maths'},
+  {id:'francais',ic:'📖',lbl:'As du Français'},
+  {id:'sciences',ic:'🔬',lbl:'Petit Savant'},
+  {id:'logique',ic:'🧩',lbl:'Génie Logique'},
+  {id:'culture',ic:'🌍',lbl:'Explorateur'},
+  {id:'robot',ic:'🤖',lbl:'Codeur'},
+  {id:'streak',ic:'🔥',lbl:'5 sans faute'},
+  {id:'master',ic:'👑',lbl:'Maître Bâtisseur'}
+];
+
+/* ---------- ÉTAT ---------- */
+let state = {age:'petits', stars:0, badges:[], prenom:'', nom:'', mute:false};
+try{
+  const s=localStorage.getItem('rakids');
+  if(s){const p=JSON.parse(s); state.stars=p.stars||0; state.badges=p.badges||[]; state.age=p.age||'petits'; state.prenom=p.prenom||''; state.nom=p.nom||''; state.mute=!!p.mute;}
+}catch(e){}
+function save(){try{localStorage.setItem('rakids',JSON.stringify(state));}catch(e){}}
+
+/* ---------- AUDIO ---------- */
+let AC=null;
+function beep(f,d,t){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain();o.type=t||'sine';o.frequency.value=f;o.connect(g);g.connect(AC.destination);g.gain.setValueAtTime(.18,AC.currentTime);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d);o.start();o.stop(AC.currentTime+d);}catch(e){}}
+function sndGood(){beep(660,.12);setTimeout(()=>beep(880,.18),110);}
+function sndBad(){beep(180,.25,'sawtooth');}
+function sndWin(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,.22),i*120));}
+
+/* ---------- VOIX DE KAISER (synthèse vocale, hors-ligne) ---------- */
+let frVoice=null;
+function loadVoices(){
+  try{
+    const v=window.speechSynthesis.getVoices();
+    const pref=['Google français','Microsoft Denise','Microsoft Henri','Amélie','Thomas','Audrey','Virginie','Hortense','Céline'];
+    frVoice = v.find(x=>/fr/i.test(x.lang)&&pref.some(n=>x.name.includes(n)))
+           || v.find(x=>/fr-FR/i.test(x.lang)&&/google/i.test(x.name))
+           || v.find(x=>/fr-FR/i.test(x.lang))
+           || v.find(x=>/^fr/i.test(x.lang)) || null;
+  }catch(e){}
+}
+if('speechSynthesis' in window){ loadVoices(); window.speechSynthesis.onvoiceschanged=loadVoices; }
+function speak(html){
+  if(state.mute || !('speechSynthesis' in window)) return;
+  let txt=(html||'').replace(/<[^>]+>/g,' ').replace(/[🎉🚀💪🏆🏅⭐👋🤖1️⃣2️⃣3️⃣👏🌟✨😊💡❤️🧨💯🥳]/g,'');
+  txt=txt.replace(/\s+/g,' ').replace(/ +([,.!?])/g,'$1').trim();
+  if(!txt) return;
+  try{
+    window.speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(txt);
+    u.lang='fr-FR'; u.rate=0.92; u.pitch=1.02; u.volume=1; if(frVoice)u.voice=frVoice;
+    window.speechSynthesis.speak(u);
+  }catch(e){}
+}
+function toggleMute(e){
+  if(e)e.stopPropagation();
+  state.mute=!state.mute; save();
+  document.getElementById('kaiser-mute').textContent=state.mute?'🔇':'🔊';
+  if(state.mute){try{window.speechSynthesis.cancel();}catch(e){}}
+  else{speak("La voix est de retour, "+(state.prenom||'champion')+" !");}
+}
+
+/* Phrases émotives de KAISER */
+const CHEER_OK=[
+  "Bravo {p}, c'est exact, je suis fier de toi !",
+  "Magnifique {p} ! Tu es vraiment doué !",
+  "Oui ! Excellente réponse {p}, continue comme ça !",
+  "Parfait {p} ! Ton cerveau brille comme une étoile !",
+  "Génial {p} ! Tu progresses à chaque question !"
+];
+const CHEER_NO=[
+  "Pas grave {p}, c'est en se trompant qu'on apprend. Regarde l'explication avec moi.",
+  "Courage {p} ! Une erreur, c'est juste une étape vers la réussite.",
+  "Ce n'est rien {p}, les plus grands savants se sont trompés mille fois. On continue !",
+  "Respire {p}, lis l'explication, et la prochaine sera la bonne, j'en suis sûr !"
+];
+const ADVICE=[
+  "Mon conseil : prends ton temps et lis bien chaque question avant de répondre.",
+  "Astuce de KAISER : si tu hésites, élimine d'abord les réponses impossibles.",
+  "Petit secret : joue un peu chaque jour, et tu deviendras imbattable !",
+  "N'oublie pas : le plus important n'est pas de gagner, mais d'apprendre en s'amusant.",
+  "Conseil d'ami : quand tu te trompes, relis l'explication, c'est là qu'on apprend le plus."
+];
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)].replace(/\{p\}/g,state.prenom||'champion');}
+
+
+/* ---------- CONFETTI ---------- */
+function confetti(){
+  const c=['#FFD600','#00C851','#2979FF','#AA00FF','#FF5A9D','#FF8C00'];
+  for(let i=0;i<70;i++){
+    const p=document.createElement('div');
+    p.style.cssText=`position:fixed;width:10px;height:10px;background:${c[i%c.length]};left:${Math.random()*100}vw;top:-12px;z-index:999;border-radius:2px;pointer-events:none;`;
+    document.body.appendChild(p);
+    const dur=2200+Math.random()*1500, x=(Math.random()-.5)*260;
+    p.animate([{transform:'translate(0,0) rotate(0)',opacity:1},{transform:`translate(${x}px,${window.innerHeight+40}px) rotate(${Math.random()*720}deg)`,opacity:0}],{duration:dur,easing:'cubic-bezier(.3,.6,.4,1)'});
+    setTimeout(()=>p.remove(),dur);
+  }
+}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
+
+/* ---------- STICKERS ANIMÉS ---------- */
+const STK_WORDS=['BRAVO !','SUPER !','GÉNIAL !','WAOUH !','TROP FORT !','BIM !','YESSS !','PARFAIT !'];
+const STK_COLS=['#FFD600','#00C851','#2979FF','#FF5A9D','#AA00FF','#FF8C00'];
+function popSticker(txt){
+  const el=document.createElement('div');
+  el.className='sticker-pop';
+  el.textContent=txt||STK_WORDS[Math.floor(Math.random()*STK_WORDS.length)];
+  el.style.color=STK_COLS[Math.floor(Math.random()*STK_COLS.length)];
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),1500);
+}
+function burstStickers(emos){
+  const E=emos||['🎉','👏','⭐','❤️','🧨','🌟','💯','🥳','✨'];
+  for(let i=0;i<16;i++){
+    const s=document.createElement('div');
+    s.textContent=E[Math.floor(Math.random()*E.length)];
+    s.style.cssText=`position:fixed;left:50%;top:42%;font-size:${1.3+Math.random()*1.5}rem;z-index:997;pointer-events:none;`;
+    document.body.appendChild(s);
+    const ang=Math.random()*Math.PI*2, dist=110+Math.random()*230;
+    const x=Math.cos(ang)*dist, y=Math.sin(ang)*dist-50;
+    s.animate([
+      {transform:'translate(-50%,-50%) scale(.4)',opacity:1},
+      {transform:`translate(${x}px,${y}px) scale(1.2) rotate(${(Math.random()-.5)*420}deg)`,opacity:0}
+    ],{duration:1100+Math.random()*800,easing:'cubic-bezier(.2,.7,.3,1)'});
+    setTimeout(()=>s.remove(),2000);
+  }
+}
+
+/* ---------- RENDU ---------- */
+function refreshHUD(){
+  document.getElementById('nav-stars').textContent='⭐ '+state.stars;
+  document.getElementById('nav-badges').textContent='🏅 '+state.badges.length;
+  renderBadges();
+}
+function renderBadges(){
+  const g=document.getElementById('badges-grid');
+  g.innerHTML=BADGE_DEFS.map(b=>`<div class="badge ${state.badges.includes(b.id)?'earned':''}"><div class="badge-ic">${b.ic}</div><div class="badge-lbl">${b.lbl}</div></div>`).join('');
+}
+function pickAge(age,el){
+  state.age=age;save();
+  document.querySelectorAll('.age-card').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  const names={petits:'Les Petits (6–8 ans)',moyens:'Les Moyens (9–11 ans)',grands:'Les Grands (12–15 ans)'};
+  document.getElementById('age-hint').innerHTML='Niveau sélectionné : <b style="color:var(--yellow)">'+names[age]+'</b>';
+  renderSubjects();
+}
+function renderSubjects(){
+  const g=document.getElementById('subj-grid');
+  g.innerHTML=SUBJECTS.map(s=>{
+    let count = s.id==='maths' ? '∞' : (BANK[s.id]?.[state.age]?.length||0)+'';
+    return `<div class="subj-card ${s.cls}" onclick="startSubject('${s.id}')">
+      <div class="subj-icon">${s.icon}</div>
+      <div class="subj-name">${s.name}</div>
+      <div class="subj-desc">${s.desc}</div>
+      <div class="subj-meta"><span>${count} défis</span><span class="subj-go">Jouer ▶</span></div>
+    </div>`;
+  }).join('');
+}
+
+/* ---------- QUIZ ENGINE ---------- */
+let quiz={subj:null,list:[],idx:0,score:0,streak:0,lastPct:0};
+let quizActive=false;
+function startSubject(subjId){
+  if(subjId==='robot' && Math.random()<.0){} // robot a aussi son quiz normal + mode mission
+  quiz.subj=subjId; quiz.idx=0; quiz.score=0; quiz.streak=0; quizActive=true;
+  if(subjId==='maths'){
+    quiz.list=Array.from({length:10},()=>genMath(state.age));
+  } else {
+    quiz.list=[...BANK[subjId][state.age]].sort(()=>Math.random()-.5).slice(0,10);
+  }
+  show('quiz'); renderQ();
+}
+function renderQ(){
+  const card=document.getElementById('quiz-card');
+  const q=quiz.list[quiz.idx];
+  const subj=SUBJECTS.find(s=>s.id===quiz.subj);
+  document.getElementById('q-count').textContent=(quiz.idx+1)+'/'+quiz.list.length;
+  document.getElementById('progress-fill').style.width=((quiz.idx)/quiz.list.length*100)+'%';
+  const letters=['A','B','C','D'];
+  card.innerHTML=`
+    <div class="q-tag">${subj.icon} ${subj.name}</div>
+    <div class="q-text">${q.q}</div>
+    <div class="opt-grid">
+      ${q.o.map((opt,i)=>`<button class="opt" onclick="answer(${i})"><span class="opt-letter">${letters[i]}</span>${opt}</button>`).join('')}
+    </div>
+    <div class="explain" id="explain">${q.e}</div>`;
+}
+function answer(i){
+  const q=quiz.list[quiz.idx];
+  const opts=document.querySelectorAll('.opt');
+  opts.forEach((o,j)=>{o.classList.add('disabled');if(j===q.a)o.classList.add('correct');});
+  const correct=(i===q.a);
+  if(correct){
+    opts[i].classList.add('correct');quiz.score++;quiz.streak++;sndGood();
+    speak(pick(CHEER_OK));popSticker();burstStickers();
+    if(quiz.streak===5){grantBadge('streak');}
+  }else{
+    opts[i].classList.add('wrong');quiz.streak=0;sndBad();speak(pick(CHEER_NO));
+    burstStickers(['💪','🌟','😊']);
+  }
+  document.getElementById('explain').classList.add('show');
+  // passage automatique à la question suivante
+  const at=quiz.idx;
+  const delay=correct?2000:3400;
+  setTimeout(()=>{ if(quizActive && quiz.idx===at){ nextQ(); } },delay);
+}
+function nextQ(){
+  quiz.idx++;
+  if(quiz.idx<quiz.list.length){renderQ();}
+  else{finishQuiz();}
+}
+function finishQuiz(){
+  quizActive=false;
+  const total=quiz.list.length, sc=quiz.score, pct=Math.round(sc/total*100);
+  quiz.lastPct=pct;
+  state.stars+=sc; save();
+  let stars,emoji,title,msg;
+  if(pct>=80){stars='⭐⭐⭐';emoji='🏆';title='Champion !';msg='Incroyable ! Tu maîtrises vraiment bien. Badge débloqué !';grantBadge(quiz.subj);sndWin();confetti();popSticker('CHAMPION !');burstStickers(['🎉','🧨','❤️','🏆','⭐','🥳']);setTimeout(()=>burstStickers(['🎉','🧨','💯']),500);}
+  else if(pct>=50){stars='⭐⭐';emoji='👍';title='Bien joué !';msg='Beau travail ! Recommence pour décrocher les 3 étoiles et le badge.';sndGood();}
+  else{stars='⭐';emoji='💪';title='Continue !';msg='Chaque essai te rend plus fort. Relis les explications et réessaie !';}
+  // master badge si tous les autres
+  const mainBadges=['maths','francais','sciences','logique','culture','robot'];
+  if(mainBadges.every(b=>state.badges.includes(b))) grantBadge('master');
+  refreshHUD();
+  const r=document.getElementById('result');
+  r.innerHTML=`
+    <div class="result-emoji">${emoji}</div>
+    <div class="result-title">${title}</div>
+    <div class="result-score" style="color:var(--yellow)">${sc} / ${total}</div>
+    <div class="result-stars">${stars}</div>
+    <div class="result-msg">${msg}<br>+${sc} ⭐ ajoutées à ton total !</div>
+    <div class="result-btns">
+      <button class="btn-pri" onclick="startSubject('${quiz.subj}')">🔄 Rejouer</button>
+      <button class="btn-sec" onclick="goHome()">🏠 Menu</button>
+    </div>`;
+  show('result');
+}
+function grantBadge(id){
+  if(!state.badges.includes(id)){
+    state.badges.push(id);save();
+    const def=BADGE_DEFS.find(b=>b.id===id);
+    if(def) toast('🏅 Badge gagné : '+def.lbl+' !');
+    confetti();
+  }
+}
+
+/* ---------- ROBOT MISSION (bonus dans Code & Robot) ---------- */
+/* le quiz robot suffit ; on garde le hub simple */
+
+/* ========== AGENT KAISER : onboarding + guide ========== */
+let lastScreen='home';
+function finishOnb(){
+  const p=document.getElementById('onb-prenom').value.trim();
+  const n=document.getElementById('onb-nom').value.trim();
+  if(!p){document.getElementById('onb-prenom').focus();document.getElementById('onb-prenom').style.borderColor='var(--red)';return;}
+  state.prenom=p.charAt(0).toUpperCase()+p.slice(1);
+  state.nom=n.toUpperCase();
+  save();
+  document.getElementById('onb').classList.remove('open');
+  sndWin();confetti();
+  personalize();
+  document.getElementById('kaiser-mute').textContent=state.mute?'🔇':'🔊';
+  lastScreen='home';
+  const hello=`Enchanté ${state.prenom} ! Moi c'est KAISER, ton guide. Je serai toujours là pour t'aider, t'encourager et te féliciter. Voici comment jouer : d'abord tu choisis ton âge, ensuite une matière, puis tu réponds aux questions pour gagner des étoiles et des badges. Clique sur moi quand tu veux. On y va !`;
+  document.getElementById('kaiser-txt').innerHTML=`Enchanté <b>${state.prenom}</b> ! 🎉 Moi c'est <b>KAISER</b>, ton guide. Je serai toujours là pour t'<b>aider</b>, t'<b>encourager</b> et te <b>féliciter</b> !<br><br>1️⃣ Choisis ton <b>âge</b><br>2️⃣ Choisis une <b>matière</b><br>3️⃣ Gagne des ⭐ et des 🏅 !<br><br>Clique sur moi 🤖 quand tu veux. On y va !`;
+  showKaiser();
+  document.getElementById('kaiser-ping').style.display='none';
+  speak(hello);
+}
+function personalize(){
+  // Salutation dans le HERO
+  const heroSub=document.querySelector('.hero-sub');
+  if(heroSub && state.prenom){
+    heroSub.innerHTML=`Bienvenue <b style="color:var(--yellow)">${state.prenom}</b> ! 🎉 Maths, Français, Sciences, Logique, Codage et Culture t'attendent. Gagne des étoiles ⭐ et des badges 🏅. C'est <b style="color:var(--green)">totalement gratuit</b> !`;
+  }
+}
+
+/* Messages de KAISER selon l'écran (scriptés, hors-ligne, personnalisés) */
+function guideMsg(screen,first){
+  const p=state.prenom||'champion';
+  const subj=quiz.subj?SUBJECTS.find(s=>s.id===quiz.subj):null;
+  switch(screen){
+    case 'home':
+      return first
+        ? `Super, <b>${p}</b> ! 🎉 Je suis KAISER, ton guide. Voici comment ça marche :<br>1️⃣ Choisis ton <b>âge</b><br>2️⃣ Choisis une <b>matière</b><br>3️⃣ Réponds aux questions et gagne des ⭐ et des 🏅 !<br><br>Clique sur moi 🤖 à tout moment si tu es perdu !`
+        : `Te revoilà <b>${p}</b> ! 👋 Choisis d'abord ton <b>âge</b>, puis une <b>matière</b>. Plus tu joues, plus tu gagnes d'étoiles ⭐ !`;
+    case 'quiz':
+      return `On y va <b>${p}</b> ! 💪 ${subj?('Matière : <b>'+subj.name+'</b>. '):''}Lis bien la question, puis clique sur <b>A, B, C ou D</b>. Si tu te trompes, je t'explique pourquoi. La barre en haut montre ta progression !`;
+    case 'result':
+      const pct=quiz.lastPct||0;
+      let head;
+      if(pct>=80) head=`Waouh <b>${p}</b> ! 🏆 Je suis tellement fier de toi, tu as été formidable ! Tu as débloqué un badge 🏅 !`;
+      else if(pct>=50) head=`Bien joué <b>${p}</b> ! 👏 Tu y es presque ! Encore un petit effort et le badge sera à toi !`;
+      else head=`Ne baisse jamais les bras, <b>${p}</b> ! 💪 Je crois en toi. Chaque essai te rend plus fort, et je suis là pour t'aider !`;
+      return head+`<br><br>💡 ${pick(ADVICE)}<br><br>Tu peux <b>rejouer</b> ou choisir une autre matière !`;
+    default:
+      return `Je suis là pour t'aider, <b>${p}</b> ! 🤖`;
+  }
+}
+function updateGuide(screen,first){
+  lastScreen=screen;
+  const msg=guideMsg(screen,first);
+  document.getElementById('kaiser-txt').innerHTML=msg;
+  showKaiser();
+  document.getElementById('kaiser-ping').style.display='none';
+  speak(msg);
+}
+function showKaiser(){document.getElementById('kaiser-bubble').classList.add('open');}
+function toggleKaiser(){
+  const b=document.getElementById('kaiser-bubble');
+  if(b.classList.contains('open')){b.classList.remove('open');}
+  else{document.getElementById('kaiser-txt').innerHTML=guideMsg(lastScreen,false);b.classList.add('open');document.getElementById('kaiser-ping').style.display='none';}
+}
+
+
+function show(id){
+  ['home','quiz','result','robot'].forEach(s=>{
+    const el=document.getElementById(s);
+    if(s===id){el.classList.remove('hidden');el.style.display=(s==='quiz')?'block':(s==='home'?'block':'block');}
+    else{el.classList.add('hidden');}
+  });
+  // quiz-wrap utilise display block
+  document.getElementById('quiz').style.display = (id==='quiz')?'block':'none';
+  document.getElementById('result').style.display = (id==='result')?'block':'none';
+  document.getElementById('home').style.display = (id==='home')?'block':'none';
+  document.getElementById('robot').style.display = (id==='robot')?'block':'none';
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(typeof updateGuide==='function' && id!=='robot' && state.prenom){updateGuide(id);}
+}
+function goHome(){quizActive=false;try{window.speechSynthesis.cancel();}catch(e){}show('home');refreshHUD();}
+
+function shareApp(){
+  const txt="🎁 REGUL ARENA KIDS — une plateforme éducative GRATUITE pour les enfants de 6 à 15 ans (Maths, Français, Sciences, Codage...). Offerte par la communauté REGUL ARENA. Profitez-en !";
+  if(navigator.share){navigator.share({title:'REGUL ARENA KIDS',text:txt}).catch(()=>{});}
+  else{
+    const wa='https://wa.me/?text='+encodeURIComponent(txt);
+    window.open(wa,'_blank');
+  }
+}
+
+/* ---------- BACKGROUND CANVAS (étoiles) ---------- */
+(function(){
+  const cv=document.getElementById('bg-canvas');const ctx=cv.getContext('2d');
+  let W,H,stars=[];
+  function rs(){W=cv.width=innerWidth;H=cv.height=innerHeight;stars=Array.from({length:90},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.6+.3,s:Math.random()*.4+.1}));}
+  rs();addEventListener('resize',rs);
+  (function loop(){ctx.clearRect(0,0,W,H);stars.forEach(p=>{p.y+=p.s;if(p.y>H)p.y=0;ctx.fillStyle='rgba(255,214,0,'+(p.r/2.2)+')';ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,7);ctx.fill();});requestAnimationFrame(loop);})();
+})();
+
+/* ---------- INIT ---------- */
+const names={petits:'Les Petits (6–8 ans)',moyens:'Les Moyens (9–11 ans)',grands:'Les Grands (12–15 ans)'};
+document.querySelectorAll('.age-card').forEach(c=>{c.classList.toggle('sel',c.dataset.age===state.age);});
+document.getElementById('age-hint').innerHTML='Niveau sélectionné : <b style="color:var(--yellow)">'+names[state.age]+'</b>';
+renderSubjects();refreshHUD();goHome();
+// KAISER : première visite → demande le prénom, sinon accueil personnalisé
+if(!state.prenom){
+  document.getElementById('onb').classList.add('open');
+  setTimeout(()=>document.getElementById('onb-prenom').focus(),300);
+}else{
+  personalize();
+  document.getElementById('kaiser-mute').textContent=state.mute?'🔇':'🔊';
+  updateGuide('home',false);
+}
+</script>
+</body>
+</html>

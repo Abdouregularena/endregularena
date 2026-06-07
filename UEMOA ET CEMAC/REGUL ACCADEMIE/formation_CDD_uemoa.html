@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Code des Douanes de l'UEMOA — Formation</title>
+<style>
+:root{
+  --bleu:#0A3D62;
+  --bleu-fonce:#062942;
+  --or:#C9991A;
+  --or-clair:#E8B520;
+  --creme:#F4F6F8;
+  --texte:#16242e;
+  --gris:#5b6976;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--creme);color:var(--texte);line-height:1.6}
+h1,h2,h3{font-family:Georgia,'Times New Roman',serif;color:var(--bleu-fonce)}
+
+header{background:linear-gradient(135deg,var(--bleu),var(--bleu-fonce));color:#fff;padding:22px 18px;position:sticky;top:0;z-index:50;box-shadow:0 2px 12px rgba(0,0,0,.18)}
+header h1{color:#fff;font-size:1.22rem;line-height:1.25}
+header .sub{font-size:.78rem;opacity:.85;margin-top:4px;font-family:inherit}
+.badge{display:inline-block;background:var(--or);color:#1c1300;font-size:.68rem;font-weight:700;padding:3px 9px;border-radius:20px;margin-top:8px;letter-spacing:.5px}
+
+nav{background:#fff;border-bottom:2px solid var(--or);padding:8px;display:flex;gap:6px;overflow-x:auto;position:sticky;top:84px;z-index:40}
+nav button{flex:0 0 auto;background:var(--creme);border:1px solid #d6dde3;color:var(--bleu-fonce);font-size:.78rem;font-weight:600;padding:7px 12px;border-radius:8px;cursor:pointer;white-space:nowrap;transition:.15s}
+nav button.actif{background:var(--bleu);color:#fff;border-color:var(--bleu)}
+
+main{max-width:820px;margin:0 auto;padding:20px 16px 80px}
+.module{display:none;animation:fade .3s}
+.module.actif{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
+.module h2{font-size:1.4rem;border-bottom:3px solid var(--or);padding-bottom:8px;margin-bottom:6px}
+.module .titre-ref{font-size:.78rem;color:var(--gris);margin-bottom:18px;font-style:italic}
+
+.carte{background:#fff;border-radius:12px;padding:16px 18px;margin-bottom:16px;box-shadow:0 1px 6px rgba(0,0,0,.06);border-left:4px solid var(--bleu)}
+.carte h3{font-size:1.02rem;margin-bottom:8px}
+.carte p{margin-bottom:8px;font-size:.94rem}
+.carte ul{margin:6px 0 6px 20px;font-size:.92rem}
+.carte li{margin-bottom:5px}
+.art{display:inline-block;background:var(--bleu-fonce);color:#fff;font-size:.68rem;font-weight:700;padding:2px 7px;border-radius:5px;margin-left:4px;vertical-align:middle}
+.cle{background:linear-gradient(135deg,#fff8e6,#fdf0c8);border-left:4px solid var(--or);border-radius:8px;padding:12px 14px;margin:12px 0;font-size:.9rem}
+.cle b{color:var(--bleu-fonce)}
+table.tab{width:100%;border-collapse:collapse;margin:10px 0;font-size:.84rem}
+table.tab th{background:var(--bleu);color:#fff;padding:8px;text-align:left}
+table.tab td{padding:7px 8px;border-bottom:1px solid #e3e8ec}
+table.tab tr:nth-child(even){background:#f7f9fb}
+.chiffre{font-weight:700;color:var(--or)}
+
+.quiz{background:#fff;border-radius:12px;padding:18px;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.q{margin-bottom:18px;padding-bottom:14px;border-bottom:1px dashed #ddd}
+.q p.enonce{font-weight:600;margin-bottom:8px;font-size:.93rem}
+.q .opt{display:block;background:var(--creme);border:1px solid #d3dbe1;border-radius:8px;padding:9px 12px;margin-bottom:6px;cursor:pointer;font-size:.9rem;transition:.12s}
+.q .opt:hover{border-color:var(--or)}
+.q .opt.bon{background:#d8f0e0;border-color:#1c8a4e}
+.q .opt.faux{background:#f8d7da;border-color:#c0392b}
+.expli{font-size:.82rem;color:var(--gris);margin-top:6px;display:none;background:#f1f5f8;padding:8px 10px;border-radius:6px;border-left:3px solid var(--bleu)}
+.score{text-align:center;font-size:1.1rem;font-weight:700;color:var(--bleu-fonce);margin-top:10px;padding:12px;background:#fff8e6;border-radius:10px}
+
+footer{text-align:center;font-size:.72rem;color:var(--gris);padding:24px 16px}
+
+#paywall{position:fixed;inset:0;background:linear-gradient(135deg,var(--bleu-fonce),#021726);color:#fff;z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+#paywall .box{background:#fff;color:var(--texte);max-width:420px;width:100%;border-radius:18px;padding:26px 22px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+#paywall h2{font-size:1.3rem;margin-bottom:6px}
+#paywall .prix{font-size:2rem;font-weight:800;color:var(--or);margin:8px 0}
+#paywall p{font-size:.88rem;color:var(--gris);margin-bottom:14px}
+#paywall .pay-btn{display:block;width:100%;border:none;border-radius:10px;padding:13px;font-size:.95rem;font-weight:700;cursor:pointer;margin-bottom:9px}
+.btn-acheter{background:var(--or);color:#1c1300}
+.btn-code{background:var(--bleu);color:#fff}
+.btn-demo{background:transparent;color:var(--gris);border:1px solid #ccc!important}
+#paywall .modes{font-size:.82rem;background:var(--creme);border-radius:10px;padding:12px;margin-bottom:14px;text-align:left}
+#paywall .modes b{color:var(--bleu-fonce)}
+#paywall .wa{color:#0A8a3d;font-weight:700}
+#zone-code{display:none;margin-top:10px}
+#zone-code input{width:100%;padding:11px;border:2px solid #ddd;border-radius:9px;font-size:.95rem;margin-bottom:8px;text-align:center;letter-spacing:1px}
+#msg-code{font-size:.82rem;min-height:18px;margin-bottom:6px}
+.demo-bandeau{position:fixed;bottom:0;left:0;right:0;background:var(--or);color:#1c1300;text-align:center;font-size:.8rem;font-weight:700;padding:8px;z-index:90;display:none}
+</style>
+<style id="ra-platform">/* REGUL ACADEMIE: acces gere par la plateforme */#paywall,#demoBandeau,.demo-bandeau{display:none!important}</style>
+</head>
+<body>
+
+<div id="paywall">
+  <div class="box">
+    <div class="badge" style="background:var(--bleu);color:#fff">FORMATION CERTIFIANTE</div>
+    <h2>Code des Douanes<br>de l'UEMOA</h2>
+    <p style="margin-top:6px">Règlement n° 09/2001/CM/UEMOA — Livre I décrypté, structuré et illustré pour vos examens et concours douaniers.</p>
+    <div class="prix">5 000 FCFA</div>
+    <div class="modes">
+      <b>Pour acheter :</b><br>
+      1. Payez 5 000 FCFA via <b>Orange Money</b>, <b>Wave</b> ou dépôt au <span class="wa">77 515 61 58</span><br>
+      2. Envoyez la capture + votre n° de téléphone sur <b>WhatsApp</b> au <span class="wa">+221 77 515 61 58</span><br>
+      3. Recevez votre <b>code d'activation</b> personnel et saisissez-le ci-dessous.
+    </div>
+    <button class="pay-btn btn-acheter" onclick="ouvrirWhatsApp()">📲 Acheter via WhatsApp</button>
+    <button class="pay-btn btn-code" onclick="toggleCode()">🔑 J'ai déjà un code</button>
+    <div id="zone-code">
+      <input id="inp-tel" type="tel" placeholder="Votre n° de téléphone (ex: 771234567)">
+      <input id="inp-code" type="text" placeholder="Votre code d'activation">
+      <div id="msg-code"></div>
+      <button class="pay-btn btn-acheter" onclick="validerCode()">Activer la formation</button>
+    </div>
+    <button class="pay-btn btn-demo" onclick="lancerDemo()">👀 Essayer en mode démo</button>
+  </div>
+</div>
+
+<div class="demo-bandeau" id="demoBandeau">MODE DÉMO — <span id="demoClics">8</span> consultations restantes · Achetez pour un accès illimité</div>
+
+<header>
+  <h1>Code des Douanes de l'UEMOA</h1>
+  <div class="sub">Règlement n° 09/2001/CM/UEMOA · Livre I — Formation complète</div>
+  <span class="badge">12 titres · 189 articles</span>
+</header>
+
+<nav id="nav">
+  <button class="actif" onclick="aller('m0',this)">Vue d'ensemble</button>
+  <button onclick="aller('m1',this)">I. Principes généraux</button>
+  <button onclick="aller('m2',this)">II. Organisation</button>
+  <button onclick="aller('m3',this)">III. Conduite en douane</button>
+  <button onclick="aller('m4',this)">IV. Avant destination</button>
+  <button onclick="aller('m5',this)">V. Dédouanement</button>
+  <button onclick="aller('m6',this)">VI. Régimes suspensifs</button>
+  <button onclick="aller('m7',this)">VII-XI. Dépôt & divers</button>
+  <button onclick="aller('mq',this)">🎯 Quiz final</button>
+</nav>
+
+<main>
+
+<section id="m0" class="module actif">
+  <h2>Vue d'ensemble</h2>
+  <div class="titre-ref">Règlement n° 09/2001/CM/UEMOA · Livre I</div>
+  <div class="carte">
+    <h3>À retenir d'abord</h3>
+    <p>Le Code des Douanes de l'UEMOA (Livre I : <b>cadres organisationnels, procédures et régimes douaniers</b>) a été adopté par le Règlement n° 09/2001/CM/UEMOA, signé à <b>Ouagadougou le 26 novembre 2002</b> et entré en vigueur le <b>1<sup>er</sup> janvier 2003</b>.</p>
+    <div class="cle">Le territoire douanier de l'Union regroupe <b>8 États membres</b> : Bénin, Burkina Faso, Côte d'Ivoire, Guinée-Bissau, Mali, Niger, Sénégal, Togo — eaux territoriales et espace aérien compris <span class="art">art. 5</span>.</div>
+  </div>
+  <div class="carte">
+    <h3>Les 12 titres</h3>
+    <table class="tab">
+      <tr><th>Titre</th><th>Objet</th></tr>
+      <tr><td>1</td><td>Principes généraux</td></tr>
+      <tr><td>2</td><td>Organisation et fonctionnement des douanes</td></tr>
+      <tr><td>3</td><td>Conduite et mise en douane</td></tr>
+      <tr><td>4</td><td>Marchandises en attente d'une destination</td></tr>
+      <tr><td>5</td><td>Opération de dédouanement</td></tr>
+      <tr><td>6</td><td>Régimes douaniers suspensifs</td></tr>
+      <tr><td>7</td><td>Dépôt de douane</td></tr>
+      <tr><td>8</td><td>Opérations privilégiées</td></tr>
+      <tr><td>9</td><td>Circulation et détention sur le territoire</td></tr>
+      <tr><td>10</td><td>Navigation</td></tr>
+      <tr><td>11</td><td>Zone franche</td></tr>
+      <tr><td>12</td><td>Dispositions finales</td></tr>
+    </table>
+  </div>
+</section>
+
+<section id="m1" class="module">
+  <h2>Titre 1 — Principes généraux</h2>
+  <div class="titre-ref">Définitions · TEC · prohibitions <span class="art">art. 1 à 25</span></div>
+  <div class="carte">
+    <h3>Définitions clés <span class="art">art. 1</span></h3>
+    <table class="tab">
+      <tr><th>Terme</th><th>Définition essentielle</th></tr>
+      <tr><td>Marchandises communautaires</td><td>Satisfont aux règles d'origine de l'Union</td></tr>
+      <tr><td>Régime douanier</td><td>Traitement appliqué aux marchandises sous contrôle</td></tr>
+      <tr><td>Déclaration en douane</td><td>Acte indiquant le régime à assigner aux marchandises</td></tr>
+      <tr><td>Mainlevée</td><td>Acte permettant de disposer des marchandises</td></tr>
+      <tr><td>Dette douanière</td><td>Obligation de payer les droits à l'import/export</td></tr>
+    </table>
+    <div class="cle">Les <b>destinations douanières</b> : assignation d'un régime, destruction, ou abandon au profit du Trésor public <span class="art">art. 1.14</span>.</div>
+  </div>
+  <div class="carte">
+    <h3>Le Tarif Extérieur Commun (TEC) <span class="art">art. 9 à 12</span></h3>
+    <ul>
+      <li>Composé d'une <b>Nomenclature Tarifaire et Statistique (NTS)</b> et d'un <b>tableau des droits et taxes</b></li>
+      <li>NTS basée sur le Système Harmonisé et la nomenclature CEDEAO</li>
+      <li>Valeur en douane : règles du <b>Code d'évaluation de l'OMC</b> (article VII du GATT) <span class="art">art. 16</span></li>
+    </ul>
+  </div>
+  <div class="carte">
+    <h3>Prohibitions <span class="art">art. 18 à 23</span></h3>
+    <p>Sont prohibées les marchandises dont l'import/export est interdit ou restreint. Motifs : ordre public, sécurité, santé, moralité, environnement, trésors nationaux, propriété intellectuelle, défense des consommateurs.</p>
+  </div>
+</section>
+
+<section id="m2" class="module">
+  <h2>Titre 2 — Organisation des douanes</h2>
+  <div class="titre-ref">Rayon · bureaux · pouvoirs des agents <span class="art">art. 26 à 37</span></div>
+  <div class="carte">
+    <h3>Le rayon des douanes <span class="art">art. 27</span></h3>
+    <ul>
+      <li><b>Zone maritime</b> : du littoral à <span class="chiffre">20 km</span> des côtes</li>
+      <li><b>Zone terrestre</b> : <span class="chiffre">20 km</span> en deçà de la frontière</li>
+      <li>Distances calculées <b>à vol d'oiseau</b></li>
+    </ul>
+  </div>
+  <div class="carte">
+    <h3>Bureaux de douane <span class="art">art. 29-30</span></h3>
+    <p>Les formalités ne s'accomplissent que dans les bureaux de douane. Durée d'ouverture minimale : <span class="chiffre">8 heures</span> par jour ouvrable.</p>
+  </div>
+  <div class="carte">
+    <h3>Pouvoirs des agents <span class="art">art. 33-34</span></h3>
+    <div class="cle">Visites domiciliaires : jamais <b>avant 4h</b> ni <b>après 21h</b> (sauf poursuite à vue) <span class="art">art. 33</span>. Documents à conserver <span class="chiffre">3 ans</span> pour le droit de communication <span class="art">art. 34</span>.</div>
+  </div>
+</section>
+
+<section id="m3" class="module">
+  <h2>Titre 3 — Conduite et mise en douane</h2>
+  <div class="titre-ref">Import par mer, fleuve, terre, air · export <span class="art">art. 38 à 61</span></div>
+  <div class="carte">
+    <h3>Transport par mer <span class="art">art. 38 à 45</span></h3>
+    <ul>
+      <li>Marchandises inscrites sur le <b>manifeste</b> daté et signé du capitaine</li>
+      <li>Déclaration sommaire déposée dans les <span class="chiffre">24 heures</span> de l'arrivée (hors dimanches et jours fériés)</li>
+      <li>Déchargement uniquement avec permission et présence des autorités douanières</li>
+    </ul>
+  </div>
+  <div class="carte">
+    <h3>Autres modes</h3>
+    <ul>
+      <li><b>Fluvial</b> : manifeste obligatoire, déclaration sous 24h <span class="art">art. 46-47</span></li>
+      <li><b>Terrestre</b> : conduite immédiate au bureau le plus proche par la route légale <span class="art">art. 50-51</span></li>
+      <li><b>Aérien</b> : atterrissage seulement sur aérodromes douaniers, manifeste obligatoire <span class="art">art. 52-54</span></li>
+    </ul>
+    <div class="cle">La déclaration sommaire enregistrée vaut <b>prise en charge</b> des marchandises <span class="art">art. 58</span>.</div>
+  </div>
+</section>
+
+<section id="m4" class="module">
+  <h2>Titre 4 — Avant destination douanière</h2>
+  <div class="titre-ref">Surveillance · présentation · magasins <span class="art">art. 62 à 73</span></div>
+  <div class="carte">
+    <h3>Surveillance et présentation</h3>
+    <p>Dès leur introduction, les marchandises sont sous <b>surveillance douanière</b> <span class="art">art. 62</span> et doivent être conduites sans délai au bureau désigné <span class="art">art. 63</span>.</p>
+  </div>
+  <div class="carte">
+    <h3>Délais à retenir</h3>
+    <table class="tab">
+      <tr><th>Opération</th><th>Délai</th></tr>
+      <tr><td>Dépôt déclaration sommaire</td><td>dès présentation (max <span class="chiffre">48 h</span>) <span class="art">art. 67</span></td></tr>
+      <tr><td>Donner une destination douanière</td><td><span class="chiffre">15 jours</span> dès la déclaration sommaire <span class="art">art. 71</span></td></tr>
+      <tr><td>Séjour en magasins/aires de dédouanement</td><td><span class="chiffre">30 jours</span>, prorogeable à <span class="chiffre">90 jours</span> <span class="art">art. 72</span></td></tr>
+    </table>
+  </div>
+</section>
+
+<section id="m5" class="module">
+  <h2>Titre 5 — Le dédouanement</h2>
+  <div class="titre-ref">Déclaration en détail · vérification · paiement <span class="art">art. 74 à 101</span></div>
+  <div class="carte">
+    <h3>La déclaration en détail <span class="art">art. 75 à 80</span></h3>
+    <ul>
+      <li>Toute marchandise importée ou exportée doit faire l'objet d'une déclaration en détail lui assignant un régime</li>
+      <li>L'exemption de droits ne dispense PAS de cette obligation</li>
+      <li>Faite par écrit, procédé informatique ou déclaration verbale</li>
+      <li>En principe par un <b>commissionnaire en douane agréé</b> <span class="art">art. 80</span></li>
+    </ul>
+  </div>
+  <div class="carte">
+    <h3>Vérification <span class="art">art. 82 à 88</span></h3>
+    <p>Après enregistrement, les autorités peuvent faire un contrôle documentaire et vérifier tout ou partie des marchandises. En cas de contestation, le déclarant peut exiger la <b>vérification intégrale</b> <span class="art">art. 82</span>.</p>
+  </div>
+  <div class="carte">
+    <h3>Paiement des droits et taxes <span class="art">art. 92 à 97</span></h3>
+    <table class="tab">
+      <tr><th>Modalité</th><th>Règle</th></tr>
+      <tr><td>Principe</td><td>Paiement <b>au comptant</b> <span class="art">art. 94</span></td></tr>
+      <tr><td>Crédit d'enlèvement</td><td>Soumission cautionnée annuelle ; délai <span class="chiffre">15 jours</span> <span class="art">art. 96</span></td></tr>
+      <tr><td>Crédit des droits</td><td>Obligations cautionnées à <span class="chiffre">2 mois</span> d'échéance <span class="art">art. 97</span></td></tr>
+    </table>
+    <div class="cle">Les marchandises sont le <b>gage</b> des droits et taxes : pas d'enlèvement sans paiement, consignation ou garantie <span class="art">art. 99</span>.</div>
+  </div>
+</section>
+
+<section id="m6" class="module">
+  <h2>Titre 6 — Régimes suspensifs</h2>
+  <div class="titre-ref">Transit · entrepôt · admission temporaire · drawback <span class="art">art. 102 à 158</span></div>
+  <div class="carte">
+    <h3>L'acquit-à-caution <span class="art">art. 102</span></h3>
+    <p>Les marchandises sous régime suspensif doivent être couvertes par un <b>acquit-à-caution</b>. Si non prohibées, la caution peut être remplacée par la consignation des droits.</p>
+  </div>
+  <div class="carte">
+    <h3>Le transit <span class="art">art. 105 à 118</span></h3>
+    <div class="cle">Régime sous lequel les marchandises circulent d'un bureau à un autre en suspension des droits. Le <b>transport par voie maritime est exclu</b> du transit <span class="art">art. 105</span>.</div>
+  </div>
+  <div class="carte">
+    <h3>L'entrepôt de douane <span class="art">art. 119 à 140</span></h3>
+    <ul>
+      <li>3 catégories de stockage : <b>public/réel</b>, <b>privé</b>, <b>spécial</b> <span class="art">art. 119</span></li>
+      <li>Délai max de séjour : <span class="chiffre">1 an</span>, prorogeable exceptionnellement <span class="art">art. 129</span></li>
+      <li>Entrepôt industriel : mise en œuvre de marchandises non communautaires en suspension <span class="art">art. 135</span></li>
+    </ul>
+  </div>
+  <div class="carte">
+    <h3>Admission temporaire & drawback</h3>
+    <ul>
+      <li><b>Admission temporaire</b> : suspension totale/partielle, durée max <span class="chiffre">1 an</span> <span class="art">art. 141-142</span></li>
+      <li><b>Drawback</b> : restitution des droits à l'import lors de l'export des marchandises <span class="art">art. 153</span></li>
+      <li><b>Réapprovisionnement en franchise / exportation préalable</b> <span class="art">art. 151</span></li>
+    </ul>
+  </div>
+</section>
+
+<section id="m7" class="module">
+  <h2>Titres 7 à 11 — Dépôt & dispositions diverses</h2>
+  <div class="titre-ref"><span class="art">art. 159 à 189</span></div>
+  <div class="carte">
+    <h3>Dépôt de douane <span class="art">art. 159 à 164</span></h3>
+    <p>Marchandises non déclarées dans les délais légaux constituées d'office en dépôt. Durée max du dépôt : <span class="chiffre">120 jours</span> <span class="art">art. 160</span>. À défaut de retrait, vente aux enchères publiques <span class="art">art. 163</span>.</p>
+  </div>
+  <div class="carte">
+    <h3>Opérations privilégiées <span class="art">art. 165 à 173</span></h3>
+    <p>Admission en franchise pour objets éducatifs/scientifiques (UNESCO), échantillons commerciaux, transferts de résidence, dons aux États, envois diplomatiques, Croix-Rouge… Avitaillement des navires et aéronefs exempté de droits et taxes.</p>
+  </div>
+  <div class="carte">
+    <h3>Circulation & zone franche</h3>
+    <ul>
+      <li>Circulation dans le rayon sous couvert d'un <b>passavant</b> <span class="art">art. 175</span></li>
+      <li><b>Zone franche</b> : partie du territoire où les marchandises sont considérées comme hors territoire douanier <span class="art">art. 188</span></li>
+    </ul>
+  </div>
+</section>
+
+<section id="mq" class="module">
+  <h2>🎯 Quiz final — 20 questions</h2>
+  <div class="titre-ref">Validez vos acquis. Cliquez sur la bonne réponse.</div>
+  <div class="quiz" id="quizZone"></div>
+  <div class="score" id="scoreZone" style="display:none"></div>
+</section>
+
+</main>
+
+<footer>
+  Formation © REGUL ARENA — usage personnel · Code des Douanes de l'UEMOA (Règlement n° 09/2001/CM/UEMOA)<br>
+  Contact / support : +221 77 515 61 58
+</footer>
+
+<script>
+/* =====================================================
+   KIT DE PROTECTION — identique sur tous les produits
+   SECRET du produit : CDDACAD2024ABDOU
+===================================================== */
+const SECRET = "CDDACAD2024ABDOU";
+const PRODUIT = "CDD_UEMOA";
+const WA = "221775156158";
+const LS_LIC = "lic_"+PRODUIT;
+const LS_DEV = "dev_"+PRODUIT;
+
+// ⚠ STRICTEMENT IDENTIQUE à GENERATEUR_CLES.html
+function computeKey(phone){
+  var clean = (phone||"").replace(/[^0-9]/g,'');
+  if(clean.length > 9) clean = clean.slice(-9);
+  var raw = SECRET + clean;
+  var h1=0,h2=0,h3=0;
+  for(var i=0;i<raw.length;i++){
+    var c=raw.charCodeAt(i);
+    h1=((h1*31)+c*17+i*7)&0x7FFFFFFF;
+    h2=((h2*37)+c*13+(i+1)*11)&0x7FFFFFFF;
+    h3=((h3*41)+c*19+(i+2)*3)&0x7FFFFFFF;
+  }
+  var chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  var p1='',p2='',p3='';
+  var n1=h1,n2=h2,n3=h3;
+  for(var j=0;j<4;j++){
+    p1+=chars[n1%chars.length];n1=Math.floor(n1/chars.length);
+    p2+=chars[n2%chars.length];n2=Math.floor(n2/chars.length);
+    p3+=chars[n3%chars.length];n3=Math.floor(n3/chars.length);
+  }
+  return p1+'-'+p2+'-'+p3;
+}
+
+function getDevice(){
+  let d = localStorage.getItem(LS_DEV);
+  if(!d){
+    d = "D" + Math.random().toString(36).slice(2,10).toUpperCase() + Date.now().toString(36).toUpperCase();
+    localStorage.setItem(LS_DEV, d);
+  }
+  return d;
+}
+function verifierLicence(){
+  try{
+    const lic = JSON.parse(localStorage.getItem(LS_LIC)||"null");
+    if(!lic) return false;
+    if(computeKey(lic.tel) !== (lic.code||"").toUpperCase()) return false;
+    if(lic.device !== getDevice()) return false;
+    return true;
+  }catch(e){ return false; }
+}
+function deverrouiller(){
+  document.getElementById("paywall").style.display="none";
+  document.getElementById("demoBandeau").style.display="none";
+  modeDemo = false;
+}
+function ouvrirWhatsApp(){
+  const txt = encodeURIComponent("Bonjour, je souhaite acheter la formation \"Code des Douanes de l'UEMOA\" (5000 FCFA). Voici ma capture de paiement et mon numéro :");
+  window.open("https://wa.me/"+WA+"?text="+txt,"_blank");
+}
+function toggleCode(){
+  const z=document.getElementById("zone-code");
+  z.style.display = z.style.display==="block"?"none":"block";
+}
+function validerCode(){
+  const tel=document.getElementById("inp-tel").value.trim();
+  const code=document.getElementById("inp-code").value.trim().toUpperCase();
+  const msg=document.getElementById("msg-code");
+  if(!tel||!code){ msg.style.color="#c0392b"; msg.textContent="Renseignez votre numéro et votre code."; return; }
+  if(computeKey(tel)===code){
+    localStorage.setItem(LS_LIC, JSON.stringify({tel:tel, code:code, device:getDevice()}));
+    msg.style.color="#0A8a3d"; msg.textContent="✅ Activation réussie !";
+    setTimeout(deverrouiller,500);
+  }else{
+    msg.style.color="#c0392b"; msg.textContent="❌ Code invalide pour ce numéro.";
+  }
+}
+let modeDemo=false, clicsDemo=8;
+function lancerDemo(){
+  modeDemo=true;
+  document.getElementById("paywall").style.display="none";
+  const b=document.getElementById("demoBandeau");
+  b.style.display="block";
+  document.getElementById("demoClics").textContent=clicsDemo;
+}
+function consommerClicDemo(){
+  if(!modeDemo) return true;
+  clicsDemo--;
+  document.getElementById("demoClics").textContent=Math.max(clicsDemo,0);
+  if(clicsDemo<=0){
+    document.getElementById("paywall").style.display="flex";
+    document.getElementById("demoBandeau").style.display="none";
+    return false;
+  }
+  return true;
+}
+function aller(id, btn){
+  if(modeDemo && !consommerClicDemo()) return;
+  document.querySelectorAll(".module").forEach(m=>m.classList.remove("actif"));
+  document.getElementById(id).classList.add("actif");
+  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("actif"));
+  if(btn) btn.classList.add("actif");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+const QUIZ=[
+ {q:"Quel règlement adopte le Code des Douanes de l'UEMOA ?",o:["Règlement n° 02/97/CM/UEMOA","Règlement n° 09/2001/CM/UEMOA","Règlement n° 05/99/CM/UEMOA"],b:1,e:"Règlement n° 09/2001/CM/UEMOA (Livre I)."},
+ {q:"Date d'entrée en vigueur du Code ?",o:["1er janvier 2003","26 novembre 2002","6 août 1999"],b:0,e:"Art. 2 : entrée en vigueur le 1er janvier 2003."},
+ {q:"Combien d'États composent le territoire douanier de l'Union ?",o:["6","7","8"],b:2,e:"Art. 5 : 8 États membres (Bénin, Burkina, Côte d'Ivoire, Guinée-Bissau, Mali, Niger, Sénégal, Togo)."},
+ {q:"Largeur de la zone maritime du rayon des douanes ?",o:["12 km","20 km","50 km"],b:1,e:"Art. 27 : 20 km des côtes."},
+ {q:"Les visites domiciliaires ne peuvent commencer :",o:["avant 4h ni après 21h","avant 6h ni après 20h","avant 5h ni après 22h"],b:0,e:"Art. 33 : entre 4h et 21h, sauf poursuite à vue."},
+ {q:"Combien d'années les documents doivent-ils être conservés (droit de communication) ?",o:["1 an","3 ans","5 ans"],b:1,e:"Art. 34 : conservation pendant 3 ans."},
+ {q:"De quoi est composé le Tarif Extérieur Commun ?",o:["NTS + tableau des droits et taxes","Liste de prohibitions seule","Code OMC uniquement"],b:0,e:"Art. 10 : NTS + tableau des droits et taxes."},
+ {q:"Sur quelles règles se fonde l'évaluation en douane ?",o:["Code d'évaluation de l'OMC (art. VII GATT)","Système Harmonisé seul","Règlement CEDEAO"],b:0,e:"Art. 16 : Accord sur l'art. VII du GATT (Code OMC)."},
+ {q:"Délai pour déposer la déclaration sommaire après l'arrivée d'un navire ?",o:["12 heures","24 heures","48 heures"],b:1,e:"Art. 43 : 24 heures (hors dimanches et jours fériés)."},
+ {q:"Délai pour donner une destination douanière après déclaration sommaire ?",o:["15 jours","30 jours","48 heures"],b:0,e:"Art. 71 : 15 jours."},
+ {q:"Délai de séjour en magasins et aires de dédouanement ?",o:["15 jours","30 jours prorogeable à 90","1 an"],b:1,e:"Art. 72 : 30 jours, jusqu'à 90 jours si circonstances."},
+ {q:"Par qui la déclaration en détail est-elle en principe faite ?",o:["Le transporteur","Un commissionnaire en douane agréé","Le Trésor public"],b:1,e:"Art. 80."},
+ {q:"Mode de paiement de principe des droits et taxes ?",o:["Au comptant","À 30 jours","Par chèque uniquement"],b:0,e:"Art. 94 : paiement au comptant."},
+ {q:"Échéance des obligations cautionnées (crédit des droits) ?",o:["2 mois","15 jours","6 mois"],b:0,e:"Art. 97 : obligations à 2 mois d'échéance."},
+ {q:"Quel mode de transport est exclu du régime de transit ?",o:["Routier","Maritime","Ferroviaire"],b:1,e:"Art. 105 : le transport par voie maritime est exclu du transit."},
+ {q:"Combien de catégories d'entrepôt de stockage existe-t-il ?",o:["2","3","4"],b:1,e:"Art. 119 : public/réel, privé, spécial."},
+ {q:"Délai maximal de séjour en entrepôt de stockage ?",o:["6 mois","1 an","2 ans"],b:1,e:"Art. 129 : 1 an, prorogeable exceptionnellement."},
+ {q:"Durée maximale de l'admission temporaire ?",o:["6 mois","1 an","3 ans"],b:1,e:"Art. 142 : 1 an."},
+ {q:"Durée maximale du dépôt de douane ?",o:["90 jours","120 jours","180 jours"],b:1,e:"Art. 160 : 120 jours."},
+ {q:"Que permet le régime du drawback ?",o:["La suspension totale de TVA","La restitution des droits à l'import lors de l'export","L'exonération des taxes intérieures"],b:1,e:"Art. 153 : restitution totale/partielle des droits à l'import à l'exportation."}
+];
+
+function rendreQuiz(){
+  const z=document.getElementById("quizZone");
+  z.innerHTML="";
+  QUIZ.forEach((item,i)=>{
+    const div=document.createElement("div"); div.className="q";
+    let html='<p class="enonce">'+(i+1)+". "+item.q+'</p>';
+    item.o.forEach((opt,j)=>{ html+='<span class="opt" onclick="repondre('+i+','+j+',this)">'+opt+'</span>'; });
+    html+='<div class="expli" id="exp'+i+'">'+item.e+'</div>';
+    div.innerHTML=html; z.appendChild(div);
+  });
+}
+let reponses={};
+function repondre(i,j,el){
+  if(modeDemo && !consommerClicDemo()) return;
+  if(reponses[i]!==undefined) return;
+  reponses[i]=j;
+  const opts=el.parentNode.querySelectorAll(".opt");
+  opts[QUIZ[i].b].classList.add("bon");
+  if(j!==QUIZ[i].b) el.classList.add("faux");
+  document.getElementById("exp"+i).style.display="block";
+  if(Object.keys(reponses).length===QUIZ.length) afficherScore();
+}
+function afficherScore(){
+  let s=0; QUIZ.forEach((item,i)=>{ if(reponses[i]===item.b) s++; });
+  const z=document.getElementById("scoreZone");
+  z.style.display="block";
+  let msg = s>=16?"🏆 Excellent, vous maîtrisez le Code des Douanes !" : s>=10?"👍 Bon niveau, révisez les titres faibles." : "📚 À retravailler — relisez les modules.";
+  z.innerHTML="Score : "+s+" / "+QUIZ.length+"<br>"+msg;
+  z.scrollIntoView({behavior:"smooth"});
+}
+
+rendreQuiz();
+getDevice();
+if(verifierLicence()){ deverrouiller(); }
+</script>
+<script src="../js/son-universel.js"></script> <!-- MODIFIÉ : son universel -->
+</body>
+</html>

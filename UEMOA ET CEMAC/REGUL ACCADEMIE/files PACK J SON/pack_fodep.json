@@ -1,0 +1,254 @@
+[
+ {
+  "pack": "fodep",
+  "question": "Quel est l'objet de l'Instruction N° 005-08-2017 (Article premier) ?",
+  "options": [
+   "A. Fixer les normes de fonds propres des banques",
+   "B. Définir les modalités de déclaration des états prudentiels",
+   "C. Créer la Commission Bancaire de l'UMOA",
+   "D. Réglementer le change manuel"
+  ],
+  "bonne": 1,
+  "article": "Article premier",
+  "support": "Instruction BCEAO N° 005-08-2017 (FODEP)",
+  "lien": ""
+ },
+ {
+  "pack": "fodep",
+  "question": "Que signifie l'acronyme FODEP (Article 3) ?",
+  "options": [
+   "A. Fonds de Dépôt Prudentiel",
+   "B. Formulaire de Déclaration Prudentielle",
+   "C. Formulaire Officiel des États Prudentiels",
+   "D. Fichier d'Observation du Dispositif Prudentiel"
+  ],
+  "bonne": 1,
+  "article": "Article 3",
+  "support": "Instruction BCEAO N° 005-08-2017 (FODEP)",
+  "lien": ""
+ },
+ {
+  "pack": "fodep",
+  "question": "Selon l'Article 4, quelle est la périodicité de transmission du FODEP à la BCEAO ?",
+  "options": [
+   "A. Mensuelle",
+   "B. Trimestrielle",
+   "C. Semestrielle",
+   "D. Annuelle"
+  ],
+  "bonne": 2,
+  "article": "Article 4",
+  "support": "Instruction BCEAO N° 005-08-2017 (FODEP)",
+  "lien": ""
+ },
+ {
+  "pack": "fodep",
+  "question": "Quel est le délai de déclaration sur la base des comptes annuels arrêtés au 31 décembre (Article 4) ?",
+  "options": [
+   "A. Le 31 mars",
+   "B. Le 30 avril",
+   "C. Le 30 juin",
+   "D. Le 31 octobre"
+  ],
+  "bonne": 1,
+  "article": "Article 4",
+  "support": "Instruction BCEAO N° 005-08-2017 (FODEP)",
+  "lien": ""
+ },
+ {
+  "pack": "fodep",
+  "question": "Quel est le délai de déclaration sur la base des états financiers intermédiaires arrêtés au 30 juin (Article 4) ?",
+  "options": [
+   "A. Le 31 juillet",
+   "B. Le 31 août",
+   "C. Le 30 septembre",
+   "D. Le 31 octobre"
+  ],
+  "bonne": 3,
+  "article": "Article 4",
+  "support": "Instruction BCEAO N° 005-08-2017 (FODEP)",
+  "lien": ""
+ },
+ {
+  "pack": "fodep",
+  "question": "Par quel canal le FODEP doit-il normalement être transmis (Article 5) ?",
+  "options": [
+   "A. Par courrier postal recommandé",
+   "B. Par courriel à la Direction de la BCEAO",
+   "C. Par la plate-forme informatique dédiée à cet effet",
+   "D. Par dépôt physique au guichet de la BCEAO"
+  ],
+  "bonne": 2,
+  "article": "Article 5",
+  "support": "Instruction BCEAO N° 005-08-2017 (FODEP)",
+  "lien": ""
+ },
+ {
+  "pack": "fodep",
+  "question": "Qui peut requérir la transmission du FODEP sur support papier (Article 5) ?",
+  "options": [
+   "A. Le Ministre des Finances uniquement",
+   "B. La Commission Bancaire de l'UMOA ou la BCEAO",
+   "C. Le CREPMF",
+   "D. Tout établissement assujetti à sa convenance"
+  ],
+  "bonne": 1,
+  "article": "Article 5",
+  "support": "Instruction BCEAO N° 005-08-2017 (FODEP)",
+  "lien": ""
+ },
+ {
+  "pack": "fodep",
+  "question": "À qui s'appliquent les exigences de déclaration sur une base individuelle (Article 2) ?",
+  "options": [
+   "A. Aux seules maisons-mères",
+   "B. Aux compagnies financières holding",
+   "C. Aux banques et établissements financiers à caractère bancaire",
+   "D. Aux holdings intermédiaires uniquement"
+  ],
+  "bonne": 2,
+  "article": "Article 2 (a)",
+  "support": "Instruction BCEAO N° 005-08-2017 (FODEP)",
+  "lien": ""
+ },
+ {
+  "pack": "fodep",
+  "question": "La déclaration sur base sous-consolidée concerne (Article 2) :",
+  "options": [
+   "A. Les banques individuelles",
+   "B. Les compagnies financières holding intermédiaires",
+   "C. Les établissements de crédit maisons-mères",
+   "D. Les agréés de change manuel"
+  ],
+  "bonne": 1,
+  "article": "Article 2 (b)",
+  "support": "Instruction BCEAO N° 005-08-2017 (FODEP)",
+  "lien": ""
+ },
+ {
+  "pack": "fodep",
+  "question": "La déclaration sur base consolidée s'applique (Article 2) :",
+  "options": [
+   "A. Aux établissements de crédit maisons-mères et aux compagnies financières holding",
+   "B. Aux seules banques de détail",
+   "C. Aux holdings intermédiaires uniquement",
+   "D. À aucun établissement"
+  ],
+  "bonne": 0,
+  "article": "Article 2 (c)",
+  "support": "Instruction BCEAO N° 005-08-2017 (FODEP)",
+  "lien": ""
+ },
+ {
+  "pack": "fodep",
+  "question": "Que regroupe le FODEP (Article 3) ?",
+  "options": [
+   "A. Les seuls ratios de liquidité",
+   "B. L'ensemble des états prudentiels relatifs aux normes prudentielles",
+   "C. Les comptes annuels uniquement",
+   "D. Les déclarations fiscales de l'établissement"
+  ],
+  "bonne": 1,
+  "article": "Article 3",
+  "support": "Instruction BCEAO N° 005-08-2017 (FODEP)",
+  "lien": ""
+ },
+ {
+  "pack": "fodep",
+  "question": "Sur la base de quel document les établissements renseignent-ils le FODEP (Article 3) ?",
+  "options": [
+   "A. Du manuel de procédures interne",
+   "B. De la notice technique y afférente",
+   "C. Des normes IFRS",
+   "D. Du rapport du commissaire aux comptes"
+  ],
+  "bonne": 1,
+  "article": "Article 3",
+  "support": "Instruction BCEAO N° 005-08-2017 (FODEP)",
+  "lien": ""
+ },
+ {
+  "pack": "fodep",
+  "question": "Que prévoit l'Article 6 en cas de non-respect des règles de l'Instruction ?",
+  "options": [
+   "A. Aucune conséquence",
+   "B. Un simple avertissement écrit",
+   "C. Les sanctions prévues par la réglementation en vigueur",
+   "D. La radiation automatique de l'agrément"
+  ],
+  "bonne": 2,
+  "article": "Article 6",
+  "support": "Instruction BCEAO N° 005-08-2017 (FODEP)",
+  "lien": ""
+ },
+ {
+  "pack": "fodep",
+  "question": "À quelle date l'Instruction N° 005-08-2017 est-elle entrée en vigueur (Article 7) ?",
+  "options": [
+   "A. Le 24 juin 2016",
+   "B. Le 8 août 2017",
+   "C. Le 1er janvier 2018",
+   "D. Le 30 avril 2018"
+  ],
+  "bonne": 2,
+  "article": "Article 7",
+  "support": "Instruction BCEAO N° 005-08-2017 (FODEP)",
+  "lien": ""
+ },
+ {
+  "pack": "fodep",
+  "question": "Que fait l'Instruction à l'égard des textes antérieurs (Article 7) ?",
+  "options": [
+   "A. Elle les complète sans les modifier",
+   "B. Elle abroge et remplace toutes dispositions antérieures traitant du même objet",
+   "C. Elle suspend leur application pour 2 ans",
+   "D. Elle ne concerne pas les textes antérieurs"
+  ],
+  "bonne": 1,
+  "article": "Article 7",
+  "support": "Instruction BCEAO N° 005-08-2017 (FODEP)",
+  "lien": ""
+ },
+ {
+  "pack": "fodep",
+  "question": "Quelle autorité a édicté l'Instruction N° 005-08-2017 ?",
+  "options": [
+   "A. Le Conseil des Ministres de l'UEMOA",
+   "B. La Commission Bancaire de l'UMOA",
+   "C. Le Gouverneur de la BCEAO",
+   "D. Le CREPMF"
+  ],
+  "bonne": 2,
+  "article": "Préambule",
+  "support": "Instruction BCEAO N° 005-08-2017 (FODEP)",
+  "lien": ""
+ },
+ {
+  "pack": "fodep",
+  "question": "Sur quelles décisions de 2016 l'Instruction s'appuie-t-elle notamment (visas) ?",
+  "options": [
+   "A. Les Décisions N° 013 et N° 014 du 24 juin 2016",
+   "B. Le Règlement n°09/2010/CM/UEMOA",
+   "C. La Loi uniforme de 1990",
+   "D. Les Accords de Bâle I"
+  ],
+  "bonne": 0,
+  "article": "Préambule (visas)",
+  "support": "Instruction BCEAO N° 005-08-2017 (FODEP)",
+  "lien": ""
+ },
+ {
+  "pack": "fodep",
+  "question": "Combien de déclarations FODEP un établissement transmet-il par an (Article 4) ?",
+  "options": [
+   "A. Une seule",
+   "B. Deux",
+   "C. Quatre",
+   "D. Douze"
+  ],
+  "bonne": 1,
+  "article": "Article 4",
+  "support": "Instruction BCEAO N° 005-08-2017 (FODEP)",
+  "lien": ""
+ }
+]

@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REGUL ARENA KIDS — BFEM & Terminale (Sénégal)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --encre:#0E1B3A;
+  --encre2:#16264f;
+  --or:#F4B400;
+  --corail:#FF5A5F;
+  --menthe:#1FBF92;
+  --violet:#7C5CFC;
+  --creme:#FFF9F0;
+  --texte:#1c2233;
+  --gris:#6b7488;
+  --bord:#e7e2d6;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Nunito',system-ui,sans-serif;background:var(--creme);color:var(--texte);line-height:1.55;-webkit-tap-highlight-color:transparent}
+h1,h2,h3,.logo{font-family:'Baloo 2',cursive}
+img{max-width:100%}
+
+/* fond décoratif */
+body::before{content:"";position:fixed;inset:0;z-index:-1;
+  background:
+    radial-gradient(900px 500px at 110% -10%,rgba(124,92,252,.10),transparent),
+    radial-gradient(700px 500px at -10% 110%,rgba(31,191,146,.12),transparent),
+    var(--creme)}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:60;background:linear-gradient(135deg,var(--encre),var(--encre2));color:#fff;padding:12px 16px;display:flex;align-items:center;gap:10px;box-shadow:0 4px 18px rgba(14,27,58,.25)}
+.logo{font-weight:800;font-size:1.15rem;display:flex;align-items:center;gap:8px;letter-spacing:.3px}
+.logo .ra{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--or),#d99700);color:var(--encre);font-weight:800;font-size:.95rem;box-shadow:0 0 0 3px rgba(244,180,0,.25)}
+.logo small{display:block;font-family:'Nunito';font-weight:700;font-size:.6rem;opacity:.8;letter-spacing:2px}
+header .sp{flex:1}
+.hbtn{background:rgba(255,255,255,.12);border:none;color:#fff;font-family:'Nunito';font-weight:700;font-size:.8rem;padding:7px 12px;border-radius:10px;cursor:pointer}
+.hbtn:hover{background:rgba(255,255,255,.22)}
+
+main{max-width:880px;margin:0 auto;padding:18px 16px 90px}
+.ecran{display:none;animation:fade .35s ease}
+.ecran.actif{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+.hero{text-align:center;padding:26px 14px 14px}
+.hero h1{font-size:2rem;line-height:1.1;color:var(--encre)}
+.hero h1 .hl{color:var(--corail)}
+.hero p{color:var(--gris);max-width:520px;margin:10px auto 0;font-weight:600}
+.tag{display:inline-block;background:var(--or);color:var(--encre);font-weight:800;font-size:.7rem;padding:5px 12px;border-radius:30px;letter-spacing:1px;margin-bottom:6px}
+
+.card{background:#fff;border:1px solid var(--bord);border-radius:18px;padding:18px;box-shadow:0 10px 26px rgba(14,27,58,.06)}
+.card+.card{margin-top:14px}
+
+.btn{font-family:'Baloo 2';font-weight:700;font-size:1rem;border:none;border-radius:14px;padding:13px 18px;cursor:pointer;transition:transform .12s,box-shadow .12s;background:linear-gradient(135deg,var(--corail),#ff7a3d);color:#fff;box-shadow:0 6px 16px rgba(255,90,95,.35)}
+.btn:active{transform:translateY(2px)}
+.btn.sec{background:linear-gradient(135deg,var(--violet),#5f7bfc);box-shadow:0 6px 16px rgba(124,92,252,.32)}
+.btn.menthe{background:linear-gradient(135deg,var(--menthe),#13a87f);box-shadow:0 6px 16px rgba(31,191,146,.32)}
+.btn.ghost{background:#fff;color:var(--encre);border:2px solid var(--bord);box-shadow:none}
+.btn.full{width:100%}
+.btn.sm{font-size:.85rem;padding:9px 14px;border-radius:11px}
+
+label{display:block;font-weight:700;font-size:.82rem;margin:10px 0 4px;color:var(--encre)}
+input,select{width:100%;font-family:'Nunito';font-weight:600;font-size:.95rem;padding:12px;border:2px solid var(--bord);border-radius:12px;background:#fff;outline:none}
+input:focus,select:focus{border-color:var(--violet)}
+.muted{color:var(--gris);font-size:.82rem;font-weight:600}
+.center{text-align:center}
+
+/* grilles de choix */
+.grid{display:grid;gap:12px}
+.grid.c2{grid-template-columns:repeat(2,1fr)}
+.grid.c3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:560px){.grid.c3{grid-template-columns:repeat(2,1fr)}}
+.choice{cursor:pointer;text-align:center;border:2px solid var(--bord);border-radius:16px;padding:16px 10px;background:#fff;transition:.15s;font-weight:800;color:var(--encre)}
+.choice:hover{transform:translateY(-3px);box-shadow:0 10px 22px rgba(14,27,58,.10)}
+.choice .emo{font-size:1.7rem;display:block;margin-bottom:6px}
+.choice small{display:block;font-weight:600;color:var(--gris);font-size:.72rem;margin-top:3px}
+.choice[data-c="bfem"]{border-top:5px solid var(--menthe)}
+.choice[data-c="term_l"]{border-top:5px solid var(--violet)}
+.choice[data-c="term_s"]{border-top:5px solid var(--corail)}
+.choice[data-c="term_g"]{border-top:5px solid var(--or)}
+
+.bar{display:flex;align-items:center;gap:10px;margin:8px 0 16px;flex-wrap:wrap}
+.crumb{font-weight:800;color:var(--encre)}
+.pill{display:inline-block;background:#eef0f6;color:var(--encre);font-weight:800;font-size:.72rem;padding:4px 10px;border-radius:20px}
+.pill.warn{background:#fff3d6;color:#8a6500}
+
+/* QUIZ */
+.qprog{height:9px;background:#eef0f6;border-radius:20px;overflow:hidden;margin-bottom:14px}
+.qprog>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--menthe),var(--or));transition:width .3s}
+.qnum{font-weight:800;color:var(--gris);font-size:.8rem}
+.qtext{font-size:1.15rem;font-weight:800;color:var(--encre);margin:6px 0 14px}
+.opt{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--bord);border-radius:13px;padding:13px 15px;margin-bottom:10px;font-family:'Nunito';font-weight:700;font-size:.95rem;cursor:pointer;transition:.12s}
+.opt:hover{border-color:var(--violet)}
+.opt.ok{border-color:var(--menthe);background:#e9fbf4}
+.opt.no{border-color:var(--corail);background:#ffeceb}
+.opt:disabled{cursor:default}
+.explain{background:#f4f6fb;border-left:4px solid var(--violet);border-radius:10px;padding:11px 13px;font-size:.86rem;font-weight:600;margin-top:4px}
+.explain b{color:var(--violet)}
+.timer{font-family:'Baloo 2';font-weight:800;font-size:1.3rem;color:var(--encre)}
+.timer.low{color:var(--corail)}
+
+/* badges */
+.badges{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px}
+.badge{text-align:center;border:2px solid var(--bord);border-radius:14px;padding:12px 6px;background:#fff;opacity:.45;filter:grayscale(1)}
+.badge.on{opacity:1;filter:none;border-color:var(--or);box-shadow:0 6px 14px rgba(244,180,0,.25)}
+.badge .b{font-size:1.8rem}
+.badge small{display:block;font-weight:800;font-size:.7rem;color:var(--encre);margin-top:4px}
+
+/* toast + confettis */
+#toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(120px);background:var(--encre);color:#fff;font-weight:800;padding:13px 20px;border-radius:30px;z-index:200;box-shadow:0 10px 30px rgba(0,0,0,.3);transition:transform .35s;max-width:90%;text-align:center}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#sticker{position:fixed;inset:0;display:none;place-items:center;z-index:190;pointer-events:none}
+#sticker.show{display:grid;animation:pop .8s ease}
+#sticker b{font-family:'Baloo 2';font-size:3rem;color:#fff;text-shadow:0 4px 0 rgba(0,0,0,.18);background:linear-gradient(135deg,var(--corail),var(--or));padding:14px 30px;border-radius:24px;transform:rotate(-6deg)}
+@keyframes pop{0%{transform:scale(.3);opacity:0}40%{transform:scale(1.1);opacity:1}70%{transform:scale(.95)}100%{transform:scale(1);opacity:0}}
+canvas#cf{position:fixed;inset:0;z-index:180;pointer-events:none;display:none}
+
+/* footer nav */
+.fnav{position:fixed;left:0;right:0;bottom:0;z-index:70;background:#fff;border-top:1px solid var(--bord);display:none;justify-content:space-around;padding:8px 4px;box-shadow:0 -4px 16px rgba(14,27,58,.06)}
+.fnav.show{display:flex}
+.fnav button{background:none;border:none;font-family:'Nunito';font-weight:800;font-size:.68rem;color:var(--gris);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+.fnav button .i{font-size:1.25rem}
+.fnav button.act{color:var(--violet)}
+
+.demo-banner{background:var(--or);color:var(--encre);font-weight:800;text-align:center;padding:7px;font-size:.8rem;display:none}
+.demo-banner.show{display:block}
+</style>
+</head>
+<body>
+
+<div class="demo-banner" id="demoBanner">👁️ MODE DÉMO — crée un compte pour sauvegarder ta progression</div>
+
+<header>
+  <div class="logo"><span class="ra">RA</span><span>REGUL ARENA<small>KIDS</small></span></div>
+  <span class="sp"></span>
+  <button class="hbtn" id="hbtnCompte" onclick="aller('compte')" style="display:none">👤 Mon espace</button>
+  <button class="hbtn" id="hbtnQuit" onclick="deconnexion()" style="display:none">Quitter</button>
+</header>
+
+<main>
+
+  <!-- AUTH -->
+  <section id="ec-auth" class="ecran actif">
+    <div class="hero">
+      <span class="tag">BFEM · TERMINALE L · S · G</span>
+      <h1>Révise. Joue. <span class="hl">Réussis.</span></h1>
+      <p>La plateforme de quiz pour réussir le <b>BFEM</b> et le <b>Bac</b> au Sénégal — programme officiel 2026.</p>
+    </div>
+    <div class="card" style="max-width:420px;margin:16px auto 0">
+      <div class="bar" style="justify-content:center">
+        <button class="btn ghost sm" id="tabSignup" onclick="setAuthTab('signup')">Créer un compte</button>
+        <button class="btn ghost sm" id="tabLogin" onclick="setAuthTab('login')">Se connecter</button>
+      </div>
+      <div id="signupFields">
+        <label>Prénom</label><input id="suPrenom" placeholder="Ton prénom">
+        <label>Classe</label>
+        <select id="suClasse">
+          <option value="bfem">3e (BFEM)</option>
+          <option value="term_l">Terminale L</option>
+          <option value="term_s">Terminale S</option>
+          <option value="term_g">Terminale G</option>
+        </select>
+      </div>
+      <label>Téléphone (identifiant)</label><input id="auTel" inputmode="tel" placeholder="77 123 45 67">
+      <label>Code secret</label><input id="auPin" type="password" inputmode="numeric" placeholder="choisis un code à 4 chiffres">
+      <button class="btn full" style="margin-top:14px" id="btnAuth" onclick="soumettreAuth()">Créer mon compte</button>
+      <button class="btn ghost full" style="margin-top:8px" onclick="entrerDemo()">👁️ Découvrir en démo</button>
+      <p class="muted center" style="margin-top:10px">Aucune donnée envoyée — tout reste sur ton appareil (V1).</p>
+    </div>
+  </section>
+
+  <!-- ACCUEIL / CHOIX CLASSE -->
+  <section id="ec-accueil" class="ecran">
+    <div class="bar"><span class="crumb" id="bonjour">Salut !</span><span class="sp" style="flex:1"></span><span class="pill" id="pillStreak">🔥 0 jour</span></div>
+    <div class="card">
+      <h2 style="color:var(--encre)">Choisis ta classe</h2>
+      <p class="muted">Tu peux changer à tout moment.</p>
+      <div class="grid c2" id="gridClasses" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+  <!-- MATIERES -->
+  <section id="ec-matieres" class="ecran">
+    <div class="bar">
+      <button class="btn ghost sm" onclick="aller('accueil')">← Classes</button>
+      <span class="pill" id="pillClasse"></span>
+    </div>
+    <div class="card">
+      <h2 style="color:var(--encre)">Matières</h2>
+      <p class="muted">Choisis une matière pour t'entraîner.</p>
+      <div class="grid c3" id="gridMatieres" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+  <!-- LECONS / PACKS -->
+  <section id="ec-packs" class="ecran">
+    <div class="bar">
+      <button class="btn ghost sm" onclick="aller('matieres')">← Matières</button>
+      <span class="pill" id="pillMatiere"></span>
+    </div>
+    <div class="card">
+      <h2 style="color:var(--encre)" id="packsTitre">Chapitres</h2>
+      <div id="listePacks" style="margin-top:12px;display:grid;gap:10px"></div>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="ec-quiz" class="ecran">
+    <div class="bar">
+      <button class="btn ghost sm" onclick="confirmerSortie()">← Quitter</button>
+      <span class="sp" style="flex:1"></span>
+      <span class="timer" id="timer">⏱ 20</span>
+    </div>
+    <div class="qprog"><i id="qbar"></i></div>
+    <div class="card">
+      <span class="qnum" id="qnum"></span>
+      <div class="qtext" id="qtext"></div>
+      <div id="qopts"></div>
+      <div id="qexpl"></div>
+      <button class="btn full menthe" id="qnext" style="display:none;margin-top:8px" onclick="questionSuivante()">Continuer →</button>
+    </div>
+  </section>
+
+  <!-- RESULTAT -->
+  <section id="ec-result" class="ecran">
+    <div class="card center">
+      <div id="resEmo" style="font-size:3rem">🎉</div>
+      <h2 style="color:var(--encre)" id="resTitre">Bien joué !</h2>
+      <p class="muted" id="resSous"></p>
+      <div style="font-family:'Baloo 2';font-weight:800;font-size:2.4rem;color:var(--corail);margin:8px 0" id="resScore">0/0</div>
+      <div class="grid c2" style="margin-top:8px">
+        <button class="btn sec" onclick="rejouer()">↻ Rejouer</button>
+        <button class="btn menthe" onclick="aller('packs')">Autre chapitre</button>
+      </div>
+      <button class="btn ghost full" style="margin-top:10px" onclick="genCertificat()">🏆 Mon certificat (PNG)</button>
+      <button class="btn ghost full" style="margin-top:8px" onclick="partageWhatsApp()">📲 Partager mon score</button>
+    </div>
+  </section>
+
+  <!-- COMPTE -->
+  <section id="ec-compte" class="ecran">
+    <div class="bar"><button class="btn ghost sm" onclick="aller('accueil')">← Accueil</button></div>
+    <div class="card">
+      <h2 style="color:var(--encre)">Mon espace</h2>
+      <p class="muted" id="compteInfo"></p>
+      <h3 style="color:var(--encre);margin-top:14px;font-size:1.05rem">Mes badges</h3>
+      <div class="badges" id="badges"></div>
+      <h3 style="color:var(--encre);margin-top:16px;font-size:1.05rem">Ma progression</h3>
+      <div id="prog" style="margin-top:6px"></div>
+    </div>
+  </section>
+
+  <!-- DUEL LOBBY -->
+  <section id="ec-duel" class="ecran">
+    <div class="bar"><button class="btn ghost sm" onclick="aller('accueil')">← Accueil</button><span class="pill">⚔️ Duel</span></div>
+    <div class="card">
+      <h2 style="color:var(--encre)">Créer un duel</h2>
+      <p class="muted" id="duelCtx"></p>
+      <label>Nombre de questions</label>
+      <select id="duelNb"><option>3</option><option selected>5</option><option>10</option></select>
+      <label>Temps par question</label>
+      <select id="duelTiming"><option value="10">10 s</option><option value="20" selected>20 s</option><option value="30">30 s</option></select>
+      <button class="btn full" style="margin-top:14px" onclick="creerDuel()">⚔️ Créer et inviter</button>
+    </div>
+    <div class="card">
+      <h2 style="color:var(--encre)">Rejoindre un duel</h2>
+      <label>Code reçu</label><input id="duelCode" placeholder="ex: K7P2" style="text-transform:uppercase">
+      <button class="btn sec full" style="margin-top:12px" onclick="rejoindreDuel()">Rejoindre ▶</button>
+    </div>
+  </section>
+
+  <!-- DUEL ATTENTE -->
+  <section id="ec-duel-attente" class="ecran">
+    <div class="card center">
+      <div style="font-size:2.4rem">⏳</div>
+      <h2 style="color:var(--encre)">En attente d'un adversaire…</h2>
+      <p class="muted">Partage ce code :</p>
+      <div style="font-family:'Baloo 2';font-weight:800;font-size:2.6rem;letter-spacing:6px;color:var(--corail)" id="codeAffiche">----</div>
+      <button class="btn full" style="margin-top:12px" onclick="partagerCodeDuel()">📲 Envoyer l'invitation</button>
+      <button class="btn ghost full" style="margin-top:8px" onclick="annulerDuel()">Annuler</button>
+    </div>
+  </section>
+
+  <!-- DUEL JEU -->
+  <section id="ec-duel-jeu" class="ecran">
+    <div class="bar">
+      <span class="pill" id="dScoreMoi">Moi 0</span>
+      <span class="sp" style="flex:1;text-align:center;font-weight:800;color:var(--gris)">VS</span>
+      <span class="pill" id="dScoreOpp">Adv 0</span>
+      <span class="timer" id="dTimer" style="margin-left:8px">⏱ 20</span>
+    </div>
+    <div class="qprog"><i id="dbar"></i></div>
+    <div class="card">
+      <span class="qnum" id="dqnum"></span>
+      <div class="qtext" id="dqtext"></div>
+      <div id="dqopts"></div>
+      <div id="dqinfo"></div>
+    </div>
+    <div class="card" style="padding:12px">
+      <div id="chatBox" style="max-height:120px;overflow:auto;font-size:.85rem;font-weight:600;margin-bottom:8px"></div>
+      <div style="display:flex;gap:6px"><input id="chatInput" placeholder="Message…" style="flex:1"><button class="btn sm menthe" onclick="envoyerChat()">↑</button></div>
+    </div>
+  </section>
+
+  <!-- DUEL FEUILLE DE MATCH -->
+  <section id="ec-duel-fin" class="ecran">
+    <div class="card center">
+      <div id="dFinEmo" style="font-size:3rem">🏁</div>
+      <h2 style="color:var(--encre)" id="dFinTitre">Fin du duel</h2>
+      <div style="font-family:'Baloo 2';font-weight:800;font-size:2rem;color:var(--corail);margin:6px 0" id="dFinScore"></div>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--encre);font-size:1.05rem">Feuille de match</h3>
+      <div id="dFeuille" style="margin-top:8px"></div>
+      <button class="btn full" style="margin-top:12px" onclick="aller('duel')">↻ Nouveau duel</button>
+      <button class="btn ghost full" style="margin-top:8px" onclick="aller('accueil')">Accueil</button>
+    </div>
+  </section>
+
+</main>
+
+<nav class="fnav" id="fnav">
+  <button data-go="accueil" onclick="aller('accueil')"><span class="i">🏠</span>Accueil</button>
+  <button data-go="matieres" onclick="goMatieresNav()"><span class="i">📚</span>Matières</button>
+  <button data-go="duel" onclick="ouvrirDuel()"><span class="i">⚔️</span>Duel</button>
+  <button data-go="compte" onclick="aller('compte')"><span class="i">👤</span>Espace</button>
+</nav>
+
+<div id="toast"></div>
+<div id="sticker"><b id="stickerTxt">BRAVO</b></div>
+<canvas id="cf"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* =========================================================
+   REGUL ARENA KIDS — V1 socle autonome (localStorage)
+   Backend Supabase + duels/tournoi/chat: à brancher en V2.
+   Quiz: ÉCHANTILLONS GÉNÉRÉS — À VALIDER avant publication.
+   ========================================================= */
+
+/* ---------- CONFIG SUPABASE ---------- */
+const SB_URL = "https://godswhixzygqotnndmjl.supabase.co";
+const SB_KEY = "sb_publishable_yhj82bNcQdoGrTu7guetrw_r1QA0JQ-";
+let sb = null;
+try{ sb = window.supabase.createClient(SB_URL, SB_KEY); }catch(e){ console.warn("Supabase non chargé, mode local",e); }
+
+/* ---------- PROGRAMME (structure officielle Sénégal 2026) ---------- */
+const CLASSES = {
+  bfem:   {label:"3e — BFEM", emo:"🎓"},
+  term_l: {label:"Terminale L", emo:"📖"},
+  term_s: {label:"Terminale S", emo:"🔬"},
+  term_g: {label:"Terminale G", emo:"📊"}
+};
+
+// Matières par classe (programme sénégalais — à compléter/valider)
+const MATIERES = {
+  bfem:   ["Français","Mathématiques","SVT","Physique-Chimie","Histoire-Géographie","Anglais"],
+  term_l: ["Philosophie","Français/Littérature","Histoire-Géographie","Anglais","Mathématiques"],
+  term_s: ["Mathématiques","Physique-Chimie","SVT","Philosophie","Anglais"],
+  term_g: ["Comptabilité","Économie","Droit","Mathématiques","Philosophie"]
+};
+const EMO_MAT = {"Français":"✍️","Mathématiques":"➗","SVT":"🌱","Physique-Chimie":"⚗️","Histoire-Géographie":"🗺️","Anglais":"🇬🇧","Philosophie":"💭","Français/Littérature":"📚","Comptabilité":"🧾","Économie":"💱","Droit":"⚖️"};
+
+/* ---------- BANQUE DE QUIZ (échantillons générés — À VALIDER) ----------
+   Clé: `${classe}|${matiere}` -> [ {chap, q, opts[], bonne(index), src} ] */
+const QUIZ = {
+  "bfem|Mathématiques":[
+    {chap:"Théorème de Pythagore", q:"Dans un triangle rectangle, le carré de l'hypoténuse est égal à…", opts:["la somme des carrés des deux autres côtés","la somme des deux autres côtés","le produit des deux autres côtés","le double du plus grand côté"], bonne:0, src:"Programme BFEM — Géométrie"},
+    {chap:"Théorème de Pythagore", q:"Un triangle a pour côtés 3, 4 et 5 cm. Est-il rectangle ?", opts:["Oui car 3²+4²=5²","Non","Impossible à savoir","Seulement s'il est isocèle"], bonne:0, src:"Programme BFEM — Géométrie"},
+    {chap:"Théorème de Thalès", q:"Le théorème de Thalès s'applique dans une configuration de…", opts:["droites parallèles coupant deux sécantes","triangle rectangle","cercle","losange"], bonne:0, src:"Programme BFEM — Géométrie"},
+    {chap:"Calcul littéral", q:"Développe (x+3)(x+2).", opts:["x²+5x+6","x²+6x+5","x²+5x+5","x²+6"], bonne:0, src:"Programme BFEM — Algèbre"},
+    {chap:"Calcul littéral", q:"Factorise x²-9.", opts:["(x-3)(x+3)","(x-9)(x+1)","(x-3)²","(x+3)²"], bonne:0, src:"Programme BFEM — Identités remarquables"},
+    {chap:"Équations", q:"Résous 2x+6=0.", opts:["x=-3","x=3","x=-6","x=6"], bonne:0, src:"Programme BFEM — Équations du 1er degré"},
+    {chap:"Statistiques", q:"La moyenne de 4, 6 et 8 est…", opts:["6","9","18","4"], bonne:0, src:"Programme BFEM — Statistiques"}
+  ],
+  "bfem|Français":[
+    {chap:"Figures de style", q:"« Le temps file » est une…", opts:["personnification/métaphore","comparaison","hyperbole","litote"], bonne:0, src:"Programme BFEM — Étude de la langue"},
+    {chap:"Figures de style", q:"« Fort comme un lion » est une…", opts:["comparaison","métaphore","métonymie","euphémisme"], bonne:0, src:"Programme BFEM — Figures de style"},
+    {chap:"Grammaire", q:"Dans « Le chat dort », quelle est la fonction de « le chat » ?", opts:["sujet","COD","COI","complément circonstanciel"], bonne:0, src:"Programme BFEM — Grammaire"},
+    {chap:"Conjugaison", q:"« Nous (finir) » au présent de l'indicatif donne…", opts:["nous finissons","nous finissez","nous finons","nous finit"], bonne:0, src:"Programme BFEM — Conjugaison"},
+    {chap:"Types de texte", q:"Un texte qui raconte une histoire est…", opts:["narratif","argumentatif","descriptif","injonctif"], bonne:0, src:"Programme BFEM — Typologie textuelle"}
+  ],
+  "bfem|SVT":[
+    {chap:"La digestion", q:"Où commence la digestion des aliments ?", opts:["Dans la bouche","Dans l'estomac","Dans l'intestin grêle","Dans le foie"], bonne:0, src:"Programme BFEM — Nutrition"},
+    {chap:"La digestion", q:"L'absorption des nutriments se fait principalement dans…", opts:["l'intestin grêle","l'estomac","le gros intestin","l'œsophage"], bonne:0, src:"Programme BFEM — Nutrition"},
+    {chap:"La respiration", q:"Quel gaz est rejeté lors de la respiration ?", opts:["Le dioxyde de carbone","Le dioxygène","L'azote","L'hydrogène"], bonne:0, src:"Programme BFEM — Respiration"},
+    {chap:"Le système nerveux", q:"L'organe central du système nerveux est…", opts:["l'encéphale","le cœur","le poumon","le foie"], bonne:0, src:"Programme BFEM — Système nerveux"},
+    {chap:"La reproduction", q:"La cellule reproductrice femelle est…", opts:["l'ovule","le spermatozoïde","le zygote","le neurone"], bonne:0, src:"Programme BFEM — Reproduction humaine"}
+  ],
+  "bfem|Physique-Chimie":[
+    {chap:"Électricité", q:"Quelle est l'unité de l'intensité du courant ?", opts:["L'ampère (A)","Le volt (V)","Le watt (W)","L'ohm (Ω)"], bonne:0, src:"Programme BFEM — Électricité"},
+    {chap:"Électricité", q:"La loi d'Ohm s'écrit…", opts:["U = R × I","U = R / I","I = U × R","R = U × I"], bonne:0, src:"Programme BFEM — Électricité"},
+    {chap:"Chimie", q:"L'eau pure est…", opts:["un corps pur","un mélange homogène","un mélange hétérogène","une solution"], bonne:0, src:"Programme BFEM — Chimie"},
+    {chap:"Optique", q:"La lumière se propage en ligne…", opts:["droite","courbe","brisée","circulaire"], bonne:0, src:"Programme BFEM — Optique"},
+    {chap:"Mécanique", q:"L'unité de force dans le Système International est…", opts:["le newton (N)","le kilogramme (kg)","le joule (J)","le pascal (Pa)"], bonne:0, src:"Programme BFEM — Mécanique"}
+  ],
+  "bfem|Histoire-Géographie":[
+    {chap:"Indépendances", q:"En quelle année le Sénégal accède-t-il à l'indépendance ?", opts:["1960","1958","1962","1945"], bonne:0, src:"Programme BFEM — Histoire"},
+    {chap:"Indépendances", q:"Qui fut le premier président du Sénégal ?", opts:["Léopold Sédar Senghor","Abdou Diouf","Mamadou Dia","Blaise Diagne"], bonne:0, src:"Programme BFEM — Histoire"},
+    {chap:"Géographie du Sénégal", q:"Quel fleuve marque la frontière nord du Sénégal ?", opts:["Le fleuve Sénégal","La Gambie","La Casamance","Le Niger"], bonne:0, src:"Programme BFEM — Géographie"},
+    {chap:"Géographie du Sénégal", q:"La capitale du Sénégal est…", opts:["Dakar","Thiès","Saint-Louis","Ziguinchor"], bonne:0, src:"Programme BFEM — Géographie"},
+    {chap:"Colonisation", q:"La conférence qui organise le partage de l'Afrique (1884-1885) eut lieu à…", opts:["Berlin","Paris","Londres","Bruxelles"], bonne:0, src:"Programme BFEM — Histoire"}
+  ],
+  "bfem|Anglais":[
+    {chap:"Present simple", q:"Choose: She ___ to school every day.", opts:["goes","go","going","gone"], bonne:0, src:"Programme BFEM — Present simple"},
+    {chap:"Plural", q:"The plural of « child » is…", opts:["children","childs","childes","child"], bonne:0, src:"Programme BFEM — Plurals"},
+    {chap:"Comparatives", q:"« Big » becomes, in the comparative…", opts:["bigger","more big","biggest","more bigger"], bonne:0, src:"Programme BFEM — Comparatives"},
+    {chap:"Prepositions", q:"I live ___ Dakar.", opts:["in","at","on","of"], bonne:0, src:"Programme BFEM — Prepositions"}
+  ],
+
+  "term_l|Philosophie":[
+    {chap:"La conscience", q:"« Je pense donc je suis » est une formule de…", opts:["Descartes","Platon","Kant","Sartre"], bonne:0, src:"Programme Terminale — Philosophie"},
+    {chap:"La liberté", q:"Pour Sartre, l'homme est…", opts:["condamné à être libre","déterminé par la nature","esclave de Dieu","sans conscience"], bonne:0, src:"Programme Terminale — Philosophie"},
+    {chap:"La vérité", q:"Une proposition vraie par sa seule forme logique est dite…", opts:["formelle","empirique","révélée","probable"], bonne:0, src:"Programme Terminale — Philosophie"},
+    {chap:"L'État", q:"Pour Hobbes, l'état de nature est…", opts:["une guerre de tous contre tous","un paradis","une société juste","une démocratie"], bonne:0, src:"Programme Terminale — Philosophie politique"},
+    {chap:"Le travail", q:"Selon Marx, le travail aliéné prive l'ouvrier de…", opts:["son produit","sa famille","sa santé seule","sa nationalité"], bonne:0, src:"Programme Terminale — Philosophie"}
+  ],
+  "term_l|Français/Littérature":[
+    {chap:"Mouvements littéraires", q:"La Négritude est un mouvement porté notamment par…", opts:["Senghor et Césaire","Hugo et Balzac","Voltaire et Rousseau","Zola et Maupassant"], bonne:0, src:"Programme Terminale — Littérature"},
+    {chap:"Mouvements littéraires", q:"Le Romantisme met en avant…", opts:["les sentiments et la nature","la raison pure","la science","le réalisme social"], bonne:0, src:"Programme Terminale — Littérature"},
+    {chap:"Genres littéraires", q:"Une pièce de théâtre se divise en…", opts:["actes et scènes","strophes","chapitres","paragraphes"], bonne:0, src:"Programme Terminale — Genres"},
+    {chap:"Figures de style", q:"« Ô temps, suspends ton vol » contient une…", opts:["apostrophe","litote","métonymie","gradation"], bonne:0, src:"Programme Terminale — Stylistique"}
+  ],
+  "term_l|Histoire-Géographie":[
+    {chap:"Guerre froide", q:"La Guerre froide oppose principalement…", opts:["les USA et l'URSS","la France et l'Allemagne","la Chine et le Japon","le Royaume-Uni et les USA"], bonne:0, src:"Programme Terminale — Histoire"},
+    {chap:"Guerre froide", q:"Le mur de Berlin tombe en…", opts:["1989","1961","1975","1991"], bonne:0, src:"Programme Terminale — Histoire"},
+    {chap:"Décolonisation", q:"L'année 1960 est appelée…", opts:["l'année de l'Afrique","l'année zéro","l'année des empires","l'année coloniale"], bonne:0, src:"Programme Terminale — Histoire"},
+    {chap:"Mondialisation", q:"Le sigle FMI désigne…", opts:["le Fonds Monétaire International","la Fédération Mondiale Industrielle","le Forum Mondial Internet","le Fonds Mondial d'Investissement"], bonne:0, src:"Programme Terminale — Géographie"}
+  ],
+  "term_l|Anglais":[
+    {chap:"Tenses", q:"« I have lived here ___ 2010. »", opts:["since","for","ago","during"], bonne:0, src:"Programme Terminale — Tenses"},
+    {chap:"Reported speech", q:"« He said he ___ tired. » (présent → discours indirect)", opts:["was","is","be","being"], bonne:0, src:"Programme Terminale — Reported speech"},
+    {chap:"Conditionals", q:"« If it rains, I ___ at home. »", opts:["will stay","stayed","would stay","stay"], bonne:0, src:"Programme Terminale — Conditionals"}
+  ],
+  "term_l|Mathématiques":[
+    {chap:"Suites", q:"Une suite où l'on ajoute toujours le même nombre est…", opts:["arithmétique","géométrique","constante","alternée"], bonne:0, src:"Programme Terminale L — Suites"},
+    {chap:"Probabilités", q:"La probabilité d'un événement certain vaut…", opts:["1","0","0,5","100"], bonne:0, src:"Programme Terminale L — Probabilités"},
+    {chap:"Fonctions", q:"Une fonction affine s'écrit…", opts:["f(x)=ax+b","f(x)=ax²","f(x)=1/x","f(x)=√x"], bonne:0, src:"Programme Terminale L — Fonctions"}
+  ],
+
+  "term_s|Mathématiques":[
+    {chap:"Dérivées", q:"La dérivée de f(x)=x² est…", opts:["2x","x","x²/2","2"], bonne:0, src:"Programme Terminale S — Analyse"},
+    {chap:"Dérivées", q:"La dérivée de f(x)=3x+5 est…", opts:["3","5","3x","8"], bonne:0, src:"Programme Terminale S — Analyse"},
+    {chap:"Limites", q:"lim(x→+∞) de 1/x vaut…", opts:["0","+∞","1","-∞"], bonne:0, src:"Programme Terminale S — Limites"},
+    {chap:"Suites", q:"Une suite géométrique de raison q se définit par u(n+1) = …", opts:["q × u(n)","q + u(n)","u(n)/q","u(n) - q"], bonne:0, src:"Programme Terminale S — Suites"},
+    {chap:"Probabilités", q:"Deux événements sont indépendants si P(A∩B) = …", opts:["P(A) × P(B)","P(A) + P(B)","P(A) - P(B)","P(A)/P(B)"], bonne:0, src:"Programme Terminale S — Probabilités"},
+    {chap:"Intégrales", q:"Une primitive de f(x)=2x est…", opts:["x²","2","x²/2","2x²"], bonne:0, src:"Programme Terminale S — Intégration"}
+  ],
+  "term_s|Physique-Chimie":[
+    {chap:"Mécanique", q:"La 2e loi de Newton s'écrit…", opts:["ΣF = m·a","F = m/a","E = mc²","P = U·I"], bonne:0, src:"Programme Terminale S — Mécanique"},
+    {chap:"Énergie", q:"L'énergie cinétique vaut…", opts:["½mv²","mgh","mv","½mv"], bonne:0, src:"Programme Terminale S — Énergie"},
+    {chap:"Chimie", q:"Une solution de pH = 3 est…", opts:["acide","basique","neutre","saline"], bonne:0, src:"Programme Terminale S — Chimie"},
+    {chap:"Chimie", q:"La quantité de matière se mesure en…", opts:["mole","gramme","litre","kelvin"], bonne:0, src:"Programme Terminale S — Chimie"},
+    {chap:"Ondes", q:"La fréquence d'une onde se mesure en…", opts:["hertz (Hz)","mètre (m)","seconde (s)","joule (J)"], bonne:0, src:"Programme Terminale S — Ondes"}
+  ],
+  "term_s|SVT":[
+    {chap:"Génétique", q:"Le support de l'information génétique est…", opts:["l'ADN","l'ARN seul","la protéine","le glucose"], bonne:0, src:"Programme Terminale S — Génétique"},
+    {chap:"Génétique", q:"Les bases de l'ADN sont A, T, G et…", opts:["C","U","P","N"], bonne:0, src:"Programme Terminale S — Génétique"},
+    {chap:"Immunologie", q:"Les anticorps sont produits par…", opts:["les lymphocytes B","les globules rouges","les plaquettes","les neurones"], bonne:0, src:"Programme Terminale S — Immunologie"},
+    {chap:"Neurone", q:"Le message nerveux est de nature…", opts:["électrique puis chimique","uniquement mécanique","uniquement thermique","lumineuse"], bonne:0, src:"Programme Terminale S — Communication nerveuse"}
+  ],
+  "term_s|Philosophie":[
+    {chap:"La vérité", q:"Une vérité démontrée logiquement est dite…", opts:["formelle/logique","révélée","probable","subjective"], bonne:0, src:"Programme Terminale — Philosophie"},
+    {chap:"La science", q:"Pour Popper, une théorie scientifique doit être…", opts:["réfutable","éternelle","indémontrable","intuitive"], bonne:0, src:"Programme Terminale — Épistémologie"},
+    {chap:"La conscience", q:"L'inconscient est une notion développée par…", opts:["Freud","Descartes","Aristote","Comte"], bonne:0, src:"Programme Terminale — Philosophie"}
+  ],
+  "term_s|Anglais":[
+    {chap:"Tenses", q:"« Water ___ at 100°C. »", opts:["boils","boil","is boiling","boiled"], bonne:0, src:"Programme Terminale — Tenses"},
+    {chap:"Conditionals", q:"« If I were rich, I ___ travel. »", opts:["would","will","am","had"], bonne:0, src:"Programme Terminale — Conditionals"}
+  ],
+
+  "term_g|Comptabilité":[
+    {chap:"Le bilan", q:"Dans un bilan, l'actif représente…", opts:["ce que possède l'entreprise","les dettes","le résultat net","le chiffre d'affaires"], bonne:0, src:"Programme Terminale G — Comptabilité (SYSCOHADA)"},
+    {chap:"Le bilan", q:"Le passif du bilan regroupe…", opts:["les ressources et dettes","les biens durables","les stocks","les créances clients"], bonne:0, src:"Programme Terminale G — Comptabilité"},
+    {chap:"Partie double", q:"Toute opération comptable affecte…", opts:["au moins deux comptes","un seul compte","le bilan uniquement","le résultat uniquement"], bonne:0, src:"Programme Terminale G — Principe de la partie double"},
+    {chap:"Partie double", q:"Dans une écriture, le total des débits doit être…", opts:["égal au total des crédits","supérieur aux crédits","inférieur aux crédits","nul"], bonne:0, src:"Programme Terminale G — Comptabilité"},
+    {chap:"TVA", q:"La TVA est un impôt sur…", opts:["la consommation","le revenu","les sociétés","le foncier"], bonne:0, src:"Programme Terminale G — Fiscalité"},
+    {chap:"Résultat", q:"Le résultat = produits …", opts:["- charges","+ charges","× charges","/ charges"], bonne:0, src:"Programme Terminale G — Compte de résultat"}
+  ],
+  "term_g|Économie":[
+    {chap:"Le marché", q:"Le prix d'équilibre est atteint quand…", opts:["l'offre égale la demande","l'offre dépasse la demande","la demande est nulle","l'État fixe le prix"], bonne:0, src:"Programme Terminale G — Microéconomie"},
+    {chap:"Le marché", q:"Si le prix augmente, en général la demande…", opts:["diminue","augmente","reste nulle","double"], bonne:0, src:"Programme Terminale G — Microéconomie"},
+    {chap:"Croissance", q:"Le PIB mesure…", opts:["la richesse produite dans un pays","la population","le chômage","l'inflation seule"], bonne:0, src:"Programme Terminale G — Macroéconomie"},
+    {chap:"Monnaie", q:"L'inflation correspond à…", opts:["une hausse générale des prix","une baisse des prix","une hausse du chômage","une baisse du PIB"], bonne:0, src:"Programme Terminale G — Monnaie"},
+    {chap:"Monnaie", q:"La banque centrale de l'UEMOA est…", opts:["la BCEAO","la BAD","le FMI","la BOAD"], bonne:0, src:"Programme Terminale G — Système monétaire UEMOA"}
+  ],
+  "term_g|Droit":[
+    {chap:"Sources du droit", q:"En droit, la loi est votée par…", opts:["le Parlement","le juge","l'entreprise","le citoyen seul"], bonne:0, src:"Programme Terminale G — Introduction au droit"},
+    {chap:"Sources du droit", q:"La hiérarchie des normes place au sommet…", opts:["la Constitution","le décret","l'arrêté","le contrat"], bonne:0, src:"Programme Terminale G — Sources du droit"},
+    {chap:"Le contrat", q:"Un contrat valable suppose le consentement, la capacité, l'objet et…", opts:["la cause licite","un témoin","un avocat","un notaire obligatoire"], bonne:0, src:"Programme Terminale G — Droit des obligations"},
+    {chap:"Les sociétés", q:"Le sigle SARL désigne une…", opts:["Société À Responsabilité Limitée","Société Anonyme à Risque Légal","Société Agricole Régionale Locale","Société d'Assurance Réglementée"], bonne:0, src:"Programme Terminale G — Droit des sociétés (OHADA)"}
+  ],
+  "term_g|Mathématiques":[
+    {chap:"Intérêts", q:"L'intérêt simple se calcule par…", opts:["Capital × taux × durée","Capital + taux","Capital / durée","taux × durée seul"], bonne:0, src:"Programme Terminale G — Mathématiques financières"},
+    {chap:"Statistiques", q:"La valeur la plus fréquente d'une série est…", opts:["le mode","la moyenne","la médiane","l'étendue"], bonne:0, src:"Programme Terminale G — Statistiques"},
+    {chap:"Probabilités", q:"La probabilité d'un événement impossible vaut…", opts:["0","1","0,5","-1"], bonne:0, src:"Programme Terminale G — Probabilités"}
+  ],
+  "term_g|Philosophie":[
+    {chap:"Le travail", q:"Selon une thèse classique, le travail permet à l'homme de…", opts:["se transformer et s'humaniser","perdre sa liberté seulement","s'appauvrir toujours","éviter la culture"], bonne:0, src:"Programme Terminale — Philosophie"},
+    {chap:"L'État", q:"Pour Rousseau, le fondement de l'État légitime est…", opts:["le contrat social","la force","la tradition seule","la religion"], bonne:0, src:"Programme Terminale — Philosophie politique"}
+  ]
+};
+
+const BADGES = [
+  {id:"bronze", b:"🥉", nom:"1er quiz", seuil:1},
+  {id:"argent", b:"🥈", nom:"5 quiz", seuil:5},
+  {id:"or",     b:"🥇", nom:"15 quiz", seuil:15}
+];
+
+/* ---------- ÉTAT ---------- */
+let U = null;        // user {prenom, classe, tel, pin}
+let DEMO = false;
+let nav = {classe:null, matiere:null};
+let partie = null;   // {pool, i, score, timer, intId}
+
+const $ = id => document.getElementById(id);
+const KEY_U = "rak_user", KEY_P = "rak_prog";
+
+/* ---------- AUDIO (sons synthétisés, sans fichier) ---------- */
+let actx=null;
+function beep(freq,dur,type){ try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+  const o=actx.createOscillator(),g=actx.createGain(); o.type=type||"sine"; o.frequency.value=freq;
+  o.connect(g); g.connect(actx.destination); g.gain.setValueAtTime(.18,actx.currentTime);
+  g.gain.exponentialRampToValueAtTime(.001,actx.currentTime+dur); o.start(); o.stop(actx.currentTime+dur);}catch(e){} }
+const sonOk = ()=>{beep(660,.12,"triangle");setTimeout(()=>beep(880,.18,"triangle"),110)};
+const sonNo = ()=>beep(180,.3,"sawtooth");
+const sonWin= ()=>{[523,659,784,1046].forEach((f,k)=>setTimeout(()=>beep(f,.18,"triangle"),k*120))};
+
+/* ---------- UI helpers ---------- */
+function aller(ec){
+  document.querySelectorAll('.ecran').forEach(e=>e.classList.remove('actif'));
+  $('ec-'+ec).classList.add('actif');
+  window.scrollTo(0,0);
+  document.querySelectorAll('.fnav button').forEach(b=>b.classList.toggle('act',b.dataset.go===ec));
+  if(ec==='accueil') majAccueil();
+  if(ec==='matieres') rendreMatieres();
+  if(ec==='packs') rendrePacks();
+  if(ec==='compte') majCompte();
+}
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);}
+function sticker(txt){const s=$('sticker');$('stickerTxt').textContent=txt;s.classList.remove('show');void s.offsetWidth;s.classList.add('show');setTimeout(()=>s.classList.remove('show'),900);}
+
+/* ---------- CONFETTIS ---------- */
+function confettis(){
+  const c=$('cf'),ctx=c.getContext('2d');c.style.display='block';
+  c.width=innerWidth;c.height=innerHeight;
+  const cols=['#F4B400','#FF5A5F','#1FBF92','#7C5CFC','#16264f'];
+  let parts=Array.from({length:120},()=>({x:Math.random()*c.width,y:-20-Math.random()*c.height,r:4+Math.random()*6,vy:2+Math.random()*4,vx:-2+Math.random()*4,col:cols[Math.random()*cols.length|0],a:Math.random()*6}));
+  let frames=0;
+  (function loop(){ctx.clearRect(0,0,c.width,c.height);parts.forEach(p=>{p.y+=p.vy;p.x+=p.vx;p.a+=.1;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.a);ctx.fillStyle=p.col;ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*.6);ctx.restore();});
+    if(frames++<140)requestAnimationFrame(loop);else c.style.display='none';})();
+}
+
+/* ---------- AUTH ---------- */
+let authMode='signup';
+function setAuthTab(m){authMode=m;
+  $('signupFields').style.display=m==='signup'?'block':'none';
+  $('btnAuth').textContent=m==='signup'?'Créer mon compte':'Se connecter';
+  $('tabSignup').classList.toggle('ghost',m!=='signup');
+  $('tabLogin').classList.toggle('ghost',m!=='login');
+}
+const telToEmail = tel => tel.replace(/\D/g,'')+"@regulkids.app";
+const telToPass  = (tel,pin) => "RK"+pin+tel.replace(/\D/g,'').slice(-6);
+
+async function soumettreAuth(){
+  const tel=$('auTel').value.replace(/\s/g,''), pin=$('auPin').value.trim();
+  if(tel.length<6||pin.length<4){toast("Téléphone + code à 4 chiffres requis");return;}
+  $('btnAuth').disabled=true;
+  const email=telToEmail(tel), pass=telToPass(tel,pin);
+  try{
+    if(authMode==='signup'){
+      const prenom=$('suPrenom').value.trim()||"Champion", classe=$('suClasse').value;
+      const {data,error}=await sb.auth.signUp({email,password:pass,options:{data:{prenom,classe}}});
+      if(error) throw error;
+      U={id:data.user.id,prenom,classe,tel};
+      await sb.from('profils').upsert({id:U.id,prenom,classe});
+      DEMO=false; entrerApp(); toast("Compte créé 🎉");
+    }else{
+      const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
+      if(error) throw error;
+      await chargerProfil(data.user); DEMO=false; entrerApp(); toast("Re-bonjour "+U.prenom+" 👋");
+    }
+  }catch(e){ toast(e.message&&/already/i.test(e.message)?"Compte déjà existant — connecte-toi":(e.message||"Erreur")); }
+  $('btnAuth').disabled=false;
+}
+async function chargerProfil(user){
+  let prenom=user.user_metadata?.prenom||"Champion", classe=user.user_metadata?.classe||"bfem";
+  const {data}=await sb.from('profils').select('*').eq('id',user.id).single();
+  if(data){prenom=data.prenom||prenom;classe=data.classe||classe;}
+  U={id:user.id,prenom,classe,tel:(user.email||'').split('@')[0]};
+}
+function entrerDemo(){DEMO=true;U={prenom:"Invité",classe:"bfem"};$('demoBanner').classList.add('show');entrerApp();}
+function entrerApp(){
+  $('fnav').classList.add('show');
+  $('hbtnCompte').style.display=DEMO?'none':'inline-block';
+  $('hbtnQuit').style.display='inline-block';
+  nav.classe=U.classe;
+  aller('accueil');
+}
+async function deconnexion(){try{await sb.auth.signOut();}catch(e){} U=null;DEMO=false;$('demoBanner').classList.remove('show');$('fnav').classList.remove('show');$('hbtnCompte').style.display='none';$('hbtnQuit').style.display='none';aller('auth');}
+
+/* ---------- PROGRESSION ---------- */
+function getProg(){return JSON.parse(localStorage.getItem(KEY_P)||'{"quizFaits":0,"detail":{}}');}
+function setProg(p){if(!DEMO)localStorage.setItem(KEY_P,JSON.stringify(p));}
+
+/* ---------- ACCUEIL ---------- */
+function majAccueil(){
+  $('bonjour').textContent="Salut "+U.prenom+" 👋";
+  const g=$('gridClasses');g.innerHTML='';
+  Object.entries(CLASSES).forEach(([k,v])=>{
+    const d=document.createElement('div');d.className='choice';d.dataset.c=k;
+    d.innerHTML=`<span class="emo">${v.emo}</span>${v.label}<small>${(MATIERES[k]||[]).length} matières</small>`;
+    d.onclick=()=>{nav.classe=k;aller('matieres');};
+    if(k===nav.classe)d.style.boxShadow='0 0 0 3px var(--violet)';
+    g.appendChild(d);
+  });
+}
+function goMatieresNav(){if(!nav.classe)nav.classe=U.classe;aller('matieres');}
+
+/* ---------- MATIERES ---------- */
+function rendreMatieres(){
+  $('pillClasse').textContent=CLASSES[nav.classe].label;
+  const g=$('gridMatieres');g.innerHTML='';
+  (MATIERES[nav.classe]||[]).forEach(m=>{
+    const n=(QUIZ[nav.classe+'|'+m]||[]).length;
+    const d=document.createElement('div');d.className='choice';
+    d.innerHTML=`<span class="emo">${EMO_MAT[m]||'📘'}</span>${m}<small>${n?n+' quiz':'bientôt'}</small>`;
+    d.onclick=()=>{nav.matiere=m;aller('packs');};
+    g.appendChild(d);
+  });
+}
+
+/* ---------- PACKS / CHAPITRES ---------- */
+function rendrePacks(){
+  $('pillMatiere').textContent=nav.matiere;
+  $('packsTitre').textContent=nav.matiere+" — Chapitres";
+  const pool=QUIZ[nav.classe+'|'+nav.matiere]||[];
+  const chaps=[...new Set(pool.map(q=>q.chap))];
+  const c=$('listePacks');c.innerHTML='';
+  if(!chaps.length){c.innerHTML='<p class="muted">Quiz en cours de préparation pour cette matière. Reviens bientôt !</p>';return;}
+  chaps.forEach(ch=>{
+    const qs=pool.filter(q=>q.chap===ch);
+    const row=document.createElement('div');row.className='card';row.style.padding='14px';row.style.margin='0';
+    row.innerHTML=`<div style="display:flex;align-items:center;gap:10px">
+      <div style="flex:1"><b style="color:var(--encre)">${ch}</b><br><span class="muted">${qs.length} question(s)</span>
+      <div style="margin-top:4px"><span class="pill warn">⚠ à valider</span></div></div>
+      <button class="btn sm">Jouer ▶</button></div>`;
+    row.querySelector('button').onclick=()=>lancerQuiz(qs,ch);
+    c.appendChild(row);
+  });
+  // bouton "tout mélanger"
+  const all=document.createElement('button');all.className='btn sec full';all.textContent='🎲 Quiz mélangé ('+pool.length+' questions)';
+  all.onclick=()=>lancerQuiz(pool.slice(),nav.matiere+" (mix)");c.appendChild(all);
+  const dv=document.createElement('button');dv.className='btn full';dv.style.marginTop='8px';dv.textContent='⚔️ Défier un ami (cette matière)';
+  dv.onclick=()=>ouvrirDuel();c.appendChild(dv);
+}
+
+/* ---------- QUIZ ENGINE ---------- */
+function lancerQuiz(qs,titre){
+  partie={pool:shuffle(qs.slice()),i:0,score:0,titre,t:20,intId:null};
+  aller('quiz');afficherQuestion();
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
+function afficherQuestion(){
+  const q=partie.pool[partie.i];
+  $('qnum').textContent=`Question ${partie.i+1}/${partie.pool.length} — ${partie.titre}`;
+  $('qtext').textContent=q.q;
+  $('qbar').style.width=(partie.i/partie.pool.length*100)+'%';
+  $('qexpl').innerHTML='';$('qnext').style.display='none';
+  const o=$('qopts');o.innerHTML='';
+  q.opts.forEach((txt,idx)=>{
+    const b=document.createElement('button');b.className='opt';b.textContent=txt;
+    b.onclick=()=>repondre(idx,b);o.appendChild(b);
+  });
+  partie.t=20;majTimer();clearInterval(partie.intId);
+  partie.intId=setInterval(()=>{partie.t--;majTimer();if(partie.t<=0){clearInterval(partie.intId);repondre(-1,null);}},1000);
+}
+function majTimer(){const e=$('timer');e.textContent='⏱ '+Math.max(partie.t,0);e.classList.toggle('low',partie.t<=5);}
+function repondre(idx,btn){
+  clearInterval(partie.intId);
+  const q=partie.pool[partie.i];
+  document.querySelectorAll('#qopts .opt').forEach((b,k)=>{b.disabled=true;if(k===q.bonne)b.classList.add('ok');if(k===idx&&idx!==q.bonne)b.classList.add('no');});
+  if(idx===q.bonne){partie.score++;sonOk();sticker(['BRAVO','SUPER','EXACT','TOP'][Math.random()*4|0]);}
+  else{sonNo();}
+  $('qexpl').innerHTML=`<div class="explain"><b>Bonne réponse :</b> ${q.opts[q.bonne]}<br><span class="muted">📎 ${q.src}</span></div>`;
+  $('qnext').style.display='block';
+  $('qnext').textContent=partie.i+1<partie.pool.length?'Continuer →':'Voir mon score 🎯';
+}
+function questionSuivante(){partie.i++;if(partie.i<partie.pool.length)afficherQuestion();else finQuiz();}
+function confirmerSortie(){if(confirm("Quitter ce quiz ? Ta progression de la partie sera perdue."))aller('packs');}
+function finQuiz(){
+  clearInterval(partie.intId);
+  const s=partie.score,n=partie.pool.length,pct=Math.round(s/n*100);
+  $('resScore').textContent=s+'/'+n;
+  if(pct>=70){$('resEmo').textContent='🏆';$('resTitre').textContent='Excellent !';sonWin();confettis();}
+  else if(pct>=40){$('resEmo').textContent='💪';$('resTitre').textContent='Pas mal !';}
+  else{$('resEmo').textContent='📚';$('resTitre').textContent='Continue à réviser !';}
+  $('resSous').textContent=`${partie.titre} · ${pct}% de réussite`;
+  // progression + badges
+  const p=getProg();p.quizFaits=(p.quizFaits||0)+1;
+  p.detail[nav.classe+'|'+nav.matiere]=(p.detail[nav.classe+'|'+nav.matiere]||0)+1;setProg(p);
+  verifBadges(p.quizFaits);
+  aller('result');
+}
+function rejouer(){if(partie)lancerQuiz(partie.pool,partie.titre);}
+
+/* ---------- BADGES ---------- */
+function verifBadges(total){
+  const got=JSON.parse(localStorage.getItem('rak_badges')||'[]');
+  BADGES.forEach(b=>{if(total>=b.seuil&&!got.includes(b.id)){got.push(b.id);toast('Badge débloqué '+b.b+' '+b.nom);sticker(b.b);}});
+  if(!DEMO)localStorage.setItem('rak_badges',JSON.stringify(got));
+}
+
+/* ---------- COMPTE ---------- */
+function majCompte(){
+  const p=getProg();
+  $('compteInfo').innerHTML=`<b>${U.prenom}</b> · ${CLASSES[U.classe].label} · <b>${p.quizFaits||0}</b> quiz joués`+(DEMO?' · <span class="pill warn">mode démo</span>':'');
+  const got=JSON.parse(localStorage.getItem('rak_badges')||'[]');
+  $('badges').innerHTML=BADGES.map(b=>`<div class="badge ${got.includes(b.id)?'on':''}"><div class="b">${b.b}</div><small>${b.nom}</small></div>`).join('');
+  const det=p.detail||{};const keys=Object.keys(det);
+  $('prog').innerHTML=keys.length?keys.map(k=>{const[c,m]=k.split('|');return `<div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--bord);padding:7px 0"><span>${CLASSES[c].label} · ${m}</span><b>${det[k]}×</b></div>`;}).join(''):'<p class="muted">Aucun quiz joué pour l\'instant.</p>';
+}
+
+/* ---------- CERTIFICAT PNG ---------- */
+function genCertificat(){
+  const c=document.createElement('canvas');c.width=1000;c.height=700;const x=c.getContext('2d');
+  x.fillStyle='#0E1B3A';x.fillRect(0,0,1000,700);
+  x.strokeStyle='#F4B400';x.lineWidth=10;x.strokeRect(28,28,944,644);
+  x.fillStyle='#F4B400';x.font='bold 30px Georgia';x.textAlign='center';x.fillText('REGUL ARENA KIDS',500,120);
+  x.fillStyle='#fff';x.font='22px Georgia';x.fillText('Certificat de progression',500,165);
+  x.font='bold 46px Georgia';x.fillText(U.prenom,500,300);
+  x.font='22px Georgia';x.fillStyle='#cfd6e6';
+  x.fillText(`a brillamment travaillé le programme ${CLASSES[U.classe].label}`,500,360);
+  const p=getProg();
+  x.fillStyle='#1FBF92';x.font='bold 30px Georgia';x.fillText(`${p.quizFaits||0} quiz complétés`,500,440);
+  x.fillStyle='#fff';x.font='18px Georgia';
+  const d=new Date();x.fillText(d.toLocaleDateString('fr-FR',{month:'long',year:'numeric'}),500,560);
+  x.fillStyle='#F4B400';x.font='italic 20px Georgia';x.fillText('— REGUL ARENA KIDS —',500,615);
+  const a=document.createElement('a');a.href=c.toDataURL('image/png');a.download='certificat_regul_kids.png';a.click();
+  toast('Certificat téléchargé 🏆');
+}
+
+/* ---------- PARTAGE ---------- */
+function partageWhatsApp(){
+  const p=getProg();const txt=`Je révise mon ${CLASSES[U.classe].label} sur REGUL ARENA KIDS ! ${p.quizFaits||0} quiz déjà joués 🎯 Rejoins-moi !`;
+  if(navigator.share){navigator.share({text:txt}).catch(()=>{});}
+  else window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
+}
+
+/* =========================================================
+   DUEL TEMPS RÉEL + CHAT (Supabase Realtime broadcast)
+   ========================================================= */
+let D = null; // état du duel courant
+
+function ouvrirDuel(){
+  if(DEMO){toast("Crée un compte pour jouer en duel");return;}
+  if(!nav.classe)nav.classe=U.classe;
+  if(!nav.matiere){ nav.matiere=(MATIERES[nav.classe]||[])[0]; }
+  $('duelCtx').textContent=CLASSES[nav.classe].label+" · "+nav.matiere;
+  aller('duel');
+}
+function genCode(){return Math.random().toString(36).slice(2,6).toUpperCase();}
+
+function poolDuel(nb){
+  const pool=(QUIZ[nav.classe+'|'+nav.matiere]||[]).slice();
+  if(!pool.length)return null;
+  return shuffle(pool).slice(0,Math.min(nb,pool.length));
+}
+
+async function creerDuel(){
+  const nb=+$('duelNb').value, timing=+$('duelTiming').value;
+  const qs=poolDuel(nb);
+  if(!qs){toast("Pas encore de quiz pour cette matière");return;}
+  const code=genCode();
+  const {data,error}=await sb.from('duels').insert({
+    code, classe:nav.classe, matiere:nav.matiere, nb_quiz:qs.length, timing,
+    questions:qs, host_id:U.id, host_prenom:U.prenom, statut:'attente'
+  }).select().single();
+  if(error){toast(error.message);return;}
+  D={id:data.id,code,isHost:true,hostUid:U.id,guestUid:null,questions:qs,timing,
+     hostScore:0,guestScore:0,lock:{},reponses:[],started:false};
+  abonnerCanal();
+  $('codeAffiche').textContent=code;
+  aller('duel-attente');
+}
+
+async function rejoindreDuel(){
+  const code=$('duelCode').value.trim().toUpperCase();
+  if(code.length<3){toast("Entre un code valide");return;}
+  const {data,error}=await sb.rpc('rejoindre_duel',{p_code:code,p_prenom:U.prenom});
+  if(error){toast(error.message||"Duel introuvable");return;}
+  const row=Array.isArray(data)?data[0]:data;
+  D={id:row.id,code,isHost:false,hostUid:row.host_id,guestUid:U.id,questions:row.questions,
+     timing:row.timing,hostScore:0,guestScore:0,lock:{},reponses:[],started:false};
+  nav.classe=row.classe;nav.matiere=row.matiere;
+  abonnerCanal();
+  aller('duel-attente');
+}
+
+function abonnerCanal(){
+  D.canal=sb.channel('duel:'+D.id,{config:{broadcast:{self:true},presence:{key:U.id}}});
+  D.canal
+    .on('broadcast',{event:'sig'},({payload})=>handleSig(payload))
+    .on('presence',{event:'sync'},()=>{
+      const n=Object.keys(D.canal.presenceState()).length;
+      if(D.isHost && n>=2 && !D.started){ D.started=true; setTimeout(()=>sig('next',{i:0}),700); }
+    })
+    .subscribe(async st=>{ if(st==='SUBSCRIBED'){ await D.canal.track({prenom:U.prenom,isHost:D.isHost}); } });
+}
+function sig(ev,extra){ if(D&&D.canal) D.canal.send({type:'broadcast',event:'sig',payload:Object.assign({ev},extra)}); }
+
+function handleSig(p){
+  switch(p.ev){
+    case 'next': renderDuelQ(p.i); break;
+    case 'buzz': if(D.isHost) hostArbitre(p); break;
+    case 'lock': appliquerLock(p); break;
+    case 'end': montrerFeuille(p); break;
+    case 'chat': ajouterChat(p.prenom,p.texte); break;
+  }
+}
+
+function renderDuelQ(i){
+  D.curI=i; D.repondu=false; clearTimeout(D._t); clearInterval(D._tick);
+  const q=D.questions[i];
+  $('dqnum').textContent=`Question ${i+1}/${D.questions.length}`;
+  $('dqtext').textContent=q.q; $('dqinfo').innerHTML='';
+  $('dbar').style.width=(i/D.questions.length*100)+'%';
+  const o=$('dqopts');o.innerHTML='';
+  q.opts.forEach((txt,idx)=>{const b=document.createElement('button');b.className='opt';b.textContent=txt;b.onclick=()=>buzzer(idx,b);o.appendChild(b);});
+  // timer visuel
+  let t=D.timing; majDTimer(t);
+  D._tick=setInterval(()=>{t--;majDTimer(t);if(t<=0)clearInterval(D._tick);},1000);
+  // host: timer autoritaire
+  if(D.isHost){ D._t=setTimeout(()=>{ if(!D.lock[i]) hostArbitre({i,from:null,prenom:null,optIdx:-1}); }, D.timing*1000+400); }
+  aller('duel-jeu');
+  majDScores();
+}
+function majDTimer(t){const e=$('dTimer');e.textContent='⏱ '+Math.max(t,0);e.classList.toggle('low',t<=5);}
+function buzzer(idx,btn){
+  if(D.repondu)return; D.repondu=true;
+  document.querySelectorAll('#dqopts .opt').forEach(b=>b.disabled=true);
+  btn&&btn.classList.add('ok'); // surbrillance provisoire de mon choix
+  sig('buzz',{i:D.curI,from:U.id,prenom:U.prenom,optIdx:idx});
+}
+function hostArbitre(p){
+  if(D.lock[p.i])return; D.lock[p.i]=true; clearTimeout(D._t);
+  const q=D.questions[p.i];
+  const correct = p.optIdx===q.bonne;
+  if(correct){ if(p.from===D.hostUid)D.hostScore++; else if(p.from)D.guestScore++; }
+  sig('lock',{i:p.i,winner:p.from,winnerPrenom:p.prenom,optIdx:p.optIdx,correct,
+              hostScore:D.hostScore,guestScore:D.guestScore});
+  setTimeout(()=>{ if(p.i+1<D.questions.length) sig('next',{i:p.i+1});
+                   else sig('end',{hostScore:D.hostScore,guestScore:D.guestScore}); }, 2700);
+}
+function appliquerLock(p){
+  D.hostScore=p.hostScore;D.guestScore=p.guestScore;
+  D.repondu=true; clearInterval(D._tick);
+  const q=D.questions[p.i];
+  document.querySelectorAll('#dqopts .opt').forEach((b,k)=>{b.disabled=true;b.classList.remove('ok','no');if(k===q.bonne)b.classList.add('ok');if(k===p.optIdx&&!p.correct)b.classList.add('no');});
+  let msg = p.winner? (p.winnerPrenom+(p.correct?' a trouvé ✅':' s\'est trompé ❌')) : '⏱ Temps écoulé';
+  $('dqinfo').innerHTML=`<div class="explain"><b>Réponse :</b> ${q.opts[q.bonne]}<br><span class="muted">📎 ${q.src}</span><br><b>${msg}</b></div>`;
+  D.reponses.push({q:q.q,bonne:q.opts[q.bonne],src:q.src,winner:p.winnerPrenom||'—',correct:p.correct});
+  if(p.correct&&p.winner===U.id){sonOk();}else if(p.winner===U.id){sonNo();}
+  majDScores();
+}
+function majDScores(){
+  const moi=D.isHost?D.hostScore:D.guestScore, opp=D.isHost?D.guestScore:D.hostScore;
+  $('dScoreMoi').textContent='Moi '+moi; $('dScoreOpp').textContent='Adv '+opp;
+}
+function montrerFeuille(p){
+  clearInterval(D._tick);clearTimeout(D._t);
+  const moi=D.isHost?p.hostScore:p.guestScore, opp=D.isHost?p.guestScore:p.hostScore;
+  $('dFinScore').textContent='Toi '+moi+' — '+opp+' Adversaire';
+  if(moi>opp){$('dFinEmo').textContent='🏆';$('dFinTitre').textContent='Victoire !';sonWin();confettis();}
+  else if(moi<opp){$('dFinEmo').textContent='💪';$('dFinTitre').textContent='Défaite — révise et reviens !';}
+  else{$('dFinEmo').textContent='🤝';$('dFinTitre').textContent='Égalité !';}
+  $('dFeuille').innerHTML=D.reponses.map((r,k)=>`<div style="border-bottom:1px solid var(--bord);padding:8px 0"><b style="color:var(--encre)">Q${k+1} ${r.correct?'✅':'❌'}</b><br><span class="muted">${r.q}</span><br>✔ ${r.bonne}<br><span class="muted">📎 ${r.src}</span></div>`).join('');
+  // sync léger : compteur de duels
+  if(sb&&U.id){ sb.from('profils').update({quiz_faits:(getProg().quizFaits||0)}).eq('id',U.id); }
+  if(D.canal)sb.removeChannel(D.canal);
+  aller('duel-fin');
+}
+function annulerDuel(){ if(D&&D.canal)sb.removeChannel(D.canal); if(D&&D.isHost)sb.from('duels').delete().eq('id',D.id); D=null; aller('duel'); }
+function partagerCodeDuel(){
+  const txt=`Rejoins mon duel ${nav.matiere} sur REGUL ARENA KIDS ! Code : ${D.code} ⚔️`;
+  if(navigator.share)navigator.share({text:txt}).catch(()=>{});
+  else window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
+}
+
+/* ---------- CHAT (privé au duel) ---------- */
+function envoyerChat(){
+  const v=$('chatInput').value.trim(); if(!v||!D)return;
+  sig('chat',{prenom:U.prenom,texte:v}); $('chatInput').value='';
+}
+function ajouterChat(prenom,texte){
+  const box=$('chatBox');const d=document.createElement('div');
+  d.innerHTML=`<b style="color:${prenom===U.prenom?'var(--violet)':'var(--corail)'}">${prenom} :</b> ${texte}`;
+  box.appendChild(d);box.scrollTop=box.scrollHeight;
+}
+
+/* ---------- BOOT ---------- */
+(async function init(){
+  if(sb){
+    const {data}=await sb.auth.getSession();
+    if(data?.session){ await chargerProfil(data.session.user); DEMO=false; entrerApp(); return; }
+  }
+  setAuthTab('login');
+})();
+</script>
+</body>
+</html>
