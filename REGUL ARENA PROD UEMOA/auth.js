@@ -50,7 +50,6 @@ router.post('/register', authLimiter, async (req, res) => {
     let user = db.prepare('SELECT * FROM users WHERE email = ?').get(cleanEmail);
 
     if (user && user.verified) {
-      // Compte déjà actif → proposer le login
       return jsonError(res, 409,
         'Cet email est déjà inscrit. Utilisez "Se connecter" pour recevoir un lien magique.',
         'ALREADY_REGISTERED'
@@ -65,7 +64,6 @@ router.post('/register', authLimiter, async (req, res) => {
       `).run(cleanName, cleanEmail, profile, country);
       user = db.prepare('SELECT * FROM users WHERE id = ?').get(result.lastInsertRowid);
     } else {
-      // Mise à jour si données changées
       db.prepare(`
         UPDATE users SET name=?, profile=?, country=? WHERE id=?
       `).run(cleanName, profile, country, user.id);
@@ -89,7 +87,7 @@ router.post('/register', authLimiter, async (req, res) => {
 
 // ═══════════════════════════════════════════════════════════
 // GET /api/auth/verify?token=XXX
-// Confirme l'email, retourne un JWT
+// Confirme l'email, redirige vers le frontend avec JWT
 // ═══════════════════════════════════════════════════════════
 router.get('/verify', async (req, res) => {
   try {
@@ -113,17 +111,7 @@ router.get('/verify', async (req, res) => {
     const user = db.prepare('SELECT * FROM users WHERE id=?').get(check.user_id);
     const jwt_token = issueJWT(user);
 
-    return res.json({
-      ok:    true,
-      token: jwt_token,
-      user: {
-        id:      user.id,
-        name:    user.name,
-        email:   user.email,
-        profile: user.profile,
-        country: user.country,
-      },
-    });
+    return res.redirect(`${process.env.BASE_URL}/?login_token=${jwt_token}`);
 
   } catch (err) {
     console.error('[/auth/verify]', err);
@@ -169,7 +157,7 @@ router.post('/login', authLimiter, async (req, res) => {
 
 // ═══════════════════════════════════════════════════════════
 // GET /api/auth/login-verify?login_token=XXX
-// Authentifie via magic link, retourne JWT
+// Authentifie via magic link, redirige vers le frontend avec JWT
 // ═══════════════════════════════════════════════════════════
 router.get('/login-verify', async (req, res) => {
   try {
@@ -190,7 +178,7 @@ router.get('/login-verify', async (req, res) => {
     const user      = db.prepare('SELECT * FROM users WHERE id=?').get(check.user_id);
     const jwt_token = issueJWT(user);
 
-return res.redirect(`${process.env.BASE_URL}/?login_token=${jwt_token}`);
+    return res.redirect(`${process.env.BASE_URL}/?login_token=${jwt_token}`);
 
   } catch (err) {
     console.error('[/auth/login-verify]', err);
@@ -229,7 +217,7 @@ router.post('/resend', resendLimiter, async (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════
-// GET /api/auth/me  (route protégée — exemple)
+// GET /api/auth/me  (route protégée)
 // ═══════════════════════════════════════════════════════════
 router.get('/me', (req, res) => {
   try {
