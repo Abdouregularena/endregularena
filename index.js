@@ -561,7 +561,8 @@ app.get('/auth/login-verify', limiterLoose, (req, res) => {
   const user = db.prepare('SELECT * FROM users WHERE email = ?').get(row.email);
   if (!user) return err(res, 404, 'Compte introuvable');
 
-  return ok(res, { token: signJWT(user), user: publicUser(user) });
+  const jwtToken = signJWT(user); // MODIFIÉ — redirige vers le frontend au lieu de renvoyer du JSON brut
+  return res.redirect(302, `${BASE_URL}/?confirmed=true&jwt=${encodeURIComponent(jwtToken)}`); // MODIFIÉ
 });
 
 
@@ -1952,6 +1953,6 @@ function publicUser(u) {
 app.listen(PORT, () => {
   console.log(`âœ… REGUL ARENA API â€” port ${PORT}`);
   console.log(`   DB : regularena.db`);
-  console.log(`   JWT_SECRET : ${JWT_SECRET === 'changez-moi-en-production' ? 'âš  PAR DÃ‰FAUT â€” &#224; changer' : 'âœ“ configur&#233;'}`);
-  console.log(`   RESEND_KEY : ${RESEND_KEY ? 'âœ“ configur&#233;' : 'âš  manquant â€” emails d&#233;sactiv&#233;s'}`);
+  console.log(`   JWT_SECRET : ${JWT_SECRET === 'changez-moi-en-production' ? 'âš  PAR DÃ‰FAUT â€” &#224; changer' : 'âœ“ configur&#233;'}`);
+  console.log(`   RESEND_KEY : ${RESEND_KEY ? 'âœ“ configur&#233;' : 'âš  manquant â€” emails d&#233;sactiv&#233;s'}`);
 });
