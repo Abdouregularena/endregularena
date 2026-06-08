@@ -1,94 +1,91 @@
 'use strict';
-
 /* ================================================================
    REGUL ARENA — Source de vérité serveur pour les questions
    ================================================================
-   Au lieu de dupliquer PACKS en deux endroits (HTML + JS), on extrait
-   la constante PACKS depuis public/index.html au démarrage.
-
-   Avantages :
-   • Une seule source de vérité (le contenu pédagogique reste dans le HTML
-     comme aujourd'hui — aucun changement workflow pour qui édite les
-     questions).
-   • Aucun risque de divergence entre ce que voit le mode solo et ce que
-     valide le serveur en mode duel.
-   • Si le fichier HTML est introuvable ou mal formé, on log et on continue
-     avec un tableau vide — le reste de l'app fonctionne, seuls les duels
-     refusent de démarrer.
-
-   Si à l'avenir vous voulez séparer le contenu (par exemple le mettre en
-   base ou dans un fichier JSON dédié), il suffit de modifier loadPacks().
+   Extrait les constantes de questions depuis public/index.html au
+   démarrage. Le contenu pédagogique reste dans le HTML (mode solo),
+   et le serveur valide les duels sur exactement les mêmes données.
+   Si le HTML est introuvable ou mal formé : log + tableau vide,
+   seuls les duels refusent de démarrer.
 ================================================================ */
-
 const fs   = require('fs');
 const path = require('path');
+
+// MODIFIÉ — marqueurs réels du HTML (QR/QB/QC), au lieu de "const PACKS = ["
+const SOURCES = { QR: 'const QR=[', QB: 'const QB=[', QC: 'const QC=[' };
+
+// MODIFIÉ — mapping pack_id (envoyé par le frontend) → listes de questions
+const PACK_MAP = {
+  'rfe-uemoa': ['QR'],
+  'bale-umoa': ['QB'],
+  'umoa-bale': ['QB'],          // alias
+  'cemac':     ['QC'],
+  'mix':       ['QR', 'QB', 'QC'],
+  'general':   ['QR', 'QB', 'QC'],
+};
+
+let DATA = { QR: [], QB: [], QC: [] };
+
+/* Extrait un tableau JSON `marker[ ... ]` en respectant les chaînes. */
+function extractArray(src, marker) {
+  const start = src.indexOf(marker);
+  if (start === -1) return null;
+  const arrStart = src.indexOf('[', start);
+  if (arrStart === -1) return null;
+  let depth = 0, inStr = false, esc = false;
+  for (let i = arrStart; i < src.length; i++) {
+    const ch = src[i];
+    if (inStr) {
+      if (esc) esc = false;
+      else if (ch === '\\') esc = true;
+      else if (ch === '"') inStr = false;
+      continue;
+    }
+    if (ch === '"') { inStr = true; continue; }
+    if (ch === '[') depth++;
+    else if (ch === ']' && --depth === 0) return src.slice(arrStart, i + 1);
+  }
+  return null;
+}
 
 function loadPacks() {
   try {
     const htmlPath = path.join(__dirname, 'public', 'index.html');
-    const html     = fs.readFileSync(htmlPath, 'utf8');
-
-    const startMarker = 'const PACKS = [';
-    const endMarker   = 'let _soloState';
-
-    const startIdx = html.indexOf(startMarker);
-    if (startIdx < 0) throw new Error('Marqueur "const PACKS = [" non trouvé');
-    const endIdx = html.indexOf(endMarker, startIdx);
-    if (endIdx < 0) throw new Error('Marqueur "let _soloState" non trouvé');
-
-    // Trouver le `];` final avant `let _soloState`
-    const arrayEnd = html.lastIndexOf('];', endIdx);
-    if (arrayEnd < 0) throw new Error('Fin du tableau PACKS non trouvée');
-
-    const arrayText = html.slice(startIdx + 'const PACKS = '.length, arrayEnd + 1);
-
-    // Évaluation dans une closure isolée (pas d'accès à require, process, etc.)
-    // Le contenu PACKS est statique et provient d'un fichier qu'on contrôle —
-    // c'est un risque acceptable. Si vous voulez durcir : passer par JSON.parse
-    // après une transformation, mais ça impose un format JSON strict.
-    const packs = Function('"use strict"; return (' + arrayText + ');')();
-
-    if (!Array.isArray(packs)) throw new Error('PACKS extrait n\'est pas un tableau');
-
-    // Validation minimale : chaque pack doit avoir id et questions[]
-    packs.forEach((p, i) => {
-      if (!p.id) throw new Error(`Pack #${i} sans id`);
-      if (!Array.isArray(p.questions)) throw new Error(`Pack ${p.id} sans questions[]`);
-    });
-
-    console.log(`[packs] ${packs.length} packs chargés (${packs.reduce((s, p) => s + p.questions.length, 0)} questions au total)`);
-    return packs;
+    const html = fs.readFileSync(htmlPath, 'utf8');
+    const out = {};
+    for (const key of Object.keys(SOURCES)) {
+      const raw = extractArray(html, SOURCES[key]);
+      out[key] = raw ? JSON.parse(raw) : [];
+    }
+    DATA = out;
+    console.log(`[packs] chargé : QR=${DATA.QR.length} QB=${DATA.QB.length} QC=${DATA.QC.length}`);
   } catch (e) {
     console.error('[packs] ERREUR chargement :', e.message);
     console.error('[packs] Le module duels serveur-validé sera désactivé jusqu\'au redémarrage.');
-    return [];
+    DATA = { QR: [], QB: [], QC: [] };
   }
 }
 
-const PACKS = loadPacks();
-
-/** Trouve un pack par son id. Renvoie null si introuvable. */
-function getPack(id) {
-  return PACKS.find(p => p.id === id) || null;
+function shuffle(a) {
+  const r = [...a];
+  for (let i = r.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [r[i], r[j]] = [r[j], r[i]]; }
+  return r;
 }
 
-/**
- * Tire `count` questions d'un pack, mélangées (Fisher-Yates).
- * Si count > nombre de questions du pack, on tire avec répétition modulo
- * la taille du pack (préserve le comportement actuel du frontend).
- */
-function pickQuestions(packId, count) {
-  const pack = getPack(packId);
-  if (!pack) return null;
-  const src = pack.questions.slice();
-  // Fisher-Yates
-  for (let i = src.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [src[i], src[j]] = [src[j], src[i]];
-  }
-  const out = [];
-  for (let i = 0; i < count; i++) out.push(src[i % src.length]);
-  return out;
+/* Retourne n questions au format serveur { q, choices, correct, source }. */
+function pickQuestions(packId, n = 10) {
+  const keys = PACK_MAP[packId] || PACK_MAP['general'];
+  let pool = [];
+  keys.forEach(k => { pool = pool.concat(DATA[k] || []); });
+  if (pool.length === 0) return [];
+  return shuffle(pool).slice(0, n).map(x => ({
+    q:       x.q,
+    choices: x.choices,
+    correct: x.answer,                       // MODIFIÉ — le HTML utilise `answer`, le serveur attend `correct`
+    source:  x.source || x.reference || 'BCEAO/CIMA 2026',
+  }));
 }
 
-module.exports = { PACKS, getPack, pickQuestions };
+loadPacks();
+
+module.exports = { pickQuestions, loadPacks };
