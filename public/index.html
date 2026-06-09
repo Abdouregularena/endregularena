@@ -1259,8 +1259,11 @@ function rQR(){
   '<div class="pb" style="max-width:240px;margin:0 auto 10px;"><div class="pf" style="width:'+pct+'%;background:'+col+';"></div></div>'+
   '<p style="font-size:13px;color:var(--sub);">'+pct+'% de bonnes réponses</p>'+
   '<div style="display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap;">'+
+  (pct>=80 ? '<button class="btn" style="background:linear-gradient(135deg,#E8B520,#C9991A);color:#05201a;font-weight:800;" onclick="arDownloadCert()">🎓 Télécharger mon certificat</button>' : '')+
   '<button class="btn" onclick="exitQ()">← Retour aux packs</button>'+
-  '<button class="btn-out" onclick="restartQ()">🔄 Recommencer</button></div></div>'+
+  '<button class="btn-out" onclick="restartQ()">🔄 Recommencer</button>'+
+  (pct>=80 ? '<button class="btn" style="background:linear-gradient(135deg,#C9991A,#E8B520);color:#05201a;font-weight:800;" onclick="RA_CERT.issue()">🎖️ Mon certificat</button>' : '')+
+  '</div></div>'+
   '<div class="card"><h3 style="font-weight:700;color:white;margin-bottom:12px;font-size:14px;">Résumé — '+QZ.sc+' bonnes / '+tot+'</h3>'+
   QZ.hist.map(function(h){
     return '<div style="padding:11px 13px;border-radius:9px;background:'+(h.ok?'rgba(201,153,26,.07)':'rgba(239,68,68,.07)')+
@@ -2254,6 +2257,108 @@ function arDoJoin(type){
 }
 
 /* ════════════════════════════════════════════════
+   MODIFIÉ — CERTIFICAT DE RÉUSSITE (génération client-side, zéro coût serveur)
+════════════════════════════════════════════════ */
+function arCertZone(){
+  try { return QZ.q.some(function(q){return /CEMAC/i.test(q.cat||'');}) ? 'CEMAC' : 'UEMOA'; }
+  catch(e){ return 'UEMOA'; }
+}
+function arLoadScript(src){
+  return new Promise(function(resolve,reject){
+    if(document.querySelector('script[data-cert="'+src+'"]')) return resolve();
+    var s=document.createElement('script'); s.src=src; s.setAttribute('data-cert',src);
+    s.onload=function(){resolve();}; s.onerror=function(){reject(new Error('load '+src));};
+    document.head.appendChild(s);
+  });
+}
+function arGenQRDataURL(text){
+  return new Promise(function(resolve){
+    try{
+      var holder=document.createElement('div');
+      holder.style.position='fixed'; holder.style.left='-9999px'; holder.style.top='0';
+      document.body.appendChild(holder);
+      new QRCode(holder,{text:text,width:240,height:240,correctLevel:QRCode.CorrectLevel.M});
+      setTimeout(function(){
+        var url='', cv=holder.querySelector('canvas'), im=holder.querySelector('img');
+        if(cv){ try{ url=cv.toDataURL('image/png'); }catch(e){} }
+        if(!url && im && im.src) url=im.src;
+        try{ document.body.removeChild(holder); }catch(e){}
+        resolve(url);
+      },150);
+    }catch(e){ resolve(''); }
+  });
+}
+function arDownloadCert(){
+  var tot=QZ.q.length, sc=QZ.sc, pct=tot?Math.round(sc/tot*100):0;
+  if(pct<80){
+    showModal('Score insuffisant','<div class="al al-warn" style="font-size:13px;">Le certificat est délivré à partir de 80% de réussite. Recommence pour l\'obtenir 💪</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>');
+    return;
+  }
+  var theme=QZ.pack||'Quiz', zone=arCertZone(), name=(U&&U.name)||'Apprenant';
+  showModal('Génération…','<div class="al al-info" style="font-size:13px;"><span class="spin">⏳</span> Préparation de ton certificat…</div>');
+  fetch('/certificates',{method:'POST',headers:arAuthHdr(),body:JSON.stringify({theme:theme,zone:zone,score:sc,total:tot})})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    var info=(d&&d.success)?d:{certificate_id:'RA-LOCAL',name:name,theme:theme,zone:zone,score:sc,total:tot,date:new Date().toISOString()};
+    return Promise.all([
+      arLoadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'),
+      arLoadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js')
+    ]).then(function(){ return info; });
+  })
+  .then(function(info){
+    return arGenQRDataURL('https://regularena.com/verify/'+info.certificate_id).then(function(qr){ return {info:info,qr:qr}; });
+  })
+  .then(function(o){ arBuildCertPDF(o.info,o.qr); closeModal(); })
+  .catch(function(){
+    closeModal();
+    showModal('Oups','<div class="al al-err">Génération impossible (réseau). Réessaie dans un instant.</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>');
+  });
+}
+function arBuildCertPDF(info,qrDataUrl){
+  var jsPDF=(window.jspdf&&window.jspdf.jsPDF)||window.jsPDF;
+  var doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  var W=297, H=210;
+  doc.setFillColor(245,243,238); doc.rect(0,0,W,H,'F');
+  doc.setDrawColor(0,43,92); doc.setLineWidth(1.4); doc.rect(10,10,W-20,H-20);
+  doc.setDrawColor(201,153,26); doc.setLineWidth(0.5); doc.rect(13,13,W-26,H-26);
+  doc.setDrawColor(201,153,26); doc.setLineWidth(1.2); doc.circle(W/2,38,12);
+  doc.setFont('times','bold'); doc.setFontSize(15); doc.setTextColor(201,153,26);
+  doc.text('RA',W/2,41,{align:'center'});
+  doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(0,43,92);
+  doc.text('REGUL ARENA',W/2,58,{align:'center'});
+  doc.setFont('times','bold'); doc.setFontSize(30); doc.setTextColor(0,43,92);
+  doc.text('CERTIFICAT DE RÉUSSITE',W/2,78,{align:'center'});
+  doc.setDrawColor(201,153,26); doc.setLineWidth(0.7); doc.line(W/2-46,83,W/2+46,83);
+  doc.setFont('helvetica','normal'); doc.setFontSize(12); doc.setTextColor(70,70,70);
+  doc.text('Le présent certificat est décerné à',W/2,96,{align:'center'});
+  doc.setFont('times','bold'); doc.setFontSize(24); doc.setTextColor(0,43,92);
+  doc.text(String(info.name),W/2,110,{align:'center'});
+  doc.setFont('helvetica','normal'); doc.setFontSize(12); doc.setTextColor(70,70,70);
+  doc.text('pour avoir validé avec succès le parcours de formation :',W/2,122,{align:'center'});
+  doc.setFont('times','bolditalic'); doc.setFontSize(15); doc.setTextColor(201,153,26);
+  var themeLines=doc.splitTextToSize(String(info.theme),W-100);
+  doc.text(themeLines,W/2,132,{align:'center'});
+  doc.setFont('helvetica','normal'); doc.setFontSize(10.5); doc.setTextColor(85,85,85);
+  doc.text('Compétences en conformité, gestion des risques et exigences réglementaires applicables en zone '+(info.zone||'UEMOA')+'.',W/2,147,{align:'center',maxWidth:W-90});
+  doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(0,43,92);
+  doc.text('Résultat : '+info.score+'/'+info.total+' ('+Math.round(info.score/info.total*100)+'%)',W/2,157,{align:'center'});
+  var dateStr=String(info.date||'').slice(0,10);
+  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(95,95,95);
+  doc.text('Délivré le : '+dateStr+'    |    N° d\'authentification : '+info.certificate_id,W/2,168,{align:'center'});
+  doc.setDrawColor(120,120,120); doc.setLineWidth(0.3);
+  doc.line(38,186,93,186); doc.line(W-93,186,W-38,186);
+  doc.setFontSize(9); doc.setTextColor(60,60,60);
+  doc.text('Fondateur & CEO, REGUL ARENA',65,191,{align:'center'});
+  doc.text('Comité d\'Évaluation',W-65,191,{align:'center'});
+  if(qrDataUrl){ try{
+    doc.addImage(qrDataUrl,'PNG',W-44,150,24,24);
+    doc.setFontSize(7); doc.setTextColor(110,110,110);
+    doc.text('Scanner pour vérifier',W-32,177,{align:'center'});
+  }catch(e){} }
+  doc.save('Certificat_REGUL_ARENA_'+String(info.name).replace(/[^a-z0-9]+/gi,'_')+'.pdf');
+}
+
+/* ════════════════════════════════════════════════
    MODIFIÉ — ARÈNE OUVERTE (lobby) + SORTIE/REPRISE DUEL — additif
 ════════════════════════════════════════════════ */
 function arArenaAfterRender(){
@@ -2352,6 +2457,94 @@ function arResumeDuel(){
     render();
   }).catch(function(){});
 }
+
+/* ════════════════════════════════════════════════
+   MODIFIÉ — CERTIFICATS (génération PDF côté client, jsPDF + QR)
+   Libs chargées à la demande depuis les CDN déjà autorisés par la CSP.
+════════════════════════════════════════════════ */
+var RA_CERT = (function(){
+  function loadScript(src){
+    return new Promise(function(res, rej){
+      var s=document.createElement('script'); s.src=src; s.async=true;
+      s.onload=res; s.onerror=function(){ rej(new Error('load '+src)); };
+      document.head.appendChild(s);
+    });
+  }
+  function ensureLibs(){
+    var p=Promise.resolve();
+    if(!(window.jspdf && window.jspdf.jsPDF)) p=p.then(function(){ return loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'); });
+    if(!window.QRious) p=p.then(function(){ return loadScript('https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js'); });
+    return p;
+  }
+  function themeOf(packLabel, zone){
+    var p=(packLabel||'').toLowerCase();
+    if(p.indexOf('bâle')>=0 || p.indexOf('bale')>=0) return 'Maîtrise du Dispositif Prudentiel de la BCEAO (Bâle II / Bâle III)';
+    if(p.indexOf('lbc')>=0 || p.indexOf('blanchiment')>=0) return 'Lutte contre le Blanchiment de Capitaux et le Financement du Terrorisme (LCB-FT)';
+    if(p.indexOf('rfe')>=0 || p.indexOf('change')>=0 || p.indexOf('extérieur')>=0) return 'Réglementation des Changes et Opérations Extérieures (RFE)';
+    if(p.indexOf('cemac')>=0 || zone==='CEMAC') return 'Réglementation Bancaire et Prudentielle — Zone CEMAC';
+    if(p.indexOf('gouvernance')>=0 || p.indexOf('risque')>=0) return 'Gouvernance Bancaire et Gestion des Risques Prudentiels';
+    return packLabel || 'Réglementation Bancaire UEMOA';
+  }
+  function issue(){
+    if(typeof QZ==='undefined' || !QZ.q || !QZ.q.length) return;
+    var tot=QZ.q.length, pct=Math.round(QZ.sc/tot*100);
+    if(pct<80){ showModal('Presque !', '<div class="al al-warn" style="font-size:13px;">Il faut au moins 80% pour décrocher ton certificat (tu es à '+pct+'%). Recommence le module, tu y es presque ! 💪</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>'); return; }
+    var zone=QZ.q.some(function(q){ return /CEMAC/i.test(q.cat||''); }) ? 'CEMAC' : 'UEMOA';
+    var th=themeOf(QZ.pack, zone);
+    showModal('Génération…', '<div class="al al-info"><span class="spin">⏳</span> Création de ton certificat en cours…</div>');
+    fetch('/certificates',{method:'POST',headers:arAuthHdr(),body:JSON.stringify({theme:th,zone:zone,score:QZ.sc,total:tot})})
+    .then(function(r){ return r.json(); }).then(function(d){
+      if(!d.success) throw new Error(d.error||'Erreur serveur');
+      return buildPDF({ name:(U&&U.name)||'Apprenant', theme:th, zone:zone, date:d.date||new Date().toISOString().slice(0,10), id:d.certificate_id });
+    }).then(function(){ closeModal(); })
+    .catch(function(e){ showModal('Oups', '<div class="al al-err">'+(e&&e.message?e.message:'Erreur')+'</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>'); });
+  }
+  function buildPDF(c){
+    return ensureLibs().then(function(){
+      var jsPDF=window.jspdf.jsPDF;
+      var doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+      var W=297,H=210;
+      doc.setFillColor(245,243,238); doc.rect(0,0,W,H,'F');
+      doc.setDrawColor(0,43,92);   doc.setLineWidth(2);   doc.rect(8,8,W-16,H-16);
+      doc.setDrawColor(201,153,26);doc.setLineWidth(0.6); doc.rect(12,12,W-24,H-24);
+      doc.setFont('times','bold'); doc.setTextColor(0,43,92); doc.setFontSize(13);
+      doc.text('REGUL ARENA', W/2, 28, {align:'center'});
+      doc.setFont('times','normal'); doc.setFontSize(9); doc.setTextColor(201,153,26);
+      doc.text('Formation & Certification — Réglementation Bancaire UEMOA / CEMAC', W/2, 34, {align:'center'});
+      doc.setFont('times','bold'); doc.setFontSize(26); doc.setTextColor(0,43,92);
+      doc.text('CERTIFICAT DE RÉUSSITE', W/2, 52, {align:'center'});
+      doc.setDrawColor(201,153,26); doc.setLineWidth(0.8); doc.line(W/2-42, 57, W/2+42, 57);
+      doc.setFont('times','normal'); doc.setFontSize(12); doc.setTextColor(80,80,80);
+      doc.text('Le présent certificat est décerné à', W/2, 73, {align:'center'});
+      doc.setFont('times','bold'); doc.setFontSize(24); doc.setTextColor(0,43,92);
+      doc.text(String(c.name), W/2, 87, {align:'center'});
+      doc.setFont('times','normal'); doc.setFontSize(11); doc.setTextColor(80,80,80);
+      doc.text('pour avoir validé avec succès les évaluations de compétences sur le thème :', W/2, 101, {align:'center'});
+      doc.setFont('times','bold'); doc.setFontSize(14); doc.setTextColor(201,153,26);
+      var thLines=doc.splitTextToSize(String(c.theme), W-80);
+      doc.text(thLines, W/2, 111, {align:'center'});
+      var y=111 + thLines.length*7 + 5;
+      doc.setFont('times','normal'); doc.setFontSize(10); doc.setTextColor(80,80,80);
+      var body=doc.splitTextToSize('attestant la maîtrise des compétences clés liées à la conformité, à la gestion des risques et aux exigences réglementaires applicables dans la zone '+c.zone+'.', W-90);
+      doc.text(body, W/2, y, {align:'center'});
+      doc.setFontSize(9); doc.setTextColor(60,60,60);
+      doc.text('Délivré le : '+c.date+'    |    N° d\'authentification : '+c.id, W/2, 166, {align:'center'});
+      doc.setDrawColor(120,120,120); doc.setLineWidth(0.3);
+      doc.line(45,182,105,182); doc.line(W-105,182,W-45,182);
+      doc.setFontSize(8); doc.setTextColor(60,60,60);
+      doc.text('Fondateur & CEO — REGUL ARENA', 75, 187, {align:'center'});
+      doc.text('Comité d\'Évaluation', W-75, 187, {align:'center'});
+      try{
+        var qr=new window.QRious({ value:'https://regularena.com/verify/'+c.id, size:300, level:'M' });
+        doc.addImage(qr.toDataURL(), 'PNG', W-46, 150, 26, 26);
+        doc.setFontSize(7); doc.setTextColor(120,120,120);
+        doc.text('Vérifier l\'authenticité', W-33, 179, {align:'center'});
+      }catch(e){}
+      doc.save('Certificat_REGUL_ARENA_'+c.id+'.pdf');
+    });
+  }
+  return { issue:issue };
+})();
 
 function arStartDuel(){
   fetch('/duels/'+AR.code+'/start',{method:'POST',headers:arAuthHdr()})
