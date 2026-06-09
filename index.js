@@ -595,7 +595,7 @@ app.post('/feedback', limiterLoose, async (req, res) => {
   try {
     await resend.emails.send({
       from: FROM_EMAIL,
-      to: 'contact@regularena.com',
+      to: 'abdou.ndao@regularena.com', // MODIFIÉ — destinataire feedback
       subject: `[REGUL ARENA] Feedback — ${type} (${stars}★)`,
       html: `<div style="font-family:sans-serif;max-width:600px">
         <h2 style="color:#C9991A">Nouveau feedback REGUL ARENA</h2>
@@ -935,6 +935,35 @@ app.get('/duels/:code/live', requireAuth, (req, res) => {
   const d = _duelFull(req.params.code);
   if (!d) return err(res, 404, 'Duel introuvable');
   return ok(res, { duel: d });
+});
+
+/* ── CHAT DE DUEL ──────────────────────────────────────────────────
+   MODIFIÉ — routes manquantes. Le front appelle GET/POST /duels/:code/chat
+   (front lignes 1895 & 1917) mais aucune route serveur n'existait → les
+   messages tombaient dans le catch-all '*' → jamais enregistrés ni affichés
+   (chat vide). On réutilise la table `messages` avec zone = code du duel
+   (aucune migration). Le front lit m.id / m.user_id / m.name / m.content. */
+app.get('/duels/:code/chat', requireAuth, (req, res) => {
+  const duel = db.prepare('SELECT id, creator_id, joiner_id FROM duels WHERE code = ?').get(req.params.code);
+  if (!duel) return err(res, 404, 'Duel introuvable');
+  if (req.user.id !== duel.creator_id && req.user.id !== duel.joiner_id) return err(res, 403, 'Accès refusé');
+  const messages = db.prepare(
+    `SELECT m.id, m.user_id, m.content, m.sent_at, u.name, u.country
+     FROM messages m JOIN users u ON u.id = m.user_id
+     WHERE m.zone = ? ORDER BY m.sent_at ASC, m.id ASC LIMIT 100`
+  ).all(req.params.code);
+  return ok(res, { messages });
+});
+
+app.post('/duels/:code/chat', requireAuth, (req, res) => {
+  const duel = db.prepare('SELECT id, creator_id, joiner_id FROM duels WHERE code = ?').get(req.params.code);
+  if (!duel) return err(res, 404, 'Duel introuvable');
+  if (req.user.id !== duel.creator_id && req.user.id !== duel.joiner_id) return err(res, 403, 'Accès refusé');
+  const { content } = req.body || {};
+  if (!content || !content.trim()) return err(res, 400, 'Message vide');
+  db.prepare('INSERT INTO messages (user_id, zone, content) VALUES (?, ?, ?)')
+    .run(req.user.id, req.params.code, content.trim().slice(0, 300));
+  return ok(res, { message: 'Message envoyé' });
 });
 
 /* ── TOURNOIS legacy /tournaments/* — désactivées, utiliser /tournament/* ── */
