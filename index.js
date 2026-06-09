@@ -1019,6 +1019,96 @@ function cleanupExpired() {
 cleanupExpired();                              // au démarrage
 setInterval(cleanupExpired, 60 * 60 * 1000);   // puis toutes les heures
 
+/* ════════════════════════════════════════════════
+   MODIFIÉ — CERTIFICATS DE RÉUSSITE
+   Génération PDF côté client. Le serveur ne fait qu'enregistrer
+   l'émission (pour la vérification publique via QR) — coût minime.
+════════════════════════════════════════════════ */
+db.exec(`CREATE TABLE IF NOT EXISTS certificates (
+  id         TEXT PRIMARY KEY,
+  user_id    INTEGER NOT NULL,
+  theme      TEXT NOT NULL,
+  zone       TEXT NOT NULL DEFAULT '',
+  score      INTEGER NOT NULL,
+  total      INTEGER NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+)`);
+const CERT_THRESHOLD = 80; // % minimum pour obtenir un certificat
+
+app.post('/certificates', requireAuth, (req, res) => {
+  const { theme, zone = '', score, total } = req.body || {};
+  if (!theme || score == null || total == null) return err(res, 400, 'theme, score, total requis');
+  const sc = Number(score), tot = Number(total);
+  if (!(tot > 0) || sc < 0 || sc > tot) return err(res, 400, 'Score invalide');
+  const pct = Math.round((sc / tot) * 100);
+  if (pct < CERT_THRESHOLD) return err(res, 403, `Score insuffisant (minimum ${CERT_THRESHOLD}%)`);
+  const cleanTheme = String(theme).slice(0, 120);
+  // 1 certificat par (utilisateur, thème) → QR stable, pas de doublons
+  let cert = db.prepare('SELECT * FROM certificates WHERE user_id = ? AND theme = ?').get(req.user.id, cleanTheme);
+  if (!cert) {
+    const id = 'RA-' + crypto.randomBytes(5).toString('hex').toUpperCase();
+    db.prepare('INSERT INTO certificates (id, user_id, theme, zone, score, total) VALUES (?,?,?,?,?,?)')
+      .run(id, req.user.id, cleanTheme, String(zone).slice(0, 40), sc, tot);
+    cert = db.prepare('SELECT * FROM certificates WHERE id = ?').get(id);
+  }
+  return ok(res, {
+    certificate_id: cert.id, name: req.user.name, theme: cert.theme,
+    zone: cert.zone, score: cert.score, total: cert.total, date: cert.created_at,
+  });
+});
+
+/* GET /verify/:id — page publique de vérification (scannée depuis le QR du PDF) */
+app.get('/verify/:id', (req, res) => {
+  const id = String(req.params.id || '').toUpperCase().slice(0, 40);
+  const esc = (s) => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const cert = db.prepare(
+    `SELECT c.id, c.theme, c.zone, c.score, c.total, c.created_at, u.name
+     FROM certificates c JOIN users u ON u.id = c.user_id WHERE c.id = ?`
+  ).get(id);
+  res.set('Content-Type', 'text/html; charset=utf-8');
+  if (!cert) {
+    return res.status(404).send(`<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Certificat introuvable</title></head><body style="font-family:system-ui,Segoe UI,sans-serif;background:#F5F3EE;color:#002B5C;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0;padding:24px;"><div style="max-width:480px;text-align:center;background:#fff;border:1px solid #e3ddd0;border-radius:16px;padding:36px;"><div style="font-size:42px;">❌</div><h1 style="font-size:20px;">Certificat introuvable</h1><p style="color:#6b6457;font-size:14px;">Aucun certificat ne correspond à cet identifiant. Vérifiez le numéro d'authentification.</p></div></body></html>`);
+  }
+  const d = String(cert.created_at).slice(0, 10);
+  const pct = Math.round(cert.score / cert.total * 100);
+  return res.send(`<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Certificat authentique — REGUL ARENA</title></head><body style="font-family:system-ui,Segoe UI,sans-serif;background:#F5F3EE;color:#002B5C;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0;padding:24px;"><div style="max-width:560px;background:#fff;border:1px solid #e3ddd0;border-top:6px solid #C9991A;border-radius:16px;padding:40px;box-shadow:0 10px 40px rgba(0,43,92,.08);"><div style="text-align:center;font-size:46px;">✅</div><h1 style="text-align:center;font-size:22px;margin:6px 0 2px;">Certificat authentique</h1><p style="text-align:center;color:#6b6457;font-size:13px;margin:0 0 24px;">Délivré par REGUL ARENA</p><table style="width:100%;border-collapse:collapse;font-size:14px;"><tr><td style="padding:8px 0;color:#8a8270;width:150px;">Titulaire</td><td style="font-weight:700;">${esc(cert.name)}</td></tr><tr><td style="padding:8px 0;color:#8a8270;">Module validé</td><td style="font-weight:700;">${esc(cert.theme)}</td></tr><tr><td style="padding:8px 0;color:#8a8270;">Zone</td><td>${esc(cert.zone) || '—'}</td></tr><tr><td style="padding:8px 0;color:#8a8270;">Résultat</td><td>${cert.score}/${cert.total} (${pct}%)</td></tr><tr><td style="padding:8px 0;color:#8a8270;">Délivré le</td><td>${esc(d)}</td></tr><tr><td style="padding:8px 0;color:#8a8270;">N° d'authentification</td><td style="font-family:monospace;">${esc(cert.id)}</td></tr></table></div></body></html>`);
+});
+
+/* ════════════════════════════════════════════════
+   MODIFIÉ — CERTIFICATS DE RÉUSSITE
+   Génération PDF côté client ; le serveur ne fait qu'enregistrer
+   l'émission et servir la page publique de vérification (QR code).
+════════════════════════════════════════════════ */
+db.exec(`CREATE TABLE IF NOT EXISTS certificates (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  cert_id    TEXT UNIQUE NOT NULL,
+  user_id    INTEGER NOT NULL,
+  user_name  TEXT,
+  theme      TEXT,
+  zone       TEXT,
+  score      INTEGER,
+  total      INTEGER,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+)`);
+
+const CERT_PASS = 0.8; // seuil de réussite : 80 %
+
+app.post('/certificates', requireAuth, (req, res) => {
+  const { theme, zone, score, total } = req.body || {};
+  const sc = Number(score), tt = Number(total);
+  if (!theme || !tt || tt <= 0) return err(res, 400, 'theme et total requis');
+  if (sc / tt < CERT_PASS) return err(res, 400, `Score insuffisant (minimum ${Math.round(CERT_PASS*100)}%)`);
+  const cleanTheme = String(theme).slice(0, 160);
+  // Réutilise un certificat déjà émis pour le même utilisateur + thème (pas de doublon)
+  const existing = db.prepare('SELECT cert_id, created_at FROM certificates WHERE user_id = ? AND theme = ? ORDER BY id DESC LIMIT 1').get(req.user.id, cleanTheme);
+  if (existing) return ok(res, { certificate_id: existing.cert_id, date: (existing.created_at || '').slice(0, 10) });
+  const cid = 'RA-' + new Date().getFullYear() + '-' + crypto.randomBytes(4).toString('hex').toUpperCase();
+  const u = db.prepare('SELECT name FROM users WHERE id = ?').get(req.user.id);
+  db.prepare('INSERT INTO certificates (cert_id, user_id, user_name, theme, zone, score, total) VALUES (?,?,?,?,?,?,?)')
+    .run(cid, req.user.id, (u && u.name) || '', cleanTheme, String(zone || '').slice(0, 40), sc, tt);
+  return ok(res, { certificate_id: cid, date: new Date().toISOString().slice(0, 10) });
+});
+
 /* ── TOURNOIS legacy /tournaments/* — désactivées, utiliser /tournament/* ── */
 app.post('/tournaments', requireAuth, (req, res) => {
   return err(res, 410, 'Route obsolète — utiliser POST /tournament/create');
@@ -1981,6 +2071,17 @@ app.use('/api/debats', require('./debats')(db, requireAuth));
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('/api', (req, res) => res.json({ status: 'ok', message: 'API REGUL ARENA en ligne' }));
+
+/* MODIFIÉ — Page publique de vérification d'un certificat (scan QR) */
+app.get('/verify/:id', (req, res) => {
+  const esc = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const c = db.prepare('SELECT cert_id, user_name, theme, zone, created_at FROM certificates WHERE cert_id = ?').get(req.params.id);
+  res.set('Content-Type', 'text/html; charset=utf-8');
+  if (!c) {
+    return res.status(404).send('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Certificat introuvable</title><body style="font-family:system-ui,-apple-system,sans-serif;background:#F5F3EE;color:#002B5C;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0;padding:24px;text-align:center"><div><div style="font-size:48px">❌</div><h1 style="color:#b91c1c;font-size:20px">Certificat introuvable</h1><p style="color:#555">Aucun certificat ne correspond à cet identifiant.</p></div></body>');
+  }
+  return res.send('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Certificat authentique — REGUL ARENA</title><body style="font-family:system-ui,-apple-system,sans-serif;background:#F5F3EE;color:#002B5C;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0;padding:24px"><div style="max-width:520px;width:100%;background:#fff;border:1px solid rgba(201,153,26,.4);border-radius:16px;padding:32px;box-shadow:0 8px 30px rgba(0,0,0,.08);text-align:center"><div style="font-size:13px;letter-spacing:2px;color:#C9991A;font-weight:700">REGUL ARENA</div><div style="font-size:48px;margin:8px 0">✅</div><h1 style="font-size:20px;margin:0 0 4px">Certificat authentique</h1><p style="color:#555;font-size:14px;margin:0 0 20px">Ce certificat a bien été délivré par REGUL ARENA.</p><div style="text-align:left;background:#F5F3EE;border-radius:10px;padding:16px;font-size:14px;line-height:1.9"><div><strong>Délivré à :</strong> ' + esc(c.user_name) + '</div><div><strong>Thème :</strong> ' + esc(c.theme) + '</div><div><strong>Zone :</strong> ' + esc(c.zone) + '</div><div><strong>Date :</strong> ' + esc((c.created_at||'').slice(0,10)) + '</div><div><strong>N° d\'authentification :</strong> ' + esc(c.cert_id) + '</div></div></div></body>');
+});
 // SPA catch-all : renvoie index.html pour les routes frontend uniquement.
 // Les chemins d'API sont déjà gérés par leurs handlers ; cette exclusion explicite
 // évite qu'un mauvais ordre de déclaration future ne renvoie du HTML à la place de JSON.
