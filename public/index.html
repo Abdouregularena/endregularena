@@ -1011,13 +1011,14 @@ var NAV=[
   {id:'achievements',ic:'🏆',l:'Réalisations'},
   {id:'leaderboard',ic:'📈',l:'Classements'},
   {id:'communaute',ic:'💬',l:'Communauté'}, // MODIFIÉ : onglet Salon / chat public
+  {id:'debats',ic:'⚖️',l:"L'Arène des Débats"}, // MODIFIÉ : questions ouvertes / votes / jury
   {id:'academy',ic:'💡',l:'Académie'},
   {id:'about',ic:'ℹ️',l:'À propos'}, // MODIFIÉ : onglet À propos
 ];
 
 function buildNav(){
   var items = NAV.slice(); // MODIFIÉ
-  if(U.role==='admin'){ items.push({id:'admin',ic:'🛠️',l:'Administration'}); } // MODIFIÉ : onglet admin réservé aux administrateurs
+  if(U.role==='admin'){ items.push({id:'admin',ic:'🛠️',l:'Administration'}); items.push({id:'debatsadm',ic:'🛡️',l:'Débats (Jury)'}); } // MODIFIÉ : onglets réservés aux administrateurs
   ge('sb-nav').innerHTML = items.map(function(n){ // MODIFIÉ : items (NAV + admin)
     return '<button class="ni'+(n.id===TAB?' ac':'') +'" onclick="ST(\''+n.id+'\')"><span>'+n.ic+'</span><span>'+n.l+'</span></button>';
   }).join('');
@@ -1032,14 +1033,57 @@ function ST(id){
 /* ════════════════════════════════════════════════
    RENDER PRINCIPAL
 ════════════════════════════════════════════════ */
+/* ════════ ARÈNE DES DÉBATS — rendu des onglets (MODIFIÉ, bloc ajouté) ════════ */
+function rDEBATS(){
+  return '<div class="ra-deb">'+
+    '<div id="ra-deb-list-view">'+
+      '<h1 class="ra-deb-h1">L\'Arène des Débats</h1>'+
+      '<p class="ra-deb-sub">Sujets de l\'heure — réglementation bancaire UEMOA / CEMAC. Argumentez, votez, faites valider votre analyse par le Jury.</p>'+
+      '<div class="ra-deb-tabs">'+
+        '<button id="ra-tab-active" class="ra-deb-tab ra-deb-tab-on" onclick="RA_DEBATS.loadList(\'Active\')">En cours</button>'+
+        '<button id="ra-tab-closed" class="ra-deb-tab" onclick="RA_DEBATS.loadList(\'Closed\')">Clôturés</button>'+
+      '</div>'+
+      '<div id="ra-deb-list"></div>'+
+    '</div>'+
+    '<div id="ra-deb-detail-view" style="display:none;">'+
+      '<button class="ra-deb-back" onclick="RA_DEBATS.loadList()">&larr; Retour aux débats</button>'+
+      '<div id="ra-deb-detail"></div>'+
+    '</div>'+
+  '</div>';
+}
+function rDEBATSADM(){
+  return '<div class="ra-deb">'+
+    '<h1 class="ra-deb-h1">Débats — Administration &amp; Jury</h1>'+
+    '<div class="ra-deb-card">'+
+      '<h3 style="margin-top:0">Créer un débat</h3>'+
+      '<input id="ra-adm-title" class="ra-deb-input" placeholder="Sujet / question du débat" />'+
+      '<textarea id="ra-adm-desc" class="ra-deb-input" rows="3" placeholder="Contexte, règles, texte réglementaire de référence…"></textarea>'+
+      '<div class="ra-deb-row">'+
+        '<select id="ra-adm-status" class="ra-deb-input"><option value="Active">Active</option><option value="Closed">Clôturée</option><option value="Archived">Archivée</option></select>'+
+        '<input id="ra-adm-points" class="ra-deb-input" type="number" value="50" title="Points max (validation jury)" />'+
+      '</div>'+
+      '<div class="ra-deb-row">'+
+        '<input id="ra-adm-start" class="ra-deb-input" type="datetime-local" title="Début" />'+
+        '<input id="ra-adm-end" class="ra-deb-input" type="datetime-local" title="Fin" />'+
+      '</div>'+
+      '<button class="ra-deb-btn" onclick="RA_DEBATS.adminCreate()">Publier le débat</button>'+
+    '</div>'+
+    '<div id="ra-adm-list"></div>'+
+    '<div id="ra-adm-answers"></div>'+
+  '</div>';
+}
+/* ════════ FIN rendu débats ════════ */
+
 function render(){
   var c=ge('ct'); c.className='fi'; void c.offsetWidth;
   if(QZ.q.length>0){ rQE(); return; }
   if(BF!==null&&BA){ c.innerHTML=rFD(); return; }
   if(BA){ c.innerHTML=rBD(); return; }
   if(TAB==='autoeval'&&AEF){ c.innerHTML=rAEF(); return; } // MODIFIÉ : affiche le format d'auto-éval sélectionné
-  var pages={dashboard:rDB,quiz:rQP,biblio:rBP,arena:rAR,achievements:rACH,leaderboard:rLB,academy:rAC,settings:rST,autoeval:rAE,admin:rADMIN,about:rABOUT,communaute:rSALON}; // MODIFIÉ : ajout de la page communaute (salon)
+  var pages={dashboard:rDB,quiz:rQP,biblio:rBP,arena:rAR,achievements:rACH,leaderboard:rLB,academy:rAC,settings:rST,autoeval:rAE,admin:rADMIN,about:rABOUT,communaute:rSALON,debats:rDEBATS,debatsadm:rDEBATSADM}; // MODIFIÉ : ajout débats + jury débats
   c.innerHTML=(pages[TAB]||rDB)();
+  if(TAB==='debats'){ try{ RA_DEBATS.loadList(); }catch(e){} } // MODIFIÉ : charge la liste des débats après affichage
+  if(TAB==='debatsadm'){ try{ RA_DEBATS.adminLoad(); }catch(e){} } // MODIFIÉ : charge le panneau jury
 }
 
 /* ════════════════════════════════════════════════
@@ -3598,5 +3642,171 @@ window.addEventListener('load', function(){
   setInterval(triggerPush, 12000);
 })();
 </script>
+<!-- ════════ ARÈNE DES DÉBATS — styles (thème sombre) + logique (MODIFIÉ, bloc ajouté) ════════ -->
+<style>
+.ra-deb{max-width:860px;margin:0 auto;padding:8px 4px 60px;color:var(--text)}
+.ra-deb-h1{font-family:'Playfair Display',serif;color:var(--cyan);font-size:2rem;margin:.2em 0}
+.ra-deb-sub{color:var(--sub);margin:0 0 18px}
+.ra-deb-tabs{display:flex;gap:8px;margin-bottom:16px}
+.ra-deb-tab{background:var(--card);border:1px solid var(--border);color:var(--text);padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:600}
+.ra-deb-tab-on{background:var(--cyan);color:#0A192F;border-color:var(--cyan)}
+.ra-deb-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px}
+.ra-deb-q{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--cyan);border-radius:10px;padding:16px;margin-bottom:12px;cursor:pointer;transition:.15s}
+.ra-deb-q:hover{box-shadow:0 4px 14px rgba(0,0,0,.35);transform:translateY(-1px);border-left-color:var(--green)}
+.ra-deb-q-title{font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--text);margin:0 0 6px}
+.ra-deb-meta{font-size:.85rem;color:var(--sub)}
+.ra-deb-badge{display:inline-block;background:var(--cyan);color:#0A192F;font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:20px;margin-left:6px}
+.ra-deb-badge-status{background:var(--green);color:#0A192F}
+.ra-deb-answer{background:rgba(10,25,47,.55);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px}
+.ra-deb-answer.valid{border:1px solid var(--cyan);box-shadow:0 0 0 1px var(--cyan) inset}
+.ra-deb-author{font-weight:700;color:var(--cyan);font-size:.92rem}
+.ra-deb-content{margin:8px 0;line-height:1.5;white-space:pre-wrap;word-break:break-word;color:var(--text)}
+.ra-deb-votes{display:flex;align-items:center;gap:10px;font-size:.9rem;color:var(--sub)}
+.ra-deb-vbtn{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:1rem;color:var(--text)}
+.ra-deb-vbtn.on{background:var(--cyan);color:#0A192F}
+.ra-deb-input{width:100%;box-sizing:border-box;padding:10px;border:1px solid var(--border);border-radius:8px;margin-bottom:10px;font-family:inherit;font-size:.95rem;background:rgba(10,25,47,.55);color:var(--text)}
+.ra-deb-row{display:flex;gap:10px}
+.ra-deb-row .ra-deb-input{flex:1}
+.ra-deb-btn{background:var(--cyan);color:#0A192F;border:none;border-radius:8px;padding:10px 18px;font-weight:700;cursor:pointer}
+.ra-deb-btn:disabled{opacity:.5;cursor:not-allowed}
+.ra-deb-btn-navy{background:var(--green);color:#0A192F}
+.ra-deb-back{background:none;border:none;color:var(--cyan);font-weight:700;cursor:pointer;padding:8px 0;margin-bottom:8px}
+.ra-deb-counter{font-size:.8rem;color:var(--sub);text-align:right}
+.ra-deb-empty{color:var(--sub);text-align:center;padding:30px}
+.ra-deb-chk{display:flex;align-items:center;gap:8px;font-size:.88rem;color:var(--sub);margin:6px 0 12px}
+.ra-deb-adm-act{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.ra-deb-mini{font-size:.8rem;color:var(--sub)}
+</style>
+<script>
+var RA_DEBATS = (function () {
+  var API = '/api/debats';
+  function token(){ try{ return (typeof U!=='undefined' && U && U.token) ? U.token : ''; }catch(e){ return ''; } } // MODIFIÉ : même jeton que le reste de l'app
+  function hdr(){ return { 'Content-Type':'application/json', 'Authorization':'Bearer '+token() }; }
+  var currentStatus='Active', currentQid=null;
+  function esc(s){ return (s==null?'':String(s)).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+  function api(path,opts){ return fetch(API+path,Object.assign({headers:hdr()},opts||{})).then(function(r){ return r.json().catch(function(){return{};}).then(function(d){ if(!r.ok) throw new Error(d.error||'Erreur réseau'); return d; }); }); }
+  function show(listView){ var a=document.getElementById('ra-deb-list-view'),b=document.getElementById('ra-deb-detail-view'); if(a)a.style.display=listView?'':'none'; if(b)b.style.display=listView?'none':''; }
+  function fmt(d){ return d?String(d).replace('T',' ').slice(0,16):''; }
+
+  function loadList(status){
+    if(status) currentStatus=status;
+    show(true);
+    var ta=document.getElementById('ra-tab-active'), tc=document.getElementById('ra-tab-closed');
+    if(ta) ta.classList.toggle('ra-deb-tab-on',currentStatus==='Active');
+    if(tc) tc.classList.toggle('ra-deb-tab-on',currentStatus==='Closed');
+    var box=document.getElementById('ra-deb-list'); if(!box) return;
+    box.innerHTML='<div class="ra-deb-empty">Chargement…</div>';
+    api('/questions?status='+encodeURIComponent(currentStatus)).then(function(rows){
+      if(!rows.length){ box.innerHTML='<div class="ra-deb-empty">Aucun débat '+(currentStatus==='Active'?'en cours':'clôturé')+' pour le moment.</div>'; return; }
+      box.innerHTML=rows.map(function(q){
+        return '<div class="ra-deb-q" onclick="RA_DEBATS.open('+q.id+')">'+
+          '<div class="ra-deb-q-title">'+esc(q.title)+'</div>'+
+          '<div class="ra-deb-meta">'+q.answer_count+' contribution(s)'+
+          (q.points_reward?' · jusqu\'à '+q.points_reward+' pts':'')+
+          (q.end_date?' · clôture '+fmt(q.end_date):'')+'</div></div>';
+      }).join('');
+    }).catch(function(e){ box.innerHTML='<div class="ra-deb-empty">'+esc(e.message)+'</div>'; });
+  }
+
+  function open(id){
+    currentQid=id; show(false);
+    var box=document.getElementById('ra-deb-detail'); if(!box) return;
+    box.innerHTML='<div class="ra-deb-empty">Chargement…</div>';
+    api('/questions/'+id).then(function(d){
+      var q=d.question;
+      var html='<div class="ra-deb-card"><div class="ra-deb-q-title">'+esc(q.title)+
+        (q.status!=='Active'?'<span class="ra-deb-badge ra-deb-badge-status">Clôturé</span>':'')+'</div>'+
+        (q.description?'<div class="ra-deb-content">'+esc(q.description)+'</div>':'')+'</div>';
+      if(q.status==='Active' && !d.has_answered){
+        html+='<div class="ra-deb-card"><h3 style="margin-top:0">Votre argumentation</h3>'+
+          '<textarea id="ra-deb-ans" class="ra-deb-input" rows="5" maxlength="2000" oninput="document.getElementById(\'ra-deb-cnt\').textContent=this.value.length+\' / 2000\'" placeholder="Développez votre analyse réglementaire…"></textarea>'+
+          '<div class="ra-deb-counter" id="ra-deb-cnt">0 / 2000</div>'+
+          '<label class="ra-deb-chk"><input type="checkbox" id="ra-deb-anon"> Publier sous mon pseudonyme Regul Arena</label>'+
+          '<button class="ra-deb-btn" onclick="RA_DEBATS.submit('+id+')">Soumettre ma réponse (+10 pts)</button></div>';
+      } else if(d.has_answered){
+        html+='<div class="ra-deb-card ra-deb-mini">✅ Vous avez déjà participé à ce débat.</div>';
+      }
+      html+='<h3>Contributions de la communauté</h3>';
+      if(!d.answers.length){ html+='<div class="ra-deb-empty">Soyez le premier à argumenter.</div>'; }
+      else{
+        html+=d.answers.map(function(a){
+          var v=a.my_vote;
+          return '<div class="ra-deb-answer'+(a.is_validated_by_jury?' valid':'')+'">'+
+            '<div class="ra-deb-author">'+esc(a.author)+
+            (a.is_validated_by_jury?'<span class="ra-deb-badge">✓ Validé par le Jury · '+a.score_assigned+' pts</span>':'')+'</div>'+
+            '<div class="ra-deb-content">'+esc(a.content)+'</div>'+
+            (a.is_mine?'<div class="ra-deb-mini">Votre contribution</div>':
+              '<div class="ra-deb-votes">'+
+                '<button class="ra-deb-vbtn'+(v===1?' on':'')+'" onclick="RA_DEBATS.vote('+a.id+','+(v===1?0:1)+')">▲</button>'+
+                '<span><b>'+a.net+'</b></span>'+
+                '<button class="ra-deb-vbtn'+(v===-1?' on':'')+'" onclick="RA_DEBATS.vote('+a.id+','+(v===-1?0:-1)+')">▼</button>'+
+              '</div>')+'</div>';
+        }).join('');
+      }
+      box.innerHTML=html;
+    }).catch(function(e){ box.innerHTML='<div class="ra-deb-empty">'+esc(e.message)+'</div>'; });
+  }
+
+  function submit(id){
+    var ta=document.getElementById('ra-deb-ans'); var content=((ta&&ta.value)||'').trim();
+    if(!content){ alert('Votre réponse est vide.'); return; }
+    var is_anonymous=document.getElementById('ra-deb-anon').checked;
+    api('/questions/'+id+'/answers',{method:'POST',body:JSON.stringify({content:content,is_anonymous:is_anonymous})}).then(function(){ open(id); }).catch(function(e){ alert(e.message); });
+  }
+  function vote(answerId,vt){ api('/answers/'+answerId+'/vote',{method:'POST',body:JSON.stringify({vote_type:vt})}).then(function(){ open(currentQid); }).catch(function(e){ alert(e.message); }); }
+
+  function adminLoad(){
+    var box=document.getElementById('ra-adm-list'); if(!box) return;
+    var ans=document.getElementById('ra-adm-answers'); if(ans) ans.innerHTML='';
+    box.innerHTML='<div class="ra-deb-empty">Chargement…</div>';
+    api('/admin/questions').then(function(rows){
+      if(!rows.length){ box.innerHTML='<div class="ra-deb-empty">Aucun débat créé.</div>'; return; }
+      box.innerHTML='<h3>Débats existants</h3>'+rows.map(function(q){
+        return '<div class="ra-deb-card"><div class="ra-deb-q-title">'+esc(q.title)+'</div>'+
+          '<div class="ra-deb-meta">Statut : '+q.status+' · '+q.points_reward+' pts max</div>'+
+          '<div class="ra-deb-adm-act">'+
+            '<button class="ra-deb-btn ra-deb-btn-navy" onclick="RA_DEBATS.adminAnswers('+q.id+')">Voir / noter les réponses</button>'+
+            '<button class="ra-deb-vbtn" onclick="RA_DEBATS.adminSetStatus('+q.id+",'Active')\">Activer</button>"+
+            '<button class="ra-deb-vbtn" onclick="RA_DEBATS.adminSetStatus('+q.id+",'Closed')\">Clôturer</button>"+
+            '<button class="ra-deb-vbtn" onclick="RA_DEBATS.adminDelete('+q.id+')">Supprimer</button>'+
+          '</div></div>';
+      }).join('');
+    }).catch(function(e){ box.innerHTML='<div class="ra-deb-empty">'+esc(e.message)+'</div>'; });
+  }
+  function adminCreate(){
+    var body={ title:document.getElementById('ra-adm-title').value.trim(), description:document.getElementById('ra-adm-desc').value.trim(), status:document.getElementById('ra-adm-status').value, points_reward:parseInt(document.getElementById('ra-adm-points').value,10)||50, start_date:document.getElementById('ra-adm-start').value||null, end_date:document.getElementById('ra-adm-end').value||null };
+    if(!body.title){ alert('Titre requis.'); return; }
+    api('/admin/questions',{method:'POST',body:JSON.stringify(body)}).then(function(){ document.getElementById('ra-adm-title').value=''; document.getElementById('ra-adm-desc').value=''; adminLoad(); }).catch(function(e){ alert(e.message); });
+  }
+  function adminSetStatus(id,status){ api('/admin/questions/'+id,{method:'PUT',body:JSON.stringify({status:status})}).then(adminLoad).catch(function(e){ alert(e.message); }); }
+  function adminDelete(id){ if(!confirm('Supprimer ce débat et toutes ses réponses ?')) return; api('/admin/questions/'+id,{method:'DELETE'}).then(adminLoad).catch(function(e){ alert(e.message); }); }
+  function adminAnswers(qid){
+    var box=document.getElementById('ra-adm-answers'); if(!box) return;
+    box.innerHTML='<div class="ra-deb-empty">Chargement…</div>';
+    api('/admin/questions/'+qid+'/answers').then(function(rows){
+      if(!rows.length){ box.innerHTML='<div class="ra-deb-empty">Aucune réponse.</div>'; return; }
+      box.innerHTML='<h3>Modération des réponses</h3>'+rows.map(function(a){
+        return '<div class="ra-deb-answer'+(a.is_validated_by_jury?' valid':'')+(a.is_hidden?'" style="opacity:.5':'')+'">'+
+          '<div class="ra-deb-author">'+esc(a.author_name||a.user_id)+
+          (a.is_anonymous?' <span class="ra-deb-mini">(publié en pseudonyme)</span>':'')+
+          (a.is_hidden?'<span class="ra-deb-badge ra-deb-badge-status">Rejetée</span>':'')+
+          (a.is_validated_by_jury?'<span class="ra-deb-badge">Validée · '+a.score_assigned+' pts</span>':'')+'</div>'+
+          '<div class="ra-deb-content">'+esc(a.content)+'</div>'+
+          '<div class="ra-deb-mini">▲ '+a.upvotes+' / ▼ '+a.downvotes+'</div>'+
+          '<div class="ra-deb-adm-act">'+
+            '<input id="ra-sc-'+a.id+'" class="ra-deb-input" style="width:90px;margin:0" type="number" value="'+(a.score_assigned||50)+'">'+
+            '<button class="ra-deb-btn" onclick="RA_DEBATS.adminValidate('+a.id+','+qid+')">Valider + noter</button>'+
+            '<button class="ra-deb-vbtn" onclick="RA_DEBATS.adminReject('+a.id+','+qid+')">Rejeter</button>'+
+          '</div></div>';
+      }).join('');
+    }).catch(function(e){ box.innerHTML='<div class="ra-deb-empty">'+esc(e.message)+'</div>'; });
+  }
+  function adminValidate(id,qid){ var score=parseInt(document.getElementById('ra-sc-'+id).value,10)||50; api('/admin/answers/'+id+'/validate',{method:'POST',body:JSON.stringify({score:score})}).then(function(){ adminAnswers(qid); }).catch(function(e){ alert(e.message); }); }
+  function adminReject(id,qid){ api('/admin/answers/'+id+'/reject',{method:'POST'}).then(function(){ adminAnswers(qid); }).catch(function(e){ alert(e.message); }); }
+
+  return { loadList:loadList, open:open, submit:submit, vote:vote, adminLoad:adminLoad, adminCreate:adminCreate, adminSetStatus:adminSetStatus, adminDelete:adminDelete, adminAnswers:adminAnswers, adminValidate:adminValidate, adminReject:adminReject };
+})();
+</script>
+<!-- ════════ FIN ARÈNE DES DÉBATS ════════ -->
 </body>
 </html>
