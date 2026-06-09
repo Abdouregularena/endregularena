@@ -974,10 +974,50 @@ app.get('/lobby/duels', requireAuth, (req, res) => {
     `SELECT d.code, d.pack_id, d.num_questions, d.timer_sec, u.name AS creator_name, u.country
      FROM duels d JOIN users u ON u.id = d.creator_id
      WHERE d.status = 'waiting' AND d.creator_id != ?
+       AND d.created_at >= datetime('now','-1 day')
      ORDER BY d.id DESC LIMIT 30`
   ).all(req.user.id);
   return ok(res, { open });
 });
+
+/* MODIFIÉ — NETTOYAGE AUTO des duels/tournois expirés (anti-codes morts).
+   Conservateur : supprime UNIQUEMENT ce qui n'a jamais servi (status 'waiting').
+   Les duels/tournois rejoints, en cours ou terminés ne sont JAMAIS touchés. */
+function cleanupExpired() {
+  try {
+    // 1) Duels en attente jamais rejoints, créés il y a plus de 24h
+    const oldDuels = db.prepare(
+      "SELECT id, code FROM duels WHERE status='waiting' AND created_at < datetime('now','-1 day')"
+    ).all();
+    if (oldDuels.length) {
+      const delDS  = db.prepare('DELETE FROM duel_scores WHERE duel_id = ?');
+      const delMsg = db.prepare('DELETE FROM messages WHERE zone = ?');
+      const delD   = db.prepare('DELETE FROM duels WHERE id = ?');
+      db.transaction(() => oldDuels.forEach(d => { delDS.run(d.id); delMsg.run(d.code); delD.run(d.id); }))();
+    }
+    // 2) Tournois en attente (jamais lancés) : date de début dépassée >1j OU créés il y a +7j
+    const oldTours = db.prepare(
+      `SELECT id FROM tournaments
+       WHERE status='waiting'
+         AND ( created_at < datetime('now','-7 days')
+            OR (start_date <> '' AND datetime(start_date) IS NOT NULL AND datetime(start_date) < datetime('now','-1 day')) )`
+    ).all();
+    if (oldTours.length) {
+      db.transaction(() => oldTours.forEach(t => {
+        db.prepare('DELETE FROM tournament_participants WHERE tournament_id = ?').run(t.id);
+        try { db.prepare('DELETE FROM tournament_chat WHERE tournament_id = ?').run(t.id); } catch(_) {}
+        try { db.prepare('DELETE FROM tournament_matches WHERE tournament_id = ?').run(t.id); } catch(_) {}
+        try { db.prepare('DELETE FROM tournament_match_sheets WHERE tournament_id = ?').run(t.id); } catch(_) {}
+        db.prepare('DELETE FROM tournaments WHERE id = ?').run(t.id);
+      }))();
+    }
+    if (oldDuels.length || oldTours.length) {
+      console.log(`[cleanup] supprimés : ${oldDuels.length} duel(s) périmé(s), ${oldTours.length} tournoi(s) périmé(s)`);
+    }
+  } catch (e) { console.error('[cleanup]', e.message); }
+}
+cleanupExpired();                              // au démarrage
+setInterval(cleanupExpired, 60 * 60 * 1000);   // puis toutes les heures
 
 /* ── TOURNOIS legacy /tournaments/* — désactivées, utiliser /tournament/* ── */
 app.post('/tournaments', requireAuth, (req, res) => {
@@ -1097,7 +1137,7 @@ app.get('/tournament/list', requireAuth, (req, res) => { // TOURNOI AJOUT
   if (!user) return err(res, 401, 'Session expirée, reconnecte-toi'); // MODIFIÉ — anti-crash user undefined
   const uZone = _zoneOf(user.country); // TOURNOI AJOUT
   // SECURITE FIX : utiliser des paramètres SQLite au lieu de l'interpolation de chaîne (anti-injection SQL)
-  const BASE_OPEN_SQL = `SELECT t.*, u.name AS creator_name, (SELECT COUNT(*) FROM tournament_participants tp WHERE tp.tournament_id = t.id) AS nb FROM tournaments t JOIN users u ON u.id = t.creator_id WHERE t.status IN ('waiting','qualif','elim')`; // SECURITE FIX
+  const BASE_OPEN_SQL = `SELECT t.*, u.name AS creator_name, (SELECT COUNT(*) FROM tournament_participants tp WHERE tp.tournament_id = t.id) AS nb FROM tournaments t JOIN users u ON u.id = t.creator_id WHERE t.status IN ('waiting','qualif','elim') AND (t.start_date = '' OR datetime(t.start_date) IS NULL OR datetime(t.start_date) >= datetime('now','-1 day'))`; // SECURITE FIX // MODIFIÉ — exclut les tournois programmés expirés
   const open = uZone // SECURITE FIX
     ? db.prepare(BASE_OPEN_SQL + ` AND (t.zone = ? OR t.zone = 'inter') ORDER BY t.created_at DESC LIMIT 30`).all(uZone) // SECURITE FIX
     : db.prepare(BASE_OPEN_SQL + ` ORDER BY t.created_at DESC LIMIT 30`).all(); // SECURITE FIX
