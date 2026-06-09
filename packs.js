@@ -1,94 +1,99 @@
 'use strict';
-
 /* ================================================================
    REGUL ARENA — Source de vérité serveur pour les questions
    ================================================================
-   Au lieu de dupliquer PACKS en deux endroits (HTML + JS), on extrait
-   la constante PACKS depuis public/index.html au démarrage.
-
-   Avantages :
-   • Une seule source de vérité (le contenu pédagogique reste dans le HTML
-     comme aujourd'hui — aucun changement workflow pour qui édite les
-     questions).
-   • Aucun risque de divergence entre ce que voit le mode solo et ce que
-     valide le serveur en mode duel.
-   • Si le fichier HTML est introuvable ou mal formé, on log et on continue
-     avec un tableau vide — le reste de l'app fonctionne, seuls les duels
-     refusent de démarrer.
-
-   Si à l'avenir vous voulez séparer le contenu (par exemple le mettre en
-   base ou dans un fichier JSON dédié), il suffit de modifier loadPacks().
+   Extrait les constantes de questions depuis public/index.html au
+   démarrage. Le contenu pédagogique reste dans le HTML (mode solo),
+   et le serveur valide les duels sur exactement les mêmes données.
 ================================================================ */
-
 const fs   = require('fs');
 const path = require('path');
 
+// MODIFIÉ — marqueurs en REGEX : tolère espaces, const/let/var (ex: "const QR = [")
+const SOURCES = {
+  QR: /(?:const|let|var)\s+QR\s*=\s*\[/,
+  QB: /(?:const|let|var)\s+QB\s*=\s*\[/,
+  QC: /(?:const|let|var)\s+QC\s*=\s*\[/,
+};
+
+const PACK_MAP = {
+  'rfe-uemoa': ['QR'],
+  'bale-umoa': ['QB'],
+  'umoa-bale': ['QB'],          // alias
+  'cemac':     ['QC'],
+  'mix':       ['QR', 'QB', 'QC'],
+  'general':   ['QR', 'QB', 'QC'],
+};
+
+let DATA = { QR: [], QB: [], QC: [] };
+
+// MODIFIÉ — extraction quote-aware : gère "  '  et `  (le HTML utilise des quotes simples)
+function extractArray(src, re) {
+  const m = re.exec(src);
+  if (!m) return null;
+  const arrStart = src.indexOf('[', m.index);
+  if (arrStart === -1) return null;
+  let depth = 0, quote = null, esc = false;
+  for (let i = arrStart; i < src.length; i++) {
+    const ch = src[i];
+    if (quote) {
+      if (esc) esc = false;
+      else if (ch === '\\') esc = true;
+      else if (ch === quote) quote = null;
+      continue;
+    }
+    if (ch === '"' || ch === "'" || ch === '`') { quote = ch; continue; }
+    if (ch === '[') depth++;
+    else if (ch === ']' && --depth === 0) return src.slice(arrStart, i + 1);
+  }
+  return null;
+}
+
 function loadPacks() {
+  let html;
   try {
-    const htmlPath = path.join(__dirname, 'public', 'index.html');
-    const html     = fs.readFileSync(htmlPath, 'utf8');
-
-    const startMarker = 'const PACKS = [';
-    const endMarker   = 'let _soloState';
-
-    const startIdx = html.indexOf(startMarker);
-    if (startIdx < 0) throw new Error('Marqueur "const PACKS = [" non trouvé');
-    const endIdx = html.indexOf(endMarker, startIdx);
-    if (endIdx < 0) throw new Error('Marqueur "let _soloState" non trouvé');
-
-    // Trouver le `];` final avant `let _soloState`
-    const arrayEnd = html.lastIndexOf('];', endIdx);
-    if (arrayEnd < 0) throw new Error('Fin du tableau PACKS non trouvée');
-
-    const arrayText = html.slice(startIdx + 'const PACKS = '.length, arrayEnd + 1);
-
-    // Évaluation dans une closure isolée (pas d'accès à require, process, etc.)
-    // Le contenu PACKS est statique et provient d'un fichier qu'on contrôle —
-    // c'est un risque acceptable. Si vous voulez durcir : passer par JSON.parse
-    // après une transformation, mais ça impose un format JSON strict.
-    const packs = Function('"use strict"; return (' + arrayText + ');')();
-
-    if (!Array.isArray(packs)) throw new Error('PACKS extrait n\'est pas un tableau');
-
-    // Validation minimale : chaque pack doit avoir id et questions[]
-    packs.forEach((p, i) => {
-      if (!p.id) throw new Error(`Pack #${i} sans id`);
-      if (!Array.isArray(p.questions)) throw new Error(`Pack ${p.id} sans questions[]`);
-    });
-
-    console.log(`[packs] ${packs.length} packs chargés (${packs.reduce((s, p) => s + p.questions.length, 0)} questions au total)`);
-    return packs;
+    html = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
   } catch (e) {
-    console.error('[packs] ERREUR chargement :', e.message);
-    console.error('[packs] Le module duels serveur-validé sera désactivé jusqu\'au redémarrage.');
-    return [];
+    console.error('[packs] index.html illisible :', e.message);
+    DATA = { QR: [], QB: [], QC: [] };
+    return;
   }
-}
-
-const PACKS = loadPacks();
-
-/** Trouve un pack par son id. Renvoie null si introuvable. */
-function getPack(id) {
-  return PACKS.find(p => p.id === id) || null;
-}
-
-/**
- * Tire `count` questions d'un pack, mélangées (Fisher-Yates).
- * Si count > nombre de questions du pack, on tire avec répétition modulo
- * la taille du pack (préserve le comportement actuel du frontend).
- */
-function pickQuestions(packId, count) {
-  const pack = getPack(packId);
-  if (!pack) return null;
-  const src = pack.questions.slice();
-  // Fisher-Yates
-  for (let i = src.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [src[i], src[j]] = [src[j], src[i]];
+  const out = { QR: [], QB: [], QC: [] };
+  for (const key of Object.keys(SOURCES)) {
+    try {
+      const raw = extractArray(html, SOURCES[key]);
+      if (!raw) { console.warn(`[packs] marqueur ${key} introuvable dans index.html`); continue; }
+      // MODIFIÉ — new Function au lieu de JSON.parse : accepte quotes simples, clés non quotées, virgules finales
+      const arr = new Function('return (' + raw + ');')();
+      out[key] = Array.isArray(arr) ? arr : [];
+    } catch (e) {
+      console.error(`[packs] parse ${key} échoué : ${e.message}`);   // MODIFIÉ — isolation : un pack KO ne tue plus les autres
+    }
   }
-  const out = [];
-  for (let i = 0; i < count; i++) out.push(src[i % src.length]);
-  return out;
+  DATA = out;
+  console.log(`[packs] chargé : QR=${DATA.QR.length} QB=${DATA.QB.length} QC=${DATA.QC.length}`);
 }
 
-module.exports = { PACKS, getPack, pickQuestions };
+function shuffle(a) {
+  const r = [...a];
+  for (let i = r.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [r[i], r[j]] = [r[j], r[i]]; }
+  return r;
+}
+
+function pickQuestions(packId, n = 10) {
+  const keys = PACK_MAP[packId] || PACK_MAP['general'];
+  let pool = [];
+  keys.forEach(k => { pool = pool.concat(DATA[k] || []); });
+  if (pool.length === 0) return [];
+  return shuffle(pool).slice(0, n).map(x => ({
+    // MODIFIÉ — champs tolérants (q/question, choices/options, answer/correct)
+    q:       x.q ?? x.question ?? '',
+    choices: x.choices ?? x.options ?? [],
+    correct: x.answer ?? x.correct ?? 0,
+    source:  x.source || x.reference || 'BCEAO/CIMA 2026',
+  }));
+}
+
+loadPacks();
+
+module.exports = { pickQuestions, loadPacks };
