@@ -1085,6 +1085,7 @@ function render(){
   if(TAB==='autoeval'&&AEF){ c.innerHTML=rAEF(); return; } // MODIFIÉ : affiche le format d'auto-éval sélectionné
   var pages={dashboard:rDB,quiz:rQP,biblio:rBP,arena:rAR,achievements:rACH,leaderboard:rLB,academy:rAC,settings:rST,autoeval:rAE,admin:rADMIN,about:rABOUT,communaute:rSALON,debats:rDEBATS,debatsadm:rDEBATSADM}; // MODIFIÉ : ajout débats + jury débats
   c.innerHTML=(pages[TAB]||rDB)();
+  if(TAB==='arena'){ try{ arArenaAfterRender(); }catch(e){} } // MODIFIÉ : charge les fils duels/tournois ouverts
   if(TAB==='debats'){ try{ RA_DEBATS.loadList(); }catch(e){} } // MODIFIÉ : charge la liste des débats après affichage
   if(TAB==='debatsadm'){ try{ RA_DEBATS.adminLoad(); }catch(e){} } // MODIFIÉ : charge le panneau jury
 }
@@ -1380,6 +1381,12 @@ function rAR(){
 
 function rARDuelsHome(){
   return '<div style="display:flex;flex-direction:column;gap:12px;">'+
+  /* MODIFIÉ : bandeau reprise d'un duel laissé en attente */
+  ((AR.pendingDuel&&AR.pendingDuel.code) ?
+    '<div class="al al-warn" style="display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;">'+
+      '<span>⏳ Tu as un duel en attente (code <strong>'+AR.pendingDuel.code+'</strong>)</span>'+
+      '<button class="btn btn-sm" onclick="arResumeDuel()">Reprendre</button>'+
+    '</div>' : '')+
   /* Actions principales */
   '<div class="g2">'+
     '<button class="card ch" style="padding:20px;text-align:center;cursor:pointer;border:1px solid rgba(201,153,26,.25);background:rgba(201,153,26,.06);" onclick="arModalCreate()">'+
@@ -1402,6 +1409,11 @@ function rARDuelsHome(){
       '<button class="btn btn-sm" onclick="startQ(QR,\'Entraînement RFE\')">Quiz RFE ('+QR.length+'Q)</button>'+
       '<button class="btn btn-sm" onclick="startQ(QB,\'Entraînement Bâle\')">Quiz Bâle ('+QB.length+'Q)</button>'+
     '</div>'+
+  '</div>'+
+  /* MODIFIÉ : fil des duels ouverts à rejoindre */
+  '<div class="card">'+
+    '<div style="font-weight:700;color:white;font-size:13px;margin-bottom:10px;">🔥 Arène ouverte — duels à rejoindre</div>'+
+    '<div id="ar-open-duels"><div style="font-size:12px;color:var(--sub);text-align:center;padding:10px;"><span class="spin">⏳</span> Chargement…</div></div>'+
   '</div>'+
   '</div>';
 }
@@ -1435,6 +1447,11 @@ function rARTournoisHome(){
     '</button>'+
   '</div>'+
   '<div class="al al-info" style="font-size:12px;">🏛️ <strong>Tournois UEMOA &amp; CEMAC :</strong> Créez un tournoi privé ou institutionnel (zone UEMOA, CEMAC ou inter-zones), invitez jusqu\'à 32 participants et suivez le classement en direct.</div>'+
+  /* MODIFIÉ : fil des tournois ouverts à rejoindre */
+  '<div class="card">'+
+    '<div style="font-weight:700;color:white;font-size:13px;margin-bottom:10px;">🔥 Tournois ouverts à rejoindre</div>'+
+    '<div id="ar-open-tours"><div style="font-size:12px;color:var(--sub);text-align:center;padding:10px;"><span class="spin">⏳</span> Chargement…</div></div>'+
+  '</div>'+
   '</div>';
 }
 
@@ -1466,6 +1483,8 @@ function rARWaiting(){
     '</div>'+
     (isCreator && st==='joined' ?
       '<button class="btn" style="width:100%;padding:14px;font-size:14px;" onclick="arStartDuel()">⚔️ Lancer le duel !</button>' : '')+
+    (isCreator && st==='waiting' ?
+      '<button class="btn-out btn-sm" style="width:100%;border-color:rgba(201,153,26,.5);color:#C9991A;" onclick="arLeaveWaiting()">🚪 Sortir, je reviens (notif quand un adversaire rejoint)</button>' : '')+
     '<button class="btn-out btn-sm" style="width:100%;" onclick="arQuit()">← Abandonner</button>'+
   '</div>';
 }
@@ -2232,6 +2251,106 @@ function arDoJoin(type){
   .catch(function(e){
     if(msg) msg.innerHTML='<div class="al al-err">❌ '+e.message+'</div>';
   });
+}
+
+/* ════════════════════════════════════════════════
+   MODIFIÉ — ARÈNE OUVERTE (lobby) + SORTIE/REPRISE DUEL — additif
+════════════════════════════════════════════════ */
+function arArenaAfterRender(){
+  if(ge('ar-open-duels')) arLoadOpenDuels();
+  if(ge('ar-open-tours')) arLoadOpenTours();
+}
+function arLoadOpenDuels(){
+  var box=ge('ar-open-duels'); if(!box) return;
+  fetch('/lobby/duels',{headers:{'Authorization':'Bearer '+U.token}})
+  .then(function(r){return r.json();}).then(function(d){
+    var box=ge('ar-open-duels'); if(!box) return;
+    if(!d.success||!d.open||!d.open.length){
+      box.innerHTML='<div style="font-size:12px;color:var(--sub);text-align:center;padding:10px;">Aucun duel ouvert pour le moment. Crée le tien ! ⚔️</div>';
+      return;
+    }
+    box.innerHTML=d.open.map(function(x){
+      return '<div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px;margin-bottom:8px;">'+
+        '<div style="min-width:0;flex:1;"><div style="font-weight:700;color:white;font-size:13px;">⚔️ '+arChatEsc(x.creator_name||'Joueur')+(x.country?' · '+arChatEsc(x.country):'')+'</div>'+
+        '<div style="font-size:11px;color:var(--sub);">'+(x.num_questions||10)+' questions · pack '+arChatEsc(x.pack_id||'general')+'</div></div>'+
+        '<button class="btn btn-sm" onclick="arQuickJoin(\'duel\',\''+x.code+'\')">Rejoindre</button>'+
+      '</div>';
+    }).join('');
+  }).catch(function(){});
+}
+function arLoadOpenTours(){
+  var box=ge('ar-open-tours'); if(!box) return;
+  fetch('/tournament/list',{headers:{'Authorization':'Bearer '+U.token}})
+  .then(function(r){return r.json();}).then(function(d){
+    var box=ge('ar-open-tours'); if(!box) return;
+    var open=((d&&d.open)||[]).filter(function(t){ return t.status==='waiting'||t.status==='qualif'; });
+    if(!open.length){
+      box.innerHTML='<div style="font-size:12px;color:var(--sub);text-align:center;padding:10px;">Aucun tournoi ouvert dans ta zone. Crée le tien ! 🏆</div>';
+      return;
+    }
+    box.innerHTML=open.map(function(t){
+      var full=(t.nb||0)>=t.max_players;
+      return '<div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px;margin-bottom:8px;">'+
+        '<div style="min-width:0;flex:1;"><div style="font-weight:700;color:white;font-size:13px;">🏆 '+arChatEsc(t.name||'Tournoi')+'</div>'+
+        '<div style="font-size:11px;color:var(--sub);">Code '+arChatEsc(t.code)+' · '+(t.nb||0)+'/'+t.max_players+' joueurs · '+arChatEsc((t.zone||'').toUpperCase())+(t.status==='qualif'?' · qualifs ouvertes':'')+'</div></div>'+
+        (full?'<span style="font-size:11px;color:#f87171;font-weight:700;flex-shrink:0;">Complet</span>'
+             :'<button class="btn btn-sm" onclick="arQuickJoin(\'tour\',\''+t.code+'\')">Rejoindre</button>')+
+      '</div>';
+    }).join('');
+  }).catch(function(){});
+}
+function arQuickJoin(type, code){
+  code=(code||'').trim().toUpperCase(); if(!code) return;
+  var url = type==='duel' ? '/duels/'+code+'/join' : '/tournament/join';
+  var body = type==='duel' ? null : {code:code};
+  fetch(url,{method:'POST',headers:arAuthHdr(),body:body?JSON.stringify(body):undefined})
+  .then(function(r){return r.json();}).then(function(d){
+    if(!d.success) throw new Error(d.error||'Impossible de rejoindre');
+    AR.code=code; AR.type=type; AR.isCreator=false; AR.pendingDuel=null;
+    if(type==='duel'){
+      AR.packId  = d.duel&&d.duel.pack_id ? d.duel.pack_id : 'rfe-uemoa';
+      AR.timerMax= d.duel&&d.duel.timer_sec ? d.duel.timer_sec : 30; AR.timerVal=AR.timerMax;
+      AR.q       = arPackQ(AR.packId,(d.duel&&d.duel.num_questions)||10,AR.code);
+      AR.sc=0; AR.oppSc=0; AR.idx=0; AR.ans=false; AR.round=(d.duel&&d.duel.round)||0;
+      AR.duelObj=d.duel; AR.myUserId='';
+      arStartPollDuel();
+    } else {
+      AR.duelObj=d; arStartPollTour();
+    }
+    render();
+  }).catch(function(e){
+    showModal('Oups','<div class="al al-err">'+e.message+'</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>');
+  });
+}
+function arLeaveWaiting(){
+  if(AR.pollId) clearInterval(AR.pollId);
+  AR.pendingDuel={ code:AR.code, isCreator:AR.isCreator };
+  AR.code=''; AR.type=''; AR.duelObj=null; AR.q=[]; AR.tab='duels';
+  render();
+  try{
+    showModal('C\'est noté ✅','<div class="al al-ok" style="font-size:13px;">Tu peux faire autre chose en attendant. Une notification 🔔 t\'avertira dès qu\'un adversaire rejoint ton duel. Reviens dans l\'Arène et clique « Reprendre ».</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>');
+  }catch(e){}
+}
+function arResumeDuel(){
+  var p=AR.pendingDuel; if(!p||!p.code) return;
+  var code=p.code;
+  fetch('/duels/'+code+'/live',{headers:{'Authorization':'Bearer '+U.token}})
+  .then(function(r){return r.json();}).then(function(d){
+    if(!d.success||!d.duel){
+      AR.pendingDuel=null;
+      showModal('Oups','<div class="al al-err">Ce duel n\'existe plus.</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>');
+      render(); return;
+    }
+    AR.code=code; AR.type='duel'; AR.isCreator=!!p.isCreator;
+    AR.packId  = d.duel.pack_id||'rfe-uemoa';
+    AR.timerMax= d.duel.timer_sec||30; AR.timerVal=AR.timerMax;
+    AR.q       = arPackQ(AR.packId,d.duel.num_questions||10,code);
+    AR.sc=0; AR.oppSc=0; AR.idx=0; AR.ans=false; AR.round=d.duel.round||0;
+    AR.duelObj=d.duel; AR.myUserId=AR.myUserId||'';
+    AR.pendingDuel=null;
+    arStartPollDuel();
+    render();
+  }).catch(function(){});
 }
 
 function arStartDuel(){
