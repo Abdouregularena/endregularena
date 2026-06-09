@@ -295,8 +295,6 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
-const debats = require('./debats');                 // MODIFIÉ
-app.use('/api/debats', debats(db, authMiddleware));  // MODIFIÉ
 const _devSkip = (req) => ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(req.ip);
 const limiterStrict = rateLimit({ windowMs: 5 * 60 * 1000, max: 50, standardHeaders: true, legacyHeaders: false, skip: _devSkip });
 const limiterLoose  = rateLimit({ windowMs: 5 * 60 * 1000, max: 200, standardHeaders: true, legacyHeaders: false, skip: _devSkip });
@@ -1895,6 +1893,9 @@ app.get('/admin/users', requireAdmin, (req, res) => {
     res.status(500).json({ error: 'Erreur serveur' });
   }
 });
+
+// MODIFIÉ — Module "L'Arène des Débats" : on passe requireAuth (et NON authMiddleware)
+app.use('/api/debats', require('./debats')(db, requireAuth));
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('/api', (req, res) => res.json({ status: 'ok', message: 'API REGUL ARENA en ligne' }));
