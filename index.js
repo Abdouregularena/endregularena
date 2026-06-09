@@ -966,6 +966,19 @@ app.post('/duels/:code/chat', requireAuth, (req, res) => {
   return ok(res, { message: 'Message envoyé' });
 });
 
+/* MODIFIÉ — LOBBY : liste des duels ouverts (en attente d'adversaire).
+   Chemin volontairement hors de /duels/:code pour éviter toute collision
+   de route. Sert le "fil déroulant" de l'Arène ouverte. */
+app.get('/lobby/duels', requireAuth, (req, res) => {
+  const open = db.prepare(
+    `SELECT d.code, d.pack_id, d.num_questions, d.timer_sec, u.name AS creator_name, u.country
+     FROM duels d JOIN users u ON u.id = d.creator_id
+     WHERE d.status = 'waiting' AND d.creator_id != ?
+     ORDER BY d.id DESC LIMIT 30`
+  ).all(req.user.id);
+  return ok(res, { open });
+});
+
 /* ── TOURNOIS legacy /tournaments/* — désactivées, utiliser /tournament/* ── */
 app.post('/tournaments', requireAuth, (req, res) => {
   return err(res, 410, 'Route obsolète — utiliser POST /tournament/create');
