@@ -1479,6 +1479,12 @@ function rARDuelsHome(){
       '<span>⏳ Tu as un duel en attente (code <strong>'+AR.pendingDuel.code+'</strong>)</span>'+
       '<button class="btn btn-sm" onclick="arResumeDuel()">Reprendre</button>'+
     '</div>' : '')+
+  /* MODIFIÉ : bandeau reprise d'un tournoi laissé en attente */
+  ((AR.pendingTour&&AR.pendingTour.code) ?
+    '<div class="al al-warn" style="display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;">'+
+      '<span>\uD83C\uDFC6 Tu as un tournoi en attente (code <strong>'+AR.pendingTour.code+'</strong>)</span>'+
+      '<button class="btn btn-sm" onclick="arResumeTour()">Reprendre</button>'+
+    '</div>' : '')+
   /* Actions principales */
   '<div class="g2">'+
     '<button class="card ch" style="padding:20px;text-align:center;cursor:pointer;border:1px solid rgba(201,153,26,.25);background:rgba(201,153,26,.06);" onclick="arModalCreate()">'+
@@ -2190,6 +2196,7 @@ function arShareWA(code, type){
 }
 
 function arQuit(){
+  try{ arwUnwatch(AR.code); }catch(e){} // MODIFIÉ : stoppe la veille de fond
   if(AR.pollId){ clearInterval(AR.pollId); AR.pollId=null; }
   if(AR.timerId){ clearInterval(AR.timerId); AR.timerId=null; }
   try{ if(TQ.timerId) clearInterval(TQ.timerId); }catch(e){} TQ.playing=false; TQ.done=false; TQ.chatSig='';
@@ -2516,9 +2523,89 @@ function arQuickJoin(type, code){
     showModal('Oups','<div class="al al-err">'+e.message+'</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>');
   });
 }
+/* ===== MODIFIÉ : veille de fond — notifie le créateur quand un adversaire/participant rejoint, même après avoir quitté l'écran d'attente ===== */
+var ARW = { items: [], timer: null };
+function arwPush(title, body){
+  var el=document.getElementById('pushNotif'); if(!el) return;
+  var t=document.getElementById('pushTitle'), b=document.getElementById('pushBody');
+  if(t) t.innerText=title; if(b) b.innerText=body;
+  el.classList.remove('push-active'); void el.offsetWidth; el.classList.add('push-active');
+  try{ sndStart(); }catch(e){}
+  setTimeout(function(){ el.classList.remove('push-active'); }, 6000);
+}
+function arwWatch(type, code){
+  if(!code) return;
+  for(var i=0;i<ARW.items.length;i++){ if(ARW.items[i].code===code) return; }
+  ARW.items.push({type:type, code:code, last:null});
+  if(!ARW.timer) ARW.timer=setInterval(arwTick, 5000);
+}
+function arwUnwatch(code){
+  if(!code) return;
+  ARW.items=ARW.items.filter(function(it){ return it.code!==code; });
+  if(!ARW.items.length && ARW.timer){ clearInterval(ARW.timer); ARW.timer=null; }
+}
+function arwTick(){
+  if(!window.U||!U.token||!ARW.items.length){ if(ARW.timer){clearInterval(ARW.timer);ARW.timer=null;} return; }
+  ARW.items.slice().forEach(function(it){
+    if(it.type==='duel'){
+      fetch('/duels/'+it.code+'/live',{headers:{'Authorization':'Bearer '+U.token}})
+      .then(function(r){return r.json();}).then(function(d){
+        if(!d||!d.success||!d.duel) return;
+        var st=d.duel.status;
+        if(it.last==='waiting' && (st==='joined'||st==='active')){
+          var who=(d.duel.joiner&&d.duel.joiner.name)?d.duel.joiner.name:'Un adversaire';
+          arwPush('\uD83D\uDD14 Adversaire trouv\u00e9 !', who+' a rejoint ton duel '+it.code+'. Reviens dans l\'Ar\u00e8ne et clique \u00ab Reprendre \u00bb.');
+          arwUnwatch(it.code);
+        }
+        it.last=st;
+      }).catch(function(){});
+    } else {
+      fetch('/tournament/'+it.code,{headers:{'Authorization':'Bearer '+U.token}})
+      .then(function(r){return r.json();}).then(function(d){
+        if(!d||!d.success) return;
+        var n=(d.participants?d.participants.length:0);
+        if(it.last!==null && n>it.last){
+          arwPush('\uD83D\uDD14 Nouveau participant', n+' inscrit(s) dans ton tournoi '+it.code+'. Reviens lancer les qualifications.');
+        }
+        var stt=(d.tournament&&d.tournament.status)||'';
+        if(stt && stt!=='waiting'){ arwUnwatch(it.code); }
+        it.last=n;
+      }).catch(function(){});
+    }
+  });
+}
+/* Tournoi : sortir sans abandonner + reprendre (miroir des duels) */
+function arLeaveTour(){
+  if(AR.pollId){ clearInterval(AR.pollId); AR.pollId=null; }
+  AR.pendingTour={ code:AR.code };
+  arwWatch('tour', AR.code);
+  AR.code=''; AR.type=''; AR.duelObj=null; AR.q=[]; AR.tab='tournois';
+  render();
+  try{
+    showModal('C\'est not\u00e9 \u2705','<div class="al al-ok" style="font-size:13px;">Tu peux faire autre chose en attendant. Une notification \uD83D\uDD14 t\'avertira d\u00e8s qu\'un participant rejoint ton tournoi. Reviens dans l\'Ar\u00e8ne et clique \u00ab Reprendre \u00bb.</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>');
+  }catch(e){}
+}
+function arResumeTour(){
+  var p=AR.pendingTour; if(!p||!p.code) return;
+  var code=p.code;
+  fetch('/tournament/'+code,{headers:{'Authorization':'Bearer '+U.token}})
+  .then(function(r){return r.json();}).then(function(d){
+    if(!d||!d.success){
+      AR.pendingTour=null;
+      showModal('Oups','<div class="al al-err">Ce tournoi n\'existe plus.</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>');
+      render(); return;
+    }
+    AR.code=code; AR.type='tour'; AR.isCreator=true; AR.duelObj=d;
+    AR.pendingTour=null; arwUnwatch(code);
+    arStartPollTour();
+    render();
+  }).catch(function(){});
+}
+
 function arLeaveWaiting(){
   if(AR.pollId) clearInterval(AR.pollId);
   AR.pendingDuel={ code:AR.code, isCreator:AR.isCreator };
+  arwWatch('duel', AR.code); // MODIFIÉ : démarre la veille de fond
   AR.code=''; AR.type=''; AR.duelObj=null; AR.q=[]; AR.tab='duels';
   render();
   try{
@@ -2542,6 +2629,7 @@ function arResumeDuel(){
     AR.sc=0; AR.oppSc=0; AR.idx=0; AR.ans=false; AR.round=d.duel.round||0;
     AR.duelObj=d.duel; AR.myUserId=AR.myUserId||'';
     AR.pendingDuel=null;
+    arwUnwatch(code); // MODIFIÉ : stoppe la veille de fond
     arStartPollDuel();
     render();
   }).catch(function(){});
@@ -2904,6 +2992,7 @@ function rTourLobby(t,parts){
         ? '<button class="btn" style="width:100%;padding:14px;" onclick="arStartQualif()">\u26A1 Lancer les qualifications</button>'
         : '<div class="al al-info" style="font-size:12px;">En attente d\'au moins 2 participants pour lancer.</div>')
       : '<div class="al al-info" style="font-size:12px;">\u23F3 En attente du lancement par l\'organisateur\u2026</div>')+
+    (isC ? '<button class="btn-out btn-sm" style="width:100%;border-color:rgba(201,153,26,.5);color:#C9991A;margin-bottom:6px;" onclick="arLeaveTour()">\uD83D\uDEAA Sortir, je reviens (notif quand un participant rejoint)</button>' : '')+
     tchatBox()+
     '<button class="btn-out btn-sm" onclick="arQuit()">\u2190 Quitter</button>'+
   '</div>';
