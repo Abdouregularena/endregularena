@@ -165,11 +165,18 @@ h2,h3{animation:raReveal .45s ease both;}
 .premium-sticker span{background:rgba(10,25,47,.15);padding:2px 8px;border-radius:20px;font-size:.75rem;}
 
 /* Push notification */
-.push-notification{position:fixed;top:80px;right:25px;background:var(--bg2);border-left:4px solid var(--green);border-radius:12px;padding:16px;box-shadow:0 15px 35px rgba(0,0,0,.4);z-index:1000;display:flex;align-items:center;gap:12px;max-width:350px;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);transform:translateX(120%);opacity:0;}
+.push-notification{position:fixed;top:72px;right:16px;background:var(--bg2);border-left:3px solid var(--green);border-radius:10px;padding:10px 12px;box-shadow:0 10px 26px rgba(0,0,0,.35);z-index:1000;display:flex;align-items:center;gap:9px;max-width:280px;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);transform:translateX(120%);opacity:0;}/* MODIFIÉ : taille réduite */
 .push-active{animation:pushSlide 5s cubic-bezier(.16,1,.3,1) forwards;}
-.push-icon{background:rgba(0,180,216,.15);color:var(--green);width:38px;height:38px;border-radius:50px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
-.push-content p{font-size:.85rem;color:var(--sub);}
-.push-content strong{font-size:.95rem;color:var(--text);display:block;margin-bottom:2px;}
+.push-icon{background:rgba(0,180,216,.15);color:var(--green);width:30px;height:30px;border-radius:50px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}/* MODIFIÉ */
+.push-content p{font-size:.78rem;color:var(--sub);margin:0;}/* MODIFIÉ */
+.push-content strong{font-size:.85rem;color:var(--text);display:block;margin-bottom:1px;}/* MODIFIÉ */
+/* MODIFIÉ : version compacte sur mobile (bas d'écran, fine) */
+@media (max-width:600px){
+  .push-notification{top:auto;bottom:14px;right:10px;left:10px;max-width:none;padding:8px 11px;border-radius:9px;gap:8px;}
+  .push-icon{width:26px;height:26px;font-size:.9rem;}
+  .push-content p{font-size:.72rem;}
+  .push-content strong{font-size:.8rem;}
+}
 
 /* Logo slider sponsors */
 .sponsors-container{margin:10px auto 40px;max-width:1100px;padding:0 18px;text-align:center;}
@@ -195,10 +202,10 @@ h2,h3{animation:raReveal .45s ease both;}
 
 <!-- ═══ NOTIFICATION PUSH DYNAMIQUE ═══ -->
 <div id="pushNotif" class="push-notification">
-  <div class="push-icon">🏆</div>
+  <div class="push-icon">🎓</div>
   <div class="push-content">
-    <strong id="pushTitle">Félicitations !</strong>
-    <p id="pushBody">Un utilisateur du Sénégal vient de valider le module BCEAO.</p>
+    <strong id="pushTitle">502 questions sourcées</strong>
+    <p id="pushBody">Bâle, RFE, PCB et CEMAC — d'après les textes officiels BCEAO, BEAC et COBAC.</p><!-- MODIFIÉ : contenu réel -->
   </div>
 </div>
 
@@ -4016,13 +4023,14 @@ window.addEventListener('load', function(){
 <!-- ═══ SCRIPT NOTIFICATIONS PUSH DYNAMIQUES ═══ -->
 <script>
 (function(){
-  var notifications = [
-    { title: "🔥 Duel En Cours", body: "Un auditeur de SGBS vient de lancer un défi sur la conformité." },
-    { title: "🏆 Nouveau Record", body: "Amadou N. a obtenu 100% sur le module COBAC." },
-    { title: "⚡ Alerte Réglementaire", body: "Mise à jour ajoutée sur le volet lutte anti-blanchiment." },
-    { title: "🌍 Communauté active", body: "Plus de 1 200 banquiers connectés ce soir sur l'arène." },
-    { title: "🎯 Tournoi lancé", body: "Le Tournoi Inter-Banques UEMOA démarre dans 10 minutes." },
-    { title: "✅ Certification validée", body: "Fatou D. de Côte d'Ivoire vient d'obtenir son badge REMTP." }
+  var notifications = [ // MODIFIÉ : messages réels uniquement (aucun faux utilisateur ni chiffre gonflé)
+    { title: "🎓 502 questions sourcées", body: "Bâle, RFE, PCB et CEMAC — d'après les textes officiels BCEAO, BEAC et COBAC." },
+    { title: "⚔️ Mode Duel", body: "Affronte un collègue en temps réel sur la réglementation bancaire." },
+    { title: "🏆 Certificat vérifiable", body: "Obtiens un certificat PDF avec QR code de vérification en ligne." },
+    { title: "📚 Quiz par métier", body: "Choisis ton métier (Trade Finance, Conformité, Audit…) et entraîne-toi ciblé." },
+    { title: "🎯 Tournois", body: "Crée ou rejoins un tournoi avec un code d'invitation." },
+    { title: "🌍 BETA · UEMOA & CEMAC", body: "Plateforme en version BETA, ouverte dans plusieurs pays de la zone." },
+    { title: "🆓 Accès gratuit", body: "L'inscription et tous les quiz sont entièrement gratuits." }
   ];
   function triggerPush(){
     var notif = notifications[Math.floor(Math.random()*notifications.length)];
@@ -4035,8 +4043,8 @@ window.addEventListener('load', function(){
     el.classList.add('push-active');
     setTimeout(function(){ el.classList.remove('push-active'); }, 5200);
   }
-  setTimeout(triggerPush, 3000);
-  setInterval(triggerPush, 12000);
+  setTimeout(triggerPush, 6000);   // MODIFIÉ : premier affichage plus tardif
+  setInterval(triggerPush, 22000); // MODIFIÉ : fréquence réduite
 })();
 </script>
 <!-- ════════ ARÈNE DES DÉBATS — styles (thème sombre) + logique (MODIFIÉ, bloc ajouté) ════════ -->
