@@ -1095,24 +1095,28 @@ function closeSb(){ ge('sb').classList.remove('show'); ge('ov').classList.remove
    NAVIGATION
 ════════════════════════════════════════════════ */
 var NAV=[
-  {id:'dashboard',ic:'📊',l:'Tableau de Bord'},
-  {id:'quiz',ic:'📚',l:'Quiz & Formation'},
-  {id:'autoeval',ic:'📝',l:'Auto-évaluation'}, // MODIFIÉ : nouvel onglet auto-évaluation multi-formats
-  {id:'biblio',ic:'📖',l:'Bibliothèque'},
-  {id:'arena',ic:'🔥',l:"L'Arène"},
-  {id:'achievements',ic:'🏆',l:'Réalisations'},
-  {id:'leaderboard',ic:'📈',l:'Classements'},
-  {id:'communaute',ic:'💬',l:'Communauté'}, // MODIFIÉ : onglet Salon / chat public
-  {id:'debats',ic:'⚖️',l:"L'Arène des Débats"}, // MODIFIÉ : questions ouvertes / votes / jury
-  {id:'academy',ic:'💡',l:'Académie'},
-  {id:'about',ic:'ℹ️',l:'À propos'}, // MODIFIÉ : onglet À propos
+  {id:'dashboard',ic:'📊',l:'Tableau de Bord',sec:''}, // MODIFIÉ : accueil en tête, sans section
+  {id:'arena',ic:'🔥',l:"L'Arène",sec:'JOUER'},                 // MODIFIÉ : remontée — cœur du concept
+  {id:'debats',ic:'⚖️',l:"L'Arène des Débats",sec:'JOUER'},
+  {id:'achievements',ic:'🏆',l:'Réalisations',sec:'JOUER'},
+  {id:'leaderboard',ic:'📈',l:'Classements',sec:'JOUER'},
+  {id:'communaute',ic:'💬',l:'Communauté',sec:'JOUER'},
+  {id:'quiz',ic:'📚',l:'Quiz & Formation',sec:'APPRENDRE'},
+  {id:'autoeval',ic:'📝',l:'Auto-évaluation',sec:'APPRENDRE'},
+  {id:'biblio',ic:'📖',l:'Bibliothèque',sec:'APPRENDRE'},
+  {id:'academy',ic:'💡',l:'Académie',sec:'APPRENDRE'},
+  {id:'about',ic:'ℹ️',l:'À propos',sec:'COMPTE'},
 ];
 
 function buildNav(){
   var items = NAV.slice(); // MODIFIÉ
-  if(U.role==='admin'){ items.push({id:'admin',ic:'🛠️',l:'Administration'}); items.push({id:'debatsadm',ic:'🛡️',l:'Débats (Jury)'}); } // MODIFIÉ : onglets réservés aux administrateurs
+  if(U.role==='admin'){ items.push({id:'admin',ic:'🛠️',l:'Administration',sec:'COMPTE'}); items.push({id:'debatsadm',ic:'🛡️',l:'Débats (Jury)',sec:'COMPTE'}); } // MODIFIÉ : onglets réservés aux administrateurs
+  var lastSec=null; // MODIFIÉ : intertitres de section
   ge('sb-nav').innerHTML = items.map(function(n){ // MODIFIÉ : items (NAV + admin)
-    return '<button class="ni'+(n.id===TAB?' ac':'') +'" onclick="ST(\''+n.id+'\')"><span>'+n.ic+'</span><span>'+n.l+'</span></button>';
+    var head=''; // MODIFIÉ
+    if(n.sec && n.sec!==lastSec){ head='<div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#6f86b0;text-transform:uppercase;margin:16px 0 6px 8px;">'+n.sec+'</div>'; } // MODIFIÉ
+    lastSec=n.sec; // MODIFIÉ
+    return head+'<button class="ni'+(n.id===TAB?' ac':'') +'" onclick="ST(\''+n.id+'\')"><span>'+n.ic+'</span><span>'+n.l+'</span></button>';
   }).join('');
 }
 
