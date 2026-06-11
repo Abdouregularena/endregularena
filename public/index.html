@@ -2089,6 +2089,8 @@ function sndToggle(){
   try{ localStorage.setItem('ra_snd', SND.on?'1':'0'); }catch(e){}
   var b=document.getElementById('snd-btn'); if(b) b.textContent = SND.on?'🔊':'🔇';
   if(SND.on) sndTone(660,0.1,'sine',0.2,0);
+  if(SND.on){ if(window.raThemeResume) window.raThemeResume(); }      // MODIFIÉ : 🔊 relance le thème (accueil)
+  else { if(window.raThemePause) window.raThemePause(); }             // MODIFIÉ : 🔇 met le thème en pause
 }
 (function(){
   function add(){
@@ -4026,14 +4028,17 @@ window.addEventListener('load', function(){
     return (h && h.classList.contains('active')) || (d && d.classList.contains('active')); // MODIFIÉ
   }                                                             // MODIFIÉ
   function start(){                                             // MODIFIÉ
+    if(typeof SND !== 'undefined' && !SND.on) return;           // MODIFIÉ : respecte le bouton 🔊/🔇
     if(stopped || started || !onHome()) return;                 // MODIFIÉ
-    started = true; A.currentTime = 0;                          // MODIFIÉ
+    started = true; A.currentTime = 0; A.volume = 0.3;          // MODIFIÉ : volume doux
     var p = A.play();                                           // MODIFIÉ
     if(p && p.catch) p.catch(function(){ started = false; });   // MODIFIÉ : si bloqué, on réessaie au prochain geste
   }                                                             // MODIFIÉ
   window.raThemeStop = function(){                              // MODIFIÉ
     stopped = true; try{ A.pause(); A.currentTime = 0; }catch(e){} // MODIFIÉ
   };                                                            // MODIFIÉ
+  window.raThemePause = function(){ try{ A.pause(); }catch(e){} }; // MODIFIÉ : pause non définitive (mute)
+  window.raThemeResume = function(){ started = false; start(); }; // MODIFIÉ : relance si on (unmute) et sur l'accueil
   if(document.readyState !== 'loading') start();                // MODIFIÉ
   else document.addEventListener('DOMContentLoaded', start);    // MODIFIÉ
   window.addEventListener('load', start);                       // MODIFIÉ
@@ -4042,6 +4047,7 @@ window.addEventListener('load', function(){
     document.addEventListener(ev, start, { passive:true, capture:true }); // MODIFIÉ
   });                                                           // MODIFIÉ
   document.addEventListener('click', function(e){               // MODIFIÉ : arrêt définitif au clic sur un bouton/lien
+    if(e.target.closest('#snd-btn')) return;                    // MODIFIÉ : le bouton son ne coupe pas définitivement le thème
     if(e.target.closest('button, a, .btn, .btn-out, .btn-sm, [onclick]')) window.raThemeStop(); // MODIFIÉ
   }, true);                                                     // MODIFIÉ
 })();
