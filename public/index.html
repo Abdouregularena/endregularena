@@ -2832,24 +2832,30 @@ function arUpdateScores(){
 
 /* ── Timer par question ── */
 function arStartTimer(){
+  // MODIFIÉ — timer ancré sur Date.now() : zéro dérive setInterval + re-ancrage à chaque question
+  // (donc le décalage entre les 2 joueurs ne s'accumule plus sur les 10 questions).
+  // SYNC PARFAIT AUTO : si le backend renvoie q_elapsed_ms (ou q_started_at) dans /live,
+  // le timer se cale dessus sans re-livrer ce fichier. Sinon, ancre locale (comportement antérieur, sans drift).
   if(AR.timerId){ clearInterval(AR.timerId); AR.timerId=null; }
-  AR.timerVal = AR.timerMax;
-  AR.timerId = setInterval(function(){
-    if(AR.timerVal<=0){
-      clearInterval(AR.timerId); AR.timerId=null;
-      if(!AR.ans) arAutoAnswer(); // temps écoulé → réponse automatique
-      return;
-    }
-    AR.timerVal--;
-    // Mise à jour DOM directe (sans rerender la page entière)
-    var tf = ge('tmr-fill');
-    var tc = document.querySelector('.vs-sep');
-    var tdisp = document.querySelectorAll('span[style*="color:var(--cyan)"]');
-    if(tf){ var p=Math.round(AR.timerVal/AR.timerMax*100); tf.style.width=p+'%'; tf.style.background=AR.timerVal<=5?'#ef4444':AR.timerVal<=10?'#fbbf24':''; }
-    // Afficher le timer
-    var tEl = document.querySelector('.tmr-bar');
-    if(tEl){ var nxt=tEl.nextElementSibling; if(nxt){ var sp=nxt.querySelector('span:last-child'); if(sp) sp.textContent='⏱ '+AR.timerVal+'s'; sp&&(sp.style.color=AR.timerVal<=5?'#f87171':AR.timerVal<=10?'#fbbf24':'var(--cyan)'); } }
-  }, 1000);
+  var d = AR.duelObj, elapsed = 0;
+  if(d && typeof d.q_elapsed_ms==='number') elapsed = d.q_elapsed_ms/1000;                         // idéal : temps écoulé calculé serveur
+  else if(d && typeof d.q_started_at==='number') elapsed = Math.max(0, Date.now()/1000 - d.q_started_at);
+  AR.qStart = Date.now() - elapsed*1000;   // ancre commune corrigée du temps déjà écoulé côté serveur
+  arTickTimer();
+  AR.timerId = setInterval(arTickTimer, 250); // 250ms = affichage fluide, calcul exact
+}
+function arTickTimer(){
+  var rem = AR.timerMax - Math.floor((Date.now()-AR.qStart)/1000);
+  if(rem<0) rem=0;
+  AR.timerVal = rem;
+  var tf = ge('tmr-fill');
+  if(tf){ var p=Math.max(0,Math.round(AR.timerVal/AR.timerMax*100)); tf.style.width=p+'%'; tf.style.background=AR.timerVal<=5?'#ef4444':AR.timerVal<=10?'#fbbf24':''; }
+  var tEl = document.querySelector('.tmr-bar');
+  if(tEl){ var nxt=tEl.nextElementSibling; if(nxt){ var sp=nxt.querySelector('span:last-child'); if(sp){ sp.textContent='⏱ '+AR.timerVal+'s'; sp.style.color=AR.timerVal<=5?'#f87171':AR.timerVal<=10?'#fbbf24':'var(--cyan)'; } } }
+  if(AR.timerVal<=0){
+    if(AR.timerId){ clearInterval(AR.timerId); AR.timerId=null; }
+    if(!AR.ans) arAutoAnswer(); // temps écoulé → réponse automatique
+  }
 }
 
 function arAutoAnswer(){
