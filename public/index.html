@@ -1369,7 +1369,7 @@ function rQR(){
   '<div class="pb" style="max-width:240px;margin:0 auto 10px;"><div class="pf" style="width:'+pct+'%;background:'+col+';"></div></div>'+
   '<p style="font-size:13px;color:var(--sub);">'+pct+'% de bonnes réponses</p>'+
   '<div style="display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap;">'+
-  (pct>=80 ? '<button class="btn" style="background:linear-gradient(135deg,#E8B520,#C9991A);color:#05201a;font-weight:800;" onclick="arDownloadCert()">🎓 Télécharger mon certificat</button>' : '')+
+  (pct>=80 ? '<button class="btn" style="background:linear-gradient(135deg,#E8B520,#C9991A);color:#05201a;font-weight:800;" onclick="RA_CERT.issue()">🎓 Télécharger mon certificat</button>' : '')+
   '<button class="btn" onclick="exitQ()">← Retour aux packs</button>'+
   '<button class="btn-out" onclick="restartQ()">🔄 Recommencer</button>'+
   (pct>=80 ? '<button class="btn" style="background:linear-gradient(135deg,#C9991A,#E8B520);color:#05201a;font-weight:800;" onclick="RA_CERT.issue()">🎖️ Mon certificat</button>' : '')+
@@ -2418,7 +2418,7 @@ function arDownloadCert(){
   .then(function(d){
     var info=(d&&d.success)?d:{certificate_id:'RA-LOCAL',name:name,theme:theme,zone:zone,score:sc,total:tot,date:new Date().toISOString()};
     return Promise.all([
-      arLoadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'),
+      arLoadScript('jspdf.umd.min.js'),
       arLoadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js')
     ]).then(function(){ return info; });
   })
@@ -2670,8 +2670,8 @@ var RA_CERT = (function(){
   }
   function ensureLibs(){
     var p=Promise.resolve();
-    if(!(window.jspdf && window.jspdf.jsPDF)) p=p.then(function(){ return loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'); });
-    if(!window.QRious) p=p.then(function(){ return loadScript('https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js'); });
+    if(!(window.jspdf && window.jspdf.jsPDF)) p=p.then(function(){ return loadScript('jspdf.umd.min.js'); });
+    if(!window.QRious) p=p.then(function(){ return loadScript('qrious.min.js'); });
     return p;
   }
   function themeOf(packLabel, zone){
