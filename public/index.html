@@ -1278,9 +1278,8 @@ function rQP(){
     '<div><div style="font-weight:800;color:white;font-size:15px;margin-bottom:2px;">'+p.t+'</div>'+
     '<div style="font-size:11px;color:var(--sub);">'+p.sub+' · '+p.q.length+' questions</div></div>'+
     '<button class="btn btn-sm" onclick="startQ('+p.ds+',\''+p.t+'\')">Pack complet ('+p.q.length+'Q)</button></div>'+
-    '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px;">'+
-    cats.map(function(c){return '<span class="badge">'+c+' ('+p.q.filter(function(q){return q.cat===c;}).length+')</span>';}).join('')+
-    '</div><div class="g3">'+
+    '<div style="font-size:11px;color:var(--sub);margin-bottom:8px;">'+cats.length+' thèmes — choisis-en un, ou lance le pack complet :</div>'+ // MODIFIÉ : puces redondantes supprimées
+    '<div class="g3">'+
     cats.map(function(c){
       var n=p.q.filter(function(q){return q.cat===c;}).length;
       var ce=c.replace(/'/g,"\\'");
@@ -3985,9 +3984,9 @@ window.addEventListener('load', function(){
   var hs = ge('h-sub');
   var hq = ge('h-qc');
   var hst = ge('h-stats');
-  if(hs) hs.textContent = "La gamification de la réglementation bancaire — plateforme indépendante pour les professionnels de la finance, zones UEMOA (BCEAO) & CEMAC (BEAC). Quiz, duels et tournois en direct avec chat. "+tot+" questions réelles, "+nThemes+" thèmes et "+nMetiers+" métiers.";
-  if(hq) hq.textContent = tot+" questions · "+nThemes+" thèmes · "+nMetiers+" métiers — UEMOA (BCEAO) & CEMAC (BEAC)";
-  if(hst){ hst.innerHTML = [[tot,'Questions réelles'],[nThemes,'Thèmes'],[nMetiers,'Métiers'],['14','Pays · 2 zones']].map(function(s){
+  if(hs) hs.textContent = "La gamification de la réglementation bancaire — plateforme indépendante pour les professionnels de la finance, zones UEMOA (BCEAO) & CEMAC (BEAC). Quiz, duels et tournois en direct avec chat. "+tot+" questions réelles et "+nThemes+" thèmes, organisés par métier.";
+  if(hq) hq.textContent = tot+" questions · "+nThemes+" thèmes · organisé par métier — UEMOA (BCEAO) & CEMAC (BEAC)";
+  if(hst){ hst.innerHTML = [[tot,'Questions réelles'],[nThemes,'Thèmes'],['14','Pays'],['2','Zones']].map(function(s){
     return '<div class="card" style="text-align:center;padding:16px;">'+
     '<div class="ra-count" style="font-size:24px;font-weight:900;color:var(--cyan);">'+s[0]+'</div>'+
     '<div style="font-size:11px;color:var(--sub);margin-top:3px;">'+s[1]+'</div></div>';
