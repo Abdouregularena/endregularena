@@ -1,133 +1,143 @@
-'use strict';
-/* ================================================================
-   REGUL ARENA — metiers.js  (navigation des packs par MÉTIER)
-   ----------------------------------------------------------------
-   Autonome. Lit le tableau global `packs` (index.html l.963) où
-   p[0] = titre, p[3] = tableau de questions. Relance un pack via le
-   lanceur solo EXISTANT : startQ(questions, 'Titre'). Aucune régression.
+/* ═══════════════════════════════════════════════════════════════
+   MODULE NAVIGATION PAR MÉTIER — REGUL ARENA  (version sur-mesure)
+   - Se branche automatiquement sur render() : AUCUNE modif d'index.html.
+   - S'affiche en haut de la page "Quiz & Formation" (TAB==='quiz').
+   - Lance les packs via la vraie fonction du site : startQ(<tableau>, titre).
+   - Aucun impact backend / scoring / régression.
+   ═══════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
 
-   INTÉGRATION (2 lignes dans index.html) :
-     1) avant </body> :   <script src="metiers.js" defer></script>
-     2) un bouton menu :  <button onclick="CFG_METIERS.afficher()">Par métier</button>
-
-   RÉGLAGE : ajuste les `kw` ci-dessous. Le match se fait sur le titre
-   du pack, en minuscules et sans accents. Un pack peut viser plusieurs
-   métiers. Les packs non classés tombent dans "Tronc commun".
-================================================================ */
-window.CFG_METIERS = (function () {
-  const NAVY = '#002B5C', GOLD = '#C9991A', CREAM = '#F5F3EE', INK = '#1d2433';
-
-  const METIERS = [
-    { id:'clientele',  nom:'Chargé de clientèle',         emo:'🤝', kw:['client','conseil','epargne','compte','particulier','vente','relation','bancarisation'] },
-    { id:'agence',     nom:'Chef d’agence',                emo:'🏛️', kw:['agence','manage','encadr','reseau','animation','commercial'] },
-    { id:'trade',      nom:'Trade Finance / Commerce',     emo:'🌍', kw:['trade','documentaire','credoc','remise','import','export','swift','rfe','rapatri','devise','commerce','exterieur'] },
-    { id:'conformite', nom:'Conformité / LAB-FT',          emo:'🛡️', kw:['conformite','lab','lbc','blanchiment','kyc','sanction','gafi','vigilance'] },
-    { id:'audit',      nom:'Audit / Contrôle / Risques',    emo:'🔍', kw:['audit','controle','risque','fraude','inspection','bale','prudentiel','cobac','commission'] },
-    { id:'credit',     nom:'Crédit / Engagements',         emo:'💳', kw:['credit','engagement','garantie','octroi','recouvr','contentieux','pret'] },
-    { id:'operations', nom:'Opérations / Back-office',      emo:'⚙️', kw:['caisse','back','operation','monetique','virement','compensation','guichet','pcb','comptable','traitement'] },
-    { id:'tresorerie', nom:'Trésorerie / Marchés',         emo:'📈', kw:['tresorerie','marche','change','titre','interbancaire','refinancement','bceao','liquidite','obligation'] },
+  // ── Inventaire des packs (miroir de rQP) : dataset global + métiers couverts ──
+  var PACKS_METIERS = [
+    { ds: 'QR', titre: 'Relations Financières Extérieures (RFE UEMOA)', metiers: ['conformite', 'trade'] },
+    { ds: 'QB', titre: 'Dispositif Prudentiel UMOA — Bâle II/III',      metiers: ['risques'] },
+    { ds: 'QC', titre: 'Réglementation CEMAC (BEAC · COBAC)',           metiers: ['cemac'] }
   ];
 
-  const noAcc = s => (s || '').toString().toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  var METIERS = [
+    { id: 'conformite', nom: 'Conformité / LBC-FT',           icone: '🛡️' },
+    { id: 'trade',      nom: 'Trade Finance / Commerce intl',  icone: '🌍' },
+    { id: 'risques',    nom: 'Crédit / Risques',              icone: '📊' },
+    { id: 'cemac',      nom: 'Zone CEMAC',                    icone: '🌐' },
+    { id: 'compta',     nom: 'Comptabilité / Reporting',      icone: '🧾' },
+    { id: 'operations', nom: 'Caisse / Opérations',           icone: '🏦' },
+    { id: 'commercial', nom: 'Commercial / Front office',     icone: '🤝' },
+    { id: 'audit',      nom: 'Audit / Inspection',            icone: '🔍' }
+  ];
 
-  function tousPacks() { return (typeof packs !== 'undefined' && Array.isArray(packs)) ? packs : []; }
-  function titre(p)    { return Array.isArray(p) ? (p[0] || 'Pack') : (p.nom || p.titre || p[0] || 'Pack'); }
-  function questions(p){ return Array.isArray(p) ? p[3] : (p.questions || p.q || p[3]); }
-  function nbQ(p)      { const q = questions(p); return Array.isArray(q) ? q.length : 0; }
+  function esc(s) { return String(s).replace(/'/g, "\\'"); }
 
-  function metiersDuPack(p) {
-    const t = noAcc(titre(p));
-    const ids = METIERS.filter(m => m.kw.some(k => t.includes(k))).map(m => m.id);
-    return ids.length ? ids : ['_tronc'];
-  }
-  function packsDuMetier(id) {
-    if (id === '_tout') return tousPacks();
-    return tousPacks().filter(p => metiersDuPack(p).includes(id));
-  }
-
-  function lancerPack(p) {
-    const q = questions(p);
-    if (typeof startQ === 'function' && Array.isArray(q) && q.length) { fermer(); startQ(q, titre(p)); }
-    else alert('Pack indisponible : ' + titre(p));
+  function lirePacks() {
+    return PACKS_METIERS.map(function (p) {
+      var qs = (typeof window[p.ds] !== 'undefined' && Array.isArray(window[p.ds])) ? window[p.ds] : [];
+      return { ds: p.ds, titre: p.titre, metiers: p.metiers, n: qs.length };
+    }).filter(function (p) { return p.n > 0; });
   }
 
-  /* ---------------------------- UI ---------------------------- */
-  let _ov = null, _cur = [];
-
-  function shell(inner) {
-    return ''
-      + '<div style="max-width:920px;margin:0 auto;padding:24px 18px 60px;">'
-      +   '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;">'
-      +     '<div style="font-family:\'Playfair Display\',serif;font-size:24px;font-weight:800;color:' + NAVY + ';">Choisis ton métier</div>'
-      +     '<button onclick="CFG_METIERS.fermer()" style="border:none;background:' + NAVY + ';color:#fff;width:38px;height:38px;border-radius:50%;font-size:18px;cursor:pointer;">×</button>'
-      +   '</div>'
-      +   inner
-      + '</div>';
+  function classerParMetier(packs) {
+    var map = {};
+    METIERS.forEach(function (m) { map[m.id] = []; });
+    packs.forEach(function (p) {
+      (p.metiers || []).forEach(function (mid) { if (map[mid]) map[mid].push(p); });
+    });
+    return map;
   }
 
-  function carte(html, onclick, accent) {
-    return '<div onclick="' + onclick + '" style="cursor:pointer;background:#fff;border:1px solid #e6e1d6;border-left:5px solid ' + (accent || GOLD) + ';border-radius:14px;padding:16px 18px;transition:.15s;box-shadow:0 1px 3px rgba(0,0,0,.05);" '
-      + 'onmouseover="this.style.transform=\'translateY(-2px)\';this.style.boxShadow=\'0 6px 18px rgba(0,43,92,.12)\'" '
-      + 'onmouseout="this.style.transform=\'\';this.style.boxShadow=\'0 1px 3px rgba(0,0,0,.05)\'">' + html + '</div>';
+  // ── Vue 1 : grille des métiers (uniquement ceux qui ont au moins 1 pack) ──
+  function renderMetiers() {
+    var box = document.getElementById('metiers-content');
+    if (!box) return;
+    var groupes = classerParMetier(lirePacks());
+    var actifs = METIERS.filter(function (m) { return (groupes[m.id] || []).length > 0; });
+    if (!actifs.length) { box.innerHTML = ''; return; }
+
+    var html = '<div class="card" style="padding:16px;">' +
+      '<div style="font-weight:800;color:white;font-size:15px;margin-bottom:3px;">🧭 Naviguer par métier</div>' +
+      '<div style="font-size:11px;color:var(--sub);margin-bottom:12px;">Choisis ton métier pour accéder directement à tes packs.</div>' +
+      '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;">';
+    actifs.forEach(function (m) {
+      var n = groupes[m.id].length;
+      html += '<div class="ch" onclick="renderPacksMetier(\'' + m.id + '\')" ' +
+        'style="cursor:pointer;background:rgba(255,255,255,.04);border:1px solid rgba(201,153,26,.35);border-radius:12px;padding:14px;text-align:center;">' +
+        '<div style="font-size:28px;line-height:1;">' + m.icone + '</div>' +
+        '<div style="font-weight:700;color:white;font-size:12px;margin:7px 0 3px;">' + m.nom + '</div>' +
+        '<div style="color:#C9991A;font-size:11px;font-weight:700;">' + n + ' pack' + (n > 1 ? 's' : '') + '</div>' +
+        '</div>';
+    });
+    html += '</div></div>';
+    box.innerHTML = html;
   }
 
-  function vueMetiers() {
-    const liste = METIERS.concat([{ id:'_tronc', nom:'Tronc commun', emo:'📚', kw:[] }]);
-    const cells = liste.map(m => {
-      const n = packsDuMetier(m.id).length;
-      if (m.id === '_tronc' && n === 0) return '';
-      return carte(
-        '<div style="display:flex;align-items:center;gap:14px;">'
-        + '<div style="font-size:30px;">' + m.emo + '</div>'
-        + '<div style="flex:1;">'
-        +   '<div style="font-weight:700;color:' + INK + ';font-size:16px;">' + m.nom + '</div>'
-        +   '<div style="color:#7a7468;font-size:13px;margin-top:2px;">' + n + ' pack' + (n > 1 ? 's' : '') + '</div>'
-        + '</div>'
-        + '<div style="color:' + GOLD + ';font-size:20px;">›</div></div>',
-        "CFG_METIERS._open('" + m.id + "')", NAVY);
-    }).join('');
-    const tout = carte(
-      '<div style="text-align:center;font-weight:700;color:' + NAVY + ';">📂 Voir tous les packs</div>',
-      "CFG_METIERS._open('_tout')", GOLD);
-    return shell(
-      '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;">' + cells + '</div>'
-      + '<div style="margin-top:18px;">' + tout + '</div>');
+  // ── Vue 2 : packs d'un métier ──
+  function renderPacksMetier(id) {
+    var box = document.getElementById('metiers-content');
+    if (!box) return;
+    var groupes = classerParMetier(lirePacks());
+    var m = METIERS.filter(function (x) { return x.id === id; })[0] || { nom: 'Packs', icone: '📦' };
+    var packs = groupes[id] || [];
+
+    var html = '<div class="card" style="padding:16px;">' +
+      '<button class="btn-out btn-sm" onclick="renderMetiers()" style="margin-bottom:12px;">← Métiers</button>' +
+      '<div style="font-weight:800;color:white;font-size:15px;margin-bottom:10px;">' + m.icone + ' ' + m.nom + '</div>' +
+      '<div style="display:flex;flex-direction:column;gap:8px;">';
+    packs.forEach(function (p) {
+      html += '<div class="card ch" style="padding:13px;display:flex;justify-content:space-between;align-items:center;gap:10px;" ' +
+        'onclick="lancerPackMetier(\'' + esc(p.ds) + '\',\'' + esc(p.titre) + '\')">' +
+        '<div style="min-width:0;"><div style="font-weight:700;color:white;font-size:13px;">' + p.titre + '</div>' +
+        '<div style="font-size:11px;color:var(--sub);">' + p.n + ' questions</div></div>' +
+        '<span style="color:var(--cyan);font-size:20px;flex-shrink:0;line-height:1;">&#8594;</span></div>';
+    });
+    if (!packs.length) html += '<p style="color:var(--sub);font-size:12px;">Aucun pack dans ce métier.</p>';
+    html += '</div></div>';
+    box.innerHTML = html;
   }
 
-  function vuePacks(id) {
-    _cur = packsDuMetier(id);
-    const m = METIERS.find(x => x.id === id) || { nom: id === '_tout' ? 'Tous les packs' : 'Tronc commun', emo:'📂' };
-    const items = _cur.length
-      ? _cur.map((p, i) => carte(
-          '<div style="display:flex;align-items:center;gap:14px;">'
-          + '<div style="flex:1;"><div style="font-weight:700;color:' + INK + ';font-size:16px;">' + titre(p) + '</div>'
-          + '<div style="color:#7a7468;font-size:13px;margin-top:2px;">' + nbQ(p) + ' question' + (nbQ(p) > 1 ? 's' : '') + '</div></div>'
-          + '<div style="background:' + GOLD + ';color:#fff;padding:7px 16px;border-radius:20px;font-weight:700;font-size:13px;">Jouer ▸</div></div>',
-          'CFG_METIERS._play(' + i + ')', GOLD)).join('')
-      : '<div style="text-align:center;color:#7a7468;padding:30px;">Aucun pack pour ce métier.</div>';
-    return shell(
-      '<button onclick="CFG_METIERS.afficher()" style="border:none;background:transparent;color:' + NAVY + ';font-weight:700;cursor:pointer;margin-bottom:14px;font-size:14px;">‹ Retour aux métiers</button>'
-      + '<div style="font-family:\'Playfair Display\',serif;font-size:19px;color:' + NAVY + ';margin-bottom:14px;">' + m.emo + ' ' + m.nom + '</div>'
-      + '<div style="display:grid;gap:12px;">' + items + '</div>');
-  }
-
-  function paint(html) {
-    if (!_ov) {
-      _ov = document.createElement('div');
-      _ov.id = 'cfg-metiers-ov';
-      _ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:' + CREAM + ';overflow-y:auto;font-family:\'IBM Plex Sans\',sans-serif;';
-      document.body.appendChild(_ov);
+  // ── Lancement : utilise la vraie fonction du site startQ(<tableau>, titre) ──
+  function lancerPackMetier(ds, titre) {
+    var qs = window[ds];
+    if (Array.isArray(qs) && typeof window.startQ === 'function') {
+      window.startQ(qs, titre);
+    } else {
+      alert('Impossible de lancer ce pack (' + ds + ').');
     }
-    _ov.innerHTML = html;
-    _ov.style.display = 'block';
-    document.body.style.overflow = 'hidden';
   }
 
-  function afficher() { paint(vueMetiers()); }
-  function _open(id)  { paint(vuePacks(id)); }
-  function _play(i)   { if (_cur[i]) lancerPack(_cur[i]); }
-  function fermer()   { if (_ov) _ov.style.display = 'none'; document.body.style.overflow = ''; }
+  // ── Auto-branchement sur render() : injecte le bloc en haut de la page Quiz ──
+  function injectMetiers() {
+    if (window.QZ && window.QZ.q && window.QZ.q.length > 0) return; // quiz en cours → ne pas injecter
+    var ct = document.getElementById('ct');
+    if (!ct) return;
+    if (!document.getElementById('metiers-content')) {
+      var b = document.createElement('div');
+      b.id = 'metiers-content';
+      b.style.marginBottom = '16px';
+      ct.insertBefore(b, ct.firstChild);
+    }
+    renderMetiers();
+  }
 
-  return { afficher, fermer, lancerPack, packsDuMetier, metiersDuPack, _open, _play, METIERS };
+  function wireRender() {
+    if (typeof window.render !== 'function') { return setTimeout(wireRender, 150); }
+    if (window.__metiersWired) return;
+    window.__metiersWired = true;
+    var orig = window.render;
+    window.render = function () {
+      var r = orig.apply(this, arguments);
+      try { if (window.TAB === 'quiz') injectMetiers(); } catch (e) {}
+      return r;
+    };
+    try { if (window.TAB === 'quiz') injectMetiers(); } catch (e) {} // cas : déjà sur l'onglet Quiz
+  }
+
+  // Expose pour les onclick inline
+  window.renderMetiers = renderMetiers;
+  window.renderPacksMetier = renderPacksMetier;
+  window.lancerPackMetier = lancerPackMetier;
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', wireRender);
+  } else {
+    wireRender();
+  }
 })();
