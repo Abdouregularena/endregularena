@@ -1187,6 +1187,24 @@ function rDB(){
   return '<div style="display:flex;flex-direction:column;gap:16px;">'+
   '<div class="card" style="background:linear-gradient(to right,rgba(10,33,62,.7),rgba(30,58,138,.25));"><h2 style="font-size:21px;color:white;margin-bottom:4px;">Bienvenue, '+(U.name||'Pro').split(' ')[0]+' 👋</h2>'+
   '<p style="color:var(--sub);font-size:13px;">'+(U.profile||'Professionnel UEMOA')+' · '+(QR.length+QB.length+QC.length)+' questions disponibles</p></div>'+
+  /* ── MODIFIÉ : bloc 3 actions « Que veux-tu faire ? » ── */
+  '<div class="card" style="padding:16px;">'+
+  '<div style="font-weight:800;color:white;font-size:15px;margin-bottom:2px;">Que veux-tu faire ?</div>'+
+  '<div style="font-size:11px;color:var(--sub);margin-bottom:14px;">Choisis ton point de départ.</div>'+
+  '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;">'+
+  '<div class="ch" onclick="ST(\'quiz\')" style="cursor:pointer;background:linear-gradient(135deg,rgba(201,153,26,.20),rgba(201,153,26,.04));border:1px solid rgba(201,153,26,.55);border-radius:14px;padding:18px;text-align:center;">'+
+  '<div style="font-size:30px;line-height:1;">▶️</div>'+
+  '<div style="font-weight:800;color:white;font-size:14px;margin:9px 0 3px;">Jouer en solo</div>'+
+  '<div style="font-size:11px;color:var(--sub);">Choisis un pack, progresse</div></div>'+
+  '<div class="ch" onclick="ST(\'quiz\');setTimeout(function(){var e=document.getElementById(\'metiers-content\');if(e)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});},220)" style="cursor:pointer;background:rgba(255,255,255,.04);border:1px solid rgba(201,153,26,.35);border-radius:14px;padding:18px;text-align:center;">'+
+  '<div style="font-size:30px;line-height:1;">🧭</div>'+
+  '<div style="font-weight:800;color:white;font-size:14px;margin:9px 0 3px;">Par métier</div>'+
+  '<div style="font-size:11px;color:var(--sub);">Conformité, Trade, Risques, CEMAC</div></div>'+
+  '<div class="ch" onclick="ST(\'arena\')" style="cursor:pointer;background:linear-gradient(135deg,rgba(96,165,250,.16),rgba(96,165,250,.03));border:1px solid rgba(96,165,250,.45);border-radius:14px;padding:18px;text-align:center;">'+
+  '<div style="font-size:30px;line-height:1;">⚔️</div>'+
+  '<div style="font-weight:800;color:white;font-size:14px;margin:9px 0 3px;">Défier un collègue</div>'+
+  '<div style="font-size:11px;color:var(--sub);">Duel en temps réel</div></div>'+
+  '</div></div>'+
   '<div class="g4">'+
   [['📈','Niveau',U.lvl,'linear-gradient(135deg,#fbbf24,#f97316)'],
    ['⚡','XP',U.xp.toLocaleString(),'linear-gradient(135deg,#E8B520,#C9991A)'],
@@ -3963,12 +3981,13 @@ window.addEventListener('load', function(){
   var tot = QR.length+QB.length+QC.length;
   var nThemes = (new Set([].concat(QR,QB,QC).map(function(q){return q.cat;}))).size;
   var nPacks = [QR,QB,QC].filter(function(a){return a&&a.length;}).length; // grands packs réels
+  var nMetiers = 4; // MODIFIÉ : métiers couverts (Conformité, Trade Finance, Crédit/Risques, CEMAC)
   var hs = ge('h-sub');
   var hq = ge('h-qc');
   var hst = ge('h-stats');
-  if(hs) hs.textContent = "La gamification de la réglementation bancaire — plateforme indépendante pour les professionnels de la finance, zones UEMOA (BCEAO) & CEMAC (BEAC). Quiz, duels et tournois en direct avec chat. "+tot+" questions réelles, "+nPacks+" grands packs et "+nThemes+" thèmes.";
-  if(hq) hq.textContent = tot+" questions · "+nPacks+" packs · "+nThemes+" thèmes — UEMOA (BCEAO) & CEMAC (BEAC)";
-  if(hst){ hst.innerHTML = [[tot,'Questions réelles'],[nPacks,'Packs'],[nThemes,'Thèmes'],['14','Pays · 2 zones']].map(function(s){
+  if(hs) hs.textContent = "La gamification de la réglementation bancaire — plateforme indépendante pour les professionnels de la finance, zones UEMOA (BCEAO) & CEMAC (BEAC). Quiz, duels et tournois en direct avec chat. "+tot+" questions réelles, "+nThemes+" thèmes et "+nMetiers+" métiers.";
+  if(hq) hq.textContent = tot+" questions · "+nThemes+" thèmes · "+nMetiers+" métiers — UEMOA (BCEAO) & CEMAC (BEAC)";
+  if(hst){ hst.innerHTML = [[tot,'Questions réelles'],[nThemes,'Thèmes'],[nMetiers,'Métiers'],['14','Pays · 2 zones']].map(function(s){
     return '<div class="card" style="text-align:center;padding:16px;">'+
     '<div class="ra-count" style="font-size:24px;font-weight:900;color:var(--cyan);">'+s[0]+'</div>'+
     '<div style="font-size:11px;color:var(--sub);margin-top:3px;">'+s[1]+'</div></div>';
@@ -3984,7 +4003,7 @@ window.addEventListener('load', function(){
   var _tk = ge('ticker-txt'); // MODIFIÉ
   if(_tk){ // MODIFIÉ
     var _pays = [['sn','Sénégal'],['ci',"Côte d'Ivoire"],['ml','Mali'],['bf','Burkina Faso'],['bj','Bénin'],['ne','Niger'],['tg','Togo'],['gw','Guinée-Bissau'],['cm','Cameroun'],['cg','Congo'],['ga','Gabon'],['gq','Guinée éq.'],['cf','Centrafrique'],['td','Tchad']]; // MODIFIÉ
-    var _info = '<span style="font-size:13px;font-weight:700;color:var(--cyan);">📚 '+tot+' questions · '+nPacks+' packs · 2 zones : UEMOA (BCEAO) &amp; CEMAC (BEAC)</span>'; // MODIFIÉ
+    var _info = '<span style="font-size:13px;font-weight:700;color:var(--cyan);">📚 '+tot+' questions · '+nThemes+' thèmes · 2 zones : UEMOA (BCEAO) &amp; CEMAC (BEAC)</span>'; // MODIFIÉ
     var _chips = _pays.map(function(p){ return '<span class="flagchip"><svg class="flag"><use href="#fl-'+p[0]+'"/></svg>'+p[1]+'</span>'; }).join(''); // MODIFIÉ
     var _seg = _info + '<span class="ticker-sep">●</span>' + _chips; // MODIFIÉ
     _tk.innerHTML = _seg + '<span class="ticker-sep">●</span>' + _seg; // MODIFIÉ : dupliqué pour boucle fluide
