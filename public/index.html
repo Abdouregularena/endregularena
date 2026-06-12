@@ -2418,18 +2418,26 @@ function arDownloadCert(){
   .then(function(r){return r.json();})
   .then(function(d){
     var info=(d&&d.success)?d:{certificate_id:'RA-LOCAL',name:name,theme:theme,zone:zone,score:sc,total:tot,date:new Date().toISOString()};
-    return Promise.all([
-      arLoadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'),
-      arLoadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js')
-    ]).then(function(){ return info; });
+    // MODIFIÉ : essai jsPDF local d'abord, puis CDN de secours
+    function tryLoadJsPDF(){
+      if(window.jspdf && window.jspdf.jsPDF) return Promise.resolve();
+      return arLoadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')
+        .catch(function(){ return arLoadScript('https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js'); });
+    }
+    function tryLoadQR(){
+      if(window.QRCode) return Promise.resolve();
+      return arLoadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js')
+        .catch(function(){ return arLoadScript('https://unpkg.com/qrcodejs@1.0.0/qrcode.min.js'); });
+    }
+    return Promise.all([tryLoadJsPDF(), tryLoadQR()]).then(function(){ return info; });
   })
   .then(function(info){
     return arGenQRDataURL('https://regularena.com/verify/'+info.certificate_id).then(function(qr){ return {info:info,qr:qr}; });
   })
   .then(function(o){ arBuildCertPDF(o.info,o.qr); closeModal(); })
-  .catch(function(){
+  .catch(function(e){
     closeModal();
-    showModal('Oups','<div class="al al-err">Génération impossible (réseau). Réessaie dans un instant.</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>');
+    showModal('Oups','<div class="al al-err" style="font-size:13px;">Génération impossible. Vérifie ta connexion internet et réessaie 🔄</div><button class="btn btn-sm" onclick="closeModal();setTimeout(arDownloadCert,300);" style="margin-top:10px;">↺ Réessayer</button>&nbsp;<button class="btn-out btn-sm" onclick="closeModal();" style="margin-top:10px;">Annuler</button>'); // MODIFIÉ
   });
 }
 function arBuildCertPDF(info,qrDataUrl){
@@ -2685,8 +2693,14 @@ var RA_CERT = (function(){
   }
   function ensureLibs(){
     var p=Promise.resolve();
-    if(!(window.jspdf && window.jspdf.jsPDF)) p=p.then(function(){ return loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'); });
-    if(!window.QRious) p=p.then(function(){ return loadScript('https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js'); });
+    if(!(window.jspdf && window.jspdf.jsPDF)) p=p.then(function(){
+      return loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')
+        .catch(function(){ return loadScript('https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js'); }); // MODIFIÉ : CDN secours
+    });
+    if(!window.QRious) p=p.then(function(){
+      return loadScript('https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js')
+        .catch(function(){ return loadScript('https://unpkg.com/qrious@4.0.2/dist/qrious.min.js'); }); // MODIFIÉ : CDN secours
+    });
     return p;
   }
   function themeOf(packLabel, zone){
@@ -2710,7 +2724,7 @@ var RA_CERT = (function(){
       if(!d.success) throw new Error(d.error||'Erreur serveur');
       return buildPDF({ name:(U&&U.name)||'Apprenant', theme:th, zone:zone, date:d.date||new Date().toISOString().slice(0,10), id:d.certificate_id });
     }).then(function(){ closeModal(); })
-    .catch(function(e){ showModal('Oups', '<div class="al al-err">'+(e&&e.message?e.message:'Erreur')+'</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>'); });
+    .catch(function(e){ showModal('Oups', '<div class="al al-err" style="font-size:13px;">'+(e&&e.message?e.message:'Erreur réseau')+'</div><button class="btn btn-sm" onclick="closeModal();setTimeout(function(){RA_CERT.issue();},300);" style="margin-top:10px;">↺ Réessayer</button>'); }); // MODIFIÉ
   }
   function buildPDF(c){
     return ensureLibs().then(function(){
