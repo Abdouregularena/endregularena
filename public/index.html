@@ -2417,71 +2417,87 @@ function arDownloadCert(){
   fetch('/certificates',{method:'POST',headers:arAuthHdr(),body:JSON.stringify({theme:theme,zone:zone,score:sc,total:tot})})
   .then(function(r){return r.json();})
   .then(function(d){
-    var info=(d&&d.success)?d:{certificate_id:'RA-LOCAL',name:name,theme:theme,zone:zone,score:sc,total:tot,date:new Date().toISOString()};
-    // MODIFIÉ : essai jsPDF local d'abord, puis CDN de secours
-    function tryLoadJsPDF(){
-      if(window.jspdf && window.jspdf.jsPDF) return Promise.resolve();
-      return arLoadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')
-        .catch(function(){ return arLoadScript('https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js'); });
-    }
-    function tryLoadQR(){
-      if(window.QRCode) return Promise.resolve();
-      return arLoadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js')
-        .catch(function(){ return arLoadScript('https://unpkg.com/qrcodejs@1.0.0/qrcode.min.js'); });
-    }
-    return Promise.all([tryLoadJsPDF(), tryLoadQR()]).then(function(){ return info; });
-  })
-  .then(function(info){
-    return arGenQRDataURL('https://regularena.com/verify/'+info.certificate_id).then(function(qr){ return {info:info,qr:qr}; });
-  })
-  .then(function(o){ arBuildCertPDF(o.info,o.qr); closeModal(); })
-  .catch(function(e){
+    var info=(d&&d.success)?d:{certificate_id:'RA-LOCAL',name:name,theme:theme,zone:zone,score:sc,total:tot,date:new Date().toISOString()}; // MODIFIÉ : canvas pur, zéro CDN
     closeModal();
-    showModal('Oups','<div class="al al-err" style="font-size:13px;">Génération impossible. Vérifie ta connexion internet et réessaie 🔄</div><button class="btn btn-sm" onclick="closeModal();setTimeout(arDownloadCert,300);" style="margin-top:10px;">↺ Réessayer</button>&nbsp;<button class="btn-out btn-sm" onclick="closeModal();" style="margin-top:10px;">Annuler</button>'); // MODIFIÉ
+    arBuildCertPDF(info);
+  })
+  .catch(function(){
+    closeModal();
+    showModal('Oups','<div class="al al-err" style="font-size:13px;">Génération impossible. Vérifie ta connexion internet et réessaie 🔄</div><button class="btn btn-sm" onclick="closeModal();setTimeout(arDownloadCert,300);" style="margin-top:10px;">↺ Réessayer</button>&nbsp;<button class="btn-out btn-sm" onclick="closeModal();" style="margin-top:10px;">Annuler</button>');
   });
 }
-function arBuildCertPDF(info,qrDataUrl){
-  var jsPDF=(window.jspdf&&window.jspdf.jsPDF)||window.jsPDF;
-  var doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
-  var W=297, H=210;
-  doc.setFillColor(245,243,238); doc.rect(0,0,W,H,'F');
-  doc.setDrawColor(0,43,92); doc.setLineWidth(1.4); doc.rect(10,10,W-20,H-20);
-  doc.setDrawColor(201,153,26); doc.setLineWidth(0.5); doc.rect(13,13,W-26,H-26);
-  doc.setDrawColor(201,153,26); doc.setLineWidth(1.2); doc.circle(W/2,38,12);
-  doc.setFont('times','bold'); doc.setFontSize(15); doc.setTextColor(201,153,26);
-  doc.text('RA',W/2,41,{align:'center'});
-  doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(0,43,92);
-  doc.text('REGUL ARENA',W/2,58,{align:'center'});
-  doc.setFont('times','bold'); doc.setFontSize(30); doc.setTextColor(0,43,92);
-  doc.text('CERTIFICAT DE RÉUSSITE',W/2,78,{align:'center'});
-  doc.setDrawColor(201,153,26); doc.setLineWidth(0.7); doc.line(W/2-46,83,W/2+46,83);
-  doc.setFont('helvetica','normal'); doc.setFontSize(12); doc.setTextColor(70,70,70);
-  doc.text('Le présent certificat est décerné à',W/2,96,{align:'center'});
-  doc.setFont('times','bold'); doc.setFontSize(24); doc.setTextColor(0,43,92);
-  doc.text(String(info.name),W/2,110,{align:'center'});
-  doc.setFont('helvetica','normal'); doc.setFontSize(12); doc.setTextColor(70,70,70);
-  doc.text('pour avoir validé avec succès le parcours de formation :',W/2,122,{align:'center'});
-  doc.setFont('times','bolditalic'); doc.setFontSize(15); doc.setTextColor(201,153,26);
-  var themeLines=doc.splitTextToSize(String(info.theme),W-100);
-  doc.text(themeLines,W/2,132,{align:'center'});
-  doc.setFont('helvetica','normal'); doc.setFontSize(10.5); doc.setTextColor(85,85,85);
-  doc.text('Compétences en conformité, gestion des risques et exigences réglementaires applicables en zone '+(info.zone||'UEMOA')+'.',W/2,147,{align:'center',maxWidth:W-90});
-  doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(0,43,92);
-  doc.text('Résultat : '+info.score+'/'+info.total+' ('+Math.round(info.score/info.total*100)+'%)',W/2,157,{align:'center'});
+function arBuildCertPDF(info){ // MODIFIÉ : Canvas pur, zéro CDN
+  var W=1123, H=794; // A4 paysage 96dpi
+  var c=document.createElement('canvas'); c.width=W; c.height=H;
+  var g=c.getContext('2d');
+  // Fond
+  g.fillStyle='#F5F3EE'; g.fillRect(0,0,W,H);
+  // Bordures
+  g.strokeStyle='#002B5C'; g.lineWidth=5; g.strokeRect(20,20,W-40,H-40);
+  g.strokeStyle='#C9991A'; g.lineWidth=2; g.strokeRect(30,30,W-60,H-60);
+  // Médaillon
+  g.beginPath(); g.arc(W/2,80,38,0,2*Math.PI); g.strokeStyle='#C9991A'; g.lineWidth=3; g.stroke();
+  g.fillStyle='#002B5C'; g.font='bold 22px serif'; g.textAlign='center';
+  g.fillText('RA',W/2,90);
+  // Titre plateforme
+  g.fillStyle='#C9991A'; g.font='bold 13px sans-serif';
+  g.fillText('REGUL ARENA',W/2,140);
+  // Titre certificat
+  g.fillStyle='#002B5C'; g.font='bold 42px serif';
+  g.fillText('CERTIFICAT DE RÉUSSITE',W/2,200);
+  // Ligne déco
+  g.strokeStyle='#C9991A'; g.lineWidth=2;
+  g.beginPath(); g.moveTo(W/2-200,215); g.lineTo(W/2+200,215); g.stroke();
+  // Texte
+  g.fillStyle='#444'; g.font='16px sans-serif';
+  g.fillText('Le présent certificat est décerné à',W/2,258);
+  // Nom
+  g.fillStyle='#002B5C'; g.font='bold 36px serif';
+  g.fillText(String(info.name||'Apprenant'),W/2,310);
+  // Pack
+  g.fillStyle='#444'; g.font='15px sans-serif';
+  g.fillText('pour avoir validé avec succès le parcours de formation :',W/2,348);
+  g.fillStyle='#C9991A'; g.font='bold italic 20px serif';
+  // Wrap thème
+  var theme=String(info.theme||'Réglementation Bancaire UEMOA');
+  var words=theme.split(' '), line='', lines=[];
+  for(var i=0;i<words.length;i++){
+    var test=line+(line?' ':'')+words[i];
+    if(g.measureText(test).width>700 && line){ lines.push(line); line=words[i]; } else line=test;
+  }
+  lines.push(line);
+  for(var j=0;j<lines.length;j++) g.fillText(lines[j],W/2,378+j*28);
+  var yAfter=378+lines.length*28+20;
+  // Zone
+  g.fillStyle='#555'; g.font='14px sans-serif';
+  g.fillText('Compétences en conformité, gestion des risques et exigences réglementaires — Zone '+(info.zone||'UEMOA'),W/2,yAfter);
+  // Score
+  g.fillStyle='#002B5C'; g.font='bold 16px sans-serif';
+  var sc=info.score,tot=info.total,pct=tot?Math.round(sc/tot*100):0;
+  g.fillText('Résultat : '+sc+'/'+tot+' ('+pct+'%)',W/2,yAfter+30);
+  // Date & ID
+  g.fillStyle='#666'; g.font='12px sans-serif';
   var dateStr=String(info.date||'').slice(0,10);
-  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(95,95,95);
-  doc.text('Délivré le : '+dateStr+'    |    N° d\'authentification : '+info.certificate_id,W/2,168,{align:'center'});
-  doc.setDrawColor(120,120,120); doc.setLineWidth(0.3);
-  doc.line(38,186,93,186); doc.line(W-93,186,W-38,186);
-  doc.setFontSize(9); doc.setTextColor(60,60,60);
-  doc.text('Fondateur & CEO, REGUL ARENA',65,191,{align:'center'});
-  doc.text('Comité d\'Évaluation',W-65,191,{align:'center'});
-  if(qrDataUrl){ try{
-    doc.addImage(qrDataUrl,'PNG',W-44,150,24,24);
-    doc.setFontSize(7); doc.setTextColor(110,110,110);
-    doc.text('Scanner pour vérifier',W-32,177,{align:'center'});
-  }catch(e){} }
-  doc.save('Certificat_REGUL_ARENA_'+String(info.name).replace(/[^a-z0-9]+/gi,'_')+'.pdf');
+  g.fillText('Délivré le : '+dateStr+'  |  N° : '+info.certificate_id,W/2,yAfter+58);
+  // Signatures
+  g.strokeStyle='#aaa'; g.lineWidth=1;
+  g.beginPath(); g.moveTo(120,720); g.lineTo(320,720); g.stroke();
+  g.beginPath(); g.moveTo(W-320,720); g.lineTo(W-120,720); g.stroke();
+  g.fillStyle='#444'; g.font='12px sans-serif';
+  g.fillText('Fondateur & CEO, REGUL ARENA',220,738);
+  g.fillText("Comité d'Évaluation",W-220,738);
+  // Logo coin
+  g.fillStyle='rgba(0,43,92,.06)'; g.font='bold 120px serif';
+  g.save(); g.globalAlpha=0.06; g.fillStyle='#002B5C';
+  g.fillText('RA',W/2,500); g.restore();
+  // QR simple (sans lib externe)
+  g.fillStyle='#002B5C'; g.font='bold 10px sans-serif';
+  g.fillText('regularena.com/verify/'+info.certificate_id,W-180,760);
+  // Téléchargement
+  var a=document.createElement('a');
+  a.href=c.toDataURL('image/png');
+  a.download='Certificat_REGUL_ARENA_'+String(info.name||'').replace(/[^a-z0-9]+/gi,'_')+'.png';
+  a.click();
 }
 
 /* ════════════════════════════════════════════════
