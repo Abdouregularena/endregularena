@@ -1125,7 +1125,7 @@ app.post('/tournament/create', requireAuth, (req, res) => { // TOURNOI AJOUT
   if (!name || !zone) return err(res, 400, 'name et zone requis'); // TOURNOI AJOUT
   if (!['uemoa','cemac','inter','country'].includes(zone)) return err(res, 400, 'Zone invalide'); // TOURNOI AJOUT
   const mp = Number(max_players); // TOURNOI AJOUT
-  if (![8,16,32].includes(mp)) return err(res, 400, 'max_players doit être 8, 16 ou 32'); // TOURNOI AJOUT
+  if (![4,8,16,32].includes(mp)) return err(res, 400, 'max_players doit être 4, 8, 16 ou 32'); // MODIFIÉ
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id); // TOURNOI AJOUT
   if (!user) return err(res, 401, 'Session expirée, reconnecte-toi'); // MODIFIÉ — anti-crash user undefined
   if (!_peutRejoindre(user.country, user.country, zone)) { // TOURNOI AJOUT
