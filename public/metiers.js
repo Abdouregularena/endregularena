@@ -1,143 +1,178 @@
-/* ═══════════════════════════════════════════════════════════════
-   MODULE NAVIGATION PAR MÉTIER — REGUL ARENA  (version sur-mesure)
-   - Se branche automatiquement sur render() : AUCUNE modif d'index.html.
-   - S'affiche en haut de la page "Quiz & Formation" (TAB==='quiz').
-   - Lance les packs via la vraie fonction du site : startQ(<tableau>, titre).
-   - Aucun impact backend / scoring / régression.
-   ═══════════════════════════════════════════════════════════════ */
-(function () {
+/* ══════════════════════════════════════════════════════════════
+   REGUL ARENA — Module Navigation par Métier
+   Fichier : metiers.js  (public/metiers.js)
+   Lance un quiz via startQ(questions, titre) — fonction globale index.html
+   ══════════════════════════════════════════════════════════════ */
+var CFG_METIERS = (function () {
   'use strict';
 
-  // ── Inventaire des packs (miroir de rQP) : dataset global + métiers couverts ──
-  var PACKS_METIERS = [
-    { ds: 'QR', titre: 'Relations Financières Extérieures (RFE UEMOA)', metiers: ['conformite', 'trade'] },
-    { ds: 'QB', titre: 'Dispositif Prudentiel UMOA — Bâle II/III',      metiers: ['risques'] },
-    { ds: 'QC', titre: 'Réglementation CEMAC (BEAC · COBAC)',           metiers: ['cemac'] }
-  ];
+  var NAVY  = '#002B5C';
+  var GOLD  = '#C9991A';
+  var CREAM = '#F5F3EE';
+  var INK   = '#1a2233';
 
+  /* ── 8 catégories métiers UEMOA/CEMAC ── */
   var METIERS = [
-    { id: 'conformite', nom: 'Conformité / LBC-FT',           icone: '🛡️' },
-    { id: 'trade',      nom: 'Trade Finance / Commerce intl',  icone: '🌍' },
-    { id: 'risques',    nom: 'Crédit / Risques',              icone: '📊' },
-    { id: 'cemac',      nom: 'Zone CEMAC',                    icone: '🌐' },
-    { id: 'compta',     nom: 'Comptabilité / Reporting',      icone: '🧾' },
-    { id: 'operations', nom: 'Caisse / Opérations',           icone: '🏦' },
-    { id: 'commercial', nom: 'Commercial / Front office',     icone: '🤝' },
-    { id: 'audit',      nom: 'Audit / Inspection',            icone: '🔍' }
+    {
+      id: 'conformite', nom: 'Conformité / LBC-FT', emo: '🛡️',
+      kw: ['conformit', 'lbc', 'ft', 'blanchiment', 'financement', 'terrorisme', 'lcb', 'kyc', 'gafi', 'fatf']
+    },
+    {
+      id: 'trade', nom: 'Trade Finance / Commerce extérieur', emo: '🌐',
+      kw: ['trade', 'commerce', 'extérieur', 'rfe', 'change', 'transfert', 'domiciliation', 'crédit documentaire', 'lettre de crédit', 'garantie internationale', 'swift', 'incoterm', 'importat', 'exportat']
+    },
+    {
+      id: 'credit', nom: 'Crédit / Risques', emo: '💳',
+      kw: ['crédit', 'risque', 'prudentiel', 'bâle', 'fonds propres', 'tier', 'lcr', 'nsfr', 'grands risques', 'division', 'levier', 'apr', 'cet1', 'provision']
+    },
+    {
+      id: 'comptabilite', nom: 'Comptabilité / Reporting', emo: '📊',
+      kw: ['comptab', 'reporting', 'fodep', 'déclaration', 'pilier 3', 'communication financière', 'bilan', 'résultat', 'normes']
+    },
+    {
+      id: 'caisse', nom: 'Caisse / Opérations', emo: '🏧',
+      kw: ['caisse', 'opération', 'paiement', 'virement', 'espèces', 'monnaie', 'billet', 'coffreur', 'trésorerie']
+    },
+    {
+      id: 'commercial', nom: 'Commercial / Front Office', emo: '🤝',
+      kw: ['commercial', 'front', 'client', 'conseiller', 'épargne', 'dépôt', 'placement', 'produit bancaire']
+    },
+    {
+      id: 'audit', nom: 'Audit / Inspection', emo: '🔍',
+      kw: ['audit', 'inspection', 'contrôle', 'supervision', 'surveillance', 'commission bancaire', 'bceao', 'cobac', 'srep', 'icaap']
+    },
+    {
+      id: 'cemac', nom: 'Zone CEMAC (BEAC · COBAC)', emo: '🌍',
+      kw: ['cemac', 'beac', 'cobac', 'cameroun', 'gabon', 'congo', 'tchad', 'centrafrique', 'guinée équatoriale']
+    }
   ];
 
-  function esc(s) { return String(s).replace(/'/g, "\\'"); }
+  var _ov  = null;
+  var _cur = [];
 
-  function lirePacks() {
-    return PACKS_METIERS.map(function (p) {
-      var qs = (typeof window[p.ds] !== 'undefined' && Array.isArray(window[p.ds])) ? window[p.ds] : [];
-      return { ds: p.ds, titre: p.titre, metiers: p.metiers, n: qs.length };
-    }).filter(function (p) { return p.n > 0; });
+  /* ── Détecte le métier d'un pack à partir du titre + sous-titre ── */
+  function metierDuPack(titre) {
+    var t = (titre || '').toLowerCase();
+    for (var mi = 0; mi < METIERS.length; mi++) {
+      var m = METIERS[mi];
+      for (var ki = 0; ki < m.kw.length; ki++) {
+        if (t.indexOf(m.kw[ki]) !== -1) return m.id;
+      }
+    }
+    return null;
   }
 
-  function classerParMetier(packs) {
-    var map = {};
-    METIERS.forEach(function (m) { map[m.id] = []; });
-    packs.forEach(function (p) {
-      (p.metiers || []).forEach(function (mid) { if (map[mid]) map[mid].push(p); });
-    });
-    return map;
+  /* ── Retourne les questions correspondant à un métier ── */
+  function packsDuMetier(metierId) {
+    // Packs disponibles dans index.html : QR (RFE), QB (Bâle), QC (CEMAC)
+    var sources = [
+      { qs: (typeof QR !== 'undefined' ? QR : []), titre: 'Relations Financières Extérieures', metier: 'trade' },
+      { qs: (typeof QB !== 'undefined' ? QB : []), titre: 'Dispositif Prudentiel UMOA (Bâle II/III)', metier: 'credit' },
+      { qs: (typeof QC !== 'undefined' ? QC : []), titre: 'Réglementation CEMAC (BEAC · COBAC)', metier: 'cemac' }
+    ];
+    var result = [];
+    for (var si = 0; si < sources.length; si++) {
+      var s = sources[si];
+      var mId = s.metier || metierDuPack(s.titre);
+      if (mId === metierId && s.qs.length > 0) {
+        result.push(s);
+      }
+    }
+    return result;
   }
 
-  // ── Vue 1 : grille des métiers (uniquement ceux qui ont au moins 1 pack) ──
-  function renderMetiers() {
-    var box = document.getElementById('metiers-content');
-    if (!box) return;
-    var groupes = classerParMetier(lirePacks());
-    var actifs = METIERS.filter(function (m) { return (groupes[m.id] || []).length > 0; });
-    if (!actifs.length) { box.innerHTML = ''; return; }
-
-    var html = '<div class="card" style="padding:16px;">' +
-      '<div style="font-weight:800;color:white;font-size:15px;margin-bottom:3px;">🧭 Naviguer par métier</div>' +
-      '<div style="font-size:11px;color:var(--sub);margin-bottom:12px;">Choisis ton métier pour accéder directement à tes packs.</div>' +
-      '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;">';
-    actifs.forEach(function (m) {
-      var n = groupes[m.id].length;
-      html += '<div class="ch" onclick="renderPacksMetier(\'' + m.id + '\')" ' +
-        'style="cursor:pointer;background:rgba(255,255,255,.04);border:1px solid rgba(201,153,26,.35);border-radius:12px;padding:14px;text-align:center;">' +
-        '<div style="font-size:28px;line-height:1;">' + m.icone + '</div>' +
-        '<div style="font-weight:700;color:white;font-size:12px;margin:7px 0 3px;">' + m.nom + '</div>' +
-        '<div style="color:#C9991A;font-size:11px;font-weight:700;">' + n + ' pack' + (n > 1 ? 's' : '') + '</div>' +
-        '</div>';
-    });
-    html += '</div></div>';
-    box.innerHTML = html;
+  /* ── HTML helpers ── */
+  function carte(contenu, action, border) {
+    return '<div onclick="' + action + '" style="background:#fff;border-radius:14px;padding:18px;cursor:pointer;border:2px solid ' + (border || '#e5e1d8') + ';transition:box-shadow .15s;" onmouseover="this.style.boxShadow=\'0 4px 18px rgba(0,43,92,.13)\'" onmouseout="this.style.boxShadow=\'none\'">' + contenu + '</div>';
   }
 
-  // ── Vue 2 : packs d'un métier ──
-  function renderPacksMetier(id) {
-    var box = document.getElementById('metiers-content');
-    if (!box) return;
-    var groupes = classerParMetier(lirePacks());
-    var m = METIERS.filter(function (x) { return x.id === id; })[0] || { nom: 'Packs', icone: '📦' };
-    var packs = groupes[id] || [];
-
-    var html = '<div class="card" style="padding:16px;">' +
-      '<button class="btn-out btn-sm" onclick="renderMetiers()" style="margin-bottom:12px;">← Métiers</button>' +
-      '<div style="font-weight:800;color:white;font-size:15px;margin-bottom:10px;">' + m.icone + ' ' + m.nom + '</div>' +
-      '<div style="display:flex;flex-direction:column;gap:8px;">';
-    packs.forEach(function (p) {
-      html += '<div class="card ch" style="padding:13px;display:flex;justify-content:space-between;align-items:center;gap:10px;" ' +
-        'onclick="lancerPackMetier(\'' + esc(p.ds) + '\',\'' + esc(p.titre) + '\')">' +
-        '<div style="min-width:0;"><div style="font-weight:700;color:white;font-size:13px;">' + p.titre + '</div>' +
-        '<div style="font-size:11px;color:var(--sub);">' + p.n + ' questions</div></div>' +
-        '<span style="color:var(--cyan);font-size:20px;flex-shrink:0;line-height:1;">&#8594;</span></div>';
-    });
-    if (!packs.length) html += '<p style="color:var(--sub);font-size:12px;">Aucun pack dans ce métier.</p>';
-    html += '</div></div>';
-    box.innerHTML = html;
+  function shell(inner) {
+    return '<div style="max-width:640px;margin:0 auto;padding:20px 16px;">' + inner + '</div>';
   }
 
-  // ── Lancement : utilise la vraie fonction du site startQ(<tableau>, titre) ──
-  function lancerPackMetier(ds, titre) {
-    var qs = window[ds];
-    if (Array.isArray(qs) && typeof window.startQ === 'function') {
-      window.startQ(qs, titre);
-    } else {
-      alert('Impossible de lancer ce pack (' + ds + ').');
+  /* ── Vue liste des métiers ── */
+  function vueMetiers() {
+    var items = METIERS.map(function (m) {
+      var packs = packsDuMetier(m.id);
+      var nQ = packs.reduce(function (s, p) { return s + p.qs.length; }, 0);
+      if (nQ === 0) return ''; // masquer métier sans questions
+      return carte(
+        '<div style="display:flex;align-items:center;gap:14px;">'
+        + '<div style="font-size:32px;line-height:1;">' + m.emo + '</div>'
+        + '<div style="flex:1;">'
+        + '<div style="font-weight:700;color:' + NAVY + ';font-size:15px;">' + m.nom + '</div>'
+        + '<div style="color:#7a7468;font-size:12px;margin-top:2px;">' + nQ + ' question' + (nQ > 1 ? 's' : '') + '</div>'
+        + '</div>'
+        + '<div style="background:' + GOLD + ';color:#fff;padding:6px 14px;border-radius:20px;font-weight:700;font-size:13px;">Voir ›</div>'
+        + '</div>',
+        'CFG_METIERS._open(\'' + m.id + '\')',
+        GOLD
+      );
+    }).join('');
+
+    return shell(
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">'
+      + '<div style="font-family:\'Playfair Display\',serif;font-size:22px;color:' + NAVY + ';font-weight:700;">🧭 Par métier</div>'
+      + '<button onclick="CFG_METIERS.fermer()" style="border:none;background:rgba(0,43,92,.08);color:' + NAVY + ';font-weight:700;cursor:pointer;border-radius:8px;padding:8px 14px;font-size:14px;">✕ Fermer</button>'
+      + '</div>'
+      + '<div style="display:grid;gap:12px;">' + (items || '<div style="text-align:center;color:#7a7468;padding:30px;">Aucun pack disponible.</div>') + '</div>'
+    );
+  }
+
+  /* ── Vue packs d'un métier ── */
+  function vuePacks(metierId) {
+    var m = METIERS.filter(function (x) { return x.id === metierId; })[0] || { nom: 'Tous les packs', emo: '📂' };
+    _cur = packsDuMetier(metierId);
+    var items = _cur.length
+      ? _cur.map(function (p, i) {
+          return carte(
+            '<div style="display:flex;align-items:center;gap:14px;">'
+            + '<div style="flex:1;">'
+            + '<div style="font-weight:700;color:' + INK + ';font-size:15px;">' + p.titre + '</div>'
+            + '<div style="color:#7a7468;font-size:12px;margin-top:2px;">' + p.qs.length + ' question' + (p.qs.length > 1 ? 's' : '') + '</div>'
+            + '</div>'
+            + '<div style="background:' + GOLD + ';color:#fff;padding:7px 16px;border-radius:20px;font-weight:700;font-size:13px;">Jouer ▸</div>'
+            + '</div>',
+            'CFG_METIERS._play(' + i + ')',
+            GOLD
+          );
+        }).join('')
+      : '<div style="text-align:center;color:#7a7468;padding:30px;">Aucun pack pour ce métier.</div>';
+
+    return shell(
+      '<button onclick="CFG_METIERS.afficher()" style="border:none;background:transparent;color:' + NAVY + ';font-weight:700;cursor:pointer;margin-bottom:14px;font-size:14px;">‹ Retour aux métiers</button>'
+      + '<div style="font-family:\'Playfair Display\',serif;font-size:19px;color:' + NAVY + ';margin-bottom:14px;">' + m.emo + ' ' + m.nom + '</div>'
+      + '<div style="display:grid;gap:12px;">' + items + '</div>'
+    );
+  }
+
+  /* ── Overlay plein écran ── */
+  function paint(html) {
+    if (!_ov) {
+      _ov = document.createElement('div');
+      _ov.id = 'cfg-metiers-ov';
+      _ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:' + CREAM + ';overflow-y:auto;font-family:\'IBM Plex Sans\',sans-serif;';
+      document.body.appendChild(_ov);
+    }
+    _ov.innerHTML = html;
+    _ov.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function afficher() { paint(vueMetiers()); }
+  function _open(id)  { paint(vuePacks(id)); }
+  function _play(i) {
+    if (!_cur[i]) return;
+    fermer();
+    // startQ est la fonction globale de index.html
+    if (typeof startQ === 'function') {
+      startQ(_cur[i].qs, _cur[i].titre);
     }
   }
-
-  // ── Auto-branchement sur render() : injecte le bloc en haut de la page Quiz ──
-  function injectMetiers() {
-    if (window.QZ && window.QZ.q && window.QZ.q.length > 0) return; // quiz en cours → ne pas injecter
-    var ct = document.getElementById('ct');
-    if (!ct) return;
-    if (!document.getElementById('metiers-content')) {
-      var b = document.createElement('div');
-      b.id = 'metiers-content';
-      b.style.marginBottom = '16px';
-      ct.insertBefore(b, ct.firstChild);
-    }
-    renderMetiers();
+  function fermer() {
+    if (_ov) _ov.style.display = 'none';
+    document.body.style.overflow = '';
   }
 
-  function wireRender() {
-    if (typeof window.render !== 'function') { return setTimeout(wireRender, 150); }
-    if (window.__metiersWired) return;
-    window.__metiersWired = true;
-    var orig = window.render;
-    window.render = function () {
-      var r = orig.apply(this, arguments);
-      try { if (window.TAB === 'quiz') injectMetiers(); } catch (e) {}
-      return r;
-    };
-    try { if (window.TAB === 'quiz') injectMetiers(); } catch (e) {} // cas : déjà sur l'onglet Quiz
-  }
-
-  // Expose pour les onclick inline
-  window.renderMetiers = renderMetiers;
-  window.renderPacksMetier = renderPacksMetier;
-  window.lancerPackMetier = lancerPackMetier;
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', wireRender);
-  } else {
-    wireRender();
-  }
+  return { afficher: afficher, fermer: fermer, _open: _open, _play: _play, METIERS: METIERS };
 })();

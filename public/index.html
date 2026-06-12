@@ -1200,7 +1200,7 @@ function rDB(){
   '<div style="font-size:30px;line-height:1;">▶️</div>'+
   '<div style="font-weight:800;color:white;font-size:14px;margin:9px 0 3px;">Jouer en solo</div>'+
   '<div style="font-size:11px;color:var(--sub);">Choisis un pack, progresse</div></div>'+
-  '<div class="ch" onclick="ST(\'quiz\');setTimeout(function(){var e=document.getElementById(\'metiers-content\');if(e)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});},220)" style="cursor:pointer;background:rgba(255,255,255,.04);border:1px solid rgba(201,153,26,.35);border-radius:14px;padding:18px;text-align:center;">'+
+  '<div class="ch" onclick="try{CFG_METIERS.afficher();}catch(e){ST(\'quiz\');}" style="cursor:pointer;background:rgba(255,255,255,.04);border:1px solid rgba(201,153,26,.35);border-radius:14px;padding:18px;text-align:center;">'+  // MODIFIÉ
   '<div style="font-size:30px;line-height:1;">🧭</div>'+
   '<div style="font-weight:800;color:white;font-size:14px;margin:9px 0 3px;">Par métier</div>'+
   '<div style="font-size:11px;color:var(--sub);">Conformité, Trade, Risques, CEMAC</div></div>'+
