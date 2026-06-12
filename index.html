@@ -1200,7 +1200,7 @@ function rDB(){
   '<div style="font-size:30px;line-height:1;">▶️</div>'+
   '<div style="font-weight:800;color:white;font-size:14px;margin:9px 0 3px;">Jouer en solo</div>'+
   '<div style="font-size:11px;color:var(--sub);">Choisis un pack, progresse</div></div>'+
-  '<div class="ch" onclick="ST(\'quiz\');setTimeout(function(){var e=document.getElementById(\'metiers-content\');if(e)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});},220)" style="cursor:pointer;background:rgba(255,255,255,.04);border:1px solid rgba(201,153,26,.35);border-radius:14px;padding:18px;text-align:center;">'+
+  '<div class="ch" onclick="try{CFG_METIERS.afficher();}catch(e){ST(\'quiz\');}" style="cursor:pointer;background:rgba(255,255,255,.04);border:1px solid rgba(201,153,26,.35);border-radius:14px;padding:18px;text-align:center;">'+  // MODIFIÉ
   '<div style="font-size:30px;line-height:1;">🧭</div>'+
   '<div style="font-weight:800;color:white;font-size:14px;margin:9px 0 3px;">Par métier</div>'+
   '<div style="font-size:11px;color:var(--sub);">Conformité, Trade, Risques, CEMAC</div></div>'+
@@ -1605,6 +1605,7 @@ function rARWaiting(){
     (isCreator && st==='waiting' ?
       '<button class="btn-out btn-sm" style="width:100%;border-color:rgba(201,153,26,.5);color:#C9991A;" onclick="arLeaveWaiting()">🚪 Sortir, je reviens (notif quand un adversaire rejoint)</button>' : '')+
     '<button class="btn-out btn-sm" style="width:100%;" onclick="arQuit()">← Abandonner</button>'+
+    arChatBox()+ // MODIFIÉ : chat dès la salle d'attente
   '</div>';
 }
 
@@ -1964,7 +1965,7 @@ function rST(){
     '<div class="ra-count" style="font-size:18px;font-weight:900;color:var(--cyan);margin-top:2px;">'+s[1]+'</div></div>';
   }).join('')+'</div></div>'+
   '<div class="card"><div style="font-weight:700;color:white;font-size:14px;margin-bottom:6px;">Mes scores</div><div style="font-size:12px;color:var(--sub);margin-bottom:12px;">Réinitialise tout ton historique de scores (sur cet appareil et sur ton compte). Action définitive.</div><button class="btn-out" style="width:100%;" onclick="scResetAll()">🔄 Réinitialiser mes scores</button></div>'+
-  '<div class="card"><button class="btn-out" style="width:100%;color:#f87171;border-color:rgba(248,113,113,.3);" onclick="if(confirm(\'Déconnexion ?\'))doLogout()">🚪 Déconnexion</button></div></div>';
+  '<div class="card"><button class="btn-out" style="width:100%;color:#f87171;border-color:rgba(248,113,113,.3);" onclick="showModal(\'Déconnexion ?\',\'<div style=\\\"font-size:14px;color:#ccc;margin-bottom:16px;\\\">Se déconnecter de REGUL ARENA ?</div><div style=\\\"display:flex;gap:10px;\\\"><button class=\\\"btn btn-sm\\\" style=\\\"flex:1;background:#ef4444;\\\" onclick=\\\"closeModal();doLogout()\\\">Déconnexion</button><button class=\\\"btn-out btn-sm\\\" style=\\\"flex:1;\\\" onclick=\\\"closeModal()\\\">Annuler</button></div>\')">🚪 Déconnexion</button></div></div>'; // MODIFIÉ
 }
 
 /* ════════════════════════════════════════════════
@@ -2111,19 +2112,19 @@ function arChatFloatEnsure(){
   if(!document.body) return;
   var wrap=document.createElement('div');
   wrap.id='ar-fchat';
-  wrap.style.cssText='position:fixed;left:14px;bottom:14px;z-index:99998;width:300px;max-width:86vw;display:none;';
+  wrap.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:99998;width:100%;max-width:420px;margin:0 auto;display:none;'; // MODIFIÉ : full-width mobile, centré desktop
   wrap.innerHTML=
-    '<div id="ar-fchat-head" style="display:flex;align-items:center;justify-content:space-between;gap:8px;background:linear-gradient(135deg,#0e3b30,#0a2a22);border:1px solid rgba(201,153,26,.45);border-radius:12px 12px 0 0;padding:8px 12px;cursor:pointer;">'+
-      '<span style="font-size:12px;font-weight:700;color:#C9991A;">\uD83D\uDCAC Chat du duel</span>'+
-      '<span id="ar-fchat-tog" style="font-size:16px;color:#9fd;line-height:1;">\u2013</span>'+
+    '<div id="ar-fchat-head" style="display:flex;align-items:center;justify-content:space-between;gap:8px;background:linear-gradient(135deg,#0e3b30,#0a2a22);border:1px solid rgba(201,153,26,.45);border-radius:0;padding:10px 16px;cursor:pointer;">'+
+      '<span style="font-size:13px;font-weight:700;color:#C9991A;">💬 Chat du duel</span>'+
+      '<span id="ar-fchat-tog" style="font-size:18px;color:#9fd;line-height:1;">–</span>'+
     '</div>'+
-    '<div id="ar-fchat-body" style="background:rgba(8,26,22,.97);border:1px solid rgba(201,153,26,.45);border-top:none;border-radius:0 0 12px 12px;padding:8px;">'+
-      '<div id="ar-fchat-msgs" style="height:150px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;margin-bottom:6px;"></div>'+
+    '<div id="ar-fchat-body" style="background:rgba(8,26,22,.97);border:1px solid rgba(201,153,26,.45);border-top:none;padding:10px;">'+
+      '<div id="ar-fchat-msgs" style="height:130px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;margin-bottom:8px;"></div>'+
       '<div style="display:flex;gap:6px;">'+
-        '<input id="ar-fchat-input" type="text" maxlength="300" placeholder="Message\u2026" style="flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:#fff;font-size:13px;" onkeydown="if(event.key===\'Enter\'){arChatSend();}">'+
-        '<button onclick="arChatSend()" style="padding:8px 12px;border:none;border-radius:8px;background:linear-gradient(135deg,#E8B520,#C9991A);color:#05201a;font-weight:700;font-size:13px;cursor:pointer;">Envoyer</button>'+
+        '<input id="ar-fchat-input" type="text" maxlength="300" placeholder="Message…" style="flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:#fff;font-size:14px;" onkeydown="if(event.key===\'Enter\'){arChatSend();}">'+
+        '<button onclick="arChatSend()" style="padding:10px 14px;border:none;border-radius:8px;background:linear-gradient(135deg,#E8B520,#C9991A);color:#05201a;font-weight:700;font-size:14px;cursor:pointer;min-height:44px;">→</button>'+
       '</div>'+
-    '</div>';
+    '</div>'; // MODIFIÉ : responsive mobile
   document.body.appendChild(wrap);
   document.getElementById('ar-fchat-head').onclick=function(){
     var b=document.getElementById('ar-fchat-body'), t=document.getElementById('ar-fchat-tog');
@@ -2294,7 +2295,7 @@ function arModalCreateTour(format){ // MODIFIÉ : format 'classic' | 'intra' | '
     (format!=='classic' ? '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Mode de classement des '+(format==='inter'?'pays':'institutions')+'</label>'+
     '<select id="ar-tscoring" class="inp"><option value="total">Score total cumulé</option><option value="avg">Moyenne par participant (équitable)</option><option value="top3">Somme des 3 meilleurs</option></select></div>' : '')+
     '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Participants max</label>'+
-    '<select id="ar-tmax" class="inp"><option value="4">4 joueurs</option><option value="8" selected>8 joueurs</option><option value="16">16 joueurs</option><option value="32">32 joueurs</option></select></div>'+
+    '<select id="ar-tmax" class="inp"><option value="4" selected>4 joueurs</option><option value="8">8 joueurs</option><option value="16">16 joueurs</option><option value="32">32 joueurs</option></select></div>'+ // MODIFIÉ
     '<div id="ar-tour-msg"></div>'+
     '<button class="btn" style="width:100%;padding:13px;" onclick="arDoCreateTour()">🏆 Créer le tournoi →</button>'+
     '<button class="btn-out btn-sm" style="width:100%;" onclick="closeModal()">Annuler</button>'+
@@ -2412,67 +2413,85 @@ function arDownloadCert(){
     return;
   }
   var theme=QZ.pack||'Quiz', zone=arCertZone(), name=(U&&U.name)||'Apprenant';
-  showModal('Génération…','<div class="al al-info" style="font-size:13px;"><span class="spin">⏳</span> Préparation de ton certificat…</div>');
+  // MODIFIÉ : génération immédiate Canvas, POST backend en arrière-plan (non bloquant)
+  var info={certificate_id:'RA-'+Date.now().toString(36).toUpperCase(),name:name,theme:theme,zone:zone,score:sc,total:tot,date:new Date().toISOString()};
+  arBuildCertPDF(info);
+  // Enregistrement backend silencieux
   fetch('/certificates',{method:'POST',headers:arAuthHdr(),body:JSON.stringify({theme:theme,zone:zone,score:sc,total:tot})})
-  .then(function(r){return r.json();})
-  .then(function(d){
-    var info=(d&&d.success)?d:{certificate_id:'RA-LOCAL',name:name,theme:theme,zone:zone,score:sc,total:tot,date:new Date().toISOString()};
-    return Promise.all([
-      arLoadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'),
-      arLoadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js')
-    ]).then(function(){ return info; });
-  })
-  .then(function(info){
-    return arGenQRDataURL('https://regularena.com/verify/'+info.certificate_id).then(function(qr){ return {info:info,qr:qr}; });
-  })
-  .then(function(o){ arBuildCertPDF(o.info,o.qr); closeModal(); })
-  .catch(function(){
-    closeModal();
-    showModal('Oups','<div class="al al-err">Génération impossible (réseau). Réessaie dans un instant.</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>');
-  });
+  .then(function(r){return r.json();}).catch(function(){});
 }
-function arBuildCertPDF(info,qrDataUrl){
-  var jsPDF=(window.jspdf&&window.jspdf.jsPDF)||window.jsPDF;
-  var doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
-  var W=297, H=210;
-  doc.setFillColor(245,243,238); doc.rect(0,0,W,H,'F');
-  doc.setDrawColor(0,43,92); doc.setLineWidth(1.4); doc.rect(10,10,W-20,H-20);
-  doc.setDrawColor(201,153,26); doc.setLineWidth(0.5); doc.rect(13,13,W-26,H-26);
-  doc.setDrawColor(201,153,26); doc.setLineWidth(1.2); doc.circle(W/2,38,12);
-  doc.setFont('times','bold'); doc.setFontSize(15); doc.setTextColor(201,153,26);
-  doc.text('RA',W/2,41,{align:'center'});
-  doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(0,43,92);
-  doc.text('REGUL ARENA',W/2,58,{align:'center'});
-  doc.setFont('times','bold'); doc.setFontSize(30); doc.setTextColor(0,43,92);
-  doc.text('CERTIFICAT DE RÉUSSITE',W/2,78,{align:'center'});
-  doc.setDrawColor(201,153,26); doc.setLineWidth(0.7); doc.line(W/2-46,83,W/2+46,83);
-  doc.setFont('helvetica','normal'); doc.setFontSize(12); doc.setTextColor(70,70,70);
-  doc.text('Le présent certificat est décerné à',W/2,96,{align:'center'});
-  doc.setFont('times','bold'); doc.setFontSize(24); doc.setTextColor(0,43,92);
-  doc.text(String(info.name),W/2,110,{align:'center'});
-  doc.setFont('helvetica','normal'); doc.setFontSize(12); doc.setTextColor(70,70,70);
-  doc.text('pour avoir validé avec succès le parcours de formation :',W/2,122,{align:'center'});
-  doc.setFont('times','bolditalic'); doc.setFontSize(15); doc.setTextColor(201,153,26);
-  var themeLines=doc.splitTextToSize(String(info.theme),W-100);
-  doc.text(themeLines,W/2,132,{align:'center'});
-  doc.setFont('helvetica','normal'); doc.setFontSize(10.5); doc.setTextColor(85,85,85);
-  doc.text('Compétences en conformité, gestion des risques et exigences réglementaires applicables en zone '+(info.zone||'UEMOA')+'.',W/2,147,{align:'center',maxWidth:W-90});
-  doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(0,43,92);
-  doc.text('Résultat : '+info.score+'/'+info.total+' ('+Math.round(info.score/info.total*100)+'%)',W/2,157,{align:'center'});
+function arBuildCertPDF(info){ // MODIFIÉ : Canvas pur, zéro CDN
+  var W=1123, H=794; // A4 paysage 96dpi
+  var c=document.createElement('canvas'); c.width=W; c.height=H;
+  var g=c.getContext('2d');
+  // Fond
+  g.fillStyle='#F5F3EE'; g.fillRect(0,0,W,H);
+  // Bordures
+  g.strokeStyle='#002B5C'; g.lineWidth=5; g.strokeRect(20,20,W-40,H-40);
+  g.strokeStyle='#C9991A'; g.lineWidth=2; g.strokeRect(30,30,W-60,H-60);
+  // Médaillon
+  g.beginPath(); g.arc(W/2,80,38,0,2*Math.PI); g.strokeStyle='#C9991A'; g.lineWidth=3; g.stroke();
+  g.fillStyle='#002B5C'; g.font='bold 22px serif'; g.textAlign='center';
+  g.fillText('RA',W/2,90);
+  // Titre plateforme
+  g.fillStyle='#C9991A'; g.font='bold 13px sans-serif';
+  g.fillText('REGUL ARENA',W/2,140);
+  // Titre certificat
+  g.fillStyle='#002B5C'; g.font='bold 42px serif';
+  g.fillText('CERTIFICAT DE RÉUSSITE',W/2,200);
+  // Ligne déco
+  g.strokeStyle='#C9991A'; g.lineWidth=2;
+  g.beginPath(); g.moveTo(W/2-200,215); g.lineTo(W/2+200,215); g.stroke();
+  // Texte
+  g.fillStyle='#444'; g.font='16px sans-serif';
+  g.fillText('Le présent certificat est décerné à',W/2,258);
+  // Nom
+  g.fillStyle='#002B5C'; g.font='bold 36px serif';
+  g.fillText(String(info.name||'Apprenant'),W/2,310);
+  // Pack
+  g.fillStyle='#444'; g.font='15px sans-serif';
+  g.fillText('pour avoir validé avec succès le parcours de formation :',W/2,348);
+  g.fillStyle='#C9991A'; g.font='bold italic 20px serif';
+  // Wrap thème
+  var theme=String(info.theme||'Réglementation Bancaire UEMOA');
+  var words=theme.split(' '), line='', lines=[];
+  for(var i=0;i<words.length;i++){
+    var test=line+(line?' ':'')+words[i];
+    if(g.measureText(test).width>700 && line){ lines.push(line); line=words[i]; } else line=test;
+  }
+  lines.push(line);
+  for(var j=0;j<lines.length;j++) g.fillText(lines[j],W/2,378+j*28);
+  var yAfter=378+lines.length*28+20;
+  // Zone
+  g.fillStyle='#555'; g.font='14px sans-serif';
+  g.fillText('Compétences en conformité, gestion des risques et exigences réglementaires — Zone '+(info.zone||'UEMOA'),W/2,yAfter);
+  // Score
+  g.fillStyle='#002B5C'; g.font='bold 16px sans-serif';
+  var sc=info.score,tot=info.total,pct=tot?Math.round(sc/tot*100):0;
+  g.fillText('Résultat : '+sc+'/'+tot+' ('+pct+'%)',W/2,yAfter+30);
+  // Date & ID
+  g.fillStyle='#666'; g.font='12px sans-serif';
   var dateStr=String(info.date||'').slice(0,10);
-  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(95,95,95);
-  doc.text('Délivré le : '+dateStr+'    |    N° d\'authentification : '+info.certificate_id,W/2,168,{align:'center'});
-  doc.setDrawColor(120,120,120); doc.setLineWidth(0.3);
-  doc.line(38,186,93,186); doc.line(W-93,186,W-38,186);
-  doc.setFontSize(9); doc.setTextColor(60,60,60);
-  doc.text('Fondateur & CEO, REGUL ARENA',65,191,{align:'center'});
-  doc.text('Comité d\'Évaluation',W-65,191,{align:'center'});
-  if(qrDataUrl){ try{
-    doc.addImage(qrDataUrl,'PNG',W-44,150,24,24);
-    doc.setFontSize(7); doc.setTextColor(110,110,110);
-    doc.text('Scanner pour vérifier',W-32,177,{align:'center'});
-  }catch(e){} }
-  doc.save('Certificat_REGUL_ARENA_'+String(info.name).replace(/[^a-z0-9]+/gi,'_')+'.pdf');
+  g.fillText('Délivré le : '+dateStr+'  |  N° : '+info.certificate_id,W/2,yAfter+58);
+  // Signatures
+  g.strokeStyle='#aaa'; g.lineWidth=1;
+  g.beginPath(); g.moveTo(120,720); g.lineTo(320,720); g.stroke();
+  g.beginPath(); g.moveTo(W-320,720); g.lineTo(W-120,720); g.stroke();
+  g.fillStyle='#444'; g.font='12px sans-serif';
+  g.fillText('Fondateur & CEO, REGUL ARENA',220,738);
+  g.fillText("Comité d'Évaluation",W-220,738);
+  // Logo coin
+  g.fillStyle='rgba(0,43,92,.06)'; g.font='bold 120px serif';
+  g.save(); g.globalAlpha=0.06; g.fillStyle='#002B5C';
+  g.fillText('RA',W/2,500); g.restore();
+  // QR simple (sans lib externe)
+  g.fillStyle='#002B5C'; g.font='bold 10px sans-serif';
+  g.fillText('regularena.com/verify/'+info.certificate_id,W-180,760);
+  // Téléchargement
+  var a=document.createElement('a');
+  a.href=c.toDataURL('image/png');
+  a.download='Certificat_REGUL_ARENA_'+String(info.name||'').replace(/[^a-z0-9]+/gi,'_')+'.png';
+  a.click();
 }
 
 /* ════════════════════════════════════════════════
@@ -2603,9 +2622,25 @@ function arLeaveTour(){
   AR.code=''; AR.type=''; AR.duelObj=null; AR.q=[]; AR.tab='tournois';
   render();
   try{
-    showModal('C\'est not\u00e9 \u2705','<div class="al al-ok" style="font-size:13px;">Tu peux faire autre chose en attendant. Une notification \uD83D\uDD14 t\'avertira d\u00e8s qu\'un participant rejoint ton tournoi. Reviens dans l\'Ar\u00e8ne et clique \u00ab Reprendre \u00bb.</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>');
+    showModal('C\'est noté ✅','<div class="al al-ok" style="font-size:13px;">Tu peux faire autre chose en attendant. Une notification 🔔 t\'avertira dès qu\'un participant rejoint ton tournoi. Reviens dans l\'Arène et clique « Reprendre ».</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>');
   }catch(e){}
 }
+/* Tournoi : participant non-créateur quitte définitivement */ // MODIFIÉ
+function arLeaveAsParticipant(){ // MODIFIÉ
+  var code=AR.code; if(!code) return; // MODIFIÉ
+  showModal('Quitter ?','<div style="font-size:14px;color:#ccc;margin-bottom:16px;">Quitter définitivement ce tournoi ?</div><div style="display:flex;gap:10px;"><button class="btn btn-sm" style="flex:1;background:#ef4444;" onclick="closeModal();arLeaveAsParticipantConfirm(\''+code+'\')">Quitter</button><button class="btn-out btn-sm" style="flex:1;" onclick="closeModal()">Annuler</button></div>'); // MODIFIÉ
+}
+function arLeaveAsParticipantConfirm(code){ // MODIFIÉ
+  fetch('/tournaments/'+code+'/leave',{method:'DELETE',headers:{'Authorization':'Bearer '+U.token}}) // MODIFIÉ
+  .then(function(r){return r.json();}).then(function(d){ // MODIFIÉ
+    if(AR.pollId){ clearInterval(AR.pollId); AR.pollId=null; } // MODIFIÉ
+    AR.code=''; AR.type=''; AR.duelObj=null; AR.q=[]; AR.tab='tournois'; // MODIFIÉ
+    render(); // MODIFIÉ
+    if(d&&d.success) showToast && showToast('Tournoi quitté'); // MODIFIÉ
+  }).catch(function(){ // MODIFIÉ
+    AR.code=''; AR.type=''; AR.tab='tournois'; render(); // MODIFIÉ
+  }); // MODIFIÉ
+} // MODIFIÉ
 function arResumeTour(){
   var p=AR.pendingTour; if(!p||!p.code) return;
   var code=p.code;
@@ -2670,8 +2705,14 @@ var RA_CERT = (function(){
   }
   function ensureLibs(){
     var p=Promise.resolve();
-    if(!(window.jspdf && window.jspdf.jsPDF)) p=p.then(function(){ return loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'); });
-    if(!window.QRious) p=p.then(function(){ return loadScript('https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js'); });
+    if(!(window.jspdf && window.jspdf.jsPDF)) p=p.then(function(){
+      return loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')
+        .catch(function(){ return loadScript('https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js'); }); // MODIFIÉ : CDN secours
+    });
+    if(!window.QRious) p=p.then(function(){
+      return loadScript('https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js')
+        .catch(function(){ return loadScript('https://unpkg.com/qrious@4.0.2/dist/qrious.min.js'); }); // MODIFIÉ : CDN secours
+    });
     return p;
   }
   function themeOf(packLabel, zone){
@@ -2695,7 +2736,7 @@ var RA_CERT = (function(){
       if(!d.success) throw new Error(d.error||'Erreur serveur');
       return buildPDF({ name:(U&&U.name)||'Apprenant', theme:th, zone:zone, date:d.date||new Date().toISOString().slice(0,10), id:d.certificate_id });
     }).then(function(){ closeModal(); })
-    .catch(function(e){ showModal('Oups', '<div class="al al-err">'+(e&&e.message?e.message:'Erreur')+'</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>'); });
+    .catch(function(e){ showModal('Oups', '<div class="al al-err" style="font-size:13px;">'+(e&&e.message?e.message:'Erreur réseau')+'</div><button class="btn btn-sm" onclick="closeModal();setTimeout(function(){RA_CERT.issue();},300);" style="margin-top:10px;">↺ Réessayer</button>'); }); // MODIFIÉ
   }
   function buildPDF(c){
     return ensureLibs().then(function(){
@@ -2982,7 +3023,7 @@ function tourIsCreator(){ var c=AR.duelObj && AR.duelObj.creator; return AR.isCr
 
 function rTourMain(){
   var t=tourT()||{}; var parts=tourParts();
-  setTimeout(tchatLoad,0);
+  setTimeout(tchatLoad,120); // MODIFIÉ : 120ms pour laisser le DOM se rendre
   if(TQ.playing) return rTourQuiz();
   if(t.status==='waiting') return rTourLobby(t,parts);
   if(t.status==='qualif'){
@@ -3023,7 +3064,9 @@ function rTourLobby(t,parts){
       : '<div class="al al-info" style="font-size:12px;">\u23F3 En attente du lancement par l\'organisateur\u2026</div>')+
     (isC ? '<button class="btn-out btn-sm" style="width:100%;border-color:rgba(201,153,26,.5);color:#C9991A;margin-bottom:6px;" onclick="arLeaveTour()">\uD83D\uDEAA Sortir, je reviens (notif quand un participant rejoint)</button>' : '')+
     tchatBox()+
-    '<button class="btn-out btn-sm" onclick="arQuit()">\u2190 Quitter</button>'+
+    (isC
+      ? '<button class="btn-out btn-sm" onclick="arQuit()">\u2190 Quitter</button>'
+      : '<button class="btn-out btn-sm" style="width:100%;color:#ef4444;border-color:rgba(239,68,68,.4);" onclick="arLeaveAsParticipant()">\uD83D\uDEAA Quitter ce tournoi</button>')+ // MODIFIÉ
   '</div>';
 }
 
@@ -3185,12 +3228,12 @@ function tqFinish(){
 /* Chat de tournoi (route serveur existante /tournament-chat/:id) */
 function tchatBox(){
   return '<div class="card" style="padding:10px;">'+
-    '<div style="font-size:11px;font-weight:700;color:var(--cyan);margin-bottom:6px;">\uD83D\uDCAC Chat du tournoi</div>'+
+    '<div style="font-size:12px;font-weight:700;color:var(--cyan);margin-bottom:6px;">💬 Chat du tournoi</div>'+
     '<div id="t-chat-msgs" style="height:110px;overflow-y:auto;background:rgba(0,0,0,.15);border:1px solid var(--border);border-radius:8px;padding:8px;display:flex;flex-direction:column;gap:4px;"></div>'+
-    '<div style="display:flex;gap:6px;margin-top:6px;">'+
-      '<input id="t-chat-input" type="text" maxlength="300" placeholder="Message\u2026" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:white;font-size:13px;" onkeydown="if(event.key===\'Enter\'){tchatSend();}">'+
-      '<button class="btn btn-sm" onclick="tchatSend()">Envoyer</button>'+
-    '</div></div>';
+    '<div style="display:flex;gap:6px;margin-top:8px;">'+
+      '<input id="t-chat-input" type="text" maxlength="300" placeholder="Message…" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:white;font-size:14px;min-height:44px;" onkeydown="if(event.key===\'Enter\'){tchatSend();}">'+
+      '<button class="btn btn-sm" onclick="tchatSend()" style="min-height:44px;padding:10px 14px;">→</button>'+
+    '</div></div>'; // MODIFIÉ : responsive mobile
 }
 function tchatLoad(){
   var t=tourT(); if(!t) return;
@@ -3929,14 +3972,22 @@ function salonLoad(initial){
       if(initial || atBottom){ box.scrollTop = box.scrollHeight; }
     }).catch(function(){});
 }
-function salonDelete(id){ // MODIFIÉ : supprime un message (auteur ou admin)
-  if(!confirm('Supprimer ce message ?')) return;
+function salonDelete(id){ // MODIFIÉ : modal custom au lieu de confirm() bloqué sur mobile
+  showModal('Supprimer ?',
+    '<div style="font-size:14px;color:#ccc;margin-bottom:16px;">Supprimer ce message définitivement ?</div>'+
+    '<div style="display:flex;gap:10px;">'+
+      '<button class="btn btn-sm" style="flex:1;background:#ef4444;" onclick="closeModal();salonDeleteConfirm('+Number(id)+')">🗑️ Supprimer</button>'+
+      '<button class="btn-out btn-sm" style="flex:1;" onclick="closeModal()">Annuler</button>'+
+    '</div>'
+  );
+}
+function salonDeleteConfirm(id){
   var tok = salonToken(); if(!tok) return;
   fetch('/chat/'+Number(id), { method:'DELETE', headers:{ 'Authorization':'Bearer '+tok } })
     .then(function(r){ return r.json(); }).then(function(d){
       if(d && d.success){ salonLoad(true); }
-      else { alert((d&&d.error)||'Suppression impossible'); }
-    }).catch(function(){ alert('Erreur réseau'); });
+      else { showModal('Erreur','<div class="al al-err">'+(d&&d.error||'Suppression impossible')+'</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>'); }
+    }).catch(function(){ showModal('Erreur','<div class="al al-err">Erreur réseau</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>'); });
 }
 function salonSend(){
   var inp = document.getElementById('salon-input');
