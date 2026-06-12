@@ -946,7 +946,7 @@ app.get('/duels/:code/live', requireAuth, (req, res) => {
 app.get('/duels/:code/chat', requireAuth, (req, res) => {
   const duel = db.prepare('SELECT id, creator_id, joiner_id FROM duels WHERE code = ?').get(req.params.code);
   if (!duel) return err(res, 404, 'Duel introuvable');
-  if (req.user.id !== duel.creator_id && req.user.id !== duel.joiner_id) return err(res, 403, 'Accès refusé');
+  if (req.user.id !== duel.creator_id && req.user.id !== duel.joiner_id) return err(res, 403, 'Accès refusé'); // MODIFIÉ : joiner_id peut être null → seul creator passe
   const messages = db.prepare(
     `SELECT m.id, m.user_id, m.content, m.sent_at, u.name, u.country
      FROM messages m JOIN users u ON u.id = m.user_id
@@ -958,7 +958,7 @@ app.get('/duels/:code/chat', requireAuth, (req, res) => {
 app.post('/duels/:code/chat', requireAuth, (req, res) => {
   const duel = db.prepare('SELECT id, creator_id, joiner_id FROM duels WHERE code = ?').get(req.params.code);
   if (!duel) return err(res, 404, 'Duel introuvable');
-  if (req.user.id !== duel.creator_id && req.user.id !== duel.joiner_id) return err(res, 403, 'Accès refusé');
+  if (req.user.id !== duel.creator_id && (duel.joiner_id === null || req.user.id !== duel.joiner_id)) return err(res, 403, 'Accès refusé'); // MODIFIÉ : creator toujours autorisé, joiner si défini
   const { content } = req.body || {};
   if (!content || !content.trim()) return err(res, 400, 'Message vide');
   db.prepare('INSERT INTO messages (user_id, zone, content) VALUES (?, ?, ?)')
@@ -1020,64 +1020,9 @@ cleanupExpired();                              // au démarrage
 setInterval(cleanupExpired, 60 * 60 * 1000);   // puis toutes les heures
 
 /* ════════════════════════════════════════════════
-   MODIFIÉ — CERTIFICATS DE RÉUSSITE
-   Génération PDF côté client. Le serveur ne fait qu'enregistrer
-   l'émission (pour la vérification publique via QR) — coût minime.
-════════════════════════════════════════════════ */
-db.exec(`CREATE TABLE IF NOT EXISTS certificates (
-  id         TEXT PRIMARY KEY,
-  user_id    INTEGER NOT NULL,
-  theme      TEXT NOT NULL,
-  zone       TEXT NOT NULL DEFAULT '',
-  score      INTEGER NOT NULL,
-  total      INTEGER NOT NULL,
-  created_at TEXT NOT NULL DEFAULT (datetime('now'))
-)`);
-const CERT_THRESHOLD = 80; // % minimum pour obtenir un certificat
-
-app.post('/certificates', requireAuth, (req, res) => {
-  const { theme, zone = '', score, total } = req.body || {};
-  if (!theme || score == null || total == null) return err(res, 400, 'theme, score, total requis');
-  const sc = Number(score), tot = Number(total);
-  if (!(tot > 0) || sc < 0 || sc > tot) return err(res, 400, 'Score invalide');
-  const pct = Math.round((sc / tot) * 100);
-  if (pct < CERT_THRESHOLD) return err(res, 403, `Score insuffisant (minimum ${CERT_THRESHOLD}%)`);
-  const cleanTheme = String(theme).slice(0, 120);
-  // 1 certificat par (utilisateur, thème) → QR stable, pas de doublons
-  let cert = db.prepare('SELECT * FROM certificates WHERE user_id = ? AND theme = ?').get(req.user.id, cleanTheme);
-  if (!cert) {
-    const id = 'RA-' + crypto.randomBytes(5).toString('hex').toUpperCase();
-    db.prepare('INSERT INTO certificates (id, user_id, theme, zone, score, total) VALUES (?,?,?,?,?,?)')
-      .run(id, req.user.id, cleanTheme, String(zone).slice(0, 40), sc, tot);
-    cert = db.prepare('SELECT * FROM certificates WHERE id = ?').get(id);
-  }
-  return ok(res, {
-    certificate_id: cert.id, name: req.user.name, theme: cert.theme,
-    zone: cert.zone, score: cert.score, total: cert.total, date: cert.created_at,
-  });
-});
-
-/* GET /verify/:id — page publique de vérification (scannée depuis le QR du PDF) */
-app.get('/verify/:id', (req, res) => {
-  const id = String(req.params.id || '').toUpperCase().slice(0, 40);
-  const esc = (s) => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const cert = db.prepare(
-    `SELECT c.id, c.theme, c.zone, c.score, c.total, c.created_at, u.name
-     FROM certificates c JOIN users u ON u.id = c.user_id WHERE c.id = ?`
-  ).get(id);
-  res.set('Content-Type', 'text/html; charset=utf-8');
-  if (!cert) {
-    return res.status(404).send(`<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Certificat introuvable</title></head><body style="font-family:system-ui,Segoe UI,sans-serif;background:#F5F3EE;color:#002B5C;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0;padding:24px;"><div style="max-width:480px;text-align:center;background:#fff;border:1px solid #e3ddd0;border-radius:16px;padding:36px;"><div style="font-size:42px;">❌</div><h1 style="font-size:20px;">Certificat introuvable</h1><p style="color:#6b6457;font-size:14px;">Aucun certificat ne correspond à cet identifiant. Vérifiez le numéro d'authentification.</p></div></body></html>`);
-  }
-  const d = String(cert.created_at).slice(0, 10);
-  const pct = Math.round(cert.score / cert.total * 100);
-  return res.send(`<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Certificat authentique — REGUL ARENA</title></head><body style="font-family:system-ui,Segoe UI,sans-serif;background:#F5F3EE;color:#002B5C;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0;padding:24px;"><div style="max-width:560px;background:#fff;border:1px solid #e3ddd0;border-top:6px solid #C9991A;border-radius:16px;padding:40px;box-shadow:0 10px 40px rgba(0,43,92,.08);"><div style="text-align:center;font-size:46px;">✅</div><h1 style="text-align:center;font-size:22px;margin:6px 0 2px;">Certificat authentique</h1><p style="text-align:center;color:#6b6457;font-size:13px;margin:0 0 24px;">Délivré par REGUL ARENA</p><table style="width:100%;border-collapse:collapse;font-size:14px;"><tr><td style="padding:8px 0;color:#8a8270;width:150px;">Titulaire</td><td style="font-weight:700;">${esc(cert.name)}</td></tr><tr><td style="padding:8px 0;color:#8a8270;">Module validé</td><td style="font-weight:700;">${esc(cert.theme)}</td></tr><tr><td style="padding:8px 0;color:#8a8270;">Zone</td><td>${esc(cert.zone) || '—'}</td></tr><tr><td style="padding:8px 0;color:#8a8270;">Résultat</td><td>${cert.score}/${cert.total} (${pct}%)</td></tr><tr><td style="padding:8px 0;color:#8a8270;">Délivré le</td><td>${esc(d)}</td></tr><tr><td style="padding:8px 0;color:#8a8270;">N° d'authentification</td><td style="font-family:monospace;">${esc(cert.id)}</td></tr></table></div></body></html>`);
-});
-
-/* ════════════════════════════════════════════════
-   MODIFIÉ — CERTIFICATS DE RÉUSSITE
-   Génération PDF côté client ; le serveur ne fait qu'enregistrer
-   l'émission et servir la page publique de vérification (QR code).
+   CERTIFICATS DE RÉUSSITE — schéma unique (MODIFIÉ: doublon ancien schéma supprimé)
+   Génération PDF côté client ; le serveur enregistre l'émission
+   et sert la page publique de vérification (scan QR).
 ════════════════════════════════════════════════ */
 db.exec(`CREATE TABLE IF NOT EXISTS certificates (
   id         INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -1312,8 +1257,9 @@ app.post('/tournament/:code/start-qualif', requireAuth, (req, res) => { // TOURN
   if (!t) return err(res, 404, 'Tournoi introuvable'); // TOURNOI AJOUT
   if (t.creator_id !== req.user.id) return err(res, 403, 'Seul le créateur peut lancer les qualifications'); // TOURNOI AJOUT
   if (t.status !== 'waiting') return err(res, 400, 'Statut invalide — attendu: waiting'); // TOURNOI AJOUT
+  const parts = db.prepare('SELECT user_id FROM tournament_participants WHERE tournament_id = ?').all(t.id); // MODIFIÉ
+  if (parts.length < 4) return err(res, 400, 'Minimum 4 participants requis pour lancer les qualifications (actuellement : ' + parts.length + ')'); // MODIFIÉ
   db.prepare('UPDATE tournaments SET status = ? WHERE code = ?').run('qualif', req.params.code); // TOURNOI AJOUT
-  const parts = db.prepare('SELECT user_id FROM tournament_participants WHERE tournament_id = ?').all(t.id); // TOURNOI AJOUT
   const ins = db.prepare('INSERT INTO notifications (user_id, type, message) VALUES (?,?,?)'); // TOURNOI AJOUT
   const tx = db.transaction(() => parts.forEach(p => { // TOURNOI AJOUT
     if (p.user_id !== req.user.id) ins.run(p.user_id, 'tournament_qualif_start', '⚡ Qualifications ouvertes pour "' + t.name + '" ! Code : ' + t.code); // TOURNOI AJOUT
@@ -1355,6 +1301,16 @@ app.post('/tournament/:code/generate-bracket', requireAuth, (req, res) => { // T
   nTx(); // TOURNOI AJOUT
   return ok(res, { message: 'Bracket généré', tournament: _tFull(req.params.code) }); // TOURNOI AJOUT
 }); // TOURNOI AJOUT
+
+/* DELETE /tournaments/:code/leave — participant quitte un tournoi en attente */ // MODIFIÉ
+app.delete('/tournaments/:code/leave', requireAuth, (req, res) => { // MODIFIÉ
+  const t = db.prepare('SELECT * FROM tournaments WHERE code = ?').get(req.params.code); // MODIFIÉ
+  if (!t) return err(res, 404, 'Tournoi introuvable'); // MODIFIÉ
+  if (t.status !== 'waiting') return err(res, 400, 'Impossible de quitter un tournoi déjà lancé'); // MODIFIÉ
+  if (t.creator_id === req.user.id) return err(res, 400, 'Le créateur ne peut pas quitter son propre tournoi'); // MODIFIÉ
+  db.prepare('DELETE FROM tournament_participants WHERE tournament_id = ? AND user_id = ?').run(t.id, req.user.id); // MODIFIÉ
+  return ok(res, { message: 'Tournoi quitté' }); // MODIFIÉ
+}); // MODIFIÉ
 
 /* POST /tournament/match/:matchId/record */
 app.post('/tournament/match/:matchId/record', requireAuth, (req, res) => { // TOURNOI AJOUT
@@ -1888,7 +1844,7 @@ const REGULATORY_REFS = {
     { code: 'Traité UMOA Art. 50', titre: 'Commission Bancaire de l\'UMOA — attributions', url: null },
   ],
   'bceao-change': [
-    { code: 'Règlement 09/2010/CM/UEMOA', titre: 'Réglementation des changes dans l\'UEMOA', url: null },
+    { code: 'Règlement 06/2024/CM/UEMOA', titre: 'Réglementation des changes dans l\'UEMOA', url: null },
     { code: 'Instruction BCEAO 94-05', titre: 'Comptes en devises dans l\'UEMOA', url: null },
   ],
   'bceao-microfinance': [
