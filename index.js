@@ -1039,6 +1039,7 @@ db.exec(`CREATE TABLE IF NOT EXISTS certificates (
 const CERT_PASS = 0.8; // seuil de réussite : 80 %
 
 app.post('/certificates', requireAuth, (req, res) => {
+  try { // MODIFIÉ : éviter crash serveur
   const { theme, zone, score, total } = req.body || {};
   const sc = Number(score), tt = Number(total);
   if (!theme || !tt || tt <= 0) return err(res, 400, 'theme et total requis');
@@ -1052,6 +1053,7 @@ app.post('/certificates', requireAuth, (req, res) => {
   db.prepare('INSERT INTO certificates (cert_id, user_id, user_name, theme, zone, score, total) VALUES (?,?,?,?,?,?,?)')
     .run(cid, req.user.id, (u && u.name) || '', cleanTheme, String(zone || '').slice(0, 40), sc, tt);
   return ok(res, { certificate_id: cid, date: new Date().toISOString().slice(0, 10) });
+  } catch(e) { return err(res, 500, 'Erreur serveur certificat'); } // MODIFIÉ
 });
 
 /* ── TOURNOIS legacy /tournaments/* — désactivées, utiliser /tournament/* ── */
