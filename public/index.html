@@ -1605,6 +1605,7 @@ function rARWaiting(){
     (isCreator && st==='waiting' ?
       '<button class="btn-out btn-sm" style="width:100%;border-color:rgba(201,153,26,.5);color:#C9991A;" onclick="arLeaveWaiting()">🚪 Sortir, je reviens (notif quand un adversaire rejoint)</button>' : '')+
     '<button class="btn-out btn-sm" style="width:100%;" onclick="arQuit()">← Abandonner</button>'+
+    arChatBox()+ // MODIFIÉ : chat dès la salle d'attente
   '</div>';
 }
 
@@ -2603,9 +2604,23 @@ function arLeaveTour(){
   AR.code=''; AR.type=''; AR.duelObj=null; AR.q=[]; AR.tab='tournois';
   render();
   try{
-    showModal('C\'est not\u00e9 \u2705','<div class="al al-ok" style="font-size:13px;">Tu peux faire autre chose en attendant. Une notification \uD83D\uDD14 t\'avertira d\u00e8s qu\'un participant rejoint ton tournoi. Reviens dans l\'Ar\u00e8ne et clique \u00ab Reprendre \u00bb.</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>');
+    showModal('C\'est noté ✅','<div class="al al-ok" style="font-size:13px;">Tu peux faire autre chose en attendant. Une notification 🔔 t\'avertira dès qu\'un participant rejoint ton tournoi. Reviens dans l\'Arène et clique « Reprendre ».</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>');
   }catch(e){}
 }
+/* Tournoi : participant non-créateur quitte définitivement */ // MODIFIÉ
+function arLeaveAsParticipant(){ // MODIFIÉ
+  var code=AR.code; if(!code) return; // MODIFIÉ
+  if(!confirm('Quitter définitivement ce tournoi ?')) return; // MODIFIÉ
+  fetch('/tournaments/'+code+'/leave',{method:'DELETE',headers:{'Authorization':'Bearer '+U.token}}) // MODIFIÉ
+  .then(function(r){return r.json();}).then(function(d){ // MODIFIÉ
+    if(AR.pollId){ clearInterval(AR.pollId); AR.pollId=null; } // MODIFIÉ
+    AR.code=''; AR.type=''; AR.duelObj=null; AR.q=[]; AR.tab='tournois'; // MODIFIÉ
+    render(); // MODIFIÉ
+    if(d&&d.success) showToast && showToast('Tournoi quitté'); // MODIFIÉ
+  }).catch(function(){ // MODIFIÉ
+    AR.code=''; AR.type=''; AR.tab='tournois'; render(); // MODIFIÉ
+  }); // MODIFIÉ
+} // MODIFIÉ
 function arResumeTour(){
   var p=AR.pendingTour; if(!p||!p.code) return;
   var code=p.code;
@@ -2982,7 +2997,7 @@ function tourIsCreator(){ var c=AR.duelObj && AR.duelObj.creator; return AR.isCr
 
 function rTourMain(){
   var t=tourT()||{}; var parts=tourParts();
-  setTimeout(tchatLoad,0);
+  setTimeout(tchatLoad,120); // MODIFIÉ : 120ms pour laisser le DOM se rendre
   if(TQ.playing) return rTourQuiz();
   if(t.status==='waiting') return rTourLobby(t,parts);
   if(t.status==='qualif'){
@@ -3023,7 +3038,9 @@ function rTourLobby(t,parts){
       : '<div class="al al-info" style="font-size:12px;">\u23F3 En attente du lancement par l\'organisateur\u2026</div>')+
     (isC ? '<button class="btn-out btn-sm" style="width:100%;border-color:rgba(201,153,26,.5);color:#C9991A;margin-bottom:6px;" onclick="arLeaveTour()">\uD83D\uDEAA Sortir, je reviens (notif quand un participant rejoint)</button>' : '')+
     tchatBox()+
-    '<button class="btn-out btn-sm" onclick="arQuit()">\u2190 Quitter</button>'+
+    (isC
+      ? '<button class="btn-out btn-sm" onclick="arQuit()">\u2190 Quitter</button>'
+      : '<button class="btn-out btn-sm" style="width:100%;color:#ef4444;border-color:rgba(239,68,68,.4);" onclick="arLeaveAsParticipant()">\uD83D\uDEAA Quitter ce tournoi</button>')+ // MODIFIÉ
   '</div>';
 }
 
