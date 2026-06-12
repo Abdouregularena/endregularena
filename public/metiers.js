@@ -87,7 +87,7 @@ var CFG_METIERS = (function () {
   }
 
   function shell(inner) {
-    return '<div style="max-width:640px;margin:0 auto;padding:20px 16px;">' + inner + '</div>';
+    return '<div style="max-width:640px;margin:0 auto;padding:16px 12px;">' + inner + '</div>'; // MODIFIÉ : padding réduit mobile
   }
 
   /* ── Vue liste des métiers ── */
@@ -113,7 +113,7 @@ var CFG_METIERS = (function () {
     return shell(
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">'
       + '<div style="font-family:\'Playfair Display\',serif;font-size:22px;color:' + NAVY + ';font-weight:700;">🧭 Par métier</div>'
-      + '<button onclick="CFG_METIERS.fermer()" style="border:none;background:rgba(0,43,92,.08);color:' + NAVY + ';font-weight:700;cursor:pointer;border-radius:8px;padding:8px 14px;font-size:14px;">✕ Fermer</button>'
+      + '<button onclick="CFG_METIERS.fermer()" style="border:none;background:rgba(0,43,92,.08);color:' + NAVY + ';font-weight:700;cursor:pointer;border-radius:8px;padding:10px 16px;font-size:15px;min-height:44px;touch-action:manipulation;">✕</button>'
       + '</div>'
       + '<div style="display:grid;gap:12px;">' + (items || '<div style="text-align:center;color:#7a7468;padding:30px;">Aucun pack disponible.</div>') + '</div>'
     );
@@ -140,10 +140,13 @@ var CFG_METIERS = (function () {
       : '<div style="text-align:center;color:#7a7468;padding:30px;">Aucun pack pour ce métier.</div>';
 
     return shell(
-      '<button onclick="CFG_METIERS.afficher()" style="border:none;background:transparent;color:' + NAVY + ';font-weight:700;cursor:pointer;margin-bottom:14px;font-size:14px;">‹ Retour aux métiers</button>'
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">'
+      + '<button onclick="CFG_METIERS.afficher()" style="border:none;background:transparent;color:' + NAVY + ';font-weight:700;cursor:pointer;font-size:14px;">‹ Retour</button>'
+      + '<button onclick="CFG_METIERS.fermer()" style="border:none;background:rgba(0,43,92,.08);color:' + NAVY + ';font-weight:700;cursor:pointer;border-radius:8px;padding:10px 16px;font-size:15px;min-height:44px;touch-action:manipulation;">✕</button>'
+      + '</div>'
       + '<div style="font-family:\'Playfair Display\',serif;font-size:19px;color:' + NAVY + ';margin-bottom:14px;">' + m.emo + ' ' + m.nom + '</div>'
       + '<div style="display:grid;gap:12px;">' + items + '</div>'
-    );
+    ); // MODIFIÉ
   }
 
   /* ── Overlay plein écran ── */
@@ -151,7 +154,7 @@ var CFG_METIERS = (function () {
     if (!_ov) {
       _ov = document.createElement('div');
       _ov.id = 'cfg-metiers-ov';
-      _ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:' + CREAM + ';overflow-y:auto;font-family:\'IBM Plex Sans\',sans-serif;';
+      _ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:' + CREAM + ';overflow-y:auto;font-family:\'IBM Plex Sans\',sans-serif;-webkit-overflow-scrolling:touch;'; // MODIFIÉ : scroll iOS
       document.body.appendChild(_ov);
     }
     _ov.innerHTML = html;

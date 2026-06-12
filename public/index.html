@@ -2112,19 +2112,19 @@ function arChatFloatEnsure(){
   if(!document.body) return;
   var wrap=document.createElement('div');
   wrap.id='ar-fchat';
-  wrap.style.cssText='position:fixed;left:14px;bottom:14px;z-index:99998;width:300px;max-width:86vw;display:none;';
+  wrap.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:99998;width:100%;max-width:420px;margin:0 auto;display:none;'; // MODIFIÉ : full-width mobile, centré desktop
   wrap.innerHTML=
-    '<div id="ar-fchat-head" style="display:flex;align-items:center;justify-content:space-between;gap:8px;background:linear-gradient(135deg,#0e3b30,#0a2a22);border:1px solid rgba(201,153,26,.45);border-radius:12px 12px 0 0;padding:8px 12px;cursor:pointer;">'+
-      '<span style="font-size:12px;font-weight:700;color:#C9991A;">\uD83D\uDCAC Chat du duel</span>'+
-      '<span id="ar-fchat-tog" style="font-size:16px;color:#9fd;line-height:1;">\u2013</span>'+
+    '<div id="ar-fchat-head" style="display:flex;align-items:center;justify-content:space-between;gap:8px;background:linear-gradient(135deg,#0e3b30,#0a2a22);border:1px solid rgba(201,153,26,.45);border-radius:0;padding:10px 16px;cursor:pointer;">'+
+      '<span style="font-size:13px;font-weight:700;color:#C9991A;">💬 Chat du duel</span>'+
+      '<span id="ar-fchat-tog" style="font-size:18px;color:#9fd;line-height:1;">–</span>'+
     '</div>'+
-    '<div id="ar-fchat-body" style="background:rgba(8,26,22,.97);border:1px solid rgba(201,153,26,.45);border-top:none;border-radius:0 0 12px 12px;padding:8px;">'+
-      '<div id="ar-fchat-msgs" style="height:150px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;margin-bottom:6px;"></div>'+
+    '<div id="ar-fchat-body" style="background:rgba(8,26,22,.97);border:1px solid rgba(201,153,26,.45);border-top:none;padding:10px;">'+
+      '<div id="ar-fchat-msgs" style="height:130px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;margin-bottom:8px;"></div>'+
       '<div style="display:flex;gap:6px;">'+
-        '<input id="ar-fchat-input" type="text" maxlength="300" placeholder="Message\u2026" style="flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:#fff;font-size:13px;" onkeydown="if(event.key===\'Enter\'){arChatSend();}">'+
-        '<button onclick="arChatSend()" style="padding:8px 12px;border:none;border-radius:8px;background:linear-gradient(135deg,#E8B520,#C9991A);color:#05201a;font-weight:700;font-size:13px;cursor:pointer;">Envoyer</button>'+
+        '<input id="ar-fchat-input" type="text" maxlength="300" placeholder="Message…" style="flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:#fff;font-size:14px;" onkeydown="if(event.key===\'Enter\'){arChatSend();}">'+
+        '<button onclick="arChatSend()" style="padding:10px 14px;border:none;border-radius:8px;background:linear-gradient(135deg,#E8B520,#C9991A);color:#05201a;font-weight:700;font-size:14px;cursor:pointer;min-height:44px;">→</button>'+
       '</div>'+
-    '</div>';
+    '</div>'; // MODIFIÉ : responsive mobile
   document.body.appendChild(wrap);
   document.getElementById('ar-fchat-head').onclick=function(){
     var b=document.getElementById('ar-fchat-body'), t=document.getElementById('ar-fchat-tog');
@@ -3202,12 +3202,12 @@ function tqFinish(){
 /* Chat de tournoi (route serveur existante /tournament-chat/:id) */
 function tchatBox(){
   return '<div class="card" style="padding:10px;">'+
-    '<div style="font-size:11px;font-weight:700;color:var(--cyan);margin-bottom:6px;">\uD83D\uDCAC Chat du tournoi</div>'+
+    '<div style="font-size:12px;font-weight:700;color:var(--cyan);margin-bottom:6px;">💬 Chat du tournoi</div>'+
     '<div id="t-chat-msgs" style="height:110px;overflow-y:auto;background:rgba(0,0,0,.15);border:1px solid var(--border);border-radius:8px;padding:8px;display:flex;flex-direction:column;gap:4px;"></div>'+
-    '<div style="display:flex;gap:6px;margin-top:6px;">'+
-      '<input id="t-chat-input" type="text" maxlength="300" placeholder="Message\u2026" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:white;font-size:13px;" onkeydown="if(event.key===\'Enter\'){tchatSend();}">'+
-      '<button class="btn btn-sm" onclick="tchatSend()">Envoyer</button>'+
-    '</div></div>';
+    '<div style="display:flex;gap:6px;margin-top:8px;">'+
+      '<input id="t-chat-input" type="text" maxlength="300" placeholder="Message…" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:white;font-size:14px;min-height:44px;" onkeydown="if(event.key===\'Enter\'){tchatSend();}">'+
+      '<button class="btn btn-sm" onclick="tchatSend()" style="min-height:44px;padding:10px 14px;">→</button>'+
+    '</div></div>'; // MODIFIÉ : responsive mobile
 }
 function tchatLoad(){
   var t=tourT(); if(!t) return;
