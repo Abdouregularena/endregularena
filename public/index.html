@@ -2295,7 +2295,7 @@ function arModalCreateTour(format){ // MODIFIÉ : format 'classic' | 'intra' | '
     (format!=='classic' ? '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Mode de classement des '+(format==='inter'?'pays':'institutions')+'</label>'+
     '<select id="ar-tscoring" class="inp"><option value="total">Score total cumulé</option><option value="avg">Moyenne par participant (équitable)</option><option value="top3">Somme des 3 meilleurs</option></select></div>' : '')+
     '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Participants max</label>'+
-    '<select id="ar-tmax" class="inp"><option value="4">4 joueurs</option><option value="8" selected>8 joueurs</option><option value="16">16 joueurs</option><option value="32">32 joueurs</option></select></div>'+
+    '<select id="ar-tmax" class="inp"><option value="4" selected>4 joueurs</option><option value="8">8 joueurs</option><option value="16">16 joueurs</option><option value="32">32 joueurs</option></select></div>'+ // MODIFIÉ
     '<div id="ar-tour-msg"></div>'+
     '<button class="btn" style="width:100%;padding:13px;" onclick="arDoCreateTour()">🏆 Créer le tournoi →</button>'+
     '<button class="btn-out btn-sm" style="width:100%;" onclick="closeModal()">Annuler</button>'+
