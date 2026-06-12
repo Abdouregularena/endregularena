@@ -2413,18 +2413,12 @@ function arDownloadCert(){
     return;
   }
   var theme=QZ.pack||'Quiz', zone=arCertZone(), name=(U&&U.name)||'Apprenant';
-  showModal('Génération…','<div class="al al-info" style="font-size:13px;"><span class="spin">⏳</span> Préparation de ton certificat…</div>');
+  // MODIFIÉ : génération immédiate Canvas, POST backend en arrière-plan (non bloquant)
+  var info={certificate_id:'RA-'+Date.now().toString(36).toUpperCase(),name:name,theme:theme,zone:zone,score:sc,total:tot,date:new Date().toISOString()};
+  arBuildCertPDF(info);
+  // Enregistrement backend silencieux
   fetch('/certificates',{method:'POST',headers:arAuthHdr(),body:JSON.stringify({theme:theme,zone:zone,score:sc,total:tot})})
-  .then(function(r){return r.json();})
-  .then(function(d){
-    var info=(d&&d.success)?d:{certificate_id:'RA-LOCAL',name:name,theme:theme,zone:zone,score:sc,total:tot,date:new Date().toISOString()}; // MODIFIÉ : canvas pur, zéro CDN
-    closeModal();
-    arBuildCertPDF(info);
-  })
-  .catch(function(){
-    closeModal();
-    showModal('Oups','<div class="al al-err" style="font-size:13px;">Génération impossible. Vérifie ta connexion internet et réessaie 🔄</div><button class="btn btn-sm" onclick="closeModal();setTimeout(arDownloadCert,300);" style="margin-top:10px;">↺ Réessayer</button>&nbsp;<button class="btn-out btn-sm" onclick="closeModal();" style="margin-top:10px;">Annuler</button>');
-  });
+  .then(function(r){return r.json();}).catch(function(){});
 }
 function arBuildCertPDF(info){ // MODIFIÉ : Canvas pur, zéro CDN
   var W=1123, H=794; // A4 paysage 96dpi
