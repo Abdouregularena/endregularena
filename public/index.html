@@ -1655,7 +1655,7 @@ function rDB(){
   var pct=Math.round((U.xp%1000)/10);
   return '<div style="display:flex;flex-direction:column;gap:16px;">'+
   '<div class="card" style="background:linear-gradient(to right,rgba(10,33,62,.7),rgba(30,58,138,.25));"><h2 style="font-size:21px;color:white;margin-bottom:4px;">Bienvenue, '+(U.name||'Pro').split(' ')[0]+' 👋</h2>'+
-  '<p style="color:var(--sub);font-size:13px;">'+(U.profile||'Professionnel UEMOA')+' · '+(QR.length+QB.length+QC.length)+' questions disponibles</p></div>'+
+  '<p style="color:var(--sub);font-size:13px;">'+(U.profile||'Professionnel UEMOA')+' · '+QR.length + QB.length + QC.length + QN.length // MODIFIÉ+' questions disponibles</p></div>'+
   /* ── MODIFIÉ : bloc 3 actions « Que voulez-vous faire ? » ── */
   '<div class="card" style="padding:16px;">'+
   '<div style="font-weight:800;color:white;font-size:15px;margin-bottom:2px;">Que voulez-vous faire ?</div>'+
