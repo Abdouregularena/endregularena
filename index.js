@@ -713,13 +713,16 @@ app.post('/notifications/seen-all', requireAuth, (req, res) => {
 });
 
 /* ── DUELS ──────────────────────────────────────────────────────── */
-function _duelFull(code) {
+function _duelFull(code, revealQuestions = false) {
   const duel = db.prepare('SELECT * FROM duels WHERE code = ?').get(code);
   if (!duel) return null;
   const creator = db.prepare('SELECT id, name, country FROM users WHERE id = ?').get(duel.creator_id);
   const joiner  = duel.joiner_id ? db.prepare('SELECT id, name, country FROM users WHERE id = ?').get(duel.joiner_id) : null;
   const scores  = db.prepare('SELECT user_id, score, questions_answered, finished FROM duel_scores WHERE duel_id = ?').all(duel.id);
-  return { ...duel, creator, joiner, scores };
+  // MODIFIÉ — expose questions_json (avec bonnes réponses) UNIQUEMENT quand le duel est terminé (feuille de match)
+  const reveal = revealQuestions || duel.status === 'finished';
+  const { questions_json, ...duelSafe } = duel;
+  return { ...duelSafe, questions_json: reveal ? questions_json : undefined, creator, joiner, scores };
 }
 
 app.post('/duels', requireAuth, (req, res) => {
@@ -934,7 +937,17 @@ app.post('/duels/:code/answer', requireAuth, (req, res) => {
 app.get('/duels/:code/live', requireAuth, (req, res) => {
   const d = _duelFull(req.params.code);
   if (!d) return err(res, 404, 'Duel introuvable');
-  return ok(res, { duel: d });
+  // MODIFIÉ — calcule q_elapsed_ms pour sync timer côté client
+  // = temps écoulé depuis le début de la question courante
+  let q_elapsed_ms = undefined;
+  if (d.status === 'active' && d.started_at && d.timer_sec) {
+    const startedMs = new Date(d.started_at).getTime();
+    const qIdx = d.current_q_index || 0;
+    const qStartMs = startedMs + qIdx * d.timer_sec * 1000;
+    q_elapsed_ms = Math.max(0, Date.now() - qStartMs);
+    if (q_elapsed_ms > d.timer_sec * 1000) q_elapsed_ms = d.timer_sec * 1000;
+  }
+  return ok(res, { duel: { ...d, q_elapsed_ms } });
 });
 
 /* ── CHAT DE DUEL ──────────────────────────────────────────────────
