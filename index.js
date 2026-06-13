@@ -726,7 +726,7 @@ function _duelFull(code, revealQuestions = false) {
 }
 
 app.post('/duels', requireAuth, (req, res) => {
-  const { pack_id, num_questions = 10, timer_sec = 30 } = req.body || {};
+  const { pack_id, num_questions = 10, timer_sec = 30, target_user_id } = req.body || {}; // MODIFIÉ : target_user_id
   let code;
   for (let i = 0; i < 10; i++) {
     code = genCode('D');
@@ -734,6 +734,12 @@ app.post('/duels', requireAuth, (req, res) => {
   }
   db.prepare('INSERT INTO duels (code, creator_id, pack_id, num_questions, timer_sec) VALUES (?, ?, ?, ?, ?)')
     .run(code, req.user.id, pack_id || 'general', Math.min(20, Math.max(5, Number(num_questions))), Math.min(60, Math.max(15, Number(timer_sec))));
+  // MODIFIÉ — notif ciblée si target_user_id, sinon notif globale
+  const tid = target_user_id ? Number(target_user_id) : null;
+  if (tid && tid !== req.user.id) {
+    db.prepare('INSERT INTO notifications (user_id, type, message) VALUES (?, ?, ?)')
+      .run(tid, 'duel_challenge', `⚔️ ${req.user.name} vous défie personnellement ! Code : ${code}`);
+  }
   notifyAllExcept(req.user.id, 'duel_created', `🥊 ${req.user.name} vous défie en duel ! Code : ${code}`);
   return ok(res, { code, duel: _duelFull(code) });
 });
@@ -991,6 +997,18 @@ app.get('/lobby/duels', requireAuth, (req, res) => {
      ORDER BY d.id DESC LIMIT 30`
   ).all(req.user.id);
   return ok(res, { open });
+});
+
+// MODIFIÉ — recherche joueur par nom (min 2 caractères)
+app.get('/users/search', requireAuth, (req, res) => {
+  const q = (req.query.q || '').trim();
+  if (q.length < 2) return ok(res, { users: [] });
+  const users = db.prepare(
+    `SELECT id, name, country FROM users
+     WHERE name LIKE ? AND id != ?
+     ORDER BY name LIMIT 10`
+  ).all('%' + q + '%', req.user.id);
+  return ok(res, { users });
 });
 
 /* MODIFIÉ — NETTOYAGE AUTO des duels/tournois expirés (anti-codes morts).
