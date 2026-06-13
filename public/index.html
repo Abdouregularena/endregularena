@@ -183,6 +183,8 @@ h2,h3{animation:raReveal .45s ease both;}
 .sponsors-title{font-size:11px;color:var(--sub);text-transform:uppercase;letter-spacing:.15em;margin-bottom:16px;position:relative;}
 .sponsors-title::after{content:'';display:block;width:40px;height:2px;background:var(--cyan);margin:6px auto 0;}
 .logo-slider{overflow:hidden;padding:16px 0;position:relative;white-space:nowrap;background:rgba(17,34,64,.4);border-radius:14px;border:1px solid var(--border);}
+/* MODIFIÉ : logos partenaires en blanc opaque pour lisibilité */
+.logo-item{color:#ffffff!important;opacity:.85;}
 .logo-slider::before,.logo-slider::after{content:'';position:absolute;top:0;width:80px;height:100%;z-index:2;}
 .logo-slider::before{left:0;background:linear-gradient(to right,#0A192F,transparent);}
 .logo-slider::after{right:0;background:linear-gradient(to left,#0A192F,transparent);}
@@ -233,13 +235,27 @@ h2,h3{animation:raReveal .45s ease both;}
         <div style="width:36px;height:36px;background:linear-gradient(135deg,#E8B520,#C9991A);border-radius:8px;display:flex;align-items:center;justify-content:center;">🌐</div>
         <div><div style="font-family:Syne,sans-serif;font-weight:900;color:white;font-size:15px;line-height:1;">REGULARENA PRO</div><div style="font-size:10px;font-weight:700;color:var(--cyan);">UEMOA · CEMAC</div></div>
       </div>
-      <div style="display:flex;gap:8px;">
+      <!-- MODIFIÉ : desktop = 3 boutons, mobile = CTA + burger -->
+      <div id="nav-desktop" style="display:flex;gap:8px;">
         <button class="btn-out btn-sm" onclick="var e=document.getElementById('home-about');if(e)e.scrollIntoView({behavior:'smooth'});">À propos</button>
-        <button class="btn btn-sm" onclick="SP('reg-wrap')">Créer mon compte</button> <!-- MODIFIÉ : bouton principal rempli -->
-        <button class="btn-out btn-sm" onclick="SP('login-wrap')">Connexion</button> <!-- MODIFIÉ : secondaire -->
-
+        <button class="btn btn-sm" onclick="SP('reg-wrap')">Créer mon compte</button>
+        <button class="btn-out btn-sm" onclick="SP('login-wrap')">Connexion</button>
+      </div>
+      <div id="nav-mobile" style="display:none;align-items:center;gap:8px;">
+        <button class="btn btn-sm" onclick="SP('reg-wrap')" style="padding:10px 16px;font-size:13px;">S'inscrire</button>
+        <button onclick="document.getElementById('mobile-menu').classList.toggle('show')" style="background:transparent;border:1px solid var(--border);border-radius:8px;padding:8px 10px;cursor:pointer;color:white;font-size:18px;line-height:1;">☰</button>
       </div>
     </div>
+    <!-- MODIFIÉ : menu déroulant mobile -->
+    <div id="mobile-menu" style="display:none;background:rgba(8,26,51,.98);border-top:1px solid var(--border);padding:12px 18px;flex-direction:column;gap:8px;">
+      <button class="btn-out btn-sm" style="width:100%;text-align:left;" onclick="var e=document.getElementById('home-about');if(e)e.scrollIntoView({behavior:'smooth'});document.getElementById('mobile-menu').classList.remove('show');">À propos</button>
+      <button class="btn-out btn-sm" style="width:100%;text-align:left;" onclick="SP('login-wrap')">Connexion</button>
+    </div>
+    <style>
+      #mobile-menu.show{display:flex!important;}
+      @media(max-width:640px){#nav-desktop{display:none!important;}#nav-mobile{display:flex!important;}}
+      @media(min-width:641px){#mobile-menu{display:none!important;}}
+    </style>
   </nav>
   <!-- ═══ BANDE DÉFILANTE ═══ -->
   <div class="ticker-wrap" id="home-ticker">
@@ -849,17 +865,17 @@ function apiCall(method, path, body){
    TEST CONNECTIVITÉ API
 ════════════════════════════════════════════════ */
 function testAPI(){
-  fetch('/api', {method:'GET'})
+  fetch('/health', {method:'GET'})
     .then(function(r){ return r.text(); })
     .then(function(t){
       try {
         var d = JSON.parse(t);
         if(d.status === 'ok') console.log('✅ API OK');
       } catch(e) {
-        console.warn('API non joignable:', t.slice(0,100));
+        // silencieux si /health n'existe pas encore
       }
     })
-    .catch(function(e){ console.warn('API erreur réseau:', e.message); });
+    .catch(function(){}); // MODIFIÉ : silencieux
 }
 
 /* ════════════════════════════════════════════════
@@ -3850,11 +3866,11 @@ function aboutHTML(){
   return "<div style='max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:14px;'>"+
     "<div style='text-align:center;'>"+
       "<h2 style='font-size:clamp(1.4rem,3vw,2rem);color:white;'>À propos de RegulArena</h2>"+
-      "<p style='font-size:13px;color:var(--sub);max-width:640px;margin:8px auto 0;line-height:1.7;'>Une initiative indépendante au service de la culture de conformité dans le secteur financier de l'UEMOA.</p>"+
+      "<p style='font-size:13px;color:var(--sub);max-width:640px;margin:8px auto 0;line-height:1.7;'>Une initiative indépendante au service de la culture de conformité dans le secteur financier des zones UEMOA et CEMAC.</p>"+
     "</div>"+
 
     aboutCard("🎯","Notre mission",
-      "RegulArena part d'une conviction simple : la conformité et la lutte contre le blanchiment de capitaux et le financement du terrorisme (LBC/FT) ne devraient pas rester l'affaire de quelques-uns. Notre objectif est de contribuer, à notre échelle, à diffuser et renforcer cette culture auprès des professionnels du secteur financier de l'UEMOA.")+
+      "RegulArena part d'une conviction simple : la conformité et la lutte contre le blanchiment de capitaux et le financement du terrorisme (LBC/FT) ne devraient pas rester l'affaire de quelques-uns. Notre objectif est de contribuer, à notre échelle, à diffuser et renforcer cette culture auprès des professionnels du secteur financier des zones UEMOA et CEMAC.")+
 
     aboutCard("📲","Dématérialiser et démocratiser la formation",
       "Les formations internes de conformité sont précieuses, mais souvent réservées au réseau interne des établissements et accessibles uniquement au bureau. Avec RegulArena, l'apprentissage se poursuit partout et à tout moment — en déplacement, à la maison, sur son canapé. Chacun peut revenir, à son rythme, évaluer et entretenir sa maîtrise des règles qui régissent le secteur.")+
