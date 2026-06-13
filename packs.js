@@ -14,6 +14,7 @@ const SOURCES = {
   QR: /(?:const|let|var)\s+QR\s*=\s*\[/,
   QB: /(?:const|let|var)\s+QB\s*=\s*\[/,
   QC: /(?:const|let|var)\s+QC\s*=\s*\[/,
+  QN: /(?:const|let|var)\s+QN\s*=\s*\[/, // MODIFIÉ — pack nouveaux textes BCEAO 2024-2026
 };
 
 const PACK_MAP = {
@@ -23,9 +24,10 @@ const PACK_MAP = {
   'cemac':     ['QC'],
   'mix':       ['QR', 'QB', 'QC'],
   'general':   ['QR', 'QB', 'QC'],
+  'nouveaux-textes': ['QN'], // MODIFIÉ — pack nouveaux textes
 };
 
-let DATA = { QR: [], QB: [], QC: [] };
+let DATA = { QR: [], QB: [], QC: [], QN: [] }; // MODIFIÉ
 
 // MODIFIÉ — extraction quote-aware : gère "  '  et `  (le HTML utilise des quotes simples)
 function extractArray(src, re) {
@@ -55,10 +57,10 @@ function loadPacks() {
     html = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
   } catch (e) {
     console.error('[packs] index.html illisible :', e.message);
-    DATA = { QR: [], QB: [], QC: [] };
+    DATA = { QR: [], QB: [], QC: [], QN: [] }; // MODIFIÉ
     return;
   }
-  const out = { QR: [], QB: [], QC: [] };
+  const out = { QR: [], QB: [], QC: [], QN: [] }; // MODIFIÉ
   for (const key of Object.keys(SOURCES)) {
     try {
       const raw = extractArray(html, SOURCES[key]);
@@ -71,7 +73,7 @@ function loadPacks() {
     }
   }
   DATA = out;
-  console.log(`[packs] chargé : QR=${DATA.QR.length} QB=${DATA.QB.length} QC=${DATA.QC.length}`);
+  console.log(`[packs] chargé : QR=${DATA.QR.length} QB=${DATA.QB.length} QC=${DATA.QC.length} QN=${DATA.QN.length}`); // MODIFIÉ
 }
 
 function shuffle(a) {
