@@ -1523,6 +1523,12 @@ function rARDuelsHome(){
       '<button class="btn btn-sm" onclick="startQ(QB,\'Entraînement Bâle\')">Quiz Bâle ('+QB.length+'Q)</button>'+
     '</div>'+
   '</div>'+
+  /* MODIFIÉ : recherche adversaire par nom */
+  '<div class="card">'+
+    '<div style="font-weight:700;color:white;font-size:13px;margin-bottom:10px;">🔍 Défier un joueur par nom</div>'+
+    '<input type="text" id="ar-search-player" class="inp" placeholder="Tapez au moins 2 lettres…" oninput="arSearchPlayer(this.value)" autocomplete="off"/>'+
+    '<div id="ar-search-results" style="margin-top:8px;"></div>'+
+  '</div>'+
   /* MODIFIÉ : fil des duels ouverts à rejoindre */
   '<div class="card">'+
     '<div style="font-weight:700;color:white;font-size:13px;margin-bottom:10px;">🔥 Arène ouverte — duels à rejoindre</div>'+
@@ -2503,22 +2509,44 @@ function arArenaAfterRender(){
   if(ge('ar-open-duels')) arLoadOpenDuels();
   if(ge('ar-open-tours')) arLoadOpenTours();
 }
+function arPackLabel(pid){
+  var m={'rfe-uemoa':'🏛️ RFE UEMOA','bale-umoa':'⚖️ Bâle II/III','mix':'🔀 Mix','cemac':'🌍 CEMAC','itb':'🎓 ITB','pcb':'📋 PCB','general':'🔀 Général'};
+  return m[pid]||pid||'Général';
+}
+function arAvatar(name){
+  var n=(name||'?').trim();
+  var ini=n.split(' ').map(function(w){return w[0]||'';}).slice(0,2).join('').toUpperCase()||'?';
+  var cols=['#C9991A','#4ade80','#60a5fa','#f472b6','#a78bfa','#fb923c'];
+  var c=cols[(n.charCodeAt(0)||0)%cols.length];
+  return '<div style="width:38px;height:38px;border-radius:50%;background:'+c+';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#0a1628;flex-shrink:0;">'+ini+'</div>';
+}
 function arLoadOpenDuels(){
   var box=ge('ar-open-duels'); if(!box) return;
   fetch('/lobby/duels',{headers:{'Authorization':'Bearer '+U.token}})
   .then(function(r){return r.json();}).then(function(d){
     var box=ge('ar-open-duels'); if(!box) return;
     if(!d.success||!d.open||!d.open.length){
-      box.innerHTML='<div style="font-size:12px;color:var(--sub);text-align:center;padding:10px;">Aucun duel ouvert pour le moment. Crée le tien ! ⚔️</div>';
+      box.innerHTML='<div style="font-size:12px;color:var(--sub);text-align:center;padding:10px;">Aucun duel ouvert pour le moment. Créez le vôtre ! ⚔️</div>';
       return;
     }
     box.innerHTML=d.open.map(function(x){
-      return '<div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px;margin-bottom:8px;">'+
-        '<div style="min-width:0;flex:1;"><div style="font-weight:700;color:white;font-size:13px;">⚔️ '+arChatEsc(x.creator_name||'Joueur')+(x.country?' · '+arChatEsc(x.country):'')+'</div>'+
-        '<div style="font-size:11px;color:var(--sub);">'+(x.num_questions||10)+' questions · pack '+arChatEsc(x.pack_id||'general')+'</div></div>'+
-        '<button class="btn btn-sm" onclick="arQuickJoin(\'duel\',\''+x.code+'\')">Rejoindre</button>'+
+      var lbl=arPackLabel(x.pack_id);
+      var timer=(x.timer_sec||30)+'s';
+      var nq=(x.num_questions||10)+'Q';
+      return '<div class="card" style="display:flex;align-items:center;gap:10px;padding:12px;margin-bottom:8px;border:1px solid rgba(201,153,26,.25);background:rgba(201,153,26,.04);">'+
+        arAvatar(x.creator_name)+
+        '<div style="min-width:0;flex:1;">'+
+          '<div style="font-weight:700;color:white;font-size:13px;">'+arChatEsc(x.creator_name||'Joueur')+(x.country?' <span style="font-size:10px;color:var(--sub);">('+arChatEsc(x.country)+')</span>':'')+'</div>'+
+          '<div style="font-size:11px;margin-top:3px;display:flex;gap:5px;flex-wrap:wrap;align-items:center;">'+
+            '<span style="background:rgba(201,153,26,.18);color:#C9991A;padding:1px 7px;border-radius:4px;font-weight:600;">'+arChatEsc(lbl)+'</span>'+
+            '<span style="color:var(--sub);">'+nq+'</span>'+
+            '<span style="color:var(--sub);">⏱ '+timer+'</span>'+
+          '</div>'+
+        '</div>'+
+        '<button class="btn btn-sm" style="flex-shrink:0;" onclick="arQuickJoin(\'duel\',\''+x.code+'\')">⚔️ Rejoindre</button>'+
       '</div>';
-    }).join('');
+    }).join('')+
+    '<button class="btn-out btn-sm" style="width:100%;margin-top:4px;font-size:11px;" onclick="arLoadOpenDuels()">🔄 Actualiser</button>';
   }).catch(function(){});
 }
 function arLoadOpenTours(){
@@ -2541,6 +2569,90 @@ function arLoadOpenTours(){
       '</div>';
     }).join('');
   }).catch(function(){});
+}
+/* MODIFIÉ — Recherche adversaire par nom + défi ciblé */
+var _arST=null;
+function arSearchPlayer(q){
+  q=(q||'').trim();
+  clearTimeout(_arST);
+  var box=ge('ar-search-results'); if(!box) return;
+  if(q.length<2){box.innerHTML='';return;}
+  box.innerHTML='<div style="font-size:12px;color:var(--sub);text-align:center;padding:6px;"><span class="spin">⏳</span> Recherche…</div>';
+  _arST=setTimeout(function(){
+    fetch('/users/search?q='+encodeURIComponent(q),{headers:{'Authorization':'Bearer '+U.token}})
+    .then(function(r){return r.json();}).then(function(d){
+      var box=ge('ar-search-results'); if(!box) return;
+      if(!d.success||!d.users||!d.users.length){
+        box.innerHTML='<div style="font-size:12px;color:var(--sub);text-align:center;padding:8px;">Aucun joueur trouvé</div>';
+        return;
+      }
+      box.innerHTML=d.users.map(function(u){
+        var safe=arChatEsc(u.name||'');
+        return '<div style="display:flex;align-items:center;gap:10px;padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.06);">'+
+          arAvatar(u.name)+
+          '<div style="flex:1;min-width:0;"><div style="font-weight:600;color:white;font-size:13px;">'+safe+'</div>'+
+          (u.country?'<div style="font-size:11px;color:var(--sub);">'+arChatEsc(u.country)+'</div>':'')+
+          '</div>'+
+          '<button class="btn btn-sm" style="flex-shrink:0;" onclick="arChallengePlayer('+u.id+','+JSON.stringify(u.name||'')+')" >⚔️ Défier</button>'+
+        '</div>';
+      }).join('');
+    }).catch(function(){
+      var box=ge('ar-search-results');
+      if(box) box.innerHTML='<div style="font-size:12px;color:#f87171;padding:6px;">Erreur réseau</div>';
+    });
+  },420);
+}
+function arChallengePlayer(tid,tname){
+  AR._chalTid=tid; AR._chalTname=tname;
+  var esc=arChatEsc(tname||'');
+  showModal('⚔️ Défier '+esc,
+    '<div style="display:flex;flex-direction:column;gap:13px;">'+
+    '<div class="al al-info" style="font-size:12px;">🎯 <strong>'+esc+'</strong> recevra une notification personnelle avec le code de votre duel.</div>'+
+    '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Pack de questions</label>'+
+    '<select id="ar-pack" class="inp">'+
+      '<optgroup label="Packs généraux">'+
+      '<option value="rfe-uemoa">🏛️ RFE UEMOA ('+QR.length+'Q)</option>'+
+      '<option value="bale-umoa">⚖️ Bâle II/III UMOA ('+QB.length+'Q)</option>'+
+      '<option value="mix">🔀 Mix RFE + Bâle</option>'+
+      '<option value="cemac">🌍 CEMAC — BEAC/COBAC ('+QC.length+'Q)</option>'+
+      '</optgroup>'+
+      '<optgroup label="Thèmes précis">'+arCatOptions()+'</optgroup>'+
+    '</select></div>'+
+    '<div style="display:flex;gap:8px;">'+
+    '<div style="flex:1;"><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Questions</label>'+
+    '<select id="ar-nq" class="inp"><option value="5">5Q</option><option value="10" selected>10Q</option><option value="15">15Q</option><option value="20">20Q</option></select></div>'+
+    '<div style="flex:1;"><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Temps</label>'+
+    '<select id="ar-ts" class="inp"><option value="15">15s</option><option value="30" selected>30s</option><option value="45">45s</option><option value="60">60s</option></select></div>'+
+    '</div>'+
+    '<div id="ar-create-msg"></div>'+
+    '<button class="btn" style="width:100%;padding:13px;" onclick="arDoCreateChallenge()">⚔️ Envoyer le défi →</button>'+
+    '<button class="btn-out btn-sm" style="width:100%;" onclick="closeModal()">Annuler</button>'+
+    '</div>'
+  );
+}
+function arDoCreateChallenge(){
+  var pack=ge('ar-pack').value;
+  var nq=parseInt(ge('ar-nq').value)||10;
+  nq=Math.max(1,Math.min(nq,arPoolSize(pack)));
+  var ts=parseInt(ge('ar-ts').value)||30;
+  var msg=ge('ar-create-msg');
+  if(msg) msg.innerHTML='<div class="al al-info"><span class="spin">⏳</span> Création en cours…</div>';
+  fetch('/duels',{method:'POST',headers:arAuthHdr(),body:JSON.stringify({pack_id:pack,num_questions:nq,timer_sec:ts,target_user_id:AR._chalTid})})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(!d.success) throw new Error(d.error||'Erreur serveur');
+    AR.code=d.code; AR.type='duel'; AR.packId=pack;
+    AR.timerMax=(d.duel&&d.duel.timer_sec)?d.duel.timer_sec:ts; AR.timerVal=AR.timerMax;
+    AR.isCreator=true; AR.myUserId=d.duel&&d.duel.creator_id?String(d.duel.creator_id):'';
+    AR.q=arPackQ(pack,(d.duel&&d.duel.num_questions)||nq,AR.code);
+    AR.sc=0; AR.oppSc=0; AR.idx=0; AR.ans=false;
+    AR.round=(d.duel&&d.duel.round)||0; AR.duelObj=d.duel;
+    closeModal(); arStartPollDuel(); render();
+    setTimeout(function(){arwPush('Défi envoyé à '+(AR._chalTname||''),'Code : '+d.code+' — En attente de votre adversaire…');},600);
+  })
+  .catch(function(e){
+    if(msg) msg.innerHTML='<div class="al al-err">❌ '+e.message+'</div>';
+  });
 }
 function arQuickJoin(type, code){
   code=(code||'').trim().toUpperCase(); if(!code) return;
