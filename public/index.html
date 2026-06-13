@@ -1605,7 +1605,6 @@ function rARWaiting(){
     (isCreator && st==='waiting' ?
       '<button class="btn-out btn-sm" style="width:100%;border-color:rgba(201,153,26,.5);color:#C9991A;" onclick="arLeaveWaiting()">📴 Sortir — notif à votre retour</button>' : '')+
     '<button class="btn-out btn-sm" style="width:100%;" onclick="arQuit()">← Abandonner</button>'+
-    arChatBox()+ // MODIFIÉ : chat dès la salle d'attente
   '</div>';
 }
 
@@ -2145,8 +2144,12 @@ function arChatFloatEnsure(){
     if(typeof AR==='undefined') return;
     arChatFloatEnsure();
     var w=document.getElementById('ar-fchat'); if(!w) return;
-    if(AR.type==='duel' && AR.code){ w.style.display='block'; arChatLoad(); }
+    var inDuel=(AR.type==='duel' && AR.code);
+    if(inDuel){ w.style.display='block'; arChatLoad(); }
     else { w.style.display='none'; }
+    // MODIFIÉ — badge BETA masqué pendant les duels (gêne l'écran jeu)
+    var beta=document.querySelector('.premium-sticker');
+    if(beta) beta.style.display=inDuel?'none':'flex';
   }
   if(document.readyState!=='loading') setInterval(tick,1000);
   else document.addEventListener('DOMContentLoaded', function(){ setInterval(tick,1000); });
