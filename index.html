@@ -161,7 +161,7 @@ h2,h3{animation:raReveal .45s ease both;}
 @keyframes pushSlide{0%{transform:translateX(120%);opacity:0}10%{transform:translateX(0);opacity:1}90%{transform:translateX(0);opacity:1}100%{transform:translateX(120%);opacity:0}}
 
 /* Sticker flottant */
-.premium-sticker{position:fixed;bottom:18px;left:calc(50% - 90px);background:linear-gradient(135deg,var(--cyan),#D4AF37);color:#0A192F;padding:10px 18px;border-radius:50px;font-weight:700;font-size:.85rem;box-shadow:0 10px 25px rgba(0,0,0,.3);z-index:300;display:flex;align-items:center;gap:8px;animation:float 4s ease-in-out infinite;border:2px solid rgba(255,255,255,.2);}
+.premium-sticker{position:fixed;bottom:18px;left:12px;background:linear-gradient(135deg,var(--cyan),#D4AF37);color:#0A192F;padding:7px 13px;border-radius:50px;font-weight:700;font-size:.75rem;box-shadow:0 10px 25px rgba(0,0,0,.3);z-index:150;display:flex;align-items:center;gap:6px;animation:float 4s ease-in-out infinite;border:2px solid rgba(255,255,255,.2);opacity:.85;} /* MODIFIÉ : bas-gauche hors zone interactive */
 .premium-sticker span{background:rgba(10,25,47,.15);padding:2px 8px;border-radius:20px;font-size:.75rem;}
 
 /* Push notification */
@@ -1185,9 +1185,9 @@ function rDB(){
   return '<div style="display:flex;flex-direction:column;gap:16px;">'+
   '<div class="card" style="background:linear-gradient(to right,rgba(10,33,62,.7),rgba(30,58,138,.25));"><h2 style="font-size:21px;color:white;margin-bottom:4px;">Bienvenue, '+(U.name||'Pro').split(' ')[0]+' 👋</h2>'+
   '<p style="color:var(--sub);font-size:13px;">'+(U.profile||'Professionnel UEMOA')+' · '+(QR.length+QB.length+QC.length)+' questions disponibles</p></div>'+
-  /* ── MODIFIÉ : bloc 3 actions « Que veux-tu faire ? » ── */
+  /* ── MODIFIÉ : bloc 3 actions « Que voulez-vous faire ? » ── */
   '<div class="card" style="padding:16px;">'+
-  '<div style="font-weight:800;color:white;font-size:15px;margin-bottom:2px;">Que veux-tu faire ?</div>'+
+  '<div style="font-weight:800;color:white;font-size:15px;margin-bottom:2px;">Que voulez-vous faire ?</div>'+
   '<div style="font-size:11px;color:var(--sub);margin-bottom:14px;">Choisis ton point de départ.</div>'+
   '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;">'+
   '<div class="ch" onclick="ST(\'quiz\')" style="cursor:pointer;background:linear-gradient(135deg,rgba(201,153,26,.20),rgba(201,153,26,.04));border:1px solid rgba(201,153,26,.55);border-radius:14px;padding:18px;text-align:center;">'+
@@ -1491,13 +1491,13 @@ function rARDuelsHome(){
   /* MODIFIÉ : bandeau reprise d'un duel laissé en attente */
   ((AR.pendingDuel&&AR.pendingDuel.code) ?
     '<div class="al al-warn" style="display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;">'+
-      '<span>⏳ Tu as un duel en attente (code <strong>'+AR.pendingDuel.code+'</strong>)</span>'+
+      '<span>⏳ Vous avez un duel en attente (code <strong>'+AR.pendingDuel.code+'</strong>)</span>'+
       '<button class="btn btn-sm" onclick="arResumeDuel()">Reprendre</button>'+
     '</div>' : '')+
   /* MODIFIÉ : bandeau reprise d'un tournoi laissé en attente */
   ((AR.pendingTour&&AR.pendingTour.code) ?
     '<div class="al al-warn" style="display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;">'+
-      '<span>\uD83C\uDFC6 Tu as un tournoi en attente (code <strong>'+AR.pendingTour.code+'</strong>)</span>'+
+      '<span>\uD83C\uDFC6 Vous avez un tournoi en attente (code <strong>'+AR.pendingTour.code+'</strong>)</span>'+
       '<button class="btn btn-sm" onclick="arResumeTour()">Reprendre</button>'+
     '</div>' : '')+
   /* Actions principales */
@@ -1522,6 +1522,12 @@ function rARDuelsHome(){
       '<button class="btn btn-sm" onclick="startQ(QR,\'Entraînement RFE\')">Quiz RFE ('+QR.length+'Q)</button>'+
       '<button class="btn btn-sm" onclick="startQ(QB,\'Entraînement Bâle\')">Quiz Bâle ('+QB.length+'Q)</button>'+
     '</div>'+
+  '</div>'+
+  /* MODIFIÉ : recherche adversaire par nom */
+  '<div class="card">'+
+    '<div style="font-weight:700;color:white;font-size:13px;margin-bottom:10px;">🔍 Défier un joueur par nom</div>'+
+    '<input type="text" id="ar-search-player" class="inp" placeholder="Tapez au moins 2 lettres…" oninput="arSearchPlayer(this.value)" autocomplete="off"/>'+
+    '<div id="ar-search-results" style="margin-top:8px;"></div>'+
   '</div>'+
   /* MODIFIÉ : fil des duels ouverts à rejoindre */
   '<div class="card">'+
@@ -1597,7 +1603,7 @@ function rARWaiting(){
     (isCreator && st==='joined' ?
       '<button class="btn" style="width:100%;padding:14px;font-size:14px;" onclick="arStartDuel()">⚔️ Lancer le duel (si le démarrage auto tarde)</button>' : '')+
     (isCreator && st==='waiting' ?
-      '<button class="btn-out btn-sm" style="width:100%;border-color:rgba(201,153,26,.5);color:#C9991A;" onclick="arLeaveWaiting()">🚪 Sortir, je reviens (notif quand un adversaire rejoint)</button>' : '')+
+      '<button class="btn-out btn-sm" style="width:100%;border-color:rgba(201,153,26,.5);color:#C9991A;" onclick="arLeaveWaiting()">📴 Sortir — notif à votre retour</button>' : '')+
     '<button class="btn-out btn-sm" style="width:100%;" onclick="arQuit()">← Abandonner</button>'+
     arChatBox()+ // MODIFIÉ : chat dès la salle d'attente
   '</div>';
@@ -1659,7 +1665,7 @@ function arWaitOpponent(){
   return '<div style="max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:14px;">'+
     '<div class="card" style="text-align:center;padding:26px;">'+
       '<div class="pls" style="font-size:40px;margin-bottom:10px;">⏳</div>'+
-      '<h3 style="color:white;font-size:18px;margin-bottom:6px;">Tu as terminé !</h3>'+
+      '<h3 style="color:white;font-size:18px;margin-bottom:6px;">Vous avez terminé !</h3>'+
       '<p style="color:var(--sub);font-size:13px;margin-bottom:16px;">En attente de '+on+'…</p>'+
       '<div class="vs-wrap" style="margin-bottom:0;">'+
         '<div class="vs-panel" style="border-color:rgba(201,153,26,.4);"><div class="vs-score" style="color:#4ade80;">'+AR.sc+'</div><div class="vs-name">Vous</div></div>'+
@@ -2041,7 +2047,7 @@ function arChatLoad(){
     box.innerHTML = msgs.length ? msgs.map(function(m){
       var mine=String(m.user_id)===String(AR.myUserId);
       return '<div style="font-size:12px;line-height:1.4;"><span style="font-weight:700;color:'+(mine?'#4ade80':'#f87171')+';">'+arChatEsc(m.name)+' :</span> <span style="color:#cdd9ee;">'+arChatEsc(m.content)+'</span></div>';
-    }).join('') : '<div style="color:var(--sub);font-size:12px;">\u00C9cris un mot \u00E0 ton adversaire \uD83D\uDC4B</div>';
+    }).join('') : '<div style="color:var(--sub);font-size:12px;">\u00C9cris un mot \u00E0 votre adversaire \uD83D\uDC4B</div>';
     if(atBottom) box.scrollTop=box.scrollHeight;
   }).catch(function(){});
 }
@@ -2124,8 +2130,14 @@ function arChatFloatEnsure(){
   document.body.appendChild(wrap);
   document.getElementById('ar-fchat-head').onclick=function(){
     var b=document.getElementById('ar-fchat-body'), t=document.getElementById('ar-fchat-tog');
-    if(b.style.display==='none'){ b.style.display='block'; t.textContent='\u2013'; }
-    else { b.style.display='none'; t.textContent='+'; }
+    var ct=document.getElementById('ct'); // conteneur principal
+    if(b.style.display==='none'){
+      b.style.display='block'; t.textContent='\u2013';
+      if(ct) ct.style.paddingBottom='200px'; // MODIFIÉ : évite que le chat masque les réponses sur mobile
+    } else {
+      b.style.display='none'; t.textContent='+';
+      if(ct) ct.style.paddingBottom=''; // MODIFIÉ
+    }
   };
 }
 (function(){
@@ -2208,8 +2220,8 @@ function arCopyCode(code){
 
 function arShareWA(code, type){
   var msg = type==='duel'
-    ? '⚔️ Je te défie sur REGULARENA PRO ! Code duel : *'+code+'*\nRejoins sur https://www.regularena.com\nRègle : même pack, même chrono, qui connait le mieux la réglementation UEMOA/CEMAC ?'
-    : '🏆 Tu es invité au tournoi *'+code+'* sur REGULARENA PRO !\nRejoins sur https://www.regularena.com';
+    ? '⚔️ Je vous défie sur REGULARENA PRO ! Code duel : *'+code+'*\nRejoignez-nous sur https://www.regularena.com\nRègle : même pack, même chrono, qui connaît le mieux la réglementation UEMOA/CEMAC ?'
+    : '🏆 Vous êtes invité(e) au tournoi *'+code+'* sur REGULARENA PRO !\nRejoignez-nous sur https://www.regularena.com';
   window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
 }
 
@@ -2497,22 +2509,44 @@ function arArenaAfterRender(){
   if(ge('ar-open-duels')) arLoadOpenDuels();
   if(ge('ar-open-tours')) arLoadOpenTours();
 }
+function arPackLabel(pid){
+  var m={'rfe-uemoa':'🏛️ RFE UEMOA','bale-umoa':'⚖️ Bâle II/III','mix':'🔀 Mix','cemac':'🌍 CEMAC','itb':'🎓 ITB','pcb':'📋 PCB','general':'🔀 Général'};
+  return m[pid]||pid||'Général';
+}
+function arAvatar(name){
+  var n=(name||'?').trim();
+  var ini=n.split(' ').map(function(w){return w[0]||'';}).slice(0,2).join('').toUpperCase()||'?';
+  var cols=['#C9991A','#4ade80','#60a5fa','#f472b6','#a78bfa','#fb923c'];
+  var c=cols[(n.charCodeAt(0)||0)%cols.length];
+  return '<div style="width:38px;height:38px;border-radius:50%;background:'+c+';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#0a1628;flex-shrink:0;">'+ini+'</div>';
+}
 function arLoadOpenDuels(){
   var box=ge('ar-open-duels'); if(!box) return;
   fetch('/lobby/duels',{headers:{'Authorization':'Bearer '+U.token}})
   .then(function(r){return r.json();}).then(function(d){
     var box=ge('ar-open-duels'); if(!box) return;
     if(!d.success||!d.open||!d.open.length){
-      box.innerHTML='<div style="font-size:12px;color:var(--sub);text-align:center;padding:10px;">Aucun duel ouvert pour le moment. Crée le tien ! ⚔️</div>';
+      box.innerHTML='<div style="font-size:12px;color:var(--sub);text-align:center;padding:10px;">Aucun duel ouvert pour le moment. Créez le vôtre ! ⚔️</div>';
       return;
     }
     box.innerHTML=d.open.map(function(x){
-      return '<div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px;margin-bottom:8px;">'+
-        '<div style="min-width:0;flex:1;"><div style="font-weight:700;color:white;font-size:13px;">⚔️ '+arChatEsc(x.creator_name||'Joueur')+(x.country?' · '+arChatEsc(x.country):'')+'</div>'+
-        '<div style="font-size:11px;color:var(--sub);">'+(x.num_questions||10)+' questions · pack '+arChatEsc(x.pack_id||'general')+'</div></div>'+
-        '<button class="btn btn-sm" onclick="arQuickJoin(\'duel\',\''+x.code+'\')">Rejoindre</button>'+
+      var lbl=arPackLabel(x.pack_id);
+      var timer=(x.timer_sec||30)+'s';
+      var nq=(x.num_questions||10)+'Q';
+      return '<div class="card" style="display:flex;align-items:center;gap:10px;padding:12px;margin-bottom:8px;border:1px solid rgba(201,153,26,.25);background:rgba(201,153,26,.04);">'+
+        arAvatar(x.creator_name)+
+        '<div style="min-width:0;flex:1;">'+
+          '<div style="font-weight:700;color:white;font-size:13px;">'+arChatEsc(x.creator_name||'Joueur')+(x.country?' <span style="font-size:10px;color:var(--sub);">('+arChatEsc(x.country)+')</span>':'')+'</div>'+
+          '<div style="font-size:11px;margin-top:3px;display:flex;gap:5px;flex-wrap:wrap;align-items:center;">'+
+            '<span style="background:rgba(201,153,26,.18);color:#C9991A;padding:1px 7px;border-radius:4px;font-weight:600;">'+arChatEsc(lbl)+'</span>'+
+            '<span style="color:var(--sub);">'+nq+'</span>'+
+            '<span style="color:var(--sub);">⏱ '+timer+'</span>'+
+          '</div>'+
+        '</div>'+
+        '<button class="btn btn-sm" style="flex-shrink:0;" onclick="arQuickJoin(\'duel\',\''+x.code+'\')">⚔️ Rejoindre</button>'+
       '</div>';
-    }).join('');
+    }).join('')+
+    '<button class="btn-out btn-sm" style="width:100%;margin-top:4px;font-size:11px;" onclick="arLoadOpenDuels()">🔄 Actualiser</button>';
   }).catch(function(){});
 }
 function arLoadOpenTours(){
@@ -2535,6 +2569,90 @@ function arLoadOpenTours(){
       '</div>';
     }).join('');
   }).catch(function(){});
+}
+/* MODIFIÉ — Recherche adversaire par nom + défi ciblé */
+var _arST=null;
+function arSearchPlayer(q){
+  q=(q||'').trim();
+  clearTimeout(_arST);
+  var box=ge('ar-search-results'); if(!box) return;
+  if(q.length<2){box.innerHTML='';return;}
+  box.innerHTML='<div style="font-size:12px;color:var(--sub);text-align:center;padding:6px;"><span class="spin">⏳</span> Recherche…</div>';
+  _arST=setTimeout(function(){
+    fetch('/users/search?q='+encodeURIComponent(q),{headers:{'Authorization':'Bearer '+U.token}})
+    .then(function(r){return r.json();}).then(function(d){
+      var box=ge('ar-search-results'); if(!box) return;
+      if(!d.success||!d.users||!d.users.length){
+        box.innerHTML='<div style="font-size:12px;color:var(--sub);text-align:center;padding:8px;">Aucun joueur trouvé</div>';
+        return;
+      }
+      box.innerHTML=d.users.map(function(u){
+        var safe=arChatEsc(u.name||'');
+        return '<div style="display:flex;align-items:center;gap:10px;padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.06);">'+
+          arAvatar(u.name)+
+          '<div style="flex:1;min-width:0;"><div style="font-weight:600;color:white;font-size:13px;">'+safe+'</div>'+
+          (u.country?'<div style="font-size:11px;color:var(--sub);">'+arChatEsc(u.country)+'</div>':'')+
+          '</div>'+
+          '<button class="btn btn-sm" style="flex-shrink:0;" onclick="arChallengePlayer('+u.id+','+JSON.stringify(u.name||'')+')" >⚔️ Défier</button>'+
+        '</div>';
+      }).join('');
+    }).catch(function(){
+      var box=ge('ar-search-results');
+      if(box) box.innerHTML='<div style="font-size:12px;color:#f87171;padding:6px;">Erreur réseau</div>';
+    });
+  },420);
+}
+function arChallengePlayer(tid,tname){
+  AR._chalTid=tid; AR._chalTname=tname;
+  var esc=arChatEsc(tname||'');
+  showModal('⚔️ Défier '+esc,
+    '<div style="display:flex;flex-direction:column;gap:13px;">'+
+    '<div class="al al-info" style="font-size:12px;">🎯 <strong>'+esc+'</strong> recevra une notification personnelle avec le code de votre duel.</div>'+
+    '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Pack de questions</label>'+
+    '<select id="ar-pack" class="inp">'+
+      '<optgroup label="Packs généraux">'+
+      '<option value="rfe-uemoa">🏛️ RFE UEMOA ('+QR.length+'Q)</option>'+
+      '<option value="bale-umoa">⚖️ Bâle II/III UMOA ('+QB.length+'Q)</option>'+
+      '<option value="mix">🔀 Mix RFE + Bâle</option>'+
+      '<option value="cemac">🌍 CEMAC — BEAC/COBAC ('+QC.length+'Q)</option>'+
+      '</optgroup>'+
+      '<optgroup label="Thèmes précis">'+arCatOptions()+'</optgroup>'+
+    '</select></div>'+
+    '<div style="display:flex;gap:8px;">'+
+    '<div style="flex:1;"><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Questions</label>'+
+    '<select id="ar-nq" class="inp"><option value="5">5Q</option><option value="10" selected>10Q</option><option value="15">15Q</option><option value="20">20Q</option></select></div>'+
+    '<div style="flex:1;"><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Temps</label>'+
+    '<select id="ar-ts" class="inp"><option value="15">15s</option><option value="30" selected>30s</option><option value="45">45s</option><option value="60">60s</option></select></div>'+
+    '</div>'+
+    '<div id="ar-create-msg"></div>'+
+    '<button class="btn" style="width:100%;padding:13px;" onclick="arDoCreateChallenge()">⚔️ Envoyer le défi →</button>'+
+    '<button class="btn-out btn-sm" style="width:100%;" onclick="closeModal()">Annuler</button>'+
+    '</div>'
+  );
+}
+function arDoCreateChallenge(){
+  var pack=ge('ar-pack').value;
+  var nq=parseInt(ge('ar-nq').value)||10;
+  nq=Math.max(1,Math.min(nq,arPoolSize(pack)));
+  var ts=parseInt(ge('ar-ts').value)||30;
+  var msg=ge('ar-create-msg');
+  if(msg) msg.innerHTML='<div class="al al-info"><span class="spin">⏳</span> Création en cours…</div>';
+  fetch('/duels',{method:'POST',headers:arAuthHdr(),body:JSON.stringify({pack_id:pack,num_questions:nq,timer_sec:ts,target_user_id:AR._chalTid})})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(!d.success) throw new Error(d.error||'Erreur serveur');
+    AR.code=d.code; AR.type='duel'; AR.packId=pack;
+    AR.timerMax=(d.duel&&d.duel.timer_sec)?d.duel.timer_sec:ts; AR.timerVal=AR.timerMax;
+    AR.isCreator=true; AR.myUserId=d.duel&&d.duel.creator_id?String(d.duel.creator_id):'';
+    AR.q=arPackQ(pack,(d.duel&&d.duel.num_questions)||nq,AR.code);
+    AR.sc=0; AR.oppSc=0; AR.idx=0; AR.ans=false;
+    AR.round=(d.duel&&d.duel.round)||0; AR.duelObj=d.duel;
+    closeModal(); arStartPollDuel(); render();
+    setTimeout(function(){arwPush('Défi envoyé à '+(AR._chalTname||''),'Code : '+d.code+' — En attente de votre adversaire…');},600);
+  })
+  .catch(function(e){
+    if(msg) msg.innerHTML='<div class="al al-err">❌ '+e.message+'</div>';
+  });
 }
 function arQuickJoin(type, code){
   code=(code||'').trim().toUpperCase(); if(!code) return;
@@ -2590,7 +2708,7 @@ function arwTick(){
         var st=d.duel.status;
         if(it.last==='waiting' && (st==='joined'||st==='active')){
           var who=(d.duel.joiner&&d.duel.joiner.name)?d.duel.joiner.name:'Un adversaire';
-          arwPush('\uD83D\uDD14 Adversaire trouv\u00e9 !', who+' a rejoint ton duel '+it.code+'. Reviens dans l\'Ar\u00e8ne et clique \u00ab Reprendre \u00bb.');
+          arwPush('\uD83D\uDD14 Adversaire trouv\u00e9 !', who+' a rejoint votre duel '+it.code+'. Revenez dans l\'Ar\u00e8ne et cliquez \u00ab Reprendre \u00bb.');
           arwUnwatch(it.code);
         }
         it.last=st;
@@ -2601,7 +2719,7 @@ function arwTick(){
         if(!d||!d.success) return;
         var n=(d.participants?d.participants.length:0);
         if(it.last!==null && n>it.last){
-          arwPush('\uD83D\uDD14 Nouveau participant', n+' inscrit(s) dans ton tournoi '+it.code+'. Reviens lancer les qualifications.');
+          arwPush('\uD83D\uDD14 Nouveau participant', n+' inscrit(s) dans votre tournoi '+it.code+'. Revenez lancer les qualifications.');
         }
         var stt=(d.tournament&&d.tournament.status)||'';
         if(stt && stt!=='waiting'){ arwUnwatch(it.code); }
@@ -2618,7 +2736,7 @@ function arLeaveTour(){
   AR.code=''; AR.type=''; AR.duelObj=null; AR.q=[]; AR.tab='tournois';
   render();
   try{
-    showModal('C\'est noté ✅','<div class="al al-ok" style="font-size:13px;">Tu peux faire autre chose en attendant. Une notification 🔔 t\'avertira dès qu\'un participant rejoint ton tournoi. Reviens dans l\'Arène et clique « Reprendre ».</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>');
+    showModal('C\'est noté ✅','<div class="al al-ok" style="font-size:13px;">Vous pouvez faire autre chose en attendant. Une notification 🔔 vous avertira dès qu\'un participant rejoint votre tournoi. Revenez dans l\'Arène et cliquez « Reprendre ».</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>');
   }catch(e){}
 }
 /* Tournoi : participant non-créateur quitte définitivement */ // MODIFIÉ
@@ -2661,7 +2779,7 @@ function arLeaveWaiting(){
   AR.code=''; AR.type=''; AR.duelObj=null; AR.q=[]; AR.tab='duels';
   render();
   try{
-    showModal('C\'est noté ✅','<div class="al al-ok" style="font-size:13px;">Tu peux faire autre chose en attendant. Une notification 🔔 t\'avertira dès qu\'un adversaire rejoint ton duel. Reviens dans l\'Arène et clique « Reprendre ».</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>');
+    showModal('C\'est noté ✅','<div class="al al-ok" style="font-size:13px;">Vous pouvez faire autre chose en attendant. Une notification 🔔 vous avertira dès qu\'un adversaire rejoint votre duel. Revenez dans l\'Arène et cliquez « Reprendre ».</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>');
   }catch(e){}
 }
 function arResumeDuel(){
@@ -2723,10 +2841,10 @@ var RA_CERT = (function(){
   function issue(){
     if(typeof QZ==='undefined' || !QZ.q || !QZ.q.length) return;
     var tot=QZ.q.length, pct=Math.round(QZ.sc/tot*100);
-    if(pct<80){ showModal('Presque !', '<div class="al al-warn" style="font-size:13px;">Il faut au moins 80% pour décrocher ton certificat (tu es à '+pct+'%). Recommence le module, tu y es presque ! 💪</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>'); return; }
+    if(pct<80){ showModal('Presque !', '<div class="al al-warn" style="font-size:13px;">Il faut au moins 80% pour décrocher votre certificat (vous êtes à '+pct+'%). Recommencez le module, vous y êtes presque ! 💪</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>'); return; }
     var zone=QZ.q.some(function(q){ return /CEMAC/i.test(q.cat||''); }) ? 'CEMAC' : 'UEMOA';
     var th=themeOf(QZ.pack, zone);
-    showModal('Génération…', '<div class="al al-info"><span class="spin">⏳</span> Création de ton certificat en cours…</div>');
+    showModal('Génération…', '<div class="al al-info"><span class="spin">⏳</span> Création de votre certificat en cours…</div>');
     fetch('/certificates',{method:'POST',headers:arAuthHdr(),body:JSON.stringify({theme:th,zone:zone,score:QZ.sc,total:tot})})
     .then(function(r){ return r.json(); }).then(function(d){
       if(!d.success) throw new Error(d.error||'Erreur serveur');
@@ -3065,7 +3183,7 @@ function rTourLobby(t,parts){
         ? '<button class="btn" style="width:100%;padding:14px;" onclick="arStartQualif()">\u26A1 Lancer les qualifications</button>'
         : '<div class="al al-info" style="font-size:12px;">En attente d\'au moins 2 participants pour lancer.</div>')
       : '<div class="al al-info" style="font-size:12px;">\u23F3 En attente du lancement par l\'organisateur\u2026</div>')+
-    (isC ? '<button class="btn-out btn-sm" style="width:100%;border-color:rgba(201,153,26,.5);color:#C9991A;margin-bottom:6px;" onclick="arLeaveTour()">\uD83D\uDEAA Sortir, je reviens (notif quand un participant rejoint)</button>' : '')+
+    (isC ? '<button class="btn-out btn-sm" style="width:100%;border-color:rgba(201,153,26,.5);color:#C9991A;margin-bottom:6px;" onclick="arLeaveTour()">\uD83D\uDEAA Sortir — notif à votre retour</button>' : '')+
     tchatBox()+
     (isC
       ? '<button class="btn-out btn-sm" onclick="arQuit()">\u2190 Quitter</button>'
