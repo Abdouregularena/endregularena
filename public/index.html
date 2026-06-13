@@ -1660,6 +1660,8 @@ function rARDuelGame(){
 /* ── Résultats duel ── */
 function arWaitOpponent(){
   var on = arOppName();
+  // MODIFIÉ — s'assurer que le poll tourne (sinon "En attente" permanent)
+  if(!AR.pollId && AR.code && AR.type==='duel') arStartPollDuel();
   return '<div style="max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:14px;">'+
     '<div class="card" style="text-align:center;padding:26px;">'+
       '<div class="pls" style="font-size:40px;margin-bottom:10px;">⏳</div>'+
@@ -1702,7 +1704,7 @@ function rARDuelResult(){
     '</div>'+
     '<div class="card" style="padding:14px;max-height:320px;overflow-y:auto;">'+
       '<div style="font-weight:700;color:white;font-size:13px;margin-bottom:10px;">📋 Feuille de match — bonnes réponses &amp; références</div>'+
-      AR.q.map(function(qq,i){ var L=String.fromCharCode(65+qq.answer); return '<div style="padding:8px 0;border-bottom:1px solid var(--border);">'+'<div style="font-size:12px;color:#cdd9ee;margin-bottom:3px;"><strong>Q'+(i+1)+'.</strong> '+qq.q+'</div>'+'<div style="font-size:12px;color:#4ade80;">✅ '+L+'. '+qq.choices[qq.answer]+'</div>'+(qq.source?'<div style="font-size:11px;color:var(--sub);margin-top:2px;">📚 '+qq.source+'</div>':'')+'</div>'; }).join('')+
+      AR.q.map(function(qq,i){ var ans=(qq.answer!==undefined?qq.answer:(qq.correct!==undefined?Number(qq.correct):0)); var L=String.fromCharCode(65+ans); var ref=qq.source||qq.reference||''; return '<div style="padding:8px 0;border-bottom:1px solid var(--border);">'+'<div style="font-size:12px;color:#cdd9ee;margin-bottom:3px;"><strong>Q'+(i+1)+'.</strong> '+qq.q+'</div>'+'<div style="font-size:12px;color:#4ade80;">✅ '+L+'. '+(qq.choices[ans]||'')+'</div>'+(ref?'<div style="font-size:11px;color:var(--sub);margin-top:2px;">📚 '+ref+'</div>':'')+'</div>'; }).join('')+ // MODIFIÉ — supporte qq.correct (format serveur) + qq.reference
     '</div>'+
     '<div style="display:flex;gap:8px;flex-wrap:wrap;">'+
       '<button class="btn" style="flex:1;min-width:150px;padding:13px;" onclick="arDoRematch()">🔁 Revanche (même thème)</button>'+ // MODIFIE
@@ -2140,8 +2142,8 @@ function arChatFloatEnsure(){
     if(AR.type==='duel' && AR.code){ w.style.display='block'; arChatLoad(); }
     else { w.style.display='none'; }
   }
-  if(document.readyState!=='loading') setInterval(tick,1500);
-  else document.addEventListener('DOMContentLoaded', function(){ setInterval(tick,1500); });
+  if(document.readyState!=='loading') setInterval(tick,1000);
+  else document.addEventListener('DOMContentLoaded', function(){ setInterval(tick,1000); });
 })();
 
 /* ════ Animations festives ════ */
@@ -2359,7 +2361,7 @@ function arDoJoin(type){
       AR.sc=0; AR.oppSc=0; AR.idx=0; AR.ans=false;
       AR.round    = (d.duel&&d.duel.round)||0; // MODIFIE
       AR.duelObj  = d.duel;
-      AR.myUserId = ''; // sera mis à jour via /live
+      AR.myUserId = d.duel&&d.duel.joiner_id ? String(d.duel.joiner_id) : ''; // MODIFIÉ — initialise myUserId dès le join (corrige distinction mine/adversaire dans le chat)
       closeModal();
       arStartPollDuel();
     } else {
@@ -2795,7 +2797,7 @@ function arStartDuel(){
     arStartTimer();
     render();
   })
-  .catch(function(e){ showModal('Erreur','<div class="al al-err">'+e.message+'</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>'); });
+  .catch(function(e){ AR._autoStarted=false; /* MODIFIÉ — réactive le bouton manuel si auto-start échoue */ showModal('Erreur','<div class="al al-err">'+e.message+'</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>'); });
 }
 
 /* ── Polling duel live ── */
@@ -2821,28 +2823,34 @@ function arStartPollDuel(){
       // Mettre à jour le score adversaire
       if(d.duel.scores){
         var myId = AR.myUserId;
+        // MODIFIÉ — déduire myUserId dès que possible via creator_id/joiner_id (même sans scores)
+        if(!myId && d.duel.creator_id && d.duel.joiner_id){
+          myId = AR.isCreator ? String(d.duel.creator_id) : String(d.duel.joiner_id);
+          AR.myUserId = myId;
+        }
+        if(!myId && d.duel.creator_id) { myId = AR.isCreator ? String(d.duel.creator_id) : ''; AR.myUserId = myId; }
         d.duel.scores.forEach(function(s){
           if(String(s.user_id)===myId){ AR.sc = s.score||0; }
           else { AR.oppSc = s.score||0; }
         });
-        // Si myId inconnu, déduire via isCreator
-        if(!myId && d.duel.creator && d.duel.joiner){
-          var cId = String(d.duel.creator_id);
-          var jId = String(d.duel.joiner_id);
-          myId = AR.isCreator ? cId : jId;
-          if(!AR.myUserId) AR.myUserId = myId;
-          d.duel.scores.forEach(function(s){
-            if(String(s.user_id)===myId){ AR.sc = s.score||0; }
-            else { AR.oppSc = s.score||0; }
-          });
-        }
+      } else if(!AR.myUserId && d.duel.creator_id) {
+        // MODIFIÉ — initialise myUserId même sans scores (lobby d'attente)
+        if(AR.isCreator) AR.myUserId = String(d.duel.creator_id);
+        else if(d.duel.joiner_id) AR.myUserId = String(d.duel.joiner_id);
       }
       // Détecter transitions d'état
-      if(prev==='waiting' && d.duel.status==='joined') render(); // adversaire rejoint
+      // MODIFIÉ — render systématique quand status=joined (corrige bouton invisible si créateur arrive après le joiner)
+      if(d.duel.status==='joined') render();
       // MODIFIÉ — lancement AUTO par le créateur dès qu'un adversaire rejoint (corrige : bouton invisible / rôle perdu)
       if(d.duel.status==='joined' && AR.isCreator && !AR._autoStarted){ AR._autoStarted=true; arStartDuel(); }
       if(prev==='joined'  && d.duel.status==='active')  { AR.idx=0; AR.ans=false; sndStart(); arStartTimer(); render(); } // duel lancé
-      if(d.duel.status==='finished'){ if(AR.timerId){clearInterval(AR.timerId);AR.timerId=null;} clearInterval(AR.pollId); AR.pollId=null; render(); return; }
+      // MODIFIÉ — stoppe poll APRÈS render (avant = poll mort => En attente permanent si adversaire finit après moi)
+      if(d.duel.status==='finished'){
+        if(AR.timerId){clearInterval(AR.timerId);AR.timerId=null;}
+        if(d.duel.questions_json){ try{ var sq=JSON.parse(d.duel.questions_json); if(sq&&sq.length) AR.q=sq; }catch(e){} }
+        clearInterval(AR.pollId); AR.pollId=null;
+        render(); return;
+      }
       // En jeu : maj scores + VERROU (l'adversaire a répondu juste en premier → je passe)
       if(d.duel.status==='active'){
         arUpdateScores();
@@ -2954,8 +2962,9 @@ function arChoose(i){
 function arNext(){
   AR.idx++; AR.ans=false;
   if(AR.idx>=AR.q.length){
-    // J'ai fini — on laisse le sondage tourner pour détecter la fin de l'adversaire
-    render(); // → écran d'attente (arWaitOpponent)
+    // MODIFIÉ — j'ai fini : render écran attente + s'assurer que le poll tourne encore
+    render(); // → arWaitOpponent
+    if(!AR.pollId) arStartPollDuel(); // MODIFIÉ — relance le poll s'il s'était arrêté
     return;
   }
   render();
