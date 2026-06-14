@@ -20,7 +20,8 @@ const { pickQuestions } = require('./packs'); // FIX anti-triche : source serveu
 
 /* â”€â”€ CONFIG â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const PORT         = process.env.PORT || 3000;
-const JWT_SECRET   = process.env.JWT_SECRET || 'changez-moi-en-production';
+const JWT_SECRET   = process.env.JWT_SECRET; // MODIFIÉ — crash guard : JWT_SECRET obligatoire en production
+if (!JWT_SECRET) { console.error('❌ FATAL : JWT_SECRET non défini dans les variables d\'env Railway. Arrêt du serveur.'); process.exit(1); }
 const RESEND_KEY   = process.env.RESEND_API_KEY || '';
 const FROM_EMAIL   = process.env.FROM_EMAIL || 'noreply@regularena.com';
 // SOURCE DE VERITE UNIQUE
@@ -278,14 +279,14 @@ app.use(helmet({
       scriptSrcAttr: ["'unsafe-inline'"],   // autorise onclick= et autres event handlers inline
       styleSrc:      ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc:       ["'self'", "https://fonts.gstatic.com"],
-      connectSrc: ["'self'", "https://www.regularena.com", "https://regularena.com", "https://endregularena-production.up.railway.app"],
+      connectSrc: ["'self'", "https://www.regularena.com", "https://regularena.com", "https://endregularena-production.up.railway.app", "https://endregularena-production-b268.up.railway.app"], // MODIFIÉ
       imgSrc:        ["'self'", "data:"],
       frameAncestors:["'none'"],
     },
   },
 }));
 app.use((req, res, next) => {
-   const allowed = ['https://www.regularena.com','https://regularena.com','https://endregularena-production.up.railway.app'];
+   const allowed = ['https://www.regularena.com','https://regularena.com','https://endregularena-production.up.railway.app','https://endregularena-production-b268.up.railway.app']; // MODIFIÉ — nouveau domaine Railway
   if (allowed.includes(req.headers.origin)) res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
@@ -595,7 +596,7 @@ app.post('/feedback', limiterLoose, async (req, res) => {
   try {
     await resend.emails.send({
       from: FROM_EMAIL,
-      to: 'contact@regularena.com',
+      to: 'abdou.ndao@regularena.com', // MODIFIÉ — destinataire feedback
       subject: `[REGUL ARENA] Feedback — ${type} (${stars}★)`,
       html: `<div style="font-family:sans-serif;max-width:600px">
         <h2 style="color:#C9991A">Nouveau feedback REGUL ARENA</h2>
@@ -713,17 +714,20 @@ app.post('/notifications/seen-all', requireAuth, (req, res) => {
 });
 
 /* ── DUELS ──────────────────────────────────────────────────────── */
-function _duelFull(code) {
+function _duelFull(code, revealQuestions = false) {
   const duel = db.prepare('SELECT * FROM duels WHERE code = ?').get(code);
   if (!duel) return null;
   const creator = db.prepare('SELECT id, name, country FROM users WHERE id = ?').get(duel.creator_id);
   const joiner  = duel.joiner_id ? db.prepare('SELECT id, name, country FROM users WHERE id = ?').get(duel.joiner_id) : null;
   const scores  = db.prepare('SELECT user_id, score, questions_answered, finished FROM duel_scores WHERE duel_id = ?').all(duel.id);
-  return { ...duel, creator, joiner, scores };
+  // MODIFIÉ — expose questions_json (avec bonnes réponses) UNIQUEMENT quand le duel est terminé (feuille de match)
+  const reveal = revealQuestions || duel.status === 'finished';
+  const { questions_json, ...duelSafe } = duel;
+  return { ...duelSafe, questions_json: reveal ? questions_json : undefined, creator, joiner, scores };
 }
 
 app.post('/duels', requireAuth, (req, res) => {
-  const { pack_id, num_questions = 10, timer_sec = 30 } = req.body || {};
+  const { pack_id, num_questions = 10, timer_sec = 30, target_user_id } = req.body || {}; // MODIFIÉ : target_user_id
   let code;
   for (let i = 0; i < 10; i++) {
     code = genCode('D');
@@ -731,6 +735,12 @@ app.post('/duels', requireAuth, (req, res) => {
   }
   db.prepare('INSERT INTO duels (code, creator_id, pack_id, num_questions, timer_sec) VALUES (?, ?, ?, ?, ?)')
     .run(code, req.user.id, pack_id || 'general', Math.min(20, Math.max(5, Number(num_questions))), Math.min(60, Math.max(15, Number(timer_sec))));
+  // MODIFIÉ — notif ciblée si target_user_id, sinon notif globale
+  const tid = target_user_id ? Number(target_user_id) : null;
+  if (tid && tid !== req.user.id) {
+    db.prepare('INSERT INTO notifications (user_id, type, message) VALUES (?, ?, ?)')
+      .run(tid, 'duel_challenge', `⚔️ ${req.user.name} vous défie personnellement ! Code : ${code}`);
+  }
   notifyAllExcept(req.user.id, 'duel_created', `🥊 ${req.user.name} vous défie en duel ! Code : ${code}`);
   return ok(res, { code, duel: _duelFull(code) });
 });
@@ -934,7 +944,148 @@ app.post('/duels/:code/answer', requireAuth, (req, res) => {
 app.get('/duels/:code/live', requireAuth, (req, res) => {
   const d = _duelFull(req.params.code);
   if (!d) return err(res, 404, 'Duel introuvable');
-  return ok(res, { duel: d });
+  // MODIFIÉ — calcule q_elapsed_ms pour sync timer côté client
+  // = temps écoulé depuis le début de la question courante
+  let q_elapsed_ms = undefined;
+  if (d.status === 'active' && d.started_at && d.timer_sec) {
+    const startedMs = new Date(d.started_at).getTime();
+    const qIdx = d.current_q_index || 0;
+    const qStartMs = startedMs + qIdx * d.timer_sec * 1000;
+    q_elapsed_ms = Math.max(0, Date.now() - qStartMs);
+    if (q_elapsed_ms > d.timer_sec * 1000) q_elapsed_ms = d.timer_sec * 1000;
+  }
+  return ok(res, { duel: { ...d, q_elapsed_ms } });
+});
+
+/* ── CHAT DE DUEL ──────────────────────────────────────────────────
+   MODIFIÉ — routes manquantes. Le front appelle GET/POST /duels/:code/chat
+   (front lignes 1895 & 1917) mais aucune route serveur n'existait → les
+   messages tombaient dans le catch-all '*' → jamais enregistrés ni affichés
+   (chat vide). On réutilise la table `messages` avec zone = code du duel
+   (aucune migration). Le front lit m.id / m.user_id / m.name / m.content. */
+app.get('/duels/:code/chat', requireAuth, (req, res) => {
+  const duel = db.prepare('SELECT id, creator_id, joiner_id FROM duels WHERE code = ?').get(req.params.code);
+  if (!duel) return err(res, 404, 'Duel introuvable');
+  if (req.user.id !== duel.creator_id && req.user.id !== duel.joiner_id) return err(res, 403, 'Accès refusé'); // MODIFIÉ : joiner_id peut être null → seul creator passe
+  const messages = db.prepare(
+    `SELECT m.id, m.user_id, m.content, m.sent_at, u.name, u.country
+     FROM messages m JOIN users u ON u.id = m.user_id
+     WHERE m.zone = ? ORDER BY m.sent_at ASC, m.id ASC LIMIT 100`
+  ).all(req.params.code);
+  return ok(res, { messages });
+});
+
+app.post('/duels/:code/chat', requireAuth, (req, res) => {
+  const duel = db.prepare('SELECT id, creator_id, joiner_id FROM duels WHERE code = ?').get(req.params.code);
+  if (!duel) return err(res, 404, 'Duel introuvable');
+  if (req.user.id !== duel.creator_id && (duel.joiner_id === null || req.user.id !== duel.joiner_id)) return err(res, 403, 'Accès refusé'); // MODIFIÉ : creator toujours autorisé, joiner si défini
+  const { content } = req.body || {};
+  if (!content || !content.trim()) return err(res, 400, 'Message vide');
+  db.prepare('INSERT INTO messages (user_id, zone, content) VALUES (?, ?, ?)')
+    .run(req.user.id, req.params.code, content.trim().slice(0, 300));
+  return ok(res, { message: 'Message envoyé' });
+});
+
+/* MODIFIÉ — LOBBY : liste des duels ouverts (en attente d'adversaire).
+   Chemin volontairement hors de /duels/:code pour éviter toute collision
+   de route. Sert le "fil déroulant" de l'Arène ouverte. */
+app.get('/lobby/duels', requireAuth, (req, res) => {
+  const open = db.prepare(
+    `SELECT d.code, d.pack_id, d.num_questions, d.timer_sec, u.name AS creator_name, u.country
+     FROM duels d JOIN users u ON u.id = d.creator_id
+     WHERE d.status = 'waiting' AND d.creator_id != ?
+       AND d.created_at >= datetime('now','-1 day')
+     ORDER BY d.id DESC LIMIT 30`
+  ).all(req.user.id);
+  return ok(res, { open });
+});
+
+// MODIFIÉ — recherche joueur par nom (min 2 caractères)
+app.get('/users/search', requireAuth, (req, res) => {
+  const q = (req.query.q || '').trim();
+  if (q.length < 2) return ok(res, { users: [] });
+  const users = db.prepare(
+    `SELECT id, name, country FROM users
+     WHERE name LIKE ? AND id != ?
+     ORDER BY name LIMIT 10`
+  ).all('%' + q + '%', req.user.id);
+  return ok(res, { users });
+});
+
+/* MODIFIÉ — NETTOYAGE AUTO des duels/tournois expirés (anti-codes morts).
+   Conservateur : supprime UNIQUEMENT ce qui n'a jamais servi (status 'waiting').
+   Les duels/tournois rejoints, en cours ou terminés ne sont JAMAIS touchés. */
+function cleanupExpired() {
+  try {
+    // 1) Duels en attente jamais rejoints, créés il y a plus de 24h
+    const oldDuels = db.prepare(
+      "SELECT id, code FROM duels WHERE status='waiting' AND created_at < datetime('now','-1 day')"
+    ).all();
+    if (oldDuels.length) {
+      const delDS  = db.prepare('DELETE FROM duel_scores WHERE duel_id = ?');
+      const delMsg = db.prepare('DELETE FROM messages WHERE zone = ?');
+      const delD   = db.prepare('DELETE FROM duels WHERE id = ?');
+      db.transaction(() => oldDuels.forEach(d => { delDS.run(d.id); delMsg.run(d.code); delD.run(d.id); }))();
+    }
+    // 2) Tournois en attente (jamais lancés) : date de début dépassée >1j OU créés il y a +7j
+    const oldTours = db.prepare(
+      `SELECT id FROM tournaments
+       WHERE status='waiting'
+         AND ( created_at < datetime('now','-7 days')
+            OR (start_date <> '' AND datetime(start_date) IS NOT NULL AND datetime(start_date) < datetime('now','-1 day')) )`
+    ).all();
+    if (oldTours.length) {
+      db.transaction(() => oldTours.forEach(t => {
+        db.prepare('DELETE FROM tournament_participants WHERE tournament_id = ?').run(t.id);
+        try { db.prepare('DELETE FROM tournament_chat WHERE tournament_id = ?').run(t.id); } catch(_) {}
+        try { db.prepare('DELETE FROM tournament_matches WHERE tournament_id = ?').run(t.id); } catch(_) {}
+        try { db.prepare('DELETE FROM tournament_match_sheets WHERE tournament_id = ?').run(t.id); } catch(_) {}
+        db.prepare('DELETE FROM tournaments WHERE id = ?').run(t.id);
+      }))();
+    }
+    if (oldDuels.length || oldTours.length) {
+      console.log(`[cleanup] supprimés : ${oldDuels.length} duel(s) périmé(s), ${oldTours.length} tournoi(s) périmé(s)`);
+    }
+  } catch (e) { console.error('[cleanup]', e.message); }
+}
+cleanupExpired();                              // au démarrage
+setInterval(cleanupExpired, 60 * 60 * 1000);   // puis toutes les heures
+
+/* ════════════════════════════════════════════════
+   CERTIFICATS DE RÉUSSITE — schéma unique (MODIFIÉ: doublon ancien schéma supprimé)
+   Génération PDF côté client ; le serveur enregistre l'émission
+   et sert la page publique de vérification (scan QR).
+════════════════════════════════════════════════ */
+db.exec(`CREATE TABLE IF NOT EXISTS certificates (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  cert_id    TEXT UNIQUE NOT NULL,
+  user_id    INTEGER NOT NULL,
+  user_name  TEXT,
+  theme      TEXT,
+  zone       TEXT,
+  score      INTEGER,
+  total      INTEGER,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+)`);
+
+const CERT_PASS = 0.8; // seuil de réussite : 80 %
+
+app.post('/certificates', requireAuth, (req, res) => {
+  try { // MODIFIÉ : éviter crash serveur
+  const { theme, zone, score, total } = req.body || {};
+  const sc = Number(score), tt = Number(total);
+  if (!theme || !tt || tt <= 0) return err(res, 400, 'theme et total requis');
+  if (sc / tt < CERT_PASS) return err(res, 400, `Score insuffisant (minimum ${Math.round(CERT_PASS*100)}%)`);
+  const cleanTheme = String(theme).slice(0, 160);
+  // Réutilise un certificat déjà émis pour le même utilisateur + thème (pas de doublon)
+  const existing = db.prepare('SELECT cert_id, created_at FROM certificates WHERE user_id = ? AND theme = ? ORDER BY id DESC LIMIT 1').get(req.user.id, cleanTheme);
+  if (existing) return ok(res, { certificate_id: existing.cert_id, date: (existing.created_at || '').slice(0, 10) });
+  const cid = 'RA-' + new Date().getFullYear() + '-' + crypto.randomBytes(4).toString('hex').toUpperCase();
+  const u = db.prepare('SELECT name FROM users WHERE id = ?').get(req.user.id);
+  db.prepare('INSERT INTO certificates (cert_id, user_id, user_name, theme, zone, score, total) VALUES (?,?,?,?,?,?,?)')
+    .run(cid, req.user.id, (u && u.name) || '', cleanTheme, String(zone || '').slice(0, 40), sc, tt);
+  return ok(res, { certificate_id: cid, date: new Date().toISOString().slice(0, 10) });
+  } catch(e) { return err(res, 500, 'Erreur serveur certificat'); } // MODIFIÉ
 });
 
 /* ── TOURNOIS legacy /tournaments/* — désactivées, utiliser /tournament/* ── */
@@ -1008,7 +1159,7 @@ app.post('/tournament/create', requireAuth, (req, res) => { // TOURNOI AJOUT
   if (!name || !zone) return err(res, 400, 'name et zone requis'); // TOURNOI AJOUT
   if (!['uemoa','cemac','inter','country'].includes(zone)) return err(res, 400, 'Zone invalide'); // TOURNOI AJOUT
   const mp = Number(max_players); // TOURNOI AJOUT
-  if (![8,16,32].includes(mp)) return err(res, 400, 'max_players doit être 8, 16 ou 32'); // TOURNOI AJOUT
+  if (![4,8,16,32].includes(mp)) return err(res, 400, 'max_players doit être 4, 8, 16 ou 32'); // MODIFIÉ
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id); // TOURNOI AJOUT
   if (!user) return err(res, 401, 'Session expirée, reconnecte-toi'); // MODIFIÉ — anti-crash user undefined
   if (!_peutRejoindre(user.country, user.country, zone)) { // TOURNOI AJOUT
@@ -1055,7 +1206,7 @@ app.get('/tournament/list', requireAuth, (req, res) => { // TOURNOI AJOUT
   if (!user) return err(res, 401, 'Session expirée, reconnecte-toi'); // MODIFIÉ — anti-crash user undefined
   const uZone = _zoneOf(user.country); // TOURNOI AJOUT
   // SECURITE FIX : utiliser des paramètres SQLite au lieu de l'interpolation de chaîne (anti-injection SQL)
-  const BASE_OPEN_SQL = `SELECT t.*, u.name AS creator_name, (SELECT COUNT(*) FROM tournament_participants tp WHERE tp.tournament_id = t.id) AS nb FROM tournaments t JOIN users u ON u.id = t.creator_id WHERE t.status IN ('waiting','qualif','elim')`; // SECURITE FIX
+  const BASE_OPEN_SQL = `SELECT t.*, u.name AS creator_name, (SELECT COUNT(*) FROM tournament_participants tp WHERE tp.tournament_id = t.id) AS nb FROM tournaments t JOIN users u ON u.id = t.creator_id WHERE t.status IN ('waiting','qualif','elim') AND (t.start_date = '' OR datetime(t.start_date) IS NULL OR datetime(t.start_date) >= datetime('now','-1 day'))`; // SECURITE FIX // MODIFIÉ — exclut les tournois programmés expirés
   const open = uZone // SECURITE FIX
     ? db.prepare(BASE_OPEN_SQL + ` AND (t.zone = ? OR t.zone = 'inter') ORDER BY t.created_at DESC LIMIT 30`).all(uZone) // SECURITE FIX
     : db.prepare(BASE_OPEN_SQL + ` ORDER BY t.created_at DESC LIMIT 30`).all(); // SECURITE FIX
@@ -1140,8 +1291,9 @@ app.post('/tournament/:code/start-qualif', requireAuth, (req, res) => { // TOURN
   if (!t) return err(res, 404, 'Tournoi introuvable'); // TOURNOI AJOUT
   if (t.creator_id !== req.user.id) return err(res, 403, 'Seul le créateur peut lancer les qualifications'); // TOURNOI AJOUT
   if (t.status !== 'waiting') return err(res, 400, 'Statut invalide — attendu: waiting'); // TOURNOI AJOUT
+  const parts = db.prepare('SELECT user_id FROM tournament_participants WHERE tournament_id = ?').all(t.id); // MODIFIÉ
+  if (parts.length < 4) return err(res, 400, 'Minimum 4 participants requis pour lancer les qualifications (actuellement : ' + parts.length + ')'); // MODIFIÉ
   db.prepare('UPDATE tournaments SET status = ? WHERE code = ?').run('qualif', req.params.code); // TOURNOI AJOUT
-  const parts = db.prepare('SELECT user_id FROM tournament_participants WHERE tournament_id = ?').all(t.id); // TOURNOI AJOUT
   const ins = db.prepare('INSERT INTO notifications (user_id, type, message) VALUES (?,?,?)'); // TOURNOI AJOUT
   const tx = db.transaction(() => parts.forEach(p => { // TOURNOI AJOUT
     if (p.user_id !== req.user.id) ins.run(p.user_id, 'tournament_qualif_start', '⚡ Qualifications ouvertes pour "' + t.name + '" ! Code : ' + t.code); // TOURNOI AJOUT
@@ -1183,6 +1335,16 @@ app.post('/tournament/:code/generate-bracket', requireAuth, (req, res) => { // T
   nTx(); // TOURNOI AJOUT
   return ok(res, { message: 'Bracket généré', tournament: _tFull(req.params.code) }); // TOURNOI AJOUT
 }); // TOURNOI AJOUT
+
+/* DELETE /tournaments/:code/leave — participant quitte un tournoi en attente */ // MODIFIÉ
+app.delete('/tournaments/:code/leave', requireAuth, (req, res) => { // MODIFIÉ
+  const t = db.prepare('SELECT * FROM tournaments WHERE code = ?').get(req.params.code); // MODIFIÉ
+  if (!t) return err(res, 404, 'Tournoi introuvable'); // MODIFIÉ
+  if (t.status !== 'waiting') return err(res, 400, 'Impossible de quitter un tournoi déjà lancé'); // MODIFIÉ
+  if (t.creator_id === req.user.id) return err(res, 400, 'Le créateur ne peut pas quitter son propre tournoi'); // MODIFIÉ
+  db.prepare('DELETE FROM tournament_participants WHERE tournament_id = ? AND user_id = ?').run(t.id, req.user.id); // MODIFIÉ
+  return ok(res, { message: 'Tournoi quitté' }); // MODIFIÉ
+}); // MODIFIÉ
 
 /* POST /tournament/match/:matchId/record */
 app.post('/tournament/match/:matchId/record', requireAuth, (req, res) => { // TOURNOI AJOUT
@@ -1716,7 +1878,7 @@ const REGULATORY_REFS = {
     { code: 'Traité UMOA Art. 50', titre: 'Commission Bancaire de l\'UMOA — attributions', url: null },
   ],
   'bceao-change': [
-    { code: 'Règlement 09/2010/CM/UEMOA', titre: 'Réglementation des changes dans l\'UEMOA', url: null },
+    { code: 'Règlement 06/2024/CM/UEMOA', titre: 'Réglementation des changes dans l\'UEMOA', url: null },
     { code: 'Instruction BCEAO 94-05', titre: 'Comptes en devises dans l\'UEMOA', url: null },
   ],
   'bceao-microfinance': [
@@ -1872,12 +2034,8 @@ app.get('/admin/stats', requireAdmin, (req, res) => {
   }
 });
 
-// GET /setup-admin-x7k2 — promotion one-shot de l'email admin (route secrète)
-app.get('/setup-admin-x7k2', (req, res) => {
-  db.prepare("UPDATE users SET role='admin' WHERE email='abdou.ndao@regularena.com'").run();
-  const user = db.prepare("SELECT id,email,role FROM users WHERE email=?").get('abdou.ndao@regularena.com');
-  res.json(user);
-});
+// MODIFIÉ — route /setup-admin-x7k2 supprimée (sécurité : accès non authentifié → promotion admin possible par n'importe qui)
+// Pour promouvoir un admin : UPDATE users SET role='admin' WHERE email='abdou.ndao@regularena.com' via Railway DB console
 
 // GET /admin/users — liste des 200 derniers inscrits
 app.get('/admin/users', requireAdmin, (req, res) => {
@@ -1894,8 +2052,22 @@ app.get('/admin/users', requireAdmin, (req, res) => {
   }
 });
 
+// MODIFIÉ — Module "L'Arène des Débats" : on passe requireAuth (et NON authMiddleware)
+app.use('/api/debats', require('./debats')(db, requireAuth));
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('/api', (req, res) => res.json({ status: 'ok', message: 'API REGUL ARENA en ligne' }));
+
+/* MODIFIÉ — Page publique de vérification d'un certificat (scan QR) */
+app.get('/verify/:id', (req, res) => {
+  const esc = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const c = db.prepare('SELECT cert_id, user_name, theme, zone, created_at FROM certificates WHERE cert_id = ?').get(req.params.id);
+  res.set('Content-Type', 'text/html; charset=utf-8');
+  if (!c) {
+    return res.status(404).send('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Certificat introuvable</title><body style="font-family:system-ui,-apple-system,sans-serif;background:#F5F3EE;color:#002B5C;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0;padding:24px;text-align:center"><div><div style="font-size:48px">❌</div><h1 style="color:#b91c1c;font-size:20px">Certificat introuvable</h1><p style="color:#555">Aucun certificat ne correspond à cet identifiant.</p></div></body>');
+  }
+  return res.send('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Certificat authentique — REGUL ARENA</title><body style="font-family:system-ui,-apple-system,sans-serif;background:#F5F3EE;color:#002B5C;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0;padding:24px"><div style="max-width:520px;width:100%;background:#fff;border:1px solid rgba(201,153,26,.4);border-radius:16px;padding:32px;box-shadow:0 8px 30px rgba(0,0,0,.08);text-align:center"><div style="font-size:13px;letter-spacing:2px;color:#C9991A;font-weight:700">REGUL ARENA</div><div style="font-size:48px;margin:8px 0">✅</div><h1 style="font-size:20px;margin:0 0 4px">Certificat authentique</h1><p style="color:#555;font-size:14px;margin:0 0 20px">Ce certificat a bien été délivré par REGUL ARENA.</p><div style="text-align:left;background:#F5F3EE;border-radius:10px;padding:16px;font-size:14px;line-height:1.9"><div><strong>Délivré à :</strong> ' + esc(c.user_name) + '</div><div><strong>Thème :</strong> ' + esc(c.theme) + '</div><div><strong>Zone :</strong> ' + esc(c.zone) + '</div><div><strong>Date :</strong> ' + esc((c.created_at||'').slice(0,10)) + '</div><div><strong>N° d\'authentification :</strong> ' + esc(c.cert_id) + '</div></div></div></body>');
+});
 // SPA catch-all : renvoie index.html pour les routes frontend uniquement.
 // Les chemins d'API sont déjà gérés par leurs handlers ; cette exclusion explicite
 // évite qu'un mauvais ordre de déclaration future ne renvoie du HTML à la place de JSON.
@@ -1953,6 +2125,6 @@ function publicUser(u) {
 app.listen(PORT, () => {
   console.log(`âœ… REGUL ARENA API â€” port ${PORT}`);
   console.log(`   DB : regularena.db`);
-  console.log(`   JWT_SECRET : ${JWT_SECRET === 'changez-moi-en-production' ? 'âš  PAR DÃ‰FAUT â€” &#224; changer' : 'âœ“ configur&#233;'}`);
+  console.log(`   JWT_SECRET : ✔ configuré`); // MODIFIÉ
   console.log(`   RESEND_KEY : ${RESEND_KEY ? 'âœ“ configur&#233;' : 'âš  manquant â€” emails d&#233;sactiv&#233;s'}`);
 });
