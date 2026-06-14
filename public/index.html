@@ -671,440 +671,175 @@ Array.prototype.push.apply(QR, QR_PLUS); // MODIFIÉ : +33 questions UEMOA dans 
    ============================================================ */
 
 const QN=[
-
-
-{
-  type:"qcm",
-  q:"Un ressortissant étranger salarié en UEMOA est considéré résident dès lors que son contrat de travail est :",
-  options:[
-    "à durée indéterminée ou d'une durée ≥ 1 an",
-    "à durée indéterminée uniquement",
-    "d'une durée > 6 mois",
-    "validé par le Ministre des Finances"
-  ],
-  correct:0,
-  exp:"La Note 013-04-2026 précise que le salarié étranger est résident dès que son contrat est à durée indéterminée ou d'une durée supérieure ou égale à un an.",
-  ref:"Note 013-04-2026, §1"
-},
-{
-  type:"vf",
-  q:"Un ressortissant étranger devenu résident UEMOA peut maintenir ses comptes bancaires à l'étranger sans autorisation préalable du Ministre chargé des Finances.",
-  options:["Vrai","Faux"],
-  correct:0,
-  exp:"VRAI. La Note 013-04-2026 confirme que les comptes bancaires à l'étranger ouverts avant l'acquisition du statut de résident peuvent être maintenus, sans autorisation préalable du Ministre chargé des Finances.",
-  ref:"Note 013-04-2026, §2"
-},
-{
-  type:"qcm",
-  q:"Les paiements entre résidents étrangers et autres résidents UEMOA (ex. règlement de salaires) doivent être libellés en :",
-  options:[
-    "devises au choix du donneur d'ordre",
-    "francs CFA exclusivement, versés dans un compte auprès d'un intermédiaire agréé de l'Union",
-    "euros, avec attestation de la BCEAO",
-    "la devise du pays d'origine du salarié"
-  ],
-  correct:1,
-  exp:"La Note 013-04-2026 exige que tout paiement entre résidents soit exclusivement libellé en FCFA et versé dans un compte tenu auprès d'un intermédiaire agréé de l'Union.",
-  ref:"Note 013-04-2026, §2"
-},
-{
-  type:"qcm",
-  q:"Un résident étranger souhaitant approvisionner son compte bancaire étranger à partir d'une épargne constituée sur revenus salariaux doit obtenir l'autorisation préalable de :",
-  options:[
-    "la BCEAO",
-    "la Commission Bancaire UMOA",
-    "la Structure chargée des Finances Extérieures du pays d'implantation",
-    "aucune autorisation n'est requise"
-  ],
-  correct:2,
-  exp:"La Note 013-04-2026 soumet les transferts d'épargne vers comptes à l'étranger à l'autorisation préalable de la Structure chargée des Finances Extérieures du pays d'implantation.",
-  ref:"Note 013-04-2026, §3 — Approvisionnement comptes à l'étranger"
-},
-{
-  type:"qcm",
-  q:"Le délai maximum accordé par la Structure chargée des Finances Extérieures pour délivrer l'autorisation de transfert d'épargne d'un résident étranger est de :",
-  options:["2 jours ouvrés","5 jours ouvrés","10 jours ouvrés","30 jours ouvrés"],
-  correct:1,
-  exp:"La Note 013-04-2026 fixe le délai de délivrance de l'autorisation à 5 jours ouvrés maximum.",
-  ref:"Note 013-04-2026, §3"
-},
-{
-  type:"qcm",
-  q:"La période minimale de constitution de l'épargne pour un transfert vers l'étranger fondé sur des revenus salariaux est de :",
-  options:["1 mois","3 mois","6 mois","12 mois"],
-  correct:2,
-  exp:"La Note 013-04-2026 exige une période de constitution de l'épargne d'au moins six mois. Un délai identique est requis entre deux demandes successives fondées sur ce même motif.",
-  ref:"Note 013-04-2026, §3"
-},
-{
-  type:"qcm",
-  q:"Un résident étranger quittant définitivement l'UEMOA peut transférer l'intégralité du solde de ses comptes ordinaires en FCFA. Ce transfert est exécuté :",
-  options:[
-    "librement, sans condition de montant",
-    "sans limitation de montant, sous réserve de justifier l'origine des fonds et que ceux-ci proviennent de revenus perçus dans l'Union ou de la liquidation d'investissements réalisés dans l'Union",
-    "dans la limite de 50 M FCFA sans justification",
-    "après accord préalable de la BCEAO uniquement"
-  ],
-  correct:1,
-  exp:"La Note 013-04-2026 autorise ce transfert sans limitation de montant, sous réserve que les avoirs soient dûment justifiés et proviennent de revenus dont la perception dans l'Union est justifiée, ou du produit de la liquidation d'investissements réalisés dans l'Union.",
-  ref:"Note 013-04-2026, §4"
-},
-{
-  type:"qcm",
-  q:"Le délai réglementaire de traitement des demandes de transferts de résidents étrangers par l'intermédiaire agréé ne doit pas excéder :",
-  options:["2 jours ouvrés","5 jours ouvrés","10 jours ouvrés","30 jours calendaires"],
-  correct:1,
-  exp:"La lettre SESN 01876 du 23 avril 2026 rappelle que le délai réglementaire de traitement des demandes de transferts ne doit pas excéder 5 jours ouvrés.",
-  ref:"Lettre BCEAO SESN 01876, 23 avr. 2026"
-},
-{
-  type:"qcm",
-  q:"Parmi les documents justifiant le lien d'un résident étranger avec le pays de destination de ses transferts, lequel N'est PAS mentionné par la Note 013-04-2026 ?",
-  options:[
-    "Une obligation fiscale",
-    "Une attache familiale",
-    "Un titre de propriété immobilière dans l'Union",
-    "Une obligation financière ou contractuelle dûment établie"
-  ],
-  correct:2,
-  exp:"La Note 013-04-2026 cite trois types de lien : obligation fiscale, attache familiale, obligation financière ou contractuelle. Un titre de propriété dans l'Union n'est pas mentionné comme critère d'éligibilité au lien avec le pays de destination.",
-  ref:"Note 013-04-2026, §5 — Critères d'éligibilité"
-},
-{
-  type:"cas",
-  q:"Cas — Un expatrié français travaillant à Dakar depuis 18 mois (CDI) souhaite virer 2 M FCFA sur son compte à la BNP Paris pour régler un emprunt immobilier. Votre position ?",
-  options:[
-    "Refus : un résident ne peut pas alimenter un compte à l'étranger",
-    "Exécution libre : dépenses courantes autorisées à titre général, sur présentation des justificatifs (convention d'emprunt, échéancier)",
-    "Autorisation BCEAO obligatoire au préalable",
-    "Possible uniquement si le montant < 1 M FCFA"
-  ],
-  correct:1,
-  exp:"Il est résident (CDI > 1 an). Le remboursement d'un emprunt bancaire contracté à l'étranger est une opération courante autorisée à titre général (Note 013-04-2026, §3). Le virement peut être réalisé librement par l'intermédiaire agréé sur présentation de la convention d'emprunt et de l'échéancier.",
-  ref:"Note 013-04-2026, §3 ; Art. 31 Règlement 06/2024"
-},
-
-
-{
-  type:"qcm",
-  q:"L'Instruction 233/07/2024 fixe à quel montant le seuil au-delà duquel le paiement d'une dette ne peut être effectué en espèces ou par instruments négociables au porteur ?",
-  options:["1 000 000 FCFA","2 000 000 FCFA","5 000 000 FCFA","10 000 000 FCFA"],
-  correct:2,
-  exp:"L'article premier de l'Instruction 233/07/2024 fixe le seuil à 5 000 000 (cinq millions) de FCFA, qu'il s'agisse d'une opération unique ou de plusieurs opérations apparemment liées.",
-  ref:"Instruction 233/07/2024, Art. 1er"
-},
-{
-  type:"vf",
-  q:"Le seuil de 5 M FCFA fixé par l'Instruction 233/07/2024 s'applique aussi aux paiements entre particuliers n'agissant pas pour des besoins professionnels.",
-  options:["Vrai","Faux"],
-  correct:1,
-  exp:"FAUX. L'article 2 exempte expressément les paiements effectués entre personnes physiques n'agissant pas pour des besoins professionnels.",
-  ref:"Instruction 233/07/2024, Art. 2"
-},
-{
-  type:"qcm",
-  q:"L'Instruction 233/07/2024 abroge et remplace :",
-  options:[
-    "l'Instruction 009-09-2017 du 25 septembre 2017",
-    "la Décision 003/2024 CM/UMOA",
-    "l'Instruction 015-12-2010/RB",
-    "le Règlement 09/2010/CM/UEMOA"
-  ],
-  correct:0,
-  exp:"L'article 4 abroge l'Instruction n°009-09-2017 du 25 septembre 2017 fixant le seuil pour le paiement d'une créance en espèces ou par instruments négociables au porteur.",
-  ref:"Instruction 233/07/2024, Art. 4"
-},
-{
-  type:"qcm",
-  q:"Le non-respect du seuil de paiement en espèces fixé par l'Instruction 233/07/2024 est passible des sanctions prévues par :",
-  options:[
-    "le Règlement 06/2024/CM/UEMOA",
-    "la Loi uniforme relative à la LBC/FT/P dans les États membres de l'UMOA",
-    "la Loi bancaire nationale",
-    "le Code pénal de chaque État membre"
-  ],
-  correct:1,
-  exp:"L'article 3 renvoie aux sanctions prévues par la Loi uniforme relative à la lutte contre le blanchiment de capitaux, le financement du terrorisme et de la prolifération des armes de destruction massive dans les États membres de l'UMOA.",
-  ref:"Instruction 233/07/2024, Art. 3"
-},
-{
-  type:"cas",
-  q:"Cas — Un client souhaite régler en espèces une facture de prestation de services pour 6 M FCFA. Votre réponse réglementaire ?",
-  options:[
-    "Accepter : aucun plafond espèces pour les entreprises",
-    "Refuser : le règlement d'une dette professionnelle > 5 M FCFA en espèces est interdit par l'Instruction 233/07/2024",
-    "Accepter si déclaration CENTIF jointe",
-    "Accepter jusqu'à 10 M FCFA avec dérogation du Ministre"
-  ],
-  correct:1,
-  exp:"Le montant dépasse le seuil de 5 M FCFA fixé par l'Instruction 233/07/2024. Il s'agit d'une opération professionnelle, l'exemption ne s'applique pas. Le paiement doit être effectué par virement, chèque ou autre instrument non négociable au porteur.",
-  ref:"Instruction 233/07/2024, Art. 1er et 2"
-},
-
-
-{
-  type:"qcm",
-  q:"Selon la Décision 003/28-03-2024/CM/UMOA, les agréés de change manuel doivent procéder à l'identification de leurs clients lorsque le montant de l'opération (ou opérations liées) excède :",
-  options:["1 000 000 FCFA","2 000 000 FCFA","5 000 000 FCFA","10 000 000 FCFA"],
-  correct:2,
-  exp:"L'article 2 fixe le seuil de vigilance des agréés de change manuel à 5 000 000 de FCFA, qu'il s'agisse de personnes physiques, morales ou de constructions juridiques.",
-  ref:"Décision 003/28-03-2024/CM/UMOA, Art. 2"
-},
-{
-  type:"qcm",
-  q:"Pour les négociants en métaux précieux et pierres précieuses, les obligations de vigilance s'appliquent à partir d'une opération en espèces d'un montant supérieur ou égal à :",
-  options:["5 000 000 FCFA","9 000 000 FCFA","10 000 000 FCFA","20 000 000 FCFA"],
-  correct:1,
-  exp:"L'article 3 de la Décision 003/2024 fixe le seuil des négociants en métaux et pierres précieuses à 9 000 000 de FCFA.",
-  ref:"Décision 003/28-03-2024/CM/UMOA, Art. 3"
-},
-{
-  type:"qcm",
-  q:"Dans les transactions immobilières, la vente d'un bien dont le montant est égal ou supérieur à 20 M FCFA ne peut être réglée qu'au moyen de :",
-  options:[
-    "espèces ou chèque",
-    "virement ou chèque uniquement",
-    "espèces en présence d'un notaire",
-    "lettre de crédit documentaire"
-  ],
-  correct:1,
-  exp:"L'article 4 de la Décision 003/2024 interdit le paiement en espèces pour les transactions immobilières ≥ 20 M FCFA : seuls le virement ou le chèque sont admis.",
-  ref:"Décision 003/28-03-2024/CM/UMOA, Art. 4"
-},
-{
-  type:"qcm",
-  q:"La Décision 003/28-03-2024/CM/UMOA complète les seuils fixés par :",
-  options:[
-    "la Décision n°021 du 21/12/2023/CM/UMOA",
-    "l'Instruction 233/07/2024",
-    "la Note 013-04-2026",
-    "le Règlement 06/2024/CM/UEMOA"
-  ],
-  correct:0,
-  exp:"Le préambule de la Décision 003/2024 indique qu'elle complète les seuils fixés par la Décision n°021 du 21/12/2023/CM/UMOA relative à la même Loi uniforme LBC/FT.",
-  ref:"Décision 003/28-03-2024/CM/UMOA, Préambule"
-},
-
-
-{
-  type:"qcm",
-  q:"Le CRAEF est la plateforme mise en place par la BCEAO pour :",
-  options:[
-    "la surveillance des opérations de change en temps réel",
-    "la collecte automatisée des états financiers des établissements de crédit et compagnies financières UMOA",
-    "le contrôle des transferts internationaux > 5 M FCFA",
-    "la déclaration des positions extérieures des banques"
-  ],
-  correct:1,
-  exp:"L'Avis 002-03-2026 crée le Cadre de Reporting Automatisé des États Financiers (CRAEF), plateforme informatique dédiée à la collecte des états financiers des établissements de crédit, holdings bancaires et compagnies financières UMOA.",
-  ref:"Avis BCEAO 002-03-2026"
-},
-{
-  type:"qcm",
-  q:"À partir de quel arrêté les établissements de crédit UMOA doivent-ils obligatoirement transmettre leurs états financiers via le CRAEF ?",
-  options:[
-    "Arrêtés annuels 2025",
-    "Arrêtés de fin du premier semestre 2026",
-    "Arrêtés annuels 2026",
-    "Arrêtés trimestriels dès mars 2026"
-  ],
-  correct:1,
-  exp:"L'Avis 002-03-2026 impose la transmission via CRAEF à compter des arrêtés de fin du premier semestre 2026, sans préjudice de la transmission sous format physique.",
-  ref:"Avis BCEAO 002-03-2026"
-},
-{
-  type:"vf",
-  q:"La transmission des états financiers via CRAEF remplace totalement la transmission sous format physique pour les établissements UMOA.",
-  options:["Vrai","Faux"],
-  correct:1,
-  exp:"FAUX. L'Avis 002-03-2026 précise que la déclaration via CRAEF se fait sans préjudice de la transmission des états sous format physique : les deux canaux coexistent.",
-  ref:"Avis BCEAO 002-03-2026"
-},
-{
-  type:"qcm",
-  q:"L'obligation de reporting via CRAEF s'impose à :",
-  options:[
-    "Les établissements de crédit uniquement",
-    "Les établissements de crédit (y compris les holdings bancaires) et les compagnies financières de l'UMOA",
-    "Les établissements de crédit et les SFD",
-    "Toutes les sociétés commerciales de l'UMOA"
-  ],
-  correct:1,
-  exp:"L'Avis 002-03-2026 vise explicitement les établissements de crédit (y compris les holdings bancaires) et les compagnies financières de l'UMOA, en référence à l'Instruction n°035-11-2016.",
-  ref:"Avis BCEAO 002-03-2026"
-},
-
-
-{
-  type:"qcm",
-  q:"Selon l'Instruction 08/07/2025/RFE, les sous-délégations de reprise de devises peuvent être accordées notamment à :",
-  options:[
-    "Des particuliers résidents",
-    "Des hôtels, commerces en aéroports/ports/gares, agences de voyage recevant régulièrement des devises de voyageurs étrangers",
-    "Des SFD et mutuelles d'épargne",
-    "Des sociétés d'assurance agréées"
-  ],
-  correct:1,
-  exp:"L'article 2 de l'Instruction 08/07/2025/RFE réserve les sous-délégations aux personnes morales telles que hôtels, commerces installés dans les aéroports/ports/gares autorisés à vendre des produits détaxés, et agences de voyage recevant des paiements en devises.",
-  ref:"Instruction 08/07/2025/RFE, Art. 2"
-},
-{
-  type:"vf",
-  q:"Un sous-délégataire peut céder des devises à la clientèle dans le cadre de la sous-délégation.",
-  options:["Vrai","Faux"],
-  correct:1,
-  exp:"FAUX. L'article 3 interdit formellement aux sous-délégataires de céder des devises à la clientèle sous quelque forme que ce soit. Ils ne sont autorisés qu'à reprendre (acheter) des devises.",
-  ref:"Instruction 08/07/2025/RFE, Art. 3"
-},
-{
-  type:"qcm",
-  q:"L'intermédiaire agréé qui accorde une sous-délégation doit notifier cette sous-délégation à la Structure chargée des Finances Extérieures et à la BCEAO dans un délai maximum de :",
-  options:["5 jours ouvrés","10 jours ouvrés","30 jours calendaires","60 jours calendaires"],
-  correct:1,
-  exp:"L'article 4 de l'Instruction 08/07/2025/RFE impose une notification dans un délai maximum de 10 jours ouvrés suivant l'établissement de la relation de sous-délégation.",
-  ref:"Instruction 08/07/2025/RFE, Art. 4"
-},
-{
-  type:"qcm",
-  q:"Les achats d'euros contre FCFA effectués par les sous-délégataires se font au taux de change officiel. La commission applicable ne peut excéder :",
-  options:["1% du montant","2% du montant","3% du montant","Aucun plafond réglementaire"],
-  correct:1,
-  exp:"L'article 5 de l'Instruction 08/07/2025/RFE fixe le plafond de la commission à deux pour cent (2%) du montant de la transaction pour les achats d'euros contre FCFA.",
-  ref:"Instruction 08/07/2025/RFE, Art. 5"
-},
-{
-  type:"qcm",
-  q:"L'intermédiaire agréé doit reprendre au sous-délégataire les devises achetées :",
-  options:[
-    "quotidiennement",
-    "au moins une fois par semaine",
-    "au moins une fois par mois",
-    "à chaque demande du sous-délégataire"
-  ],
-  correct:1,
-  exp:"L'article 7 impose à l'intermédiaire agréé de reprendre les devises au moins une fois par semaine auprès de son sous-délégataire.",
-  ref:"Instruction 08/07/2025/RFE, Art. 7"
-},
-{
-  type:"qcm",
-  q:"L'Instruction 08/07/2025/RFE entre en vigueur le :",
-  options:["7 juillet 2025","1er août 2025","1er janvier 2026","1er juillet 2026"],
-  correct:1,
-  exp:"L'article 9 fixe l'entrée en vigueur au 1er août 2025. Elle abroge l'Instruction N°07-07-2011/RFE du 13 juillet 2011.",
-  ref:"Instruction 08/07/2025/RFE, Art. 9"
-},
-
-
-{
-  type:"qcm",
-  q:"Selon l'Instruction 11/07/2025/RFE, la demande d'autorisation préalable de la BCEAO pour faire appel public à l'épargne dans l'UEMOA doit être déposée par :",
-  options:[
-    "L'entité non-résidente elle-même",
-    "La Société de Gestion et d'Intermédiation (SGI) mandatée par l'entité non-résidente",
-    "Le Ministre des Finances du pays d'accueil",
-    "L'Autorité des Marchés Financiers de l'UMOA directement"
-  ],
-  correct:1,
-  exp:"L'article 2 précise que la demande est déposée auprès de la BCEAO par la SGI mandatée par l'entité non-résidente pour conduire l'opération de recours au marché.",
-  ref:"Instruction 11/07/2025/RFE, Art. 2"
-},
-{
-  type:"qcm",
-  q:"Le délai maximum d'instruction de la demande d'autorisation préalable BCEAO pour appel public à l'épargne est de :",
-  options:["15 jours ouvrés","30 jours ouvrés","45 jours ouvrés","60 jours ouvrés"],
-  correct:2,
-  exp:"L'article 4 fixe le délai d'instruction à 45 jours ouvrés maximum. Ce délai est suspendu en cas de demande d'informations complémentaires.",
-  ref:"Instruction 11/07/2025/RFE, Art. 4"
-},
-{
-  type:"qcm",
-  q:"Après la clôture des souscriptions, la SGI doit communiquer à la BCEAO le compte rendu de l'opération d'émission dans un délai de :",
-  options:["10 jours ouvrés","20 jours ouvrés","30 jours ouvrés","60 jours calendaires"],
-  correct:2,
-  exp:"L'article 6 impose à la SGI de communiquer le compte rendu de l'opération dans un délai de 30 jours ouvrés suivant la clôture des opérations de souscription.",
-  ref:"Instruction 11/07/2025/RFE, Art. 6"
-},
-{
-  type:"vf",
-  q:"L'Instruction 11/07/2025/RFE exige que l'entité non-résidente mobilise au minimum 75% des fonds à l'étranger.",
-  options:["Vrai","Faux"],
-  correct:0,
-  exp:"VRAI. L'article 3 impose que le dossier précise les modalités de constitution de la quote-part d'au moins soixante-quinze pour cent (75%) à mobiliser à l'étranger, le cas échéant.",
-  ref:"Instruction 11/07/2025/RFE, Art. 3"
-},
-{
-  type:"qcm",
-  q:"L'Instruction 11/07/2025/RFE abroge :",
-  options:[
-    "l'Instruction N°09-07-2011/RFE du 13 juillet 2011",
-    "l'Instruction N°07-07-2011/RFE du 13 juillet 2011",
-    "le Règlement 06/2024/CM/UEMOA",
-    "l'Avis 003-12-2023"
-  ],
-  correct:0,
-  exp:"L'article 7 abroge l'Instruction N°09-07-2011/RFE du 13 juillet 2011 relative à la délivrance de l'autorisation aux entités non-résidentes désireuses de faire appel public à l'épargne dans l'UEMOA.",
-  ref:"Instruction 11/07/2025/RFE, Art. 7"
-},
-
-
-{
-  type:"qcm",
-  q:"Selon l'Avis 003-12-2023, un intermédiaire en opérations de banque (IOB) souhaitant conclure un nouveau mandat avec un établissement de crédit doit en informer le Ministre chargé des Finances (avec copie à la BCEAO) au moins :",
-  options:[
-    "7 jours ouvrés avant la conclusion du mandat",
-    "15 jours ouvrés avant la conclusion du mandat",
-    "30 jours ouvrés avant la conclusion du mandat",
-    "60 jours calendaires avant la conclusion du mandat"
-  ],
-  correct:2,
-  exp:"L'Avis 003-12-2023, en application de l'article 4 alinéa 2 de l'Instruction n°015-12-2010/RB, impose une information du Ministre chargé des Finances (copie BCEAO) au moins 30 jours ouvrés avant la date prévue pour la conclusion d'un nouveau mandat.",
-  ref:"Avis BCEAO 003-12-2023"
-},
-{
-  type:"qcm",
-  q:"La déclaration d'un nouveau mandat IOB est déposée auprès de :",
-  options:[
-    "La Direction Nationale de la BCEAO de l'État d'implantation de l'établissement de crédit mandant",
-    "L'Agence Principale de la BCEAO de l'État d'implantation de l'IOB",
-    "Le Ministre des Finances de l'Union",
-    "La Commission Bancaire UMOA"
-  ],
-  correct:1,
-  exp:"L'Avis 003-12-2023 précise que la déclaration est déposée auprès de l'Agence Principale de la BCEAO de l'État d'implantation de l'intermédiaire en opérations de banque.",
-  ref:"Avis BCEAO 003-12-2023"
-},
-{
-  type:"vf",
-  q:"Un IOB doit obtenir une nouvelle autorisation de la BCEAO pour conclure un mandat avec un deuxième établissement de crédit.",
-  options:["Vrai","Faux"],
-  correct:1,
-  exp:"FAUX. L'Instruction n°015-12-2010/RB permet à l'IOB de conclure de nouveaux mandats sans requérir une nouvelle autorisation, à charge de faire la déclaration au Ministre des Finances avec copie à la BCEAO, au moins 30 jours ouvrés avant la conclusion.",
-  ref:"Avis BCEAO 003-12-2023 ; Instruction 015-12-2010/RB, Art. 4, al. 2"
-},
-
-
-{
-  type:"qcm",
-  q:"L'Avis 005-04-2025 met fin aux mesures temporaires de traitement comptable et prudentiel des expositions sur les titres publics de l'État du Niger à compter du :",
-  options:["1er janvier 2025","15 avril 2025","1er juillet 2025","31 décembre 2025"],
-  correct:1,
-  exp:"L'Avis 005-04-2025 signé le 3 avril 2025 indique qu'à compter du 15 avril 2025, il est mis fin aux mesures temporaires prévues par l'Avis N°002-01-2024 du 22 janvier 2024.",
-  ref:"Avis BCEAO 005-04-2025"
-},
-{
-  type:"qcm",
-  q:"Depuis la levée des mesures temporaires (Avis 005-04-2025), les expositions des établissements de crédit sur les titres publics du Niger sont traitées conformément à :",
-  options:[
-    "l'Instruction N°026-11-2016 du 15 novembre 2016",
-    "la Décision 003/28-03-2024/CM/UMOA",
-    "l'Avis N°002-01-2024 du 22 janvier 2024",
-    "le Règlement 06/2024/CM/UEMOA"
-  ],
-  correct:0,
-  exp:"L'Avis 005-04-2025 précise qu'à compter du 15 avril 2025, toute exposition sur les titres publics de l'État du Niger est traitée conformément aux dispositions de l'Instruction N°026-11-2016 du 15 novembre 2016 (droit commun prudentiel).",
-  ref:"Avis BCEAO 005-04-2025"
-}
-
+{"cat":"Nouveaux textes 2024-2026","q":"Un ressortissant étranger salarié en UEMOA est considéré résident dès lors que son contrat de travail est :","choices":["à durée indéterminée ou d'une durée ≥ 1 an","à durée indéterminée uniquement","d'une durée > 6 mois","validé par le Ministre des Finances"],"answer":0,"source":"Note 013-04-2026, §1"},
+{"cat":"Nouveaux textes 2024-2026","q":"Un ressortissant étranger devenu résident UEMOA peut maintenir ses comptes bancaires à l'étranger sans autorisation préalable du Ministre chargé des Finances.","choices":["Vrai","Faux"],"answer":0,"source":"Note 013-04-2026, §2"},
+{"cat":"Nouveaux textes 2024-2026","q":"Les paiements entre résidents étrangers et autres résidents UEMOA (ex. règlement de salaires) doivent être libellés en :","choices":["devises au choix du donneur d'ordre","francs CFA exclusivement, versés dans un compte auprès d'un intermédiaire agréé de l'Union","euros, avec attestation de la BCEAO","la devise du pays d'origine du salarié"],"answer":1,"source":"Note 013-04-2026, §2"},
+{"cat":"Nouveaux textes 2024-2026","q":"Un résident étranger souhaitant approvisionner son compte bancaire étranger à partir d'une épargne constituée sur revenus salariaux doit obtenir l'autorisation préalable de :","choices":["la BCEAO","la Commission Bancaire UMOA","la Structure chargée des Finances Extérieures du pays d'implantation","aucune autorisation n'est requise"],"answer":2,"source":"Note 013-04-2026, §3 — Approvisionnement comptes à l'étranger"},
+{"cat":"Nouveaux textes 2024-2026","q":"Le délai maximum accordé par la Structure chargée des Finances Extérieures pour délivrer l'autorisation de transfert d'épargne d'un résident étranger est de :","choices":["2 jours ouvrés","5 jours ouvrés","10 jours ouvrés","30 jours ouvrés"],"answer":1,"source":"Note 013-04-2026, §3"},
+{"cat":"Nouveaux textes 2024-2026","q":"La période minimale de constitution de l'épargne pour un transfert vers l'étranger fondé sur des revenus salariaux est de :","choices":["1 mois","3 mois","6 mois","12 mois"],"answer":2,"source":"Note 013-04-2026, §3"},
+{"cat":"Nouveaux textes 2024-2026","q":"Un résident étranger quittant définitivement l'UEMOA peut transférer l'intégralité du solde de ses comptes ordinaires en FCFA. Ce transfert est exécuté :","choices":["librement, sans condition de montant","sans limitation de montant, sous réserve de justifier l'origine des fonds et que ceux-ci proviennent de revenus perçus dans l'Union ou de la liquidation d'investissements réalisés dans l'Union","dans la limite de 50 M FCFA sans justification","après accord préalable de la BCEAO uniquement"],"answer":1,"source":"Note 013-04-2026, §4"},
+{"cat":"Nouveaux textes 2024-2026","q":"Le délai réglementaire de traitement des demandes de transferts de résidents étrangers par l'intermédiaire agréé ne doit pas excéder :","choices":["2 jours ouvrés","5 jours ouvrés","10 jours ouvrés","30 jours calendaires"],"answer":1,"source":"Lettre BCEAO SESN 01876, 23 avr. 2026"},
+{"cat":"Nouveaux textes 2024-2026","q":"Parmi les documents justifiant le lien d'un résident étranger avec le pays de destination de ses transferts, lequel N'est PAS mentionné par la Note 013-04-2026 ?","choices":["Une obligation fiscale","Une attache familiale","Un titre de propriété immobilière dans l'Union","Une obligation financière ou contractuelle dûment établie"],"answer":2,"source":"Note 013-04-2026, §5 — Critères d'éligibilité"},
+{"cat":"Nouveaux textes 2024-2026","q":"Cas — Un expatrié français travaillant à Dakar depuis 18 mois (CDI) souhaite virer 2 M FCFA sur son compte à la BNP Paris pour régler un emprunt immobilier. Votre position ?","choices":["Refus : un résident ne peut pas alimenter un compte à l'étranger","Exécution libre : dépenses courantes autorisées à titre général, sur présentation des justificatifs (convention d'emprunt, échéancier)","Autorisation BCEAO obligatoire au préalable","Possible uniquement si le montant < 1 M FCFA"],"answer":1,"source":"Note 013-04-2026, §3 ; Art. 31 Règlement 06/2024"},
+{"cat":"Nouveaux textes 2024-2026","q":"L'Instruction 233/07/2024 fixe à quel montant le seuil au-delà duquel le paiement d'une dette ne peut être effectué en espèces ou par instruments négociables au porteur ?","choices":["1 000 000 FCFA","2 000 000 FCFA","5 000 000 FCFA","10 000 000 FCFA"],"answer":2,"source":"Instruction 233/07/2024, Art. 1er"},
+{"cat":"Nouveaux textes 2024-2026","q":"Le seuil de 5 M FCFA fixé par l'Instruction 233/07/2024 s'applique aussi aux paiements entre particuliers n'agissant pas pour des besoins professionnels.","choices":["Vrai","Faux"],"answer":1,"source":"Instruction 233/07/2024, Art. 2"},
+{"cat":"Nouveaux textes 2024-2026","q":"L'Instruction 233/07/2024 abroge et remplace :","choices":["l'Instruction 009-09-2017 du 25 septembre 2017","la Décision 003/2024 CM/UMOA","l'Instruction 015-12-2010/RB","le Règlement 09/2010/CM/UEMOA"],"answer":0,"source":"Instruction 233/07/2024, Art. 4"},
+{"cat":"Nouveaux textes 2024-2026","q":"Le non-respect du seuil de paiement en espèces fixé par l'Instruction 233/07/2024 est passible des sanctions prévues par :","choices":["le Règlement 06/2024/CM/UEMOA","la Loi uniforme relative à la LBC/FT/P dans les États membres de l'UMOA","la Loi bancaire nationale","le Code pénal de chaque État membre"],"answer":1,"source":"Instruction 233/07/2024, Art. 3"},
+{"cat":"Nouveaux textes 2024-2026","q":"Cas — Un client souhaite régler en espèces une facture de prestation de services pour 6 M FCFA. Votre réponse réglementaire ?","choices":["Accepter : aucun plafond espèces pour les entreprises","Refuser : le règlement d'une dette professionnelle > 5 M FCFA en espèces est interdit par l'Instruction 233/07/2024","Accepter si déclaration CENTIF jointe","Accepter jusqu'à 10 M FCFA avec dérogation du Ministre"],"answer":1,"source":"Instruction 233/07/2024, Art. 1er et 2"},
+{"cat":"Nouveaux textes 2024-2026","q":"Selon la Décision 003/28-03-2024/CM/UMOA, les agréés de change manuel doivent procéder à l'identification de leurs clients lorsque le montant de l'opération (ou opérations liées) excède :","choices":["1 000 000 FCFA","2 000 000 FCFA","5 000 000 FCFA","10 000 000 FCFA"],"answer":2,"source":"Décision 003/28-03-2024/CM/UMOA, Art. 2"},
+{"cat":"Nouveaux textes 2024-2026","q":"Pour les négociants en métaux précieux et pierres précieuses, les obligations de vigilance s'appliquent à partir d'une opération en espèces d'un montant supérieur ou égal à :","choices":["5 000 000 FCFA","9 000 000 FCFA","10 000 000 FCFA","20 000 000 FCFA"],"answer":1,"source":"Décision 003/28-03-2024/CM/UMOA, Art. 3"},
+{"cat":"Nouveaux textes 2024-2026","q":"Dans les transactions immobilières, la vente d'un bien dont le montant est égal ou supérieur à 20 M FCFA ne peut être réglée qu'au moyen de :","choices":["espèces ou chèque","virement ou chèque uniquement","espèces en présence d'un notaire","lettre de crédit documentaire"],"answer":1,"source":"Décision 003/28-03-2024/CM/UMOA, Art. 4"},
+{"cat":"Nouveaux textes 2024-2026","q":"La Décision 003/28-03-2024/CM/UMOA complète les seuils fixés par :","choices":["la Décision n°021 du 21/12/2023/CM/UMOA","l'Instruction 233/07/2024","la Note 013-04-2026","le Règlement 06/2024/CM/UEMOA"],"answer":0,"source":"Décision 003/28-03-2024/CM/UMOA, Préambule"},
+{"cat":"Nouveaux textes 2024-2026","q":"Le CRAEF est la plateforme mise en place par la BCEAO pour :","choices":["la surveillance des opérations de change en temps réel","la collecte automatisée des états financiers des établissements de crédit et compagnies financières UMOA","le contrôle des transferts internationaux > 5 M FCFA","la déclaration des positions extérieures des banques"],"answer":1,"source":"Avis BCEAO 002-03-2026"},
+{"cat":"Nouveaux textes 2024-2026","q":"À partir de quel arrêté les établissements de crédit UMOA doivent-ils obligatoirement transmettre leurs états financiers via le CRAEF ?","choices":["Arrêtés annuels 2025","Arrêtés de fin du premier semestre 2026","Arrêtés annuels 2026","Arrêtés trimestriels dès mars 2026"],"answer":1,"source":"Avis BCEAO 002-03-2026"},
+{"cat":"Nouveaux textes 2024-2026","q":"La transmission des états financiers via CRAEF remplace totalement la transmission sous format physique pour les établissements UMOA.","choices":["Vrai","Faux"],"answer":1,"source":"Avis BCEAO 002-03-2026"},
+{"cat":"Nouveaux textes 2024-2026","q":"L'obligation de reporting via CRAEF s'impose à :","choices":["Les établissements de crédit uniquement","Les établissements de crédit (y compris les holdings bancaires) et les compagnies financières de l'UMOA","Les établissements de crédit et les SFD","Toutes les sociétés commerciales de l'UMOA"],"answer":1,"source":"Avis BCEAO 002-03-2026"},
+{"cat":"Nouveaux textes 2024-2026","q":"Selon l'Instruction 08/07/2025/RFE, les sous-délégations de reprise de devises peuvent être accordées notamment à :","choices":["Des particuliers résidents","Des hôtels, commerces en aéroports/ports/gares, agences de voyage recevant régulièrement des devises de voyageurs étrangers","Des SFD et mutuelles d'épargne","Des sociétés d'assurance agréées"],"answer":1,"source":"Instruction 08/07/2025/RFE, Art. 2"},
+{"cat":"Nouveaux textes 2024-2026","q":"Un sous-délégataire peut céder des devises à la clientèle dans le cadre de la sous-délégation.","choices":["Vrai","Faux"],"answer":1,"source":"Instruction 08/07/2025/RFE, Art. 3"},
+{"cat":"Nouveaux textes 2024-2026","q":"L'intermédiaire agréé qui accorde une sous-délégation doit notifier cette sous-délégation à la Structure chargée des Finances Extérieures et à la BCEAO dans un délai maximum de :","choices":["5 jours ouvrés","10 jours ouvrés","30 jours calendaires","60 jours calendaires"],"answer":1,"source":"Instruction 08/07/2025/RFE, Art. 4"},
+{"cat":"Nouveaux textes 2024-2026","q":"Les achats d'euros contre FCFA effectués par les sous-délégataires se font au taux de change officiel. La commission applicable ne peut excéder :","choices":["1% du montant","2% du montant","3% du montant","Aucun plafond réglementaire"],"answer":1,"source":"Instruction 08/07/2025/RFE, Art. 5"},
+{"cat":"Nouveaux textes 2024-2026","q":"L'intermédiaire agréé doit reprendre au sous-délégataire les devises achetées :","choices":["quotidiennement","au moins une fois par semaine","au moins une fois par mois","à chaque demande du sous-délégataire"],"answer":1,"source":"Instruction 08/07/2025/RFE, Art. 7"},
+{"cat":"Nouveaux textes 2024-2026","q":"L'Instruction 08/07/2025/RFE entre en vigueur le :","choices":["7 juillet 2025","1er août 2025","1er janvier 2026","1er juillet 2026"],"answer":1,"source":"Instruction 08/07/2025/RFE, Art. 9"},
+{"cat":"Nouveaux textes 2024-2026","q":"Selon l'Instruction 11/07/2025/RFE, la demande d'autorisation préalable de la BCEAO pour faire appel public à l'épargne dans l'UEMOA doit être déposée par :","choices":["L'entité non-résidente elle-même","La Société de Gestion et d'Intermédiation (SGI) mandatée par l'entité non-résidente","Le Ministre des Finances du pays d'accueil","L'Autorité des Marchés Financiers de l'UMOA directement"],"answer":1,"source":"Instruction 11/07/2025/RFE, Art. 2"},
+{"cat":"Nouveaux textes 2024-2026","q":"Le délai maximum d'instruction de la demande d'autorisation préalable BCEAO pour appel public à l'épargne est de :","choices":["15 jours ouvrés","30 jours ouvrés","45 jours ouvrés","60 jours ouvrés"],"answer":2,"source":"Instruction 11/07/2025/RFE, Art. 4"},
+{"cat":"Nouveaux textes 2024-2026","q":"Après la clôture des souscriptions, la SGI doit communiquer à la BCEAO le compte rendu de l'opération d'émission dans un délai de :","choices":["10 jours ouvrés","20 jours ouvrés","30 jours ouvrés","60 jours calendaires"],"answer":2,"source":"Instruction 11/07/2025/RFE, Art. 6"},
+{"cat":"Nouveaux textes 2024-2026","q":"L'Instruction 11/07/2025/RFE exige que l'entité non-résidente mobilise au minimum 75% des fonds à l'étranger.","choices":["Vrai","Faux"],"answer":0,"source":"Instruction 11/07/2025/RFE, Art. 3"},
+{"cat":"Nouveaux textes 2024-2026","q":"L'Instruction 11/07/2025/RFE abroge :","choices":["l'Instruction N°09-07-2011/RFE du 13 juillet 2011","l'Instruction N°07-07-2011/RFE du 13 juillet 2011","le Règlement 06/2024/CM/UEMOA","l'Avis 003-12-2023"],"answer":0,"source":"Instruction 11/07/2025/RFE, Art. 7"},
+{"cat":"Nouveaux textes 2024-2026","q":"Selon l'Avis 003-12-2023, un intermédiaire en opérations de banque (IOB) souhaitant conclure un nouveau mandat avec un établissement de crédit doit en informer le Ministre chargé des Finances (avec copie à la BCEAO) au moins :","choices":["7 jours ouvrés avant la conclusion du mandat","15 jours ouvrés avant la conclusion du mandat","30 jours ouvrés avant la conclusion du mandat","60 jours calendaires avant la conclusion du mandat"],"answer":2,"source":"Avis BCEAO 003-12-2023"},
+{"cat":"Nouveaux textes 2024-2026","q":"La déclaration d'un nouveau mandat IOB est déposée auprès de :","choices":["La Direction Nationale de la BCEAO de l'État d'implantation de l'établissement de crédit mandant","L'Agence Principale de la BCEAO de l'État d'implantation de l'IOB","Le Ministre des Finances de l'Union","La Commission Bancaire UMOA"],"answer":1,"source":"Avis BCEAO 003-12-2023"},
+{"cat":"Nouveaux textes 2024-2026","q":"Un IOB doit obtenir une nouvelle autorisation de la BCEAO pour conclure un mandat avec un deuxième établissement de crédit.","choices":["Vrai","Faux"],"answer":1,"source":"Avis BCEAO 003-12-2023 ; Instruction 015-12-2010/RB, Art. 4, al. 2"},
+{"cat":"Nouveaux textes 2024-2026","q":"L'Avis 005-04-2025 met fin aux mesures temporaires de traitement comptable et prudentiel des expositions sur les titres publics de l'État du Niger à compter du :","choices":["1er janvier 2025","15 avril 2025","1er juillet 2025","31 décembre 2025"],"answer":1,"source":"Avis BCEAO 005-04-2025"},
+{"cat":"Nouveaux textes 2024-2026","q":"Depuis la levée des mesures temporaires (Avis 005-04-2025), les expositions des établissements de crédit sur les titres publics du Niger sont traitées conformément à :","choices":["l'Instruction N°026-11-2016 du 15 novembre 2016","la Décision 003/28-03-2024/CM/UMOA","l'Avis N°002-01-2024 du 22 janvier 2024","le Règlement 06/2024/CM/UEMOA"],"answer":0,"source":"Avis BCEAO 005-04-2025"},
+{"cat":"Nouveaux textes 2024-2026","q":"Que signifie l'acronyme PARMEC dans la réglementation UEMOA des SFD ?","choices":["Projet d'Appui à la Réglementation des Mutuelles d'Épargne et de Crédit","Programme d'Accès au Refinancement des Mutuelles et Établissements de Crédit","Plan d'Action pour la Réforme des Marchés et Établissements de Crédit","Protocole d'Accord sur la Réglementation des Microstructures d'Épargne et de Crédit"],"answer":0,"source":"Loi-cadre PARMEC 2007 — Préambule"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quelle loi constitue le cadre juridique de référence des institutions de microfinance dans l'UEMOA ?","choices":["La loi uniforme portant réglementation des systèmes financiers décentralisés","Le Règlement 15-2002/CM/UEMOA relatif aux systèmes de paiement","La loi bancaire uniforme UEMOA de 2010","Le Règlement 09/2010/CM/UEMOA sur les relations financières extérieures"],"answer":0,"source":"Loi uniforme PARMEC — Art. 1"},
+{"cat":"Nouveaux textes 2024-2026","q":"Selon la loi PARMEC, qu'est-ce qu'un Système Financier Décentralisé (SFD) ?","choices":["Toute institution dont l'objet principal est d'offrir des services financiers à des personnes exclues du système bancaire classique","Toute banque accordant des microcrédits aux PME","Tout établissement financier agréé proposant uniquement des dépôts à vue","Toute structure coopérative non agréée collectant l'épargne"],"answer":0,"source":"Loi uniforme PARMEC — Art. 2"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quelles sont les trois catégories d'institutions reconnues par la loi PARMEC ?","choices":["Mutuelles d'épargne et de crédit, coopératives d'épargne et de crédit, sociétés anonymes de microfinance","Banques mutualistes, établissements de crédit-bail, sociétés de financement","Institutions de garantie, fonds de placement, structures associatives","Établissements de monnaie électronique, banques de détail, caisses rurales"],"answer":0,"source":"Loi uniforme PARMEC — Art. 4"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quelle autorité délivre l'agrément aux SFD dans l'espace UEMOA ?","choices":["Le Ministre des Finances, après avis de la BCEAO","La BCEAO directement","La Commission Bancaire de l'UMOA seule","Le Parlement de l'État membre"],"answer":0,"source":"Loi uniforme PARMEC — Art. 6"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quel est le délai légal accordé au Ministre des Finances pour statuer sur une demande d'agrément SFD ?","choices":["3 mois à compter du dépôt du dossier complet","6 mois à compter de la réception de la demande","30 jours après avis de la BCEAO","1 mois à compter de la publication au Journal officiel"],"answer":0,"source":"Loi uniforme PARMEC — Art. 7"},
+{"cat":"Nouveaux textes 2024-2026","q":"Selon la loi PARMEC, quelles opérations un SFD agréé est-il autorisé à effectuer ?","choices":["Collecte de l'épargne de ses membres et octroi de crédit à ses membres","Toutes opérations bancaires sans restriction","Uniquement le crédit, sans collecte d'épargne","Émission de monnaie électronique et transferts internationaux"],"answer":0,"source":"Loi uniforme PARMEC — Art. 22-23"},
+{"cat":"Nouveaux textes 2024-2026","q":"Un SFD peut-il pratiquer des opérations de change ?","choices":["Non, sauf autorisation expresse de la BCEAO","Oui, librement dès l'agrément SFD obtenu","Oui, uniquement dans les zones frontalières","Non, cette activité est réservée aux banques exclusivement"],"answer":0,"source":"Loi uniforme PARMEC — Art. 25"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quel est le capital social minimum exigé pour une SA de microfinance dans l'UEMOA selon les textes en vigueur ?","choices":["300 millions FCFA","50 millions FCFA","500 millions FCFA","1 milliard FCFA"],"answer":0,"source":"Instruction BCEAO 002-06-2011/RB — Art. 8"},
+{"cat":"Nouveaux textes 2024-2026","q":"Qu'est-ce que le taux d'usure dans le contexte SFD de l'UEMOA ?","choices":["Le taux d'intérêt maximum autorisé au-delà duquel les intérêts perçus sont illicites","Le taux de refinancement de la BCEAO applicable aux SFD","Le taux de rendement minimum exigé des SFD par le Ministère des Finances","Le taux plancher des dépôts d'épargne dans les mutuelles"],"answer":0,"source":"Loi uniforme PARMEC — Art. 45"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quelle institution exerce la surveillance des SFD dans l'UEMOA ?","choices":["La Commission Bancaire de l'UMOA","La BCEAO via son Département de la Microfinance","Le Ministère des Finances de chaque État membre","L'UEMOA Commission à Ouagadougou"],"answer":0,"source":"Loi uniforme PARMEC — Art. 53"},
+{"cat":"Nouveaux textes 2024-2026","q":"À quelle fréquence les SFD doivent-ils transmettre leurs états financiers à la BCEAO ?","choices":["Trimestriellement et annuellement","Uniquement chaque fin d'exercice annuel","Mensuellement","Semestriellement uniquement"],"answer":0,"source":"Instruction BCEAO 001-04-2010 — Art. 12"},
+{"cat":"Nouveaux textes 2024-2026","q":"Qu'est-ce que le Portefeuille À Risque (PAR) dans la gestion d'un SFD ?","choices":["La part du portefeuille de crédit présentant des impayés de plus de 30 jours","La part des dépôts exposés aux fluctuations de taux d'intérêt","Le montant total des refinancements en attente auprès des banques","La valeur des actifs non liquides dans le bilan du SFD"],"answer":0,"source":"Référentiel comptable SFD BCEAO — Glossaire"},
+{"cat":"Nouveaux textes 2024-2026","q":"Un SFD dont le PAR 30 dépasse 10 % est considéré comme :","choices":["Un SFD en situation de fragilité nécessitant un plan de redressement","Un SFD performant selon les normes BCEAO","Un SFD pouvant bénéficier de refinancement prioritaire BCEAO","Un SFD automatiquement dissous par le Ministère des Finances"],"answer":0,"source":"Normes prudentielles SFD BCEAO — Instruction 002-12-2010"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quelle est la norme de capitalisation minimale d'un SFD mutualiste (fonds propres/total actif) ?","choices":["15 %","8 %","5 %","20 %"],"answer":0,"source":"Instruction BCEAO 002-12-2010 — Art. 6"},
+{"cat":"Nouveaux textes 2024-2026","q":"Que prévoit la loi PARMEC en cas de retrait d'agrément d'un SFD ?","choices":["Liquidation ordonnée, remboursement prioritaire des déposants, interdiction d'exercer de nouvelles activités","Transformation automatique en banque classique","Transfert du portefeuille à une autre mutuelle sans formalité","Suspension de 6 mois avant dissolution définitive"],"answer":0,"source":"Loi uniforme PARMEC — Art. 62-63"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quel est l'organe suprême d'une mutuelle d'épargne et de crédit selon la loi PARMEC ?","choices":["L'Assemblée générale des membres","Le Conseil d'administration","Le Comité de crédit","Le Directeur général"],"answer":0,"source":"Loi uniforme PARMEC — Art. 30"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quelle est la condition pour être membre d'une mutuelle d'épargne et de crédit ?","choices":["Souscrire des parts sociales et satisfaire aux conditions fixées par les statuts","Avoir un compte courant dans une banque primaire","Résider dans la même commune que le siège social","Être salarié du secteur formel uniquement"],"answer":0,"source":"Loi uniforme PARMEC — Art. 17-18"},
+{"cat":"Nouveaux textes 2024-2026","q":"Qu'est-ce qu'un réseau de SFD selon la réglementation UEMOA ?","choices":["Un ensemble de SFD de base affiliés à une structure faîtière et partageant des objectifs communs","Une fédération de banques mutualistes opérant hors zone UEMOA","Un groupe de banques classiques proposant des services de microfinance","Un consortium d'États membres finançant la microfinance"],"answer":0,"source":"Loi uniforme PARMEC — Art. 5"},
+{"cat":"Nouveaux textes 2024-2026","q":"Une structure faîtière d'un réseau SFD est-elle soumise à agrément ?","choices":["Oui, elle doit obtenir un agrément spécifique du Ministre des Finances","Non, elle bénéficie de l'agrément des SFD de base qu'elle fédère","Non, une simple déclaration d'existence suffit","Oui, mais uniquement si elle collecte elle-même l'épargne"],"answer":0,"source":"Loi uniforme PARMEC — Art. 9"},
+{"cat":"Nouveaux textes 2024-2026","q":"Les administrateurs d'un SFD mutualiste peuvent-ils être rémunérés ?","choices":["Non, le mandat d'administrateur est bénévole sauf indemnités de session autorisées par l'AG","Oui, librement fixé par le Conseil d'administration","Oui, selon un barème fixé par la BCEAO","Non, aucune indemnité n'est permise sous quelque forme que ce soit"],"answer":0,"source":"Loi uniforme PARMEC — Art. 33"},
+{"cat":"Nouveaux textes 2024-2026","q":"Le microcrédit dans l'UEMOA se caractérise principalement par :","choices":["De faibles montants, une cible de clientèle exclue du système bancaire classique, et des garanties non conventionnelles","Des taux d'intérêt nuls et des durées longues","Des montants élevés destinés aux PME formelles","Une garantie hypothécaire systématique"],"answer":0,"source":"Loi uniforme PARMEC — Exposé des motifs"},
+{"cat":"Nouveaux textes 2024-2026","q":"Un SFD peut-il accorder des crédits à des non-membres ?","choices":["Non pour les mutuelles ; oui dans certaines limites pour les SA de microfinance","Oui, librement à toute personne physique ou morale","Non, aucun SFD ne peut prêter à des tiers non membres","Oui, mais uniquement aux fonctionnaires de l'État"],"answer":0,"source":"Loi uniforme PARMEC — Art. 22 et 26"},
+{"cat":"Nouveaux textes 2024-2026","q":"Que couvre le concept de 'crédit solidaire' en microfinance ?","choices":["Un crédit accordé à un groupe de personnes qui se portent caution mutuellement","Un crédit bonifié par l'État remboursé collectivement par les communes","Un crédit accordé aux ONG à vocation sociale","Un refinancement interbancaire entre SFD"],"answer":0,"source":"Pratiques SFD UEMOA — Référentiel BCEAO"},
+{"cat":"Nouveaux textes 2024-2026","q":"La règle de transformation (actif long/passif court) s'applique-t-elle aux SFD ?","choices":["Oui, les SFD doivent respecter un ratio de liquidité minimum fixé par la BCEAO","Non, les SFD ne sont pas soumis à des ratios de liquidité","Oui, mais uniquement pour les SFD dont le bilan dépasse 5 milliards FCFA","Non, la transformation est libre dans le cadre mutualiste"],"answer":0,"source":"Instruction BCEAO 002-12-2010 — Art. 9"},
+{"cat":"Nouveaux textes 2024-2026","q":"Qu'est-ce que l'autosuffisance opérationnelle (ASO) d'un SFD ?","choices":["La capacité des produits d'exploitation à couvrir les charges d'exploitation sans subvention","Le ratio fonds propres / total actif exigé par la BCEAO","La part du financement externe dans les ressources du SFD","Le seuil de rentabilité calculé sur les seuls produits de crédit"],"answer":0,"source":"Référentiel de performance SFD BCEAO — Indicateur ASO"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quel est le référentiel comptable applicable aux SFD de l'UEMOA ?","choices":["Le Plan Comptable des SFD (PC-SFD) adopté par la BCEAO","Le SYSCOHADA révisé","Le Plan Comptable Bancaire (PCB) UMOA","Les normes IFRS adaptées à la microfinance"],"answer":0,"source":"Instruction BCEAO 001-04-2010 — Art. 2"},
+{"cat":"Nouveaux textes 2024-2026","q":"Les SFD sont-ils assujettis aux déclarations LBC/FT ?","choices":["Oui, ils sont des entités déclarantes assimilées aux établissements de crédit","Non, seuls les établissements de crédit classiques sont assujettis","Oui, uniquement les SFD dont le bilan dépasse 1 milliard FCFA","Non, la loi LBC/FT ne vise que le secteur bancaire formel"],"answer":0,"source":"Loi uniforme LBC/FT 2023 — Art. 4 (liste des entités déclarantes)"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quel document annuel les SFD doivent-ils obligatoirement faire certifier par un commissaire aux comptes ?","choices":["Les états financiers annuels (bilan, compte de résultat, hors-bilan)","Uniquement le rapport de gestion du Conseil d'administration","Le plan de crédit prévisionnel de l'exercice suivant","Le registre des membres de la mutuelle"],"answer":0,"source":"Loi uniforme PARMEC — Art. 56"},
+{"cat":"Nouveaux textes 2024-2026","q":"La centrale des risques de la BCEAO est-elle accessible aux SFD ?","choices":["Oui, les SFD agréés peuvent consulter et alimenter la centrale des risques","Non, elle est réservée aux banques et établissements financiers","Oui, mais uniquement en lecture, sans obligation de déclaration","Non, les SFD disposent d'une centrale des risques propre distincte"],"answer":0,"source":"Instruction BCEAO sur la Centrale des risques — Art. 3"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quelle sanction est prévue pour exercice illégal d'activités de SFD sans agrément ?","choices":["Emprisonnement et amende, conformément aux dispositions pénales de la loi PARMEC","Simple avertissement du Ministère des Finances","Amende administrative uniquement sans peine privative de liberté","Saisie des actifs par la BCEAO sans intervention judiciaire"],"answer":0,"source":"Loi uniforme PARMEC — Art. 70-71"},
+{"cat":"Nouveaux textes 2024-2026","q":"La Commission Bancaire peut-elle sanctionner un SFD directement ?","choices":["Oui, depuis l'extension de sa compétence aux SFD par les textes UEMOA","Non, seul le Ministère des Finances peut sanctionner les SFD","Non, la BCEAO est le seul organe de sanction des SFD","Oui, mais uniquement pour les SFD dont le bilan dépasse 10 milliards FCFA"],"answer":0,"source":"Loi uniforme PARMEC — Art. 53 et Dispositif CB UMOA"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quel est le taux de bancarisation indicatif visé par la BCEAO incluant les SFD dans l'UEMOA ?","choices":["75 % à horizon 2025 (incluant services SFD et monnaie mobile)","50 % en termes de comptes bancaires stricts","100 % grâce à la monnaie électronique","30 % pour les seuls comptes bancaires classiques"],"answer":0,"source":"Stratégie régionale d'inclusion financière BCEAO 2022-2026"},
+{"cat":"Nouveaux textes 2024-2026","q":"Le Mobile Money est-il considéré comme un SFD selon la loi PARMEC ?","choices":["Non, les émetteurs de monnaie électronique relèvent d'une réglementation spécifique distincte","Oui, tout service d'épargne mobile est assimilé à un SFD","Oui, si le service est offert via un téléphone mobile","Non, le Mobile Money est réglementé uniquement par l'ARTAO"],"answer":0,"source":"Instruction BCEAO EME 2015 — Champ d'application"},
+{"cat":"Nouveaux textes 2024-2026","q":"Qu'est-ce que le Fonds de Garantie des Dépôts dans les SFD (FGDS) ?","choices":["Un mécanisme de protection des dépôts des membres en cas de défaillance d'un SFD","Un fonds de refinancement des SFD géré par la BCEAO","Une dotation budgétaire de l'État pour subventionner les SFD","Un fonds d'investissement dédié aux mutuelles agricoles"],"answer":0,"source":"Dispositif de garantie des dépôts SFD UEMOA"},
+{"cat":"Nouveaux textes 2024-2026","q":"Peut-on constituer des sûretés (garanties) sur des biens de l'OHADA pour un SFD ?","choices":["Oui, les SFD peuvent recourir aux sûretés de l'Acte Uniforme OHADA (gage, nantissement, hypothèque)","Non, les SFD utilisent uniquement des garanties solidaires informelles","Oui, mais uniquement le nantissement sur fonds de commerce","Non, les biens sous régime OHADA sont insaisissables par les SFD"],"answer":0,"source":"AU OHADA Sûretés + Loi PARMEC Art. 42"},
+{"cat":"Nouveaux textes 2024-2026","q":"Comment est calculée la limite individuelle de crédit dans un SFD mutualiste ?","choices":["En pourcentage des fonds propres du SFD, selon les normes prudentielles de la BCEAO","En fonction du revenu mensuel déclaré du membre emprunteur","Librement fixée par le comité de crédit sans plafond réglementaire","Calculée sur la base du solde d'épargne du membre uniquement"],"answer":0,"source":"Instruction BCEAO 002-12-2010 — Ratio de division des risques"},
+{"cat":"Nouveaux textes 2024-2026","q":"Les SFD sont-ils soumis à la réglementation sur les grandes expositions ?","choices":["Oui, aucune créance ne doit dépasser 10 % des fonds propres nets selon les normes BCEAO","Non, les règles de division des risques ne s'appliquent pas aux SFD","Oui, mais le seuil est de 25 % des fonds propres comme pour les banques","Non, les SFD sont exemptés de toute limite individuelle de prêt"],"answer":0,"source":"Instruction BCEAO 002-12-2010 — Art. 7"},
+{"cat":"Nouveaux textes 2024-2026","q":"Un SFD peut-il distribuer ses excédents à ses membres ?","choices":["Oui, sous forme de ristournes après constitution des réserves obligatoires et approbation de l'AG","Non, tous les excédents sont obligatoirement affectés aux réserves","Oui, librement sur décision du Conseil d'administration","Non, les excédents sont reversés intégralement au Fonds de garantie"],"answer":0,"source":"Loi uniforme PARMEC — Art. 38"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quelle est la réserve légale obligatoire pour un SFD mutualiste ?","choices":["Affectation d'au moins 15 % des excédents nets à la réserve générale","10 % des excédents comme pour les SA commerciales","25 % des excédents nets sur décision de la BCEAO","Aucune réserve légale n'est imposée aux mutuelles"],"answer":0,"source":"Loi uniforme PARMEC — Art. 37"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quels sont les principaux indicateurs de performance financière d'un SFD selon la BCEAO ?","choices":["PAR 30, autosuffisance opérationnelle (ASO), taux de rendement du portefeuille, ratio de capitalisation","ROE, ROA, NIM, ratio Tier 1 uniquement","Chiffre d'affaires, EBITDA, flux de trésorerie libre","Taux de crédit non performant et ratio de solvabilité Bâle III"],"answer":0,"source":"Référentiel de performance SFD BCEAO"},
+{"cat":"Nouveaux textes 2024-2026","q":"Un SFD peut-il effectuer des virements internationaux pour le compte de ses membres ?","choices":["Non, les transferts internationaux nécessitent un agrément complémentaire de change","Oui, librement dès lors que le SFD est agréé","Oui, mais uniquement vers les pays de la zone UEMOA","Non, les SFD sont strictement limités aux opérations en espèces"],"answer":0,"source":"Loi uniforme PARMEC — Art. 25 + Règlement RFE 06/2024"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quel régime fiscal s'applique généralement aux mutuelles d'épargne et de crédit dans l'UEMOA ?","choices":["Régime d'exonération partielle sous conditions, variable selon la législation de chaque État membre","Régime d'imposition identique aux banques commerciales","Exonération totale de tous impôts et taxes dans tous les États UEMOA","Régime forfaitaire unique fixé par la BCEAO"],"answer":0,"source":"Loi uniforme PARMEC — Art. 68 + Législations nationales"},
+{"cat":"Nouveaux textes 2024-2026","q":"Qu'est-ce qu'une institution mutualiste de 1er niveau dans le système SFD ?","choices":["Une caisse de base offrant directement les services financiers à ses membres","La structure faîtière nationale coordinnant les caisses de base","La BCEAO dans son rôle de supervision de 1er niveau","Un fond d'investissement spécialisé dans la microfinance"],"answer":0,"source":"Loi uniforme PARMEC — Art. 5"},
+{"cat":"Nouveaux textes 2024-2026","q":"Les SFD sont-ils éligibles au refinancement de la BCEAO ?","choices":["Non directement ; ils accèdent au refinancement via les banques ou les lignes de crédit dédiées","Oui, directement comme les banques commerciales","Oui, via un guichet spécial SFD de la BCEAO créé en 2022","Non, les SFD se refinancent exclusivement auprès des bailleurs de fonds internationaux"],"answer":0,"source":"Politique monétaire BCEAO + Loi uniforme PARMEC"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quel est le délai de prescription des infractions pénales prévues par la loi PARMEC ?","choices":["Celui fixé par le droit pénal commun de chaque État membre","3 ans uniformément dans tous les États UEMOA","5 ans à compter de la commission de l'infraction","1 an renouvelable sur décision du Ministère des Finances"],"answer":0,"source":"Loi uniforme PARMEC — Art. 73"},
+{"cat":"Nouveaux textes 2024-2026","q":"Les dépôts dans les SFD bénéficient-ils de la même protection que dans les banques ?","choices":["Non, le régime de garantie des dépôts SFD est distinct et moins étendu que celui des banques","Oui, exactement la même protection via le FGDR UMOA","Non, les dépôts SFD ne font l'objet d'aucune garantie institutionnelle","Oui, mais uniquement pour les dépôts d'épargne et non les parts sociales"],"answer":0,"source":"Dispositifs de protection dépôts UEMOA — SFD vs banques"},
+{"cat":"Nouveaux textes 2024-2026","q":"La notation (rating) des SFD est-elle obligatoire dans l'UEMOA ?","choices":["Non, elle est facultative mais encouragée par la BCEAO pour faciliter l'accès aux financements","Oui, obligatoire annuellement pour tout SFD dont le bilan dépasse 500 millions FCFA","Oui, imposée par la Commission Bancaire pour tous les SFD agréés","Non, la notation est réservée aux établissements bancaires classiques"],"answer":0,"source":"Pratique SFD UEMOA — Cadre BCEAO inclusion financière"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quelle est la condition pour qu'un SFD ouvre une agence dans un autre État UEMOA ?","choices":["Obtenir l'agrément de l'État d'accueil et en informer l'État d'origine et la BCEAO","Obtenir uniquement l'agrément de la BCEAO sans démarche nationale","Aucune formalité particulière grâce à la liberté d'établissement UEMOA","Créer une entité juridique distincte dans chaque État d'accueil"],"answer":0,"source":"Loi uniforme PARMEC — Art. 11 + Traité UEMOA"},
+{"cat":"Nouveaux textes 2024-2026","q":"Qu'est-ce que le crédit-bail dans le contexte d'un SFD habilité ?","choices":["Une opération par laquelle le SFD finance un bien en conservant la propriété jusqu'au remboursement total","Un prêt à taux bonifiés réservé aux femmes entrepreneures","Un refinancement interbancaire à court terme entre SFD","Une ligne de crédit revolving accordée aux membres réguliers"],"answer":0,"source":"Opérations connexes SFD — Loi uniforme PARMEC Art. 26"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quel organisme régule le marché financier de l'UEMOA depuis le remplacement du CREPMF ?","choices":["L'Autorité des Marchés Financiers de l'UMOA (AMF-UMOA)","La Commission Bancaire de l'UMOA","La BCEAO via son Département des Marchés de Capitaux","L'UEMOA Commission à Ouagadougou"],"answer":0,"source":"Décision n°01/2023/AMF-UMOA — Règlement Général AMF-UMOA"},
+{"cat":"Nouveaux textes 2024-2026","q":"Qu'est-ce que la BRVM ?","choices":["La Bourse Régionale des Valeurs Mobilières, marché boursier commun aux 8 États de l'UEMOA","La Banque Régionale de Valeur Mobilière, établissement de crédit spécialisé","Le Bureau Régional de Vérification des Marchés, organe de contrôle","La Bourse de Refinancement des Valeurs Mobilières, marché interbancaire"],"answer":0,"source":"Règlement 02-96/CM/UEMOA — Art. 2"},
+{"cat":"Nouveaux textes 2024-2026","q":"Où est établi le siège de la BRVM ?","choices":["Abidjan, Côte d'Ivoire","Dakar, Sénégal","Ouagadougou, Burkina Faso","Cotonou, Bénin"],"answer":0,"source":"Règlement 02-96/CM/UEMOA — Art. 5"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quel est le rôle du Dépositaire Central / Banque de Règlement (DC/BR) dans le marché UEMOA ?","choices":["Assurer la conservation des titres, le règlement-livraison des transactions et la gestion des comptes titres","Émettre les titres de créance de l'État sur le marché primaire","Fixer les taux d'intérêt des obligations souveraines UEMOA","Contrôler les intermédiaires boursiers pour le compte de l'AMF-UMOA"],"answer":0,"source":"Règlement DC/BR UEMOA"},
+{"cat":"Nouveaux textes 2024-2026","q":"Les Sociétés de Gestion et d'Intermédiation (SGI) sont :","choices":["Les intermédiaires agréés habilités à négocier les valeurs mobilières sur la BRVM","Les établissements de crédit spécialisés dans le financement des PME cotées","Les structures de notation agréées par l'AMF-UMOA","Les fonds d'investissement fermés cotés sur la BRVM"],"answer":0,"source":"Règlement Général AMF-UMOA — Art. 10"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quel est le capital minimum exigé pour une SGI ?","choices":["150 millions FCFA libérés intégralement à la constitution","50 millions FCFA","500 millions FCFA","1 milliard FCFA"],"answer":0,"source":"Règlement Général AMF-UMOA — Conditions d'agrément SGI"},
+{"cat":"Nouveaux textes 2024-2026","q":"Que désigne le 'marché primaire' dans le contexte de la BRVM ?","choices":["Le marché sur lequel les émetteurs lèvent des capitaux pour la première fois via des offres publiques","Le marché interbancaire de refinancement BCEAO","Le compartiment réservé aux grandes capitalisations de la BRVM","Le marché des obligations d'État à court terme"],"answer":0,"source":"Règlement Général AMF-UMOA — Définitions"},
+{"cat":"Nouveaux textes 2024-2026","q":"Qu'est-ce qu'une Offre Publique de Vente (OPV) sur la BRVM ?","choices":["Une procédure par laquelle un émetteur ou actionnaire offre des titres au public à un prix fixe","Une offre de rachat de ses propres actions par une société cotée","Un appel d'offres de l'État pour le placement d'obligations souveraines","Une procédure de cession de gré à gré entre institutionnels"],"answer":0,"source":"Règlement Général AMF-UMOA — Art. relatif aux offres publiques"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quel document l'émetteur doit-il obligatoirement publier avant toute introduction en bourse sur la BRVM ?","choices":["Un prospectus d'émission visé par l'AMF-UMOA","Un rapport de notation signé par une agence agréée","Un certificat de conformité SYSCOHADA délivré par un commissaire aux comptes","Un protocole d'accord signé avec la BRVM et le DC/BR"],"answer":0,"source":"Règlement Général AMF-UMOA — Art. sur le prospectus"},
+{"cat":"Nouveaux textes 2024-2026","q":"L'AMF-UMOA dispose-t-elle d'un pouvoir de sanction à l'égard des acteurs du marché ?","choices":["Oui, elle peut prononcer des sanctions disciplinaires, pécuniaires et des retraits d'agrément","Non, seul l'État membre peut sanctionner les intermédiaires de marché","Oui, mais uniquement des avertissements sans sanction pécuniaire","Non, les sanctions sont prononcées exclusivement par la Commission Bancaire"],"answer":0,"source":"Règlement Général AMF-UMOA — Titre sur les sanctions"},
+{"cat":"Nouveaux textes 2024-2026","q":"En combien de compartiments la BRVM est-elle organisée ?","choices":["Trois compartiments : actions, obligations, et un marché alternatif pour les PME","Deux compartiments : premier marché et second marché","Un compartiment unique pour toutes les valeurs mobilières","Quatre compartiments : actions, obligations, produits dérivés, ETF"],"answer":0,"source":"Règlement BRVM — Organisation des marchés"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quelles sont les conditions minimales de capitalisation pour l'admission au Premier Marché actions de la BRVM ?","choices":["Capitalisation boursière minimum et diffusion dans le public d'au moins 20 % du capital","Chiffre d'affaires minimum de 10 milliards FCFA et 3 exercices bénéficiaires","Capital social minimum de 500 millions FCFA et 5 ans d'existence","Aucune condition minimale, admission sur simple demande et visa AMF-UMOA"],"answer":0,"source":"Règlement BRVM — Conditions d'admission Premier Marché"},
+{"cat":"Nouveaux textes 2024-2026","q":"Qu'est-ce qu'une obligation assimilable du Trésor (OAT) dans l'UEMOA ?","choices":["Un titre de dette souveraine à long terme émis par un État et négociable sur le marché secondaire","Un titre de créance émis par les banques commerciales de l'UEMOA","Une obligation à coupon zéro émise par la BCEAO","Un bon du Trésor à court terme (moins de 1 an)"],"answer":0,"source":"Marché des titres publics UEMOA — BCEAO"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quel est le rôle d'un Spécialiste en Valeurs du Trésor (SVT) sur le marché UEMOA ?","choices":["Participer obligatoirement aux adjudications de titres publics et assurer la liquidité du marché secondaire","Gérer les portefeuilles obligataires pour le compte des investisseurs institutionnels","Assurer la notation des émissions obligataires souveraines","Contrôler la conformité des prospectus pour le compte de l'AMF-UMOA"],"answer":0,"source":"Cahier des charges SVT — BCEAO/UMOA-Titres"},
+{"cat":"Nouveaux textes 2024-2026","q":"Qu'est-ce que le marché monétaire de la BCEAO par rapport à la BRVM ?","choices":["Un marché distinct de la BRVM, dédié aux opérations de refinancement interbancaire et de placement à court terme","Le compartiment obligataire court terme de la BRVM","Un sous-marché de la BRVM réservé aux bons du Trésor à 3 mois","Le marché primaire des actions de la BRVM"],"answer":0,"source":"Architecture des marchés financiers UEMOA"},
+{"cat":"Nouveaux textes 2024-2026","q":"Que sont les OPCVM dans le marché financier UEMOA ?","choices":["Des Organismes de Placement Collectif en Valeurs Mobilières : SICAV et FCP agréés par l'AMF-UMOA","Des Organes de Prévention des Conflits en Valeurs Mobilières","Des Opérateurs Privés de Capital à Vocation Multinationale","Des offices de placement de capitaux pour les virements UEMOA"],"answer":0,"source":"Règlement Général AMF-UMOA — Titre OPCVM"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quelle est la différence entre une SICAV et un FCP ?","choices":["La SICAV est une société anonyme ayant la personnalité morale ; le FCP est une copropriété de valeurs mobilières sans personnalité morale","La SICAV est réservée aux institutionnels, le FCP aux particuliers","Le FCP est coté en bourse, la SICAV ne l'est pas","La SICAV est ouverte, le FCP est fermé à de nouveaux investisseurs"],"answer":0,"source":"Règlement Général AMF-UMOA — Définitions OPCVM"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quel agrément faut-il pour gérer un OPCVM dans l'UEMOA ?","choices":["L'agrément de Société de Gestion de Portefeuille (SGP) délivré par l'AMF-UMOA","L'agrément SGI délivré par la BRVM","Une simple autorisation du Ministère des Finances","L'agrément bancaire délivré par le Ministère des Finances après avis BCEAO"],"answer":0,"source":"Règlement Général AMF-UMOA — Art. sur les SGP"},
+{"cat":"Nouveaux textes 2024-2026","q":"Qu'est-ce que le capital investissement (private equity) dans l'UEMOA ?","choices":["Le financement en fonds propres d'entreprises non cotées, avec l'espoir d'une plus-value à la sortie","L'investissement en actions cotées sur la BRVM pour compte propre","Le financement obligataire des projets d'infrastructure des États membres","La prise de participation de la BCEAO dans le capital des banques en difficulté"],"answer":0,"source":"Cadre réglementaire capital-investissement AMF-UMOA"},
+{"cat":"Nouveaux textes 2024-2026","q":"Les sociétés cotées sur la BRVM sont-elles soumises à des obligations de publication périodique ?","choices":["Oui, publication trimestrielle du chiffre d'affaires et annuelle des comptes certifiés","Non, seule la publication annuelle du rapport de gestion est exigée","Oui, publication mensuelle du cours moyen de l'action","Non, les obligations de publication sont facultatives pour les PME cotées"],"answer":0,"source":"Règlement Général AMF-UMOA — Obligations des émetteurs"},
+{"cat":"Nouveaux textes 2024-2026","q":"Qu'est-ce qu'une Offre Publique d'Achat (OPA) ?","choices":["Une procédure par laquelle un acquéreur propose aux actionnaires d'une société cotée de racheter leurs titres à un prix déterminé","Une émission de nouvelles actions par une société cotée à prix préférentiel","Un rachat de ses propres actions par la société émettrice","Une procédure d'introduction en bourse réservée aux PME"],"answer":0,"source":"Règlement Général AMF-UMOA — Offres publiques"},
+{"cat":"Nouveaux textes 2024-2026","q":"L'AMF-UMOA peut-elle suspendre la cotation d'un titre sur la BRVM ?","choices":["Oui, en cas de diffusion d'informations susceptibles de perturber le marché ou d'anomalie de cours","Non, seule la BRVM peut suspendre une cotation","Oui, uniquement sur demande de l'émetteur lui-même","Non, la cotation est automatique et ne peut jamais être suspendue"],"answer":0,"source":"Règlement Général AMF-UMOA — Pouvoirs de l'AMF-UMOA"},
+{"cat":"Nouveaux textes 2024-2026","q":"Qu'est-ce que le délit d'initié sur le marché financier UEMOA ?","choices":["L'utilisation d'informations privilégiées non publiques pour réaliser des transactions sur valeurs mobilières","La manipulation des cours par des transactions fictives entre parties liées","Le défaut de déclaration de franchissement de seuil à l'AMF-UMOA","La diffusion de fausses informations sur la situation financière d'un émetteur"],"answer":0,"source":"Règlement Général AMF-UMOA — Infractions boursières"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quel est le seuil de déclaration de franchissement de participation dans une société cotée BRVM ?","choices":["5 %, puis à chaque franchissement de seuil de 5 % supplémentaires jusqu'à 95 %","10 %, puis 25 %, 50 % et 66 %","20 % et 33 % seulement","Aucun seuil ; la déclaration est volontaire"],"answer":0,"source":"Règlement Général AMF-UMOA — Franchissement de seuils"},
+{"cat":"Nouveaux textes 2024-2026","q":"Qu'est-ce qu'un Bon du Trésor Assimilable (BTA) dans l'UEMOA ?","choices":["Un instrument de dette souveraine à court terme (moins de 1 an) émis par adjudication par les Trésors nationaux","Une obligation à long terme émise par la BCEAO pour refinancer les banques","Un titre de capital émis par les États pour financer leurs infrastructures","Un instrument de transfert de risque entre États membres UEMOA"],"answer":0,"source":"Marché des Titres Publics UEMOA — UMOA-Titres"},
+{"cat":"Nouveaux textes 2024-2026","q":"UMOA-Titres est :","choices":["L'agence créée par la BCEAO pour gérer les émissions de titres publics des États membres de l'UMOA","La plateforme de négociation électronique des obligations sur la BRVM","Un fonds souverain commun aux 8 États de l'UEMOA","Le département de la BCEAO chargé de la politique monétaire"],"answer":0,"source":"Dispositif UMOA-Titres — BCEAO"},
+{"cat":"Nouveaux textes 2024-2026","q":"Comment les émissions de titres publics dans l'UEMOA sont-elles réalisées ?","choices":["Par adjudication compétitive sur la plateforme UMOA-Titres, avec des SVT comme contreparties obligatoires","Par syndication bancaire uniquement pour les émissions supérieures à 50 milliards FCFA","Par soumission directe des banques à la BCEAO sans plateforme centralisée","Par émission de gré à gré entre l'État émetteur et les banques correspondantes"],"answer":0,"source":"Manuel opérationnel UMOA-Titres"},
+{"cat":"Nouveaux textes 2024-2026","q":"La notation financière (rating) est-elle obligatoire pour une émission obligataire sur la BRVM ?","choices":["Elle est fortement recommandée et parfois imposée selon le règlement de l'AMF-UMOA pour certaines catégories d'émetteurs","Oui, obligatoire pour tous les émetteurs sans exception","Non, elle est purement facultative et sans impact sur l'admission","Oui, uniquement pour les émetteurs souverains (États membres)"],"answer":0,"source":"Règlement Général AMF-UMOA — Émissions obligataires"},
+{"cat":"Nouveaux textes 2024-2026","q":"Qu'est-ce qu'un agent de placement dans une émission obligataire BRVM ?","choices":["Un établissement financier mandaté pour collecter les souscriptions et assurer le placement des titres auprès des investisseurs","Le notaire chargé de l'authentification du prospectus d'émission","L'AMF-UMOA dans son rôle d'organisation du marché primaire","La BRVM dans son rôle de tenue du registre des titres"],"answer":0,"source":"Règlement Général AMF-UMOA — Émissions obligataires"},
+{"cat":"Nouveaux textes 2024-2026","q":"Qu'est-ce que le règlement-livraison dans le contexte du DC/BR ?","choices":["Le processus simultané de transfert des titres et du paiement correspondant entre vendeur et acheteur","La procédure de remboursement d'une obligation à l'échéance finale","Le virement des dividendes aux actionnaires par la société émettrice","Le règlement des honoraires des SGI par la BRVM"],"answer":0,"source":"Règlement DC/BR — Processus post-marché"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quel est le délai standard de règlement-livraison sur la BRVM ?","choices":["J+3 (3 jours ouvrables après la transaction)","J+1 (lendemain de la transaction)","J+5 (5 jours ouvrables)","J+0 (règlement immédiat en temps réel)"],"answer":0,"source":"Règlement BRVM — Système de règlement-livraison"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quel indice boursier principal reflète la performance du marché actions de la BRVM ?","choices":["BRVM Composite, qui regroupe toutes les valeurs actions cotées","BRVM 10, index des 10 plus grandes capitalisations uniquement","BRVM Oblig, indice obligataire de référence","UEMOA Index, calculé par la BCEAO"],"answer":0,"source":"Indices BRVM — Documentation de marché"},
+{"cat":"Nouveaux textes 2024-2026","q":"Les établissements de crédit peuvent-ils investir sans limite dans les valeurs mobilières cotées sur la BRVM ?","choices":["Non, ils sont soumis à des limites prudentielles sur leurs expositions en titres (ratios réglementaires BCEAO)","Oui, librement car la BRVM est un marché régulé par l'AMF-UMOA","Non, les banques sont interdites d'investir en actions cotées","Oui, mais uniquement dans les obligations souveraines des États UEMOA"],"answer":0,"source":"Circulaire BCEAO sur les investissements des banques + Bâle III UEMOA"},
+{"cat":"Nouveaux textes 2024-2026","q":"Qu'est-ce qu'un fonds commun de titrisation de créances (FCT) dans l'UEMOA ?","choices":["Un véhicule de titrisation qui acquiert des créances et émet des titres adossés à ces créances sur le marché","Un OPCVM spécialisé dans les créances douteuses des banques","Un fonds géré par la BCEAO pour refinancer les crédits immobiliers","Une filiale de banque spécialisée dans le rachat de créances en souffrance"],"answer":0,"source":"Règlement AMF-UMOA sur la titrisation"},
+{"cat":"Nouveaux textes 2024-2026","q":"La BRVM est-elle ouverte aux investisseurs non-résidents UEMOA ?","choices":["Oui, des investisseurs étrangers peuvent acquérir des valeurs mobilières sous réserve de la réglementation des changes","Non, seuls les ressortissants des États membres UEMOA peuvent investir sur la BRVM","Oui, sans aucune restriction réglementaire","Non, les non-résidents doivent passer par un SGI UEMOA uniquement"],"answer":0,"source":"Règlement Général AMF-UMOA + Règlement RFE — Investissements étrangers"},
+{"cat":"Nouveaux textes 2024-2026","q":"Qu'est-ce que l'émission obligataire par appel public à l'épargne (APE) dans l'UEMOA ?","choices":["Une offre de titres de créance adressée au public, soumise au visa obligatoire de l'AMF-UMOA","Un programme de bons du Trésor réservé aux particuliers","Une émission interbancaire de certificats de dépôt négociables","Un placement privé auprès d'investisseurs qualifiés sans visa AMF-UMOA"],"answer":0,"source":"Instruction AMF-UMOA 11/07/2025 — Appel public à l'épargne"},
+{"cat":"Nouveaux textes 2024-2026","q":"La protection des investisseurs sur le marché UEMOA est assurée notamment par :","choices":["L'obligation de prospectus visé, la lutte contre les délits de marché et le fonds de garantie des investisseurs","La garantie inconditionnelle de la BCEAO sur toutes les valeurs cotées","La notation obligatoire de toutes les valeurs par une agence agréée","L'assurance obligatoire des portefeuilles titres par les assureurs CIMA"],"answer":0,"source":"Règlement Général AMF-UMOA — Titre protection des investisseurs"},
+{"cat":"Nouveaux textes 2024-2026","q":"Les dividendes perçus par un non-résident UEMOA d'une société cotée BRVM sont-ils librement transférables ?","choices":["Oui, sous réserve du respect de la réglementation des changes applicable (Règlement RFE 06/2024)","Non, ils sont bloqués dans l'État de cotation pendant 1 an","Oui, librement sans aucune déclaration préalable","Non, ils sont réinvestis obligatoirement dans la zone UEMOA"],"answer":0,"source":"Règlement RFE UEMOA 06/2024 — Investissements étrangers"},
+{"cat":"Nouveaux textes 2024-2026","q":"Que couvre la notion de 'manipulation de cours' sur le marché boursier UEMOA ?","choices":["Toute opération artificielle visant à influencer le cours d'un titre à la hausse ou à la baisse de manière trompeuse","La publication d'études d'analystes favorables sur une valeur","L'achat massif de titres par un investisseur institutionnel","La réalisation d'un programme de rachat d'actions par l'émetteur"],"answer":0,"source":"Règlement Général AMF-UMOA — Abus de marché"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quel est le rôle du Conseil Régional de l'Épargne Publique et des Marchés Financiers (CREPMF) aujourd'hui ?","choices":["Il a été remplacé par l'AMF-UMOA qui reprend ses attributions de régulation du marché financier régional","Il continue de réguler le compartiment obligataire uniquement","Il est devenu le département 'Marchés Financiers' de la BCEAO","Il supervise désormais uniquement les OPCVM dans l'UEMOA"],"answer":0,"source":"Décision n°01/2023/AMF-UMOA — Création AMF-UMOA"},
+{"cat":"Nouveaux textes 2024-2026","q":"Que signifie l'acronyme COBAC ?","choices":["Commission Bancaire de l'Afrique Centrale","Comité des Banques et Assurances CEMAC","Conseil des Opérateurs Bancaires d'Afrique Centrale","Commission de Bâle pour l'Afrique Centrale"],"answer":0,"source":"Convention COBAC du 16/10/1990 — Préambule"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quels sont les États membres de la CEMAC soumis à la supervision de la COBAC ?","choices":["Cameroun, Centrafrique, Congo, Gabon, Guinée Équatoriale, Tchad","Cameroun, Côte d'Ivoire, Gabon, Sénégal, Congo, Niger","Gabon, Cameroun, RDC, Angola, Congo, Guinée Équatoriale","Tchad, Niger, Mali, Cameroun, Congo, Centrafrique"],"answer":0,"source":"Traité CEMAC — États membres"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quelle est la monnaie commune des États membres de la CEMAC ?","choices":["Le Franc CFA BEAC (XAF), émis par la Banque des États de l'Afrique Centrale","Le Franc CFA BCEAO (XOF), identique à celui de l'UEMOA","Le Franc CEMAC, distinct du Franc CFA","L'Euro, suite aux accords de coopération monétaire franco-africaine"],"answer":0,"source":"Traité CEMAC — Union Monétaire de l'Afrique Centrale"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quelle est la banque centrale commune des États de la CEMAC ?","choices":["La BEAC (Banque des États de l'Afrique Centrale)","La BCEAO (Banque Centrale des États de l'Afrique de l'Ouest)","La Banque Centrale de l'Afrique Centrale (BCAC)","La Banque Africaine de Développement (BAD)"],"answer":0,"source":"Traité CEMAC — Architecture monétaire"},
+{"cat":"Nouveaux textes 2024-2026","q":"Où est établi le siège de la COBAC ?","choices":["Yaoundé, Cameroun","Libreville, Gabon","Brazzaville, Congo","Bangui, Centrafrique"],"answer":0,"source":"Convention COBAC 1990 — Art. 2"},
+{"cat":"Nouveaux textes 2024-2026","q":"La COBAC est-elle compétente pour superviser les établissements de microfinance en zone CEMAC ?","choices":["Oui, la COBAC supervise les Établissements de Microfinance (EMF) depuis le Règlement COBAC EMF-2002","Non, les EMF relèvent exclusivement des ministères des Finances nationaux","Oui, mais uniquement les EMF dont le bilan dépasse 5 milliards FCFA","Non, les EMF CEMAC sont supervisés par la BEAC directement"],"answer":0,"source":"Règlement COBAC EMF-2002 — Art. 1"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quel est l'organe compétent pour délivrer l'agrément aux banques en zone CEMAC ?","choices":["Le Ministre des Finances de l'État membre, après avis conforme de la COBAC","La COBAC directement sans intervention des États membres","La BEAC sur délégation du Comité Ministériel de l'UMAC","Le Comité Ministériel de l'UMAC seul"],"answer":0,"source":"Règlement n°01/03/CEMAC/UMAC/COBAC — Art. 10"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quel est le capital social minimum requis pour créer une banque en zone CEMAC ?","choices":["10 milliards FCFA CFA depuis le relèvement des exigences prudentielles COBAC","1 milliard FCFA comme dans l'UEMOA","500 millions FCFA","5 milliards FCFA"],"answer":0,"source":"Règlement COBAC — Exigences minimales en capital"},
+{"cat":"Nouveaux textes 2024-2026","q":"La COBAC dispose-t-elle d'un pouvoir de sanction disciplinaire directe sur les banques ?","choices":["Oui, elle peut prononcer des sanctions allant de l'avertissement au retrait d'agrément","Non, seul le Ministre des Finances peut sanctionner les banques","Oui, mais uniquement pour les banques à capitaux étrangers","Non, les sanctions sont prononcées par le Tribunal de Commerce"],"answer":0,"source":"Convention COBAC 1990 — Art. 15-16"},
+{"cat":"Nouveaux textes 2024-2026","q":"Les banques de la CEMAC peuvent-elles ouvrir des succursales dans un autre État CEMAC ?","choices":["Oui, avec une notification à la COBAC et après agrément de l'État d'accueil","Oui, librement grâce à la liberté d'établissement CEMAC","Non, chaque État exige la création d'une filiale de droit local","Non, les succursales intracommunautaires sont interdites par la COBAC"],"answer":0,"source":"Règlement n°01/03/CEMAC/UMAC/COBAC — Art. sur les succursales"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quel est le ratio de solvabilité (ratio Cooke / Bâle) applicable aux banques CEMAC selon les normes COBAC ?","choices":["8 % minimum de fonds propres par rapport aux risques pondérés (ratio international minimum)","5 % comme norme africaine spécifique COBAC","10 % en zone CEMAC, plus strict que Bâle","12,5 % depuis l'adoption de Bâle III intégral par la COBAC"],"answer":0,"source":"Règlements prudentiels COBAC — Ratio de solvabilité"},
+{"cat":"Nouveaux textes 2024-2026","q":"Les normes de la COBAC prévoient-elles un ratio de liquidité spécifique ?","choices":["Oui, le coefficient de liquidité exige que les actifs liquides couvrent les exigibilités à court terme","Non, la liquidité est laissée à l'appréciation de chaque banque","Oui, les banques CEMAC doivent maintenir un LCR de 100 % comme Bâle III","Non, seul le ratio de solvabilité est imposé par la COBAC"],"answer":0,"source":"Règlement COBAC R-93/13 — Coefficient de liquidité"},
+{"cat":"Nouveaux textes 2024-2026","q":"Qu'est-ce que le ratio de couverture des risques selon la COBAC ?","choices":["Le rapport entre les fonds propres effectifs et l'ensemble des risques pondérés de la banque","Le rapport entre les créances douteuses et le total des crédits","Le rapport entre les dépôts collectés et les crédits accordés","Le rapport entre les réserves obligatoires et les dépôts à vue"],"answer":0,"source":"Règlement COBAC — Ratios prudentiels"},
+{"cat":"Nouveaux textes 2024-2026","q":"La COBAC a-t-elle adopté les recommandations de Bâle III ?","choices":["Partiellement ; la CEMAC intègre progressivement certains éléments de Bâle III tout en maintenant des normes spécifiques","Oui, intégralement depuis 2015","Non, la COBAC maintient uniquement les normes de Bâle I","Non, la COBAC applique ses propres normes sans référence aux accords de Bâle"],"answer":0,"source":"Réforme prudentielle COBAC 2017-2022"},
+{"cat":"Nouveaux textes 2024-2026","q":"Qu'est-ce que la division des risques dans la réglementation COBAC ?","choices":["L'obligation de ne pas concentrer les risques sur un seul bénéficiaire au-delà d'un pourcentage des fonds propres","La répartition des risques entre les différentes activités d'une banque","La mutualisation des risques au sein d'un groupe bancaire CEMAC","La cession d'une partie des créances à la BEAC pour en diviser le risque"],"answer":0,"source":"Règlement COBAC R-93/13 — Division des risques"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quel organisme assure la garantie des dépôts bancaires en zone CEMAC ?","choices":["Le Fonds de Garantie des Dépôts en Afrique Centrale (FOGADAC)","La BEAC via son département de stabilité financière","La COBAC via son fonds d'intervention d'urgence","Aucun mécanisme régional ; chaque État dispose d'un fonds national"],"answer":0,"source":"Dispositif FOGADAC CEMAC"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quel est le texte de référence LBC/FT spécifique à la zone CEMAC ?","choices":["Le Règlement CEMAC n°01/03 relatif à la prévention et la répression du blanchiment des capitaux","La Directive LBC/FT UEMOA transposée en zone CEMAC","L'Instruction COBAC n°001/2019 sur la lutte contre le blanchiment","La Convention de Vienne adaptée par la CEMAC"],"answer":0,"source":"Règlement CEMAC n°01/03 LBC/FT"},
+{"cat":"Nouveaux textes 2024-2026","q":"Le GABAC est-il l'équivalent du GIABA pour la zone CEMAC ?","choices":["Oui, le GABAC (Groupe d'Action contre le Blanchiment d'Argent en Afrique Centrale) joue ce rôle pour la CEMAC","Non, le GABAC est un organe interne de la BEAC","Non, le GIABA couvre également la zone CEMAC","Oui, mais le GABAC est désormais fusionné avec le GIABA"],"answer":0,"source":"Architecture LBC/FT Afrique — GIABA/GABAC"},
+{"cat":"Nouveaux textes 2024-2026","q":"Les établissements de crédit CEMAC sont-ils tenus à une déclaration de soupçon (DS) ?","choices":["Oui, ils doivent déclarer toute opération suspecte à l'ANIF (Agence Nationale d'Investigation Financière) nationale","Non, la DS n'existe pas en zone CEMAC","Oui, directement à la COBAC sans passer par une ANIF nationale","Non, seules les banques panafricaines sont tenues à la DS"],"answer":0,"source":"Règlement CEMAC LBC/FT — Art. sur la DS"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quelle obligation de vigilance s'applique aux clients à haut risque dans les banques CEMAC ?","choices":["Une vigilance renforcée : identification approfondie, suivi permanent des transactions, approbation hiérarchique","Une vigilance simplifiée car ces clients sont déjà identifiés","Aucune obligation supplémentaire si le client est domicilié dans un État CEMAC","La clôture automatique du compte sur décision de la COBAC"],"answer":0,"source":"Règlement CEMAC LBC/FT — Vigilance renforcée"},
+{"cat":"Nouveaux textes 2024-2026","q":"La CEMAC comporte-t-elle une bourse des valeurs régionale équivalente à la BRVM ?","choices":["Oui, la Bourse des Valeurs Mobilières de l'Afrique Centrale (BVMAC) basée à Libreville","Non, les États CEMAC n'ont pas de marché boursier régional commun","Oui, la Bourse de Douala (BVD) qui couvre toute la zone CEMAC","Non, les actions ne sont pas cotées en zone CEMAC"],"answer":0,"source":"BVMAC — Marché financier CEMAC"},
+{"cat":"Nouveaux textes 2024-2026","q":"Qu'est-ce que la COSUMAF en zone CEMAC ?","choices":["La Commission de Surveillance du Marché Financier de l'Afrique Centrale, équivalent de l'AMF-UMOA","Le Comité de Supervision des Mutuelles d'Afrique Francophone","La Commission de Sécurité des Marchés Alimentaires CEMAC","Le Conseil de Surveillance des Marchés et des Finances BEAC"],"answer":0,"source":"Règlement COSUMAF CEMAC"},
+{"cat":"Nouveaux textes 2024-2026","q":"Les banques CEMAC peuvent-elles avoir des liens capitalistiques avec des assureurs sous le régime CIMA ?","choices":["Oui, sous réserve des règles de participation COBAC et des limitations prudentielles","Non, la bancassurance est formellement interdite en zone CEMAC","Oui, librement car le Code CIMA n'impose pas de restriction","Non, les banques et assureurs doivent être des entités totalement indépendantes"],"answer":0,"source":"Règlements prudentiels COBAC + Code CIMA"},
+{"cat":"Nouveaux textes 2024-2026","q":"La BEAC fixe-t-elle des réserves obligatoires pour les banques CEMAC ?","choices":["Oui, les établissements de crédit CEMAC sont soumis à des réserves obligatoires auprès de la BEAC","Non, les réserves obligatoires ont été supprimées dans la zone CEMAC","Oui, mais uniquement pour les banques à capitaux étrangers","Non, la COBAC gère les réserves obligatoires indépendamment de la BEAC"],"answer":0,"source":"Politique monétaire BEAC — Réserves obligatoires"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quelle est la mission principale de la COBAC selon sa convention constitutive ?","choices":["Veiller à la solvabilité et à la liquidité des établissements de crédit CEMAC et à la protection des déposants","Émettre la monnaie unique de la zone CEMAC","Réguler les marchés de capitaux de la CEMAC","Financer les États membres en cas de déséquilibre budgétaire"],"answer":0,"source":"Convention COBAC 1990 — Art. 1"},
+{"cat":"Nouveaux textes 2024-2026","q":"Les normes comptables applicables aux banques CEMAC sont-elles les mêmes que dans l'UEMOA ?","choices":["Non, les banques CEMAC appliquent le Plan Comptable des Établissements de Crédit (PCEC) COBAC, distinct du PCB UMOA","Oui, le PCB UMOA est harmonisé et commun aux deux zones","Non, les banques CEMAC utilisent les IFRS intégralement","Oui, le SYSCOHADA révisé s'applique uniformément aux banques des deux zones"],"answer":0,"source":"PCEC COBAC vs PCB UMOA — Comparatif"},
+{"cat":"Nouveaux textes 2024-2026","q":"Un établissement de crédit UEMOA peut-il s'établir dans un pays CEMAC par simple passeport réglementaire ?","choices":["Non, UEMOA et CEMAC sont deux espaces réglementaires distincts nécessitant chacun un agrément spécifique","Oui, grâce à l'appartenance commune à l'Union Africaine","Oui, si la BCEAO et la BEAC signent un accord de reconnaissance mutuelle","Non, sauf pour les banques cotées sur la BRVM qui bénéficient d'un régime spécial"],"answer":0,"source":"Architecture réglementaire CEMAC vs UEMOA"},
+{"cat":"Nouveaux textes 2024-2026","q":"Qu'est-ce que le Comité Ministériel de l'UMAC dans le système CEMAC ?","choices":["L'instance politique de décision de l'Union Monétaire de l'Afrique Centrale, supervisée par les Ministres des Finances CEMAC","Le comité de supervision bancaire équivalent de la Commission Bancaire UMOA","L'organe de gestion de la BEAC en lieu et place du Conseil d'Administration","Le comité de coordination des politiques fiscales des États CEMAC"],"answer":0,"source":"Traité CEMAC — Architecture institutionnelle UMAC"},
+{"cat":"Nouveaux textes 2024-2026","q":"Les banques CEMAC sont-elles soumises à des obligations de reporting à la BEAC ?","choices":["Oui, elles transmettent des états de situation et de résultats à la BEAC pour les besoins de la politique monétaire","Non, le reporting est exclusivement à destination de la COBAC","Oui, mais uniquement pour les banques dont les dépôts dépassent 100 milliards FCFA","Non, la BEAC ne collecte pas de données auprès des banques commerciales"],"answer":0,"source":"Dispositif statistique BEAC — Collecte données bancaires"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quelle procédure s'applique en CEMAC pour le redressement d'une banque en difficulté ?","choices":["La COBAC peut nommer un administrateur provisoire et imposer un plan de redressement avant retrait d'agrément","La liquidation judiciaire immédiate sans phase de redressement","Le rachat obligatoire par une banque saine désignée par la BEAC","La recapitalisation d'office par les États membres selon leur quote-part CEMAC"],"answer":0,"source":"Convention COBAC 1990 — Mesures correctives"},
+{"cat":"Nouveaux textes 2024-2026","q":"Les billets de banque BEAC et BCEAO sont-ils interchangeables dans les États membres respectifs ?","choices":["Non, bien que liés tous deux à l'euro au même taux, le FCFA BEAC et le FCFA BCEAO sont deux monnaies distinctes non interchangeables automatiquement","Oui, le FCFA est une monnaie unique couvrant UEMOA et CEMAC","Oui, depuis un accord de 2019 unifiant les deux zones monétaires","Non, et leur taux de change varie quotidiennement sur le marché interbancaire"],"answer":0,"source":"Architecture monétaire Afrique francophone — FCFA BEAC vs BCEAO"},
+{"cat":"Nouveaux textes 2024-2026","q":"La COBAC peut-elle mener des inspections sur place dans les banques CEMAC ?","choices":["Oui, la COBAC dispose d'un droit d'inspection sur place et sur pièces dans tous les établissements agréés","Non, les inspections sont menées par les Ministères nationaux uniquement","Oui, mais uniquement sur pièces sans droit d'accès physique aux locaux","Non, les inspections sont déléguées aux banques centrales nationales CEMAC"],"answer":0,"source":"Convention COBAC 1990 — Art. 11 (droit d'inspection)"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quel est le régime de la monnaie électronique en zone CEMAC ?","choices":["Régi par un règlement BEAC spécifique sur la monnaie électronique, distinct du régime UEMOA","Soumis au même règlement que l'UEMOA par harmonisation panafricaine","Non réglementé, laissé à la discrétion de chaque État membre CEMAC","Interdit aux non-banques ; seules les banques COBAC peuvent émettre de la monnaie électronique"],"answer":0,"source":"Règlement BEAC sur la monnaie électronique CEMAC"},
+{"cat":"Nouveaux textes 2024-2026","q":"Qu'est-ce que le marché monétaire de la BEAC ?","choices":["Le marché interbancaire sur lequel les banques CEMAC s'échangent des liquidités et la BEAC conduit sa politique monétaire","Le marché des obligations souveraines des États CEMAC","La plateforme d'adjudication des bons du Trésor de la BEAC","Le système de paiement de gros montants de la zone CEMAC"],"answer":0,"source":"Politique monétaire BEAC — Marché monétaire"},
+{"cat":"Nouveaux textes 2024-2026","q":"Les groupes bancaires panafricains présents simultanément en UEMOA et CEMAC doivent-ils obtenir deux agréments distincts ?","choices":["Oui, un agrément dans chaque zone selon les règles de la Commission Bancaire UMOA et de la COBAC respectivement","Non, un agrément unique est accordé par la BCEAO et reconnu par la BEAC","Non, l'appartenance à la zone franc suffit pour opérer dans les deux espaces","Oui, mais un régime de reconnaissance mutuelle BCEAO-BEAC simplifie la procédure"],"answer":0,"source":"Architecture réglementaire CEMAC/UEMOA — Agréments"},
+{"cat":"Nouveaux textes 2024-2026","q":"En zone CEMAC, quel est le régime applicable aux comptes en devises des résidents ?","choices":["Les résidents CEMAC peuvent détenir des comptes en devises sous conditions fixées par le règlement des changes BEAC","Les comptes en devises sont interdits aux résidents CEMAC","Les résidents peuvent librement ouvrir des comptes en devises sans restriction","Seules les sociétés exportatrices sont autorisées à détenir des devises"],"answer":0,"source":"Réglementation des changes BEAC — Comptes en devises résidents"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quel instrument la BEAC utilise-t-elle principalement pour conduire sa politique monétaire ?","choices":["Les opérations d'open market (appels d'offres de liquidités) et les facilités permanentes","Le contrôle direct du crédit par attribution de plafonds aux banques","La fixation administrative des taux débiteurs des banques commerciales","Les réserves d'or conservées à la Banque de France"],"answer":0,"source":"Politique monétaire BEAC — Cadre opérationnel"},
+{"cat":"Nouveaux textes 2024-2026","q":"Les établissements de microfinance (EMF) CEMAC sont classés en combien de catégories par le règlement COBAC ?","choices":["Trois catégories selon le niveau d'activité et les opérations autorisées","Deux catégories : EMF de base et EMF réseau","Quatre catégories selon la zone géographique d'opération","Une seule catégorie soumise au même régime que les banques"],"answer":0,"source":"Règlement COBAC EMF-2002 — Classification"},
+{"cat":"Nouveaux textes 2024-2026","q":"Quelle est la principale différence entre la Commission Bancaire UMOA et la COBAC ?","choices":["La CB UMOA est un organe commun BCEAO-UEMOA intégré à la BCEAO ; la COBAC est une institution indépendante créée par convention spécifique","La COBAC a un pouvoir de sanction pénale, la CB UMOA uniquement disciplinaire","La CB UMOA supervise aussi les assurances, la COBAC uniquement les banques","Il n'existe aucune différence structurelle entre les deux institutions"],"answer":0,"source":"Comparatif institutionnel UMOA/CEMAC"},
+{"cat":"Nouveaux textes 2024-2026","q":"Les normes de publication d'informations financières (Pilier 3 Bâle) s'appliquent-elles aux banques CEMAC ?","choices":["Partiellement ; la COBAC a introduit des obligations de publication progressivement dans le cadre de son plan de réforme prudentielle","Non, la transparence financière n'est pas réglementée par la COBAC","Oui, intégralement depuis 2018 avec le même niveau d'exigence que l'Union Européenne","Non, seule la transmission d'informations à la COBAC est exigée sans publication publique"],"answer":0,"source":"Réforme prudentielle COBAC — Pilier 3"}
 ];
 
 
