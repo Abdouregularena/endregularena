@@ -338,15 +338,6 @@ h2,h3{animation:raReveal .45s ease both;}
     @media(prefers-reduced-motion:reduce){.ra-reveal{opacity:1;transform:none;transition:none;}}
   </style>
   <script>
-// MODIFIÉ : stub SP immédiat pour éviter ReferenceError sur les boutons HTML
-function SP(id){
-  var fn = window._SP_real;
-  if(fn) return fn(id);
-  // Attendre que le vrai SP soit chargé
-  document.addEventListener('DOMContentLoaded', function(){ if(window._SP_real) window._SP_real(id); });
-}
-</script>
-<script>
   (function(){
     var els=document.querySelectorAll('#ra-steps .ra-reveal');
     if(!('IntersectionObserver' in window)){els.forEach(function(e){e.classList.add('ra-in');});return;}
@@ -1214,7 +1205,7 @@ var AR = {
 /* ════════════════════════════════════════════════
    UTILITAIRES
 ════════════════════════════════════════════════ */
-window._SP_real = window.SP = function SP(id){
+function SP(id){
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
   document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
