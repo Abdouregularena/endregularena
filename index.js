@@ -20,7 +20,8 @@ const { pickQuestions } = require('./packs'); // FIX anti-triche : source serveu
 
 /* â”€â”€ CONFIG â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const PORT         = process.env.PORT || 3000;
-const JWT_SECRET   = process.env.JWT_SECRET || 'changez-moi-en-production';
+const JWT_SECRET   = process.env.JWT_SECRET; // MODIFIÉ — crash guard : JWT_SECRET obligatoire en production
+if (!JWT_SECRET) { console.error('❌ FATAL : JWT_SECRET non défini dans les variables d\'env Railway. Arrêt du serveur.'); process.exit(1); }
 const RESEND_KEY   = process.env.RESEND_API_KEY || '';
 const FROM_EMAIL   = process.env.FROM_EMAIL || 'noreply@regularena.com';
 // SOURCE DE VERITE UNIQUE
@@ -2033,12 +2034,8 @@ app.get('/admin/stats', requireAdmin, (req, res) => {
   }
 });
 
-// GET /setup-admin-x7k2 — promotion one-shot de l'email admin (route secrète)
-app.get('/setup-admin-x7k2', (req, res) => {
-  db.prepare("UPDATE users SET role='admin' WHERE email='abdou.ndao@regularena.com'").run();
-  const user = db.prepare("SELECT id,email,role FROM users WHERE email=?").get('abdou.ndao@regularena.com');
-  res.json(user);
-});
+// MODIFIÉ — route /setup-admin-x7k2 supprimée (sécurité : accès non authentifié → promotion admin possible par n'importe qui)
+// Pour promouvoir un admin : UPDATE users SET role='admin' WHERE email='abdou.ndao@regularena.com' via Railway DB console
 
 // GET /admin/users — liste des 200 derniers inscrits
 app.get('/admin/users', requireAdmin, (req, res) => {
@@ -2128,6 +2125,6 @@ function publicUser(u) {
 app.listen(PORT, () => {
   console.log(`âœ… REGUL ARENA API â€” port ${PORT}`);
   console.log(`   DB : regularena.db`);
-  console.log(`   JWT_SECRET : ${JWT_SECRET === 'changez-moi-en-production' ? 'âš  PAR DÃ‰FAUT â€” &#224; changer' : 'âœ“ configur&#233;'}`);
+  console.log(`   JWT_SECRET : ✔ configuré`); // MODIFIÉ
   console.log(`   RESEND_KEY : ${RESEND_KEY ? 'âœ“ configur&#233;' : 'âš  manquant â€” emails d&#233;sactiv&#233;s'}`);
 });
