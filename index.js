@@ -278,14 +278,14 @@ app.use(helmet({
       scriptSrcAttr: ["'unsafe-inline'"],   // autorise onclick= et autres event handlers inline
       styleSrc:      ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc:       ["'self'", "https://fonts.gstatic.com"],
-      connectSrc: ["'self'", "https://www.regularena.com", "https://regularena.com", "https://endregularena-production.up.railway.app", "https://b9lfb0tu.up.railway.app"], // MODIFIÉ
+      connectSrc: ["'self'", "https://www.regularena.com", "https://regularena.com", "https://endregularena-production.up.railway.app", "https://endregularena-production-b268.up.railway.app"], // MODIFIÉ
       imgSrc:        ["'self'", "data:"],
       frameAncestors:["'none'"],
     },
   },
 }));
 app.use((req, res, next) => {
-   const allowed = ['https://www.regularena.com','https://regularena.com','https://endregularena-production.up.railway.app','https://b9lfb0tu.up.railway.app']; // MODIFIÉ — nouveau domaine Railway
+   const allowed = ['https://www.regularena.com','https://regularena.com','https://endregularena-production.up.railway.app','https://endregularena-production-b268.up.railway.app']; // MODIFIÉ — nouveau domaine Railway
   if (allowed.includes(req.headers.origin)) res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
