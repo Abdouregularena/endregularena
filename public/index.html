@@ -194,6 +194,100 @@ h2,h3{animation:raReveal .45s ease both;}
 .card-module-v2{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:all .4s cubic-bezier(.16,1,.3,1);position:relative;}
 .card-module-v2:hover{transform:translateY(-5px);border-color:rgba(245,196,83,.4);box-shadow:0 15px 30px rgba(0,0,0,.25);}
 .card-badge-v2{position:absolute;top:18px;right:18px;background:rgba(0,180,216,.1);color:var(--green);padding:4px 10px;border-radius:30px;font-size:.7rem;font-weight:700;border:1px solid rgba(0,180,216,.2);}
+/* MODIFIÉ : styles module Métiers */
+#page-metiers,.metiers-hero,.metiers-grid-section,.metiers-grid,.metier-card,.metier-card:hover,.metier-card.active-metier,.metier-card.active-metier .metier-card-title,.metier-card.active-metier .metier-card-sub,.metier-card.active-metier .metier-card-icon,.metier-card-badge,.metier-card-icon,.metier-card-title,.metier-card-sub,.metier-card.locked,.metier-card.locked:hover,.metier-detail,.metier-detail.open,.metier-detail-header,.metier-detail-header h2,.metier-detail-header p,.metier-detail-header .metier-score-bar,.metier-score-label,.metier-score-track,.metier-score-fill,.metier-score-pct,.metier-tabs,.metier-tabs::-webkit-scrollbar,.metier-tab,.metier-tab.active,.metier-tab-content,.metier-tab-content.active,.metier-block,.metier-block-title,.metier-tag-list,.metier-tag,.metier-tag.gold,.metier-tag.done,.metier-prereq-list,.metier-prereq-list li,.metier-prereq-list li:last-child,.metier-prereq-list li::before,.metier-texte-item,.metier-texte-item:hover,.metier-texte-ref,.metier-texte-name,.metier-texte-scope,.metier-texte-btn,.metier-texte-btn:hover,.metier-actions,.metier-action-btn,.metier-action-btn:hover,.metier-action-btn .action-icon,.metier-action-btn .action-label,.metier-action-btn .action-sub,.quiz-vf-container,.quiz-vf-progress,.quiz-vf-progress-bar,.quiz-vf-progress-fill,.quiz-vf-counter,.quiz-vf-card,.quiz-vf-category,.quiz-vf-question,.quiz-vf-btns,.quiz-vf-btn,.quiz-vf-btn.vrai,.quiz-vf-btn.faux,.quiz-vf-btn:hover,.quiz-vf-btn:disabled,.quiz-vf-feedback,.quiz-vf-feedback.correct,.quiz-vf-feedback.wrong,.quiz-vf-feedback-title,.quiz-vf-feedback-expl,.quiz-vf-next,.quiz-vf-next:hover,.quiz-vf-result,.quiz-vf-result-score,.quiz-vf-result-score span,.quiz-vf-result-label,.quiz-vf-result-medal,.quiz-vf-result-btns,.quiz-vf-result-btn,.quiz-vf-result-btn.primary,.quiz-vf-result-btn.secondary,.quiz-vf-result-btn:hover,.metiers-hero-eyebrow,.metiers-hero h1,.metiers-hero h1 em,.metiers-hero-sub,.metiers-section-label,.metiers-grid-section{box-sizing:border-box;}
+.metiers-hero{background:linear-gradient(135deg,#002B5C 0%,#001a3a 60%,#0a1f3d 100%);padding:48px 20px 36px;text-align:center;position:relative;overflow:hidden;}
+.metiers-hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 60% 40%,rgba(201,153,26,.08) 0%,transparent 60%);pointer-events:none;}
+.metiers-hero-eyebrow{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#C9991A;margin-bottom:12px;font-weight:600;}
+.metiers-hero h1{font-family:'Playfair Display',serif;font-size:clamp(26px,5vw,42px);color:#fff;margin:0 0 14px;line-height:1.15;}
+.metiers-hero h1 em{color:#C9991A;font-style:normal;}
+.metiers-hero-sub{font-size:14px;color:rgba(255,255,255,.65);max-width:480px;margin:0 auto;line-height:1.6;}
+.metiers-grid-section{padding:36px 16px;max-width:900px;margin:0 auto;}
+.metiers-section-label{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:#002B5C;font-weight:700;margin-bottom:20px;padding-bottom:8px;border-bottom:2px solid #C9991A;display:inline-block;}
+.metiers-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:32px;}
+.metier-card{background:#fff;border-radius:12px;padding:20px 14px;text-align:center;cursor:pointer;transition:all .2s ease;border:2px solid transparent;box-shadow:0 2px 8px rgba(0,43,92,.07);position:relative;}
+.metier-card:hover{border-color:#C9991A;transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,43,92,.13);}
+.metier-card.active-metier{border-color:#002B5C;background:#002B5C;}
+.metier-card.active-metier .metier-card-title,.metier-card.active-metier .metier-card-sub{color:#fff;}
+.metier-card-badge{position:absolute;top:8px;right:8px;background:#C9991A;color:#fff;font-size:9px;font-weight:700;letter-spacing:1px;padding:2px 6px;border-radius:20px;text-transform:uppercase;}
+.metier-card-icon{font-size:28px;margin-bottom:10px;display:block;}
+.metier-card-title{font-size:13px;font-weight:700;color:#002B5C;margin-bottom:4px;line-height:1.2;}
+.metier-card-sub{font-size:10px;color:#888;line-height:1.4;}
+.metier-card.locked{opacity:.5;cursor:not-allowed;}
+.metier-card.locked:hover{transform:none;border-color:transparent;}
+.metier-detail{display:none;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,43,92,.10);margin-top:8px;}
+.metier-detail.open{display:block;}
+.metier-detail-header{background:linear-gradient(135deg,#002B5C,#003d7a);padding:28px 24px 24px;position:relative;}
+.metier-detail-header h2{font-family:'Playfair Display',serif;color:#fff;font-size:22px;margin:0 0 6px;}
+.metier-detail-header p{color:rgba(255,255,255,.7);font-size:13px;margin:0;max-width:520px;line-height:1.5;}
+.metier-score-bar{margin-top:16px;display:flex;align-items:center;gap:10px;}
+.metier-score-label{font-size:11px;color:rgba(255,255,255,.6);white-space:nowrap;}
+.metier-score-track{flex:1;height:6px;background:rgba(255,255,255,.15);border-radius:3px;overflow:hidden;}
+.metier-score-fill{height:100%;background:#C9991A;border-radius:3px;transition:width .6s ease;width:0%;}
+.metier-score-pct{font-size:13px;font-weight:700;color:#C9991A;min-width:36px;text-align:right;}
+.metier-tabs{display:flex;border-bottom:1px solid #eee;background:#fafafa;overflow-x:auto;scrollbar-width:none;}
+.metier-tabs::-webkit-scrollbar{display:none;}
+.metier-tab{padding:14px 18px;font-size:12px;font-weight:600;color:#888;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s;background:none;border-left:none;border-right:none;border-top:none;letter-spacing:.5px;}
+.metier-tab.active{color:#002B5C;border-bottom-color:#C9991A;background:#fff;}
+.metier-tab-content{display:none;padding:24px;}
+.metier-tab-content.active{display:block;}
+.metier-block{margin-bottom:24px;}
+.metier-block-title{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#C9991A;margin-bottom:12px;}
+.metier-tag-list{display:flex;flex-wrap:wrap;gap:8px;}
+.metier-tag{background:#F5F3EE;border:1px solid #e0ddd7;color:#002B5C;font-size:12px;padding:6px 12px;border-radius:20px;font-weight:500;}
+.metier-tag.gold{background:#fff8e6;border-color:#C9991A;color:#7a5c00;}
+.metier-tag.done{background:#e6f4ea;border-color:#34a853;color:#1a6b30;}
+.metier-prereq-list{list-style:none;padding:0;margin:0;}
+.metier-prereq-list li{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #f0ede8;font-size:13px;color:#333;line-height:1.5;}
+.metier-prereq-list li:last-child{border-bottom:none;}
+.metier-prereq-list li::before{content:'▸';color:#C9991A;font-size:12px;margin-top:2px;flex-shrink:0;}
+.metier-texte-item{background:#F5F3EE;border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;transition:background .2s;}
+.metier-texte-item:hover{background:#ede9e0;}
+.metier-texte-ref{font-size:10px;font-weight:700;letter-spacing:1px;color:#C9991A;text-transform:uppercase;margin-bottom:3px;}
+.metier-texte-name{font-size:13px;color:#002B5C;font-weight:600;line-height:1.3;}
+.metier-texte-scope{font-size:11px;color:#888;margin-top:3px;}
+.metier-texte-btn{background:#002B5C;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .2s;}
+.metier-texte-btn:hover{background:#C9991A;}
+.metier-actions{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-top:8px;}
+.metier-action-btn{background:#002B5C;color:#fff;border:none;border-radius:12px;padding:18px 12px;text-align:center;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:8px;}
+.metier-action-btn:hover{background:#C9991A;transform:translateY(-2px);}
+.metier-action-btn .action-icon{font-size:24px;}
+.metier-action-btn .action-label{font-size:12px;font-weight:700;letter-spacing:.5px;}
+.metier-action-btn .action-sub{font-size:10px;opacity:.75;}
+.quiz-vf-container{max-width:600px;margin:0 auto;}
+.quiz-vf-progress{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.quiz-vf-progress-bar{flex:1;height:4px;background:#e0ddd7;border-radius:2px;margin:0 12px;overflow:hidden;}
+.quiz-vf-progress-fill{height:100%;background:#C9991A;border-radius:2px;transition:width .4s ease;}
+.quiz-vf-counter{font-size:12px;color:#888;font-weight:600;white-space:nowrap;}
+.quiz-vf-card{background:#fff;border-radius:16px;padding:28px;box-shadow:0 4px 20px rgba(0,43,92,.08);margin-bottom:16px;}
+.quiz-vf-category{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#C9991A;font-weight:700;margin-bottom:14px;}
+.quiz-vf-question{font-size:16px;color:#002B5C;font-weight:600;line-height:1.5;margin-bottom:24px;font-family:'Playfair Display',serif;}
+.quiz-vf-btns{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.quiz-vf-btn{padding:16px;border-radius:12px;border:2px solid;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.5px;}
+.quiz-vf-btn.vrai{background:#e6f4ea;border-color:#34a853;color:#1a6b30;}
+.quiz-vf-btn.faux{background:#fce8e6;border-color:#ea4335;color:#b31412;}
+.quiz-vf-btn:hover{opacity:.8;transform:scale(.98);}
+.quiz-vf-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.quiz-vf-feedback{border-radius:12px;padding:16px 20px;margin-top:12px;display:none;animation:fadeInM .3s ease;}
+.quiz-vf-feedback.correct{background:#e6f4ea;border-left:4px solid #34a853;color:#1a6b30;}
+.quiz-vf-feedback.wrong{background:#fce8e6;border-left:4px solid #ea4335;color:#b31412;}
+.quiz-vf-feedback-title{font-weight:700;font-size:13px;margin-bottom:4px;}
+.quiz-vf-feedback-expl{font-size:12px;line-height:1.5;}
+.quiz-vf-next{background:#002B5C;color:#fff;border:none;border-radius:10px;padding:14px 28px;font-size:14px;font-weight:700;cursor:pointer;margin-top:12px;width:100%;display:none;transition:background .2s;}
+.quiz-vf-next:hover{background:#C9991A;}
+.quiz-vf-result{display:none;text-align:center;padding:32px 20px;}
+.quiz-vf-result-score{font-family:'Playfair Display',serif;font-size:56px;font-weight:700;color:#002B5C;line-height:1;}
+.quiz-vf-result-score span{font-size:24px;color:#888;}
+.quiz-vf-result-label{font-size:14px;color:#555;margin:8px 0 24px;}
+.quiz-vf-result-medal{font-size:48px;margin-bottom:12px;}
+.quiz-vf-result-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.quiz-vf-result-btn{padding:12px 22px;border-radius:10px;border:none;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
+.quiz-vf-result-btn.primary{background:#002B5C;color:#fff;}
+.quiz-vf-result-btn.secondary{background:#F5F3EE;color:#002B5C;border:1px solid #ddd;}
+.quiz-vf-result-btn:hover{opacity:.85;}
+@keyframes fadeInM{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
+@media(max-width:480px){.metiers-grid{grid-template-columns:repeat(2,1fr);}.metier-actions{grid-template-columns:repeat(2,1fr);}.metier-tab{padding:12px 14px;font-size:11px;}.quiz-vf-question{font-size:14px;}}
+/* FIN CSS MODULE MÉTIERS */
 </style>
 </head>
 <body>
@@ -1677,6 +1771,7 @@ var NAV=[
   {id:'autoeval',ic:'📝',l:'Auto-évaluation',sec:'APPRENDRE'},
   {id:'biblio',ic:'📖',l:'Bibliothèque',sec:'APPRENDRE'},
   {id:'academy',ic:'💡',l:'Académie',sec:'APPRENDRE'},
+  {id:'metiers',ic:'🏦',l:'Métiers Bancaires',sec:'APPRENDRE'}, // MODIFIÉ : ajout module Métiers
   {id:'about',ic:'ℹ️',l:'À propos',sec:'COMPTE'},
 ];
 
@@ -1748,7 +1843,7 @@ function render(){
   if(BF!==null&&BA){ c.innerHTML=rFD(); return; }
   if(BA){ c.innerHTML=rBD(); return; }
   if(TAB==='autoeval'&&AEF){ c.innerHTML=rAEF(); return; } // MODIFIÉ : affiche le format d'auto-éval sélectionné
-  var pages={dashboard:rDB,quiz:rQP,biblio:rBP,arena:rAR,achievements:rACH,leaderboard:rLB,academy:rAC,settings:rST,autoeval:rAE,admin:rADMIN,about:rABOUT,communaute:rSALON,debats:rDEBATS,debatsadm:rDEBATSADM}; // MODIFIÉ : ajout débats + jury débats
+  var pages={dashboard:rDB,quiz:rQP,biblio:rBP,arena:rAR,achievements:rACH,leaderboard:rLB,academy:rAC,settings:rST,autoeval:rAE,admin:rADMIN,about:rABOUT,communaute:rSALON,debats:rDEBATS,debatsadm:rDEBATSADM,metiers:rMETIERS}; // MODIFIÉ : ajout métiers
   c.innerHTML=(pages[TAB]||rDB)();
   if(TAB==='arena'){ try{ arArenaAfterRender(); }catch(e){} } // MODIFIÉ : charge les fils duels/tournois ouverts
   if(TAB==='debats'){ try{ RA_DEBATS.loadList(); }catch(e){} } // MODIFIÉ : charge la liste des débats après affichage
@@ -5084,6 +5179,240 @@ var RA_DEBATS = (function () {
 })();
 </script>
 <!-- ════════ FIN ARÈNE DES DÉBATS ════════ -->
-<script src="metiers.js" defer></script>
+<script>
+// MODIFIÉ : module Métiers intégré inline (remplace metiers.js externe)
+/* ════════ DONNÉES QUIZ VF TRADE FINANCE ════════ */
+var QVF_TRADE_FINANCE=[
+  {cat:"Crédits Documentaires",q:"Un crédit documentaire irrévocable constitue un engagement ferme de la banque émettrice, indépendant du contrat commercial sous-jacent.",rep:true,expl:"C'est le principe d'autonomie du crédit documentaire (UCP 600, art. 4). Le crédit est distinct du contrat de vente et la banque ne peut invoquer les défenses issues du contrat."},
+  {cat:"Incoterms 2020",q:"Avec l'incoterm CIF, l'acheteur supporte les frais de transport principal et d'assurance jusqu'au port de destination.",rep:false,expl:"CIF (Cost, Insurance & Freight) : c'est le VENDEUR qui règle le fret et l'assurance jusqu'au port de destination. Mais le risque passe à l'acheteur à l'embarquement (au port d'origine)."},
+  {cat:"RFE UEMOA",q:"La domiciliation bancaire est obligatoire pour toute importation de marchandises dont la valeur excède 500 000 FCFA.",rep:true,expl:"Le Règlement RFE UEMOA fixe le seuil de domiciliation obligatoire à 500 000 FCFA pour les importations. En dessous, la domiciliation reste facultative."},
+  {cat:"Garanties bancaires",q:"Une garantie à première demande peut être appelée par le bénéficiaire sans qu'il ait à prouver la défaillance du donneur d'ordre.",rep:true,expl:"C'est la caractéristique essentielle de la garantie à première demande (RDUG 758) : le bénéficiaire présente sa demande écrite et la banque paye sans vérifier si le débiteur principal a réellement failli."},
+  {cat:"RUU 600",q:"Selon les RUU 600, un chargeur dispose de 21 jours calendaires après la date d'émission des documents pour les présenter à sa banque.",rep:false,expl:"Selon l'UCP 600 article 14c, la présentation doit intervenir dans les 21 jours APRÈS LA DATE D'EXPÉDITION (date du BL/LTA), et non après la date d'émission des documents."},
+  {cat:"SWIFT & Messages",q:"Le message SWIFT MT700 est utilisé par la banque émettrice pour transmettre l'émission d'un crédit documentaire à la banque notificatrice.",rep:true,expl:"Le MT700 (Issue of a Documentary Credit) est le message standard pour émettre un LC. Le MT710 est utilisé quand une banque intermédiaire notifie à une troisième banque."},
+  {cat:"Remise Documentaire",q:"Dans une remise documentaire D/A, la banque présentatrice remet les documents à l'acheteur contre son PAIEMENT immédiat.",rep:false,expl:"D/A = Documents contre Acceptation : les documents sont remis contre la SIGNATURE d'une traite (acceptation), pas contre paiement immédiat. Le paiement n'interviendra qu'à l'échéance de la traite."},
+  {cat:"LBC/FT Trade",q:"La sur-facturation (surévaluation délibérée de marchandises) est une technique connue de blanchiment via le commerce international (TBML).",rep:true,expl:"Le Trade-Based Money Laundering (TBML) utilise notamment la sur-facturation/sous-facturation pour transférer de la valeur entre pays. C'est un signal d'alerte majeur en Trade Finance."},
+  {cat:"Incoterms 2020",q:"L'incoterm EXW est le plus favorable à l'acheteur car il prend en charge tous les frais et risques depuis l'usine du vendeur.",rep:false,expl:"EXW (Ex Works) est en réalité le plus favorable au VENDEUR : l'acheteur supporte TOUS les risques et frais dès la mise à disposition en usine, y compris le chargement, le dédouanement export, etc."},
+  {cat:"Crédits Documentaires",q:"Un crédit documentaire confirmé offre à l'exportateur une double garantie de paiement : celle de la banque émettrice ET celle de la banque confirmatrice.",rep:true,expl:"La confirmation ajoute l'engagement ferme de la banque confirmatrice (généralement dans le pays de l'exportateur) au-delà de celui de la banque émettrice. C'est une sécurité supplémentaire en cas de risque pays sur l'émetteur."},
+  {cat:"RFE UEMOA",q:"Le délai réglementaire de rapatriement des recettes d'exportation vers l'UEMOA est de 60 jours à compter de la date de livraison.",rep:false,expl:"Le délai de rapatriement des recettes d'exportation est de 120 jours (non 60) à compter de la livraison des marchandises, selon la réglementation des changes UEMOA."},
+  {cat:"Garanties bancaires",q:"La garantie de bonne fin (performance bond) est émise pour garantir qu'un soumissionnaire maintient son offre pendant la période d'appel d'offres.",rep:false,expl:"La garantie de SOUMISSION (bid bond) garantit le maintien de l'offre. La garantie de BONNE FIN garantit l'exécution correcte du contrat une fois attribué. Ce sont deux instruments distincts."},
+  {cat:"SWIFT & Messages",q:"Le message SWIFT MT760 est utilisé pour émettre ou notifier une garantie bancaire ou une SBLC.",rep:true,expl:"Le MT760 (Guarantee/Standby Letter of Credit) est le message SWIFT standard pour l'émission et la notification des garanties bancaires et des lettres de crédit standby."},
+  {cat:"Crédits Documentaires",q:"Un crédit documentaire transférable permet au premier bénéficiaire de transférer tout ou partie du crédit à un ou plusieurs seconds bénéficiaires.",rep:true,expl:"UCP 600 article 38 : le LC transférable (mention 'TRANSFERABLE') permet au premier bénéficiaire (souvent un intermédiaire) de transférer ses droits à des fournisseurs. Le crédit ne peut être transféré qu'une seule fois."},
+  {cat:"LBC/FT Trade",q:"En matière de sanctions internationales, une banque UEMOA doit uniquement vérifier les listes OFAC américaines pour ses opérations de Trade Finance.",rep:false,expl:"Les banques UEMOA doivent vérifier TOUTES les listes de sanctions applicables : OFAC (USA), Union Européenne, ONU, et éventuellement d'autres juridictions selon les correspondants bancaires impliqués."},
+  {cat:"Incoterms 2020",q:"L'incoterm FOB ne peut être utilisé que pour le transport maritime et voies navigables intérieures.",rep:true,expl:"FOB (Free On Board) est réservé au transport maritime et fluvial. Pour les conteneurs (et le multimodal), l'ICC recommande d'utiliser FCA plutôt que FOB, car le risque passe lors de la remise au transporteur."},
+  {cat:"Financement",q:"Le préfinancement export est une avance accordée à l'exportateur AVANT expédition, sur la base d'une commande ferme ou d'un crédit documentaire reçu.",rep:true,expl:"Le préfinancement (ou avance sur commande export) permet à l'exportateur de financer sa production/préparation avant expédition. Il est sécurisé par la commande ferme ou le LC reçu d'une banque étrangère."},
+  {cat:"RFE UEMOA",q:"En UEMOA, les paiements entre résidents peuvent être réalisés en devises étrangères sans restriction.",rep:false,expl:"Les paiements entre résidents UEMOA doivent se faire en monnaie locale (FCFA). L'utilisation de devises étrangères est réservée aux transactions avec des non-résidents, sauf dérogations spécifiques."},
+  {cat:"Crédits Documentaires",q:"Une réserve (discrepancy) sur un jeu de documents ne peut être levée que par la banque émettrice, pas par le donneur d'ordre.",rep:false,expl:"Les réserves peuvent être levées par le DONNEUR D'ORDRE (acheteur/importateur) qui autorise la banque émettrice à honorer malgré les irrégularités. La banque émettrice peut aussi décider de lever les réserves elle-même."},
+  {cat:"Garanties bancaires",q:"Une contre-garantie est émise par la banque du donneur d'ordre en faveur de la banque garante locale, pour couvrir le risque de l'appel de garantie.",rep:true,expl:"Dans les schémas de garanties indirectes, la banque de l'acheteur émet une contre-garantie (counter-guarantee) en faveur de la banque locale du bénéficiaire, qui émet la garantie directe. Cela sécurise la banque garante."}
+];
+
+var qvfEtat={questions:[],idx:0,score:0,repondu:false};
+
+/* ════════ RENDU PAGE MÉTIERS ════════ */
+function rMETIERS(){ // MODIFIÉ : rendu inline du module Métiers
+  return '<div style="background:#F5F3EE;min-height:100vh;font-family:\'IBM Plex Sans\',sans-serif;">'+
+  '<div class="metiers-hero">'+
+  '<div class="metiers-hero-eyebrow">REGUL ARENA · PARCOURS MÉTIERS</div>'+
+  '<h1>Maîtrisez votre <em>métier bancaire</em><br>dans la zone UEMOA</h1>'+
+  '<p class="metiers-hero-sub">Fiches de poste complètes · Textes réglementaires ciblés · Quiz, duels et tournois par fonction</p>'+
+  '</div>'+
+  '<div class="metiers-grid-section">'+
+  '<div class="metiers-section-label">Choisissez une fonction</div>'+
+  '<div class="metiers-grid">'+
+  '<div class="metier-card" id="card-trade-finance" onclick="ouvrirMetier(\'trade-finance\')">'+
+  '<span class="metier-card-badge">DISPONIBLE</span>'+
+  '<span class="metier-card-icon">🚢</span>'+
+  '<div class="metier-card-title">Trade Finance</div>'+
+  '<div class="metier-card-sub">Crédits doc · Garanties · Change</div></div>'+
+  '<div class="metier-card locked" title="Bientôt disponible"><span class="metier-card-icon">🛡️</span><div class="metier-card-title">Compliance</div><div class="metier-card-sub">LBC/FT · FATCA · KYC</div></div>'+
+  '<div class="metier-card locked" title="Bientôt disponible"><span class="metier-card-icon">📊</span><div class="metier-card-title">Risques</div><div class="metier-card-sub">Bâle III · Crédit · Marché</div></div>'+
+  '<div class="metier-card locked" title="Bientôt disponible"><span class="metier-card-icon">⚙️</span><div class="metier-card-title">Back Office</div><div class="metier-card-sub">Opérations · Titres · SWIFT</div></div>'+
+  '<div class="metier-card locked" title="Bientôt disponible"><span class="metier-card-icon">💼</span><div class="metier-card-title">Corporate Banking</div><div class="metier-card-sub">Financement · Analyse</div></div>'+
+  '<div class="metier-card locked" title="Bientôt disponible"><span class="metier-card-icon">🏛️</span><div class="metier-card-title">ALM / Trésorerie</div><div class="metier-card-sub">Liquidité · Taux · Change</div></div>'+
+  '<div class="metier-card locked" title="Bientôt disponible"><span class="metier-card-icon">🔍</span><div class="metier-card-title">Audit Interne</div><div class="metier-card-sub">Contrôle · Inspection</div></div>'+
+  '<div class="metier-card locked" title="Bientôt disponible"><span class="metier-card-icon">💰</span><div class="metier-card-title">Banque de Détail</div><div class="metier-card-sub">Particuliers · Pros</div></div>'+
+  '</div>'+
+  '<div class="metier-detail" id="metier-trade-finance">'+
+  '<div class="metier-detail-header">'+
+  '<h2>🚢 Trade Finance</h2>'+
+  '<p>Spécialiste du financement du commerce international dans la zone UEMOA/CEMAC. Traitement des instruments documentaires et garanties bancaires conformément aux règles BCEAO et pratiques ICC.</p>'+
+  '<div class="metier-score-bar"><span class="metier-score-label">Score de maîtrise</span><div class="metier-score-track"><div class="metier-score-fill" id="tf-score-fill"></div></div><span class="metier-score-pct" id="tf-score-pct">0%</span></div>'+
+  '</div>'+
+  '<div class="metier-tabs">'+
+  '<button class="metier-tab active" onclick="switchTab(\'tf\',\'prerequis\')">Prérequis</button>'+
+  '<button class="metier-tab" onclick="switchTab(\'tf\',\'notions\')">Notions clés</button>'+
+  '<button class="metier-tab" onclick="switchTab(\'tf\',\'textes\')">Textes réglementaires</button>'+
+  '<button class="metier-tab" onclick="switchTab(\'tf\',\'quiz\')">Quiz &amp; Compétition</button>'+
+  '</div>'+
+  '<div class="metier-tab-content active" id="tf-tab-prerequis">'+
+  '<div class="metier-block"><div class="metier-block-title">Formation requise</div><ul class="metier-prereq-list"><li>Licence ou Master en Finance, Commerce International, Économie ou Droit des Affaires</li><li>Formation bancaire (ITB, CESAG, École Supérieure de Banque) appréciée</li><li>Certificat CDCS (Certified Documentary Credit Specialist) — ICC — est un atout majeur</li></ul></div>'+
+  '<div class="metier-block"><div class="metier-block-title">Expérience recommandée</div><ul class="metier-prereq-list"><li>2 à 5 ans minimum en opérations bancaires ou back-office commercial</li><li>Connaissance pratique des flux documentaires import/export</li><li>Maîtrise des outils SWIFT (MT700, MT710, MT760, MT202...)</li></ul></div>'+
+  '<div class="metier-block"><div class="metier-block-title">Langues</div><div class="metier-tag-list"><span class="metier-tag">Français (obligatoire)</span><span class="metier-tag gold">Anglais (fortement recommandé)</span><span class="metier-tag">Arabe (atout CEMAC)</span></div></div>'+
+  '<div class="metier-block"><div class="metier-block-title">Qualités personnelles</div><div class="metier-tag-list"><span class="metier-tag">Rigueur documentaire</span><span class="metier-tag">Sens du délai</span><span class="metier-tag">Capacité d\'analyse</span><span class="metier-tag">Communication client</span><span class="metier-tag">Résistance au stress</span></div></div>'+
+  '</div>'+
+  '<div class="metier-tab-content" id="tf-tab-notions">'+
+  '<div class="metier-block"><div class="metier-block-title">Instruments documentaires — À maîtriser absolument</div><ul class="metier-prereq-list"><li><strong>Crédit Documentaire (Credoc/LC)</strong> — engagement bancaire irrévocable, mécanique import/export, rôles banque émettrice/notificatrice/confirmante</li><li><strong>Remise Documentaire (D/P, D/A)</strong> — différence Documents contre Paiement vs Documents contre Acceptation, risques pour l\'exportateur</li><li><strong>Garanties bancaires</strong> — garantie de soumission, bonne fin, restitution d\'acompte, retenue de garantie, garantie de paiement</li><li><strong>SBLC (Stand-By Letter of Credit)</strong> — distinction avec la garantie à première demande, règles ISP98</li></ul></div>'+
+  '<div class="metier-block"><div class="metier-block-title">Incoterms 2020 — Indispensables</div><div class="metier-tag-list"><span class="metier-tag gold">EXW</span><span class="metier-tag gold">FCA</span><span class="metier-tag gold">FOB</span><span class="metier-tag gold">CFR</span><span class="metier-tag gold">CIF</span><span class="metier-tag gold">DAP</span><span class="metier-tag gold">DDP</span><span class="metier-tag">CPT</span><span class="metier-tag">CIP</span><span class="metier-tag">DPU</span><span class="metier-tag">FAS</span></div></div>'+
+  '<div class="metier-block"><div class="metier-block-title">Réglementation des changes — BCEAO</div><ul class="metier-prereq-list"><li>Règlement RFE UEMOA — déclaration des transactions, seuils, délais de rapatriement</li><li>Domiciliation bancaire obligatoire (import/export) et suivi des dossiers</li><li>Délais réglementaires de règlement : exportations (rapatriement 120j), importations (délai de paiement)</li><li>Seuils de déclaration statistique et obligations déclaratives auprès de la BCEAO</li></ul></div>'+
+  '<div class="metier-block"><div class="metier-block-title">Documents commerciaux clés</div><div class="metier-tag-list"><span class="metier-tag">Facture commerciale</span><span class="metier-tag">Connaissement (BL)</span><span class="metier-tag">LTA (aérien)</span><span class="metier-tag">CMR (routier)</span><span class="metier-tag">Certificat d\'origine</span><span class="metier-tag">Liste de colisage</span><span class="metier-tag">Certificat d\'inspection</span><span class="metier-tag">Police d\'assurance</span><span class="metier-tag">Traite / Lettre de change</span></div></div>'+
+  '<div class="metier-block"><div class="metier-block-title">LBC/FT appliqué au Trade Finance</div><ul class="metier-prereq-list"><li>Identification des signaux d\'alerte : sur/sous-facturation, circuits triangulaires suspects</li><li>KYC renforcé sur les contreparties étrangères (banques correspondantes, exportateurs)</li><li>Sanctions internationales (OFAC, UE, ONU) — vérification des bénéficiaires</li><li>Déclaration de soupçon (DS) — procédure interne et délai légal</li></ul></div>'+
+  '</div>'+
+  '<div class="metier-tab-content" id="tf-tab-textes">'+
+  '<div class="metier-block"><div class="metier-block-title">Textes fondamentaux UEMOA</div>'+
+  '<div class="metier-texte-item" onclick="lancerQuizTexte(\'RFE\')"><div><div class="metier-texte-ref">Règlement n° 09/2010/CM/UEMOA · modifié 2024</div><div class="metier-texte-name">Règlement des Relations Financières Extérieures (RFE)</div><div class="metier-texte-scope">Domiciliation · Seuils · Rapatriement · Déclarations</div></div><button class="metier-texte-btn">Quiz ciblé</button></div>'+
+  '<div class="metier-texte-item" onclick="lancerQuizTexte(\'LBC\')"><div><div class="metier-texte-ref">Directive n° 02/2015/CM/UEMOA</div><div class="metier-texte-name">Lutte contre le Blanchiment et Financement du Terrorisme</div><div class="metier-texte-scope">KYC · Vigilance · Déclaration de soupçon · Trade-based ML</div></div><button class="metier-texte-btn">Quiz ciblé</button></div>'+
+  '<div class="metier-texte-item"><div><div class="metier-texte-ref">Instruction BCEAO n° 026-11-2016</div><div class="metier-texte-name">Domiciliation des opérations d\'importation et d\'exportation</div><div class="metier-texte-scope">Procédures · Documents · Suivi dossier domicilié</div></div><button class="metier-texte-btn">Bientôt</button></div>'+
+  '<div class="metier-block-title" style="margin-top:20px;">Règles et pratiques internationales (ICC)</div>'+
+  '<div class="metier-texte-item"><div><div class="metier-texte-ref">Publication ICC n° 600</div><div class="metier-texte-name">RUU 600 — Règles et Usances Uniformes relatives aux Crédits Documentaires</div><div class="metier-texte-scope">39 articles · Standard mondial LC · Pratiques documentaires</div></div><button class="metier-texte-btn">Bientôt</button></div>'+
+  '<div class="metier-texte-item"><div><div class="metier-texte-ref">Publication ICC n° 758</div><div class="metier-texte-name">RDUG 758 — Règles Uniformes pour les Garanties à Première Demande</div><div class="metier-texte-scope">Garanties bancaires · SBLC · Demande de paiement</div></div><button class="metier-texte-btn">Bientôt</button></div>'+
+  '<div class="metier-texte-item"><div><div class="metier-texte-ref">CCI 2020</div><div class="metier-texte-name">Incoterms® 2020 — Règles CCI pour l\'utilisation des termes commerciaux</div><div class="metier-texte-scope">11 termes · Transfert risque · Obligations transport/assurance</div></div><button class="metier-texte-btn">Bientôt</button></div>'+
+  '</div></div>'+
+  '<div class="metier-tab-content" id="tf-tab-quiz">'+
+  '<div id="tf-quiz-accueil"><div class="metier-block"><div class="metier-block-title">Modes de jeu disponibles</div><div class="metier-actions">'+
+  '<button class="metier-action-btn" onclick="lancerQuizVF()"><span class="action-icon">✅</span><span class="action-label">QUIZ SOLO</span><span class="action-sub">Vrai / Faux · 20 questions</span></button>'+
+  '<button class="metier-action-btn" onclick="ST(\'arena\')" style="opacity:.6" title="Disponible dans Duels"><span class="action-icon">⚔️</span><span class="action-label">DUEL</span><span class="action-sub">1v1 · Tag Trade Finance</span></button>'+
+  '<button class="metier-action-btn" onclick="ST(\'arena\')" style="opacity:.6" title="Disponible dans Tournois"><span class="action-icon">🏆</span><span class="action-label">TOURNOI</span><span class="action-sub">Intra/Inter pays</span></button>'+
+  '</div></div></div>'+
+  '<div id="tf-quiz-vf" style="display:none"><div class="quiz-vf-container">'+
+  '<div class="quiz-vf-progress"><span class="quiz-vf-counter" id="qvf-counter">1 / 20</span><div class="quiz-vf-progress-bar"><div class="quiz-vf-progress-fill" id="qvf-progress-fill"></div></div><span class="quiz-vf-counter" id="qvf-score-inline">✅ 0</span></div>'+
+  '<div class="quiz-vf-card" id="qvf-card"><div class="quiz-vf-category" id="qvf-category"></div><div class="quiz-vf-question" id="qvf-question"></div>'+
+  '<div class="quiz-vf-btns"><button class="quiz-vf-btn vrai" onclick="repondreVF(true)" id="btn-vrai">✅ VRAI</button><button class="quiz-vf-btn faux" onclick="repondreVF(false)" id="btn-faux">❌ FAUX</button></div>'+
+  '<div class="quiz-vf-feedback" id="qvf-feedback"><div class="quiz-vf-feedback-title" id="qvf-feedback-title"></div><div class="quiz-vf-feedback-expl" id="qvf-feedback-expl"></div></div>'+
+  '<button class="quiz-vf-next" id="qvf-next" onclick="questionSuivante()">Question suivante →</button>'+
+  '</div>'+
+  '<div class="quiz-vf-result" id="qvf-result"><div class="quiz-vf-result-medal" id="qvf-medal"></div><div class="quiz-vf-result-score"><span id="qvf-final-score"></span><span> / 20</span></div><div class="quiz-vf-result-label" id="qvf-result-label"></div>'+
+  '<div class="quiz-vf-result-btns"><button class="quiz-vf-result-btn primary" onclick="lancerQuizVF()">🔄 Recommencer</button><button class="quiz-vf-result-btn secondary" onclick="retourQuizAccueil()">← Retour</button></div></div>'+
+  '</div></div>'+
+  '</div></div></div></div>';
+}
+
+/* ════════ FONCTIONS MODULE MÉTIERS ════════ */
+function ouvrirMetier(id){ // MODIFIÉ
+  document.querySelectorAll('.metier-detail').forEach(function(d){d.classList.remove('open');});
+  document.querySelectorAll('.metier-card').forEach(function(c){c.classList.remove('active-metier');});
+  var detail=document.getElementById('metier-'+id);
+  var card=document.getElementById('card-'+id);
+  if(detail){detail.classList.add('open');detail.scrollIntoView({behavior:'smooth',block:'start'});}
+  if(card) card.classList.add('active-metier');
+  chargerScoreMetier(id);
+}
+
+function switchTab(metier,tab){ // MODIFIÉ
+  var prefix=metier+'-tab-';
+  document.querySelectorAll('[id^="'+prefix+'"]').forEach(function(el){el.classList.remove('active');});
+  document.querySelectorAll('#metier-'+metier+' .metier-tab').forEach(function(btn){btn.classList.remove('active');});
+  var target=document.getElementById(prefix+tab);
+  if(target) target.classList.add('active');
+  var btns=document.querySelectorAll('#metier-'+metier+' .metier-tab');
+  var tabNames=['prerequis','notions','textes','quiz'];
+  var idx=tabNames.indexOf(tab);
+  if(btns[idx]) btns[idx].classList.add('active');
+}
+
+function lancerQuizTexte(pack){ // MODIFIÉ
+  switchTab('tf','quiz');
+  lancerQuizVF();
+}
+
+function lancerQuizVF(){ // MODIFIÉ
+  var qs=QVF_TRADE_FINANCE.slice().sort(function(){return Math.random()-.5;});
+  qvfEtat={questions:qs,idx:0,score:0,repondu:false};
+  var accueil=document.getElementById('tf-quiz-accueil');
+  var vf=document.getElementById('tf-quiz-vf');
+  var result=document.getElementById('qvf-result');
+  var card=document.getElementById('qvf-card');
+  if(accueil) accueil.style.display='none';
+  if(vf) vf.style.display='block';
+  if(result) result.style.display='none';
+  if(card) card.style.display='block';
+  afficherQuestion();
+}
+
+function afficherQuestion(){ // MODIFIÉ
+  var q=qvfEtat.questions[qvfEtat.idx];
+  var total=qvfEtat.questions.length;
+  var idx=qvfEtat.idx;
+  var el=function(id){return document.getElementById(id);};
+  if(el('qvf-category')) el('qvf-category').textContent=q.cat;
+  if(el('qvf-question')) el('qvf-question').textContent=q.q;
+  if(el('qvf-counter')) el('qvf-counter').textContent=(idx+1)+' / '+total;
+  if(el('qvf-score-inline')) el('qvf-score-inline').textContent='✅ '+qvfEtat.score;
+  if(el('qvf-progress-fill')) el('qvf-progress-fill').style.width=(idx/total*100)+'%';
+  if(el('btn-vrai')) el('btn-vrai').disabled=false;
+  if(el('btn-faux')) el('btn-faux').disabled=false;
+  if(el('qvf-feedback')) el('qvf-feedback').style.display='none';
+  if(el('qvf-next')) el('qvf-next').style.display='none';
+  qvfEtat.repondu=false;
+}
+
+function repondreVF(rep){ // MODIFIÉ
+  if(qvfEtat.repondu) return;
+  qvfEtat.repondu=true;
+  var q=qvfEtat.questions[qvfEtat.idx];
+  var correct=(rep===q.rep);
+  if(correct) qvfEtat.score++;
+  var el=function(id){return document.getElementById(id);};
+  if(el('btn-vrai')) el('btn-vrai').disabled=true;
+  if(el('btn-faux')) el('btn-faux').disabled=true;
+  var fb=el('qvf-feedback');
+  if(fb){
+    fb.className='quiz-vf-feedback '+(correct?'correct':'wrong');
+    fb.style.display='block';
+  }
+  if(el('qvf-feedback-title')) el('qvf-feedback-title').textContent=correct?'✅ Correct !':'❌ Incorrect';
+  if(el('qvf-feedback-expl')) el('qvf-feedback-expl').textContent=q.expl;
+  if(el('qvf-score-inline')) el('qvf-score-inline').textContent='✅ '+qvfEtat.score;
+  var nextBtn=el('qvf-next');
+  if(nextBtn){
+    nextBtn.style.display='block';
+    var isLast=(qvfEtat.idx===qvfEtat.questions.length-1);
+    nextBtn.textContent=isLast?'Voir mon résultat →':'Question suivante →';
+  }
+}
+
+function questionSuivante(){ // MODIFIÉ
+  qvfEtat.idx++;
+  if(qvfEtat.idx>=qvfEtat.questions.length) afficherResultatVF();
+  else afficherQuestion();
+}
+
+function afficherResultatVF(){ // MODIFIÉ
+  var el=function(id){return document.getElementById(id);};
+  if(el('qvf-card')) el('qvf-card').style.display='none';
+  var result=el('qvf-result');
+  if(result) result.style.display='block';
+  var score=qvfEtat.score;
+  var total=qvfEtat.questions.length;
+  var pct=Math.round(score/total*100);
+  if(el('qvf-final-score')) el('qvf-final-score').textContent=score;
+  var medal='🥉',label='Continuez à réviser !';
+  if(pct>=90){medal='🏆';label='Excellence ! Niveau expert Trade Finance.';}
+  else if(pct>=75){medal='🥇';label='Très bon niveau. Quelques points à consolider.';}
+  else if(pct>=60){medal='🥈';label='Bon début. Révisez les textes réglementaires.';}
+  if(el('qvf-medal')) el('qvf-medal').textContent=medal;
+  if(el('qvf-result-label')) el('qvf-result-label').textContent=label;
+  var best=parseInt(localStorage.getItem('ra_metier_tf_best')||'0');
+  if(score>best) localStorage.setItem('ra_metier_tf_best',score);
+  chargerScoreMetier('trade-finance');
+}
+
+function chargerScoreMetier(id){ // MODIFIÉ
+  if(id==='trade-finance'){
+    var best=parseInt(localStorage.getItem('ra_metier_tf_best')||'0');
+    var pct=Math.round(best/20*100);
+    var fill=document.getElementById('tf-score-fill');
+    var pctEl=document.getElementById('tf-score-pct');
+    if(fill) fill.style.width=pct+'%';
+    if(pctEl) pctEl.textContent=pct+'%';
+  }
+}
+
+function retourQuizAccueil(){ // MODIFIÉ
+  var el=function(id){return document.getElementById(id);};
+  if(el('tf-quiz-vf')) el('tf-quiz-vf').style.display='none';
+  if(el('tf-quiz-accueil')) el('tf-quiz-accueil').style.display='block';
+  if(el('qvf-card')) el('qvf-card').style.display='block';
+  if(el('qvf-result')) el('qvf-result').style.display='none';
+}
+</script>
 </body>
 </html>
