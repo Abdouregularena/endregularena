@@ -4141,15 +4141,33 @@ function tchatSend(){
   .then(function(r){return r.json();}).then(function(){ TQ.chatSig=''; tchatLoad(); }).catch(function(){ inp.value=msg; });
 }
 
-function saveST(){
-  U.name    = ge('st-name').value.trim()||U.name;
-  U.profile = ge('st-inst').value.trim()||U.profile;
-  U.country = ge('st-pays').value||U.country;
-  ge('t-name').textContent = U.name;
-  ge('t-av').textContent   = U.name.charAt(0).toUpperCase();
-  ge('t-role').textContent = U.profile||'Pro UEMOA';
-  showModal('Succès','<div class="al al-ok">✅ Profil mis à jour !</div><div style="text-align:center;margin-top:12px;"><button class="btn btn-sm" onclick="closeModal()">OK</button></div>');
-  render();
+function saveST(){ // MODIFIÉ : persistance DB + localStorage
+  var newName    = ge('st-name').value.trim()||U.name;
+  var newProfile = ge('st-inst').value.trim()||U.profile;
+  var newCountry = ge('st-pays').value||U.country;
+  fetch('/profile',{
+    method:'PATCH',
+    headers:arAuthHdr(),
+    body:JSON.stringify({name:newName, profile:newProfile, country:newCountry})
+  }).then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
+  .then(function(){
+    U.name=newName; U.profile=newProfile; U.country=newCountry;
+    saveSession();
+    _applyProfileUI();
+    showModal('Succès','<div class="al al-ok">✅ Profil sauvegardé !</div><div style="text-align:center;margin-top:12px;"><button class="btn btn-sm" onclick="closeModal()">OK</button></div>');
+    render();
+  }).catch(function(){
+    U.name=newName; U.profile=newProfile; U.country=newCountry;
+    saveSession();
+    _applyProfileUI();
+    showModal('Succès','<div class="al al-ok">✅ Mis à jour localement.</div><div style="text-align:center;margin-top:12px;"><button class="btn btn-sm" onclick="closeModal()">OK</button></div>');
+    render();
+  });
+}
+function _applyProfileUI(){ // MODIFIÉ
+  if(ge('t-name')) ge('t-name').textContent = U.name;
+  if(ge('t-av'))   ge('t-av').textContent   = U.name.charAt(0).toUpperCase();
+  if(ge('t-role')) ge('t-role').textContent = U.profile||'Pro UEMOA';
 }
 
 /* ════════════════════════════════════════════════
