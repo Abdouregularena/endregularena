@@ -422,6 +422,14 @@ h2,h3{animation:raReveal .45s ease both;}
   outline:none;box-shadow:var(--ra-ring);
 }
 
+/* ── BARRE LATÉRALE (drawer mobile) — opacité + voile renforcé ── */
+/* La barre devient 100% opaque : plus aucun contenu ne transparaît à travers. */
+#sb{background:#081a33;box-shadow:6px 0 28px rgba(2,8,18,.5);}
+/* Voile assombri + flou : le contenu (même clair, comme le module Métiers)
+   est nettement estompé quand le menu est ouvert. N'apparaît qu'en mode étroit
+   (sur le bureau, #ov reste masqué — aucun impact). */
+#ov.show{background:rgba(2,8,18,.68);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);}
+
 /* ── MOUVEMENT RÉDUIT — désactive balayage et lifts ── */
 @media(prefers-reduced-motion:reduce){
   .btn::after{display:none!important;}
