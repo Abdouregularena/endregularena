@@ -4300,6 +4300,11 @@ function saveST(){
   U.name    = ge('st-name').value.trim()||U.name;
   U.profile = ge('st-inst').value.trim()||U.profile;
   U.country = ge('st-pays').value||U.country;
+  saveSession(); // CORRECTIF : persiste le profil dans la session locale → survit à la reconnexion automatique
+  // CORRECTIF : synchronise le profil côté serveur (nécessite la route backend : POST /auth/profile)
+  try{ if(U.token){
+    fetch(API+'/profile',{method:'POST',headers:arAuthHdr(),body:JSON.stringify({name:U.name,profile:U.profile,country:U.country})}).catch(function(){});
+  } }catch(e){}
   ge('t-name').textContent = U.name;
   ge('t-av').textContent   = U.name.charAt(0).toUpperCase();
   ge('t-role').textContent = U.profile||'Pro UEMOA';
