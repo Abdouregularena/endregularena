@@ -5225,11 +5225,11 @@ function rMETIERS(){ // MODIFIÉ : rendu inline du module Métiers
   '<div class="metier-card-sub">Crédits doc · Garanties · Change</div></div>'+
   '<div class="metier-card" id="card-compliance" onclick="ouvrirMetier(\x27compliance\x27)"><span class="metier-card-badge">DISPONIBLE</span><span class="metier-card-icon">🛡️</span><div class="metier-card-title">Compliance</div><div class="metier-card-sub">LBC/FT · FATCA · KYC</div></div>'+
   '<div class="metier-card" id="card-risques" onclick="ouvrirMetier(\x27risques\x27)"><span class="metier-card-badge">DISPONIBLE</span><span class="metier-card-icon">📊</span><div class="metier-card-title">Risques</div><div class="metier-card-sub">Bâle III · Crédit · Marché</div></div>'+
-  '<div class="metier-card locked" title="Bientôt disponible"><span class="metier-card-icon">⚙️</span><div class="metier-card-title">Back Office</div><div class="metier-card-sub">Opérations · Titres · SWIFT</div></div>'+
-  '<div class="metier-card locked" title="Bientôt disponible"><span class="metier-card-icon">💼</span><div class="metier-card-title">Corporate Banking</div><div class="metier-card-sub">Financement · Analyse</div></div>'+
-  '<div class="metier-card locked" title="Bientôt disponible"><span class="metier-card-icon">🏛️</span><div class="metier-card-title">ALM / Trésorerie</div><div class="metier-card-sub">Liquidité · Taux · Change</div></div>'+
+  '<div class="metier-card" id="card-back-office" onclick="ouvrirMetier(\'back-office\')"><span class="metier-card-badge">DISPONIBLE</span><span class="metier-card-icon">⚙️</span><div class="metier-card-title">Back Office</div><div class="metier-card-sub">Opérations · Titres · SWIFT</div></div>'+ // MODIFIÉ : déverrouillé
+  '<div class="metier-card" id="card-corporate" onclick="ouvrirMetier(\'corporate\')"><span class="metier-card-badge">DISPONIBLE</span><span class="metier-card-icon">💼</span><div class="metier-card-title">Corporate Banking</div><div class="metier-card-sub">Financement · Analyse</div></div>'+ // MODIFIÉ : déverrouillé
+  '<div class="metier-card" id="card-alm" onclick="ouvrirMetier(\'alm\')"><span class="metier-card-badge">DISPONIBLE</span><span class="metier-card-icon">🏛️</span><div class="metier-card-title">ALM / Trésorerie</div><div class="metier-card-sub">Liquidité · Taux · Change</div></div>'+ // MODIFIÉ : déverrouillé
   '<div class="metier-card locked" title="Bientôt disponible"><span class="metier-card-icon">🔍</span><div class="metier-card-title">Audit Interne</div><div class="metier-card-sub">Contrôle · Inspection</div></div>'+
-  '<div class="metier-card locked" title="Bientôt disponible"><span class="metier-card-icon">💰</span><div class="metier-card-title">Banque de Détail</div><div class="metier-card-sub">Particuliers · Pros</div></div>'+
+  '<div class="metier-card" id="card-detail" onclick="ouvrirMetier(\'detail\')"><span class="metier-card-badge">DISPONIBLE</span><span class="metier-card-icon">💰</span><div class="metier-card-title">Banque de Détail</div><div class="metier-card-sub">Particuliers · Pros</div></div>'+ // MODIFIÉ : déverrouillé
   '</div>'+
   '<div class="metier-detail" id="metier-trade-finance">'+
   '<div class="metier-detail-header">'+
@@ -5399,7 +5399,11 @@ function chargerScoreMetier(id){ // MODIFIÉ
   var map={
     'trade-finance':{key:'ra_metier_tf_best',fill:'tf-score-fill',pct:'tf-score-pct'},
     'compliance':{key:'ra_metier_co_best',fill:'co-score-fill',pct:'co-score-pct'}, // MODIFIÉ
-    'risques':{key:'ra_metier_ri_best',fill:'ri-score-fill',pct:'ri-score-pct'} // MODIFIÉ
+    'risques':{key:'ra_metier_ri_best',fill:'ri-score-fill',pct:'ri-score-pct'}, // MODIFIÉ
+    'corporate':{key:'ra_metier_cb_best',fill:'cb-score-fill',pct:'cb-score-pct'}, // MODIFIÉ
+    'back-office':{key:'ra_metier_bo_best',fill:'bo-score-fill',pct:'bo-score-pct'}, // MODIFIÉ
+    'alm':{key:'ra_metier_alm_best',fill:'alm-score-fill',pct:'alm-score-pct'}, // MODIFIÉ
+    'detail':{key:'ra_metier_det_best',fill:'det-score-fill',pct:'det-score-pct'} // MODIFIÉ
   };
   var m=map[id];if(!m) return;
   var best=parseInt(localStorage.getItem(m.key)||'0');
@@ -5416,6 +5420,394 @@ function retourQuizAccueil(){ // MODIFIÉ
   if(el('tf-quiz-accueil')) el('tf-quiz-accueil').style.display='block';
   if(el('qvf-card')) el('qvf-card').style.display='block';
   if(el('qvf-result')) el('qvf-result').style.display='none';
+}
+
+/* ============ QVF CORPORATE BANKING ============ */ // MODIFIÉ
+var QVF_CORPORATE_DATA=[
+  {cat:"Corporate Banking",q:"En UMOA, le financement d'une entreprise par crédit documentaire est soumis aux RUU 600 de la CCI.",r:true,ex:"Les RUU 600 (CCI) régissent les crédits documentaires dans les banques UMOA, complétés par les pratiques locales."},
+  {cat:"Corporate Banking",q:"Le ratio de division des risques interdit toute exposition supérieure à 25% des fonds propres effectifs sur un même groupe de contreparties liées.",r:true,ex:"Décision 013/2016 — Titre VII : limite individuelle 25% des FPE par bénéficiaire ou groupe lié."},
+  {cat:"Corporate Banking",q:"Une exposition devient un 'grand risque' à partir de 10% des fonds propres effectifs.",r:true,ex:"Annexe Décision 013/2016 — Titre VII : seuil de déclaration à la CB = 10% des FPE."},
+  {cat:"Corporate Banking",q:"La limite globale cumulée des grands risques est fixée à 600% des fonds propres effectifs.",r:false,ex:"La limite globale est de 800% (8 fois les FPE), non 600%."},
+  {cat:"Corporate Banking",q:"L'analyse financière d'une contrepartie corporate doit intégrer le calcul des fonds propres pondérés des risques (APR).",r:false,ex:"L'APR est calculé par la banque pour ses propres exigences prudentielles, pas par l'analyste pour évaluer la contrepartie. L'analyste utilise ratios d'endettement, CAF, DSCR."},
+  {cat:"Corporate Banking",q:"Le Règlement 06/2024/CM/UEMOA unifie le régime des opérations de change dans l'UEMOA.",r:true,ex:"Règlement 06/2024 abroge et remplace les textes antérieurs sur le régime des changes UEMOA."},
+  {cat:"Corporate Banking",q:"Dans l'UMOA, les expositions sur les États souverains en FCFA bénéficient d'une pondération de 0% en risque.",r:true,ex:"Annexe Décision 013/2016 — Titre IV : pondération 0% pour les créances sur États UEMOA en monnaie locale."},
+  {cat:"Corporate Banking",q:"Un engagement de crédit confirmé d'une durée supérieure à 1 an est soumis à un FCEC de 20%.",r:false,ex:"Le FCEC applicable est 50% pour un engagement confirmé > 1 an. 20% s'applique aux engagements courts termes < 1 an."},
+  {cat:"Corporate Banking",q:"La Commission Bancaire de l'UMOA peut émettre des injonctions de mise en conformité aux établissements de crédit.",r:true,ex:"Annexe Décision 013/2016 §3 : la CB-UMOA dispose du pouvoir d'injonction en cas de non-respect des normes prudentielles."},
+  {cat:"Corporate Banking",q:"L'approche standard UMOA autorise les banques à utiliser leurs propres modèles internes pour calculer les APR.",r:false,ex:"L'approche UMOA est exclusivement standard — pas de modèles internes avancés autorisés (Annexe Décision 013/2016 — Titre IV)."},
+  {cat:"Corporate Banking",q:"Dans un financement d'acquisition (LBO), la capacité de remboursement est mesurée par le DSCR (Debt Service Coverage Ratio).",r:true,ex:"Le DSCR = flux de trésorerie disponible / service de la dette. Indicateur clé pour tout financement d'acquisition ou de projet."},
+  {cat:"Corporate Banking",q:"La pondération en risque d'une créance sur une entreprise non notée dans l'UMOA est de 75%.",r:false,ex:"La pondération par défaut des entreprises non notées est de 100% dans l'UMOA (Annexe Décision 013/2016 — Titre IV)."},
+  {cat:"Corporate Banking",q:"Les créances en souffrance de plus de 90 jours insuffisamment provisionnées sont pondérées à 150%.",r:true,ex:"Annexe Décision 013/2016 — Titre IV : créances en souffrance > 90j et provision < 20% → pondération 150%."},
+  {cat:"Corporate Banking",q:"Le Pilier 2 du dispositif prudentiel UMOA oblige les banques à réaliser un ICAAP annuel.",r:true,ex:"Annexe Décision 013/2016 — Titre XI : l'ICAAP (Internal Capital Adequacy Assessment Process) est une obligation du Pilier 2."},
+  {cat:"Corporate Banking",q:"Une banque peut librement prendre des participations dans des entreprises commerciales sans limitation réglementaire en UMOA.",r:false,ex:"Les participations sont soumises à des limites et déductions prudentielles — notamment les participations significatives (>10%) dans les entités financières."},
+  {cat:"Corporate Banking",q:"La supervision sur base consolidée s'applique aux EC maisons-mères détenant au moins une filiale EC dans l'UMOA.",r:true,ex:"Décision 014/2016 — Art. 3 : la supervision consolidée couvre les EC maisons-mères et compagnies financières holding."},
+  {cat:"Corporate Banking",q:"Les ARC (Atténuations du Risque de Crédit) permettent de réduire les exigences en fonds propres via sûretés et garanties.",r:true,ex:"Annexe Décision 013/2016 — Titre IV Chapitre 3 : techniques ARC reconnues = sûretés financières, garanties personnelles, dérivés de crédit."},
+  {cat:"Corporate Banking",q:"Le coussin de conservation des fonds propres est fixé à 2,5% des APR en cible pleine 2022.",r:true,ex:"Annexe Décision 013/2016 — Titre III : coussin de conservation = 2,5% CET1 en cible pleine (transition par paliers 2019-2022)."},
+  {cat:"Corporate Banking",q:"Les Banques Multilatérales de Développement qualifiées (BIRD, BAD) bénéficient d'une pondération de 0%.",r:true,ex:"Annexe Décision 013/2016 — Titre IV : BMD qualifiées (BIRD, BAD, BOAD, etc.) = pondération 0%."},
+  {cat:"Corporate Banking",q:"Le non-respect du coussin de conservation entraîne une restriction des dividendes et primes variables.",r:true,ex:"Annexe Décision 013/2016 — Titre III : non-respect du coussin → interdiction de distributions discrétionnaires (dividendes, rachats d'actions, primes variables)."}
+];
+
+function lancerQuizVF_CB(){ // MODIFIÉ
+  var qs=QVF_CORPORATE_DATA.slice().sort(function(){return Math.random()-.5;});
+  qvfEtat_CB={questions:qs,idx:0,score:0,repondu:false};
+  var el=function(id){return document.getElementById(id);};
+  if(el('cb-quiz-accueil')) el('cb-quiz-accueil').style.display='none';
+  if(el('cb-quiz-vf')) el('cb-quiz-vf').style.display='block';
+  if(el('qvf-cb-result')) el('qvf-cb-result').style.display='none';
+  if(el('qvf-cb-card')) el('qvf-cb-card').style.display='block';
+  afficherQuestion_CB();
+}
+var qvfEtat_CB={questions:[],idx:0,score:0,repondu:false};
+function afficherQuestion_CB(){
+  var q=qvfEtat_CB.questions[qvfEtat_CB.idx];
+  var total=qvfEtat_CB.questions.length;
+  var el=function(id){return document.getElementById(id);};
+  if(el('qvf-cb-category')) el('qvf-cb-category').textContent=q.cat;
+  if(el('qvf-cb-question')) el('qvf-cb-question').textContent=q.q;
+  if(el('qvf-cb-counter')) el('qvf-cb-counter').textContent=(qvfEtat_CB.idx+1)+' / '+total;
+  if(el('qvf-cb-score-inline')) el('qvf-cb-score-inline').textContent='✅ '+qvfEtat_CB.score;
+  if(el('qvf-cb-progress-fill')) el('qvf-cb-progress-fill').style.width=(qvfEtat_CB.idx/total*100)+'%';
+  if(el('btn-cb-vrai')) el('btn-cb-vrai').disabled=false;
+  if(el('btn-cb-faux')) el('btn-cb-faux').disabled=false;
+  if(el('qvf-cb-feedback')) el('qvf-cb-feedback').style.display='none';
+  if(el('qvf-cb-next')) el('qvf-cb-next').style.display='none';
+  qvfEtat_CB.repondu=false;
+}
+function repondreVF_CB(rep){
+  if(qvfEtat_CB.repondu) return;
+  qvfEtat_CB.repondu=true;
+  var q=qvfEtat_CB.questions[qvfEtat_CB.idx];
+  var correct=(rep===q.r);
+  if(correct) qvfEtat_CB.score++;
+  var el=function(id){return document.getElementById(id);};
+  if(el('btn-cb-vrai')) el('btn-cb-vrai').disabled=true;
+  if(el('btn-cb-faux')) el('btn-cb-faux').disabled=true;
+  var fb=el('qvf-cb-feedback');
+  if(fb){fb.className='quiz-vf-feedback '+(correct?'correct':'wrong');fb.style.display='block';}
+  if(el('qvf-cb-feedback-title')) el('qvf-cb-feedback-title').textContent=correct?'✅ Correct !':'❌ Incorrect';
+  if(el('qvf-cb-feedback-expl')) el('qvf-cb-feedback-expl').textContent=q.ex;
+  if(el('qvf-cb-score-inline')) el('qvf-cb-score-inline').textContent='✅ '+qvfEtat_CB.score;
+  var nextBtn=el('qvf-cb-next');
+  if(nextBtn){nextBtn.style.display='block';nextBtn.textContent=(qvfEtat_CB.idx===qvfEtat_CB.questions.length-1)?'Voir mon résultat →':'Question suivante →';}
+}
+function questionSuivante_CB(){
+  qvfEtat_CB.idx++;
+  if(qvfEtat_CB.idx>=qvfEtat_CB.questions.length) afficherResultatVF_CB();
+  else afficherQuestion_CB();
+}
+function afficherResultatVF_CB(){
+  var el=function(id){return document.getElementById(id);};
+  if(el('qvf-cb-card')) el('qvf-cb-card').style.display='none';
+  var result=el('qvf-cb-result');
+  if(result) result.style.display='block';
+  var score=qvfEtat_CB.score;var total=qvfEtat_CB.questions.length;var pct=Math.round(score/total*100);
+  if(el('qvf-cb-final-score')) el('qvf-cb-final-score').textContent=score;
+  var medal='🥉',label='Continuez à réviser !';
+  if(pct>=90){medal='🏆';label='Excellence ! Niveau expert Corporate Banking.';}
+  else if(pct>=75){medal='🥇';label='Très bon niveau. Quelques points à consolider.';}
+  else if(pct>=60){medal='🥈';label='Bon début. Révisez les textes réglementaires.';}
+  if(el('qvf-cb-medal')) el('qvf-cb-medal').textContent=medal;
+  if(el('qvf-cb-result-label')) el('qvf-cb-result-label').textContent=label;
+  var best=parseInt(localStorage.getItem('ra_metier_cb_best')||'0');
+  if(score>best) localStorage.setItem('ra_metier_cb_best',score);
+  chargerScoreMetier('corporate');
+}
+function retourQuizAccueil_CB(){
+  var el=function(id){return document.getElementById(id);};
+  if(el('cb-quiz-vf')) el('cb-quiz-vf').style.display='none';
+  if(el('cb-quiz-accueil')) el('cb-quiz-accueil').style.display='block';
+  if(el('qvf-cb-card')) el('qvf-cb-card').style.display='block';
+  if(el('qvf-cb-result')) el('qvf-cb-result').style.display='none';
+}
+
+/* ============ QVF BACK OFFICE ============ */ // MODIFIÉ
+var QVF_BACK_OFFICE_DATA=[
+  {cat:"Back Office",q:"Le SWIFT est un réseau de messagerie financière sécurisé utilisé par les banques pour les virements interbancaires internationaux.",r:true,ex:"SWIFT (Society for Worldwide Interbank Financial Telecommunication) est le standard mondial de messagerie financière sécurisée entre banques."},
+  {cat:"Back Office",q:"Un compte nostro est un compte que notre banque détient chez une banque correspondante étrangère.",r:true,ex:"Nostro = 'notre compte chez vous'. Vostro = 'votre compte chez nous'. Ces comptes permettent de régler les transactions internationales."},
+  {cat:"Back Office",q:"Un compte vostro est un compte que notre banque détient chez une banque étrangère.",r:false,ex:"Vostro = 'votre compte chez nous' — c'est le compte qu'une banque étrangère détient dans notre établissement. Nostro = notre compte chez la correspondante."},
+  {cat:"Back Office",q:"Le contrôle interne du Back Office relève exclusivement de la 3ème ligne de défense (audit interne).",r:false,ex:"Le Back Office constitue lui-même la 1ère ligne de défense (opérationnel). La 2ème ligne = Risques/Conformité. La 3ème = Audit interne (Circulaire CB-UMOA 04-2017)."},
+  {cat:"Back Office",q:"Les MT 103 et MT 202 sont des types de messages SWIFT utilisés pour les virements de fonds.",r:true,ex:"MT 103 = virement client individuel. MT 202 = virement de couverture interbancaire. Standards SWIFT largement utilisés en UMOA."},
+  {cat:"Back Office",q:"La réconciliation des comptes nostro doit être effectuée quotidiennement dans les établissements bancaires.",r:true,ex:"La réconciliation quotidienne des comptes nostro est une exigence du contrôle interne pour détecter les écarts et suspens rapidement."},
+  {cat:"Back Office",q:"Le FODEP est transmis à la BCEAO exclusivement par courrier postal.",r:false,ex:"Instruction 005-08-2017 BCEAO Art.5 : transmission via plate-forme informatique dédiée. Support papier uniquement si requis exceptionnellement."},
+  {cat:"Back Office",q:"Les suspens sur comptes de correspondants doivent être justifiés et apurés dans les délais réglementaires.",r:true,ex:"Le suivi et l'apurement des suspens est une obligation de contrôle interne. Des suspens anciens non justifiés peuvent signaler des fraudes ou erreurs."},
+  {cat:"Back Office",q:"La circulaire CB-UMOA 04-2017 organise le dispositif de contrôle interne selon 3 lignes de défense.",r:true,ex:"Circulaire 04-2017 CB-UMOA : 1ère ligne = opérationnel (dont Back Office), 2ème = Risques+Conformité, 3ème = Audit interne."},
+  {cat:"Back Office",q:"Le règlement d'un crédit documentaire à vue implique un paiement immédiat à la présentation de documents conformes.",r:true,ex:"Crédit documentaire à vue (sight LC) : paiement dès présentation et vérification de documents conformes aux termes du crédit."},
+  {cat:"Back Office",q:"Dans l'UMOA, les transferts internationaux sont libres sans aucune obligation déclarative.",r:false,ex:"Le Règlement 06/2024/CM/UEMOA impose des obligations déclaratives pour les opérations de change. Certains transferts nécessitent des autorisations."},
+  {cat:"Back Office",q:"La gestion des titres en dépôt (conservation) relève du Back Office titres.",r:true,ex:"Le Back Office titres assure la conservation, le dénouement des transactions sur titres, la gestion des revenus (coupons, dividendes) et les OST."},
+  {cat:"Back Office",q:"Le FODEP est transmis sur base semestrielle avec deux dates : 30 avril et 31 octobre.",r:true,ex:"Instruction 005-08-2017 BCEAO Art.4 : 30 avril (base comptes 31/12 N-1) et 31 octobre (base états 30/06 N)."},
+  {cat:"Back Office",q:"La séparation des fonctions front office et back office est une exigence de contrôle interne.",r:true,ex:"Le principe de séparation des tâches (front/back/middle) est fondamental pour éviter les conflits d'intérêts et réduire le risque opérationnel."},
+  {cat:"Back Office",q:"Le risque opérationnel exclut les défaillances des systèmes informatiques.",r:false,ex:"Annexe Décision 013/2016 Titre V : la défaillance des systèmes informatiques EST incluse dans le risque opérationnel. Seuls les risques stratégiques et de réputation sont exclus."},
+  {cat:"Back Office",q:"Les opérations sur titres (OST) incluent les augmentations de capital, distributions de dividendes et échanges d'actions.",r:true,ex:"Les opérations sur titres (OST/Corporate Actions) couvrent toute opération impactant les titres en dépôt : dividendes, AK, fusions, échanges, remboursements."},
+  {cat:"Back Office",q:"La méthode standard UMOA pour le risque opérationnel utilise le total bilan comme base de calcul.",r:false,ex:"La méthode standard UMOA utilise 15% du PNB moyen des 3 derniers exercices, non le total bilan."},
+  {cat:"Back Office",q:"Le Plan de Continuité d'Activité (PCA) est une composante obligatoire du dispositif de gestion du risque opérationnel.",r:true,ex:"Annexe Décision 013/2016 Titre V : PCA, collecte des pertes opérationnelles et KRI (Key Risk Indicators) sont obligatoires."},
+  {cat:"Back Office",q:"Les comptes de correspondants nostro sont des actifs au bilan de la banque.",r:true,ex:"Les avoirs détenus sur comptes nostro (chez les correspondants) sont des actifs bilanciels — ils représentent des créances sur les banques correspondantes."},
+  {cat:"Back Office",q:"La surveillance des limites de marché relève du Back Office exclusivement.",r:false,ex:"La surveillance des limites de marché relève du Middle Office ou de la Direction des Risques (2ème ligne de défense). Le Back Office assure le règlement/livraison des opérations."}
+];
+
+function lancerQuizVF_BO(){ // MODIFIÉ
+  var qs=QVF_BACK_OFFICE_DATA.slice().sort(function(){return Math.random()-.5;});
+  qvfEtat_BO={questions:qs,idx:0,score:0,repondu:false};
+  var el=function(id){return document.getElementById(id);};
+  if(el('bo-quiz-accueil')) el('bo-quiz-accueil').style.display='none';
+  if(el('bo-quiz-vf')) el('bo-quiz-vf').style.display='block';
+  if(el('qvf-bo-result')) el('qvf-bo-result').style.display='none';
+  if(el('qvf-bo-card')) el('qvf-bo-card').style.display='block';
+  afficherQuestion_BO();
+}
+var qvfEtat_BO={questions:[],idx:0,score:0,repondu:false};
+function afficherQuestion_BO(){
+  var q=qvfEtat_BO.questions[qvfEtat_BO.idx];
+  var total=qvfEtat_BO.questions.length;
+  var el=function(id){return document.getElementById(id);};
+  if(el('qvf-bo-category')) el('qvf-bo-category').textContent=q.cat;
+  if(el('qvf-bo-question')) el('qvf-bo-question').textContent=q.q;
+  if(el('qvf-bo-counter')) el('qvf-bo-counter').textContent=(qvfEtat_BO.idx+1)+' / '+total;
+  if(el('qvf-bo-score-inline')) el('qvf-bo-score-inline').textContent='✅ '+qvfEtat_BO.score;
+  if(el('qvf-bo-progress-fill')) el('qvf-bo-progress-fill').style.width=(qvfEtat_BO.idx/total*100)+'%';
+  if(el('btn-bo-vrai')) el('btn-bo-vrai').disabled=false;
+  if(el('btn-bo-faux')) el('btn-bo-faux').disabled=false;
+  if(el('qvf-bo-feedback')) el('qvf-bo-feedback').style.display='none';
+  if(el('qvf-bo-next')) el('qvf-bo-next').style.display='none';
+  qvfEtat_BO.repondu=false;
+}
+function repondreVF_BO(rep){
+  if(qvfEtat_BO.repondu) return;
+  qvfEtat_BO.repondu=true;
+  var q=qvfEtat_BO.questions[qvfEtat_BO.idx];
+  var correct=(rep===q.r);
+  if(correct) qvfEtat_BO.score++;
+  var el=function(id){return document.getElementById(id);};
+  if(el('btn-bo-vrai')) el('btn-bo-vrai').disabled=true;
+  if(el('btn-bo-faux')) el('btn-bo-faux').disabled=true;
+  var fb=el('qvf-bo-feedback');
+  if(fb){fb.className='quiz-vf-feedback '+(correct?'correct':'wrong');fb.style.display='block';}
+  if(el('qvf-bo-feedback-title')) el('qvf-bo-feedback-title').textContent=correct?'✅ Correct !':'❌ Incorrect';
+  if(el('qvf-bo-feedback-expl')) el('qvf-bo-feedback-expl').textContent=q.ex;
+  if(el('qvf-bo-score-inline')) el('qvf-bo-score-inline').textContent='✅ '+qvfEtat_BO.score;
+  var nextBtn=el('qvf-bo-next');
+  if(nextBtn){nextBtn.style.display='block';nextBtn.textContent=(qvfEtat_BO.idx===qvfEtat_BO.questions.length-1)?'Voir mon résultat →':'Question suivante →';}
+}
+function questionSuivante_BO(){
+  qvfEtat_BO.idx++;
+  if(qvfEtat_BO.idx>=qvfEtat_BO.questions.length) afficherResultatVF_BO();
+  else afficherQuestion_BO();
+}
+function afficherResultatVF_BO(){
+  var el=function(id){return document.getElementById(id);};
+  if(el('qvf-bo-card')) el('qvf-bo-card').style.display='none';
+  var result=el('qvf-bo-result');
+  if(result) result.style.display='block';
+  var score=qvfEtat_BO.score;var total=qvfEtat_BO.questions.length;var pct=Math.round(score/total*100);
+  if(el('qvf-bo-final-score')) el('qvf-bo-final-score').textContent=score;
+  var medal='🥉',label='Continuez à réviser !';
+  if(pct>=90){medal='🏆';label='Excellence ! Niveau expert Back Office.';}
+  else if(pct>=75){medal='🥇';label='Très bon niveau. Quelques points à consolider.';}
+  else if(pct>=60){medal='🥈';label='Bon début. Révisez les procédures opérationnelles.';}
+  if(el('qvf-bo-medal')) el('qvf-bo-medal').textContent=medal;
+  if(el('qvf-bo-result-label')) el('qvf-bo-result-label').textContent=label;
+  var best=parseInt(localStorage.getItem('ra_metier_bo_best')||'0');
+  if(score>best) localStorage.setItem('ra_metier_bo_best',score);
+  chargerScoreMetier('back-office');
+}
+function retourQuizAccueil_BO(){
+  var el=function(id){return document.getElementById(id);};
+  if(el('bo-quiz-vf')) el('bo-quiz-vf').style.display='none';
+  if(el('bo-quiz-accueil')) el('bo-quiz-accueil').style.display='block';
+  if(el('qvf-bo-card')) el('qvf-bo-card').style.display='block';
+  if(el('qvf-bo-result')) el('qvf-bo-result').style.display='none';
+}
+
+/* ============ QVF ALM / TRÉSORERIE ============ */ // MODIFIÉ
+var QVF_ALM_DATA=[
+  {cat:"ALM / Trésorerie",q:"Le LCR (Liquidity Coverage Ratio) mesure la capacité d'une banque à couvrir ses sorties nettes de trésorerie sur 30 jours en situation de stress.",r:true,ex:"Instruction 009-09-2017 BCEAO Art.4 : LCR = HQLA / sorties nettes 30 jours en scénario de stress ≥ 100% en permanence."},
+  {cat:"ALM / Trésorerie",q:"Le NSFR compare le financement stable disponible au financement stable exigé et doit être supérieur ou égal à 100%.",r:true,ex:"Annexe Décision 013/2016 Titre XIII : NSFR = ASF / RSF ≥ 100%. Vise la résilience à moyen-long terme du financement."},
+  {cat:"ALM / Trésorerie",q:"Le ratio de levier dans l'UMOA doit être supérieur ou égal à 5%.",r:false,ex:"Le ratio de levier minimum dans l'UMOA est de 3% (Tier 1 / exposition totale non pondérée). Annexe Décision 013/2016 Titre VIII."},
+  {cat:"ALM / Trésorerie",q:"Le risque de taux d'intérêt dans le portefeuille bancaire (IRRBB) relève du Pilier 2 et non du Pilier 1.",r:true,ex:"L'IRRBB (Interest Rate Risk in the Banking Book) est traité au Pilier 2 (surveillance prudentielle), pas au Pilier 1 dans l'UMOA."},
+  {cat:"ALM / Trésorerie",q:"Le gap de liquidité mesure les déséquilibres entre les flux de trésorerie entrants et sortants par tranche de maturité.",r:true,ex:"Le gap de liquidité (ou impasse de liquidité) est un outil central de l'ALM pour identifier les besoins de refinancement par échéance."},
+  {cat:"ALM / Trésorerie",q:"Les HQLA (actifs liquides de haute qualité) doivent être facilement convertibles en espèces sans perte significative de valeur.",r:true,ex:"Annexe Décision 013/2016 Titre XIII : les HQLA forment le numérateur du LCR. Ils doivent être liquides, non grevés et rapidement mobilisables."},
+  {cat:"ALM / Trésorerie",q:"Le marché monétaire de l'UEMOA est animé par la BCEAO via ses opérations d'open market.",r:true,ex:"La BCEAO intervient sur le marché monétaire de l'UMOA via des appels d'offres d'injection ou de retrait de liquidités pour piloter les taux directeurs."},
+  {cat:"ALM / Trésorerie",q:"Le risque de change pour une banque UMOA concerne exclusivement les positions en euros.",r:false,ex:"Le risque de change s'applique à l'ensemble des positions nettes en devises étrangères (USD, EUR, GBP, etc.), pas uniquement l'euro."},
+  {cat:"ALM / Trésorerie",q:"Le LCR doit être respecté en permanence et déclaré mensuellement à la BCEAO.",r:true,ex:"Instruction 009-09-2017 BCEAO Art.5 : LCR ≥ 100% en permanence, déclaration mensuelle."},
+  {cat:"ALM / Trésorerie",q:"Le gap de taux mesure la sensibilité du PNB aux variations des taux d'intérêt par tranche de maturité.",r:true,ex:"L'impasse de taux (gap de taux) permet à l'ALM de mesurer et gérer le risque de taux d'intérêt dans le portefeuille bancaire (IRRBB)."},
+  {cat:"ALM / Trésorerie",q:"Les bons du Trésor des États UEMOA en FCFA sont considérés comme des HQLA éligibles au LCR.",r:true,ex:"Les titres souverains UEMOA en FCFA bénéficient d'une pondération 0% et sont éligibles HQLA pour le LCR, reflétant leur liquidité sur le marché régional."},
+  {cat:"ALM / Trésorerie",q:"La BCEAO fixe un taux de réserves obligatoires que les banques doivent constituer auprès d'elle.",r:true,ex:"Les réserves obligatoires sont un instrument de politique monétaire de la BCEAO. Elles réduisent la liquidité disponible des banques et influencent les conditions de crédit."},
+  {cat:"ALM / Trésorerie",q:"L'exemption d'exigence en fonds propres au titre du risque de change est possible si la position nette est inférieure à 2% des FPE.",r:true,ex:"Annexe Décision 013/2016 Titre VI : exemption d'exigence possible si position nette globale en devises < 2% des fonds propres effectifs."},
+  {cat:"ALM / Trésorerie",q:"Le coefficient de 15% appliqué au PNB moyen des 3 derniers exercices permet de calculer l'exigence en fonds propres au titre du risque opérationnel.",r:true,ex:"Annexe Décision 013/2016 Titre V : approche standard du risque opérationnel = 15% × PNB moyen 3 ans (hors années PNB ≤ 0)."},
+  {cat:"ALM / Trésorerie",q:"Le NSFR vise à couvrir les besoins de liquidité à court terme sur 30 jours.",r:false,ex:"Le NSFR vise la résilience à moyen et long terme du financement. Le LCR (30 jours) couvre le court terme. NSFR = horizon structurel > 1 an."},
+  {cat:"ALM / Trésorerie",q:"L'Atténuation du Risque de Crédit (ARC) peut réduire le montant des APR d'une banque.",r:true,ex:"Annexe Décision 013/2016 Titre IV Ch.3 : l'ARC (sûretés financières, garanties, dérivés de crédit) réduit l'exposition au risque et donc les APR."},
+  {cat:"ALM / Trésorerie",q:"La BCEAO peut imposer un coussin contracyclique allant jusqu'à 2,5% des APR.",r:true,ex:"Annexe Décision 013/2016 Titre III : coussin contracyclique = 0 à 2,5% activable par la BCEAO en période de croissance excessive du crédit."},
+  {cat:"ALM / Trésorerie",q:"Le Règlement 06/2024/CM/UEMOA encadre les opérations de change et les transferts extérieurs dans la zone UEMOA.",r:true,ex:"Le Règlement 06/2024/CM/UEMOA constitue le nouveau cadre réglementaire des opérations de change et des relations financières avec l'extérieur dans l'UEMOA."},
+  {cat:"ALM / Trésorerie",q:"Les actifs liquides de haute qualité (HQLA) de niveau 1 incluent les espèces, les réserves BCEAO et les titres souverains UEMOA.",r:true,ex:"Les HQLA de niveau 1 (qualité maximale, sans haircut) = espèces, réserves banque centrale, titres souverains UEMOA pondérés à 0%."},
+  {cat:"ALM / Trésorerie",q:"Une banque en excès de liquidité sur le marché monétaire peut placer ses surplus en bons du Trésor ou auprès de la BCEAO.",r:true,ex:"La gestion de la trésorerie inclut le placement des excédents sur le marché monétaire (interbancaire, BdT) et en facilité de dépôt BCEAO selon les conditions du marché."}
+];
+
+function lancerQuizVF_ALM(){ // MODIFIÉ
+  var qs=QVF_ALM_DATA.slice().sort(function(){return Math.random()-.5;});
+  qvfEtat_ALM={questions:qs,idx:0,score:0,repondu:false};
+  var el=function(id){return document.getElementById(id);};
+  if(el('alm-quiz-accueil')) el('alm-quiz-accueil').style.display='none';
+  if(el('alm-quiz-vf')) el('alm-quiz-vf').style.display='block';
+  if(el('qvf-alm-result')) el('qvf-alm-result').style.display='none';
+  if(el('qvf-alm-card')) el('qvf-alm-card').style.display='block';
+  afficherQuestion_ALM();
+}
+var qvfEtat_ALM={questions:[],idx:0,score:0,repondu:false};
+function afficherQuestion_ALM(){
+  var q=qvfEtat_ALM.questions[qvfEtat_ALM.idx];
+  var total=qvfEtat_ALM.questions.length;
+  var el=function(id){return document.getElementById(id);};
+  if(el('qvf-alm-category')) el('qvf-alm-category').textContent=q.cat;
+  if(el('qvf-alm-question')) el('qvf-alm-question').textContent=q.q;
+  if(el('qvf-alm-counter')) el('qvf-alm-counter').textContent=(qvfEtat_ALM.idx+1)+' / '+total;
+  if(el('qvf-alm-score-inline')) el('qvf-alm-score-inline').textContent='✅ '+qvfEtat_ALM.score;
+  if(el('qvf-alm-progress-fill')) el('qvf-alm-progress-fill').style.width=(qvfEtat_ALM.idx/total*100)+'%';
+  if(el('btn-alm-vrai')) el('btn-alm-vrai').disabled=false;
+  if(el('btn-alm-faux')) el('btn-alm-faux').disabled=false;
+  if(el('qvf-alm-feedback')) el('qvf-alm-feedback').style.display='none';
+  if(el('qvf-alm-next')) el('qvf-alm-next').style.display='none';
+  qvfEtat_ALM.repondu=false;
+}
+function repondreVF_ALM(rep){
+  if(qvfEtat_ALM.repondu) return;
+  qvfEtat_ALM.repondu=true;
+  var q=qvfEtat_ALM.questions[qvfEtat_ALM.idx];
+  var correct=(rep===q.r);
+  if(correct) qvfEtat_ALM.score++;
+  var el=function(id){return document.getElementById(id);};
+  if(el('btn-alm-vrai')) el('btn-alm-vrai').disabled=true;
+  if(el('btn-alm-faux')) el('btn-alm-faux').disabled=true;
+  var fb=el('qvf-alm-feedback');
+  if(fb){fb.className='quiz-vf-feedback '+(correct?'correct':'wrong');fb.style.display='block';}
+  if(el('qvf-alm-feedback-title')) el('qvf-alm-feedback-title').textContent=correct?'✅ Correct !':'❌ Incorrect';
+  if(el('qvf-alm-feedback-expl')) el('qvf-alm-feedback-expl').textContent=q.ex;
+  if(el('qvf-alm-score-inline')) el('qvf-alm-score-inline').textContent='✅ '+qvfEtat_ALM.score;
+  var nextBtn=el('qvf-alm-next');
+  if(nextBtn){nextBtn.style.display='block';nextBtn.textContent=(qvfEtat_ALM.idx===qvfEtat_ALM.questions.length-1)?'Voir mon résultat →':'Question suivante →';}
+}
+function questionSuivante_ALM(){
+  qvfEtat_ALM.idx++;
+  if(qvfEtat_ALM.idx>=qvfEtat_ALM.questions.length) afficherResultatVF_ALM();
+  else afficherQuestion_ALM();
+}
+function afficherResultatVF_ALM(){
+  var el=function(id){return document.getElementById(id);};
+  if(el('qvf-alm-card')) el('qvf-alm-card').style.display='none';
+  var result=el('qvf-alm-result');
+  if(result) result.style.display='block';
+  var score=qvfEtat_ALM.score;var total=qvfEtat_ALM.questions.length;var pct=Math.round(score/total*100);
+  if(el('qvf-alm-final-score')) el('qvf-alm-final-score').textContent=score;
+  var medal='🥉',label='Continuez à réviser !';
+  if(pct>=90){medal='🏆';label='Excellence ! Niveau expert ALM/Trésorerie.';}
+  else if(pct>=75){medal='🥇';label='Très bon niveau. Quelques points à consolider.';}
+  else if(pct>=60){medal='🥈';label='Bon début. Révisez les ratios de liquidité.';}
+  if(el('qvf-alm-medal')) el('qvf-alm-medal').textContent=medal;
+  if(el('qvf-alm-result-label')) el('qvf-alm-result-label').textContent=label;
+  var best=parseInt(localStorage.getItem('ra_metier_alm_best')||'0');
+  if(score>best) localStorage.setItem('ra_metier_alm_best',score);
+  chargerScoreMetier('alm');
+}
+function retourQuizAccueil_ALM(){
+  var el=function(id){return document.getElementById(id);};
+  if(el('alm-quiz-vf')) el('alm-quiz-vf').style.display='none';
+  if(el('alm-quiz-accueil')) el('alm-quiz-accueil').style.display='block';
+  if(el('qvf-alm-card')) el('qvf-alm-card').style.display='block';
+  if(el('qvf-alm-result')) el('qvf-alm-result').style.display='none';
+}
+
+/* ============ QVF BANQUE DE DÉTAIL ============ */ // MODIFIÉ
+var QVF_DETAIL_DATA=[
+  {cat:"Banque de Détail",q:"Le PCB UMOA (Plan Comptable Bancaire) est le référentiel comptable obligatoire pour tous les établissements de crédit de l'UMOA.",r:true,ex:"Le PCB UMOA constitue le cadre comptable harmonisé applicable à tous les établissements de crédit et de microfinance de l'UMOA."},
+  {cat:"Banque de Détail",q:"La vigilance simplifiée LBC/FT peut être appliquée à tout client de banque de détail sans condition.",r:false,ex:"La vigilance simplifiée s'applique uniquement aux clients et produits présentant un risque documenté faible (ABR). Elle nécessite une justification dans le cadre de l'ABR."},
+  {cat:"Banque de Détail",q:"Le seuil de déclaration obligatoire des opérations en espèces à la CENTIF est de 5 000 000 FCFA.",r:true,ex:"Les opérations en espèces supérieures à 5 000 000 FCFA font l'objet d'obligations spécifiques de vigilance et de déclaration LBC/FT dans l'UMOA."},
+  {cat:"Banque de Détail",q:"Une Personne Politiquement Exposée (PPE) doit faire l'objet d'une vigilance renforcée dans la banque de détail.",r:true,ex:"Quelle que soit la relation commerciale, les PPE (et leurs proches) sont soumises à vigilance renforcée — obligation LBC/FT universelle."},
+  {cat:"Banque de Détail",q:"Le FODEP couvre uniquement les établissements de crédit sur base individuelle.",r:false,ex:"Instruction 005-08-2017 Art.2 : le FODEP s'applique sur base individuelle (banques + EFCB), sous-consolidée (holdings intermédiaires) et consolidée (maisons-mères et holdings)."},
+  {cat:"Banque de Détail",q:"Les expositions sur la clientèle de détail (retail) éligible bénéficient d'une pondération de 75% dans le calcul des APR.",r:true,ex:"Annexe Décision 013/2016 Titre IV : pondération retail (crédits particuliers, PME éligibles) = 75%."},
+  {cat:"Banque de Détail",q:"Un prêt immobilier résidentiel entièrement garanti par une hypothèque est pondéré à 75% dans l'UMOA.",r:false,ex:"Annexe Décision 013/2016 Titre IV : la pondération des crédits immobiliers résidentiels intégralement couverts par une hypothèque est de 35%."},
+  {cat:"Banque de Détail",q:"La Directive FODEP impose la conservation des pièces KYC pendant 10 ans après la fin de la relation commerciale.",r:true,ex:"Obligations LBC/FT UMOA : conservation des documents d'identification et pièces justificatives pendant 10 ans après la cessation de la relation commerciale."},
+  {cat:"Banque de Détail",q:"Le tipping-off (informer le client d'une déclaration de soupçon) est interdit dans l'UMOA.",r:true,ex:"Obligation LBC/FT : une fois une Déclaration de Soupçon (DOS) transmise à la CENTIF, il est formellement interdit d'en informer le client concerné."},
+  {cat:"Banque de Détail",q:"Dans l'UMOA, les crédits à la consommation sont exclus des obligations de classification prudentielle.",r:false,ex:"Tous les crédits accordés aux particuliers sont soumis aux obligations de classification prudentielle (sains, sous surveillance, douteux, litigieux) selon les normes BCEAO."},
+  {cat:"Banque de Détail",q:"Le ratio de levier minimum dans l'UMOA est de 3% (Tier 1 / exposition totale non pondérée).",r:true,ex:"Annexe Décision 013/2016 Titre VIII : ratio de levier = Tier 1 / Exposition totale ≥ 3%. Filet de sécurité non pondéré."},
+  {cat:"Banque de Détail",q:"Le financement du commerce extérieur par la clientèle PME relève uniquement du Corporate Banking.",r:false,ex:"La banque de détail accompagne également les PME dans leurs opérations de commerce international (lettres de crédit, remises documentaires) à plus petite échelle."},
+  {cat:"Banque de Détail",q:"La CENTIF est le destinataire des Déclarations de Soupçon dans les États membres de l'UMOA.",r:true,ex:"La CENTIF (Cellule Nationale de Traitement des Informations Financières) est l'autorité nationale de lutte contre le blanchiment dans chaque État UMOA."},
+  {cat:"Banque de Détail",q:"Les crédits en souffrance depuis plus de 90 jours non suffisamment provisionnés sont pondérés à 100%.",r:false,ex:"Annexe Décision 013/2016 Titre IV : pondération des créances en souffrance > 90j et insuffisamment provisionnées = 150%, non 100%."},
+  {cat:"Banque de Détail",q:"Le Règlement 06/2024/CM/UEMOA encadre les transferts d'argent de la clientèle de détail vers l'étranger.",r:true,ex:"Le Règlement 06/2024 régit l'ensemble des opérations de change et des relations financières avec l'extérieur, y compris les transferts de la clientèle particulière."},
+  {cat:"Banque de Détail",q:"La Banque de Détail peut accorder des crédits sans aucune limite réglementaire par bénéficiaire.",r:false,ex:"La division des risques s'applique à tous les établissements : limite individuelle de 25% des FPE par bénéficiaire, quel que soit le segment (particulier, PME, corporate)."},
+  {cat:"Banque de Détail",q:"L'ouverture d'un compte bancaire nécessite l'identification et la vérification de l'identité du client (KYC).",r:true,ex:"Obligation LBC/FT de base : identification du client (Know Your Customer = KYC) à l'entrée en relation, avec vérification des documents d'identité."},
+  {cat:"Banque de Détail",q:"Le PCB UMOA définit la présentation des états financiers des établissements de crédit.",r:true,ex:"Le Plan Comptable Bancaire UMOA harmonise la présentation du bilan, compte de résultat, TAFIRE et hors bilan de tous les EC de l'UMOA."},
+  {cat:"Banque de Détail",q:"La gestion de la qualité du portefeuille de crédits aux particuliers relève du Pilier 2 uniquement.",r:false,ex:"La qualité du portefeuille impacte les APR (Pilier 1 via pondérations), les provisions (Pilier 2 via ICAAP) et les publications (Pilier 3). Elle est transversale aux 3 piliers."},
+  {cat:"Banque de Détail",q:"Le financement du logement social peut bénéficier d'une pondération réduite si garanti par une hypothèque sur le bien financé.",r:true,ex:"Annexe Décision 013/2016 Titre IV : crédit immobilier résidentiel intégralement garanti par hypothèque = pondération 35%, ce qui favorise le financement du logement."}
+];
+
+function lancerQuizVF_DET(){ // MODIFIÉ
+  var qs=QVF_DETAIL_DATA.slice().sort(function(){return Math.random()-.5;});
+  qvfEtat_DET={questions:qs,idx:0,score:0,repondu:false};
+  var el=function(id){return document.getElementById(id);};
+  if(el('det-quiz-accueil')) el('det-quiz-accueil').style.display='none';
+  if(el('det-quiz-vf')) el('det-quiz-vf').style.display='block';
+  if(el('qvf-det-result')) el('qvf-det-result').style.display='none';
+  if(el('qvf-det-card')) el('qvf-det-card').style.display='block';
+  afficherQuestion_DET();
+}
+var qvfEtat_DET={questions:[],idx:0,score:0,repondu:false};
+function afficherQuestion_DET(){
+  var q=qvfEtat_DET.questions[qvfEtat_DET.idx];
+  var total=qvfEtat_DET.questions.length;
+  var el=function(id){return document.getElementById(id);};
+  if(el('qvf-det-category')) el('qvf-det-category').textContent=q.cat;
+  if(el('qvf-det-question')) el('qvf-det-question').textContent=q.q;
+  if(el('qvf-det-counter')) el('qvf-det-counter').textContent=(qvfEtat_DET.idx+1)+' / '+total;
+  if(el('qvf-det-score-inline')) el('qvf-det-score-inline').textContent='✅ '+qvfEtat_DET.score;
+  if(el('qvf-det-progress-fill')) el('qvf-det-progress-fill').style.width=(qvfEtat_DET.idx/total*100)+'%';
+  if(el('btn-det-vrai')) el('btn-det-vrai').disabled=false;
+  if(el('btn-det-faux')) el('btn-det-faux').disabled=false;
+  if(el('qvf-det-feedback')) el('qvf-det-feedback').style.display='none';
+  if(el('qvf-det-next')) el('qvf-det-next').style.display='none';
+  qvfEtat_DET.repondu=false;
+}
+function repondreVF_DET(rep){
+  if(qvfEtat_DET.repondu) return;
+  qvfEtat_DET.repondu=true;
+  var q=qvfEtat_DET.questions[qvfEtat_DET.idx];
+  var correct=(rep===q.r);
+  if(correct) qvfEtat_DET.score++;
+  var el=function(id){return document.getElementById(id);};
+  if(el('btn-det-vrai')) el('btn-det-vrai').disabled=true;
+  if(el('btn-det-faux')) el('btn-det-faux').disabled=true;
+  var fb=el('qvf-det-feedback');
+  if(fb){fb.className='quiz-vf-feedback '+(correct?'correct':'wrong');fb.style.display='block';}
+  if(el('qvf-det-feedback-title')) el('qvf-det-feedback-title').textContent=correct?'✅ Correct !':'❌ Incorrect';
+  if(el('qvf-det-feedback-expl')) el('qvf-det-feedback-expl').textContent=q.ex;
+  if(el('qvf-det-score-inline')) el('qvf-det-score-inline').textContent='✅ '+qvfEtat_DET.score;
+  var nextBtn=el('qvf-det-next');
+  if(nextBtn){nextBtn.style.display='block';nextBtn.textContent=(qvfEtat_DET.idx===qvfEtat_DET.questions.length-1)?'Voir mon résultat →':'Question suivante →';}
+}
+function questionSuivante_DET(){
+  qvfEtat_DET.idx++;
+  if(qvfEtat_DET.idx>=qvfEtat_DET.questions.length) afficherResultatVF_DET();
+  else afficherQuestion_DET();
+}
+function afficherResultatVF_DET(){
+  var el=function(id){return document.getElementById(id);};
+  if(el('qvf-det-card')) el('qvf-det-card').style.display='none';
+  var result=el('qvf-det-result');
+  if(result) result.style.display='block';
+  var score=qvfEtat_DET.score;var total=qvfEtat_DET.questions.length;var pct=Math.round(score/total*100);
+  if(el('qvf-det-final-score')) el('qvf-det-final-score').textContent=score;
+  var medal='🥉',label='Continuez à réviser !';
+  if(pct>=90){medal='🏆';label='Excellence ! Niveau expert Banque de Détail.';}
+  else if(pct>=75){medal='🥇';label='Très bon niveau. Quelques points à consolider.';}
+  else if(pct>=60){medal='🥈';label='Bon début. Révisez la réglementation prudentielle.';}
+  if(el('qvf-det-medal')) el('qvf-det-medal').textContent=medal;
+  if(el('qvf-det-result-label')) el('qvf-det-result-label').textContent=label;
+  var best=parseInt(localStorage.getItem('ra_metier_det_best')||'0');
+  if(score>best) localStorage.setItem('ra_metier_det_best',score);
+  chargerScoreMetier('detail');
+}
+function retourQuizAccueil_DET(){
+  var el=function(id){return document.getElementById(id);};
+  if(el('det-quiz-vf')) el('det-quiz-vf').style.display='none';
+  if(el('det-quiz-accueil')) el('det-quiz-accueil').style.display='block';
+  if(el('qvf-det-card')) el('qvf-det-card').style.display='block';
+  if(el('qvf-det-result')) el('qvf-det-result').style.display='none';
 }
 </script>
 
@@ -5702,6 +6094,203 @@ function retourQuizAccueil_RI(){
 <div class="quiz-vf-result-score"><span id="qvf-ri-final-score"></span><span> / 20</span></div>
 <div class="quiz-vf-result-label" id="qvf-ri-result-label"></div>
 <div class="quiz-vf-result-btns"><button class="quiz-vf-result-btn primary" onclick="lancerQuizVF_RI()">🔄 Recommencer</button><button class="quiz-vf-result-btn secondary" onclick="retourQuizAccueil_RI()">← Retour</button></div>
+</div>
+</div></div>
+</div></div>
+
+<!-- MODIFIÉ : sections Corporate Banking, Back Office, ALM, Banque de Détail -->
+<div class="metier-detail" id="metier-corporate">
+<div class="metier-detail-header">
+<h2>💼 Corporate Banking</h2>
+<p>Le chargé d'affaires Corporate structure les financements d'entreprises, analyse les risques de crédit et maîtrise le dispositif prudentiel UMOA (division des risques, APR, ratios de fonds propres).</p>
+<div class="metier-score-bar"><span class="metier-score-label">Score de maîtrise</span><div class="metier-score-track"><div class="metier-score-fill" id="cb-score-fill"></div></div><span class="metier-score-pct" id="cb-score-pct">0%</span></div>
+</div>
+<div class="metier-tabs">
+<button class="metier-tab active" onclick="switchTab('corporate','prerequis')">Prérequis</button>
+<button class="metier-tab" onclick="switchTab('corporate','notions')">Notions clés</button>
+<button class="metier-tab" onclick="switchTab('corporate','textes')">Textes réglementaires</button>
+<button class="metier-tab" onclick="switchTab('corporate','quiz')">Quiz &amp; Compétition</button>
+</div>
+<div class="metier-tab-content active" id="corporate-tab-prerequis">
+<div class="metier-block"><div class="metier-block-title">Formation requise</div><ul class="metier-prereq-list"><li>Master Finance, Banque ou École de Commerce</li><li>Certification CFA ou ACCA appréciée</li><li>Maîtrise de l'analyse financière et du crédit corporate</li></ul></div>
+<div class="metier-block"><div class="metier-block-title">Qualités personnelles</div><div class="metier-tag-list"><span class="metier-tag">Analyse financière</span><span class="metier-tag">Négociation</span><span class="metier-tag">Relation client</span><span class="metier-tag">Réglementation prudentielle</span></div></div>
+</div>
+<div class="metier-tab-content" id="corporate-tab-notions">
+<div class="metier-block"><div class="metier-block-title">Division des risques UMOA</div><ul class="metier-prereq-list"><li><strong>Grand risque</strong> : exposition ≥ 10% des FPE → déclaration CB</li><li><strong>Limite individuelle</strong> : 25% des FPE par bénéficiaire ou groupe lié</li><li><strong>Limite globale</strong> : 800% des FPE (8 fois)</li></ul></div>
+<div class="metier-block"><div class="metier-block-title">Pondérations APR Corporate</div><div class="metier-tag-list"><span class="metier-tag gold">Entreprise non notée : 100%</span><span class="metier-tag">PME retail éligible : 75%</span><span class="metier-tag">Souverain UEMOA FCFA : 0%</span><span class="metier-tag">Créance souffrance : 150%</span></div></div>
+<div class="metier-block"><div class="metier-block-title">Outils analyse crédit</div><div class="metier-tag-list"><span class="metier-tag gold">DSCR — Capacité de remboursement</span><span class="metier-tag">Gearing — Endettement net/FP</span><span class="metier-tag">EBITDA — Cash flow opérationnel</span><span class="metier-tag">WCR — Besoin en fonds de roulement</span></div></div>
+</div>
+<div class="metier-tab-content" id="corporate-tab-textes">
+<div class="metier-block"><div class="metier-block-title">Textes fondamentaux UMOA</div>
+<div class="metier-texte-item"><div><div class="metier-texte-ref">Décision N°013/2016/CM/UMOA</div><div class="metier-texte-name">Dispositif prudentiel — Division des risques</div><div class="metier-texte-scope">APR · Grands risques · Pondérations · Coussins</div></div><button class="metier-texte-btn">Bientôt</button></div>
+<div class="metier-texte-item"><div><div class="metier-texte-ref">Règlement 06/2024/CM/UEMOA</div><div class="metier-texte-name">Régime des opérations de change</div><div class="metier-texte-scope">Change · Transferts · Investissements extérieurs</div></div><button class="metier-texte-btn">Bientôt</button></div>
+</div></div>
+<div class="metier-tab-content" id="corporate-tab-quiz">
+<div id="cb-quiz-accueil"><div class="metier-block"><div class="metier-block-title">Modes de jeu</div><div class="metier-actions">
+<button class="metier-action-btn" onclick="lancerQuizVF_CB()"><span class="action-icon">✅</span><span class="action-label">QUIZ SOLO</span><span class="action-sub">20 questions Corporate</span></button>
+<button class="metier-action-btn" style="opacity:.6"><span class="action-icon">⚔️</span><span class="action-label">DUEL</span><span class="action-sub">Bientôt</span></button>
+</div></div></div>
+<div id="cb-quiz-vf" style="display:none"><div class="quiz-vf-container">
+<div class="quiz-vf-progress"><span class="quiz-vf-counter" id="qvf-cb-counter">1 / 20</span><div class="quiz-vf-progress-bar"><div class="quiz-vf-progress-fill" id="qvf-cb-progress-fill"></div></div><span class="quiz-vf-counter" id="qvf-cb-score-inline">✅ 0</span></div>
+<div class="quiz-vf-card" id="qvf-cb-card">
+<div class="quiz-vf-category" id="qvf-cb-category"></div>
+<div class="quiz-vf-question" id="qvf-cb-question"></div>
+<div class="quiz-vf-btns"><button class="quiz-vf-btn vrai" onclick="repondreVF_CB(true)" id="btn-cb-vrai">✅ VRAI</button><button class="quiz-vf-btn faux" onclick="repondreVF_CB(false)" id="btn-cb-faux">❌ FAUX</button></div>
+<div class="quiz-vf-feedback" id="qvf-cb-feedback"><div class="quiz-vf-feedback-title" id="qvf-cb-feedback-title"></div><div class="quiz-vf-feedback-expl" id="qvf-cb-feedback-expl"></div></div>
+<button class="quiz-vf-next" id="qvf-cb-next" onclick="questionSuivante_CB()">Question suivante →</button>
+</div>
+<div class="quiz-vf-result" id="qvf-cb-result" style="display:none">
+<div class="quiz-vf-result-medal" id="qvf-cb-medal"></div>
+<div class="quiz-vf-result-score"><span id="qvf-cb-final-score"></span><span> / 20</span></div>
+<div class="quiz-vf-result-label" id="qvf-cb-result-label"></div>
+<div class="quiz-vf-result-btns"><button class="quiz-vf-result-btn primary" onclick="lancerQuizVF_CB()">🔄 Recommencer</button><button class="quiz-vf-result-btn secondary" onclick="retourQuizAccueil_CB()">← Retour</button></div>
+</div>
+</div></div>
+</div></div>
+
+<div class="metier-detail" id="metier-back-office">
+<div class="metier-detail-header">
+<h2>⚙️ Back Office</h2>
+<p>Le Back Officer assure le règlement-livraison des opérations, la réconciliation des comptes nostro/vostro, la gestion des titres en dépôt et le suivi des flux SWIFT dans le respect des procédures de contrôle interne.</p>
+<div class="metier-score-bar"><span class="metier-score-label">Score de maîtrise</span><div class="metier-score-track"><div class="metier-score-fill" id="bo-score-fill"></div></div><span class="metier-score-pct" id="bo-score-pct">0%</span></div>
+</div>
+<div class="metier-tabs">
+<button class="metier-tab active" onclick="switchTab('back-office','prerequis')">Prérequis</button>
+<button class="metier-tab" onclick="switchTab('back-office','notions')">Notions clés</button>
+<button class="metier-tab" onclick="switchTab('back-office','textes')">Textes réglementaires</button>
+<button class="metier-tab" onclick="switchTab('back-office','quiz')">Quiz &amp; Compétition</button>
+</div>
+<div class="metier-tab-content active" id="back-office-tab-prerequis">
+<div class="metier-block"><div class="metier-block-title">Formation requise</div><ul class="metier-prereq-list"><li>Licence ou Master en Finance, Comptabilité ou Gestion</li><li>Maîtrise des outils bancaires (DELTA, AMPLITUDE, FLEXCUBE)</li><li>Connaissance SWIFT et instruments de paiement internationaux</li></ul></div>
+<div class="metier-block"><div class="metier-block-title">Qualités personnelles</div><div class="metier-tag-list"><span class="metier-tag">Rigueur absolue</span><span class="metier-tag">Sens du détail</span><span class="metier-tag">Réactivité</span><span class="metier-tag">Contrôle interne</span></div></div>
+</div>
+<div class="metier-tab-content" id="back-office-tab-notions">
+<div class="metier-block"><div class="metier-block-title">Comptes de correspondance</div><ul class="metier-prereq-list"><li><strong>Nostro</strong> : notre compte chez la banque correspondante (actif)</li><li><strong>Vostro</strong> : le compte de la banque étrangère chez nous (passif)</li><li>Réconciliation quotidienne obligatoire</li></ul></div>
+<div class="metier-block"><div class="metier-block-title">Messages SWIFT clés</div><div class="metier-tag-list"><span class="metier-tag gold">MT 103 — Virement client</span><span class="metier-tag gold">MT 202 — Couverture interbancaire</span><span class="metier-tag">MT 700 — Émission crédit doc</span><span class="metier-tag">MT 760 — Garantie bancaire</span></div></div>
+<div class="metier-block"><div class="metier-block-title">3 lignes de défense</div><ul class="metier-prereq-list"><li><strong>1ère ligne</strong> : Back Office (opérationnel) — contrôles quotidiens</li><li><strong>2ème ligne</strong> : Risques + Conformité — surveillance</li><li><strong>3ème ligne</strong> : Audit interne — évaluation indépendante</li></ul></div>
+</div>
+<div class="metier-tab-content" id="back-office-tab-textes">
+<div class="metier-block"><div class="metier-block-title">Textes fondamentaux</div>
+<div class="metier-texte-item"><div><div class="metier-texte-ref">Circulaire CB-UMOA 04-2017</div><div class="metier-texte-name">Contrôle interne — 3 lignes de défense</div><div class="metier-texte-scope">Organisation · Séparation fonctions · Reporting</div></div><button class="metier-texte-btn">Bientôt</button></div>
+<div class="metier-texte-item"><div><div class="metier-texte-ref">Instruction BCEAO 005-08-2017</div><div class="metier-texte-name">FODEP — Déclaration prudentielle</div><div class="metier-texte-scope">États prudentiels · 30 avril · 31 octobre</div></div><button class="metier-texte-btn">Bientôt</button></div>
+</div></div>
+<div class="metier-tab-content" id="back-office-tab-quiz">
+<div id="bo-quiz-accueil"><div class="metier-block"><div class="metier-block-title">Modes de jeu</div><div class="metier-actions">
+<button class="metier-action-btn" onclick="lancerQuizVF_BO()"><span class="action-icon">✅</span><span class="action-label">QUIZ SOLO</span><span class="action-sub">20 questions Back Office</span></button>
+<button class="metier-action-btn" style="opacity:.6"><span class="action-icon">⚔️</span><span class="action-label">DUEL</span><span class="action-sub">Bientôt</span></button>
+</div></div></div>
+<div id="bo-quiz-vf" style="display:none"><div class="quiz-vf-container">
+<div class="quiz-vf-progress"><span class="quiz-vf-counter" id="qvf-bo-counter">1 / 20</span><div class="quiz-vf-progress-bar"><div class="quiz-vf-progress-fill" id="qvf-bo-progress-fill"></div></div><span class="quiz-vf-counter" id="qvf-bo-score-inline">✅ 0</span></div>
+<div class="quiz-vf-card" id="qvf-bo-card">
+<div class="quiz-vf-category" id="qvf-bo-category"></div>
+<div class="quiz-vf-question" id="qvf-bo-question"></div>
+<div class="quiz-vf-btns"><button class="quiz-vf-btn vrai" onclick="repondreVF_BO(true)" id="btn-bo-vrai">✅ VRAI</button><button class="quiz-vf-btn faux" onclick="repondreVF_BO(false)" id="btn-bo-faux">❌ FAUX</button></div>
+<div class="quiz-vf-feedback" id="qvf-bo-feedback"><div class="quiz-vf-feedback-title" id="qvf-bo-feedback-title"></div><div class="quiz-vf-feedback-expl" id="qvf-bo-feedback-expl"></div></div>
+<button class="quiz-vf-next" id="qvf-bo-next" onclick="questionSuivante_BO()">Question suivante →</button>
+</div>
+<div class="quiz-vf-result" id="qvf-bo-result" style="display:none">
+<div class="quiz-vf-result-medal" id="qvf-bo-medal"></div>
+<div class="quiz-vf-result-score"><span id="qvf-bo-final-score"></span><span> / 20</span></div>
+<div class="quiz-vf-result-label" id="qvf-bo-result-label"></div>
+<div class="quiz-vf-result-btns"><button class="quiz-vf-result-btn primary" onclick="lancerQuizVF_BO()">🔄 Recommencer</button><button class="quiz-vf-result-btn secondary" onclick="retourQuizAccueil_BO()">← Retour</button></div>
+</div>
+</div></div>
+</div></div>
+
+<div class="metier-detail" id="metier-alm">
+<div class="metier-detail-header">
+<h2>🏛️ ALM / Trésorerie</h2>
+<p>Le trésorier-ALM gère la liquidité, le risque de taux et le risque de change de la banque. Il suit les ratios LCR/NSFR, optimise le bilan et intervient sur les marchés monétaires de l'UEMOA.</p>
+<div class="metier-score-bar"><span class="metier-score-label">Score de maîtrise</span><div class="metier-score-track"><div class="metier-score-fill" id="alm-score-fill"></div></div><span class="metier-score-pct" id="alm-score-pct">0%</span></div>
+</div>
+<div class="metier-tabs">
+<button class="metier-tab active" onclick="switchTab('alm','prerequis')">Prérequis</button>
+<button class="metier-tab" onclick="switchTab('alm','notions')">Notions clés</button>
+<button class="metier-tab" onclick="switchTab('alm','textes')">Textes réglementaires</button>
+<button class="metier-tab" onclick="switchTab('alm','quiz')">Quiz &amp; Compétition</button>
+</div>
+<div class="metier-tab-content active" id="alm-tab-prerequis">
+<div class="metier-block"><div class="metier-block-title">Formation requise</div><ul class="metier-prereq-list"><li>Master Finance de Marchés, Mathématiques financières</li><li>Certification ACI (Association Cambiste Internationale) appréciée</li><li>Maîtrise des ratios de liquidité BCEAO (LCR/NSFR)</li></ul></div>
+<div class="metier-block"><div class="metier-block-title">Qualités personnelles</div><div class="metier-tag-list"><span class="metier-tag">Réactivité marché</span><span class="metier-tag">Modélisation quantitative</span><span class="metier-tag">Vision bilancielle</span><span class="metier-tag">Maîtrise des risques</span></div></div>
+</div>
+<div class="metier-tab-content" id="alm-tab-notions">
+<div class="metier-block"><div class="metier-block-title">Ratios de liquidité UMOA</div><ul class="metier-prereq-list"><li><strong>LCR</strong> = HQLA / Sorties nettes 30j ≥ 100% en permanence</li><li><strong>NSFR</strong> = Financement stable disponible / exigé ≥ 100%</li><li><strong>Levier</strong> = Tier 1 / Exposition totale ≥ 3%</li></ul></div>
+<div class="metier-block"><div class="metier-block-title">HQLA — Actifs liquides</div><div class="metier-tag-list"><span class="metier-tag gold">Niveau 1 : Espèces + Réserves BCEAO + Titres souverains UEMOA</span><span class="metier-tag">Niveau 2 : Autres titres éligibles avec haircut</span></div></div>
+<div class="metier-block"><div class="metier-block-title">Outils ALM</div><div class="metier-tag-list"><span class="metier-tag gold">Gap de liquidité — impasses par maturité</span><span class="metier-tag gold">Gap de taux — sensibilité PNB/IRRBB</span><span class="metier-tag">Position de change nette</span><span class="metier-tag">Stress tests liquidité</span></div></div>
+</div>
+<div class="metier-tab-content" id="alm-tab-textes">
+<div class="metier-block"><div class="metier-block-title">Textes fondamentaux UMOA</div>
+<div class="metier-texte-item"><div><div class="metier-texte-ref">Instruction BCEAO n°009-09-2017</div><div class="metier-texte-name">LCR UMOA — Ratio de liquidité court terme</div><div class="metier-texte-scope">HQLA · Sorties nettes · Déclaration mensuelle</div></div><button class="metier-texte-btn">Bientôt</button></div>
+<div class="metier-texte-item"><div><div class="metier-texte-ref">Décision N°013/2016 — Titre XIII</div><div class="metier-texte-name">NSFR — Ratio de liquidité long terme</div><div class="metier-texte-scope">ASF · RSF · Financement stable</div></div><button class="metier-texte-btn">Bientôt</button></div>
+</div></div>
+<div class="metier-tab-content" id="alm-tab-quiz">
+<div id="alm-quiz-accueil"><div class="metier-block"><div class="metier-block-title">Modes de jeu</div><div class="metier-actions">
+<button class="metier-action-btn" onclick="lancerQuizVF_ALM()"><span class="action-icon">✅</span><span class="action-label">QUIZ SOLO</span><span class="action-sub">20 questions ALM/Trésorerie</span></button>
+<button class="metier-action-btn" style="opacity:.6"><span class="action-icon">⚔️</span><span class="action-label">DUEL</span><span class="action-sub">Bientôt</span></button>
+</div></div></div>
+<div id="alm-quiz-vf" style="display:none"><div class="quiz-vf-container">
+<div class="quiz-vf-progress"><span class="quiz-vf-counter" id="qvf-alm-counter">1 / 20</span><div class="quiz-vf-progress-bar"><div class="quiz-vf-progress-fill" id="qvf-alm-progress-fill"></div></div><span class="quiz-vf-counter" id="qvf-alm-score-inline">✅ 0</span></div>
+<div class="quiz-vf-card" id="qvf-alm-card">
+<div class="quiz-vf-category" id="qvf-alm-category"></div>
+<div class="quiz-vf-question" id="qvf-alm-question"></div>
+<div class="quiz-vf-btns"><button class="quiz-vf-btn vrai" onclick="repondreVF_ALM(true)" id="btn-alm-vrai">✅ VRAI</button><button class="quiz-vf-btn faux" onclick="repondreVF_ALM(false)" id="btn-alm-faux">❌ FAUX</button></div>
+<div class="quiz-vf-feedback" id="qvf-alm-feedback"><div class="quiz-vf-feedback-title" id="qvf-alm-feedback-title"></div><div class="quiz-vf-feedback-expl" id="qvf-alm-feedback-expl"></div></div>
+<button class="quiz-vf-next" id="qvf-alm-next" onclick="questionSuivante_ALM()">Question suivante →</button>
+</div>
+<div class="quiz-vf-result" id="qvf-alm-result" style="display:none">
+<div class="quiz-vf-result-medal" id="qvf-alm-medal"></div>
+<div class="quiz-vf-result-score"><span id="qvf-alm-final-score"></span><span> / 20</span></div>
+<div class="quiz-vf-result-label" id="qvf-alm-result-label"></div>
+<div class="quiz-vf-result-btns"><button class="quiz-vf-result-btn primary" onclick="lancerQuizVF_ALM()">🔄 Recommencer</button><button class="quiz-vf-result-btn secondary" onclick="retourQuizAccueil_ALM()">← Retour</button></div>
+</div>
+</div></div>
+</div></div>
+
+<div class="metier-detail" id="metier-detail">
+<div class="metier-detail-header">
+<h2>💰 Banque de Détail</h2>
+<p>Le conseiller de clientèle Détail accompagne particuliers et PME dans leurs opérations bancaires quotidiennes en appliquant les obligations KYC/LBC-FT et les normes prudentielles UMOA sur les crédits retail.</p>
+<div class="metier-score-bar"><span class="metier-score-label">Score de maîtrise</span><div class="metier-score-track"><div class="metier-score-fill" id="det-score-fill"></div></div><span class="metier-score-pct" id="det-score-pct">0%</span></div>
+</div>
+<div class="metier-tabs">
+<button class="metier-tab active" onclick="switchTab('detail','prerequis')">Prérequis</button>
+<button class="metier-tab" onclick="switchTab('detail','notions')">Notions clés</button>
+<button class="metier-tab" onclick="switchTab('detail','textes')">Textes réglementaires</button>
+<button class="metier-tab" onclick="switchTab('detail','quiz')">Quiz &amp; Compétition</button>
+</div>
+<div class="metier-tab-content active" id="detail-tab-prerequis">
+<div class="metier-block"><div class="metier-block-title">Formation requise</div><ul class="metier-prereq-list"><li>Licence Banque, Finance ou Droit des affaires</li><li>Connaissance du PCB UMOA et de la réglementation BCEAO</li><li>Maîtrise des obligations KYC et LBC/FT</li></ul></div>
+<div class="metier-block"><div class="metier-block-title">Qualités personnelles</div><div class="metier-tag-list"><span class="metier-tag">Sens commercial</span><span class="metier-tag">Écoute client</span><span class="metier-tag">Conformité LBC/FT</span><span class="metier-tag">Gestion des risques</span></div></div>
+</div>
+<div class="metier-tab-content" id="detail-tab-notions">
+<div class="metier-block"><div class="metier-block-title">Obligations KYC / LBC-FT</div><ul class="metier-prereq-list"><li><strong>Identification</strong> : vérification identité à l'ouverture de compte</li><li><strong>Vigilance renforcée</strong> : PPE, opérations inhabituelles, pays à risque</li><li><strong>DOS</strong> : déclaration de soupçon → CENTIF (tipping-off interdit)</li><li><strong>Conservation pièces</strong> : 10 ans après fin de relation</li></ul></div>
+<div class="metier-block"><div class="metier-block-title">Pondérations crédit retail</div><div class="metier-tag-list"><span class="metier-tag gold">Particuliers / PME éligibles : 75%</span><span class="metier-tag gold">Immobilier hypothécaire résidentiel : 35%</span><span class="metier-tag">Créances souffrance > 90j : 150%</span></div></div>
+<div class="metier-block"><div class="metier-block-title">Seuil espèces UMOA</div><ul class="metier-prereq-list"><li>Opérations espèces ≥ 5 000 000 FCFA : obligations déclaratives renforcées</li></ul></div>
+</div>
+<div class="metier-tab-content" id="detail-tab-textes">
+<div class="metier-block"><div class="metier-block-title">Textes fondamentaux UMOA</div>
+<div class="metier-texte-item"><div><div class="metier-texte-ref">Directive n°02/2015/CM/UEMOA</div><div class="metier-texte-name">Directive LBC/FT UEMOA</div><div class="metier-texte-scope">KYC · DOS · PPE · Conservation · Vigilance</div></div><button class="metier-texte-btn">Bientôt</button></div>
+<div class="metier-texte-item"><div><div class="metier-texte-ref">PCB UMOA</div><div class="metier-texte-name">Plan Comptable Bancaire UMOA</div><div class="metier-texte-scope">Bilan · Compte de résultat · TAFIRE · Hors-bilan</div></div><button class="metier-texte-btn">Bientôt</button></div>
+</div></div>
+<div class="metier-tab-content" id="detail-tab-quiz">
+<div id="det-quiz-accueil"><div class="metier-block"><div class="metier-block-title">Modes de jeu</div><div class="metier-actions">
+<button class="metier-action-btn" onclick="lancerQuizVF_DET()"><span class="action-icon">✅</span><span class="action-label">QUIZ SOLO</span><span class="action-sub">20 questions Banque Détail</span></button>
+<button class="metier-action-btn" style="opacity:.6"><span class="action-icon">⚔️</span><span class="action-label">DUEL</span><span class="action-sub">Bientôt</span></button>
+</div></div></div>
+<div id="det-quiz-vf" style="display:none"><div class="quiz-vf-container">
+<div class="quiz-vf-progress"><span class="quiz-vf-counter" id="qvf-det-counter">1 / 20</span><div class="quiz-vf-progress-bar"><div class="quiz-vf-progress-fill" id="qvf-det-progress-fill"></div></div><span class="quiz-vf-counter" id="qvf-det-score-inline">✅ 0</span></div>
+<div class="quiz-vf-card" id="qvf-det-card">
+<div class="quiz-vf-category" id="qvf-det-category"></div>
+<div class="quiz-vf-question" id="qvf-det-question"></div>
+<div class="quiz-vf-btns"><button class="quiz-vf-btn vrai" onclick="repondreVF_DET(true)" id="btn-det-vrai">✅ VRAI</button><button class="quiz-vf-btn faux" onclick="repondreVF_DET(false)" id="btn-det-faux">❌ FAUX</button></div>
+<div class="quiz-vf-feedback" id="qvf-det-feedback"><div class="quiz-vf-feedback-title" id="qvf-det-feedback-title"></div><div class="quiz-vf-feedback-expl" id="qvf-det-feedback-expl"></div></div>
+<button class="quiz-vf-next" id="qvf-det-next" onclick="questionSuivante_DET()">Question suivante →</button>
+</div>
+<div class="quiz-vf-result" id="qvf-det-result" style="display:none">
+<div class="quiz-vf-result-medal" id="qvf-det-medal"></div>
+<div class="quiz-vf-result-score"><span id="qvf-det-final-score"></span><span> / 20</span></div>
+<div class="quiz-vf-result-label" id="qvf-det-result-label"></div>
+<div class="quiz-vf-result-btns"><button class="quiz-vf-result-btn primary" onclick="lancerQuizVF_DET()">🔄 Recommencer</button><button class="quiz-vf-result-btn secondary" onclick="retourQuizAccueil_DET()">← Retour</button></div>
 </div>
 </div></div>
 </div></div>
