@@ -5223,8 +5223,8 @@ function rMETIERS(){ // MODIFIÉ : rendu inline du module Métiers
   '<span class="metier-card-icon">🚢</span>'+
   '<div class="metier-card-title">Trade Finance</div>'+
   '<div class="metier-card-sub">Crédits doc · Garanties · Change</div></div>'+
-  '<div class="metier-card" id="card-compliance" onclick="ouvrirMetier('compliance')"><span class="metier-card-badge">DISPONIBLE</span><span class="metier-card-icon">🛡️</span><div class="metier-card-title">Compliance</div><div class="metier-card-sub">LBC/FT · FATCA · KYC</div></div>'+
-  '<div class="metier-card" id="card-risques" onclick="ouvrirMetier('risques')"><span class="metier-card-badge">DISPONIBLE</span><span class="metier-card-icon">📊</span><div class="metier-card-title">Risques</div><div class="metier-card-sub">Bâle III · Crédit · Marché</div></div>'+
+  '<div class="metier-card" id="card-compliance" onclick="ouvrirMetier(\x27compliance\x27)"><span class="metier-card-badge">DISPONIBLE</span><span class="metier-card-icon">🛡️</span><div class="metier-card-title">Compliance</div><div class="metier-card-sub">LBC/FT · FATCA · KYC</div></div>'+
+  '<div class="metier-card" id="card-risques" onclick="ouvrirMetier(\x27risques\x27)"><span class="metier-card-badge">DISPONIBLE</span><span class="metier-card-icon">📊</span><div class="metier-card-title">Risques</div><div class="metier-card-sub">Bâle III · Crédit · Marché</div></div>'+
   '<div class="metier-card locked" title="Bientôt disponible"><span class="metier-card-icon">⚙️</span><div class="metier-card-title">Back Office</div><div class="metier-card-sub">Opérations · Titres · SWIFT</div></div>'+
   '<div class="metier-card locked" title="Bientôt disponible"><span class="metier-card-icon">💼</span><div class="metier-card-title">Corporate Banking</div><div class="metier-card-sub">Financement · Analyse</div></div>'+
   '<div class="metier-card locked" title="Bientôt disponible"><span class="metier-card-icon">🏛️</span><div class="metier-card-title">ALM / Trésorerie</div><div class="metier-card-sub">Liquidité · Taux · Change</div></div>'+
@@ -5419,6 +5419,7 @@ function retourQuizAccueil(){ // MODIFIÉ
 }
 </script>
 
+<script>
 /* ============ QVF COMPLIANCE ============ */
 var QVF_COMPLIANCE_DATA=[
   {cat:"Cadre LBC/FT",q:"La Directive n°02/2015/CM/UEMOA constitue le socle réglementaire LBC/FT de la zone UEMOA.",r:true,ex:"La Directive n°02/2015/CM/UEMOA est le texte fondateur LBC/FT, transposé par chaque État membre."},
@@ -5602,6 +5603,8 @@ function retourQuizAccueil_RI(){
   if(el('qvf-ri-card')) el('qvf-ri-card').style.display='block';
   if(el('qvf-ri-result')) el('qvf-ri-result').style.display='none';
 }
+
+</script>
 
 <!-- MODIFIÉ : sections métiers Compliance + Risques en HTML direct -->
 <div class="metier-detail" id="metier-compliance">
