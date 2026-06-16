@@ -1788,7 +1788,7 @@ function buildNav(){
 }
 
 function ST(id){
-  TAB=id; BA=null; BF=null; AEF=null; // MODIFIÉ : réinitialise le format d'auto-éval au changement d'onglet
+  TAB=id; BA=null; BF=null; AEF=null; _BPT='packs'; // MODIFIÉ : réinitialise biblio pyramide onglet
   QZ={q:[],idx:0,sc:0,ans:false,hist:[],done:false,pack:''};
   buildNav(); closeSb(); render();
 }
@@ -2057,11 +2057,91 @@ function restartQ(){QZ.idx=0;QZ.sc=0;QZ.ans=false;QZ.hist=[];QZ.done=false;rQE()
 /* ════════════════════════════════════════════════
    BIBLIOTHÈQUE
 ════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════
+   PYRAMIDE RÉGLEMENTAIRE BCEAO — CARROUSEL // MODIFIÉ
+════════════════════════════════════════════════ */
+var _BPL=0,_BPS=0; // level, slide // MODIFIÉ
+var BIB_PYR=[ // MODIFIÉ
+  {lb:'⚖️ Lois & Règlements',cl:'#E8B520',docs:[
+    {tp:'LOI UNIFORME',rf:'Mars 2023',ti:'Loi uniforme LCB/FT/FP — Lutte contre le Blanchiment des Capitaux et Financement du Terrorisme',ds:'Cadre légal suprême. S\'impose à tous les États UMOA dès sa date d\'effet, sans texte national.',wn:'⚠️ Application directe — pas besoin d\'attendre un texte interne.'},
+    {tp:'RÈGLEMENT',rf:'Règlement 06/2024/CM/UEMOA',ti:'Réglementation des changes — cadre général pour tous les Intermédiaires Agréés',ds:'Fixe le régime des opérations en devises dans l\'espace UEMOA. Toutes les Instructions RFE 2025 en découlent.',wn:'⚠️ Maîtriser ce texte = maîtriser la RFE.'}
+  ]},
+  {lb:'📋 Instructions BCEAO',cl:'#00B4D8',docs:[
+    {tp:'INSTRUCTION RFE',rf:'Instr. n°04 07 2025',ti:'Opérations de négoce international de biens',ds:'Règles d\'exécution et de domiciliation des opérations de négoce international par les IA.',wn:null},
+    {tp:'INSTRUCTION RFE',rf:'Instr. n°05 07 2025',ti:'Couverture du risque de change et du risque de prix par les résidents',ds:'Encadre les opérations de couverture sur marchés financiers pour les résidents UEMOA.',wn:null},
+    {tp:'INSTRUCTION RFE',rf:'Instr. n°06 07 2025',ti:'Allocations en devises aux voyageurs résidents et non résidents',ds:'Fixe les plafonds et modalités d\'allocation de devises voyage.',wn:null},
+    {tp:'INSTRUCTION RFE',rf:'Instr. n°07 07 2025',ti:'Conditions d\'exercice de l\'activité d\'agréé de change manuel',ds:'Agrément, conditions d\'exercice et obligations de reporting des bureaux de change.',wn:null},
+    {tp:'INSTRUCTION RFE',rf:'Instr. n°08 07 2025',ti:'Opérations relatives aux conditions de la clientèle par les sous-délégataires',ds:'Encadre les relations IA / sous-délégataires dans l\'exécution des opérations RFE.',wn:null},
+    {tp:'INSTRUCTION RFE',rf:'Instr. n°09 07 2025',ti:'Comptes étrangers de non-résidents — Ouverture et fonctionnement',ds:'Conditions strictes d\'ouverture et de fonctionnement des comptes pour non-résidents.',wn:'⚠️ Lire conjointement avec la Note 013-04-2026 sur les paiements extérieurs.'},
+    {tp:'INSTRUCTION RFE',rf:'Instr. n°10 07 2025',ti:'Domiciliation des opérations d\'investissements directs et de portefeuille',ds:'Modalités de domiciliation des IDE et investissements de portefeuille par les IA.',wn:null},
+    {tp:'INSTRUCTION RFE',rf:'Instr. n°12 07 2025',ti:'Avoirs détenus auprès des correspondants bancaires hors UEMOA',ds:'Encadre la détention et la déclaration des avoirs auprès des correspondants étrangers.',wn:null},
+    {tp:'INSTRUCTION RFE',rf:'Instr. n°14 07 2025',ti:'Conditions et modalités d\'importation et d\'exportation matérielles par les IA',ds:'Procédures pour les mouvements physiques de billets de banque.',wn:null},
+    {tp:'INSTRUCTION RFE',rf:'Instr. n°15 07 2025',ti:'Production des comptes rendus périodiques à adresser aux Autorités',ds:'Format et périodicité des reportings RFE obligatoires à la BCEAO.',wn:'⚠️ Non-respect = sanction Commission Bancaire directe.'},
+    {tp:'INSTRUCTION LCB/FT',rf:'Instr. n°001-01-2025',ti:'Modalités de mise en œuvre par les IF de leurs obligations LCB/FT',ds:'Procédures KYC, vigilance client et dispositif de conformité LBC/FT.',wn:null},
+    {tp:'INSTRUCTION LCB/FT',rf:'Instr. n°003-03-2025',ti:'Vérification de l\'identité et connaissance de la clientèle par les IF',ds:'Mesures de vigilance standard et renforcée à l\'entrée en relation.',wn:null}
+  ]},
+  {lb:'🔔 Avis BCEAO',cl:'#C9991A',docs:[
+    {tp:'AVIS',rf:'Avis N°001-01-2024',ti:'Capital social minimum des banques et établissements financiers UMOA',ds:'Fixe les seuils de capital minimum applicables aux banques. Contraignant malgré la dénomination "Avis".',wn:'⚠️ Un Avis fixant un seuil chiffré est OBLIGATOIRE — ne pas le traiter comme une recommandation.'},
+    {tp:'AVIS',rf:'Avis N°002-03-2026',ti:'Reporting automatisé des états financiers aux établissements de crédit',ds:'Format et délais du reporting automatisé à transmettre à la BCEAO.',wn:null},
+    {tp:'AVIS',rf:'Avis N°003-12-2023',ti:'Déclaration des nouveaux mandats par les IA en opérations de Banque',ds:'Procédure de déclaration préalable des mandats de représentation.',wn:null},
+    {tp:'AVIS',rf:'Avis BCEAO N°001-07-2016',ti:'Modalités de règlement des importations des marchandises',ds:'Seuils et instruments de paiement pour les importations.',wn:'⚠️ Texte ancien — vérifier compatibilité avec Instructions RFE juillet 2025.'},
+    {tp:'AVIS',rf:'Avis BCEAO Janvier 2021',ti:'Modalité de transfert avec les pays hors UEMOA',ds:'Conditions de virement international vers les pays tiers.',wn:null}
+  ]},
+  {lb:'📌 Décisions & Notes SES',cl:'#f97316',docs:[
+    {tp:'NOTE',rf:'Note N°013-04-2026',ti:'Traitement des paiements extérieurs des non-résidents de nationalité étrangère ayant acquis le statut de résident',ds:'Précise le traitement des flux pour étrangers résidents — lire avec la Lettre SES N°01876.',wn:'⚠️ Cette Note annonce des contrôles imminents. Priorité haute.'},
+    {tp:'LETTRE SES',rf:'SES N°01876 / 23 avril 2026',ti:'Traitement des paiements extérieurs des non-résidents',ds:'S\'appuie sur la Note 013-04-2026. Instruction opérationnelle directe aux banques.',wn:'⚠️ Une Lettre SES = signal de contrôle imminent par la supervision.'},
+    {tp:'DÉCISION',rf:'Décision n°003 / 28 mars 2024',ti:'Seuils complémentaires de la Loi uniforme LCB/FT — Blanchiment des capitaux',ds:'Fixe les montants chiffrés des seuils de vigilance renforcée absents de la Loi uniforme.',wn:null},
+    {tp:'DÉCISION',rf:'Décision n°003 bis / 2024',ti:'Autorisation préalable BCEAO aux entités non résidentes — Appel public',ds:'Conditions d\'autorisation pour entités non résidentes souhaitant faire appel public à l\'épargne.',wn:null}
+  ]},
+  {lb:'📄 Supports & Documents Internes',cl:'#8892B0',docs:[
+    {tp:'SUPPORT ATELIER',rf:'18 janvier 2023',ti:'Atelier BCEAO — Projet de Loi Bancaire',ds:'Document de travail sur le futur cadre bancaire UMOA. Aucune valeur juridique autonome.',wn:'⚠️ Usage : veille réglementaire uniquement. Ne sert pas de référence opposable.'},
+    {tp:'PRÉSENTATION',rf:'10 octobre 2023',ti:'Présentation R09 — Banques et Administrations Publiques UEMOA',ds:'Support de formation sur les règles de financement des États membres.',wn:null},
+    {tp:'SÉMINAIRE',rf:'Octobre 2023',ti:'Dispositif de suivi du rapatriement et de couverture en devises',ds:'Support de séminaire BCEAO. Pas de valeur juridique — utile pour comprendre la doctrine.',wn:'⚠️ Ne pas citer comme base réglementaire lors d\'un audit.'},
+    {tp:'CANEVAS',rf:'Mission R09 / mars 2023',ti:'Canevas de recueil des constats — Mission R09 BICIS',ds:'Outil interne d\'audit RFE. Référence pratique pour préparer les contrôles.',wn:null},
+    {tp:'COURRIER DGCC',rf:'0483 PI / 0284 PI',ti:'Seuils paiement espèces et instruments négociables au porteur',ds:'Précisent les seuils légaux de paiement en espèces au niveau national.',wn:'⚠️ Portée nationale uniquement.'}
+  ]}
+];
+function rBIBPYRAMIDE(){ // MODIFIÉ
+  var lvl=BIB_PYR[_BPL], doc=lvl.docs[_BPS], tot=lvl.docs.length;
+  var lvlBtns=BIB_PYR.map(function(l,i){
+    return '<button onclick="_BPL='+i+';_BPS=0;ge(\'bib-pyr-zone\').innerHTML=rBIBPYRAMIDE()" style="display:flex;align-items:center;justify-content:space-between;width:100%;padding:9px 12px;border:1px solid '+(i===_BPL?'rgba(245,196,83,.6)':'var(--border)')+';border-radius:8px;background:'+(i===_BPL?'rgba(245,196,83,.08)':'rgba(10,33,62,.5)')+';color:'+(i===_BPL?'var(--cyan)':'var(--sub)')+';font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;min-height:40px;touch-action:manipulation;">'+
+    '<span>'+l.lb+'</span><span style="background:rgba(255,255,255,.1);border-radius:10px;padding:1px 7px;font-size:11px;">'+l.docs.length+'</span></button>';
+  }).join('');
+  var warn=doc.wn?'<div style="background:rgba(245,196,83,.07);border-left:3px solid var(--cyan);padding:9px 11px;border-radius:4px;font-size:12px;color:#fcd34d;margin-top:4px;">'+doc.wn+'</div>':'';
+  var dots=lvl.docs.map(function(_,i){
+    return '<div onclick="_BPS='+i+';ge(\'bib-pyr-zone\').innerHTML=rBIBPYRAMIDE()" style="width:'+(i===_BPS?'10px':'7px')+';height:'+(i===_BPS?'10px':'7px')+';border-radius:50%;background:'+(i===_BPS?'var(--cyan)':'rgba(255,255,255,.2)')+';cursor:pointer;transition:all .2s;"></div>';
+  }).join('');
+  return '<div style="display:flex;flex-direction:column;gap:10px;">'+
+  '<p style="font-size:12px;color:var(--sub);margin:0;">'+BIB_PYR.reduce(function(a,b){return a+b.docs.length;},0)+' documents classés par niveau pyramide</p>'+
+  '<div style="display:flex;flex-direction:column;gap:5px;">'+lvlBtns+'</div>'+
+  '<div style="background:var(--card);border:1px solid var(--border);border-left:3px solid '+lvl.cl+';border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:8px;">'+
+  '<span style="display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;background:'+lvl.cl+'22;color:'+lvl.cl+';border:1px solid '+lvl.cl+'44;">'+doc.tp+'</span>'+
+  '<div style="font-size:11px;color:var(--cyan);font-weight:700;">'+doc.rf+'</div>'+
+  '<div style="font-size:13px;font-weight:700;color:white;line-height:1.4;">'+doc.ti+'</div>'+
+  '<div style="font-size:12px;color:var(--sub);line-height:1.5;">'+doc.ds+'</div>'+
+  warn+'</div>'+
+  '<div style="display:flex;align-items:center;justify-content:center;gap:10px;">'+
+  '<button onclick="_BPS=Math.max(0,_BPS-1);ge(\'bib-pyr-zone\').innerHTML=rBIBPYRAMIDE()" '+((_BPS===0)?'disabled':'')+' style="width:36px;height:36px;border-radius:50%;border:none;background:'+(_BPS===0?'rgba(255,255,255,.1)':'rgba(245,196,83,.15)')+';color:'+(_BPS===0?'var(--sub)':'var(--cyan)')+';font-size:16px;cursor:'+(_BPS===0?'default':'pointer')+';display:flex;align-items:center;justify-content:center;">←</button>'+
+  '<div style="display:flex;gap:5px;align-items:center;">'+dots+'</div>'+
+  '<button onclick="_BPS=Math.min('+( tot-1)+',_BPS+1);ge(\'bib-pyr-zone\').innerHTML=rBIBPYRAMIDE()" '+((_BPS===tot-1)?'disabled':'')+' style="width:36px;height:36px;border-radius:50%;border:none;background:'+(_BPS===tot-1?'rgba(255,255,255,.1)':'rgba(245,196,83,.15)')+';color:'+(_BPS===tot-1?'var(--sub)':'var(--cyan)')+';font-size:16px;cursor:'+(_BPS===tot-1?'default':'pointer')+';display:flex;align-items:center;justify-content:center;">→</button>'+
+  '<span style="font-size:11px;color:var(--sub);margin-left:4px;">'+(_BPS+1)+'/'+tot+'</span></div></div>';
+}
 function rBP(){
+  var bibTab=typeof _BPT==='undefined'?'packs':_BPT; // MODIFIÉ
+  var tabsHTML='<div class="tabs" style="margin-bottom:12px;">'+
+  [['packs','📦 Packs'],['pyramide','🏛️ Pyramide']].map(function(t){ // MODIFIÉ
+    return '<button class="tab'+(bibTab===t[0]?' ac':'')+'" onclick="_BPT=\''+t[0]+'\';ge(\'bib-main\').innerHTML=rBibMain()">'+t[1]+'</button>';
+  }).join('')+'</div>';
   return '<div style="display:flex;flex-direction:column;gap:14px;">'+
   '<h2 style="font-size:22px;color:white;">Bibliothèque Réglementaire</h2>'+
   '<p style="font-size:13px;color:var(--sub);margin-top:-10px;">Fiches de révision, glossaires et sources officielles</p>'+
-  [['BR',BR,QR.length],['BB',BB,QB.length]].map(function(x){
+  tabsHTML+
+  '<div id="bib-main">'+rBibMain()+'</div></div>'; // MODIFIÉ
+}
+function rBibMain(){ // MODIFIÉ
+  var bibTab=typeof _BPT==='undefined'?'packs':_BPT;
+  if(bibTab==='pyramide') return '<div id="bib-pyr-zone">'+rBIBPYRAMIDE()+'</div>';
+  return '<div style="display:flex;flex-direction:column;gap:10px;">'+[['BR',BR,QR.length],['BB',BB,QB.length]].map(function(x){ // MODIFIÉ
     var ds=x[0], d=x[1], qs=x[2];
     return '<div class="card ch" onclick="openB(\''+ds+'\')">'+
     '<div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;">'+
