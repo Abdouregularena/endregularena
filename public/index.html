@@ -5223,8 +5223,8 @@ function rMETIERS(){ // MODIFIÉ : rendu inline du module Métiers
   '<span class="metier-card-icon">🚢</span>'+
   '<div class="metier-card-title">Trade Finance</div>'+
   '<div class="metier-card-sub">Crédits doc · Garanties · Change</div></div>'+
-  '<div class="metier-card locked" title="Bientôt disponible"><span class="metier-card-icon">🛡️</span><div class="metier-card-title">Compliance</div><div class="metier-card-sub">LBC/FT · FATCA · KYC</div></div>'+
-  '<div class="metier-card locked" title="Bientôt disponible"><span class="metier-card-icon">📊</span><div class="metier-card-title">Risques</div><div class="metier-card-sub">Bâle III · Crédit · Marché</div></div>'+
+  '<div class="metier-card" id="card-compliance" onclick="ouvrirMetier('compliance')"><span class="metier-card-badge">DISPONIBLE</span><span class="metier-card-icon">🛡️</span><div class="metier-card-title">Compliance</div><div class="metier-card-sub">LBC/FT · FATCA · KYC</div></div>'+
+  '<div class="metier-card" id="card-risques" onclick="ouvrirMetier('risques')"><span class="metier-card-badge">DISPONIBLE</span><span class="metier-card-icon">📊</span><div class="metier-card-title">Risques</div><div class="metier-card-sub">Bâle III · Crédit · Marché</div></div>'+
   '<div class="metier-card locked" title="Bientôt disponible"><span class="metier-card-icon">⚙️</span><div class="metier-card-title">Back Office</div><div class="metier-card-sub">Opérations · Titres · SWIFT</div></div>'+
   '<div class="metier-card locked" title="Bientôt disponible"><span class="metier-card-icon">💼</span><div class="metier-card-title">Corporate Banking</div><div class="metier-card-sub">Financement · Analyse</div></div>'+
   '<div class="metier-card locked" title="Bientôt disponible"><span class="metier-card-icon">🏛️</span><div class="metier-card-title">ALM / Trésorerie</div><div class="metier-card-sub">Liquidité · Taux · Change</div></div>'+
@@ -5282,7 +5282,90 @@ function rMETIERS(){ // MODIFIÉ : rendu inline du module Métiers
   '<div class="quiz-vf-result" id="qvf-result"><div class="quiz-vf-result-medal" id="qvf-medal"></div><div class="quiz-vf-result-score"><span id="qvf-final-score"></span><span> / 20</span></div><div class="quiz-vf-result-label" id="qvf-result-label"></div>'+
   '<div class="quiz-vf-result-btns"><button class="quiz-vf-result-btn primary" onclick="lancerQuizVF()">🔄 Recommencer</button><button class="quiz-vf-result-btn secondary" onclick="retourQuizAccueil()">← Retour</button></div></div>'+
   '</div></div>'+
-  '</div></div></div></div>';
+  '</div></div></div></div>'+
+  '<div class="metier-detail" id="metier-compliance">'+
+  '<div class="metier-detail-header"><h2>🛡️ Compliance & LBC/FT</h2>'+
+  '<p>Le Compliance Officer pilote le dispositif LBC/FT : KYC, vigilance, DOS vers la CENTIF, screening des listes de sanctions internationales.</p>'+
+  '<div class="metier-score-bar"><span class="metier-score-label">Score de maîtrise</span><div class="metier-score-track"><div class="metier-score-fill" id="co-score-fill"></div></div><span class="metier-score-pct" id="co-score-pct">0%</span></div>'+
+  '</div>'+
+  '<div class="metier-tabs">'+
+  '<button class="metier-tab active" onclick="switchTab(\'compliance\',\'prerequis\')">Prérequis</button>'+
+  '<button class="metier-tab" onclick="switchTab(\'compliance\',\'notions\')">Notions clés</button>'+
+  '<button class="metier-tab" onclick="switchTab(\'compliance\',\'textes\')">Textes réglementaires</button>'+
+  '<button class="metier-tab" onclick="switchTab(\'compliance\',\'quiz\')">Quiz &amp; Compétition</button>'+
+  '</div>'+
+  '<div class="metier-tab-content active" id="compliance-tab-prerequis">'+
+  '<div class="metier-block"><div class="metier-block-title">Formation requise</div><ul class="metier-prereq-list"><li>Licence ou Master en Droit, Finance, Économie ou Audit</li><li>Certification ACAMS (anti-blanchiment) est un atout majeur</li><li>Connaissance approfondie du dispositif LBC/FT UEMOA/CEMAC</li></ul></div>'+
+  '<div class="metier-block"><div class="metier-block-title">Qualités personnelles</div><div class="metier-tag-list"><span class="metier-tag">Rigueur analytique</span><span class="metier-tag">Discrétion absolue</span><span class="metier-tag">Veille réglementaire</span><span class="metier-tag">Pédagogie</span></div></div>'+
+  '</div>'+
+  '<div class="metier-tab-content" id="compliance-tab-notions">'+
+  '<div class="metier-block"><div class="metier-block-title">Cadre LBC/FT UEMOA</div><ul class="metier-prereq-list"><li><strong>Directive n°02/2015/CM/UEMOA</strong> — socle LBC/FT, transposée par chaque État</li><li><strong>CENTIF</strong> — destinataire des Déclarations de Soupçon</li><li><strong>Seuil vigilance espèces</strong> — 5 000 000 FCFA</li><li><strong>Conservation pièces KYC</strong> — 10 ans après fin de relation</li></ul></div>'+
+  '<div class="metier-block"><div class="metier-block-title">Niveaux de vigilance</div><div class="metier-tag-list"><span class="metier-tag gold">Renforcée : PPE, pays à risque</span><span class="metier-tag">Standard : entrée en relation</span><span class="metier-tag">Simplifiée : produits faible risque</span></div></div>'+
+  '<div class="metier-block"><div class="metier-block-title">Déclaration de Soupçon (DOS)</div><ul class="metier-prereq-list"><li>Obligation immédiate — transmission à la CENTIF</li><li><strong>Tipping-off interdit</strong> : ne jamais informer le client</li><li>FT : fonds peuvent être d’origine licite</li></ul></div>'+
+  '<div class="metier-block"><div class="metier-block-title">Screening sanctions</div><div class="metier-tag-list"><span class="metier-tag gold">OFAC (USA)</span><span class="metier-tag gold">Union Européenne</span><span class="metier-tag gold">ONU</span><span class="metier-tag">GAFI — 40 recommandations</span></div></div>'+
+  '</div>'+
+  '<div class="metier-tab-content" id="compliance-tab-textes">'+
+  '<div class="metier-block"><div class="metier-block-title">Textes fondamentaux UEMOA</div>'+
+  '<div class="metier-texte-item"><div><div class="metier-texte-ref">Directive n°02/2015/CM/UEMOA</div><div class="metier-texte-name">Directive LBC/FT UEMOA</div><div class="metier-texte-scope">KYC · DOS · Conservation · PPE</div></div><button class="metier-texte-btn">Bientôt</button></div>'+
+  '<div class="metier-texte-item"><div><div class="metier-texte-ref">Instruction BCEAO n°001-03-2025</div><div class="metier-texte-name">Dispositif de conformité LBC/FT</div><div class="metier-texte-scope">Cartographie · Programme · Formation · Audit</div></div><button class="metier-texte-btn">Bientôt</button></div>'+
+  '</div></div>'+
+  '<div class="metier-tab-content" id="compliance-tab-quiz">'+
+  '<div id="co-quiz-accueil"><div class="metier-block"><div class="metier-block-title">Modes de jeu</div><div class="metier-actions">'+
+  '<button class="metier-action-btn" onclick="lancerQuizVF_CO()"><span class="action-icon">✅</span><span class="action-label">QUIZ SOLO</span><span class="action-sub">20 questions LBC/FT</span></button>'+
+  '<button class="metier-action-btn" style="opacity:.6"><span class="action-icon">⚔️</span><span class="action-label">DUEL</span><span class="action-sub">Bientôt</span></button>'+
+  '</div></div></div>'+
+  '<div id="co-quiz-vf" style="display:none"><div class="quiz-vf-container">'+
+  '<div class="quiz-vf-progress"><span class="quiz-vf-counter" id="qvf-co-counter">1 / 20</span><div class="quiz-vf-progress-bar"><div class="quiz-vf-progress-fill" id="qvf-co-progress-fill"></div></div><span class="quiz-vf-counter" id="qvf-co-score-inline">✅ 0</span></div>'+
+  '<div class="quiz-vf-card" id="qvf-co-card"><div class="quiz-vf-category" id="qvf-co-category"></div><div class="quiz-vf-question" id="qvf-co-question"></div>'+
+  '<div class="quiz-vf-btns"><button class="quiz-vf-btn vrai" onclick="repondreVF_CO(true)" id="btn-co-vrai">✅ VRAI</button><button class="quiz-vf-btn faux" onclick="repondreVF_CO(false)" id="btn-co-faux">❌ FAUX</button></div>'+
+  '<div class="quiz-vf-feedback" id="qvf-co-feedback"><div class="quiz-vf-feedback-title" id="qvf-co-feedback-title"></div><div class="quiz-vf-feedback-expl" id="qvf-co-feedback-expl"></div></div>'+
+  '<button class="quiz-vf-next" id="qvf-co-next" onclick="questionSuivante_CO()">Question suivante →</button></div>'+
+  '<div class="quiz-vf-result" id="qvf-co-result" style="display:none"><div class="quiz-vf-result-medal" id="qvf-co-medal"></div>'+
+  '<div class="quiz-vf-result-score"><span id="qvf-co-final-score"></span><span> / 20</span></div>'+
+  '<div class="quiz-vf-result-label" id="qvf-co-result-label"></div>'+
+  '<div class="quiz-vf-result-btns"><button class="quiz-vf-result-btn primary" onclick="lancerQuizVF_CO()">🔄 Recommencer</button><button class="quiz-vf-result-btn secondary" onclick="retourQuizAccueil_CO()">← Retour</button></div>'+
+  '</div></div></div></div></div>'+
+  '<div class="metier-detail" id="metier-risques">'+
+  '<div class="metier-detail-header"><h2>📊 Risques & Bâle III</h2>'+
+  '<p>Le Risk Manager calcule les RWA, suit les ratios prudentiels CET1/LCR/NSFR et s’assure de la conformité au dispositif Bâle III transposé par la Commission Bancaire UMOA (Décision N°013/2016).</p>'+
+  '<div class="metier-score-bar"><span class="metier-score-label">Score de maîtrise</span><div class="metier-score-track"><div class="metier-score-fill" id="ri-score-fill"></div></div><span class="metier-score-pct" id="ri-score-pct">0%</span></div>'+
+  '</div>'+
+  '<div class="metier-tabs">'+
+  '<button class="metier-tab active" onclick="switchTab(\'risques\',\'prerequis\')">Prérequis</button>'+
+  '<button class="metier-tab" onclick="switchTab(\'risques\',\'notions\')">Notions clés</button>'+
+  '<button class="metier-tab" onclick="switchTab(\'risques\',\'textes\')">Textes réglementaires</button>'+
+  '<button class="metier-tab" onclick="switchTab(\'risques\',\'quiz\')">Quiz &amp; Compétition</button>'+
+  '</div>'+
+  '<div class="metier-tab-content active" id="risques-tab-prerequis">'+
+  '<div class="metier-block"><div class="metier-block-title">Formation requise</div><ul class="metier-prereq-list"><li>Master Finance, Mathématiques financières ou Actuariat</li><li>Certification FRM (GARP) ou PRM appréciée</li><li>Maîtrise du dispositif prudentiel Bâle II/III UMOA</li></ul></div>'+
+  '<div class="metier-block"><div class="metier-block-title">Qualités personnelles</div><div class="metier-tag-list"><span class="metier-tag">Rigueur quantitative</span><span class="metier-tag">Esprit analytique</span><span class="metier-tag">Communication</span><span class="metier-tag">Excel/VBA</span></div></div>'+
+  '</div>'+
+  '<div class="metier-tab-content" id="risques-tab-notions">'+
+  '<div class="metier-block"><div class="metier-block-title">Architecture Bâle III — 3 Piliers</div><ul class="metier-prereq-list"><li><strong>Pilier 1</strong> — CET1 ≥ 4,5% · Tier 1 ≥ 6% · Total FP ≥ 8% des RWA — Risques crédit, marché, opérationnel</li><li><strong>Pilier 2</strong> — ICAAP (banque) + SREP (Commission Bancaire UMOA)</li><li><strong>Pilier 3</strong> — Publications semestrielles : structure FP, expositions</li></ul></div>'+
+  '<div class="metier-block"><div class="metier-block-title">Coussins CET1</div><div class="metier-tag-list"><span class="metier-tag gold">Conservation 2,5% ⇒ CET1 cible 7%</span><span class="metier-tag">Contracyclique 0–2,5%</span><span class="metier-tag">G-SIB +1% – +3,5%</span></div></div>'+
+  '<div class="metier-block"><div class="metier-block-title">Ratios de liquidité</div><ul class="metier-prereq-list"><li><strong>LCR</strong> — HQLA / sorties nettes 30j ≥ 100%</li><li><strong>NSFR</strong> — Financement stable dispo / requis ≥ 100% (1 an)</li><li><strong>Levier</strong> — Tier 1 / exposition totale ≥ 3%</li></ul></div>'+
+  '</div>'+
+  '<div class="metier-tab-content" id="risques-tab-textes">'+
+  '<div class="metier-block"><div class="metier-block-title">Textes fondamentaux UMOA</div>'+
+  '<div class="metier-texte-item"><div><div class="metier-texte-ref">Décision N°013/2016/CM/UMOA</div><div class="metier-texte-name">Dispositif prudentiel UMOA — Bâle II/III</div><div class="metier-texte-scope">Fonds propres · RWA · LCR · NSFR · Levier</div></div><button class="metier-texte-btn">Bientôt</button></div>'+
+  '<div class="metier-texte-item"><div><div class="metier-texte-ref">Instruction BCEAO n°009-09-2017</div><div class="metier-texte-name">LCR UMOA</div><div class="metier-texte-scope">HQLA · Sorties nettes · Déclaration mensuelle</div></div><button class="metier-texte-btn">Bientôt</button></div>'+
+  '</div></div>'+
+  '<div class="metier-tab-content" id="risques-tab-quiz">'+
+  '<div id="ri-quiz-accueil"><div class="metier-block"><div class="metier-block-title">Modes de jeu</div><div class="metier-actions">'+
+  '<button class="metier-action-btn" onclick="lancerQuizVF_RI()"><span class="action-icon">✅</span><span class="action-label">QUIZ SOLO</span><span class="action-sub">20 questions Bâle III</span></button>'+
+  '<button class="metier-action-btn" style="opacity:.6"><span class="action-icon">⚔️</span><span class="action-label">DUEL</span><span class="action-sub">Bientôt</span></button>'+
+  '</div></div></div>'+
+  '<div id="ri-quiz-vf" style="display:none"><div class="quiz-vf-container">'+
+  '<div class="quiz-vf-progress"><span class="quiz-vf-counter" id="qvf-ri-counter">1 / 20</span><div class="quiz-vf-progress-bar"><div class="quiz-vf-progress-fill" id="qvf-ri-progress-fill"></div></div><span class="quiz-vf-counter" id="qvf-ri-score-inline">✅ 0</span></div>'+
+  '<div class="quiz-vf-card" id="qvf-ri-card"><div class="quiz-vf-category" id="qvf-ri-category"></div><div class="quiz-vf-question" id="qvf-ri-question"></div>'+
+  '<div class="quiz-vf-btns"><button class="quiz-vf-btn vrai" onclick="repondreVF_RI(true)" id="btn-ri-vrai">✅ VRAI</button><button class="quiz-vf-btn faux" onclick="repondreVF_RI(false)" id="btn-ri-faux">❌ FAUX</button></div>'+
+  '<div class="quiz-vf-feedback" id="qvf-ri-feedback"><div class="quiz-vf-feedback-title" id="qvf-ri-feedback-title"></div><div class="quiz-vf-feedback-expl" id="qvf-ri-feedback-expl"></div></div>'+
+  '<button class="quiz-vf-next" id="qvf-ri-next" onclick="questionSuivante_RI()">Question suivante →</button></div>'+
+  '<div class="quiz-vf-result" id="qvf-ri-result" style="display:none"><div class="quiz-vf-result-medal" id="qvf-ri-medal"></div>'+
+  '<div class="quiz-vf-result-score"><span id="qvf-ri-final-score"></span><span> / 20</span></div>'+
+  '<div class="quiz-vf-result-label" id="qvf-ri-result-label"></div>'+
+  '<div class="quiz-vf-result-btns"><button class="quiz-vf-result-btn primary" onclick="lancerQuizVF_RI()">🔄 Recommencer</button><button class="quiz-vf-result-btn secondary" onclick="retourQuizAccueil_RI()">← Retour</button></div>'+
+  '</div></div></div></div></div>';
 }
 
 /* ════════ FONCTIONS MODULE MÉTIERS ════════ */
@@ -5396,14 +5479,18 @@ function afficherResultatVF(){ // MODIFIÉ
 }
 
 function chargerScoreMetier(id){ // MODIFIÉ
-  if(id==='trade-finance'){
-    var best=parseInt(localStorage.getItem('ra_metier_tf_best')||'0');
-    var pct=Math.round(best/20*100);
-    var fill=document.getElementById('tf-score-fill');
-    var pctEl=document.getElementById('tf-score-pct');
-    if(fill) fill.style.width=pct+'%';
-    if(pctEl) pctEl.textContent=pct+'%';
-  }
+  var map={
+    'trade-finance':{key:'ra_metier_tf_best',fill:'tf-score-fill',pct:'tf-score-pct'},
+    'compliance':{key:'ra_metier_co_best',fill:'co-score-fill',pct:'co-score-pct'}, // MODIFIÉ
+    'risques':{key:'ra_metier_ri_best',fill:'ri-score-fill',pct:'ri-score-pct'} // MODIFIÉ
+  };
+  var m=map[id];if(!m) return;
+  var best=parseInt(localStorage.getItem(m.key)||'0');
+  var p=Math.round(best/20*100);
+  var fill=document.getElementById(m.fill);
+  var pctEl=document.getElementById(m.pct);
+  if(fill) fill.style.width=p+'%';
+  if(pctEl) pctEl.textContent=p+'%';
 }
 
 function retourQuizAccueil(){ // MODIFIÉ
@@ -5414,5 +5501,189 @@ function retourQuizAccueil(){ // MODIFIÉ
   if(el('qvf-result')) el('qvf-result').style.display='none';
 }
 </script>
+
+/* ============ QVF COMPLIANCE ============ */
+var QVF_COMPLIANCE_DATA=[
+  {cat:"Cadre LBC/FT",q:"La Directive n\u00b002/2015/CM/UEMOA constitue le socle r\u00e9glementaire LBC/FT de la zone UEMOA.",r:true,ex:"La Directive n\u00b002/2015/CM/UEMOA est le texte fondateur LBC/FT, transpos\u00e9 par chaque \u00c9tat membre."},
+  {cat:"Cadre LBC/FT",q:"Le seuil de vigilance pour les op\u00e9rations en esp\u00e8ces dans la zone UEMOA est de 10 000 000 FCFA.",r:false,ex:"Le seuil est de 5 000 000 FCFA. Au-del\u00e0, une vigilance particuli\u00e8re s\u2019impose."},
+  {cat:"Cadre LBC/FT",q:"La CENTIF est la Cellule Nationale de Traitement des Informations Financi\u00e8res, destinataire des DOS.",r:true,ex:"La CENTIF est l\u2019Unit\u00e9 de Renseignement Financier (URF) de chaque pays UEMOA."},
+  {cat:"KYC & Conservation",q:"Les assujettis doivent conserver les pi\u00e8ces KYC pendant 10 ans apr\u00e8s la fin de la relation.",r:true,ex:"Conservation de 10 ans apr\u00e8s fin de relation ou ex\u00e9cution de l\u2019op\u00e9ration (Directive 2015)."},
+  {cat:"KYC & Conservation",q:"Une Personne Politiquement Expos\u00e9e (PPE) est tout client effectuant des virements internationaux.",r:false,ex:"La PPE est une personne exer\u00e7ant ou ayant exerc\u00e9 des fonctions publiques importantes, expos\u00e9e au risque de corruption."},
+  {cat:"DOS",q:"La D\u00e9claration de Soup\u00e7on doit \u00eatre transmise directement \u00e0 la BCEAO.",r:false,ex:"La DOS est transmise \u00e0 la CENTIF nationale, pas \u00e0 la BCEAO. La CENTIF est l\u2019URF comp\u00e9tente."},
+  {cat:"DOS",q:"Le tipping-off (informer le client d\u2019une DOS) est strictement interdit.",r:true,ex:"Le tipping-off permettrait au suspect de d\u00e9truire des preuves. Il est formellement interdit."},
+  {cat:"Vigilance",q:"La vigilance simplifi\u00e9e est autoris\u00e9e pour les produits pr\u00e9sentant un faible risque identifi\u00e9.",r:true,ex:"La vigilance simplifi\u00e9e s\u2019applique \u00e0 des produits sp\u00e9cifiques list\u00e9s comme \u00e0 faible risque."},
+  {cat:"Vigilance",q:"Les pays figur\u00e0nt sur la liste grise du GAFI n\u00e9cessitent une vigilance renforc\u00e9e.",r:true,ex:"Les pays class\u00e9s par le GAFI (listes grise et noire) d\u00e9clenchent la vigilance renforc\u00e9e."},
+  {cat:"Screening",q:"Le screening doit couvrir les listes OFAC, Union Europ\u00e9enne et Nations Unies.",r:true,ex:"Le screening couvre les 3 grandes listes : OFAC (USA), UE et ONU."},
+  {cat:"GAFI",q:"Le GAFI \u00e9met les 40 recommandations standard mondial LBC/FT.",r:true,ex:"Le GAFI (Groupe d\u2019Action Financi\u00e8re / FATF) est l\u2019organisme international de r\u00e9f\u00e9rence."},
+  {cat:"Blanchiment",q:"Les 3 phases du blanchiment sont : Placement, Empilage, Int\u00e9gration.",r:true,ex:"Placement (introduction), Empilage (dissimulation), Int\u00e9gration (r\u00e9investissement dans l\u2019\u00e9conomie l\u00e9gale)."},
+  {cat:"Financement terrorisme",q:"Le financement du terrorisme implique toujours des fonds d\u2019origine illicite.",r:false,ex:"Le FT peut utiliser des fonds d\u2019origine l\u00e9gale (dons, \u00e9pargne), d\u2019o\u00f9 sa complexit\u00e9 de d\u00e9tection."},
+  {cat:"R\u00f4le CO",q:"Le Compliance Officer pr\u00e9sente un rapport annuel LBC/FT au Conseil d\u2019Administration.",r:true,ex:"Le CA doit \u00eatre inform\u00e9 annuellement du dispositif LBC/FT et de son efficacit\u00e9."},
+  {cat:"R\u00f4le CO",q:"Le Compliance Officer fixe les taux d\u2019int\u00e9r\u00eat des produits bancaires.",r:false,ex:"Le CO pilote le dispositif LBC/FT, il n\u2019intervient pas dans la fixation des taux."},
+  {cat:"KYC",q:"Le KYC inclut identification, v\u00e9rification et mise \u00e0 jour p\u00e9riodique des dossiers clients.",r:true,ex:"Le KYC est un processus continu maintenu tout au long de la relation."},
+  {cat:"Assujettis",q:"Les casinos et agents immobiliers ne sont pas assujettis \u00e0 la Directive LBC/FT UEMOA.",r:false,ex:"Le champ est large : banques, SFD, notaires, agents immobiliers, casinos sont tous concern\u00e9s."},
+  {cat:"Screening",q:"Un \u00e9tablissement peut ex\u00e9cuter une transaction avec une entit\u00e9 sous sanction OFAC sous r\u00e9serve d\u2019une DOS.",r:false,ex:"Aucune transaction ne peut \u00eatre effectu\u00e9e avec une entit\u00e9 sous sanctions : interdiction absolue."},
+  {cat:"DOS",q:"La DOS peut \u00eatre \u00e9mise m\u00eame si l\u2019op\u00e9ration n\u2019a pas encore \u00e9t\u00e9 ex\u00e9cut\u00e9e.",r:true,ex:"La DOS est d\u00e9clench\u00e9e d\u00e8s la suspicion, m\u00eame avant ex\u00e9cution de l\u2019op\u00e9ration."},
+  {cat:"KYC",q:"La mise \u00e0 jour p\u00e9riodique des dossiers KYC est obligatoire car le profil de risque peut \u00e9voluer.",r:true,ex:"Un client peut devenir PPE ou changer d\u2019activit\u00e9 : la mise \u00e0 jour permet de d\u00e9tecter ces \u00e9volutions."}
+];
+
+/* ============ QVF RISQUES ============ */
+var QVF_RISQUES_DATA=[
+  {cat:"Architecture B\u00e2le III",q:"B\u00e2le III s\u2019articule autour de 3 Piliers.",r:true,ex:"P1=exigences minimales FP, P2=surveillance (ICAAP/SREP), P3=discipline de march\u00e9 (publications)."},
+  {cat:"Fonds propres",q:"Le ratio CET1 minimum exig\u00e9 par B\u00e2le III est de 4,5% des RWA.",r:true,ex:"Le Common Equity Tier 1 doit repr\u00e9senter au minimum 4,5% des actifs pond\u00e9r\u00e9s par le risque."},
+  {cat:"Fonds propres",q:"Le ratio total de fonds propres (Tier 1 + Tier 2) minimum est de 6% des RWA.",r:false,ex:"Le ratio total minimum est de 8% des RWA. Le Tier 1 seul est \u00e0 6%."},
+  {cat:"Coussins",q:"Le coussin de conservation de 2,5% porte la cible totale de CET1 \u00e0 7%.",r:true,ex:"4,5% (minimum CET1) + 2,5% (coussin conservation) = 7% de CET1 cible."},
+  {cat:"Coussins",q:"Le coussin contracyclique est fix\u00e9 \u00e0 2,5% de fa\u00e7on permanente.",r:false,ex:"Le coussin contracyclique varie de 0 \u00e0 2,5%, activ\u00e9 selon la phase du cycle \u00e9conomique."},
+  {cat:"Liquidit\u00e9",q:"Le LCR exige que les HQLA couvrent 100% des sorties nettes de tr\u00e9sorerie sur 30 jours.",r:true,ex:"Le LCR (Liquidity Coverage Ratio) couvre un choc de liquidit\u00e9 \u00e0 court terme sur 30 jours calendaires."},
+  {cat:"Liquidit\u00e9",q:"Le NSFR couvre un horizon de 30 jours comme le LCR.",r:false,ex:"Le NSFR couvre un horizon d\u2019un an, contre 30 jours pour le LCR."},
+  {cat:"Levier",q:"Le ratio de levier B\u00e2le III (Tier 1 / exposition totale) doit \u00eatre au minimum de 3%.",r:true,ex:"Filet de s\u00e9curit\u00e9 non pond\u00e9r\u00e9 \u00e0 3%, ind\u00e9pendant des RWA."},
+  {cat:"Piliers",q:"Le Pilier 2 impose les obligations de publication financi\u00e8re des banques.",r:false,ex:"La publication rel\u00e8ve du Pilier 3. Le Pilier 2 concerne la surveillance prudentielle ICAAP/SREP."},
+  {cat:"Piliers",q:"L\u2019ICAAP est l\u2019auto-\u00e9valuation interne de l\u2019ad\u00e9quation des fonds propres par la banque.",r:true,ex:"ICAAP = Internal Capital Adequacy Assessment Process. Le SREP est la r\u00e9ponse du superviseur."},
+  {cat:"Risques",q:"Le risque op\u00e9rationnel inclut les risques strat\u00e9giques et de r\u00e9putation.",r:false,ex:"B\u00e2le III exclut explicitement les risques strat\u00e9giques et de r\u00e9putation du risque op\u00e9rationnel."},
+  {cat:"Fonds propres",q:"Le CET1 est compos\u00e9 principalement d\u2019actions ordinaires et de r\u00e9serves.",r:true,ex:"CET1 = fonds propres de la meilleure qualit\u00e9 : actions ordinaires + primes d\u2019\u00e9mission + r\u00e9serves."},
+  {cat:"UMOA",q:"La Commission Bancaire UMOA supervise l\u2019application des ratios prudentiels B\u00e2le III.",r:true,ex:"La Commission Bancaire UMOA est l\u2019autorit\u00e9 de supervision charg\u00e9e des normes prudentielles."},
+  {cat:"Liquidit\u00e9",q:"Le NSFR compare le financement stable disponible au financement stable requis.",r:true,ex:"NSFR = Financement Stable Disponible / Financement Stable Requis \u2265 100%. Horizon 1 an."},
+  {cat:"Coussins",q:"Les G-SIB peuvent \u00eatre soumises \u00e0 un coussin suppl\u00e9mentaire allant jusqu\u2019\u00e0 3,5%.",r:true,ex:"Le coussin G-SIB varie de 1% \u00e0 3,5% selon le niveau de syst\u00e9micit\u00e9."},
+  {cat:"Risques",q:"Le Pilier 1 couvre les risques de cr\u00e9dit, de march\u00e9 et op\u00e9rationnel.",r:true,ex:"Le Pilier 1 quantifie les exigences en FP pour 3 cat\u00e9gories de risques."},
+  {cat:"Levier",q:"Le ratio de levier utilise les RWA comme d\u00e9nominateur.",r:false,ex:"Le ratio de levier utilise l\u2019exposition totale non pond\u00e9r\u00e9e (bilan + hors bilan)."},
+  {cat:"Piliers",q:"Le SREP est conduit par la Commission Bancaire pour \u00e9valuer l\u2019ad\u00e9quation des FP.",r:true,ex:"SREP = Supervisory Review and Evaluation Process. C\u2019est la r\u00e9ponse du superviseur \u00e0 l\u2019ICAAP."},
+  {cat:"Liquidit\u00e9",q:"En cas de non-respect du LCR, la Commission Bancaire peut interdire les dividendes.",r:true,ex:"Le non-respect entra\u00eene des injonctions et interdictions de distributions discr\u00e9tionnaires."},
+  {cat:"Fonds propres",q:"Un CET1 de 6,5% respecte le minimum B\u00e2le III mais ne couvre pas le coussin de conservation.",r:true,ex:"6,5% > 4,5% (minimum) mais < 7% (4,5% + 2,5% coussin). Minimum OK, cible avec coussin non."}
+];
+
+/* ============ FONCTIONS QUIZ COMPLIANCE ============ */
+var qvfCO={questions:[],idx:0,score:0,repondu:false};
+function lancerQuizVF_CO(){
+  var qs=QVF_COMPLIANCE_DATA.slice().sort(function(){return Math.random()-.5;});
+  qvfCO={questions:qs,idx:0,score:0,repondu:false};
+  var el=function(id){return document.getElementById(id);};
+  if(el('co-quiz-accueil')) el('co-quiz-accueil').style.display='none';
+  if(el('co-quiz-vf')) el('co-quiz-vf').style.display='block';
+  if(el('qvf-co-result')) el('qvf-co-result').style.display='none';
+  if(el('qvf-co-card')) el('qvf-co-card').style.display='block';
+  afficherQuestion_CO();
+}
+function afficherQuestion_CO(){
+  var q=qvfCO.questions[qvfCO.idx];
+  var el=function(id){return document.getElementById(id);};
+  if(el('qvf-co-category')) el('qvf-co-category').textContent=q.cat;
+  if(el('qvf-co-question')) el('qvf-co-question').textContent=q.q;
+  if(el('qvf-co-counter')) el('qvf-co-counter').textContent=(qvfCO.idx+1)+' / '+qvfCO.questions.length;
+  if(el('qvf-co-score-inline')) el('qvf-co-score-inline').textContent='\u2705 '+qvfCO.score;
+  if(el('qvf-co-progress-fill')) el('qvf-co-progress-fill').style.width=(qvfCO.idx/qvfCO.questions.length*100)+'%';
+  if(el('btn-co-vrai')) el('btn-co-vrai').disabled=false;
+  if(el('btn-co-faux')) el('btn-co-faux').disabled=false;
+  if(el('qvf-co-feedback')) el('qvf-co-feedback').style.display='none';
+  if(el('qvf-co-next')) el('qvf-co-next').style.display='none';
+  qvfCO.repondu=false;
+}
+function repondreVF_CO(rep){
+  if(qvfCO.repondu) return;
+  qvfCO.repondu=true;
+  var q=qvfCO.questions[qvfCO.idx];
+  var correct=(rep===q.r);
+  if(correct) qvfCO.score++;
+  var el=function(id){return document.getElementById(id);};
+  if(el('btn-co-vrai')) el('btn-co-vrai').disabled=true;
+  if(el('btn-co-faux')) el('btn-co-faux').disabled=true;
+  var fb=el('qvf-co-feedback');
+  if(fb){fb.className='quiz-vf-feedback '+(correct?'correct':'wrong');fb.style.display='block';}
+  if(el('qvf-co-feedback-title')) el('qvf-co-feedback-title').textContent=correct?'\u2705 Correct !':'\u274c Incorrect';
+  if(el('qvf-co-feedback-expl')) el('qvf-co-feedback-expl').textContent=q.ex;
+  if(el('qvf-co-score-inline')) el('qvf-co-score-inline').textContent='\u2705 '+qvfCO.score;
+  var nb=el('qvf-co-next');
+  if(nb){nb.style.display='block';nb.textContent=(qvfCO.idx===qvfCO.questions.length-1)?'Voir mon r\u00e9sultat \u2192':'Question suivante \u2192';}
+}
+function questionSuivante_CO(){qvfCO.idx++;if(qvfCO.idx>=qvfCO.questions.length) afficherResultatVF_CO();else afficherQuestion_CO();}
+function afficherResultatVF_CO(){
+  var el=function(id){return document.getElementById(id);};
+  if(el('qvf-co-card')) el('qvf-co-card').style.display='none';
+  var result=el('qvf-co-result');if(result) result.style.display='block';
+  var score=qvfCO.score,total=qvfCO.questions.length,pct=Math.round(score/total*100);
+  if(el('qvf-co-final-score')) el('qvf-co-final-score').textContent=score;
+  var medal='\ud83e\udd49',label='Continuez \u00e0 r\u00e9viser !';
+  if(pct>=90){medal='\ud83c\udfc6';label='Excellence ! Niveau expert Compliance LBC/FT.';}
+  else if(pct>=75){medal='\ud83e\udd47';label='Tr\u00e8s bon niveau.';}
+  else if(pct>=60){medal='\ud83e\udd48';label='Bon d\u00e9but. R\u00e9visez les textes LBC/FT.';}
+  if(el('qvf-co-medal')) el('qvf-co-medal').textContent=medal;
+  if(el('qvf-co-result-label')) el('qvf-co-result-label').textContent=label;
+  var best=parseInt(localStorage.getItem('ra_metier_co_best')||'0');
+  if(score>best) localStorage.setItem('ra_metier_co_best',score);
+  chargerScoreMetier('compliance');
+}
+function retourQuizAccueil_CO(){
+  var el=function(id){return document.getElementById(id);};
+  if(el('co-quiz-vf')) el('co-quiz-vf').style.display='none';
+  if(el('co-quiz-accueil')) el('co-quiz-accueil').style.display='block';
+  if(el('qvf-co-card')) el('qvf-co-card').style.display='block';
+  if(el('qvf-co-result')) el('qvf-co-result').style.display='none';
+}
+
+/* ============ FONCTIONS QUIZ RISQUES ============ */
+var qvfRI={questions:[],idx:0,score:0,repondu:false};
+function lancerQuizVF_RI(){
+  var qs=QVF_RISQUES_DATA.slice().sort(function(){return Math.random()-.5;});
+  qvfRI={questions:qs,idx:0,score:0,repondu:false};
+  var el=function(id){return document.getElementById(id);};
+  if(el('ri-quiz-accueil')) el('ri-quiz-accueil').style.display='none';
+  if(el('ri-quiz-vf')) el('ri-quiz-vf').style.display='block';
+  if(el('qvf-ri-result')) el('qvf-ri-result').style.display='none';
+  if(el('qvf-ri-card')) el('qvf-ri-card').style.display='block';
+  afficherQuestion_RI();
+}
+function afficherQuestion_RI(){
+  var q=qvfRI.questions[qvfRI.idx];
+  var el=function(id){return document.getElementById(id);};
+  if(el('qvf-ri-category')) el('qvf-ri-category').textContent=q.cat;
+  if(el('qvf-ri-question')) el('qvf-ri-question').textContent=q.q;
+  if(el('qvf-ri-counter')) el('qvf-ri-counter').textContent=(qvfRI.idx+1)+' / '+qvfRI.questions.length;
+  if(el('qvf-ri-score-inline')) el('qvf-ri-score-inline').textContent='\u2705 '+qvfRI.score;
+  if(el('qvf-ri-progress-fill')) el('qvf-ri-progress-fill').style.width=(qvfRI.idx/qvfRI.questions.length*100)+'%';
+  if(el('btn-ri-vrai')) el('btn-ri-vrai').disabled=false;
+  if(el('btn-ri-faux')) el('btn-ri-faux').disabled=false;
+  if(el('qvf-ri-feedback')) el('qvf-ri-feedback').style.display='none';
+  if(el('qvf-ri-next')) el('qvf-ri-next').style.display='none';
+  qvfRI.repondu=false;
+}
+function repondreVF_RI(rep){
+  if(qvfRI.repondu) return;
+  qvfRI.repondu=true;
+  var q=qvfRI.questions[qvfRI.idx];
+  var correct=(rep===q.r);
+  if(correct) qvfRI.score++;
+  var el=function(id){return document.getElementById(id);};
+  if(el('btn-ri-vrai')) el('btn-ri-vrai').disabled=true;
+  if(el('btn-ri-faux')) el('btn-ri-faux').disabled=true;
+  var fb=el('qvf-ri-feedback');
+  if(fb){fb.className='quiz-vf-feedback '+(correct?'correct':'wrong');fb.style.display='block';}
+  if(el('qvf-ri-feedback-title')) el('qvf-ri-feedback-title').textContent=correct?'\u2705 Correct !':'\u274c Incorrect';
+  if(el('qvf-ri-feedback-expl')) el('qvf-ri-feedback-expl').textContent=q.ex;
+  if(el('qvf-ri-score-inline')) el('qvf-ri-score-inline').textContent='\u2705 '+qvfRI.score;
+  var nb=el('qvf-ri-next');
+  if(nb){nb.style.display='block';nb.textContent=(qvfRI.idx===qvfRI.questions.length-1)?'Voir mon r\u00e9sultat \u2192':'Question suivante \u2192';}
+}
+function questionSuivante_RI(){qvfRI.idx++;if(qvfRI.idx>=qvfRI.questions.length) afficherResultatVF_RI();else afficherQuestion_RI();}
+function afficherResultatVF_RI(){
+  var el=function(id){return document.getElementById(id);};
+  if(el('qvf-ri-card')) el('qvf-ri-card').style.display='none';
+  var result=el('qvf-ri-result');if(result) result.style.display='block';
+  var score=qvfRI.score,total=qvfRI.questions.length,pct=Math.round(score/total*100);
+  if(el('qvf-ri-final-score')) el('qvf-ri-final-score').textContent=score;
+  var medal='\ud83e\udd49',label='Continuez \u00e0 r\u00e9viser !';
+  if(pct>=90){medal='\ud83c\udfc6';label='Excellence ! Niveau expert B\u00e2le III.';}
+  else if(pct>=75){medal='\ud83e\udd47';label='Tr\u00e8s bon niveau.';}
+  else if(pct>=60){medal='\ud83e\udd48';label='Bon d\u00e9but. R\u00e9visez les ratios prudentiels.';}
+  if(el('qvf-ri-medal')) el('qvf-ri-medal').textContent=medal;
+  if(el('qvf-ri-result-label')) el('qvf-ri-result-label').textContent=label;
+  var best=parseInt(localStorage.getItem('ra_metier_ri_best')||'0');
+  if(score>best) localStorage.setItem('ra_metier_ri_best',score);
+  chargerScoreMetier('risques');
+}
+function retourQuizAccueil_RI(){
+  var el=function(id){return document.getElementById(id);};
+  if(el('ri-quiz-vf')) el('ri-quiz-vf').style.display='none';
+  if(el('ri-quiz-accueil')) el('ri-quiz-accueil').style.display='block';
+  if(el('qvf-ri-card')) el('qvf-ri-card').style.display='block';
+  if(el('qvf-ri-result')) el('qvf-ri-result').style.display='none';
+}
 </body>
 </html>
