@@ -5282,90 +5282,7 @@ function rMETIERS(){ // MODIFIÉ : rendu inline du module Métiers
   '<div class="quiz-vf-result" id="qvf-result"><div class="quiz-vf-result-medal" id="qvf-medal"></div><div class="quiz-vf-result-score"><span id="qvf-final-score"></span><span> / 20</span></div><div class="quiz-vf-result-label" id="qvf-result-label"></div>'+
   '<div class="quiz-vf-result-btns"><button class="quiz-vf-result-btn primary" onclick="lancerQuizVF()">🔄 Recommencer</button><button class="quiz-vf-result-btn secondary" onclick="retourQuizAccueil()">← Retour</button></div></div>'+
   '</div></div>'+
-  '</div></div></div></div>'+
-  '<div class="metier-detail" id="metier-compliance">'+
-  '<div class="metier-detail-header"><h2>🛡️ Compliance & LBC/FT</h2>'+
-  '<p>Le Compliance Officer pilote le dispositif LBC/FT : KYC, vigilance, DOS vers la CENTIF, screening des listes de sanctions internationales.</p>'+
-  '<div class="metier-score-bar"><span class="metier-score-label">Score de maîtrise</span><div class="metier-score-track"><div class="metier-score-fill" id="co-score-fill"></div></div><span class="metier-score-pct" id="co-score-pct">0%</span></div>'+
-  '</div>'+
-  '<div class="metier-tabs">'+
-  '<button class="metier-tab active" onclick="switchTab(\'compliance\',\'prerequis\')">Prérequis</button>'+
-  '<button class="metier-tab" onclick="switchTab(\'compliance\',\'notions\')">Notions clés</button>'+
-  '<button class="metier-tab" onclick="switchTab(\'compliance\',\'textes\')">Textes réglementaires</button>'+
-  '<button class="metier-tab" onclick="switchTab(\'compliance\',\'quiz\')">Quiz &amp; Compétition</button>'+
-  '</div>'+
-  '<div class="metier-tab-content active" id="compliance-tab-prerequis">'+
-  '<div class="metier-block"><div class="metier-block-title">Formation requise</div><ul class="metier-prereq-list"><li>Licence ou Master en Droit, Finance, Économie ou Audit</li><li>Certification ACAMS (anti-blanchiment) est un atout majeur</li><li>Connaissance approfondie du dispositif LBC/FT UEMOA/CEMAC</li></ul></div>'+
-  '<div class="metier-block"><div class="metier-block-title">Qualités personnelles</div><div class="metier-tag-list"><span class="metier-tag">Rigueur analytique</span><span class="metier-tag">Discrétion absolue</span><span class="metier-tag">Veille réglementaire</span><span class="metier-tag">Pédagogie</span></div></div>'+
-  '</div>'+
-  '<div class="metier-tab-content" id="compliance-tab-notions">'+
-  '<div class="metier-block"><div class="metier-block-title">Cadre LBC/FT UEMOA</div><ul class="metier-prereq-list"><li><strong>Directive n°02/2015/CM/UEMOA</strong> — socle LBC/FT, transposée par chaque État</li><li><strong>CENTIF</strong> — destinataire des Déclarations de Soupçon</li><li><strong>Seuil vigilance espèces</strong> — 5 000 000 FCFA</li><li><strong>Conservation pièces KYC</strong> — 10 ans après fin de relation</li></ul></div>'+
-  '<div class="metier-block"><div class="metier-block-title">Niveaux de vigilance</div><div class="metier-tag-list"><span class="metier-tag gold">Renforcée : PPE, pays à risque</span><span class="metier-tag">Standard : entrée en relation</span><span class="metier-tag">Simplifiée : produits faible risque</span></div></div>'+
-  '<div class="metier-block"><div class="metier-block-title">Déclaration de Soupçon (DOS)</div><ul class="metier-prereq-list"><li>Obligation immédiate — transmission à la CENTIF</li><li><strong>Tipping-off interdit</strong> : ne jamais informer le client</li><li>FT : fonds peuvent être d’origine licite</li></ul></div>'+
-  '<div class="metier-block"><div class="metier-block-title">Screening sanctions</div><div class="metier-tag-list"><span class="metier-tag gold">OFAC (USA)</span><span class="metier-tag gold">Union Européenne</span><span class="metier-tag gold">ONU</span><span class="metier-tag">GAFI — 40 recommandations</span></div></div>'+
-  '</div>'+
-  '<div class="metier-tab-content" id="compliance-tab-textes">'+
-  '<div class="metier-block"><div class="metier-block-title">Textes fondamentaux UEMOA</div>'+
-  '<div class="metier-texte-item"><div><div class="metier-texte-ref">Directive n°02/2015/CM/UEMOA</div><div class="metier-texte-name">Directive LBC/FT UEMOA</div><div class="metier-texte-scope">KYC · DOS · Conservation · PPE</div></div><button class="metier-texte-btn">Bientôt</button></div>'+
-  '<div class="metier-texte-item"><div><div class="metier-texte-ref">Instruction BCEAO n°001-03-2025</div><div class="metier-texte-name">Dispositif de conformité LBC/FT</div><div class="metier-texte-scope">Cartographie · Programme · Formation · Audit</div></div><button class="metier-texte-btn">Bientôt</button></div>'+
-  '</div></div>'+
-  '<div class="metier-tab-content" id="compliance-tab-quiz">'+
-  '<div id="co-quiz-accueil"><div class="metier-block"><div class="metier-block-title">Modes de jeu</div><div class="metier-actions">'+
-  '<button class="metier-action-btn" onclick="lancerQuizVF_CO()"><span class="action-icon">✅</span><span class="action-label">QUIZ SOLO</span><span class="action-sub">20 questions LBC/FT</span></button>'+
-  '<button class="metier-action-btn" style="opacity:.6"><span class="action-icon">⚔️</span><span class="action-label">DUEL</span><span class="action-sub">Bientôt</span></button>'+
-  '</div></div></div>'+
-  '<div id="co-quiz-vf" style="display:none"><div class="quiz-vf-container">'+
-  '<div class="quiz-vf-progress"><span class="quiz-vf-counter" id="qvf-co-counter">1 / 20</span><div class="quiz-vf-progress-bar"><div class="quiz-vf-progress-fill" id="qvf-co-progress-fill"></div></div><span class="quiz-vf-counter" id="qvf-co-score-inline">✅ 0</span></div>'+
-  '<div class="quiz-vf-card" id="qvf-co-card"><div class="quiz-vf-category" id="qvf-co-category"></div><div class="quiz-vf-question" id="qvf-co-question"></div>'+
-  '<div class="quiz-vf-btns"><button class="quiz-vf-btn vrai" onclick="repondreVF_CO(true)" id="btn-co-vrai">✅ VRAI</button><button class="quiz-vf-btn faux" onclick="repondreVF_CO(false)" id="btn-co-faux">❌ FAUX</button></div>'+
-  '<div class="quiz-vf-feedback" id="qvf-co-feedback"><div class="quiz-vf-feedback-title" id="qvf-co-feedback-title"></div><div class="quiz-vf-feedback-expl" id="qvf-co-feedback-expl"></div></div>'+
-  '<button class="quiz-vf-next" id="qvf-co-next" onclick="questionSuivante_CO()">Question suivante →</button></div>'+
-  '<div class="quiz-vf-result" id="qvf-co-result" style="display:none"><div class="quiz-vf-result-medal" id="qvf-co-medal"></div>'+
-  '<div class="quiz-vf-result-score"><span id="qvf-co-final-score"></span><span> / 20</span></div>'+
-  '<div class="quiz-vf-result-label" id="qvf-co-result-label"></div>'+
-  '<div class="quiz-vf-result-btns"><button class="quiz-vf-result-btn primary" onclick="lancerQuizVF_CO()">🔄 Recommencer</button><button class="quiz-vf-result-btn secondary" onclick="retourQuizAccueil_CO()">← Retour</button></div>'+
-  '</div></div></div></div></div>'+
-  '<div class="metier-detail" id="metier-risques">'+
-  '<div class="metier-detail-header"><h2>📊 Risques & Bâle III</h2>'+
-  '<p>Le Risk Manager calcule les RWA, suit les ratios prudentiels CET1/LCR/NSFR et s’assure de la conformité au dispositif Bâle III transposé par la Commission Bancaire UMOA (Décision N°013/2016).</p>'+
-  '<div class="metier-score-bar"><span class="metier-score-label">Score de maîtrise</span><div class="metier-score-track"><div class="metier-score-fill" id="ri-score-fill"></div></div><span class="metier-score-pct" id="ri-score-pct">0%</span></div>'+
-  '</div>'+
-  '<div class="metier-tabs">'+
-  '<button class="metier-tab active" onclick="switchTab(\'risques\',\'prerequis\')">Prérequis</button>'+
-  '<button class="metier-tab" onclick="switchTab(\'risques\',\'notions\')">Notions clés</button>'+
-  '<button class="metier-tab" onclick="switchTab(\'risques\',\'textes\')">Textes réglementaires</button>'+
-  '<button class="metier-tab" onclick="switchTab(\'risques\',\'quiz\')">Quiz &amp; Compétition</button>'+
-  '</div>'+
-  '<div class="metier-tab-content active" id="risques-tab-prerequis">'+
-  '<div class="metier-block"><div class="metier-block-title">Formation requise</div><ul class="metier-prereq-list"><li>Master Finance, Mathématiques financières ou Actuariat</li><li>Certification FRM (GARP) ou PRM appréciée</li><li>Maîtrise du dispositif prudentiel Bâle II/III UMOA</li></ul></div>'+
-  '<div class="metier-block"><div class="metier-block-title">Qualités personnelles</div><div class="metier-tag-list"><span class="metier-tag">Rigueur quantitative</span><span class="metier-tag">Esprit analytique</span><span class="metier-tag">Communication</span><span class="metier-tag">Excel/VBA</span></div></div>'+
-  '</div>'+
-  '<div class="metier-tab-content" id="risques-tab-notions">'+
-  '<div class="metier-block"><div class="metier-block-title">Architecture Bâle III — 3 Piliers</div><ul class="metier-prereq-list"><li><strong>Pilier 1</strong> — CET1 ≥ 4,5% · Tier 1 ≥ 6% · Total FP ≥ 8% des RWA — Risques crédit, marché, opérationnel</li><li><strong>Pilier 2</strong> — ICAAP (banque) + SREP (Commission Bancaire UMOA)</li><li><strong>Pilier 3</strong> — Publications semestrielles : structure FP, expositions</li></ul></div>'+
-  '<div class="metier-block"><div class="metier-block-title">Coussins CET1</div><div class="metier-tag-list"><span class="metier-tag gold">Conservation 2,5% ⇒ CET1 cible 7%</span><span class="metier-tag">Contracyclique 0–2,5%</span><span class="metier-tag">G-SIB +1% – +3,5%</span></div></div>'+
-  '<div class="metier-block"><div class="metier-block-title">Ratios de liquidité</div><ul class="metier-prereq-list"><li><strong>LCR</strong> — HQLA / sorties nettes 30j ≥ 100%</li><li><strong>NSFR</strong> — Financement stable dispo / requis ≥ 100% (1 an)</li><li><strong>Levier</strong> — Tier 1 / exposition totale ≥ 3%</li></ul></div>'+
-  '</div>'+
-  '<div class="metier-tab-content" id="risques-tab-textes">'+
-  '<div class="metier-block"><div class="metier-block-title">Textes fondamentaux UMOA</div>'+
-  '<div class="metier-texte-item"><div><div class="metier-texte-ref">Décision N°013/2016/CM/UMOA</div><div class="metier-texte-name">Dispositif prudentiel UMOA — Bâle II/III</div><div class="metier-texte-scope">Fonds propres · RWA · LCR · NSFR · Levier</div></div><button class="metier-texte-btn">Bientôt</button></div>'+
-  '<div class="metier-texte-item"><div><div class="metier-texte-ref">Instruction BCEAO n°009-09-2017</div><div class="metier-texte-name">LCR UMOA</div><div class="metier-texte-scope">HQLA · Sorties nettes · Déclaration mensuelle</div></div><button class="metier-texte-btn">Bientôt</button></div>'+
-  '</div></div>'+
-  '<div class="metier-tab-content" id="risques-tab-quiz">'+
-  '<div id="ri-quiz-accueil"><div class="metier-block"><div class="metier-block-title">Modes de jeu</div><div class="metier-actions">'+
-  '<button class="metier-action-btn" onclick="lancerQuizVF_RI()"><span class="action-icon">✅</span><span class="action-label">QUIZ SOLO</span><span class="action-sub">20 questions Bâle III</span></button>'+
-  '<button class="metier-action-btn" style="opacity:.6"><span class="action-icon">⚔️</span><span class="action-label">DUEL</span><span class="action-sub">Bientôt</span></button>'+
-  '</div></div></div>'+
-  '<div id="ri-quiz-vf" style="display:none"><div class="quiz-vf-container">'+
-  '<div class="quiz-vf-progress"><span class="quiz-vf-counter" id="qvf-ri-counter">1 / 20</span><div class="quiz-vf-progress-bar"><div class="quiz-vf-progress-fill" id="qvf-ri-progress-fill"></div></div><span class="quiz-vf-counter" id="qvf-ri-score-inline">✅ 0</span></div>'+
-  '<div class="quiz-vf-card" id="qvf-ri-card"><div class="quiz-vf-category" id="qvf-ri-category"></div><div class="quiz-vf-question" id="qvf-ri-question"></div>'+
-  '<div class="quiz-vf-btns"><button class="quiz-vf-btn vrai" onclick="repondreVF_RI(true)" id="btn-ri-vrai">✅ VRAI</button><button class="quiz-vf-btn faux" onclick="repondreVF_RI(false)" id="btn-ri-faux">❌ FAUX</button></div>'+
-  '<div class="quiz-vf-feedback" id="qvf-ri-feedback"><div class="quiz-vf-feedback-title" id="qvf-ri-feedback-title"></div><div class="quiz-vf-feedback-expl" id="qvf-ri-feedback-expl"></div></div>'+
-  '<button class="quiz-vf-next" id="qvf-ri-next" onclick="questionSuivante_RI()">Question suivante →</button></div>'+
-  '<div class="quiz-vf-result" id="qvf-ri-result" style="display:none"><div class="quiz-vf-result-medal" id="qvf-ri-medal"></div>'+
-  '<div class="quiz-vf-result-score"><span id="qvf-ri-final-score"></span><span> / 20</span></div>'+
-  '<div class="quiz-vf-result-label" id="qvf-ri-result-label"></div>'+
-  '<div class="quiz-vf-result-btns"><button class="quiz-vf-result-btn primary" onclick="lancerQuizVF_RI()">🔄 Recommencer</button><button class="quiz-vf-result-btn secondary" onclick="retourQuizAccueil_RI()">← Retour</button></div>'+
-  '</div></div></div></div></div>';
+  '</div></div></div></div>';
 }
 
 /* ════════ FONCTIONS MODULE MÉTIERS ════════ */
@@ -5685,5 +5602,106 @@ function retourQuizAccueil_RI(){
   if(el('qvf-ri-card')) el('qvf-ri-card').style.display='block';
   if(el('qvf-ri-result')) el('qvf-ri-result').style.display='none';
 }
+
+<!-- MODIFIÉ : sections métiers Compliance + Risques en HTML direct -->
+<div class="metier-detail" id="metier-compliance">
+<div class="metier-detail-header">
+<h2>🛡️ Compliance &amp; LBC/FT</h2>
+<p>Le Compliance Officer pilote le dispositif LBC/FT : KYC, vigilance, DOS vers la CENTIF, screening des listes de sanctions internationales.</p>
+<div class="metier-score-bar"><span class="metier-score-label">Score de maîtrise</span><div class="metier-score-track"><div class="metier-score-fill" id="co-score-fill"></div></div><span class="metier-score-pct" id="co-score-pct">0%</span></div>
+</div>
+<div class="metier-tabs">
+<button class="metier-tab active" onclick="switchTab('compliance','prerequis')">Prérequis</button>
+<button class="metier-tab" onclick="switchTab('compliance','notions')">Notions clés</button>
+<button class="metier-tab" onclick="switchTab('compliance','textes')">Textes réglementaires</button>
+<button class="metier-tab" onclick="switchTab('compliance','quiz')">Quiz &amp; Compétition</button>
+</div>
+<div class="metier-tab-content active" id="compliance-tab-prerequis">
+<div class="metier-block"><div class="metier-block-title">Formation requise</div><ul class="metier-prereq-list"><li>Licence ou Master en Droit, Finance, Économie ou Audit</li><li>Certification ACAMS (anti-blanchiment) est un atout majeur</li><li>Connaissance approfondie du dispositif LBC/FT UEMOA/CEMAC</li></ul></div>
+<div class="metier-block"><div class="metier-block-title">Qualités personnelles</div><div class="metier-tag-list"><span class="metier-tag">Rigueur analytique</span><span class="metier-tag">Discrétion absolue</span><span class="metier-tag">Veille réglementaire</span><span class="metier-tag">Pédagogie</span></div></div>
+</div>
+<div class="metier-tab-content" id="compliance-tab-notions">
+<div class="metier-block"><div class="metier-block-title">Cadre LBC/FT UEMOA</div><ul class="metier-prereq-list"><li><strong>Directive n°02/2015/CM/UEMOA</strong> — socle LBC/FT, transposée par chaque État membre</li><li><strong>CENTIF</strong> — destinataire des Déclarations de Soupçon (DOS)</li><li><strong>Seuil vigilance espèces</strong> — 5 000 000 FCFA</li><li><strong>Conservation pièces KYC</strong> — 10 ans après fin de relation</li></ul></div>
+<div class="metier-block"><div class="metier-block-title">Niveaux de vigilance</div><div class="metier-tag-list"><span class="metier-tag gold">Renforcée : PPE, pays à risque</span><span class="metier-tag">Standard : entrée en relation</span><span class="metier-tag">Simplifiée : produits faible risque</span></div></div>
+<div class="metier-block"><div class="metier-block-title">Déclaration de Soupçon (DOS)</div><ul class="metier-prereq-list"><li>Obligation immédiate — transmission à la CENTIF</li><li><strong>Tipping-off interdit</strong> : ne jamais informer le client</li><li>FT : fonds peuvent être d'origine licite</li></ul></div>
+<div class="metier-block"><div class="metier-block-title">Screening sanctions</div><div class="metier-tag-list"><span class="metier-tag gold">OFAC (USA)</span><span class="metier-tag gold">Union Européenne</span><span class="metier-tag gold">ONU</span><span class="metier-tag">GAFI — 40 recommandations</span></div></div>
+</div>
+<div class="metier-tab-content" id="compliance-tab-textes">
+<div class="metier-block"><div class="metier-block-title">Textes fondamentaux UEMOA</div>
+<div class="metier-texte-item"><div><div class="metier-texte-ref">Directive n°02/2015/CM/UEMOA</div><div class="metier-texte-name">Directive LBC/FT UEMOA</div><div class="metier-texte-scope">KYC · DOS · Conservation · PPE</div></div><button class="metier-texte-btn">Bientôt</button></div>
+<div class="metier-texte-item"><div><div class="metier-texte-ref">Instruction BCEAO n°001-03-2025</div><div class="metier-texte-name">Dispositif de conformité LBC/FT</div><div class="metier-texte-scope">Cartographie · Programme · Formation · Audit</div></div><button class="metier-texte-btn">Bientôt</button></div>
+</div></div>
+<div class="metier-tab-content" id="compliance-tab-quiz">
+<div id="co-quiz-accueil"><div class="metier-block"><div class="metier-block-title">Modes de jeu</div><div class="metier-actions">
+<button class="metier-action-btn" onclick="lancerQuizVF_CO()"><span class="action-icon">✅</span><span class="action-label">QUIZ SOLO</span><span class="action-sub">20 questions LBC/FT</span></button>
+<button class="metier-action-btn" style="opacity:.6"><span class="action-icon">⚔️</span><span class="action-label">DUEL</span><span class="action-sub">Bientôt</span></button>
+</div></div></div>
+<div id="co-quiz-vf" style="display:none"><div class="quiz-vf-container">
+<div class="quiz-vf-progress"><span class="quiz-vf-counter" id="qvf-co-counter">1 / 20</span><div class="quiz-vf-progress-bar"><div class="quiz-vf-progress-fill" id="qvf-co-progress-fill"></div></div><span class="quiz-vf-counter" id="qvf-co-score-inline">✅ 0</span></div>
+<div class="quiz-vf-card" id="qvf-co-card">
+<div class="quiz-vf-category" id="qvf-co-category"></div>
+<div class="quiz-vf-question" id="qvf-co-question"></div>
+<div class="quiz-vf-btns"><button class="quiz-vf-btn vrai" onclick="repondreVF_CO(true)" id="btn-co-vrai">✅ VRAI</button><button class="quiz-vf-btn faux" onclick="repondreVF_CO(false)" id="btn-co-faux">❌ FAUX</button></div>
+<div class="quiz-vf-feedback" id="qvf-co-feedback"><div class="quiz-vf-feedback-title" id="qvf-co-feedback-title"></div><div class="quiz-vf-feedback-expl" id="qvf-co-feedback-expl"></div></div>
+<button class="quiz-vf-next" id="qvf-co-next" onclick="questionSuivante_CO()">Question suivante →</button>
+</div>
+<div class="quiz-vf-result" id="qvf-co-result" style="display:none">
+<div class="quiz-vf-result-medal" id="qvf-co-medal"></div>
+<div class="quiz-vf-result-score"><span id="qvf-co-final-score"></span><span> / 20</span></div>
+<div class="quiz-vf-result-label" id="qvf-co-result-label"></div>
+<div class="quiz-vf-result-btns"><button class="quiz-vf-result-btn primary" onclick="lancerQuizVF_CO()">🔄 Recommencer</button><button class="quiz-vf-result-btn secondary" onclick="retourQuizAccueil_CO()">← Retour</button></div>
+</div>
+</div></div>
+</div></div>
+
+<div class="metier-detail" id="metier-risques">
+<div class="metier-detail-header">
+<h2>📊 Risques &amp; Bâle III</h2>
+<p>Le Risk Manager calcule les RWA, suit les ratios prudentiels CET1/LCR/NSFR et assure la conformité au dispositif Bâle III transposé par la Commission Bancaire UMOA (Décision N°013/2016).</p>
+<div class="metier-score-bar"><span class="metier-score-label">Score de maîtrise</span><div class="metier-score-track"><div class="metier-score-fill" id="ri-score-fill"></div></div><span class="metier-score-pct" id="ri-score-pct">0%</span></div>
+</div>
+<div class="metier-tabs">
+<button class="metier-tab active" onclick="switchTab('risques','prerequis')">Prérequis</button>
+<button class="metier-tab" onclick="switchTab('risques','notions')">Notions clés</button>
+<button class="metier-tab" onclick="switchTab('risques','textes')">Textes réglementaires</button>
+<button class="metier-tab" onclick="switchTab('risques','quiz')">Quiz &amp; Compétition</button>
+</div>
+<div class="metier-tab-content active" id="risques-tab-prerequis">
+<div class="metier-block"><div class="metier-block-title">Formation requise</div><ul class="metier-prereq-list"><li>Master Finance, Mathématiques financières ou Actuariat</li><li>Certification FRM (GARP) ou PRM appréciée</li><li>Maîtrise du dispositif prudentiel Bâle II/III UMOA</li></ul></div>
+<div class="metier-block"><div class="metier-block-title">Qualités personnelles</div><div class="metier-tag-list"><span class="metier-tag">Rigueur quantitative</span><span class="metier-tag">Esprit analytique</span><span class="metier-tag">Communication</span><span class="metier-tag">Excel/VBA</span></div></div>
+</div>
+<div class="metier-tab-content" id="risques-tab-notions">
+<div class="metier-block"><div class="metier-block-title">Architecture Bâle III — 3 Piliers</div><ul class="metier-prereq-list"><li><strong>Pilier 1</strong> — CET1 ≥ 4,5% · Tier 1 ≥ 6% · Total FP ≥ 8% des RWA — Risques crédit, marché, opérationnel</li><li><strong>Pilier 2</strong> — ICAAP (banque) + SREP (Commission Bancaire UMOA)</li><li><strong>Pilier 3</strong> — Publications semestrielles : structure FP, expositions</li></ul></div>
+<div class="metier-block"><div class="metier-block-title">Coussins CET1</div><div class="metier-tag-list"><span class="metier-tag gold">Conservation 2,5% ⇒ CET1 cible 7%</span><span class="metier-tag">Contracyclique 0–2,5%</span><span class="metier-tag">G-SIB +1% – +3,5%</span></div></div>
+<div class="metier-block"><div class="metier-block-title">Ratios de liquidité</div><ul class="metier-prereq-list"><li><strong>LCR</strong> — HQLA / sorties nettes 30j ≥ 100%</li><li><strong>NSFR</strong> — Financement stable dispo / requis ≥ 100% (1 an)</li><li><strong>Levier</strong> — Tier 1 / exposition totale ≥ 3%</li></ul></div>
+</div>
+<div class="metier-tab-content" id="risques-tab-textes">
+<div class="metier-block"><div class="metier-block-title">Textes fondamentaux UMOA</div>
+<div class="metier-texte-item"><div><div class="metier-texte-ref">Décision N°013/2016/CM/UMOA</div><div class="metier-texte-name">Dispositif prudentiel UMOA — Bâle II/III</div><div class="metier-texte-scope">Fonds propres · RWA · LCR · NSFR · Levier</div></div><button class="metier-texte-btn">Bientôt</button></div>
+<div class="metier-texte-item"><div><div class="metier-texte-ref">Instruction BCEAO n°009-09-2017</div><div class="metier-texte-name">LCR UMOA</div><div class="metier-texte-scope">HQLA · Sorties nettes · Déclaration mensuelle</div></div><button class="metier-texte-btn">Bientôt</button></div>
+</div></div>
+<div class="metier-tab-content" id="risques-tab-quiz">
+<div id="ri-quiz-accueil"><div class="metier-block"><div class="metier-block-title">Modes de jeu</div><div class="metier-actions">
+<button class="metier-action-btn" onclick="lancerQuizVF_RI()"><span class="action-icon">✅</span><span class="action-label">QUIZ SOLO</span><span class="action-sub">20 questions Bâle III</span></button>
+<button class="metier-action-btn" style="opacity:.6"><span class="action-icon">⚔️</span><span class="action-label">DUEL</span><span class="action-sub">Bientôt</span></button>
+</div></div></div>
+<div id="ri-quiz-vf" style="display:none"><div class="quiz-vf-container">
+<div class="quiz-vf-progress"><span class="quiz-vf-counter" id="qvf-ri-counter">1 / 20</span><div class="quiz-vf-progress-bar"><div class="quiz-vf-progress-fill" id="qvf-ri-progress-fill"></div></div><span class="quiz-vf-counter" id="qvf-ri-score-inline">✅ 0</span></div>
+<div class="quiz-vf-card" id="qvf-ri-card">
+<div class="quiz-vf-category" id="qvf-ri-category"></div>
+<div class="quiz-vf-question" id="qvf-ri-question"></div>
+<div class="quiz-vf-btns"><button class="quiz-vf-btn vrai" onclick="repondreVF_RI(true)" id="btn-ri-vrai">✅ VRAI</button><button class="quiz-vf-btn faux" onclick="repondreVF_RI(false)" id="btn-ri-faux">❌ FAUX</button></div>
+<div class="quiz-vf-feedback" id="qvf-ri-feedback"><div class="quiz-vf-feedback-title" id="qvf-ri-feedback-title"></div><div class="quiz-vf-feedback-expl" id="qvf-ri-feedback-expl"></div></div>
+<button class="quiz-vf-next" id="qvf-ri-next" onclick="questionSuivante_RI()">Question suivante →</button>
+</div>
+<div class="quiz-vf-result" id="qvf-ri-result" style="display:none">
+<div class="quiz-vf-result-medal" id="qvf-ri-medal"></div>
+<div class="quiz-vf-result-score"><span id="qvf-ri-final-score"></span><span> / 20</span></div>
+<div class="quiz-vf-result-label" id="qvf-ri-result-label"></div>
+<div class="quiz-vf-result-btns"><button class="quiz-vf-result-btn primary" onclick="lancerQuizVF_RI()">🔄 Recommencer</button><button class="quiz-vf-result-btn secondary" onclick="retourQuizAccueil_RI()">← Retour</button></div>
+</div>
+</div></div>
+</div></div>
+
 </body>
 </html>
