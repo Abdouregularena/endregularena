@@ -1703,6 +1703,19 @@ function doRegister(){
   apiCall('POST','/register',{name:name, email:email, profile:inst, country:pays, cgu_accepted:true})
     .then(function(data){
       setBtnLoading('reg-btn', false, 'Créer mon compte →');
+      // MODIFIÉ : ACCÈS IMMÉDIAT — si le backend renvoie un JWT, on connecte directement (plus besoin d'ouvrir l'email/spam)
+      var _jwtNew = data.jwt || data.token;
+      if((data.success || data.ok) && _jwtNew){
+        try{
+          var _p = JSON.parse(atob(_jwtNew.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+          U.token = _jwtNew;
+          U.name = _p.name || name; U.email = _p.email || REG_EMAIL;
+          U.profile = _p.profile || inst; U.country = _p.country || pays;
+          U.role = _p.role || 'user';
+          saveSession(); initDash();
+          return; // l'email de confirmation part quand même côté serveur (vérif. ultérieure facultative)
+        }catch(e){ /* décodage KO → on retombe sur l'écran email ci-dessous */ }
+      }
       if(data.success || data.ok){
         // Afficher écran de confirmation
         ge('reg-confirm-msg').textContent = data.message || ('Un email de confirmation a été envoyé à '+REG_EMAIL);
