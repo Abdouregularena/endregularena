@@ -467,6 +467,69 @@ h2,h3{animation:raReveal .45s ease both;}
 #ra-bell{display:inline-block;transform-origin:50% 12%;animation:raBellRing 5s ease-in-out infinite;}
 #ct~*,#topbar .pls{animation:raDot 1.6s ease-in-out infinite;}
 @media(prefers-reduced-motion:reduce){#ct .g4>.card,#ct .g2>.card,#ct .g4>.card>div:first-child,.pf::after,#ct .btn,#ra-bell,#topbar .pls{animation:none!important;}}
+
+/* ====== MODIFIÉ : couche GAMING globale — tous les écrans via classes partagées ====== */
+@keyframes raPop{0%{transform:scale(.85);opacity:0}60%{transform:scale(1.06)}100%{transform:scale(1);opacity:1}}
+@keyframes raShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+@keyframes raBounce{0%{transform:translateY(0) scale(.6);opacity:0}55%{transform:translateY(-12px) scale(1.15);opacity:1}75%{transform:translateY(0) scale(.95)}100%{transform:translateY(0) scale(1)}}
+@keyframes raShine{0%{background-position:-180% 0}60%,100%{background-position:180% 0}}
+@keyframes raTabIn{from{transform:scaleX(.2);opacity:0}to{transform:scaleX(1);opacity:1}}
+@keyframes raAmbient{0%{transform:translate(0,0)}50%{transform:translate(3%,-2%)}100%{transform:translate(0,0)}}
+
+/* fond d'ambiance subtil (profondeur, sans gêner les clics) */
+#main{position:relative;}
+#main::before{content:"";position:fixed;inset:-15%;z-index:0;pointer-events:none;background:radial-gradient(620px circle at 18% 12%,rgba(201,153,26,.10),transparent 60%),radial-gradient(560px circle at 85% 88%,rgba(96,165,250,.10),transparent 62%);animation:raAmbient 16s ease-in-out infinite;}
+#topbar,#ct{position:relative;z-index:1;}
+
+/* CARTES — survol plus vivant partout + liseré doré qui glisse */
+.card{transition:transform .25s cubic-bezier(.16,1,.3,1),box-shadow .25s ease,border-color .25s ease;}
+.card:hover{transform:translateY(-3px);}
+.ch:active,.card.ch:active{transform:translateY(-1px) scale(.99);}
+
+/* BOUTONS — retour tactile net (clic) sur tout le site */
+.btn:active:not(:disabled),.btn-out:active:not(:disabled),.btn-sm:active:not(:disabled){transform:scale(.95);}
+.btn,.btn-out{transition:transform .12s ease,box-shadow .2s ease,opacity .2s ease;}
+
+/* ENTRÉE échelonnée des grilles sur tous les écrans */
+#ct .g3>*{animation:raUp2 .5s cubic-bezier(.16,1,.3,1) both;}
+#ct .g3>*:nth-child(2){animation-delay:.06s}
+#ct .g3>*:nth-child(3){animation-delay:.12s}
+#ct .g3>*:nth-child(4){animation-delay:.18s}
+#ct .g3>*:nth-child(5){animation-delay:.24s}
+#ct .g3>*:nth-child(6){animation-delay:.30s}
+
+/* ONGLETS actifs — indicateur animé (Nav, Arène, Métiers, Débats) */
+.ni.ac,.ar-tab.ac{position:relative;}
+.ni.ac::after,.ar-tab.ac::after{content:"";position:absolute;left:10px;right:10px;bottom:5px;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--cyan),#E8B520);transform-origin:left;animation:raTabIn .35s cubic-bezier(.16,1,.3,1) both;}
+.metier-tab.active{animation:raPop .3s ease both;}
+
+/* BADGES & tags or — léger reflet vivant */
+.badge,.metier-tag.gold{position:relative;overflow:hidden;}
+.badge::after,.metier-tag.gold::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.45) 50%,transparent 65%);background-size:200% 100%;animation:raShine 3.8s ease-in-out infinite;}
+
+/* QUIZ — cœur du jeu : boutons Vrai/Faux + options duel */
+.quiz-vf-btn{transition:transform .14s ease,box-shadow .2s ease,opacity .2s ease;}
+.quiz-vf-btn:hover:not(:disabled){opacity:1;transform:translateY(-2px) scale(1.01);box-shadow:0 10px 22px rgba(0,0,0,.16);}
+.quiz-vf-btn:active:not(:disabled){transform:scale(.96);}
+.quiz-vf-feedback.correct{animation:fadeInM .3s ease,raPop .4s ease;}
+.quiz-vf-feedback.wrong{animation:fadeInM .3s ease,raShake .4s ease;}
+.quiz-vf-result-medal{animation:raBounce .7s cubic-bezier(.16,1,.3,1) both;}
+.quiz-vf-result-score{animation:raPop .5s ease both;}
+.quiz-vf-progress-fill,.metier-score-fill{position:relative;overflow:hidden;}
+.quiz-vf-progress-fill::after,.metier-score-fill::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 20%,rgba(255,255,255,.5) 50%,transparent 80%);background-size:220% 100%;animation:raPour 2.6s linear infinite;}
+.opt{transition:transform .16s cubic-bezier(.16,1,.3,1),border-color .2s,box-shadow .2s;}
+.opt:hover{transform:translateY(-2px);}
+.opt.correct{animation:raPop .45s ease;}
+.opt.wrong{animation:raShake .4s ease;}
+
+/* MÉTIERS — boutons d'action plus dynamiques */
+.metier-action-btn{transition:transform .2s cubic-bezier(.16,1,.3,1),box-shadow .2s ease;}
+.metier-action-btn:hover{transform:translateY(-3px);}
+.metier-action-btn:hover .action-icon{animation:raChFloat 1.4s ease-in-out infinite;}
+.metier-texte-item{transition:transform .18s ease,box-shadow .2s ease;}
+.metier-texte-item:hover{transform:translateX(3px);}
+
+@media(prefers-reduced-motion:reduce){#main::before,.badge::after,.metier-tag.gold::after,.quiz-vf-progress-fill::after,.metier-score-fill::after,.ni.ac::after,.ar-tab.ac::after{animation:none!important;}}
 </style>
 </head>
 <body>
