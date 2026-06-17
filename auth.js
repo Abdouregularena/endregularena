@@ -13,7 +13,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'change_me_in_production';
 // ── Helpers ───────────────────────────────────────────────
 function issueJWT(user) {
   return jwt.sign(
-{ sub: user.id, email: user.email, name: user.name, role: user.role },
+{ sub: user.id, email: user.email, name: user.name, role: user.role, profile: user.profile, country: user.country }, // MODIFIÉ : profile+country dans le jeton
     JWT_SECRET,
     { expiresIn: '30d' }
   );
@@ -72,13 +72,17 @@ router.post('/register', authLimiter, async (req, res) => {
       user = db.prepare('SELECT * FROM users WHERE id = ?').get(user.id);
     }
 
-    // ── Générer token et envoyer email ────────────────────
+    // ── Email de confirmation : envoyé en arrière-plan, NON bloquant ── // MODIFIÉ
     const token = createToken(user.id, 'verify');
-    await sendVerificationEmail({ name: cleanName, email: cleanEmail, token });
+    Promise.resolve(sendVerificationEmail({ name: cleanName, email: cleanEmail, token }))
+      .catch((e) => console.error('[/auth/register] email non envoyé:', e)); // MODIFIÉ : l'accès ne dépend plus de l'email
 
+    // ── ACCÈS IMMÉDIAT : on délivre le JWT tout de suite ── // MODIFIÉ
+    const jwt_token = issueJWT(user); // MODIFIÉ
     return res.json({
       ok: true,
-      message: `Email de confirmation envoyé à ${cleanEmail}. Vérifiez votre boîte de réception.`,
+      jwt: jwt_token, // MODIFIÉ : le front se connecte directement (plus besoin d'ouvrir l'email/spam)
+      message: 'Compte créé — accès immédiat. Un email de confirmation vous a aussi été envoyé.',
     });
 
   } catch (err) {
