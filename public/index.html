@@ -5147,12 +5147,13 @@ window.addEventListener('load', function(){
 /* ═══ LECTEUR THÈME SONORE (collaborations artistes) ═══ // MODIFIÉ : audio externe, boucle, on/off utilisateur */
 (function(){
   // ▼▼▼ COLLER ICI l'URL du son d'un artiste partenaire (MP3/OGG). Laisser vide = aucun son. ▼▼▼
-  var RA_THEME_URL = '';                                        // MODIFIÉ : ex 'https://www.regularena.com/audio/theme.mp3'
+  var RA_THEME_URL = '/regul_theme.mp3';                        // MODIFIÉ : intro hébergée dans public/ (regul_theme.mp3)
   // ▲▲▲ ──────────────────────────────────────────────────────────────────────────────── ▲▲▲
 
   var A = document.getElementById('ra-theme');                  // MODIFIÉ
   if(!A || !RA_THEME_URL) return;                               // MODIFIÉ : pas d'URL → silence total, zéro bouton
   A.loop = true;                                                // MODIFIÉ : boucle le morceau de l'artiste
+  A.volume = 0.35;                                              // MODIFIÉ : volume par défaut doux (35%) — l'utilisateur garde le bouton 🎵/🔇
   A.src = RA_THEME_URL;                                         // MODIFIÉ : chargement à la demande
 
   function pref(){ try{ return localStorage.getItem('ra_music'); }catch(e){ return null; } } // MODIFIÉ
