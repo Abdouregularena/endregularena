@@ -438,6 +438,36 @@ h2,h3{animation:raReveal .45s ease both;}
   #mbox{animation:none!important;}
 }
 </style>
+<style id="ra-anim2">/* ====== MODIFIÉ : couche d'animation renforcée (additive, GPU-friendly) ====== */
+@keyframes raUp2{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes raPour{0%{background-position:-220% 0}100%{background-position:220% 0}}
+@keyframes raBellRing{0%,72%,100%{transform:rotate(0)}76%{transform:rotate(15deg)}81%{transform:rotate(-12deg)}86%{transform:rotate(8deg)}91%{transform:rotate(-5deg)}96%{transform:rotate(2deg)}}
+@keyframes raChFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes raCtaGlow{0%,100%{box-shadow:0 6px 18px rgba(201,153,26,.22)}50%{box-shadow:0 8px 26px rgba(232,181,32,.5)}}
+@keyframes raDot{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.35);opacity:.55}}
+/* entrée échelonnée des cartes du tableau de bord */
+#ct .g4>.card{animation:raUp2 .55s cubic-bezier(.16,1,.3,1) both;}
+#ct .g4>.card:nth-child(1){animation-delay:.04s}
+#ct .g4>.card:nth-child(2){animation-delay:.11s}
+#ct .g4>.card:nth-child(3){animation-delay:.18s}
+#ct .g4>.card:nth-child(4){animation-delay:.25s}
+#ct .g2>.card{animation:raUp2 .55s cubic-bezier(.16,1,.3,1) both;}
+#ct .g2>.card:nth-child(2){animation-delay:.1s}
+/* halo doré qui pulse sur l'icône des cartes-stats */
+#ct .g4>.card>div:first-child{box-shadow:0 0 0 0 rgba(232,181,32,.35);animation:raCtaGlow 3.4s ease-in-out infinite;}
+/* cartes "Que voulez-vous faire" : l'emoji flotte au survol + léger zoom carte */
+.ch:hover>div:first-child{animation:raChFloat 1.6s ease-in-out infinite;}
+.ch:active{transform:translateY(-1px) scale(.985);}
+/* barre de progression : reflet qui coule en continu */
+.pf{position:relative;overflow:hidden;}
+.pf::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 18%,rgba(255,255,255,.55) 50%,transparent 82%);background-size:220% 100%;animation:raPour 2.6s linear infinite;}
+/* boutons d'action dorés : respiration discrète (hors petits boutons désactivés) */
+#ct .btn:not(:disabled){animation:raCtaGlow 3.6s ease-in-out infinite;}
+/* cloche : sonne périodiquement + point vert qui bat */
+#ra-bell{display:inline-block;transform-origin:50% 12%;animation:raBellRing 5s ease-in-out infinite;}
+#ct~*,#topbar .pls{animation:raDot 1.6s ease-in-out infinite;}
+@media(prefers-reduced-motion:reduce){#ct .g4>.card,#ct .g2>.card,#ct .g4>.card>div:first-child,.pf::after,#ct .btn,#ra-bell,#topbar .pls{animation:none!important;}}
+</style>
 </head>
 <body>
 <!-- ═══ STICKER FLOTTANT PREMIUM ═══ -->
@@ -828,7 +858,7 @@ h2,h3{animation:raReveal .45s ease both;}
     <div id="topbar">
       <button onclick="toggleSb()" style="background:transparent;border:none;cursor:pointer;color:var(--sub);font-size:22px;line-height:1;min-width:44px;min-height:44px;touch-action:manipulation;border-radius:8px;">☰</button>
       <div style="display:flex;align-items:center;gap:12px;position:relative;">
-        <button style="background:transparent;border:none;cursor:pointer;font-size:18px;position:relative;min-width:40px;min-height:40px;touch-action:manipulation;">🔔<span class="pls" style="position:absolute;top:6px;right:6px;width:6px;height:6px;background:#22c55e;border-radius:50%;display:block;"></span></button>
+        <button onclick="raOpenNotif()" title="Notifications" style="background:transparent;border:none;cursor:pointer;font-size:18px;position:relative;min-width:40px;min-height:40px;touch-action:manipulation;"><span id="ra-bell">🔔</span><span class="pls" style="position:absolute;top:6px;right:6px;width:6px;height:6px;background:#22c55e;border-radius:50%;display:block;"></span></button><!-- MODIFIÉ : cloche cliquable + anim -->
         <div id="profile-trigger" onclick="toggleProfileMenu(event)" style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:4px 6px;border-radius:10px;">
           <div class="av" id="t-av" style="width:34px;height:34px;font-size:13px;"></div>
           <div style="font-size:12px;"><div style="font-weight:700;color:white;" id="t-name"></div><div style="font-size:10px;color:var(--sub);" id="t-role">Pro UEMOA</div></div>
@@ -2029,7 +2059,7 @@ function rDB(){
   '<div style="font-size:30px;line-height:1;">▶️</div>'+
   '<div style="font-weight:800;color:white;font-size:14px;margin:9px 0 3px;">Jouer en solo</div>'+
   '<div style="font-size:11px;color:var(--sub);">Choisis un pack, progresse</div></div>'+
-  '<div class="ch" onclick="try{CFG_METIERS.afficher();}catch(e){ST(\'quiz\');}" style="cursor:pointer;background:rgba(255,255,255,.04);border:1px solid rgba(201,153,26,.35);border-radius:14px;padding:18px;text-align:center;">'+  // MODIFIÉ
+  '<div class="ch" onclick="ST(\'metiers\')" style="cursor:pointer;background:rgba(255,255,255,.04);border:1px solid rgba(201,153,26,.35);border-radius:14px;padding:18px;text-align:center;">'+  // MODIFIÉ : CFG_METIERS inexistant → page metiers (rMETIERS)
   '<div style="font-size:30px;line-height:1;">🧭</div>'+
   '<div style="font-weight:800;color:white;font-size:14px;margin:9px 0 3px;">Par métier</div>'+
   '<div style="font-size:11px;color:var(--sub);">Conformité, Trade, Risques, CEMAC</div></div>'+
@@ -2052,8 +2082,9 @@ function rDB(){
   '<div style="font-size:11px;color:#8aa3d4;margin-top:6px;">'+(U.xp%1000)+'/1000 XP → Niv '+(U.lvl+1)+'</div></div>'+
   '<div class="card"><div style="font-weight:700;color:white;font-size:13px;margin-bottom:10px;">Objectifs du jour</div>'+
   [['3 Quiz de 10 questions',true],['Défier 1 adversaire',false],['Lire une fiche BCEAO',true]].map(function(o){
-    return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:9px;"><div style="width:18px;height:18px;border-radius:50%;border:2px solid '+(o[1]?'#22c55e':'#8aa3d4')+';background:'+(o[1]?'#22c55e':'transparent')+';display:flex;align-items:center;justify-content:center;font-size:9px;color:white;flex-shrink:0;">'+(o[1]?'✓':'')+'</div>'+
-    '<span style="font-size:12px;color:'+(o[1]?'#8aa3d4':'var(--text)')+';text-decoration:'+(o[1]?'line-through':'none')+';">'+o[0]+'</span></div>';
+    var act=(!o[1] && /D.fier/.test(o[0]))?'ST(\'arena\')':''; // MODIFIÉ : objectif Défier cliquable → Arène
+    return '<div onclick="'+act+'" style="display:flex;align-items:center;gap:8px;margin-bottom:9px;'+(act?'cursor:pointer;':'')+'"><div style="width:18px;height:18px;border-radius:50%;border:2px solid '+(o[1]?'#22c55e':'#8aa3d4')+';background:'+(o[1]?'#22c55e':'transparent')+';display:flex;align-items:center;justify-content:center;font-size:9px;color:white;flex-shrink:0;">'+(o[1]?'✓':'')+'</div>'+
+    '<span style="font-size:12px;color:'+(o[1]?'#8aa3d4':'var(--text)')+';text-decoration:'+(o[1]?'line-through':'none')+';">'+o[0]+(act?' <span style="color:var(--cyan);">→</span>':'')+'</span></div>';
   }).join('')+'</div></div>'+
   '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><span style="font-weight:700;color:white;font-size:13px;">Démarrer un quiz</span><button class="btn btn-sm" onclick="ST(\'quiz\')">Voir tous →</button></div>'+
   '<div class="g2">'+
@@ -6606,5 +6637,21 @@ function retourQuizAccueil_RI(){
 </div></div>
 </div></div>
 
+<script id="ra-notif-js">/* MODIFIÉ : panneau Notifications (la cloche était inerte) */
+window.raOpenNotif=function(){
+  try{
+    var pend='';
+    try{ if(typeof AR!=='undefined' && AR && AR.pendingTour && AR.pendingTour.code){ pend='<div class="al al-ok" style="font-size:12px;margin-bottom:10px;">🏆 Tournoi en attente — code <strong>'+AR.pendingTour.code+'</strong></div>'; } }catch(e){}
+    var body=pend+
+      '<div style="font-size:12px;color:var(--sub);margin-bottom:12px;">Vous serez prévenu ici dès qu’un adversaire rejoint un duel ou un tournoi.</div>'+
+      '<div style="display:flex;flex-direction:column;gap:8px;">'+
+        '<button class="btn btn-sm" onclick="closeModal();ST(\'arena\')">⚔️ Aller à l’Arène</button>'+
+        '<button class="btn-out btn-sm" onclick="closeModal();ST(\'communaute\')">💬 Communauté</button>'+
+        '<button class="btn-out btn-sm" onclick="closeModal();ST(\'dashboard\')">🎯 Objectifs du jour</button>'+
+      '</div>';
+    showModal('Notifications',body);
+  }catch(e){ try{ ST('arena'); }catch(_){} }
+};
+</script>
 </body>
 </html>
