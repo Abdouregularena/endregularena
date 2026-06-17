@@ -287,6 +287,29 @@ h2,h3{animation:raReveal .45s ease both;}
 .quiz-vf-result-btn:hover{opacity:.85;}
 @keyframes fadeInM{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
 @media(max-width:480px){.metiers-grid{grid-template-columns:repeat(2,1fr);}.metier-actions{grid-template-columns:repeat(2,1fr);}.metier-tab{padding:12px 14px;font-size:11px;}.quiz-vf-question{font-size:14px;}}
+/* MODIFIÉ : animations écran Métiers (100% transform/opacity) */
+@keyframes mtCardIn{from{opacity:0;transform:translateY(14px) scale(.97);}to{opacity:1;transform:none;}}
+@keyframes mtDetailIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:none;}}
+@keyframes mtTabIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+.metiers-grid .metier-card{animation:mtCardIn .45s cubic-bezier(.2,.7,.2,1) both;}
+.metiers-grid .metier-card:nth-child(1){animation-delay:.02s;}
+.metiers-grid .metier-card:nth-child(2){animation-delay:.06s;}
+.metiers-grid .metier-card:nth-child(3){animation-delay:.10s;}
+.metiers-grid .metier-card:nth-child(4){animation-delay:.14s;}
+.metiers-grid .metier-card:nth-child(5){animation-delay:.18s;}
+.metiers-grid .metier-card:nth-child(6){animation-delay:.22s;}
+.metiers-grid .metier-card:nth-child(7){animation-delay:.26s;}
+.metiers-grid .metier-card:nth-child(8){animation-delay:.30s;}
+.metiers-grid .metier-card:active{transform:scale(.97);}
+.metier-detail.open{animation:mtDetailIn .42s cubic-bezier(.2,.7,.2,1) both;}
+.metier-tab-content.active{animation:mtTabIn .32s ease both;}
+.metier-action-btn{transition:transform .15s ease,background .2s ease;}
+.metier-action-btn:active{transform:scale(.95);}
+.metier-texte-btn{transition:transform .15s ease,background .2s ease;}
+.metier-texte-btn:active{transform:scale(.94);}
+.metier-tag{transition:transform .15s ease;}
+.metier-tag:hover{transform:translateY(-2px);}
+@media(prefers-reduced-motion:reduce){.metiers-grid .metier-card,.metier-detail.open,.metier-tab-content.active{animation:none!important;}}
 /* FIN CSS MODULE MÉTIERS */
 </style>
 <style id="ra-polish-v3">
@@ -5696,7 +5719,7 @@ function rMETIERS(){ // MODIFIÉ : rendu inline du module Métiers
   '<div class="quiz-vf-result" id="qvf-result"><div class="quiz-vf-result-medal" id="qvf-medal"></div><div class="quiz-vf-result-score"><span id="qvf-final-score"></span><span> / 20</span></div><div class="quiz-vf-result-label" id="qvf-result-label"></div>'+
   '<div class="quiz-vf-result-btns"><button class="quiz-vf-result-btn primary" onclick="lancerQuizVF()">🔄 Recommencer</button><button class="quiz-vf-result-btn secondary" onclick="retourQuizAccueil()">← Retour</button></div></div>'+
   '</div></div>'+
-  '</div></div></div></div>';
+  '</div></div>'+(window.__METIER_DETAILS_HTML||'')+'</div></div>'; // MODIFIÉ : injecte les 6 métiers statiques DANS la grid-section (fix décalage)
 }
 
 /* ════════ FONCTIONS MODULE MÉTIERS ════════ */
@@ -6716,6 +6739,20 @@ function retourQuizAccueil_RI(){
 </div>
 </div></div>
 </div></div>
+
+<script id="ra-metiers-relocate">/* MODIFIÉ : capture les 6 fiches métiers statiques pour les ré-injecter DANS #main via rMETIERS (fix décalage/cadre crème) */
+(function(){
+  try{
+    var ids=['metier-compliance','metier-risques','metier-corporate','metier-back-office','metier-alm','metier-detail'];
+    var html='';
+    ids.forEach(function(id){
+      var n=document.getElementById(id);
+      if(n){ html+=n.outerHTML; n.parentNode.removeChild(n); }
+    });
+    window.__METIER_DETAILS_HTML=html;
+  }catch(e){ window.__METIER_DETAILS_HTML=window.__METIER_DETAILS_HTML||''; }
+})();
+</script>
 
 <script id="ra-notif-js">/* MODIFIÉ : panneau Notifications (la cloche était inerte) */
 window.raOpenNotif=function(){
