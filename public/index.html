@@ -2989,7 +2989,13 @@ function lbLoad(zone){
   var url='/leaderboard'+(zone&&zone!=='all'?('?zone='+zone):'');
   var hdr=(typeof U!=='undefined'&&U&&U.token)?{'Authorization':'Bearer '+U.token}:{};
   fetch(url,{headers:hdr}).then(function(r){return r.json();}).then(function(d){
-    var list=(d&&d.leaderboard)||[]; var myRank=d&&d.my_rank;
+    var rawList=(d&&d.leaderboard)||[];
+    // MODIFIÉ : masque les comptes de test du classement public + recalcule les rangs
+    var LB_HIDE=['kaiser ndao','abdou ndao'];
+    var list=rawList.filter(function(p){ return LB_HIDE.indexOf(String((p&&p.name)||'').trim().toLowerCase())===-1; });
+    var myRank=null;
+    if(typeof U!=='undefined' && U && U.name){ var __un=String(U.name).trim().toLowerCase();
+      for(var __mi=0; __mi<list.length; __mi++){ if(String(list[__mi].name||'').trim().toLowerCase()===__un){ myRank=__mi+1; break; } } }
     var goalBox=ge('lb-goal');
     if(!list.length){ if(goalBox) goalBox.innerHTML=''; box.innerHTML='<div class="al al-info" style="font-size:12px;">Le classement se construit au fil des quiz. Soyez le premier à marquer des points !</div>'; return; }
     // MODIFIÉ : 🎯 prochain objectif
@@ -3016,7 +3022,7 @@ function lbLoad(zone){
     // MODIFIÉ : 🏆 podium top 3
     var pod=list.slice(0,3), podHTML='';
     if(pod.length>=3){
-      var order=[1,0,2], hh=[64,84,52];
+      var order=[1,0,2], hh=[84,64,52]; // MODIFIÉ : #1 (centre) = socle le plus haut
       podHTML='<div style="display:flex;align-items:flex-end;justify-content:center;gap:8px;padding:14px 6px 4px;">'+
         order.map(function(idx){ var p=pod[idx]; if(!p) return ''; var rr=idx+1; var meP=(myRank&&rr===myRank);
           return '<div class="lb-podium-item" style="flex:1;max-width:108px;text-align:center;animation-delay:'+(idx*0.08)+'s;">'+
@@ -3032,13 +3038,13 @@ function lbLoad(zone){
     var startI=pod.length>=3?3:0;
     var rowsHTML=list.slice(startI).map(function(p,k){
       var i=startI+k, r=i+1, me=(myRank&&r===myRank);
-      return '<div class="lb-row'+(me?' me':'')+'" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(10,33,62,.6);background:'+(me?'rgba(201,153,26,.08)':'transparent')+';animation-delay:'+(Math.min(k,12)*0.04)+'s;">'+
-        '<div style="display:flex;align-items:center;gap:11px;">'+
-        '<span style="font-weight:900;font-size:15px;color:#8aa3d4;width:26px;text-align:center;">'+r+'</span>'+
-        '<div class="av" style="width:32px;height:32px;font-size:12px;">'+arChatEsc((p.name||'?').charAt(0))+'</div>'+
-        '<div><div style="font-weight:600;color:white;font-size:13px;">'+arChatEsc(p.name||'')+(me?' (Vous)':'')+'</div>'+
+      return '<div class="lb-row'+(me?' me':'')+'" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;border-bottom:1px solid rgba(10,33,62,.6);background:'+(me?'rgba(201,153,26,.08)':'transparent')+';animation-delay:'+(Math.min(k,12)*0.04)+'s;">'+
+        '<div style="display:flex;align-items:center;gap:11px;min-width:0;flex:1;">'+
+        '<span style="font-weight:900;font-size:15px;color:#8aa3d4;width:26px;flex-shrink:0;text-align:center;">'+r+'</span>'+
+        '<div class="av" style="width:32px;height:32px;font-size:12px;flex-shrink:0;">'+arChatEsc((p.name||'?').charAt(0))+'</div>'+
+        '<div style="min-width:0;"><div style="font-weight:600;color:white;font-size:13px;">'+arChatEsc(p.name||'')+(me?' (Vous)':'')+'</div>'+
         '<div style="font-size:10px;color:#8aa3d4;">'+[lbCountryLabel(p.country), (p.etablissement?arChatEsc(p.etablissement):lbProfileLabel(p.profile))].filter(Boolean).join(' · ')+'</div></div></div>'+
-        '<div style="text-align:right;"><div style="font-weight:700;color:#4ade80;font-size:13px;">'+(p.total_score||0)+' pts</div><div style="font-size:10px;color:var(--sub);">'+(p.games||0)+' parties</div></div></div>';
+        '<div style="text-align:right;flex-shrink:0;white-space:nowrap;"><div style="font-weight:700;color:#4ade80;font-size:13px;">'+(p.total_score||0)+' pts</div><div style="font-size:10px;color:var(--sub);">'+(p.games||0)+' partie'+(((p.games||0)>1)?'s':'')+'</div></div></div>';
     }).join('');
     box.innerHTML=podHTML+rowsHTML;
   }).catch(function(){ box.innerHTML='<div class="al al-warn" style="font-size:12px;">Classement momentanément indisponible.</div>'; });
