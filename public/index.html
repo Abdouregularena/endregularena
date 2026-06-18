@@ -343,6 +343,31 @@ h2,h3{animation:raReveal .45s ease both;}
 .q-mini>i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#00B4D8,#E8B520);transition:width .6s ease;}
 @media(prefers-reduced-motion:reduce){.q-hero,.q-hero::after,.qcard{animation:none!important;}.qcard:hover{transform:none;}}
 /* FIN écran Quiz & Formation */
+/* ════════ MODIFIÉ — BARRE DE NAVIGATION BASSE (mobile) ════════ */
+.ra-bnav{display:none;}
+@media(max-width:768px){
+  .ra-bnav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:160;
+    background:rgba(8,26,51,.98);border-top:1px solid var(--border);backdrop-filter:blur(12px);
+    padding:4px 4px;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 4px);
+    box-shadow:0 -6px 20px rgba(0,0,0,.35);}
+  .ra-bn-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+    background:transparent;border:none;cursor:pointer;color:var(--sub);min-height:54px;padding:6px 2px;
+    border-radius:12px;font-family:"Space Grotesk",sans-serif;touch-action:manipulation;
+    transition:color .15s,background .15s,transform .12s;}
+  .ra-bn-ic{font-size:20px;line-height:1;display:block;transition:transform .15s;}
+  .ra-bn-lb{font-size:10px;font-weight:700;letter-spacing:.2px;}
+  .ra-bn-item.ac{color:var(--cyan);background:linear-gradient(to top,rgba(201,153,26,.16),rgba(201,153,26,.02));}
+  .ra-bn-item.ac .ra-bn-ic{transform:translateY(-1px) scale(1.08);}
+  .ra-bn-item:active{transform:scale(.94);}
+  #ct{padding-bottom:80px!important;}
+  #snd-btn{bottom:72px!important;}
+  #music-btn{bottom:128px!important;}
+  .premium-sticker{bottom:72px!important;}
+}
+@media(prefers-reduced-motion:reduce){
+  .ra-bn-item,.ra-bn-item.ac .ra-bn-ic,.ra-bn-ic{transition:none!important;}
+}
+/* FIN barre de navigation basse */
 </style>
 <style id="ra-polish-v3">
 /* ══════════════════════════════════════════════════════════════
@@ -990,6 +1015,14 @@ h2,h3{animation:raReveal .45s ease both;}
       </div>
     </div>
     <div id="ct"></div>
+    <!-- ════════ MODIFIÉ — BARRE DE NAVIGATION BASSE (mobile) ════════ -->
+    <nav class="ra-bnav" id="ra-bnav" aria-label="Navigation principale">
+      <button class="ra-bn-item" id="ra-bn-dashboard" onclick="ST('dashboard')"><span class="ra-bn-ic">🏠</span><span class="ra-bn-lb">Accueil</span></button>
+      <button class="ra-bn-item" id="ra-bn-quiz" onclick="ST('quiz')"><span class="ra-bn-ic">▶️</span><span class="ra-bn-lb">Jouer</span></button>
+      <button class="ra-bn-item" id="ra-bn-arena" onclick="ST('arena')"><span class="ra-bn-ic">⚔️</span><span class="ra-bn-lb">Arène</span></button>
+      <button class="ra-bn-item" id="ra-bn-leaderboard" onclick="ST('leaderboard')"><span class="ra-bn-ic">📈</span><span class="ra-bn-lb">Classement</span></button>
+      <button class="ra-bn-item" id="ra-bn-menu" onclick="toggleSb()"><span class="ra-bn-ic">☰</span><span class="ra-bn-lb">Menu</span></button>
+    </nav>
   </div>
 </div>
 
@@ -2147,6 +2180,14 @@ function rDEBATSADM(){
 }
 /* ════════ FIN rendu débats ════════ */
 
+/* MODIFIÉ — surligne l'onglet actif dans la barre de navigation basse */
+function raBNsync(){
+  var ids=['ra-bn-dashboard','ra-bn-quiz','ra-bn-arena','ra-bn-leaderboard'];
+  ids.forEach(function(id){var e=document.getElementById(id);if(e)e.classList.remove('ac');});
+  var map={dashboard:'ra-bn-dashboard',quiz:'ra-bn-quiz',arena:'ra-bn-arena',leaderboard:'ra-bn-leaderboard'};
+  var act=map[TAB]; if(act){var e=document.getElementById(act); if(e)e.classList.add('ac');}
+}
+
 function render(){
   var c=ge('ct'); c.className='fi'; void c.offsetWidth;
   if(QZ.q.length>0){ rQE(); return; }
@@ -2159,6 +2200,7 @@ function render(){
   if(TAB==='arena'){ try{ arArenaAfterRender(); }catch(e){} } // MODIFIÉ : charge les fils duels/tournois ouverts
   if(TAB==='debats'){ try{ RA_DEBATS.loadList(); }catch(e){} } // MODIFIÉ : charge la liste des débats après affichage
   if(TAB==='debatsadm'){ try{ RA_DEBATS.adminLoad(); }catch(e){} } // MODIFIÉ : charge le panneau jury
+  try{ raBNsync(); }catch(e){} // MODIFIÉ : surligne l'onglet actif de la barre basse
 }
 
 /* ════════════════════════════════════════════════
