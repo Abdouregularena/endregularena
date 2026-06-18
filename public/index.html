@@ -311,6 +311,19 @@ h2,h3{animation:raReveal .45s ease both;}
 .metier-tag:hover{transform:translateY(-2px);}
 @media(prefers-reduced-motion:reduce){.metiers-grid .metier-card,.metier-detail.open,.metier-tab-content.active{animation:none!important;}}
 /* FIN CSS MODULE MÉTIERS */
+/* ── MODIFIÉ : animations écran Classement ── */
+@keyframes lbRowIn{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
+@keyframes lbGoalGlow{0%,100%{box-shadow:0 4px 16px rgba(201,153,26,.18)}50%{box-shadow:0 6px 26px rgba(232,181,32,.46)}}
+@keyframes lbMePulse{0%,100%{box-shadow:inset 3px 0 0 #C9991A,0 0 0 rgba(201,153,26,0)}50%{box-shadow:inset 3px 0 0 #E8B520,0 0 18px rgba(232,181,32,.35)}}
+@keyframes lbPodiumRise{from{opacity:0;transform:translateY(18px) scale(.9)}to{opacity:1;transform:none}}
+@keyframes lbCount{from{opacity:.3;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+.lb-row{animation:lbRowIn .42s ease both;}
+.lb-row.me{animation:lbRowIn .42s ease both,lbMePulse 2.4s ease-in-out infinite .42s;}
+.lb-goal{animation:lbGoalGlow 2.8s ease-in-out infinite;}
+.lb-podium-item{animation:lbPodiumRise .5s cubic-bezier(.2,.8,.25,1) both;}
+.lb-stat-val{animation:lbCount .5s ease both;}
+@media(prefers-reduced-motion:reduce){.lb-row,.lb-row.me,.lb-goal,.lb-podium-item,.lb-stat-val{animation:none!important;}}
+/* FIN animations Classement */
 </style>
 <style id="ra-polish-v3">
 /* ══════════════════════════════════════════════════════════════
@@ -2247,6 +2260,7 @@ function rQE(){
   var c=ge('ct'); c.className='fi'; void c.offsetWidth;
   if(QZ.done){ c.innerHTML=rQR(); return; }
   var q=QZ.q[QZ.idx], tot=QZ.q.length, pct=Math.round((QZ.idx+1)/tot*100);
+  QZ.qStart=Date.now(); // MODIFIÉ : chrono départ question (bonus rapidité)
   c.innerHTML='<div style="max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:13px;">'+
   '<div style="display:flex;justify-content:space-between;align-items:center;">'+
   '<button class="btn-out btn-sm" onclick="exitQ()">← Quitter</button>'+
@@ -2266,8 +2280,9 @@ function rQE(){
 function chooseA(i){
   if(QZ.ans) return;
   QZ.ans=true;
+  var elMs=Date.now()-(QZ.qStart||Date.now()); QZ.tms=(QZ.tms||0)+elMs; // MODIFIÉ : temps de réponse cumulé
   var q=QZ.q[QZ.idx], ok=(i===q.answer);
-  if(ok){ QZ.sc++; sndCorrect(); } else { sndWrong(); }
+  if(ok){ QZ.sc++; sndCorrect(); var s=elMs/1000; QZ.bonus=(QZ.bonus||0)+(s<=5?5:s<=10?3:s<=20?1:0); } else { sndWrong(); } // MODIFIÉ : bonus rapidité (cosmétique, n'altère pas le rang)
   QZ.hist.push({q:q.q,chosen:i,ok:ok,answer:q.answer,choices:q.choices,src:q.source});
   for(var j=0;j<q.choices.length;j++){
     var b=ge('opt-'+j); if(!b) continue;
@@ -2293,7 +2308,8 @@ function nextQ(){
     if(!QZ.saved){ QZ.saved=true; // MODIFIÉ : enregistre le score du quiz (thème + zone) pour les badges
       try{ var tot=QZ.q.length, pct=Math.round(QZ.sc/tot*100);
         var zone=QZ.q.some(function(q){return /CEMAC/i.test(q.cat||'');})?'CEMAC':'UEMOA';
-        scAdd({pack:QZ.pack||'Quiz', zone:zone, sc:QZ.sc, total:tot, pct:pct, ts:Date.now(), type:'quiz'}); }catch(e){}
+        var spd=QZ.tms?Math.round(QZ.tms/tot/100)/10:0; // MODIFIÉ : vitesse moyenne (s/question)
+        scAdd({pack:QZ.pack||'Quiz', zone:zone, sc:QZ.sc, total:tot, pct:pct, spd:spd, bonus:QZ.bonus||0, ts:Date.now(), type:'quiz'}); }catch(e){}
     }
   }
   rQE();
@@ -2314,6 +2330,7 @@ function rQR(){
   '<div style="font-size:44px;font-weight:900;color:'+col+';margin-bottom:8px;">'+QZ.sc+'/'+tot+'</div>'+
   '<div class="pb" style="max-width:240px;margin:0 auto 10px;"><div class="pf" style="width:'+pct+'%;background:'+col+';"></div></div>'+
   '<p style="font-size:13px;color:var(--sub);">'+pct+'% de bonnes réponses</p>'+
+  ((QZ.bonus||QZ.tms) ? '<div style="margin-top:10px;display:inline-flex;align-items:center;gap:7px;background:rgba(232,181,32,.12);border:1px solid rgba(232,181,32,.4);border-radius:999px;padding:6px 14px;font-size:12px;font-weight:700;color:#E8B520;">⚡ Bonus rapidité +'+(QZ.bonus||0)+' · '+(QZ.tms?Math.round(QZ.tms/QZ.q.length/100)/10:0)+' s/question</div>' : '')+
   '<div style="display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap;">'+
   (pct>=80 ? '<button class="btn" style="background:linear-gradient(135deg,#E8B520,#C9991A);color:#05201a;font-weight:800;" onclick="arDownloadCert()">🎓 Télécharger mon certificat</button>' : '')+
   '<button class="btn" onclick="exitQ()">← Retour aux packs</button>'+
@@ -2919,6 +2936,33 @@ function rACH_render(){
 function lbFlag(c){ var ids={SN:'sn',CI:'ci',ML:'ml',BF:'bf',BJ:'bj',NE:'ne',TG:'tg',GW:'gw',CM:'cm',CG:'cg',GA:'ga',GQ:'gq',CF:'cf',TD:'td',HT:'ht'}; var id=ids[c]; return id?'<svg class="flag" style="width:18px;height:12px;vertical-align:middle;border-radius:2px;margin-right:5px;box-shadow:0 0 0 1px rgba(0,0,0,.2);"><use href="#fl-'+id+'"/></svg>':''; }
 function lbCountryLabel(c){ var names={SN:'Sénégal',CI:"Côte d'Ivoire",ML:'Mali',BF:'Burkina Faso',BJ:'Bénin',NE:'Niger',TG:'Togo',GW:'Guinée-Bissau',CM:'Cameroun',CG:'Congo',GA:'Gabon',GQ:'Guinée éq.',CF:'Centrafrique',TD:'Tchad',HT:'Haïti'}; var n=names[c]; return n?(lbFlag(c)+n):arChatEsc(c||''); }
 function lbProfileLabel(p){ return p==='etudiant'?'🎓 Étudiant':p==='professionnel'?'💼 Professionnel':(p?arChatEsc(p):''); }
+// MODIFIÉ : statistiques locales du joueur (thèmes, parties, vitesse) pour l'écran Classement
+function lbLocalStats(){
+  var a=(typeof scLoad==='function')?scLoad():[];
+  a=a.filter(function(s){return s&&s.type==='quiz';});
+  if(!a.length) return null;
+  var themes={}, parties=a.length, best=0, tms=0, tcount=0, top=null;
+  a.forEach(function(s){
+    var k=s.pack||'Quiz'; if(!themes[k]) themes[k]={n:0,best:0}; themes[k].n++; if((s.pct||0)>themes[k].best) themes[k].best=s.pct||0;
+    if((s.pct||0)>best) best=s.pct||0;
+    if(typeof s.spd==='number'&&s.spd>0){ tms+=s.spd; tcount++; }
+  });
+  var tkeys=Object.keys(themes);
+  tkeys.forEach(function(k){ if(!top||themes[k].n>themes[top].n) top=k; });
+  return {themes:tkeys.length, parties:parties, best:best, avgSpd:tcount?Math.round(tms/tcount*10)/10:0, top:top, topN:top?themes[top].n:0};
+}
+function lbStatsCard(){
+  var s=lbLocalStats();
+  if(!s) return '<div class="card" style="padding:14px 18px;"><div style="font-size:13px;font-weight:700;color:white;margin-bottom:4px;">📊 Vos statistiques</div><div style="font-size:12px;color:var(--sub);">Jouez un premier quiz pour voir vos thèmes, parties et vitesse apparaître ici.</div></div>';
+  function cell(v,l){ return '<div style="flex:1;min-width:70px;text-align:center;"><div class="lb-stat-val" style="font-size:20px;font-weight:900;color:#E8B520;">'+v+'</div><div style="font-size:10px;color:var(--sub);">'+l+'</div></div>'; }
+  return '<div class="card" style="padding:14px 18px;">'+
+    '<div style="font-size:13px;font-weight:700;color:white;margin-bottom:10px;">📊 Vos statistiques</div>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;">'+
+      cell(s.themes,'thèmes joués')+cell(s.parties,'parties')+cell(s.best+'%','meilleur score')+cell((s.avgSpd?s.avgSpd+'s':'—'),'vitesse moy.')+
+    '</div>'+
+    (s.top?'<div style="font-size:11px;color:var(--sub);margin-top:10px;border-top:1px solid rgba(10,33,62,.6);padding-top:8px;">Thème favori : <strong style="color:#aac4e8;">'+arChatEsc(s.top)+'</strong> · '+s.topN+' partie'+(s.topN>1?'s':'')+'</div>':'')+
+  '</div>';
+}
 function rLB(){
   // MODIFIÉ : classement réel chargé depuis le backend /leaderboard
   setTimeout(function(){ lbLoad('all'); }, 40);
@@ -2929,11 +2973,13 @@ function rLB(){
     '<div class="pb"><div class="pf" style="width:'+Math.min(100,(U.lvl||1)*10)+'%"></div></div>'+
     '<div style="font-size:11px;color:var(--sub);margin-top:5px;">Niveau '+(U.lvl||1)+' · joue des quiz et des duels pour grimper.</div>'+
   '</div>'+
+  lbStatsCard()+
   '<div style="display:flex;gap:6px;flex-wrap:wrap;">'+
     '<button class="vtab ac" id="lb-t-all" onclick="lbLoad(\'all\')">🌍 Tous</button>'+
     '<button class="vtab" id="lb-t-uemoa" onclick="lbLoad(\'uemoa\')">UEMOA</button>'+
     '<button class="vtab" id="lb-t-cemac" onclick="lbLoad(\'cemac\')">CEMAC</button>'+
   '</div>'+
+  '<div id="lb-goal"></div>'+
   '<div class="card" id="lb-list" style="overflow:hidden;"><div class="al al-info" style="font-size:12px;">Chargement du classement…</div></div>'+
   '</div>';
 }
@@ -2944,17 +2990,57 @@ function lbLoad(zone){
   var hdr=(typeof U!=='undefined'&&U&&U.token)?{'Authorization':'Bearer '+U.token}:{};
   fetch(url,{headers:hdr}).then(function(r){return r.json();}).then(function(d){
     var list=(d&&d.leaderboard)||[]; var myRank=d&&d.my_rank;
-    if(!list.length){ box.innerHTML='<div class="al al-info" style="font-size:12px;">Le classement se construit au fil des quiz. Sois le premier à marquer des points !</div>'; return; }
-    box.innerHTML=list.map(function(p,i){
-      var r=i+1, me=(myRank&&r===myRank), medal=r<=3?['🥇','🥈','🥉'][r-1]:r;
-      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(10,33,62,.6);background:'+(me?'rgba(201,153,26,.08)':'transparent')+';border-left:3px solid '+(me?'#C9991A':'transparent')+';">'+
+    var goalBox=ge('lb-goal');
+    if(!list.length){ if(goalBox) goalBox.innerHTML=''; box.innerHTML='<div class="al al-info" style="font-size:12px;">Le classement se construit au fil des quiz. Soyez le premier à marquer des points !</div>'; return; }
+    // MODIFIÉ : 🎯 prochain objectif
+    if(goalBox){
+      var gh='';
+      if(myRank && myRank>1 && list[myRank-2] && list[myRank-1]){
+        var above=list[myRank-2], meP=list[myRank-1];
+        var gap=Math.max(1,(above.total_score||0)-(meP.total_score||0)+1);
+        gh='<div class="card lb-goal" style="padding:14px 16px;border:1px solid rgba(232,181,32,.45);">'+
+          '<div style="font-size:13px;font-weight:800;color:#E8B520;margin-bottom:4px;">🎯 Votre prochain objectif</div>'+
+          '<div style="font-size:13px;color:white;line-height:1.5;">Plus que <strong style="color:#4ade80;">'+gap+' pts</strong> pour dépasser <strong>'+arChatEsc(above.name||'le joueur au-dessus')+'</strong> et passer <strong>'+(myRank-1)+'<sup>e</sup></strong>.</div>'+
+          '<div style="font-size:11px;color:var(--sub);margin-top:5px;">Un quiz rapide bien joué et la place est à vous. ⚡</div></div>';
+      } else if(myRank===1){
+        gh='<div class="card lb-goal" style="padding:14px 16px;border:1px solid rgba(232,181,32,.45);">'+
+          '<div style="font-size:13px;font-weight:800;color:#E8B520;">👑 Vous êtes en tête !</div>'+
+          '<div style="font-size:12px;color:var(--sub);margin-top:4px;">Gardez le rythme : les poursuivants ne sont jamais loin.</div></div>';
+      } else {
+        gh='<div class="card lb-goal" style="padding:14px 16px;border:1px solid rgba(232,181,32,.45);">'+
+          '<div style="font-size:13px;font-weight:800;color:#E8B520;">🎯 Entrez dans le classement</div>'+
+          '<div style="font-size:12px;color:var(--sub);margin-top:4px;">Jouez un quiz pour apparaître dans le tableau et viser le sommet.</div></div>';
+      }
+      goalBox.innerHTML=gh;
+    }
+    // MODIFIÉ : 🏆 podium top 3
+    var pod=list.slice(0,3), podHTML='';
+    if(pod.length>=3){
+      var order=[1,0,2], hh=[64,84,52];
+      podHTML='<div style="display:flex;align-items:flex-end;justify-content:center;gap:8px;padding:14px 6px 4px;">'+
+        order.map(function(idx){ var p=pod[idx]; if(!p) return ''; var rr=idx+1; var meP=(myRank&&rr===myRank);
+          return '<div class="lb-podium-item" style="flex:1;max-width:108px;text-align:center;animation-delay:'+(idx*0.08)+'s;">'+
+            '<div style="font-size:20px;">'+['🥇','🥈','🥉'][idx]+'</div>'+
+            '<div class="av" style="width:38px;height:38px;font-size:14px;margin:2px auto 5px;'+(meP?'box-shadow:0 0 0 2px #E8B520;':'')+'">'+arChatEsc((p.name||'?').charAt(0))+'</div>'+
+            '<div style="font-size:11px;font-weight:700;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+arChatEsc(p.name||'')+(meP?' (Vous)':'')+'</div>'+
+            '<div style="font-size:10px;color:#4ade80;font-weight:700;">'+(p.total_score||0)+' pts</div>'+
+            '<div style="height:'+hh[idx]+'px;margin-top:5px;border-radius:8px 8px 0 0;background:linear-gradient(180deg,rgba(201,153,26,.4),rgba(201,153,26,.08));border:1px solid rgba(201,153,26,.35);display:flex;align-items:flex-start;justify-content:center;font-weight:900;color:#E8B520;padding-top:5px;">'+rr+'</div>'+
+          '</div>';
+        }).join('')+'</div>';
+    }
+    // MODIFIÉ : liste rang 4+ (ou tout si <3 joueurs), lignes animées + ligne perso qui pulse
+    var startI=pod.length>=3?3:0;
+    var rowsHTML=list.slice(startI).map(function(p,k){
+      var i=startI+k, r=i+1, me=(myRank&&r===myRank);
+      return '<div class="lb-row'+(me?' me':'')+'" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(10,33,62,.6);background:'+(me?'rgba(201,153,26,.08)':'transparent')+';animation-delay:'+(Math.min(k,12)*0.04)+'s;">'+
         '<div style="display:flex;align-items:center;gap:11px;">'+
-        '<span style="font-weight:900;font-size:15px;color:'+(r<=3?'#fbbf24':'#8aa3d4')+';width:26px;text-align:center;">'+medal+'</span>'+
+        '<span style="font-weight:900;font-size:15px;color:#8aa3d4;width:26px;text-align:center;">'+r+'</span>'+
         '<div class="av" style="width:32px;height:32px;font-size:12px;">'+arChatEsc((p.name||'?').charAt(0))+'</div>'+
         '<div><div style="font-weight:600;color:white;font-size:13px;">'+arChatEsc(p.name||'')+(me?' (Vous)':'')+'</div>'+
         '<div style="font-size:10px;color:#8aa3d4;">'+[lbCountryLabel(p.country), (p.etablissement?arChatEsc(p.etablissement):lbProfileLabel(p.profile))].filter(Boolean).join(' · ')+'</div></div></div>'+
         '<div style="text-align:right;"><div style="font-weight:700;color:#4ade80;font-size:13px;">'+(p.total_score||0)+' pts</div><div style="font-size:10px;color:var(--sub);">'+(p.games||0)+' parties</div></div></div>';
     }).join('');
+    box.innerHTML=podHTML+rowsHTML;
   }).catch(function(){ box.innerHTML='<div class="al al-warn" style="font-size:12px;">Classement momentanément indisponible.</div>'; });
 }
 
