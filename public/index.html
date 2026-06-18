@@ -324,6 +324,25 @@ h2,h3{animation:raReveal .45s ease both;}
 .lb-stat-val{animation:lbCount .5s ease both;}
 @media(prefers-reduced-motion:reduce){.lb-row,.lb-row.me,.lb-goal,.lb-podium-item,.lb-stat-val{animation:none!important;}}
 /* FIN animations Classement */
+/* ── MODIFIÉ : écran Quiz & Formation — version ludique ── */
+@keyframes qShine{0%{left:-60%}60%,100%{left:140%}}
+@keyframes qPop{0%{opacity:0;transform:translateY(8px) scale(.96)}100%{opacity:1;transform:none}}
+@keyframes qGlow{0%,100%{box-shadow:0 8px 22px rgba(232,181,32,.28)}50%{box-shadow:0 10px 30px rgba(232,181,32,.5)}}
+.q-hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#E8B520,#C9991A)!important;color:#05201a!important;font-weight:800!important;animation:qGlow 3s ease-in-out infinite;}
+.q-hero::after{content:'';position:absolute;top:0;left:-60%;width:45%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-18deg);animation:qShine 3.6s ease-in-out infinite;}
+.q-seg{display:inline-flex;gap:4px;padding:4px;border-radius:999px;background:rgba(17,34,64,.6);border:1px solid var(--border);flex-wrap:wrap;}
+.q-seg button{border:none;border-radius:999px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:var(--sub);font-family:"Space Grotesk",sans-serif;transition:all .2s;min-height:40px;touch-action:manipulation;}
+.q-seg button.on{background:linear-gradient(135deg,#E8B520,#C9991A);color:#05201a;box-shadow:0 4px 14px rgba(232,181,32,.4);}
+.qcard{animation:qPop .45s cubic-bezier(.2,.8,.25,1) both;transition:transform .18s,border-color .18s,box-shadow .18s;}
+.qcard:hover{transform:translateY(-3px);border-color:rgba(232,181,32,.5);box-shadow:0 10px 26px rgba(2,8,18,.4);}
+.qcard:active{transform:scale(.98);}
+.q-ic{flex-shrink:0;width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;background:rgba(232,181,32,.12);border:1px solid rgba(232,181,32,.3);}
+.q-done{background:rgba(0,180,216,.14);border:1px solid rgba(0,180,216,.4);color:#00B4D8;font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;white-space:nowrap;flex-shrink:0;}
+.q-new{background:rgba(136,146,176,.12);border:1px solid rgba(136,146,176,.3);color:var(--sub);font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap;flex-shrink:0;}
+.q-mini{height:5px;border-radius:999px;background:rgba(255,255,255,.07);overflow:hidden;margin-top:8px;}
+.q-mini>i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#00B4D8,#E8B520);transition:width .6s ease;}
+@media(prefers-reduced-motion:reduce){.q-hero,.q-hero::after,.qcard{animation:none!important;}.qcard:hover{transform:none;}}
+/* FIN écran Quiz & Formation */
 </style>
 <style id="ra-polish-v3">
 /* ══════════════════════════════════════════════════════════════
@@ -2136,6 +2155,7 @@ function render(){
   if(TAB==='autoeval'&&AEF){ c.innerHTML=rAEF(); return; } // MODIFIÉ : affiche le format d'auto-éval sélectionné
   var pages={dashboard:rDB,quiz:rQP,biblio:rBP,arena:rAR,achievements:rACH,leaderboard:rLB,academy:rAC,settings:rST,autoeval:rAE,admin:rADMIN,about:rABOUT,communaute:rSALON,debats:rDEBATS,debatsadm:rDEBATSADM,metiers:rMETIERS}; // MODIFIÉ : ajout métiers
   c.innerHTML=(pages[TAB]||rDB)();
+  if(TAB==='quiz'){ try{ raQuizFx(); }catch(e){} } // MODIFIÉ : compteur animé en-tête Quiz
   if(TAB==='arena'){ try{ arArenaAfterRender(); }catch(e){} } // MODIFIÉ : charge les fils duels/tournois ouverts
   if(TAB==='debats'){ try{ RA_DEBATS.loadList(); }catch(e){} } // MODIFIÉ : charge la liste des débats après affichage
   if(TAB==='debatsadm'){ try{ RA_DEBATS.adminLoad(); }catch(e){} } // MODIFIÉ : charge le panneau jury
@@ -2208,16 +2228,50 @@ function qShuffleOpts(q){ // MODIFIÉ : mélange la position des options, remapp
   c.answer=order.indexOf(q.answer);
   return c;
 }
-function startQ(qs, pack){
+function startQ(qs, pack, cat){ // MODIFIÉ : cat = thème (progression localStorage)
   var shuffled=(qs||[]).map(qShuffleOpts); // MODIFIÉ : positions aléatoires (le contenu de la bonne réponse reste juste)
-  QZ={q:shuffled,idx:0,sc:0,ans:false,hist:[],done:false,pack:pack};
+  QZ={q:shuffled,idx:0,sc:0,ans:false,hist:[],done:false,pack:pack,cat:cat||null};
   TAB='quiz'; buildNav(); render();
 }
 function startQCat(ds, cat, pack){
   var src=ds==='QR'?QR:ds==='QC'?QC:QB;
-  startQ(src.filter(function(q){return q.cat===cat;}), cat+' — '+pack);
+  startQ(src.filter(function(q){return q.cat===cat;}), cat+' — '+pack, cat); // MODIFIÉ : passe cat
 }
 
+/* ── MODIFIÉ : icônes thèmes + progression par thème (écran Quiz) ── */
+function qIcon(c){
+  c=(c||'').toLowerCase();
+  if(/risque op/.test(c))return '⚙️';
+  if(/risque/.test(c))return '⚠️';
+  if(/gouvern|institution/.test(c))return '🏛️';
+  if(/défini|terminolog/.test(c))return '📖';
+  if(/sanction|responsab/.test(c))return '⚖️';
+  if(/paiement/.test(c))return '💳';
+  if(/change/.test(c))return '💱';
+  if(/supervis|cobac|consolid/.test(c))return '🛰️';
+  if(/microfinance|emf|fodep/.test(c))return '🤝';
+  if(/lbc|blanchiment|\bft\b/.test(c))return '🕵️';
+  if(/titres|billets|monnaie|valeurs|\bor\b/.test(c))return '🥇';
+  if(/marché/.test(c))return '📈';
+  if(/levier|ratio|apr|piliers|bâle|bale/.test(c))return '📊';
+  if(/capital/.test(c))return '💰';
+  if(/monétaire|politique/.test(c))return '🏦';
+  if(/intermédiaire|cession|opération|courante/.test(c))return '🔁';
+  if(/poste|administ/.test(c))return '🏤';
+  if(/beac|rôle/.test(c))return '🏦';
+  if(/actualit/.test(c))return '🗞️';
+  return '📋';
+}
+function qProgLoad(){ try{return JSON.parse(localStorage.getItem('ra_qprog')||'{}');}catch(e){return {};} }
+function qProgSave(cat,pct){ try{var m=qProgLoad(); if(pct>(m[cat]||0)){m[cat]=pct; localStorage.setItem('ra_qprog',JSON.stringify(m));}}catch(e){} }
+function raQuizFx(){ // MODIFIÉ : compteur animé de l'en-tête Quiz (une fois par session)
+  var el=document.getElementById('qCount'); if(!el)return;
+  var target=parseInt(el.textContent,10)||0;
+  if(window.__qCountDone===target || (window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches)){ el.textContent=target; window.__qCountDone=target; return; }
+  var start=Math.max(0,Math.round(target*0.4)), t0=null, dur=900;
+  function step(ts){ if(!t0)t0=ts; var p=Math.min(1,(ts-t0)/dur); el.textContent=Math.round(start+(target-start)*(1-Math.pow(1-p,3))); if(p<1){requestAnimationFrame(step);}else{window.__qCountDone=target;} }
+  requestAnimationFrame(step);
+}
 function rQP(){
   var packs=[
     {t:'Relations Financières Extérieures',sub:'UEMOA — Règlement 06/2024',q:QR,ds:'QR',zone:'uemoa'},
@@ -2225,33 +2279,45 @@ function rQP(){
     {t:'Réglementation CEMAC (BEAC · COBAC)',sub:'BEAC · COBAC · Règlement 02/18 — sources beac.int',q:QC,ds:'QC',zone:'cemac'},
   ];
   var zpacks=packs.filter(function(p){return p.zone===QZONE;});
-  var uTot=QR.length+QB.length, cTot=QC.length;
-  var zoneBtns='<div style="display:flex;gap:8px;flex-wrap:wrap;">'+
-    '<button class="btn'+(QZONE==='uemoa'?'':'-out')+' btn-sm" onclick="setQZone(\'uemoa\')">🌍 Zone UEMOA ('+uTot+')</button>'+
-    '<button class="btn'+(QZONE==='cemac'?'':'-out')+' btn-sm" onclick="setQZone(\'cemac\')">🌍 Zone CEMAC ('+cTot+')</button>'+
+  var uTot=QR.length+QB.length, cTot=QC.length, grand=uTot+cTot;
+  var prog=qProgLoad(); // MODIFIÉ : meilleur score par thème
+  var seg='<div class="q-seg">'+ // MODIFIÉ : toggle segmenté ludique
+    '<button class="'+(QZONE==='uemoa'?'on':'')+'" onclick="setQZone(\'uemoa\')">🌍 UEMOA · '+uTot+'</button>'+
+    '<button class="'+(QZONE==='cemac'?'on':'')+'" onclick="setQZone(\'cemac\')">🌍 CEMAC · '+cTot+'</button>'+
   '</div>';
   return '<div style="display:flex;flex-direction:column;gap:16px;">'+
-  '<h2 style="font-size:22px;color:white;">Quiz & Formation</h2>'+
-  '<p style="font-size:13px;color:var(--sub);margin-top:-10px;">'+(QR.length+QB.length+QC.length)+' questions — textes officiels BCEAO/UEMOA & BEAC/COBAC/CEMAC</p>'+
-  zoneBtns+
-  zpacks.map(function(p){
+  '<div>'+
+    '<h2 style="font-size:22px;color:white;margin-bottom:2px;">Quiz &amp; Formation 🎯</h2>'+
+    '<p style="font-size:13px;color:var(--sub);"><span id="qCount" style="color:var(--cyan);font-weight:800;">'+grand+'</span> questions réglementaires · 2 zones · textes officiels BCEAO &amp; BEAC/COBAC</p>'+
+  '</div>'+
+  seg+
+  zpacks.map(function(p,pi){
     var cats=[...new Set(p.q.map(function(x){return x.cat;}))];
-    return '<div class="card">'+
+    return '<div class="card" style="animation-delay:'+(pi*60)+'ms;">'+
     '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;flex-wrap:wrap;gap:8px;">'+
     '<div><div style="font-weight:800;color:white;font-size:15px;margin-bottom:2px;">'+p.t+'</div>'+
     '<div style="font-size:11px;color:var(--sub);">'+p.sub+' · '+p.q.length+' questions</div></div>'+
-    '<button class="btn btn-sm" onclick="startQ('+p.ds+',\''+p.t+'\')">Pack complet ('+p.q.length+'Q)</button></div>'+
-    '<div style="font-size:11px;color:var(--sub);margin-bottom:8px;">'+cats.length+' thèmes — choisis-en un, ou lance le pack complet :</div>'+ // MODIFIÉ : puces redondantes supprimées
+    '<button class="btn btn-sm q-hero" onclick="startQ('+p.ds+',\''+p.t+'\')">⚡ Pack complet ('+p.q.length+'Q)</button></div>'+
+    '<div style="font-size:11px;color:var(--sub);margin-bottom:10px;">'+cats.length+' thèmes — choisis-en un, ou lance le pack complet :</div>'+
     '<div class="g3">'+
-    cats.map(function(c){
+    cats.map(function(c,ci){
       var n=p.q.filter(function(q){return q.cat===c;}).length;
       var ce=c.replace(/'/g,"\\'");
-      return '<div class="card ch" style="padding:13px;display:flex;align-items:center;justify-content:space-between;gap:10px;" onclick="startQCat(\''+p.ds+'\',\''+ce+'\',\''+p.t+'\')">'+ // MODIFIE : carte entiere cliquable
-      '<div style="min-width:0;"><div style="font-weight:700;color:white;font-size:12px;margin-bottom:2px;">'+c+'</div>'+ // MODIFIE
-      '<div style="font-size:11px;color:var(--sub);">'+n+' questions</div></div>'+ // MODIFIE : gros bouton Jouer supprime
-      '<span style="color:var(--cyan);font-size:22px;flex-shrink:0;line-height:1;">&#8594;</span></div>';
+      var best=prog[c]; // % (ou undefined)
+      var tag=(best!=null)?'<span class="q-done">✓ '+best+'%</span>':'<span class="q-new">Nouveau</span>';
+      var bar=(best!=null)?'<div class="q-mini"><i style="width:'+best+'%"></i></div>':'';
+      return '<div class="card ch qcard" style="padding:13px;animation-delay:'+(120+ci*45)+'ms;" onclick="startQCat(\''+p.ds+'\',\''+ce+'\',\''+p.t+'\')">'+ // MODIFIÉ : carte cliquable + animation
+      '<div style="display:flex;align-items:center;gap:11px;">'+
+      '<div class="q-ic">'+qIcon(c)+'</div>'+
+      '<div style="min-width:0;flex:1;"><div style="display:flex;align-items:center;gap:6px;justify-content:space-between;">'+
+      '<div style="font-weight:700;color:white;font-size:12px;line-height:1.25;">'+c+'</div>'+tag+'</div>'+
+      '<div style="font-size:11px;color:var(--sub);margin-top:2px;">'+n+' questions</div></div>'+
+      '<span style="color:var(--cyan);font-size:20px;flex-shrink:0;line-height:1;">&#8594;</span></div>'+
+      bar+'</div>';
     }).join('')+'</div></div>';
-  }).join('')+'</div>';
+  }).join('')+
+  '<p style="font-size:11px;color:var(--sub);text-align:center;opacity:.85;">🎓 '+grand+' questions sourcées d\'après les textes officiels BCEAO, BEAC et COBAC.</p>'+
+  '</div>';
 }
 function setQZone(z){ QZONE=z; render(); }
 
@@ -2309,7 +2375,8 @@ function nextQ(){
       try{ var tot=QZ.q.length, pct=Math.round(QZ.sc/tot*100);
         var zone=QZ.q.some(function(q){return /CEMAC/i.test(q.cat||'');})?'CEMAC':'UEMOA';
         var spd=QZ.tms?Math.round(QZ.tms/tot/100)/10:0; // MODIFIÉ : vitesse moyenne (s/question)
-        scAdd({pack:QZ.pack||'Quiz', zone:zone, sc:QZ.sc, total:tot, pct:pct, spd:spd, bonus:QZ.bonus||0, ts:Date.now(), type:'quiz'}); }catch(e){}
+        scAdd({pack:QZ.pack||'Quiz', zone:zone, sc:QZ.sc, total:tot, pct:pct, spd:spd, bonus:QZ.bonus||0, ts:Date.now(), type:'quiz'});
+        if(QZ.cat) qProgSave(QZ.cat, pct); }catch(e){} // MODIFIÉ : mémorise le meilleur % du thème
     }
   }
   rQE();
