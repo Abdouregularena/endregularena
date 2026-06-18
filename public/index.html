@@ -620,7 +620,7 @@ h2,h3{animation:raReveal .45s ease both;}
 <div id="pushNotif" class="push-notification">
   <div class="push-icon">🎓</div>
   <div class="push-content">
-    <strong id="pushTitle">315 questions sourcées</strong>
+    <strong id="pushTitle">422 questions & défis</strong>
     <p id="pushBody">Bâle, RFE, PCB et CEMAC — d'après les textes officiels BCEAO, BEAC et COBAC.</p><!-- MODIFIÉ : contenu réel -->
   </div>
 </div>
@@ -2358,7 +2358,7 @@ function rQP(){
       bar+'</div>';
     }).join('')+'</div></div>';
   }).join('')+
-  '<p style="font-size:11px;color:var(--sub);text-align:center;opacity:.85;">🎓 '+grand+' questions sourcées d\'après les textes officiels BCEAO, BEAC et COBAC.</p>'+
+  '<p style="font-size:11px;color:var(--sub);text-align:center;opacity:.85;">🎓 '+grand+' questions sourcées d\'après les textes officiels BCEAO, BEAC et COBAC, complétées par 7 parcours métiers.</p>'+
   '</div>';
 }
 function setQZone(z){ QZONE=z; render(); }
@@ -5444,10 +5444,9 @@ window.addEventListener('load', function(){
    typeof QVF_BACK_OFFICE_DATA!=='undefined'?QVF_BACK_OFFICE_DATA:null,
    typeof QVF_ALM_DATA!=='undefined'?QVF_ALM_DATA:null,
    typeof QVF_DETAIL_DATA!=='undefined'?QVF_DETAIL_DATA:null].forEach(function(a){ if(a&&a.length) _MET.push(a); }); // MODIFIÉ
-  var _QN = (typeof QN!=='undefined'&&QN&&QN.length)?QN:[];      // MODIFIÉ : banque QN incluse
-  var _allQ = [].concat(_QN, QR, QB, QC);                        // MODIFIÉ
+  var _allQ = [].concat(QR, QB, QC);                            // MODIFIÉ : QN(557) exclu du total — défini mais non branché au moteur de quiz
   _MET.forEach(function(a){ _allQ = _allQ.concat(a); });         // MODIFIÉ
-  var tot = _allQ.length;                                        // MODIFIÉ : 979 (557 QN + 282 packs + 140 métiers)
+  var tot = _allQ.length;                                        // MODIFIÉ : 422 = 282 packs (QR+QB+QC) + 140 métiers
   var nThemes = (new Set(_allQ.map(function(q){return q.cat;}).filter(Boolean))).size; // MODIFIÉ
   var nPacks = 3 + _MET.length;                                 // MODIFIÉ
   var nMetiers = _MET.length || 7;                              // MODIFIÉ : nb de métiers réellement chargés
@@ -5455,9 +5454,9 @@ window.addEventListener('load', function(){
   var hs = ge('h-sub');
   var hq = ge('h-qc');
   var hst = ge('h-stats');
-  if(hs) hs.textContent = "La gamification de la réglementation bancaire — plateforme indépendante pour les professionnels de la finance, zones UEMOA (BCEAO) & CEMAC (BEAC). Quiz, duels et tournois en direct avec chat. "+tot+" questions sourcées, "+nThemes+" thèmes et "+nMetiers+" métiers couverts.";
+  if(hs) hs.textContent = "La gamification de la réglementation bancaire — plateforme indépendante pour les professionnels de la finance, zones UEMOA (BCEAO) & CEMAC (BEAC). Quiz, duels et tournois en direct avec chat. "+tot+" questions & défis, "+nThemes+" thèmes et "+nMetiers+" métiers couverts.";
   if(hq) hq.textContent = tot+" questions · "+nThemes+" thèmes · "+nMetiers+" métiers — UEMOA (BCEAO) & CEMAC (BEAC)";
-  if(hst){ hst.innerHTML = [[tot,'Questions sourcées'],[nThemes,'Thèmes'],[nMetiers,'Métiers'],['14','Pays']].map(function(s){
+  if(hst){ hst.innerHTML = [[tot,'Questions & défis'],[nThemes,'Thèmes'],[nMetiers,'Métiers'],['14','Pays']].map(function(s){
     return '<div class="card" style="text-align:center;padding:16px;">'+
     '<div class="ra-count" style="font-size:24px;font-weight:900;color:var(--cyan);">'+s[0]+'</div>'+
     '<div style="font-size:11px;color:var(--sub);margin-top:3px;">'+s[1]+'</div></div>';
@@ -5629,7 +5628,7 @@ window.addEventListener('load', function(){
 (function(){
   // MODIFIÉ : total injecté dynamiquement à l'affichage via window.RA_TOTQ (voir triggerPush)
   var notifications = [ // messages réels uniquement (aucun faux utilisateur ni chiffre gonflé)
-    { title: "🎓 {N} questions sourcées", body: "Bâle, RFE, PCB et CEMAC — d'après les textes officiels BCEAO, BEAC et COBAC." }, // MODIFIÉ : {N} remplacé à l'affichage
+    { title: "🎓 {N} questions & défis", body: "Bâle, RFE, PCB et CEMAC — d'après les textes officiels BCEAO, BEAC et COBAC." }, // MODIFIÉ : {N} remplacé à l'affichage
     { title: "⚔️ Mode Duel", body: "Affronte un collègue en temps réel sur la réglementation bancaire." },
     { title: "🏆 Certificat vérifiable", body: "Obtiens un certificat PDF avec QR code de vérification en ligne." },
     { title: "📚 Quiz par métier", body: "Choisis ton métier (Trade Finance, Conformité, Audit…) et entraîne-toi ciblé." },
@@ -5641,7 +5640,7 @@ window.addEventListener('load', function(){
     var notif = notifications[Math.floor(Math.random()*notifications.length)];
     var el = document.getElementById('pushNotif');
     if(!el) return;
-    document.getElementById('pushTitle').innerText = String(notif.title).replace('{N}', (window.RA_TOTQ||979)); // MODIFIÉ : total dynamique
+    document.getElementById('pushTitle').innerText = String(notif.title).replace('{N}', (window.RA_TOTQ||422)); // MODIFIÉ : total dynamique
     document.getElementById('pushBody').innerText = notif.body;
     el.classList.remove('push-active');
     void el.offsetWidth; // force reflow pour relancer l'animation
