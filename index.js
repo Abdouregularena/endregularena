@@ -219,6 +219,9 @@ db.exec(`
   );
 `); // TOURNOI AJOUT
 
+// MODIFIÉ — récupération des inscrits non vérifiés (idempotent : sans effet une fois tous à 1)
+db.prepare("UPDATE users SET email_verified = 1 WHERE email_verified = 0").run();
+
 /* ── NOTIFICATIONS HELPER ──────────────────────────────────────────── */
 function notifyAllExcept(excludeUserId, type, message) {
   const users = db.prepare('SELECT id FROM users WHERE email_verified = 1 AND id != ? ORDER BY RANDOM() LIMIT 50').all(excludeUserId);
@@ -352,7 +355,7 @@ app.post('/auth/register', limiterStrict, async (req, res) => {
 
   if (!user) {
     const result = db.prepare(
-      "INSERT INTO users (name, email, profile, country, etablissement, cgu_accepted_at) VALUES (?, ?, ?, ?, ?, datetime('now'))"
+      "INSERT INTO users (name, email, profile, country, etablissement, cgu_accepted_at, email_verified) VALUES (?, ?, ?, ?, ?, datetime('now'), 1)" // MODIFIÉ — auto-vérifié à l'inscription
     ).run(cleanName, cleanEmail, profile || 'professionnel', country || '', etablissement);
     user = db.prepare('SELECT * FROM users WHERE id = ?').get(result.lastInsertRowid);
   } else {
@@ -389,7 +392,7 @@ app.post('/auth/register', limiterStrict, async (req, res) => {
     db.prepare('UPDATE invitations SET used = 1 WHERE id = ?').run(req._invitation.id);
   }
 
-  return ok(res, { message: 'Email de confirmation envoyé' });
+  return ok(res, { message: 'Inscription réussie', jwt: signJWT(user), user: publicUser(user) }); // MODIFIÉ — JWT immédiat, plus de blocage email
 });
 
 
@@ -405,7 +408,7 @@ app.post('/auth/login', limiterStrict, async (req, res) => {
     return err(res, 400, 'Email invalide');
   }
   const cleanEmail = email.trim().toLowerCase();
-  const user = db.prepare('SELECT * FROM users WHERE email = ? AND email_verified = 1').get(cleanEmail);
+  const user = db.prepare('SELECT * FROM users WHERE email = ?').get(cleanEmail); // MODIFIÉ — reconnexion ouverte à tous les inscrits
 
   // Anti-énumération : toujours répondre la même chose
   if (!user) {
