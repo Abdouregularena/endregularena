@@ -119,12 +119,27 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 let DATA=null;
 
-function token(){ return localStorage.getItem('jwt')||localStorage.getItem('token')||localStorage.getItem('RA_TOKEN')||''; }
+// Détection auto du JWT : teste les clés connues puis scanne TOUT le stockage
+function looksJwt(s){ return typeof s==='string' && /^eyJ[\w-]+\.[\w-]+\.[\w-]+$/.test(s); }
+function digJwt(v){
+  if(looksJwt(v)) return v;
+  if(typeof v!=='string') return '';
+  const m=v.match(/eyJ[\w-]+\.[\w-]+\.[\w-]+/);      // token niché dans un JSON
+  return m?m[0]:'';
+}
+function token(){
+  const known=['jwt','token','RA_TOKEN','ra_jwt','authToken','access_token','accessToken','ra_user','user','auth'];
+  for(const k of known){ const got=digJwt(localStorage.getItem(k)); if(got) return got; }
+  for(const store of [localStorage, sessionStorage]){
+    for(let i=0;i<store.length;i++){ const got=digJwt(store.getItem(store.key(i))); if(got) return got; }
+  }
+  return '';
+}
 
 async function load(){
   $('msg').style.display='block'; $('dash').style.display='none'; $('msg').textContent='Chargement…';
   const t=token();
-  if(!t){ return showAuthError("Aucun jeton trouvé. Connecte-toi d'abord sur la plateforme, puis rouvre cette page."); }
+  if(!t){ return showAuthError("Aucun jeton trouvé. Ouvre <b>regularena.com</b>, connecte-toi à ton compte admin, <u>puis reviens sur cette page et clique Actualiser</u> (même navigateur)."); }
   try{
     const r=await fetch('/admin/insights',{headers:{Authorization:'Bearer '+t}});
     if(r.status===401) return showAuthError("Session expirée ou jeton invalide. Reconnecte-toi sur la plateforme.");
