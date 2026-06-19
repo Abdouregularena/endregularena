@@ -127,27 +127,30 @@ function digJwt(v){
   const m=v.match(/eyJ[\w-]+\.[\w-]+\.[\w-]+/);      // token niché dans un JSON
   return m?m[0]:'';
 }
-function token(){
-  const known=['jwt','token','RA_TOKEN','ra_jwt','authToken','access_token','accessToken','ra_user','user','auth'];
-  for(const k of known){ const got=digJwt(localStorage.getItem(k)); if(got) return got; }
+function jwtCandidates(){
+  const set=new Set();
+  const known=['jwt','token','RA_TOKEN','ra_jwt','authToken','access_token','accessToken'];
+  for(const k of known){ const g=digJwt(localStorage.getItem(k)); if(g) set.add(g); }
   for(const store of [localStorage, sessionStorage]){
-    for(let i=0;i<store.length;i++){ const got=digJwt(store.getItem(store.key(i))); if(got) return got; }
+    for(let i=0;i<store.length;i++){ const g=digJwt(store.getItem(store.key(i))); if(g) set.add(g); }
   }
-  return '';
+  return [...set];
 }
 
 async function load(){
   $('msg').style.display='block'; $('dash').style.display='none'; $('msg').textContent='Chargement…';
-  const t=token();
-  if(!t){ return showAuthError("Aucun jeton trouvé. Ouvre <b>regularena.com</b>, connecte-toi à ton compte admin, <u>puis reviens sur cette page et clique Actualiser</u> (même navigateur)."); }
-  try{
-    const r=await fetch('/admin/insights',{headers:{Authorization:'Bearer '+t}});
-    if(r.status===401) return showAuthError("Session expirée ou jeton invalide. Reconnecte-toi sur la plateforme.");
-    if(r.status===403) return showAuthError("Ton compte n'est pas <b>admin</b>. Passe ton compte en admin, déconnecte-toi puis reconnecte-toi.");
-    if(!r.ok) return showAuthError("Erreur serveur ("+r.status+").");
-    DATA=await r.json();
-    render(DATA);
-  }catch(e){ showAuthError("Connexion impossible : "+esc(e.message)); }
+  const cands=jwtCandidates();
+  if(!cands.length) return showAuthError("Aucun jeton trouvé. Ouvre <b>regularena.com</b>, connecte-toi à ton compte admin, <u>puis reviens ici et clique Actualiser</u> (même navigateur).");
+  let sawForbidden=false;
+  for(const t of cands){
+    try{
+      const r=await fetch('/admin/insights',{headers:{Authorization:'Bearer '+t}});
+      if(r.ok){ DATA=await r.json(); return render(DATA); }
+      if(r.status===403) sawForbidden=true;
+    }catch(e){ /* essaie le suivant */ }
+  }
+  if(sawForbidden) return showAuthError("Ton compte n'est pas <b>admin</b>. Vérifie que tu as bien fait <code>UPDATE users SET role='admin'</code> sur ton compte, <b>déconnecte-toi puis reconnecte-toi</b> pour rafraîchir le jeton, et reviens cliquer Actualiser.");
+  return showAuthError("Jeton expiré/invalide. <b>Déconnecte-toi puis reconnecte-toi</b> sur regularena.com — le jeton enregistré dans ce navigateur est trop ancien. Reviens ensuite cliquer Actualiser.");
 }
 
 function showAuthError(html){
