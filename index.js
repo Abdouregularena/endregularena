@@ -378,13 +378,9 @@ app.post('/auth/register', limiterStrict, async (req, res) => {
       html: emailConfirmHTML(cleanName, confirmUrl),
       headers: { 'X-Entity-Ref-ID': crypto.randomUUID() },
     });
-    if (sendResult.error) {
-      console.error('Resend error:', JSON.stringify(sendResult.error));
-      return err(res, 500, 'Erreur envoi email — réessaie dans quelques instants');
-    }
+    if (sendResult.error) console.error('Resend error (NON bloquant):', JSON.stringify(sendResult.error)); // MODIFIÉ — l'échec d'envoi ne bloque plus l'inscription
   } catch (e) {
-    console.error('Resend exception:', e.message);
-    return err(res, 500, 'Erreur envoi email — réessaie dans quelques instants');
+    console.error('Resend exception (NON bloquant):', e.message); // MODIFIÉ — l'échec d'envoi ne bloque plus l'inscription
   }
 
   // FEATURE 1 — marquer l'invitation comme utilisée après succès
@@ -502,13 +498,9 @@ app.post('/auth/resend-verification', limiterStrict, async (req, res) => {
       html: emailConfirmHTML(user.name, confirmUrl),
       headers: { 'X-Entity-Ref-ID': crypto.randomUUID() },
     });
-    if (sendResult.error) {
-      console.error('Resend error:', JSON.stringify(sendResult.error));
-      return err(res, 500, 'Erreur envoi email — réessaie dans quelques instants');
-    }
+    if (sendResult.error) console.error('Resend error (NON bloquant):', JSON.stringify(sendResult.error)); // MODIFIÉ — l'échec d'envoi ne bloque plus l'inscription
   } catch (e) {
-    console.error('Resend exception:', e.message);
-    return err(res, 500, 'Erreur envoi email — réessaie dans quelques instants');
+    console.error('Resend exception (NON bloquant):', e.message); // MODIFIÉ — l'échec d'envoi ne bloque plus l'inscription
   }
 
   return ok(res, { message: 'Nouveau lien envoyé' });
