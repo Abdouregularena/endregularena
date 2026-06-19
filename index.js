@@ -2055,6 +2055,85 @@ app.get('/admin/users', requireAdmin, (req, res) => {
   }
 });
 
+// MODIFIÉ — AJOUT : tableau de bord enrichi (activation, engagement, croissance)
+app.get('/admin/insights', requireAdmin, (req, res) => {
+  try {
+    const one  = (sql) => db.prepare(sql).get();
+    const many = (sql) => db.prepare(sql).all();
+
+    // — Utilisateurs
+    const totalUsers  = one(`SELECT COUNT(*) n FROM users`).n;
+    const verifies    = one(`SELECT COUNT(*) n FROM users WHERE email_verified=1`).n;
+    const nouveaux24h = one(`SELECT COUNT(*) n FROM users WHERE created_at >= datetime('now','-1 day')`).n;
+    const nouveaux7j  = one(`SELECT COUNT(*) n FROM users WHERE created_at >= datetime('now','-7 days')`).n;
+    const parPays     = many(`SELECT country, COUNT(*) n FROM users GROUP BY country ORDER BY n DESC LIMIT 10`);
+    const parProfil   = many(`SELECT profile, COUNT(*) n FROM users GROUP BY profile ORDER BY n DESC`);
+
+    // — Activation & engagement (user_scores = parties réellement jouées)
+    const joueursActifs  = one(`SELECT COUNT(DISTINCT user_id) n FROM user_scores`).n;
+    const actifs7j       = one(`SELECT COUNT(DISTINCT user_id) n FROM user_scores WHERE played_at >= datetime('now','-7 days')`).n;
+    const actifs24h      = one(`SELECT COUNT(DISTINCT user_id) n FROM user_scores WHERE played_at >= datetime('now','-1 day')`).n;
+    const partiesTotal   = one(`SELECT COUNT(*) n FROM user_scores`).n;
+    const parties7j      = one(`SELECT COUNT(*) n FROM user_scores WHERE played_at >= datetime('now','-7 days')`).n;
+    const tauxActivation = totalUsers ? Math.round(joueursActifs * 100 / totalUsers) : 0;
+
+    // — Inscriptions par jour (30 derniers jours)
+    const inscriptionsParJour = many(`
+      SELECT date(created_at) jour, COUNT(*) n
+      FROM users
+      WHERE created_at >= datetime('now','-30 days')
+      GROUP BY date(created_at) ORDER BY jour ASC`);
+
+    // — Top joueurs (parties + score cumulé)
+    const topJoueurs = many(`
+      SELECT u.name, u.country,
+             COUNT(s.id) parties,
+             COALESCE(SUM(s.score),0) score_cumule
+      FROM user_scores s JOIN users u ON u.id = s.user_id
+      GROUP BY s.user_id ORDER BY parties DESC, score_cumule DESC LIMIT 10`);
+
+    // — Packs les plus joués
+    const parPack = many(`
+      SELECT pack_id, COUNT(*) parties, COALESCE(SUM(score),0) score_cumule
+      FROM user_scores GROUP BY pack_id ORDER BY parties DESC LIMIT 15`);
+
+    // — Duels / tournois / certificats / messages
+    const duelsTotal    = one(`SELECT COUNT(*) n FROM duels`).n;
+    const duelsTermines = one(`SELECT COUNT(*) n FROM duels WHERE status='finished'`).n;
+    const tournoisTotal = one(`SELECT COUNT(*) n FROM tournaments`).n;
+    const tournoiPartic = one(`SELECT COUNT(*) n FROM tournament_participants`).n;
+    const certifsTotal  = one(`SELECT COUNT(*) n FROM certificates`).n;
+    const certifs7j     = one(`SELECT COUNT(*) n FROM certificates WHERE created_at >= datetime('now','-7 days')`).n;
+    const messagesTotal = one(`SELECT COUNT(*) n FROM messages`).n;
+
+    // — Inscrits jamais actifs (à relancer par email)
+    const inactifs = many(`
+      SELECT u.name, u.email, u.country, u.created_at
+      FROM users u
+      LEFT JOIN user_scores s ON s.user_id = u.id
+      WHERE s.id IS NULL
+      ORDER BY u.created_at DESC LIMIT 50`);
+
+    res.json({
+      utilisateurs: { total: totalUsers, verifies, nouveaux_24h: nouveaux24h, nouveaux_7j: nouveaux7j, par_pays: parPays, par_profil: parProfil },
+      activation:   { joueurs_actifs: joueursActifs, taux_pct: tauxActivation, inactifs: totalUsers - joueursActifs, actifs_7j: actifs7j, actifs_24h: actifs24h },
+      parties:      { total: partiesTotal, sur_7j: parties7j },
+      inscriptions_par_jour: inscriptionsParJour,
+      top_joueurs:  topJoueurs,
+      par_pack:     parPack,
+      duels:        { total: duelsTotal, termines: duelsTermines, taux_completion_pct: duelsTotal ? Math.round(duelsTermines * 100 / duelsTotal) : 0 },
+      tournois:     { total: tournoisTotal, participants: tournoiPartic },
+      certificats:  { total: certifsTotal, sur_7j: certifs7j },
+      messages:     { total: messagesTotal },
+      inactifs_a_relancer: inactifs,
+      genere_le: new Date().toISOString(),
+    });
+  } catch (e) {
+    console.error('[admin/insights]', e);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
 // MODIFIÉ — Module "L'Arène des Débats" : on passe requireAuth (et NON authMiddleware)
 app.use('/api/debats', require('./debats')(db, requireAuth));
 
