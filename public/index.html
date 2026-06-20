@@ -2756,10 +2756,64 @@ function rBIBPYRAMIDE(){ // MODIFIÉ
   '<button onclick="_BPS=Math.min('+( tot-1)+',_BPS+1);ge(\'bib-pyr-zone\').innerHTML=rBIBPYRAMIDE()" '+((_BPS===tot-1)?'disabled':'')+' style="width:36px;height:36px;border-radius:50%;border:none;background:'+(_BPS===tot-1?'rgba(255,255,255,.1)':'rgba(245,196,83,.15)')+';color:'+(_BPS===tot-1?'var(--sub)':'var(--cyan)')+';font-size:16px;cursor:'+(_BPS===tot-1?'default':'pointer')+';display:flex;align-items:center;justify-content:center;">→</button>'+
   '<span style="font-size:11px;color:var(--sub);margin-left:4px;">'+(_BPS+1)+'/'+tot+'</span></div></div>';
 }
+var _BRS=0; // MODIFIÉ : index slide carrousel Réformes
+function rBIBREFORMES(){ // MODIFIÉ : carrousel des réformes BCEAO 2015-2018 (Recueil UMOA éd. 2018)
+  var R=[
+    {ic:'📊',dom:'Comptabilité bancaire',
+     av:'Ancien Plan Comptable Bancaire (PCB) de 1996',
+     nv:'PCB Révisé — alignement sur les normes IFRS, plus de transparence',
+     ref:'Décision n° 357-11-2016 du 15 nov. 2016'},
+    {ic:'🛡️',dom:'Réglementation prudentielle',
+     av:'Dispositif prudentiel de 2000 (inspiré de Bâle I)',
+     nv:'Dispositif Bâle II / III — gestion des risques renforcée, supervision sur base consolidée, coussins de fonds propres',
+     ref:'Décision n° 013/24/06/2016/CM/UMOA du 24 juin 2016'},
+    {ic:'💰',dom:'Capital social minimum',
+     av:'1 Md → 5 Mds FCFA (phase 1, réforme lancée en 2007)',
+     nv:'10 Mds FCFA (banques) · 3 Mds FCFA (établissements financiers)',
+     ref:'Décision n° 003 du 30/03/2015/CM/UMOA'},
+    {ic:'⚖️',dom:'Gouvernance des établissements',
+     av:'Anciennes règles de la Commission Bancaire',
+     nv:'Conditions d’exercice des dirigeants & administrateurs redéfinies',
+     ref:'Circulaires n° 01 & 02-2017/CB/C du 27 sept. 2017'},
+    {ic:'🌙',dom:'Finance islamique',
+     av:'Vide juridique sur ces opérations',
+     nv:'Cadre complet pour banques ET SFD — comblement du vide juridique',
+     ref:'4 Instructions 2018 : n° 002 & 003-03-2018 (21 mars) · 004 & 005-05-2018 (2 mai)'}
+  ];
+  if(_BRS<0)_BRS=0; if(_BRS>R.length-1)_BRS=R.length-1;
+  var r=R[_BRS], tot=R.length;
+  var dots=R.map(function(x,i){
+    return '<div onclick="_BRS='+i+';ge(\'bib-ref-zone\').innerHTML=rBIBREFORMES()" style="width:'+(i===_BRS?'10px':'7px')+';height:'+(i===_BRS?'10px':'7px')+';border-radius:50%;background:'+(i===_BRS?'var(--cyan)':'rgba(255,255,255,.2)')+';cursor:pointer;transition:all .2s;"></div>';
+  }).join('');
+  return ''+
+  '<div style="font-size:12px;color:var(--sub);margin-bottom:14px;line-height:1.55;">Le grand toilettage réglementaire BCEAO : ce qui a été <b style="color:#FF6B6B;">abrogé/modifié</b> et ce qui est <b style="color:var(--cyan);">nouveau</b>, d’après le Recueil des textes UMOA (éd. 2018). Sources officielles vérifiées.</div>'+
+  '<div class="card" style="background:linear-gradient(135deg,rgba(201,153,26,.10),rgba(10,33,62,.85));">'+
+    '<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">'+
+      '<div style="font-size:34px;flex-shrink:0;">'+r.ic+'</div>'+
+      '<div><div style="font-size:10px;color:var(--sub);font-weight:800;letter-spacing:1.5px;">RÉFORME '+(_BRS+1)+'</div>'+
+      '<div style="font-size:17px;font-weight:800;color:white;line-height:1.25;">'+r.dom+'</div></div>'+
+    '</div>'+
+    '<div style="border-left:3px solid #FF6B6B;padding:9px 0 9px 12px;margin-bottom:10px;background:rgba(255,107,107,.06);border-radius:0 8px 8px 0;">'+
+      '<span style="display:inline-block;padding:2px 9px;border-radius:999px;font-size:10px;font-weight:800;background:rgba(255,107,107,.15);color:#FF6B6B;border:1px solid rgba(255,107,107,.4);margin-bottom:6px;">⛔ ABROGÉ / AVANT</span>'+
+      '<div style="font-size:13px;color:var(--text);line-height:1.45;">'+r.av+'</div>'+
+    '</div>'+
+    '<div style="border-left:3px solid var(--cyan);padding:9px 0 9px 12px;background:rgba(201,153,26,.07);border-radius:0 8px 8px 0;">'+
+      '<span style="display:inline-block;padding:2px 9px;border-radius:999px;font-size:10px;font-weight:800;background:rgba(201,153,26,.15);color:var(--cyan);border:1px solid rgba(201,153,26,.45);margin-bottom:6px;">✅ NOUVEAU · 2018</span>'+
+      '<div style="font-size:13px;color:var(--text);line-height:1.45;margin-bottom:9px;">'+r.nv+'</div>'+
+      '<div style="font-size:11px;color:var(--cyan);font-weight:700;background:rgba(201,153,26,.10);padding:6px 10px;border-radius:7px;display:inline-block;line-height:1.4;">📜 '+r.ref+'</div>'+
+    '</div>'+
+  '</div>'+
+  '<div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;">'+
+    '<button onclick="_BRS=Math.max(0,_BRS-1);ge(\'bib-ref-zone\').innerHTML=rBIBREFORMES()" '+(_BRS===0?'disabled':'')+' style="width:36px;height:36px;border-radius:50%;border:none;background:'+(_BRS===0?'rgba(255,255,255,.1)':'rgba(245,196,83,.15)')+';color:'+(_BRS===0?'var(--sub)':'var(--cyan)')+';font-size:16px;cursor:'+(_BRS===0?'default':'pointer')+';display:flex;align-items:center;justify-content:center;">←</button>'+
+    '<div style="display:flex;gap:6px;align-items:center;">'+dots+'</div>'+
+    '<button onclick="_BRS=Math.min('+(tot-1)+',_BRS+1);ge(\'bib-ref-zone\').innerHTML=rBIBREFORMES()" '+(_BRS===tot-1?'disabled':'')+' style="width:36px;height:36px;border-radius:50%;border:none;background:'+(_BRS===tot-1?'rgba(255,255,255,.1)':'rgba(245,196,83,.15)')+';color:'+(_BRS===tot-1?'var(--sub)':'var(--cyan)')+';font-size:16px;cursor:'+(_BRS===tot-1?'default':'pointer')+';display:flex;align-items:center;justify-content:center;">→</button>'+
+    '<span style="font-size:11px;color:var(--sub);margin-left:4px;">'+(_BRS+1)+'/'+tot+'</span>'+
+  '</div>';
+}
 function rBP(){
   var bibTab=typeof _BPT==='undefined'?'packs':_BPT; // MODIFIÉ
   var tabsHTML='<div class="tabs" style="margin-bottom:12px;">'+
-  [['packs','📦 Packs'],['pyramide','🏛️ Pyramide']].map(function(t){ // MODIFIÉ
+  [['packs','📦 Packs'],['pyramide','🏛️ Pyramide'],['reformes','🔄 Réformes']].map(function(t){ // MODIFIÉ : + onglet Réformes 2015-2018
     return '<button class="tab'+(bibTab===t[0]?' ac':'')+'" onclick="_BPT=\''+t[0]+'\';ge(\'bib-main\').innerHTML=rBibMain()">'+t[1]+'</button>';
   }).join('')+'</div>';
   return '<div style="display:flex;flex-direction:column;gap:14px;">'+
@@ -2771,6 +2825,7 @@ function rBP(){
 function rBibMain(){ // MODIFIÉ
   var bibTab=typeof _BPT==='undefined'?'packs':_BPT;
   if(bibTab==='pyramide') return '<div id="bib-pyr-zone">'+rBIBPYRAMIDE()+'</div>';
+  if(bibTab==='reformes') return '<div id="bib-ref-zone">'+rBIBREFORMES()+'</div>'; // MODIFIÉ : carrousel Réformes
   return '<div style="display:flex;flex-direction:column;gap:10px;">'+[['BR',BR,QR.length],['BB',BB,QB.length]].map(function(x){ // MODIFIÉ
     var ds=x[0], d=x[1], qs=x[2];
     return '<div class="card ch" onclick="openB(\''+ds+'\')">'+
