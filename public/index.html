@@ -7962,9 +7962,11 @@ window.raOpenNotif=function(){
   // ===== MODIFIÉ — MAÎTRES DE L'ARÈNE : Top 3 par zone, chargés depuis /leaderboard =====
   function raFlashLoadMaitres(){
     var ZL={uemoa:'UEMOA', cemac:'CEMAC'};
+    // MODIFIÉ : pays en TEXTE pur (drapeau emoji) — pas de SVG, car la bande utilise textContent
+    var CN={SN:'🇸🇳 Sénégal',CI:"🇨🇮 Côte d'Ivoire",ML:'🇲🇱 Mali',BF:'🇧🇫 Burkina Faso',BJ:'🇧🇯 Bénin',NE:'🇳🇪 Niger',TG:'🇹🇬 Togo',GW:'🇬🇼 Guinée-Bissau',CM:'🇨🇲 Cameroun',CG:'🇨🇬 Congo',GA:'🇬🇦 Gabon',GQ:'🇬🇶 Guinée éq.',CF:'🇨🇫 Centrafrique',TD:'🇹🇩 Tchad',HT:'🇭🇹 Haïti'};
+    function clbl(c){ return CN[c]||(c||''); }
     var HIDE=['kaiser ndao','abdou ndao']; // comptes de test masqués (cohérent avec le Classement)
     var hdr=(typeof U!=='undefined'&&U&&U.token)?{'Authorization':'Bearer '+U.token}:{};
-    var clbl=(typeof lbCountryLabel==='function')?lbCountryLabel:function(c){return c||'';};
     Promise.all(['uemoa','cemac'].map(function(z){
       return fetch('/leaderboard?zone='+z,{headers:hdr}).then(function(r){return r.json();}).then(function(d){
         var list=((d&&d.leaderboard)||[]).filter(function(p){ return HIDE.indexOf(String((p&&p.name)||'').trim().toLowerCase())===-1; });
