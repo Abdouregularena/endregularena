@@ -7225,6 +7225,43 @@ window.raOpenNotif=function(){
       var m=RA_metierOf(q); (RA_QSRC[m]=RA_QSRC[m]||[]).push(q);
     });
 
+    // MODIFIÉ : LOT BACK OFFICE SOURCÉ (CRAEF, SWIFT MT, nostro/vostro, rapprochements, systèmes de paiement, PCB). 100% additif, fusionné dans RA_QSRC['back-office'].
+    window.RA_BO_DATA=[
+      {cat:"Reporting & CRAEF",q:"Que désigne le sigle CRAEF mis en place par la BCEAO ?",choices:["Centrale des Risques et des Engagements Financiers","Comité de Régulation des Activités Extérieures et Financières","Cadre de Reporting Automatisé des États Financiers","Cellule de Recouvrement Amiable des Établissements Financiers"],answer:2,source:"BCEAO — Avis n°002-03-2026 ; Instruction n°035-11-2016"},
+      {cat:"Reporting & CRAEF",q:"Via quelle plateforme les établissements de crédit de l'UMOA doivent-ils transmettre leurs états financiers à compter des arrêtés de fin du 1er semestre 2026 ?",choices:["Le portail SWIFT FIN","L'application CRAEF","La plateforme STAR-UEMOA","Le guichet UMOA-Titres"],answer:1,source:"BCEAO — Avis n°002-03-2026"},
+      {cat:"Reporting & CRAEF",q:"Quelle instruction fonde l'obligation de communiquer à la BCEAO et à la Commission Bancaire les états financiers individuels et consolidés ?",choices:["Instruction n°024-11-2016","Directive n°02/2015/CM/UEMOA","Décision n°013/2016/CM/UMOA","Instruction n°035-11-2016"],answer:3,source:"BCEAO — Instruction n°035-11-2016"},
+      {cat:"Reporting & CRAEF",q:"Selon l'Instruction n°035-11-2016, à quelles périodicités les états financiers doivent-ils être communiqués ?",choices:["Annuelle et de fin de premier semestre","Mensuelle uniquement","Trimestrielle uniquement","Quotidienne"],answer:0,source:"BCEAO — Instruction n°035-11-2016"},
+      {cat:"Reporting & CRAEF",q:"Outre les établissements de crédit et les holdings bancaires, le CRAEF concerne :",choices:["les bureaux de change agréés","les systèmes financiers décentralisés","les compagnies financières de l'UMOA","les compagnies d'assurance"],answer:2,source:"BCEAO — Avis n°002-03-2026"},
+      {cat:"Reporting & CRAEF",q:"Quel cadre de reporting périodique destiné à la BCEAO et à la Commission Bancaire est défini par l'Instruction n°003-05-2017 du 6 mai 2017 ?",choices:["Le reporting LCR mensuel","Le reporting périodique du PCB UMOA","La déclaration FODEP","La centrale des incidents de paiement"],answer:1,source:"BCEAO — Instruction n°003-05-2017 (PCB UMOA)"},
+      {cat:"SWIFT — Crédits documentaires",q:"Quel message SWIFT est utilisé pour l'émission d'un crédit documentaire par la banque émettrice ?",choices:["MT700","MT710","MT760","MT202"],answer:0,source:"SWIFT — Catégorie 7 (MT700 Issue of a Documentary Credit)"},
+      {cat:"SWIFT — Crédits documentaires",q:"À quoi sert le message SWIFT MT707 ?",choices:["Émettre une garantie","Transférer un crédit documentaire","Confirmer un virement client","Amender un crédit documentaire"],answer:3,source:"SWIFT — MT707 Amendment to a Documentary Credit"},
+      {cat:"SWIFT — Crédits documentaires",q:"Le message SWIFT MT710 correspond à :",choices:["l'émission directe d'un crédit","la notification d'un crédit documentaire émis par une tierce banque","une demande de remboursement","un avis de divergences"],answer:1,source:"SWIFT — MT710 Advice of a Third Bank's Documentary Credit"},
+      {cat:"SWIFT — Garanties",q:"Quel message SWIFT véhicule une garantie sur demande ou une lettre de crédit stand-by ?",choices:["MT700","MT740","MT760","MT103"],answer:2,source:"SWIFT — MT760 Demand Guarantee / Standby Letter of Credit"},
+      {cat:"SWIFT — Garanties",q:"Le message SWIFT MT767 sert à :",choices:["amender une garantie ou une stand-by","émettre un crédit documentaire","réclamer un remboursement","aviser un paiement"],answer:0,source:"SWIFT — MT767 Amendment to a Demand Guarantee/Standby"},
+      {cat:"SWIFT — Crédits documentaires",q:"Lorsqu'une banque désignée relève des réserves sur les documents présentés, quel message SWIFT utilise-t-elle ?",choices:["MT754","MT700","MT202","MT750 (avis de divergences)"],answer:3,source:"SWIFT — MT750 Advice of Discrepancy"},
+      {cat:"SWIFT — Paiements",q:"Quel message SWIFT est un virement général entre institutions financières (de banque à banque) ?",choices:["MT103","MT202","MT940","MT700"],answer:1,source:"SWIFT — MT202 General Financial Institution Transfer"},
+      {cat:"SWIFT — Paiements",q:"Le message SWIFT MT103 est utilisé pour :",choices:["un transfert interbancaire de couverture","un relevé de compte","un virement client unitaire","une autorisation de remboursement"],answer:2,source:"SWIFT — MT103 Single Customer Credit Transfer"},
+      {cat:"SWIFT — Relevés",q:"Quel message SWIFT correspond à un relevé de compte adressé au titulaire (relevé client) ?",choices:["MT940","MT950","MT900","MT202"],answer:0,source:"SWIFT — MT940 Customer Statement Message"},
+      {cat:"SWIFT — Messages libres",q:"Pour échanger un message libre (free format) en catégorie 7 (crédits documentaires / garanties), on utilise :",choices:["MT999","MT199","MT299","MT799"],answer:3,source:"SWIFT — MT799 Free Format Message (cat. 7)"},
+      {cat:"Correspondent banking",q:"Qu'est-ce qu'un compte NOSTRO ?",choices:["le compte qu'une banque étrangère détient chez nous","le compte que notre banque détient en devises auprès d'un correspondant étranger","un compte interne de régularisation","un compte de la clientèle de détail"],answer:1,source:"Pratique bancaire internationale — comptes de correspondance"},
+      {cat:"Correspondent banking",q:"Qu'est-ce qu'un compte VOSTRO ?",choices:["le compte que nous détenons à l'étranger","un compte titres","le compte qu'une banque correspondante étrangère détient dans nos livres","un compte de réserves obligatoires"],answer:2,source:"Pratique bancaire internationale — comptes de correspondance"},
+      {cat:"Correspondent banking",q:"Dans la relation de correspondent banking, le terme LORO désigne :",choices:["le compte d'un tiers évoqué par une banque pour une autre","notre compte chez le correspondant","le compte du correspondant chez nous","le compte du Trésor public"],answer:0,source:"Pratique bancaire internationale — terminologie correspondance"},
+      {cat:"Correspondent banking",q:"Le relevé reçu d'un correspondant pour effectuer le rapprochement d'un compte nostro est typiquement un :",choices:["MT700","MT760","MT103","MT940 / MT950"],answer:3,source:"SWIFT — MT940/MT950 (statements)"},
+      {cat:"Correspondent banking",q:"Une banque sénégalaise détient un compte en USD auprès d'une banque à New York. Du point de vue de la banque sénégalaise, ce compte est :",choices:["un compte nostro","un compte vostro","un compte loro pour New York","un compte de réserve"],answer:0,source:"Pratique bancaire internationale — comptes de correspondance"},
+      {cat:"Rapprochements",q:"En quoi consiste le rapprochement (réconciliation) d'un compte nostro ?",choices:["clôturer le compte chaque jour","comparer le grand livre interne avec le relevé du correspondant et lever les écarts","calculer le ratio de liquidité","émettre une garantie"],answer:1,source:"Back office — contrôle des comptes de correspondance"},
+      {cat:"Rapprochements",q:"Les écritures non rapprochées entre la comptabilité interne et le relevé du correspondant sont logées dans :",choices:["les fonds propres de base","le hors-bilan réglementaire","des comptes d'attente / suspens","la centrale des risques"],answer:2,source:"Back office — gestion des suspens"},
+      {cat:"Rapprochements",q:"Le principe de séparation des fonctions impose que le contrôle (rapprochement) soit assuré par :",choices:["une équipe distincte de celle qui initie les opérations","la même personne qui saisit l'opération","le client lui-même","la Commission Bancaire"],answer:0,source:"Circulaire CB-UMOA n°04-2017 — contrôle interne"},
+      {cat:"Systèmes de paiement BCEAO",q:"Quel système de la BCEAO assure le règlement brut en temps réel des paiements de gros montant (RTGS) ?",choices:["SICA-UEMOA","GIM-UEMOA","UMOA-Titres","STAR-UEMOA"],answer:3,source:"BCEAO — STAR-UEMOA (RTGS)"},
+      {cat:"Systèmes de paiement BCEAO",q:"Quel système de la BCEAO assure la compensation automatisée des paiements de masse (chèques, virements, prélèvements) ?",choices:["SICA-UEMOA","STAR-UEMOA","SWIFT FIN","CRAEF"],answer:0,source:"BCEAO — SICA-UEMOA (compensation)"},
+      {cat:"Systèmes de paiement BCEAO",q:"Vers quelle norme internationale de messagerie financière les systèmes de paiement évoluent-ils (y compris dans l'UEMOA) ?",choices:["ISO 9001","ISO 20022","ISO 8583 exclusivement","ISO 27001"],answer:1,source:"BCEAO / SWIFT — migration ISO 20022"},
+      {cat:"Systèmes de paiement BCEAO",q:"Quel système interbancaire régional gère la monétique (cartes) dans l'UEMOA ?",choices:["STAR-UEMOA","SICA-UEMOA","GIM-UEMOA","UMOA-Titres"],answer:2,source:"BCEAO — GIM-UEMOA (monétique interbancaire)"},
+      {cat:"Plan Comptable Bancaire",q:"Dans le Plan Comptable Bancaire UMOA, le TAFIRE correspond :",choices:["au tableau de financement (emplois / ressources)","au compte de résultat","au hors-bilan","à l'état des grands risques"],answer:0,source:"PCB UMOA — états financiers"},
+      {cat:"Plan Comptable Bancaire",q:"Le hors-bilan d'un établissement de crédit retrace notamment :",choices:["uniquement les dépôts de la clientèle","les seuls fonds propres","la trésorerie en caisse","les engagements donnés et reçus (cautions, garanties, ouvertures de crédit)"],answer:3,source:"PCB UMOA — Guide d'application"},
+      {cat:"Plan Comptable Bancaire",q:"Selon le PCB UMOA, les créances en souffrance (impayées ou compromises) doivent être :",choices:["maintenues en créances saines","isolées et provisionnées selon des règles spécifiques (déclassement)","comptabilisées en hors-bilan","ignorées tant qu'elles ne sont pas judiciarisées"],answer:1,source:"BCEAO — Guide du banquier / PCB UMOA (déclassement)"},
+      {cat:"Plan Comptable Bancaire",q:"Le reporting périodique destiné à la BCEAO et à la Commission Bancaire issu du PCB UMOA est défini par :",choices:["l'Instruction n°003-05-2017 du 6 mai 2017","la Directive n°02/2015/CM/UEMOA","le Règlement n°06/2024/CM/UEMOA","l'Instruction n°024-11-2016"],answer:0,source:"BCEAO — Instruction n°003-05-2017"}
+    ];
+    try{ RA_QSRC['back-office']=(RA_QSRC['back-office']||[]).concat(window.RA_BO_DATA); }catch(e){}
+
     /* ── 2. Injection du bouton « Réglementation sourcée » dans chaque métier ── */
     window.raInjectSrc=function(id){
       var box=document.querySelector('#metier-'+id+' [id$="quiz-accueil"] .metier-actions');
@@ -7237,10 +7274,27 @@ window.raOpenNotif=function(){
       b.innerHTML='<span class="action-icon">📚</span><span class="action-label">RÉGLEMENTATION SOURCÉE</span><span class="action-sub">QCM réels · '+n+' questions BCEAO</span>';
       box.appendChild(b);
     };
+    // MODIFIÉ : active les boutons « Bientôt » des onglets Textes réglementaires (7 métiers) → lance le QCM sourcé du métier.
+    var RA_PFX2MET={tf:'trade-finance'};
+    window.raActivateTextes=function(){
+      try{
+        document.querySelectorAll('[id$="-tab-textes"] .metier-texte-btn').forEach(function(b){
+          if(b.getAttribute('data-ra-wired')) return;
+          var box=b.closest('[id$="-tab-textes"]'); if(!box) return;
+          var pfx=box.id.replace('-tab-textes',''); var mid=RA_PFX2MET[pfx]||pfx;
+          if(!(window.RA_QSRC&&RA_QSRC[mid]&&RA_QSRC[mid].length)) return;
+          b.setAttribute('data-ra-wired','1');
+          b.textContent='📚 Tester';
+          b.style.cursor='pointer';
+          b.setAttribute('onclick',"lancerQuizSrc('"+mid+"')");
+        });
+      }catch(e){}
+    };
     if(typeof window.ouvrirMetier==='function'){
       var _o=window.ouvrirMetier;
-      window.ouvrirMetier=function(id){ _o(id); try{ raInjectSrc(id); }catch(e){} };
+      window.ouvrirMetier=function(id){ _o(id); try{ raInjectSrc(id); }catch(e){} try{ raActivateTextes(); }catch(e){} };
     }
+    try{ setTimeout(window.raActivateTextes,800); setTimeout(window.raActivateTextes,2500); }catch(e){}
 
     /* ── 3. Moteur QCM « Réglementation sourcée » (overlay isolé) ── */
     var ST=null;
