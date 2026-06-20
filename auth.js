@@ -60,29 +60,32 @@ router.post('/register', authLimiter, async (req, res) => {
     // ── Créer ou mettre à jour l'utilisateur ──────────────
     if (!user) {
       const result = db.prepare(`
-        INSERT INTO users (name, email, profile, country)
-        VALUES (?, ?, ?, ?)
-      `).run(cleanName, cleanEmail, profile, country);
+        INSERT INTO users (name, email, profile, country, verified)
+        VALUES (?, ?, ?, ?, 1)
+      `).run(cleanName, cleanEmail, profile, country); // MODIFIÉ : verified=1 dès l'inscription (plus de lien à cliquer, login au retour garanti)
       user = db.prepare('SELECT * FROM users WHERE id = ?').get(result.lastInsertRowid);
     } else {
       // Mise à jour si données changées
       db.prepare(`
-        UPDATE users SET name=?, profile=?, country=? WHERE id=?
-      `).run(cleanName, profile, country, user.id);
+        UPDATE users SET name=?, profile=?, country=?, verified=1 WHERE id=?
+      `).run(cleanName, profile, country, user.id); // MODIFIÉ : verified=1
       user = db.prepare('SELECT * FROM users WHERE id = ?').get(user.id);
     }
 
-    // ── Email de confirmation : envoyé en arrière-plan, NON bloquant ── // MODIFIÉ
-    const token = createToken(user.id, 'verify');
-    Promise.resolve(sendVerificationEmail({ name: cleanName, email: cleanEmail, token }))
-      .catch((e) => console.error('[/auth/register] email non envoyé:', e)); // MODIFIÉ : l'accès ne dépend plus de l'email
+    // ── Email de confirmation DÉSACTIVÉ ── // MODIFIÉ
+    // Plus d'étape de lien : le compte est déjà vérifié (verified=1) et le JWT
+    // est délivré immédiatement ci-dessous. Réactiver seulement si sender.js
+    // est corrigé (bouton doré sur fond doré, style 100% inline).
+    // const token = createToken(user.id, 'verify');
+    // Promise.resolve(sendVerificationEmail({ name: cleanName, email: cleanEmail, token }))
+    //   .catch((e) => console.error('[/auth/register] email non envoyé:', e));
 
     // ── ACCÈS IMMÉDIAT : on délivre le JWT tout de suite ── // MODIFIÉ
     const jwt_token = issueJWT(user); // MODIFIÉ
     return res.json({
       ok: true,
-      jwt: jwt_token, // MODIFIÉ : le front se connecte directement (plus besoin d'ouvrir l'email/spam)
-      message: 'Compte créé — accès immédiat. Un email de confirmation vous a aussi été envoyé.',
+      jwt: jwt_token, // MODIFIÉ : le front se connecte directement (aucun email à ouvrir)
+      message: 'Compte créé — accès immédiat à la plateforme.', // MODIFIÉ
     });
 
   } catch (err) {
@@ -248,6 +251,29 @@ router.get('/me', (req, res) => {
     return res.json({ ok: true, user });
   } catch (err) {
     return jsonError(res, 401, 'Token invalide ou expiré', 'INVALID_TOKEN');
+  }
+});
+
+// ═══════════════════════════════════════════════════════════
+// GET /api/auth/unlock-all?key=XXX  // MODIFIÉ : déblocage one-shot
+// Passe tous les comptes verified=0 à verified=1 (ceux bloqués au login).
+// Idempotent. À SUPPRIMER après usage.
+// ═══════════════════════════════════════════════════════════
+router.get('/unlock-all', (req, res) => {
+  try {
+    const KEY = '382f563dfb0fb57cd1725779'; // MODIFIÉ : secret one-shot
+    if (req.query.key !== KEY) {
+      return jsonError(res, 403, 'Interdit', 'FORBIDDEN');
+    }
+    const result = db.prepare('UPDATE users SET verified=1 WHERE verified=0').run();
+    return res.json({
+      ok: true,
+      debloques: result.changes,
+      message: `${result.changes} compte(s) débloqué(s). Vous pouvez maintenant supprimer cette route.`,
+    });
+  } catch (err) {
+    console.error('[/auth/unlock-all]', err);
+    return jsonError(res, 500, 'Erreur serveur.', 'SERVER_ERROR');
   }
 });
 
