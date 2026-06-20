@@ -374,8 +374,8 @@ app.post('/auth/register', limiterStrict, async (req, res) => {
     const sendResult = await resend.emails.send({
       from: `REGUL ARENA <${FROM_EMAIL}>`,
       to:   cleanEmail,
-      subject: 'Confirme ton inscription — REGUL ARENA',
-      html: emailConfirmHTML(cleanName, confirmUrl),
+      subject: 'Bienvenue sur REGUL ARENA — ton compte est actif',
+      html: emailWelcomeHTML(cleanName, BASE_URL), // MODIFIÉ — email de bienvenue (compte déjà actif, aucune confirmation requise)
       headers: { 'X-Entity-Ref-ID': crypto.randomUUID() },
     });
     if (sendResult.error) console.error('Resend error (NON bloquant):', JSON.stringify(sendResult.error)); // MODIFIÉ — l'échec d'envoi ne bloque plus l'inscription
@@ -2178,6 +2178,33 @@ function emailConfirmHTML(name, url) {
       <a href="${url}" style="display:inline-block;background-color:#C9991A;background-image:linear-gradient(135deg,#C9991A,#E8B520);color:#03050A;font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;text-decoration:none;padding:16px 40px;border-radius:2px">Confirmer mon compte &#8594;</a><!-- MODIFIÉ : fond doré solide de secours (bouton visible même sans dégradé, ex. Outlook) -->
     </div>
     <p style="color:#4a5568;font-size:12px;line-height:1.6;margin:0">Ce lien est valable 24 heures. Si tu n'es pas &#224; l'origine de cette demande, ignore cet email.</p>
+  </td></tr>
+  <tr><td style="border-top:1px solid rgba(255,255,255,.06);padding:20px 40px;text-align:center">
+    <p style="color:#4a5568;font-size:11px;letter-spacing:1px;margin:0">&#169; 2026 REGUL ARENA &#183; Initiative priv&#233;e &#183; Abdou NDAO &#183; Dakar, S&#233;n&#233;gal</p>
+  </td></tr>
+</table></td></tr></table>
+</body></html>`;
+}
+
+// MODIFIÉ — Email de bienvenue (inscription) : compte déjà actif, aucun lien à confirmer
+function emailWelcomeHTML(name, url) {
+  return `<!DOCTYPE html>
+<html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bienvenue sur REGUL ARENA</title></head>
+<body style="margin:0;padding:0;background:#03050A;font-family:'Helvetica Neue',Arial,sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:48px 20px">
+<table width="560" cellpadding="0" cellspacing="0" style="background:#080C14;border:1px solid rgba(201,153,26,.2);border-radius:4px;overflow:hidden">
+  <tr><td style="background:linear-gradient(135deg,#002B5C,#001a3a);padding:32px 40px;text-align:center">
+    <div style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:26px;font-weight:900;letter-spacing:6px;color:#C9991A">REGUL ARENA</div>
+    <div style="font-size:11px;letter-spacing:3px;color:rgba(201,153,26,.6);margin-top:4px">MA&#206;TRISE R&#201;GLEMENTAIRE BANCAIRE</div>
+  </td></tr>
+  <tr><td style="padding:40px 40px 24px">
+    <p style="color:#EEF0F5;font-size:16px;margin:0 0 12px">Bienvenue <strong style="color:#C9991A">${escEmail(name)}</strong>,</p>
+    <p style="color:#7A8499;font-size:14px;line-height:1.7;margin:0 0 32px">Ton compte REGUL ARENA est <strong style="color:#EEF0F5">actif</strong>. Tu peux d&#232;s maintenant te connecter, relever des d&#233;fis et affronter d'autres professionnels de la banque dans l'ar&#232;ne r&#233;glementaire.</p>
+    <div style="text-align:center;margin-bottom:32px">
+      <a href="${url}" style="display:inline-block;background-color:#C9991A;background-image:linear-gradient(135deg,#C9991A,#E8B520);color:#03050A;font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;text-decoration:none;padding:16px 40px;border-radius:2px">Acc&#233;der &#224; la plateforme &#8594;</a>
+    </div>
+    <p style="color:#4a5568;font-size:12px;line-height:1.6;margin:0">Si tu n'es pas &#224; l'origine de cette inscription, ignore simplement cet email.</p>
   </td></tr>
   <tr><td style="border-top:1px solid rgba(255,255,255,.06);padding:20px 40px;text-align:center">
     <p style="color:#4a5568;font-size:11px;letter-spacing:1px;margin:0">&#169; 2026 REGUL ARENA &#183; Initiative priv&#233;e &#183; Abdou NDAO &#183; Dakar, S&#233;n&#233;gal</p>
