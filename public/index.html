@@ -3342,6 +3342,17 @@ function lbStatsCard(){
     (s.top?'<div style="font-size:11px;color:var(--sub);margin-top:10px;border-top:1px solid rgba(10,33,62,.6);padding-top:8px;">Thème favori : <strong style="color:#aac4e8;">'+arChatEsc(s.top)+'</strong> · '+s.topN+' partie'+(s.topN>1?'s':'')+'</div>':'')+
   '</div>';
 }
+function raTier(pts){ // MODIFIÉ : palier d'expertise selon points cumulés (charte bleu/or)
+  pts=Number(pts)||0;
+  if(pts>=500) return {l:'Maître',i:'👑'};
+  if(pts>=250) return {l:'Expert',i:'⭐'};
+  if(pts>=100) return {l:'Confirmé',i:'🔷'};
+  return {l:'Initié',i:'🔰'};
+}
+function raTierPill(pts){ // MODIFIÉ : badge d'expertise inline
+  var t=raTier(pts);
+  return '<span style="display:inline-flex;align-items:center;gap:3px;background:linear-gradient(135deg,#C9991A,#a87d12);color:#fff;font-size:9px;font-weight:800;padding:1px 6px;border-radius:8px;letter-spacing:.3px;vertical-align:middle;white-space:nowrap;">'+t.i+' '+t.l+'</span>';
+}
 function rLB(){
   // MODIFIÉ : classement réel chargé depuis le backend /leaderboard
   setTimeout(function(){ lbLoad('all'); }, 40);
@@ -3409,6 +3420,7 @@ function lbLoad(zone){
             '<div class="av" style="width:38px;height:38px;font-size:14px;margin:2px auto 5px;'+(meP?'box-shadow:0 0 0 2px #E8B520;':'')+'">'+arChatEsc((p.name||'?').charAt(0))+'</div>'+
             '<div style="font-size:11px;font-weight:700;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+arChatEsc(p.name||'')+(meP?' (Vous)':'')+'</div>'+
             '<div style="font-size:10px;color:#4ade80;font-weight:700;">'+(p.total_score||0)+' pts</div>'+
+            '<div style="margin-top:3px;">'+raTierPill(p.total_score||0)+'</div>'+
             '<div style="height:'+hh[idx]+'px;margin-top:5px;border-radius:8px 8px 0 0;background:linear-gradient(180deg,rgba(201,153,26,.4),rgba(201,153,26,.08));border:1px solid rgba(201,153,26,.35);display:flex;align-items:flex-start;justify-content:center;font-weight:900;color:#E8B520;padding-top:5px;">'+rr+'</div>'+
           '</div>';
         }).join('')+'</div>';
@@ -3421,13 +3433,36 @@ function lbLoad(zone){
         '<div style="display:flex;align-items:center;gap:11px;min-width:0;flex:1;">'+
         '<span style="font-weight:900;font-size:15px;color:#8aa3d4;width:26px;flex-shrink:0;text-align:center;">'+r+'</span>'+
         '<div class="av" style="width:32px;height:32px;font-size:12px;flex-shrink:0;">'+arChatEsc((p.name||'?').charAt(0))+'</div>'+
-        '<div style="min-width:0;"><div style="font-weight:600;color:white;font-size:13px;">'+arChatEsc(p.name||'')+(me?' (Vous)':'')+'</div>'+
+        '<div style="min-width:0;"><div style="font-weight:600;color:white;font-size:13px;">'+arChatEsc(p.name||'')+(me?' (Vous)':'')+' '+raTierPill(p.total_score||0)+'</div>'+
         '<div style="font-size:10px;color:#8aa3d4;">'+[lbCountryLabel(p.country), (p.etablissement?arChatEsc(p.etablissement):lbProfileLabel(p.profile))].filter(Boolean).join(' · ')+'</div></div></div>'+
         '<div style="text-align:right;flex-shrink:0;white-space:nowrap;"><div style="font-weight:700;color:#4ade80;font-size:13px;">'+(p.total_score||0)+' pts</div><div style="font-size:10px;color:var(--sub);">'+(p.games||0)+' partie'+(((p.games||0)>1)?'s':'')+'</div></div></div>';
     }).join('');
-    box.innerHTML=podHTML+rowsHTML;
+    // MODIFIÉ : certificat de classement pour le Top 3
+    var zLbl=(zone==='uemoa')?'UEMOA':(zone==='cemac')?'CEMAC':'Tous';
+    var certHTML='';
+    if(myRank && myRank<=3){
+      var myPts=(list[myRank-1]&&list[myRank-1].total_score)||0;
+      certHTML='<div style="margin:10px 14px 4px;padding:14px 16px;border-radius:12px;background:linear-gradient(135deg,rgba(201,153,26,.18),rgba(201,153,26,.05));border:1px solid rgba(201,153,26,.45);text-align:center;">'+
+        '<div style="font-size:13px;font-weight:800;color:#E8B520;margin-bottom:8px;">🏆 Vous êtes dans le Top 3 '+zLbl+' !</div>'+
+        '<button onclick="raLbCert('+myRank+',\''+zLbl+'\','+myPts+')" style="width:100%;padding:13px;background:linear-gradient(135deg,#C9991A,#a87d12);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(201,153,26,.35);">📥 Télécharger mon certificat de classement</button>'+
+      '</div>';
+    }
+    box.innerHTML=certHTML+podHTML+rowsHTML;
   }).catch(function(){ box.innerHTML='<div class="al al-warn" style="font-size:12px;">Classement momentanément indisponible.</div>'; });
 }
+window.raLbCert=function(rank,zoneLbl,pts){ // MODIFIÉ : certificat de classement (Top 3) réutilisant arBuildCertPDF
+  try{
+    rank=Number(rank)||0; if(rank<1||rank>3) return;
+    var name=(typeof U!=='undefined'&&U&&U.name)||'Apprenant';
+    var ord=rank===1?'1er':rank+'e';
+    var zCert=(zoneLbl==='Tous')?'UEMOA & CEMAC':zoneLbl;
+    var info={certificate_id:'RA-CL-'+Date.now().toString(36).toUpperCase(),name:name,
+      theme:'Top Scoreur '+zoneLbl+' — Classement REGUL ARENA',zone:zCert,
+      resultLine:'Rang : '+ord+' au classement '+zoneLbl+'  ·  '+(Number(pts)||0)+' points',
+      date:new Date().toISOString()};
+    if(typeof arBuildCertPDF==='function') arBuildCertPDF(info);
+  }catch(e){ try{console.warn('raLbCert',e);}catch(_){ } }
+};
 
 /* ════════════════════════════════════════════════
    ACADÉMIE
@@ -4015,8 +4050,8 @@ function arBuildCertPDF(info){ // MODIFIÉ : Canvas pur, zéro CDN
   g.fillText('Compétences en conformité, gestion des risques et exigences réglementaires — Zone '+(info.zone||'UEMOA'),W/2,yAfter);
   // Score
   g.fillStyle='#002B5C'; g.font='bold 16px sans-serif';
-  var sc=info.score,tot=info.total,pct=tot?Math.round(sc/tot*100):0;
-  g.fillText('Résultat : '+sc+'/'+tot+' ('+pct+'%)',W/2,yAfter+30);
+  if(info.resultLine){ g.fillText(String(info.resultLine),W/2,yAfter+30); } // MODIFIÉ : ligne résultat personnalisable (certificat de classement)
+  else { var sc=info.score,tot=info.total,pct=tot?Math.round(sc/tot*100):0; g.fillText('Résultat : '+sc+'/'+tot+' ('+pct+'%)',W/2,yAfter+30); }
   // Date & ID
   g.fillStyle='#666'; g.font='12px sans-serif';
   var dateStr=String(info.date||'').slice(0,10);
