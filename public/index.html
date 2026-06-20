@@ -7907,6 +7907,8 @@ window.raOpenNotif=function(){
 #ra-flash .raf-date{color:var(--cyan,#F5C453);font-weight:700;font-size:11px;letter-spacing:.5px;
   border:1px solid rgba(245,196,83,.5);border-radius:10px;padding:2px 8px}
 #ra-flash .raf-sep{color:var(--cyan,#F5C453);font-size:9px}
+#ra-flash .raf-item.raf-maitre{color:#fff;font-weight:600} /* MODIFIÉ : Maîtres de l'Arène */
+#ra-flash .raf-date.raf-crown{color:#0A192F;background:linear-gradient(90deg,#C9991A,#F5C453);border:1px solid rgba(245,196,83,.7);font-weight:800} /* MODIFIÉ */
 @keyframes raf-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 @media (prefers-reduced-motion:reduce){#ra-flash .raf-track{animation:none}}
 </style>
@@ -7927,27 +7929,63 @@ window.raOpenNotif=function(){
   function el(t,c){ var e=document.createElement(t); if(c) e.className=c; return e; }
   function makeItem(f){
     var it=el('span','raf-item');
-    if(f.date){ var d=el('span','raf-date'); d.textContent=f.date; it.appendChild(d); } // textContent = anti-XSS
+    if(f.crown) it.classList.add('raf-maitre'); // MODIFIÉ : style Maître de l'Arène
+    if(f.date){ var d=el('span','raf-date'); if(f.crown) d.classList.add('raf-crown'); d.textContent=f.date; it.appendChild(d); } // textContent = anti-XSS
     var t=el('span'); t.textContent=f.txt||''; it.appendChild(t);
     var s=el('span','raf-sep'); s.textContent='◆'; it.appendChild(s);
     if(f.tab){ it.classList.add('raf-go'); it.addEventListener('click',function(){ if(typeof ST==='function') ST(f.tab); }); }
     else if(f.url){ it.classList.add('raf-go'); it.addEventListener('click',function(){ window.open(f.url,'_blank','noopener'); }); }
     return it;
   }
+  var RAF_TRACK=null; // MODIFIÉ
+  function fill(items){ // MODIFIÉ : (re)remplit la bande + recalcule la vitesse
+    if(!RAF_TRACK) return;
+    RAF_TRACK.innerHTML='';
+    items.forEach(function(f){ RAF_TRACK.appendChild(makeItem(f)); });
+    items.forEach(function(f){ RAF_TRACK.appendChild(makeItem(f)); }); // 2e passe = boucle fluide
+    requestAnimationFrame(function(){ var w=RAF_TRACK.scrollWidth/2; RAF_TRACK.style.animationDuration=Math.max(20,Math.round(w/70))+'s'; });
+  }
   function build(){
     var bar=el('div'); bar.id='ra-flash';
     var tag=el('div','raf-tag'); tag.textContent='⚡ FLASH INFO';
-    var vp=el('div','raf-vp'); var track=el('div','raf-track');
-    RA_FLASH.forEach(function(f){ track.appendChild(makeItem(f)); });
-    RA_FLASH.forEach(function(f){ track.appendChild(makeItem(f)); }); // 2e passe = boucle fluide
+    var vp=el('div','raf-vp'); var track=el('div','raf-track'); RAF_TRACK=track;
     vp.appendChild(track); bar.appendChild(tag); bar.appendChild(vp);
     // MODIFIÉ — insertion entre #topbar et #ct (sinon en haut de #main, sinon body)
     var ct=document.getElementById('ct');
     if(ct && ct.parentNode){ ct.parentNode.insertBefore(bar, ct); }
     else { var m=document.getElementById('main')||document.body; m.insertBefore(bar, m.firstChild); }
-    requestAnimationFrame(function(){ var w=track.scrollWidth/2; track.style.animationDuration=Math.max(20,Math.round(w/70))+'s'; });
+    fill(RA_FLASH.slice()); // affiche d'abord le Lot A statique (instantané)
     bar.addEventListener('touchstart',function(){ bar.classList.add('raf-pause'); },{passive:true});
     bar.addEventListener('touchend',function(){ setTimeout(function(){ bar.classList.remove('raf-pause'); },1500); },{passive:true});
+    raFlashLoadMaitres(); // puis injecte les Maîtres de l'Arène (Top 3 par zone, en direct)
+  }
+  // ===== MODIFIÉ — MAÎTRES DE L'ARÈNE : Top 3 par zone, chargés depuis /leaderboard =====
+  function raFlashLoadMaitres(){
+    var ZL={uemoa:'UEMOA', cemac:'CEMAC'};
+    var HIDE=['kaiser ndao','abdou ndao']; // comptes de test masqués (cohérent avec le Classement)
+    var hdr=(typeof U!=='undefined'&&U&&U.token)?{'Authorization':'Bearer '+U.token}:{};
+    var clbl=(typeof lbCountryLabel==='function')?lbCountryLabel:function(c){return c||'';};
+    Promise.all(['uemoa','cemac'].map(function(z){
+      return fetch('/leaderboard?zone='+z,{headers:hdr}).then(function(r){return r.json();}).then(function(d){
+        var list=((d&&d.leaderboard)||[]).filter(function(p){ return HIDE.indexOf(String((p&&p.name)||'').trim().toLowerCase())===-1; });
+        return {zone:z, top:list.slice(0,3)};
+      }).catch(function(){ return {zone:z, top:[]}; });
+    })).then(function(res){
+      var med=['🥇','🥈','🥉'], maitres=[];
+      res.forEach(function(r){
+        r.top.forEach(function(p,i){
+          var c=clbl(p.country);
+          maitres.push({
+            date: med[i]+' '+ZL[r.zone],
+            txt: (p.name||'—')+(c?' · '+c:'')+' · '+(p.total_score||0)+' pts',
+            tab:'leaderboard', crown:true
+          });
+        });
+      });
+      if(!maitres.length) return; // aucun score : on garde le Lot A seul
+      var head={ date:"👑 PALMARÈS", txt:"Maîtres de l'Arène du Régulateur — Top 3 par zone", tab:'leaderboard', crown:true };
+      fill([head].concat(maitres, RA_FLASH)); // Maîtres EN TÊTE, puis le Lot A statique
+    }).catch(function(){});
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',build); else build();
 })();
