@@ -2175,7 +2175,7 @@ function emailConfirmHTML(name, url) {
     <p style="color:#EEF0F5;font-size:16px;margin:0 0 12px">Bonjour <strong style="color:#C9991A">${escEmail(name)}</strong>,</p>
     <p style="color:#7A8499;font-size:14px;line-height:1.7;margin:0 0 32px">Ton compte REGUL ARENA est pr&#234;t. Clique sur le bouton ci-dessous pour confirmer ton adresse email et acc&#233;der &#224; la plateforme.</p>
     <div style="text-align:center;margin-bottom:32px">
-      <a href="${url}" style="display:inline-block;background:linear-gradient(135deg,#C9991A,#E8B520);color:#03050A;font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;text-decoration:none;padding:16px 40px;border-radius:2px">Confirmer mon compte &#8594;</a>
+      <a href="${url}" style="display:inline-block;background-color:#C9991A;background-image:linear-gradient(135deg,#C9991A,#E8B520);color:#03050A;font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;text-decoration:none;padding:16px 40px;border-radius:2px">Confirmer mon compte &#8594;</a><!-- MODIFIÉ : fond doré solide de secours (bouton visible même sans dégradé, ex. Outlook) -->
     </div>
     <p style="color:#4a5568;font-size:12px;line-height:1.6;margin:0">Ce lien est valable 24 heures. Si tu n'es pas &#224; l'origine de cette demande, ignore cet email.</p>
   </td></tr>
