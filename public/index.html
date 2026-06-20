@@ -620,7 +620,7 @@ h2,h3{animation:raReveal .45s ease both;}
 <div id="pushNotif" class="push-notification">
   <div class="push-icon">🎓</div>
   <div class="push-content">
-    <strong id="pushTitle">1042 questions & défis</strong>
+    <strong id="pushTitle">1169 questions & défis</strong>
     <p id="pushBody">Bâle, RFE, PCB et CEMAC — d'après les textes officiels BCEAO, BEAC et COBAC.</p><!-- MODIFIÉ : contenu réel -->
   </div>
 </div>
@@ -5656,9 +5656,9 @@ window.addEventListener('load', function(){
    typeof QVF_BACK_OFFICE_DATA!=='undefined'?QVF_BACK_OFFICE_DATA:null,
    typeof QVF_ALM_DATA!=='undefined'?QVF_ALM_DATA:null,
    typeof QVF_DETAIL_DATA!=='undefined'?QVF_DETAIL_DATA:null].forEach(function(a){ if(a&&a.length) _MET.push(a); }); // MODIFIÉ
-  var _allQ = [].concat(QR, QB, QC, QN);                        // MODIFIÉ : QN branché au moteur → inclus (282 packs + 620 QN = 902 sourcées)
+  var _allQ = [].concat(QR, QB, QC, QN);                        // MODIFIÉ : compteur dynamique (282 packs + 747 QN = 1029 sourcées)
   _MET.forEach(function(a){ _allQ = _allQ.concat(a); });         // MODIFIÉ
-  var tot = _allQ.length;                                        // MODIFIÉ : total dynamique = 902 sourcées (282 packs + 620 QN) + 140 métiers = 1042
+  var tot = _allQ.length;                                        // MODIFIÉ : total dynamique = 1029 sourcées (282 packs + 747 QN) + 140 métiers = 1169
   var nThemes = (new Set(_allQ.map(function(q){return q.cat;}).filter(Boolean))).size; // MODIFIÉ
   var nPacks = 3 + _MET.length;                                 // MODIFIÉ
   var nMetiers = _MET.length || 7;                              // MODIFIÉ : nb de métiers réellement chargés
@@ -5853,7 +5853,7 @@ window.addEventListener('load', function(){
     var notif = notifications[Math.floor(Math.random()*notifications.length)];
     var el = document.getElementById('pushNotif');
     if(!el) return;
-    document.getElementById('pushTitle').innerText = String(notif.title).replace('{N}', (window.RA_TOTQ||1042)); // MODIFIÉ : total dynamique
+    document.getElementById('pushTitle').innerText = String(notif.title).replace('{N}', (window.RA_TOTQ||1169)); // MODIFIÉ : total dynamique
     document.getElementById('pushBody').innerText = notif.body;
     el.classList.remove('push-active');
     void el.offsetWidth; // force reflow pour relancer l'animation
