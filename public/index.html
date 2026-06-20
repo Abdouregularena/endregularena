@@ -5621,21 +5621,36 @@ function rAEF(){   // MODIFIÉ
 }
 
 /* 1) CAS PRATIQUES — étude + auto-évaluation référencée */
-function rAE_cas(){   // MODIFIÉ
+function aeEscTxt(s){ return (s==null?'':String(s)).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }   // MODIFIÉ : échappement local
+function rAE_cas(){   // MODIFIÉ : cas pratiques rendus INTERACTIFS (saisie de réponse puis vérification)
   var data = aeData().cas_pratique;
+  var txt = AES.txt || {};
   var body = data.map(function(c,i){
-    var corr = AES.ans['c'+i] ?
-      '<div style="margin-top:10px;">'+c.correction.map(function(k){
-        return '<div class="al al-ok" style="margin-bottom:8px;"><div style="color:#86efac;">✓ '+k.a+'</div>'+
-        '<div style="font-size:11px;color:#8aa3d4;margin-top:4px;">📚 '+k.ref+'</div></div>';
-      }).join('')+'</div>'
-      : '<div style="margin-top:10px;"><button class="btn btn-sm" onclick="aeReveal(\'c'+i+'\')">Voir la correction référencée</button></div>';
+    var revealed = AES.ans['c'+i];
+    var mine = (txt['c'+i]||'');
     var qs = c.questions.map(function(q){ return '<li style="margin-bottom:5px;">'+q+'</li>'; }).join('');
+    var bottom;
+    if(revealed){
+      var yourBox = mine
+        ? '<div class="al" style="margin-bottom:10px;border-left:3px solid var(--cyan);background:rgba(56,189,248,.08);padding:8px 10px;border-radius:8px;"><div style="font-size:11px;color:var(--cyan);font-weight:700;margin-bottom:3px;">✍️ Votre réponse</div><div style="font-size:13px;color:var(--text);white-space:pre-wrap;line-height:1.5;">'+aeEscTxt(mine)+'</div></div>'
+        : '';
+      bottom = '<div style="margin-top:10px;">'+yourBox+
+        '<div style="font-size:11px;color:var(--sub);font-weight:700;margin:0 0 6px;">✅ Correction référencée</div>'+
+        c.correction.map(function(k){
+          return '<div class="al al-ok" style="margin-bottom:8px;"><div style="color:#86efac;">✓ '+k.a+'</div>'+
+          '<div style="font-size:11px;color:#8aa3d4;margin-top:4px;">📚 '+k.ref+'</div></div>';
+        }).join('')+'</div>';
+    } else {
+      bottom = '<div style="margin-top:10px;">'+
+        '<div style="font-size:12px;color:var(--sub);margin-bottom:6px;">Rédigez votre réponse, puis vérifiez :</div>'+
+        '<textarea id="ae-ans-c'+i+'" placeholder="Votre analyse argumentée…" style="width:100%;min-height:80px;box-sizing:border-box;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:white;padding:10px;font-size:13px;font-family:inherit;line-height:1.5;resize:vertical;">'+aeEscTxt(mine)+'</textarea>'+
+        '<div style="margin-top:8px;"><button class="btn btn-sm" onclick="aeRevealCas('+i+')">✅ Vérifier ma réponse</button></div></div>';
+    }
     return '<div class="card"><div style="font-size:11px;color:var(--cyan);font-weight:700;margin-bottom:6px;">CAS '+(i+1)+'</div>'+
       '<p style="font-size:14px;color:white;line-height:1.6;margin-bottom:10px;">'+c.scenario+'</p>'+
       '<div style="font-size:12px;color:var(--sub);">Questions :</div>'+
       '<ul style="font-size:13px;color:var(--text);margin:6px 0 0 18px;line-height:1.6;">'+qs+'</ul>'+
-      corr+'</div>';
+      bottom+'</div>';
   }).join('');
   return '<div style="max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:13px;">'+
     aeHead('cas_pratique')+body+
@@ -5646,7 +5661,14 @@ function rAE_cas(){   // MODIFIÉ
     '<button class="btn-out btn-sm" onclick="aeSelfGrade(\'Cas pratiques\',0,'+data.length+')">À revoir</button></div>'+
     '<div id="ae-cas-res"></div></div></div>';
 }
-function aeReveal(key){ AES.ans[key]=true; render(); }   // MODIFIÉ
+function aeRevealCas(i){   // MODIFIÉ : capture la réponse saisie avant de révéler la correction
+  var t = ge('ae-ans-c'+i);
+  AES.txt = AES.txt || {};
+  if(t) AES.txt['c'+i] = t.value;
+  AES.ans['c'+i] = true;
+  render();
+}
+function aeReveal(key){ AES.ans[key]=true; render(); }   // MODIFIÉ (conservé pour compat)
 function aeSelfGrade(label, sc, total){   // MODIFIÉ
   var el = ge('ae-cas-res') || ge('ae-audit-res');
   if(el){ el.innerHTML = aeResultBar(sc, total, label); }
