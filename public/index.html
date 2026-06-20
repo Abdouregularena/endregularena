@@ -7806,11 +7806,26 @@ window.raOpenNotif=function(){
       h+='<div style="display:flex;gap:10px;">';
       h+='<button onclick="lancerQuizSrc(\''+ST.metier+'\')" style="flex:1;padding:13px;background:#C9991A;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;">🔄 Rejouer</button>';
       h+='<button onclick="raSrcFermer()" style="flex:1;padding:13px;background:#002B5C;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;">← Retour métier</button>';
-      h+='</div></div>';
+      h+='</div>';
+      if(pct>=80){ h+='<button onclick="raSrcCert()" style="margin-top:11px;width:100%;padding:14px;background:linear-gradient(135deg,#C9991A,#a87d12);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(201,153,26,.35);">🏆 Générer mon certificat</button>'; } // MODIFIÉ : certificat dès 80%
+      h+='</div>';
       document.getElementById('ra-src-body').innerHTML=h;
     }
     window.raSrcFermer=function(){
       var o=document.getElementById('ra-src-overlay'); if(o) o.style.display='none';
+    };
+    window.raSrcCert=function(){ // MODIFIÉ : certificat métier délivré à partir de 80%
+      try{
+        var tot=ST.qs.length, pct=Math.round(ST.score/tot*100);
+        if(pct<80) return;
+        var zone='UEMOA';
+        try{ if(ST.qs.some(function(q){return /COBAC|CEMAC|BEAC|GIMAC|GABAC|COSUMAF/i.test((q.cat||'')+(q.source||'')+(q.ref||''));})) zone='CEMAC'; }catch(e){}
+        var theme='Parcours métier — '+((typeof RA_MET_LABEL!=='undefined'&&RA_MET_LABEL[ST.metier])||'Métier');
+        var name=(typeof U!=='undefined'&&U&&U.name)||'Apprenant';
+        var info={certificate_id:'RA-'+Date.now().toString(36).toUpperCase(),name:name,theme:theme,zone:zone,score:ST.score,total:tot,date:new Date().toISOString()};
+        if(typeof arBuildCertPDF==='function') arBuildCertPDF(info);
+        try{ fetch('/certificates',{method:'POST',headers:arAuthHdr(),body:JSON.stringify({theme:theme,zone:zone,score:ST.score,total:tot})}).catch(function(){}); }catch(e){}
+      }catch(e){ try{console.warn('raSrcCert',e);}catch(_){ } }
     };
   }catch(e){ try{console.warn('RA src module:',e);}catch(_){ } }
 })();
