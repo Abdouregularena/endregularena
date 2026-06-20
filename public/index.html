@@ -5075,6 +5075,244 @@ var AE_DATA = {
   }
 };
 
+/* ════════════════════════════════════════════════════════════════
+   DONNÉES CEMAC (BEAC/COBAC) + ENRICHISSEMENT UEMOA — // MODIFIÉ (bloc ajouté, 100% additif)
+   Sources : Règlement COBAC R-2025/02 (10/12/2025), R-2023/01 (LBC/FT, EV 01/07/2024),
+   Règlement n°02/18/CEMAC/UMAC/CM (changes), Règlement n°04/19 (TEG/usure),
+   Règlement n°01/02/CEMAC/UMAC/COBAC/CM (microfinance EMF), normes prudentielles COBAC.
+════════════════════════════════════════════════════════════════ */
+function aeData(){ return AEZONE==='cemac' ? AE_DATA_CEMAC : AE_DATA; }   // MODIFIÉ : sélecteur de zone
+
+var AE_DATA_CEMAC = {   // MODIFIÉ
+  /* 1) CAS PRATIQUES CEMAC */
+  cas_pratique: [
+    {
+      scenario:"Une banque agréée au Cameroun affiche au 31 mars 2026 des fonds propres de base de 12 milliards FCFA. Sa direction estime être en règle car elle dépassait l'ancien seuil.",
+      questions:["Respecte-t-elle le capital social minimum en vigueur ?","Quelles échéances doit-elle respecter ?"],
+      correction:[
+        {a:"Non. Depuis le 1er janvier 2026, le capital social minimum d'une banque CEMAC est de 25 milliards FCFA. 12 Mds sont insuffisants.",ref:"Règlement COBAC R-2025/02 du 10 décembre 2025 (capital minimum 25 Mds)"},
+        {a:"Elle devait soumettre un plan de relèvement à la COBAC au plus tard le 30 juin 2026 et se mettre en conformité au plus tard le 31 décembre 2026.",ref:"Règlement COBAC R-2025/02 — dispositions transitoires (plan 30/06/2026 · conformité 31/12/2026)"}
+      ]
+    },
+    {
+      scenario:"Une société extractive résidente de la CEMAC encaisse des recettes en devises à l'étranger et souhaite les conserver intégralement sur un compte hors zone.",
+      questions:["Existe-t-il une obligation de rapatriement ?","Cette obligation a-t-elle évolué récemment ?"],
+      correction:[
+        {a:"Oui. La réglementation des changes CEMAC impose le rapatriement des devises issues des activités des entreprises extractives, sous le contrôle de la BEAC.",ref:"Règlement n°02/18/CEMAC/UMAC/CM (réglementation des changes) + règlements entreprises extractives"},
+        {a:"Oui : la BEAC a annoncé le 27 avril 2026 un relèvement progressif du taux de rapatriement des devises des entreprises extractives.",ref:"Communiqué BEAC du 27 avril 2026"}
+      ]
+    },
+    {
+      scenario:"Un établissement assujetti CEMAC conserve les documents de vigilance clientèle (KYC) pendant 4 ans, puis les détruit. Un client présente par ailleurs un profil de Personne Politiquement Exposée (PPE).",
+      questions:["La durée de conservation est-elle conforme ?","Quelle diligence pour la PPE ?"],
+      correction:[
+        {a:"Non. Les documents de vigilance doivent être conservés au moins 10 ans.",ref:"Règlement COBAC R-2023/01 du 19/12/2023 — Art. 38 (conservation 10 ans)"},
+        {a:"Une identification et une surveillance renforcées s'imposent pour les PPE.",ref:"Lignes directrices COBAC (mars 2025) — diligences renforcées PPE, alignement GAFI"}
+      ]
+    },
+    {
+      scenario:"Un Établissement de Microfinance (EMF) de 2ème catégorie souhaite ouvrir une nouvelle agence et envisage d'ajouter le mot « banque » dans sa dénomination commerciale.",
+      questions:["L'ouverture de l'agence est-elle libre ?","Peut-il utiliser le mot « banque » ?"],
+      correction:[
+        {a:"Non. L'ouverture d'un guichet ou d'une agence par un EMF de 2ème catégorie nécessite l'autorisation de l'Autorité Monétaire, après avis de la COBAC.",ref:"Règlement microfinance CEMAC (n°01/02/CEMAC/UMAC/COBAC/CM) — Art. 40"},
+        {a:"Non. L'usage du mot « banque » dans la dénomination d'un EMF est interdit.",ref:"Règlement microfinance CEMAC — Art. 5 (interdiction du terme « banque »)"}
+      ]
+    },
+    {
+      scenario:"Lors d'une mission, l'inspection constate qu'une banque CEMAC affiche un ratio de couverture des risques de 9 % et détient des crypto-actifs pour compte propre.",
+      questions:["Le ratio de couverture est-il conforme ?","La détention de crypto-actifs est-elle autorisée ?"],
+      correction:[
+        {a:"Non. Le ratio minimum de couverture des risques exigé par la COBAC est de 10,5 %. 9 % est insuffisant.",ref:"Normes prudentielles COBAC — Rapport annuel COBAC 2024 (ratio 10,5 %)"},
+        {a:"Non. L'utilisation des crypto-actifs par les établissements assujettis est interdite dans la CEMAC.",ref:"Lettre circulaire COBAC — interdiction des crypto-actifs"}
+      ]
+    }
+  ],
+
+  /* 2) VRAI / FAUX CEMAC */
+  vrai_faux: [
+    {affirmation:"Depuis le 1er janvier 2026, le capital social minimum d'une banque dans la CEMAC est de 25 milliards FCFA.",reponse:true,
+     justification:"Exact : le seuil a été porté de 10 à 25 milliards FCFA.",ref:"Règlement COBAC R-2025/02 du 10 décembre 2025"},
+    {affirmation:"Le siège de la COBAC est situé à Yaoundé, dans les locaux de la BEAC.",reponse:false,
+     justification:"Faux : la COBAC siège à Libreville (le siège de la BEAC, lui, est à Yaoundé).",ref:"Convention COBAC 1990 — siège à Libreville"},
+    {affirmation:"Dans la CEMAC, SYGMA est le système de télécompensation des paiements de masse.",reponse:false,
+     justification:"Faux : SYGMA est le système de règlement brut en temps réel (gros montants) ; SYSTAC est la télécompensation.",ref:"BEAC — Systèmes de paiement CEMAC (SYGMA · SYSTAC)"},
+    {affirmation:"Le franc CFA de la zone BEAC porte le code ISO XAF.",reponse:true,
+     justification:"Exact : zone BEAC = XAF (la zone BCEAO utilise XOF).",ref:"BEAC — Billets et pièces (franc CFA XAF)"},
+    {affirmation:"Les établissements assujettis de la CEMAC peuvent librement utiliser des crypto-actifs pour compte propre.",reponse:false,
+     justification:"Faux : l'utilisation des crypto-actifs est interdite dans la CEMAC.",ref:"Lettre circulaire COBAC — interdiction des crypto-actifs"},
+    {affirmation:"La COSUMAF est l'autorité de régulation du marché financier de l'Afrique Centrale.",reponse:true,
+     justification:"Exact : la COSUMAF régule le marché financier de la CEMAC (équivalent de l'AMF-UMOA).",ref:"Règlement COSUMAF CEMAC"}
+  ],
+
+  /* 3) TEXTE À TROUS CEMAC */
+  texte_trous: [
+    {texte:"Depuis le 1er janvier ___, le capital social minimum d'une banque dans la CEMAC est de ___ milliards FCFA.",
+     reponses:["2026","25"],
+     ref:"Règlement COBAC R-2025/02 du 10 décembre 2025"},
+    {texte:"Le système de règlement brut en temps réel de la CEMAC s'appelle ___ ; le système de télécompensation s'appelle ___.",
+     reponses:["SYGMA","SYSTAC"],
+     ref:"BEAC — Réforme des systèmes de paiement CEMAC"},
+    {texte:"Le règlement COBAC R-2023/01 impose la conservation des documents de vigilance clientèle pendant ___ ans.",
+     reponses:["10"],
+     ref:"Règlement COBAC R-2023/01 — Art. 38"},
+    {texte:"La parité fixe est de 1 EUR = ___ FCFA, et la réglementation des changes de la CEMAC est régie par le Règlement n°___/CEMAC/UMAC/CM.",
+     reponses:["655,957","02/18"],
+     ref:"BEAC — Taux de change ; Règlement n°02/18/CEMAC/UMAC/CM"},
+    {texte:"La supervision des établissements de crédit de la CEMAC est assurée par la ___, dont le siège se trouve à ___.",
+     reponses:["COBAC","Libreville"],
+     ref:"Convention COBAC 1990"}
+  ],
+
+  /* 4) CALCUL PRUDENTIEL COBAC */
+  calcul_prudentiel: [
+    {enonce:"La banque respecte-t-elle le ratio minimum de couverture des risques exigé par la COBAC ?",
+     donnees:{"Fonds propres effectifs":"38 Mds FCFA","Actifs pondérés des risques (APR)":"380 Mds FCFA","Minimum COBAC requis":"10,5 %"},
+     etapes:["Ratio = FP / APR","= 38 / 380 = 10 %","Comparer à 10,5 %"],
+     resultat:"10 % < 10,5 % → exigence NON satisfaite.",conforme:false,
+     ref:"Normes prudentielles COBAC — Rapport annuel COBAC 2024 (10,5 %)"},
+    {enonce:"Cette nouvelle banque atteint-elle le capital social minimum en vigueur ?",
+     donnees:{"Capital social libéré":"18 Mds FCFA","Capital minimum requis (≥ 01/01/2026)":"25 Mds FCFA"},
+     etapes:["Comparer 18 Mds au minimum de 25 Mds","Déficit = 25 − 18 = 7 Mds"],
+     resultat:"18 < 25 Mds → NON conforme (déficit de 7 Mds à combler).",conforme:false,
+     ref:"Règlement COBAC R-2025/02 du 10 décembre 2025"},
+    {enonce:"Le ratio international de solvabilité (Cooke) de la banque est-il respecté ?",
+     donnees:{"Fonds propres":"20 Mds FCFA","APR":"200 Mds FCFA","Minimum (ratio Cooke)":"8 %"},
+     etapes:["Ratio = 20 / 200 = 10 %","Comparer à 8 %"],
+     resultat:"10 % ≥ 8 % → conforme au ratio international minimum.",conforme:true,
+     ref:"Règlements prudentiels COBAC — Ratio de solvabilité (8 %)"},
+    {enonce:"Cet EMF de 2ème catégorie atteint-il le capital social minimum exigé ?",
+     donnees:{"Capital social de l'EMF":"250 M FCFA","Capital minimum 2ème catégorie":"300 M FCFA"},
+     etapes:["Comparer 250 M au minimum de 300 M"],
+     resultat:"250 < 300 M → NON conforme.",conforme:false,
+     ref:"COBAC — relèvement progressif du capital EMF 2ème catégorie (2018-2021)"},
+    {enonce:"Le ratio de couverture des risques de cette banque est-il conforme à l'exigence COBAC ?",
+     donnees:{"Fonds propres effectifs":"44 Mds FCFA","APR":"400 Mds FCFA","Minimum COBAC requis":"10,5 %"},
+     etapes:["Ratio = 44 / 400 = 11 %","Comparer à 10,5 %"],
+     resultat:"11 % ≥ 10,5 % → conforme.",conforme:true,
+     ref:"Normes prudentielles COBAC — Rapport annuel COBAC 2024"}
+  ],
+
+  /* 5) AUDIT & CONFORMITÉ CEMAC */
+  audit: [
+    {rapport:"Rapport d'inspection — Banque A (CEMAC) : capital social 14 Mds FCFA ; ratio de couverture des risques 9 % ; aucun plan de relèvement du capital n'a été transmis à la COBAC au 30 juin 2026.",
+     irregularites:[
+       {t:"Capital de 14 Mds : inférieur au minimum de 25 Mds (≥ 01/01/2026).",ref:"Règlement COBAC R-2025/02"},
+       {t:"Ratio de couverture des risques 9 % : inférieur au minimum de 10,5 %.",ref:"Normes prudentielles COBAC — Rapport 2024"},
+       {t:"Absence de plan de relèvement au 30/06/2026 : échéance transitoire non respectée.",ref:"Règlement COBAC R-2025/02 — dispositions transitoires"}
+     ]},
+    {rapport:"Rapport — EMF B : se présente sous l'enseigne « Banque communautaire » ; collecte de l'épargne auprès du grand public alors qu'il est agréé en 1ère catégorie.",
+     irregularites:[
+       {t:"Usage du mot « banque » dans la dénomination d'un EMF : interdit.",ref:"Règlement microfinance CEMAC — Art. 5"},
+       {t:"Collecte d'épargne hors des membres pour un EMF de 1ère catégorie : la 1ère catégorie est limitée à la collecte et au crédit auprès de ses membres.",ref:"Règlement microfinance CEMAC — Art. 5 (1ère catégorie)"}
+     ]},
+    {rapport:"Rapport — Intermédiaire agréé C : détient des crypto-actifs pour compte propre ; conserve les documents de vigilance clientèle pendant 3 ans seulement.",
+     irregularites:[
+       {t:"Détention de crypto-actifs : interdite dans la CEMAC.",ref:"Lettre circulaire COBAC — crypto-actifs"},
+       {t:"Conservation des documents de vigilance 3 ans : inférieure au minimum de 10 ans.",ref:"Règlement COBAC R-2023/01 — Art. 38"}
+     ]},
+    {rapport:"Rapport — Société extractive D : devises encaissées à l'étranger non rapatriées ; absence de déclaration de soupçon malgré une opération atypique détectée.",
+     irregularites:[
+       {t:"Non-rapatriement des devises extractives : contraire à la réglementation des changes CEMAC.",ref:"Règlement n°02/18/CEMAC/UMAC/CM"},
+       {t:"Absence de déclaration de soupçon (DS) à l'ANIF malgré une opération atypique.",ref:"Règlement CEMAC LBC/FT — obligation de DS à l'ANIF"}
+     ]}
+  ],
+
+  /* 6) EXAMEN BLANC CEMAC */
+  examen: {
+    seuil:60,
+    bareme:"24 points — 4 pts/question — réussite à 60 % (≈ 15/24)",
+    questions:[
+      {q:"Quel est le capital social minimum d'une banque CEMAC depuis le 1er janvier 2026 ?",
+       choices:["10 milliards FCFA","15 milliards FCFA","20 milliards FCFA","25 milliards FCFA"],answer:3,
+       ref:"Règlement COBAC R-2025/02 du 10 décembre 2025"},
+      {q:"Quel texte régit la réglementation des changes dans la CEMAC ?",
+       choices:["Règlement n°02/18/CEMAC/UMAC/CM","Règlement n°09/2010/CM/UEMOA","Décision n°013/2016/CM/UMOA","Règlement n°06/2024/CM/UEMOA"],answer:0,
+       ref:"Règlement n°02/18/CEMAC/UMAC/CM"},
+      {q:"Quel est le système de règlement brut en temps réel (RTGS) de la CEMAC ?",
+       choices:["SYSTAC","SYGMA","GIMACPAY","STAR-UEMOA"],answer:1,
+       ref:"BEAC — Systèmes de paiement CEMAC"},
+      {q:"Pendant combien d'années les documents de vigilance LBC/FT doivent-ils être conservés (R-2023/01) ?",
+       choices:["3 ans","5 ans","7 ans","10 ans"],answer:3,
+       ref:"Règlement COBAC R-2023/01 — Art. 38"},
+      {q:"Où se situe le siège de la COBAC ?",
+       choices:["Yaoundé","Douala","Libreville","Brazzaville"],answer:2,
+       ref:"Convention COBAC 1990"},
+      {q:"Quel organe régule le marché financier de la CEMAC ?",
+       choices:["La COBAC","La BEAC","La COSUMAF","Le GABAC"],answer:2,
+       ref:"Règlement COSUMAF CEMAC"}
+    ]
+  }
+};
+
+/* ── ENRICHISSEMENT ZONE UEMOA (items additionnels fusionnés dans AE_DATA) ── */   // MODIFIÉ
+var AE_EXTRA_UEMOA = {
+  cas_pratique:[
+    {scenario:"Une banque de l'UMOA dégage un bénéfice net de 8 milliards FCFA. Son capital social est de 50 milliards FCFA et sa réserve spéciale s'élève déjà à 6 milliards FCFA.",
+     questions:["Quel prélèvement doit-elle opérer au titre de la réserve spéciale ?","Jusqu'à quel niveau cette dotation se poursuit-elle ?"],
+     correction:[
+       {a:"Un prélèvement obligatoire de 15 % du bénéfice net, soit 1,2 milliard FCFA.",ref:"Annexe Décision N°013/2016/CM/UMOA — §16 (prélèvement 15 %)"},
+       {a:"Jusqu'à ce que la réserve atteigne 20 % (1/5) du capital social — ici 10 Mds — et que les ratios cibles soient respectés.",ref:"Annexe Décision N°013/2016 — §16 (plafond 20 % du capital)"}
+     ]}
+  ],
+  vrai_faux:[
+    {affirmation:"Le ratio de levier minimum dans l'UMOA est de 3 % (Tier 1 rapporté à l'exposition totale non pondérée).",reponse:true,
+     justification:"Exact : le ratio de levier minimum est de 3 %.",ref:"Annexe Décision N°013/2016 — Titre VIII"},
+    {affirmation:"La périodicité minimale de publication des informations au titre du Pilier 3 est annuelle.",reponse:false,
+     justification:"Faux : la périodicité minimale est semestrielle.",ref:"Annexe Décision N°013/2016 — Titre XII"},
+    {affirmation:"Pour le calcul du risque opérationnel, les années où le Produit Net Bancaire est négatif ou nul sont exclues de la moyenne.",reponse:true,
+     justification:"Exact : seules les années à PNB positif entrent dans la moyenne sur 3 ans.",ref:"Annexe Décision N°013/2016 — Titre V"}
+  ],
+  texte_trous:[
+    {texte:"Le FODEP est transmis à la BCEAO de manière semestrielle, au plus tard le ___ avril et le ___ octobre.",
+     reponses:["30","31"],
+     ref:"Instruction N°005-08-2017 BCEAO — Art. 4"},
+    {texte:"Au titre de la division des risques, le seuil de déclaration d'un grand risque est de ___ % des FPE et la limite individuelle sur un même bénéficiaire de ___ %.",
+     reponses:["10","25"],
+     ref:"Annexe Décision N°013/2016 — Titre VII"}
+  ],
+  calcul_prudentiel:[
+    {enonce:"Le ratio de liquidité à court terme (LCR) de la banque est-il respecté ?",
+     donnees:{"Actifs liquides de haute qualité (HQLA)":"100 Mds FCFA","Sorties nettes 30 jours (stress)":"80 Mds FCFA","Minimum LCR":"100 %"},
+     etapes:["LCR = HQLA / sorties nettes 30j","= 100 / 80 = 125 %","Comparer à 100 %"],
+     resultat:"125 % ≥ 100 % → conforme.",conforme:true,
+     ref:"Instruction n°009-09-2017 BCEAO ; Annexe Décision N°013/2016 — Titre XIII"},
+    {enonce:"Le ratio de liquidité à long terme (NSFR) de la banque est-il respecté ?",
+     donnees:{"Financement stable disponible (ASF)":"600 Mds FCFA","Financement stable exigé (RSF)":"550 Mds FCFA","Minimum NSFR":"100 %"},
+     etapes:["NSFR = ASF / RSF","= 600 / 550 = 109 %","Comparer à 100 %"],
+     resultat:"109 % ≥ 100 % → conforme.",conforme:true,
+     ref:"Annexe Décision N°013/2016 — Titre XIII"}
+  ],
+  audit:[
+    {rapport:"Rapport — Banque V : le risque opérationnel a été calculé en incluant une année à PNB négatif ; le FODEP n'a été transmis qu'une seule fois dans l'année ; les états du Pilier 3 ne mentionnent pas les APR par catégorie.",
+     irregularites:[
+       {t:"Inclusion d'une année à PNB négatif dans le calcul du risque opérationnel : ces années doivent être exclues.",ref:"Annexe Décision N°013/2016 — Titre V"},
+       {t:"FODEP transmis une seule fois : deux transmissions par an sont requises (30 avril et 31 octobre).",ref:"Instruction N°005-08-2017 BCEAO — Art. 4"},
+       {t:"Absence des APR par catégorie dans le Pilier 3 : information obligatoire.",ref:"Annexe Décision N°013/2016 — Titre XII"}
+     ]}
+  ],
+  examen:[
+    {q:"Quelle est la périodicité de transmission du FODEP à la BCEAO ?",
+     choices:["Trimestrielle","Semestrielle (30 avril et 31 octobre)","Annuelle","Mensuelle"],answer:1,
+     ref:"Instruction N°005-08-2017 BCEAO — Art. 4"},
+    {q:"Quel est le ratio de levier minimum exigé dans l'UMOA ?",
+     choices:["2 %","3 %","5 %","8 %"],answer:1,
+     ref:"Annexe Décision N°013/2016 — Titre VIII"},
+    {q:"Quel coefficient est appliqué au PNB moyen pour le risque opérationnel ?",
+     choices:["8 %","12 %","15 %","20 %"],answer:2,
+     ref:"Annexe Décision N°013/2016 — Titre V"}
+  ]
+};
+(function aeMergeUEMOA(){   // MODIFIÉ : fusion additive des items UEMOA supplémentaires
+  try{
+    ['cas_pratique','vrai_faux','texte_trous','calcul_prudentiel','audit'].forEach(function(k){
+      if(AE_EXTRA_UEMOA[k] && AE_DATA[k]) AE_DATA[k] = AE_DATA[k].concat(AE_EXTRA_UEMOA[k]);
+    });
+    if(AE_EXTRA_UEMOA.examen && AE_DATA.examen && AE_DATA.examen.questions){
+      AE_DATA.examen.questions = AE_DATA.examen.questions.concat(AE_EXTRA_UEMOA.examen);
+    }
+  }catch(e){}
+})();
+
 /* ─── ENREGISTREMENT DU SCORE (réutilise la gamification localStorage existante : scAdd) ─── */
 function aeRecord(label, sc, total){   // MODIFIÉ
   var pct = total>0 ? Math.round(sc/total*100) : 0;
@@ -5102,31 +5340,26 @@ function rAE(){   // MODIFIÉ
     '<button class="btn'+(AEZONE==='cemac'?'':'-out')+' btn-sm" onclick="setAEZone(\'cemac\')">🌍 Zone CEMAC</button>'+
   '</div>';
   var headTxt = AEZONE==='cemac'
-    ? 'Zone CEMAC — examen blanc tiré des questions BEAC/COBAC vérifiées (changes, supervision, microfinance, LBC/FT, paiements). Les autres formats CEMAC arrivent bientôt.'
+    ? 'Zone CEMAC — 6 formats sourcés des textes BEAC/COBAC vérifiés (capital R-2025/02, prudentiel, changes 02/18, LBC/FT R-2023/01, paiements SYGMA/SYSTAC/GIMACPAY, microfinance EMF). Chaque correction cite le règlement exact.'
     : 'Zone UEMOA — chaque correction cite l\'article ou la source exacte (RFE UEMOA, Décisions 013 &amp; 014, Note BCEAO 013-04-2026, PCB Révisé).';
   var head='<div class="card" style="background:linear-gradient(to right,rgba(10,33,62,.7),rgba(30,58,138,.25));">'+
     '<h2 style="font-size:21px;color:white;margin-bottom:4px;">Auto-évaluation 📝</h2>'+
     '<p style="color:var(--sub);font-size:13px;">'+headTxt+'</p></div>';
   var grid;
   if(AEZONE==='cemac'){
-    var act='<div class="card ch" onclick="aeStartCemacExam()" style="display:flex;flex-direction:column;gap:6px;">'+
-      '<div style="font-size:28px;">🎓</div>'+
-      '<div style="font-weight:700;color:white;font-size:14px;">Examen blanc CEMAC</div>'+
-      '<div style="font-size:12px;color:var(--sub);line-height:1.5;">Questions tirées des textes BEAC/COBAC. Correction référencée à chaque réponse.</div>'+
-      '<div style="margin-top:auto;"><span class="badge">'+Math.min(20,QC.length)+' questions</span></div>'+
-    '</div>';
-    var soon=[['🧩','Cas pratiques CEMAC'],['⚖️','Vrai / Faux CEMAC'],['✏️','Texte à trous CEMAC'],['🧮','Calcul prudentiel COBAC'],['🔍','Audit &amp; conformité CEMAC']].map(function(s){
-      return '<div class="card" style="display:flex;flex-direction:column;gap:6px;opacity:.55;">'+
-        '<div style="font-size:28px;">'+s[0]+'</div>'+
-        '<div style="font-weight:700;color:white;font-size:14px;">'+s[1]+'</div>'+
-        '<div style="font-size:12px;color:var(--sub);line-height:1.5;">Format en préparation pour la zone CEMAC.</div>'+
-        '<div style="margin-top:auto;"><span style="display:inline-block;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:700;background:rgba(251,191,36,.14);color:#fbbf24;border:1px solid rgba(251,191,36,.4);">En bêta</span></div>'+
+    grid='<div class="g3">'+AE_FORMATS.map(function(f){     // MODIFIÉ : 6 formats CEMAC cliquables
+      var d=AE_DATA_CEMAC[f.id];
+      var n=(f.id==='examen')?(d?d.questions.length:0):(d?d.length:0);
+      return '<div class="card ch" onclick="aeOpen(\''+f.id+'\')" style="display:flex;flex-direction:column;gap:6px;">'+
+        '<div style="font-size:28px;">'+f.ic+'</div>'+
+        '<div style="font-weight:700;color:white;font-size:14px;">'+f.l+'</div>'+
+        '<div style="font-size:12px;color:var(--sub);line-height:1.5;">'+f.d+'</div>'+
+        '<div style="margin-top:auto;"><span class="badge">'+n+' '+(f.id==='examen'?'questions':'items')+'</span></div>'+
       '</div>';
-    }).join('');
-    grid='<div class="g3">'+act+soon+'</div>';
+    }).join('')+'</div>';
   } else {
     grid='<div class="g3">'+AE_FORMATS.map(function(f){
-      var n = (f.id==='examen') ? AE_DATA.examen.questions.length : AE_DATA[f.id].length;
+      var n = (f.id==='examen') ? aeData().examen.questions.length : aeData()[f.id].length;
       return '<div class="card ch" onclick="aeOpen(\''+f.id+'\')" style="display:flex;flex-direction:column;gap:6px;">'+
         '<div style="font-size:28px;">'+f.ic+'</div>'+
         '<div style="font-weight:700;color:white;font-size:14px;">'+f.l+'</div>'+
@@ -5165,7 +5398,7 @@ function rAEF(){   // MODIFIÉ
 
 /* 1) CAS PRATIQUES — étude + auto-évaluation référencée */
 function rAE_cas(){   // MODIFIÉ
-  var data = AE_DATA.cas_pratique;
+  var data = aeData().cas_pratique;
   var body = data.map(function(c,i){
     var corr = AES.ans['c'+i] ?
       '<div style="margin-top:10px;">'+c.correction.map(function(k){
@@ -5197,7 +5430,7 @@ function aeSelfGrade(label, sc, total){   // MODIFIÉ
 
 /* 2) VRAI / FAUX */
 function rAE_vf(){   // MODIFIÉ
-  var data = AE_DATA.vrai_faux;
+  var data = aeData().vrai_faux;
   var body = data.map(function(it,i){
     var sel = AES.ans['vf'+i];
     var fb='';
@@ -5226,7 +5459,7 @@ function aeCheckVF(){ AES.checked=true; render(); }                             
 
 /* 3) TEXTE À TROUS */
 function rAE_trous(){   // MODIFIÉ
-  var data = AE_DATA.texte_trous;
+  var data = aeData().texte_trous;
   var gi = 0;
   var body = data.map(function(it,i){
     var k=0;
@@ -5257,7 +5490,7 @@ function rAE_trous(){   // MODIFIÉ
 }
 function aeInput(id,val){ AES.ans[id]=val; }   // MODIFIÉ (pas de re-render pour garder le focus)
 function aeCountTrous(){   // MODIFIÉ
-  var data=AE_DATA.texte_trous, n=0;
+  var data=aeData().texte_trous, n=0;
   data.forEach(function(it,i){ it.reponses.forEach(function(r,k){ if(aeNorm(AES.ans['tt'+i+'_'+k])===aeNorm(r)) n++; }); });
   return n;
 }
@@ -5265,7 +5498,7 @@ function aeCheckTrous(){ AES.checked=true; render(); }   // MODIFIÉ
 
 /* 4) CALCUL PRUDENTIEL */
 function rAE_calc(){   // MODIFIÉ
-  var data = AE_DATA.calcul_prudentiel;
+  var data = aeData().calcul_prudentiel;
   var body = data.map(function(it,i){
     var sel = AES.ans['ca'+i];
     var dn = Object.keys(it.donnees).map(function(k){
@@ -5300,7 +5533,7 @@ function aeCheckCalc(){ AES.checked=true; render(); }   // MODIFIÉ
 
 /* 5) AUDIT & CONFORMITÉ — étude + auto-évaluation référencée */
 function rAE_audit(){   // MODIFIÉ
-  var data = AE_DATA.audit;
+  var data = aeData().audit;
   var body = data.map(function(it,i){
     var corr = AES.ans['au'+i]
       ? '<div style="margin-top:10px;">'+it.irregularites.map(function(k){
@@ -5323,7 +5556,7 @@ function rAE_audit(){   // MODIFIÉ
 
 /* 6) EXAMEN BLANC — QCM noté, seuil 60 % */
 function rAE_examen(){   // MODIFIÉ
-  var ex = AE_DATA.examen, data = ex.questions;
+  var ex = aeData().examen, data = ex.questions;
   var body = data.map(function(q,i){
     var sel = AES.ans['ex'+i];
     var opts = q.choices.map(function(ch,j){
