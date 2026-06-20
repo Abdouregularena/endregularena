@@ -2047,6 +2047,15 @@ app.get('/admin/users', requireAdmin, (req, res) => {
   }
 });
 
+// MODIFIÉ — AJOUT : paliers d'expertise serveur (identiques au frontend raTier)
+function raPalier(pts) {
+  pts = Number(pts) || 0;
+  if (pts >= 500) return { key: 'maitre',   label: 'Maître',   icon: '👑' };
+  if (pts >= 250) return { key: 'expert',   label: 'Expert',   icon: '⭐' };
+  if (pts >= 100) return { key: 'confirme', label: 'Confirmé', icon: '🔷' };
+  return { key: 'initie', label: 'Initié', icon: '🔰' };
+}
+
 // MODIFIÉ — AJOUT : tableau de bord enrichi (activation, engagement, croissance)
 app.get('/admin/insights', requireAdmin, (req, res) => {
   try {
@@ -2096,7 +2105,32 @@ app.get('/admin/insights', requireAdmin, (req, res) => {
     const tournoiPartic = one(`SELECT COUNT(*) n FROM tournament_participants`).n;
     const certifsTotal  = one(`SELECT COUNT(*) n FROM certificates`).n;
     const certifs7j     = one(`SELECT COUNT(*) n FROM certificates WHERE created_at >= datetime('now','-7 days')`).n;
+    const certifsDetenteurs = one(`SELECT COUNT(DISTINCT user_id) n FROM certificates`).n; // MODIFIÉ
     const messagesTotal = one(`SELECT COUNT(*) n FROM messages`).n;
+
+    // MODIFIÉ — AJOUT : top scoreurs (par points) + palier + nb de certificats détenus
+    const topScoreursRaw = many(`
+      SELECT u.id, u.name, u.country, u.profile,
+             COUNT(s.id) parties,
+             COALESCE(SUM(s.score),0) points,
+             (SELECT COUNT(*) FROM certificates c WHERE c.user_id = u.id) certificats
+      FROM users u LEFT JOIN user_scores s ON s.user_id = u.id
+      WHERE u.email_verified = 1
+      GROUP BY u.id HAVING points > 0
+      ORDER BY points DESC, parties DESC LIMIT 20`);
+    const topScoreurs = topScoreursRaw.map((r, i) => {
+      const p = raPalier(r.points);
+      return { rang: i + 1, name: r.name, country: r.country, profile: r.profile,
+               points: r.points, parties: r.parties, palier: p.label, palier_icon: p.icon,
+               palier_key: p.key, certificats: r.certificats, a_certificat: r.certificats > 0 };
+    });
+    const repartitionPaliers = { initie: 0, confirme: 0, expert: 0, maitre: 0 };
+    topScoreurs.forEach(t => { repartitionPaliers[t.palier_key]++; });
+
+    // MODIFIÉ — AJOUT : détail des certificats délivrés (qui a obtenu quoi)
+    const certifsDetail = many(`
+      SELECT c.cert_id, c.user_name, c.theme, c.zone, c.score, c.total, c.created_at
+      FROM certificates c ORDER BY c.created_at DESC LIMIT 50`);
 
     // — Inscrits jamais actifs (à relancer par email)
     const inactifs = many(`
@@ -2112,10 +2146,12 @@ app.get('/admin/insights', requireAdmin, (req, res) => {
       parties:      { total: partiesTotal, sur_7j: parties7j },
       inscriptions_par_jour: inscriptionsParJour,
       top_joueurs:  topJoueurs,
+      top_scoreurs: topScoreurs,                                  // MODIFIÉ
+      repartition_paliers: repartitionPaliers,                    // MODIFIÉ
       par_pack:     parPack,
       duels:        { total: duelsTotal, termines: duelsTermines, taux_completion_pct: duelsTotal ? Math.round(duelsTermines * 100 / duelsTotal) : 0 },
       tournois:     { total: tournoisTotal, participants: tournoiPartic },
-      certificats:  { total: certifsTotal, sur_7j: certifs7j },
+      certificats:  { total: certifsTotal, sur_7j: certifs7j, detenteurs: certifsDetenteurs, detail: certifsDetail }, // MODIFIÉ
       messages:     { total: messagesTotal },
       inactifs_a_relancer: inactifs,
       genere_le: new Date().toISOString(),
@@ -2124,6 +2160,143 @@ app.get('/admin/insights', requireAdmin, (req, res) => {
     console.error('[admin/insights]', e);
     res.status(500).json({ error: 'Erreur serveur' });
   }
+});
+
+// MODIFIÉ — AJOUT : classement complet exploitant la table certificates
+// Retourne pour chaque joueur : points, palier, parties, nb de certificats détenus
+app.get('/admin/top-scorers', requireAdmin, (req, res) => {
+  try {
+    const rows = db.prepare(`
+      SELECT u.id, u.name, u.email, u.country, u.profile, u.etablissement,
+             COUNT(s.id) AS parties,
+             COALESCE(SUM(s.score),0) AS points,
+             (SELECT COUNT(*) FROM certificates c WHERE c.user_id = u.id) AS certificats
+      FROM users u
+      LEFT JOIN user_scores s ON s.user_id = u.id
+      WHERE u.email_verified = 1
+      GROUP BY u.id
+      HAVING points > 0
+      ORDER BY points DESC, parties DESC
+      LIMIT 100
+    `).all();
+    const top = rows.map((r, i) => {
+      const p = raPalier(r.points);
+      return {
+        rang: i + 1, id: r.id, name: r.name, email: r.email, country: r.country,
+        profile: r.profile, etablissement: r.etablissement, parties: r.parties,
+        points: r.points, palier: p.label, palier_icon: p.icon, palier_key: p.key,
+        certificats: r.certificats, a_certificat: r.certificats > 0
+      };
+    });
+    const repartition = { initie: 0, confirme: 0, expert: 0, maitre: 0 };
+    top.forEach(t => { repartition[t.palier_key]++; });
+    const avecCertif = top.filter(t => t.a_certificat).length;
+    res.json({ total: top.length, avec_certificat: avecCertif, repartition, top_scoreurs: top, genere_le: new Date().toISOString() });
+  } catch (e) {
+    console.error('[admin/top-scorers]', e);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+// MODIFIÉ — AJOUT : page HTML admin lisible sur mobile (coquille publique, données via token).
+// Coller le JWT admin une fois ; il est conservé en local et envoyé en en-tête Authorization.
+app.get('/admin/board', (req, res) => {
+  res.set('Content-Type', 'text/html; charset=utf-8');
+  res.send(`<!doctype html><html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>REGUL ARENA — Admin</title>
+<style>
+:root{--navy:#002B5C;--gold:#C9991A;--cream:#F5F3EE}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--cream);color:var(--navy)}
+header{background:linear-gradient(135deg,var(--navy),#001a3a);color:#fff;padding:18px 16px;position:sticky;top:0;z-index:5}
+header b{color:var(--gold);letter-spacing:3px;font-size:13px}header h1{margin:4px 0 0;font-size:18px}
+.wrap{padding:16px;max-width:760px;margin:0 auto}
+.tokbox{display:flex;gap:8px;margin:14px 0}
+.tokbox input{flex:1;padding:11px;border:1px solid #ccc;border-radius:8px;font-size:14px}
+.tokbox button,.reload{background:var(--gold);color:#03050A;border:0;border-radius:8px;padding:11px 16px;font-weight:800;cursor:pointer}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:14px 0}
+.kpi{background:#fff;border:1px solid rgba(201,153,26,.3);border-radius:12px;padding:14px}
+.kpi .v{font-size:24px;font-weight:900;color:var(--navy)}.kpi .l{font-size:12px;color:#667}
+h2{font-size:15px;border-left:4px solid var(--gold);padding-left:8px;margin:22px 0 10px}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;font-size:13px}
+th,td{padding:9px 8px;text-align:left;border-bottom:1px solid #eee}th{background:#f3ede0;font-size:11px;text-transform:uppercase;color:#776}
+.pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;background:#eef;color:var(--navy);white-space:nowrap}
+.cert{color:#1a7f37;font-weight:800}.nocert{color:#bbb}
+.rep{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}.rep span{background:#fff;border:1px solid #e3d9c2;border-radius:20px;padding:5px 12px;font-size:13px;font-weight:700}
+.muted{color:#778;font-size:12px}.err{color:#b91c1c;font-weight:700}
+</style></head><body>
+<header><b>REGUL ARENA</b><h1>Tableau de bord — Admin</h1></header>
+<div class="wrap">
+  <div class="tokbox">
+    <input id="tok" type="password" placeholder="Coller le JWT admin…" autocomplete="off">
+    <button id="go">Entrer</button>
+  </div>
+  <div id="msg" class="muted">Collez votre token admin pour charger les données.</div>
+  <div id="content" style="display:none">
+    <div class="kpis" id="kpis"></div>
+    <h2>Répartition par palier</h2>
+    <div class="rep" id="rep"></div>
+    <h2>🏆 Top scoreurs · palier · certificat</h2>
+    <table id="topt"><thead><tr><th>#</th><th>Joueur</th><th>Points</th><th>Palier</th><th>Cert.</th></tr></thead><tbody></tbody></table>
+    <h2>📜 Certificats délivrés</h2>
+    <table id="ct"><thead><tr><th>Bénéficiaire</th><th>Thème</th><th>Zone</th><th>Date</th></tr></thead><tbody></tbody></table>
+    <p class="muted" style="margin-top:18px"><button class="reload" id="reload">↻ Rafraîchir</button></p>
+  </div>
+</div>
+<script>
+var KEY='ra_admin_token';
+function tok(){return localStorage.getItem(KEY)||'';}
+function H(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function pillP(p,icon){return '<span class="pill">'+icon+' '+H(p)+'</span>';}
+async function api(path){
+  var r=await fetch(path,{headers:{Authorization:'Bearer '+tok()}});
+  if(!r.ok){throw new Error(r.status===401||r.status===403?'Token invalide ou non admin.':'Erreur '+r.status);}
+  return r.json();
+}
+async function load(){
+  var msg=document.getElementById('msg');
+  if(!tok()){msg.textContent='Collez votre token admin pour charger les données.';return;}
+  msg.textContent='Chargement…';msg.className='muted';
+  try{
+    var ins=await api('/admin/insights');
+    var ts=await api('/admin/top-scorers');
+    document.getElementById('content').style.display='block';
+    document.getElementById('msg').style.display='none';
+    var k=[
+      ['Inscrits',ins.utilisateurs.total],['Vérifiés',ins.utilisateurs.verifies],
+      ['Joueurs actifs',ins.activation.joueurs_actifs],['Taux activation',ins.activation.taux_pct+'%'],
+      ['Parties jouées',ins.parties.total],['Certificats',ins.certificats.total],
+      ['Détenteurs cert.',ins.certificats.detenteurs],['Scoreurs (7j)',ins.activation.actifs_7j]
+    ];
+    document.getElementById('kpis').innerHTML=k.map(function(x){return '<div class="kpi"><div class="v">'+x[1]+'</div><div class="l">'+x[0]+'</div></div>';}).join('');
+    var rp=ts.repartition;
+    document.getElementById('rep').innerHTML=
+      '<span>🔰 Initié : '+rp.initie+'</span><span>🔷 Confirmé : '+rp.confirme+'</span>'+
+      '<span>⭐ Expert : '+rp.expert+'</span><span>👑 Maître : '+rp.maitre+'</span>';
+    document.querySelector('#topt tbody').innerHTML=ts.top_scoreurs.map(function(t){
+      return '<tr><td>'+t.rang+'</td><td>'+H(t.name)+' <span class="muted">'+H(t.country||'')+'</span></td>'+
+        '<td><b>'+t.points+'</b></td><td>'+pillP(t.palier,t.palier_icon)+'</td>'+
+        '<td>'+(t.a_certificat?'<span class="cert">✓ '+t.certificats+'</span>':'<span class="nocert">—</span>')+'</td></tr>';
+    }).join('')||'<tr><td colspan="5" class="muted">Aucun scoreur pour l\\'instant.</td></tr>';
+    var cd=ins.certificats.detail||[];
+    document.querySelector('#ct tbody').innerHTML=cd.map(function(c){
+      return '<tr><td>'+H(c.user_name)+'</td><td>'+H(c.theme)+'</td><td>'+H(c.zone||'')+'</td><td>'+H((c.created_at||'').slice(0,10))+'</td></tr>';
+    }).join('')||'<tr><td colspan="4" class="muted">Aucun certificat délivré.</td></tr>';
+  }catch(e){
+    document.getElementById('msg').style.display='block';
+    document.getElementById('msg').className='err';
+    document.getElementById('msg').textContent=e.message;
+    document.getElementById('content').style.display='none';
+  }
+}
+document.getElementById('go').onclick=function(){
+  var v=document.getElementById('tok').value.trim();
+  if(v){localStorage.setItem(KEY,v);document.getElementById('tok').value='';}
+  load();
+};
+document.getElementById('reload').onclick=load;
+if(tok())load();
+</script>
+</body></html>`);
 });
 
 // MODIFIÉ — Module "L'Arène des Débats" : on passe requireAuth (et NON authMiddleware)
