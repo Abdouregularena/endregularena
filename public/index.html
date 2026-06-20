@@ -6112,7 +6112,7 @@ function rMETIERS(){ // MODIFIÉ : rendu inline du module Métiers
   '</div>'+
   '<div class="metier-tab-content" id="tf-tab-textes">'+
   '<div class="metier-block"><div class="metier-block-title">Textes fondamentaux UEMOA</div>'+
-  '<div class="metier-texte-item" onclick="lancerQuizTexte(\'RFE\')"><div><div class="metier-texte-ref">Règlement n° 09/2010/CM/UEMOA · modifié 2024</div><div class="metier-texte-name">Règlement des Relations Financières Extérieures (RFE)</div><div class="metier-texte-scope">Domiciliation · Seuils · Rapatriement · Déclarations</div></div><button class="metier-texte-btn">Quiz ciblé</button></div>'+
+  '<div class="metier-texte-item" onclick="lancerQuizTexte(\'RFE\')"><div><div class="metier-texte-ref">Règlement n° 06/2024/CM/UEMOA · en vigueur 2026 (abroge le Règl. 09/2010)</div><div class="metier-texte-name">Règlement des Relations Financières Extérieures (RFE)</div><div class="metier-texte-scope">Domiciliation · Seuils · Rapatriement · Déclarations</div></div><button class="metier-texte-btn">Quiz ciblé</button></div>'+
   '<div class="metier-texte-item" onclick="lancerQuizTexte(\'LBC\')"><div><div class="metier-texte-ref">Directive n° 02/2015/CM/UEMOA</div><div class="metier-texte-name">Lutte contre le Blanchiment et Financement du Terrorisme</div><div class="metier-texte-scope">KYC · Vigilance · Déclaration de soupçon · Trade-based ML</div></div><button class="metier-texte-btn">Quiz ciblé</button></div>'+
   '<div class="metier-texte-item"><div><div class="metier-texte-ref">Instruction BCEAO n° 026-11-2016</div><div class="metier-texte-name">Domiciliation des opérations d\'importation et d\'exportation</div><div class="metier-texte-scope">Procédures · Documents · Suivi dossier domicilié</div></div><button class="metier-texte-btn">Bientôt</button></div>'+
   '<div class="metier-block-title" style="margin-top:20px;">Règles et pratiques internationales (ICC)</div>'+
@@ -7189,5 +7189,156 @@ window.raOpenNotif=function(){
   }catch(e){ try{ ST('arena'); }catch(_){} }
 };
 </script>
+<script id="ra-src-metiers-js">/* MODIFIÉ : réorganisation des questions UEMOA (QN_U) par métier + moteur QCM « Réglementation sourcée ». Bloc 100% additif, isolé du moteur Vrai/Faux existant. */
+(function(){
+  try{
+    /* ── 1. Classement des questions UEMOA par métier ── */
+    var MAP={
+      "RFE/UEMOA":"trade-finance","RFE/UEMOA — Complément":"trade-finance",
+      "LBC/FT":"compliance","LBC/FT & Conformité":"compliance","Conformité":"compliance",
+      "Commission Bancaire":"compliance","Cas pratique — Commission Bancaire":"compliance",
+      "Sanctions bancaires":"compliance","Cas pratique — Sanctions bancaires":"compliance",
+      "Hiérarchie des normes":"compliance",
+      "Contrôle interne BCEAO":"risques","Gestion des risques":"risques",
+      "Gouvernance des risques":"risques","Pilotage des risques (KRI)":"risques",
+      "Dispositif prudentiel":"alm","Cas pratique — Prudentiel":"alm","Rentabilité vs Liquidité":"alm",
+      "Capital social minimum":"corporate","Cas pratique — Capital social minimum":"corporate",
+      "Loi bancaire UMOA 2023":"corporate","Cas pratique — Loi bancaire 2023":"corporate",
+      "Statuts BCEAO":"corporate","Cas pratique — Statuts BCEAO":"corporate",
+      "AMF-UMOA/BRVM":"corporate","Finance islamique":"corporate","Stratégie Afrique de l'Ouest":"corporate",
+      "SFD/PARMEC":"detail"
+    };
+    function kw(q){
+      var t=((q.cat||"")+" "+(q.q||"")+" "+(q.source||q.ref||"")).toLowerCase();
+      if(/craef|états financiers|etats financiers|reporting|transmi|arrêté|arrete|swift|nostro|vostro|rapprochement/.test(t)) return "back-office";
+      if(/lbc|centif|blanchiment|vigilance|soupçon|soupcon|espèces|especes|métaux|metaux|gel des avoirs|sanction/.test(t)) return "compliance";
+      if(/rfe|relations financi|change|transfert|résident|resident|finances ext|rapatriement|devise|domiciliation|importation|exportation/.test(t)) return "trade-finance";
+      if(/prudentiel|ratio|fonds propres|bâle|bale|liquidit|lcr|nsfr|solvabilit/.test(t)) return "alm";
+      if(/sfd|microfinance|décentralis|decentralis|parmec|mobile money|monnaie élect|monnaie elect|\beme\b/.test(t)) return "detail";
+      return "corporate";
+    }
+    window.RA_metierOf=function(q){ return MAP[q.cat]||kw(q); };
+    window.RA_MET_LABEL={"trade-finance":"🚢 Trade Finance","compliance":"🛡️ Compliance","risques":"📊 Risques","corporate":"💼 Corporate Banking","back-office":"⚙️ Back Office","alm":"🏛️ ALM / Trésorerie","detail":"💰 Banque de Détail"};
+    window.RA_QSRC={};
+    (window.QN_U||[]).forEach(function(q){
+      if(!q||!Array.isArray(q.choices)||typeof q.answer!=="number") return;
+      var m=RA_metierOf(q); (RA_QSRC[m]=RA_QSRC[m]||[]).push(q);
+    });
+
+    /* ── 2. Injection du bouton « Réglementation sourcée » dans chaque métier ── */
+    window.raInjectSrc=function(id){
+      var box=document.querySelector('#metier-'+id+' [id$="quiz-accueil"] .metier-actions');
+      if(!box||box.querySelector('.ra-src-btn')) return;
+      var n=(window.RA_QSRC&&RA_QSRC[id])?RA_QSRC[id].length:0;
+      if(!n) return;
+      var b=document.createElement('button');
+      b.className='metier-action-btn ra-src-btn';
+      b.setAttribute('onclick',"lancerQuizSrc('"+id+"')");
+      b.innerHTML='<span class="action-icon">📚</span><span class="action-label">RÉGLEMENTATION SOURCÉE</span><span class="action-sub">QCM réels · '+n+' questions BCEAO</span>';
+      box.appendChild(b);
+    };
+    if(typeof window.ouvrirMetier==='function'){
+      var _o=window.ouvrirMetier;
+      window.ouvrirMetier=function(id){ _o(id); try{ raInjectSrc(id); }catch(e){} };
+    }
+
+    /* ── 3. Moteur QCM « Réglementation sourcée » (overlay isolé) ── */
+    var ST=null;
+    function ensure(){
+      if(document.getElementById('ra-src-overlay')) return;
+      var o=document.createElement('div');
+      o.id='ra-src-overlay';
+      o.style.cssText='display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,15,35,.78);backdrop-filter:blur(3px);align-items:flex-start;justify-content:center;overflow-y:auto;padding:0;font-family:\'IBM Plex Sans\',sans-serif;';
+      o.innerHTML='<div style="width:100%;max-width:600px;min-height:100vh;background:#F5F3EE;display:flex;flex-direction:column;">'
+        +'<div style="background:linear-gradient(135deg,#002B5C,#001a3a);color:#fff;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:2;">'
+          +'<div><div id="ra-src-title" style="font-family:\'Playfair Display\',serif;font-size:17px;"></div><div style="font-size:11px;color:#C9991A;letter-spacing:1px;margin-top:2px;">RÉGLEMENTATION SOURCÉE · QCM</div></div>'
+          +'<button onclick="raSrcFermer()" style="background:rgba(255,255,255,.12);border:none;color:#fff;width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer;">✕</button>'
+        +'</div>'
+        +'<div style="padding:14px 18px 0;"><div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;color:#002B5C;font-weight:600;margin-bottom:8px;"><span id="ra-src-counter"></span><span id="ra-src-score"></span></div><div style="height:6px;background:#e3ddd0;border-radius:4px;overflow:hidden;"><div id="ra-src-bar" style="height:100%;width:0;background:#C9991A;transition:width .3s;"></div></div></div>'
+        +'<div id="ra-src-body" style="padding:18px;flex:1;"></div>'
+      +'</div>';
+      document.body.appendChild(o);
+    }
+    function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    window.lancerQuizSrc=function(metierId){
+      var pool=(window.RA_QSRC&&RA_QSRC[metierId])?RA_QSRC[metierId].slice():[];
+      if(!pool.length){ alert('Aucune question sourcée disponible pour ce métier pour le moment.'); return; }
+      for(var i=pool.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=pool[i]; pool[i]=pool[j]; pool[j]=t; }
+      var n=Math.min(10,pool.length);
+      ST={qs:pool.slice(0,n),idx:0,score:0,answered:false,metier:metierId};
+      ensure();
+      document.getElementById('ra-src-overlay').style.display='flex';
+      document.getElementById('ra-src-title').textContent=(RA_MET_LABEL[metierId]||'Métier');
+      render();
+    };
+    function render(){
+      var q=ST.qs[ST.idx], tot=ST.qs.length;
+      document.getElementById('ra-src-counter').textContent='Question '+(ST.idx+1)+' / '+tot;
+      document.getElementById('ra-src-score').textContent='✅ '+ST.score;
+      document.getElementById('ra-src-bar').style.width=(ST.idx/tot*100)+'%';
+      ST.answered=false;
+      var h='<div style="background:#fff;border-radius:14px;padding:18px;box-shadow:0 4px 18px rgba(0,43,92,.08);">';
+      h+='<div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#C9991A;font-weight:700;margin-bottom:10px;">'+esc(q.cat||'')+'</div>';
+      h+='<div style="font-size:15px;line-height:1.5;color:#002B5C;font-weight:600;margin-bottom:16px;">'+esc(q.q)+'</div>';
+      h+='<div id="ra-src-choices" style="display:flex;flex-direction:column;gap:9px;">';
+      q.choices.forEach(function(c,i){
+        h+='<button class="ra-src-choice" data-i="'+i+'" onclick="raSrcRepondre('+i+')" style="text-align:left;padding:13px 15px;border:1.5px solid #d8d2c4;background:#fbfaf7;border-radius:10px;font-size:14px;color:#2a2a2a;cursor:pointer;line-height:1.4;transition:all .15s;">'+esc(c)+'</button>';
+      });
+      h+='</div>';
+      h+='<div id="ra-src-fb" style="display:none;margin-top:14px;padding:13px 15px;border-radius:10px;font-size:13px;line-height:1.5;"></div>';
+      h+='<button id="ra-src-next" onclick="raSrcSuivante()" style="display:none;margin-top:14px;width:100%;padding:14px;background:#002B5C;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;"></button>';
+      h+='</div>';
+      document.getElementById('ra-src-body').innerHTML=h;
+    }
+    window.raSrcRepondre=function(i){
+      if(ST.answered) return; ST.answered=true;
+      var q=ST.qs[ST.idx], correct=(i===q.answer);
+      if(correct) ST.score++;
+      document.getElementById('ra-src-score').textContent='✅ '+ST.score;
+      var btns=document.querySelectorAll('.ra-src-choice');
+      btns.forEach(function(b){
+        var bi=+b.getAttribute('data-i'); b.style.cursor='default'; b.disabled=true;
+        if(bi===q.answer){ b.style.background='#e7f6ec'; b.style.borderColor='#1f9d55'; b.style.color='#13632f'; b.style.fontWeight='600'; }
+        else if(bi===i){ b.style.background='#fdeaea'; b.style.borderColor='#d64545'; b.style.color='#8c2020'; }
+        else { b.style.opacity='.55'; }
+      });
+      var fb=document.getElementById('ra-src-fb');
+      fb.style.display='block';
+      fb.style.background=correct?'#e7f6ec':'#fdeaea';
+      fb.style.color=correct?'#13632f':'#8c2020';
+      fb.innerHTML=(correct?'✅ <strong>Correct.</strong>':'❌ <strong>Réponse exacte : </strong>'+esc(q.choices[q.answer])+'.')
+        +'<div style="margin-top:6px;color:#5a544a;font-size:12px;">📖 Source : '+esc(q.source||q.ref||'—')+'</div>';
+      var nb=document.getElementById('ra-src-next');
+      nb.style.display='block';
+      nb.textContent=(ST.idx===ST.qs.length-1)?'Voir mon résultat →':'Question suivante →';
+    };
+    window.raSrcSuivante=function(){
+      ST.idx++;
+      if(ST.idx>=ST.qs.length) resultat(); else render();
+    };
+    function resultat(){
+      var tot=ST.qs.length, pct=Math.round(ST.score/tot*100);
+      var medal=pct>=90?'🥇':pct>=70?'🥈':pct>=50?'🥉':'📘';
+      var lbl=pct>=90?'Excellent — niveau expert':pct>=70?'Très bon niveau':pct>=50?'Bon, à consolider':'À revoir — relisez les textes';
+      document.getElementById('ra-src-bar').style.width='100%';
+      document.getElementById('ra-src-counter').textContent='Terminé';
+      var h='<div style="background:#fff;border-radius:14px;padding:30px 20px;text-align:center;box-shadow:0 4px 18px rgba(0,43,92,.08);">';
+      h+='<div style="font-size:54px;line-height:1;margin-bottom:10px;">'+medal+'</div>';
+      h+='<div style="font-family:\'Playfair Display\',serif;font-size:34px;color:#002B5C;">'+ST.score+' <span style="color:#9a9486;font-size:22px;">/ '+tot+'</span></div>';
+      h+='<div style="font-size:13px;color:#5a544a;margin:8px 0 22px;">'+lbl+' · '+pct+'%</div>';
+      h+='<div style="display:flex;gap:10px;">';
+      h+='<button onclick="lancerQuizSrc(\''+ST.metier+'\')" style="flex:1;padding:13px;background:#C9991A;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;">🔄 Rejouer</button>';
+      h+='<button onclick="raSrcFermer()" style="flex:1;padding:13px;background:#002B5C;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;">← Retour métier</button>';
+      h+='</div></div>';
+      document.getElementById('ra-src-body').innerHTML=h;
+    }
+    window.raSrcFermer=function(){
+      var o=document.getElementById('ra-src-overlay'); if(o) o.style.display='none';
+    };
+  }catch(e){ try{console.warn('RA src module:',e);}catch(_){ } }
+})();
+</script>
+
 </body>
 </html>
