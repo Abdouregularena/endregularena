@@ -244,6 +244,7 @@ function expiresAt(hours = TOKEN_TTL_H) {
 function signJWT(user) {
   return jwt.sign(
     { id: user.id, email: user.email, name: user.name, profile: user.profile,
+      country: user.country, // MODIFIÉ — country embarqué dans le JWT (session restaurée garde le pays)
       role: user.role || 'user', is_verified: user.email_verified === 1 },
     JWT_SECRET,
     { expiresIn: '7d' }
