@@ -676,7 +676,7 @@ h2,h3{animation:raReveal .45s ease both;}
   <div style="max-width:1100px;margin:0 auto;padding:0 18px 30px;"><div class="g4" id="h-stats"></div></div>
   <div style="max-width:1100px;margin:0 auto;padding:0 18px 36px;">
     <div class="g4">
-      <div class="card"><div style="font-size:28px;margin-bottom:10px;">📚</div><div style="font-weight:700;color:white;margin-bottom:4px;font-size:14px;">Quiz &amp; Examens</div><div id="h-qc" style="font-size:12px;color:var(--sub);margin-bottom:8px;"></div><span class="badge">UEMOA disponible</span> <span class="badge">CEMAC disponible</span></div>
+      <div class="card"><div style="font-size:28px;margin-bottom:10px;">📚</div><div style="font-weight:700;color:white;margin-bottom:4px;font-size:14px;">Quiz &amp; Examens</div><div id="h-qc" style="font-size:12px;color:var(--sub);margin-bottom:8px;"></div><span class="badge" id="h-badge-u">UEMOA disponible</span> <span class="badge" id="h-badge-c">CEMAC disponible</span></div>
       <div class="card"><div style="font-size:28px;margin-bottom:10px;">⚔️</div><div style="font-weight:700;color:white;margin-bottom:4px;font-size:14px;">Duels &amp; Tournois en direct</div><div style="font-size:12px;color:var(--sub);margin-bottom:8px;">Affrontez d'autres pros en temps réel, avec chat entre joueurs</div><span class="badge">En ligne</span></div>
       <div class="card"><div style="font-size:28px;margin-bottom:10px;">💬</div><div style="font-weight:700;color:white;margin-bottom:4px;font-size:14px;">Communauté</div><div style="font-size:12px;color:var(--sub);margin-bottom:8px;">Salons de discussion par zone : UEMOA, CEMAC, général</div><span class="badge">En ligne</span></div>
       <div class="card"><div style="font-size:28px;margin-bottom:10px;">📡</div><div style="font-weight:700;color:white;margin-bottom:4px;font-size:14px;">Spectateur &amp; Live</div><div style="font-size:12px;color:var(--sub);margin-bottom:8px;">Suivez les duels et tournois en direct, sur la plateforme</div><span style="display:inline-block;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:700;background:rgba(251,191,36,.14);color:#fbbf24;border:1px solid rgba(251,191,36,.4);">En bêta</span></div>
@@ -6149,13 +6149,37 @@ window.addEventListener('load', function(){
   var hs = ge('h-sub');
   var hq = ge('h-qc');
   var hst = ge('h-stats');
+  // MODIFIÉ : répartition réelle par zone (cohérente avec l'écran Quiz : QR+QB+QN_U / QC+QN_C)
+  var _qnu = (window.QN_U||[]), _qnc = (window.QN_C||[]); // MODIFIÉ
+  var uTot = (typeof QR!=='undefined'?QR.length:0) + (typeof QB!=='undefined'?QB.length:0) + _qnu.length; // MODIFIÉ : total zone UEMOA
+  var cTot = (typeof QC!=='undefined'?QC.length:0) + _qnc.length; // MODIFIÉ : total zone CEMAC
   if(hs) hs.textContent = "La gamification de la réglementation bancaire — plateforme indépendante pour les professionnels de la finance, zones UEMOA (BCEAO) & CEMAC (BEAC). Quiz, duels et tournois en direct avec chat. "+tot+" questions & défis, "+nThemes+" thèmes et "+nMetiers+" métiers couverts.";
-  if(hq) hq.textContent = tot+" questions · "+nThemes+" thèmes · "+nMetiers+" métiers — UEMOA (BCEAO) & CEMAC (BEAC)";
+  if(hq) hq.textContent = tot+" questions · "+nThemes+" thèmes · 14 pays · 2 zones — UEMOA "+uTot+" · CEMAC "+cTot; // MODIFIÉ : détail thèmes/pays/zone
+  // MODIFIÉ : badges de la carte « Quiz & Examens » affichent le nombre réel par zone
+  var _bu = ge('h-badge-u'); if(_bu) _bu.textContent = "🌍 UEMOA · "+uTot+" Q"; // MODIFIÉ
+  var _bc = ge('h-badge-c'); if(_bc) _bc.textContent = "🌍 CEMAC · "+cTot+" Q"; // MODIFIÉ
   if(hst){ hst.innerHTML = [[tot,'Questions & défis'],[nThemes,'Thèmes'],[nMetiers,'Métiers'],['14','Pays']].map(function(s){
     return '<div class="card" style="text-align:center;padding:16px;">'+
     '<div class="ra-count" style="font-size:24px;font-weight:900;color:var(--cyan);">'+s[0]+'</div>'+
     '<div style="font-size:11px;color:var(--sub);margin-top:3px;">'+s[1]+'</div></div>';
-  }).join(''); raAnimateCounts(hst); }
+  }).join(''); raAnimateCounts(hst);
+    // MODIFIÉ : barre de répartition par zone, insérée juste après la grille de stats (additive, idempotente)
+    try{
+      var _host = hst.parentNode;
+      if(_host && !ge('h-zonebar')){
+        var _zb = document.createElement('div'); _zb.id='h-zonebar'; _zb.className='h-zonebar fi'; _zb.style.marginTop='12px';
+        var _ztot = (uTot+cTot)||1;
+        _zb.innerHTML =
+          '<div class="h-zone-row">'+
+            '<div class="h-zone-card uemoa"><span class="h-zone-flag">🌍</span><span class="h-zone-name">UEMOA · BCEAO</span><span class="h-zone-n">'+uTot+'</span><span class="h-zone-q">questions</span></div>'+
+            '<div class="h-zone-card cemac"><span class="h-zone-flag">🌍</span><span class="h-zone-name">CEMAC · BEAC/COBAC</span><span class="h-zone-n">'+cTot+'</span><span class="h-zone-q">questions</span></div>'+
+          '</div>'+
+          '<div class="h-zone-bar"><span class="h-zone-fill-u" style="width:'+Math.round(uTot/_ztot*100)+'%"></span><span class="h-zone-fill-c" style="width:'+Math.round(cTot/_ztot*100)+'%"></span></div>'+
+          '<div class="h-zone-leg"><span><i class="dot-u"></i>UEMOA</span><span><i class="dot-c"></i>CEMAC</span></div>';
+        _host.appendChild(_zb);
+      }
+    }catch(_e){}
+  }
 
   buildNav();
 
@@ -7953,6 +7977,72 @@ window.raOpenNotif=function(){
 })();
 </script>
 <!-- ════════ FIN FLASH INFO ════════ -->
+<style id="ra-visual-polish-2026">/* ====== MODIFIÉ : couche visuelle commune à TOUS les écrans (additive, non destructive) ====== */
+/* — Cartes : profondeur douce + liseré supérieur + survol non intrusif (pas de transform pour ne pas casser les reveals) — */
+.card{
+  position:relative;
+  box-shadow:0 1px 0 rgba(255,255,255,.04) inset, 0 10px 26px -18px rgba(0,0,0,.7);
+  transition:border-color .2s ease, box-shadow .25s ease, background .25s ease;
+}
+.card::before{
+  content:"";position:absolute;left:14px;right:14px;top:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(245,196,83,.45),rgba(0,180,216,.35),transparent);
+  opacity:.5;pointer-events:none;border-radius:1px;
+}
+.card:hover{ border-color:rgba(245,196,83,.32); box-shadow:0 1px 0 rgba(255,255,255,.06) inset, 0 16px 34px -18px rgba(0,0,0,.78); }
+
+/* — Boutons : relief + appui + anneau de focus accessible — */
+.btn{ box-shadow:0 6px 18px -8px rgba(245,196,83,.55), 0 1px 0 rgba(255,255,255,.25) inset; }
+.btn-red{ box-shadow:0 6px 18px -8px rgba(239,68,68,.55), 0 1px 0 rgba(255,255,255,.18) inset; }
+.btn:active,.btn-out:active,.btn-red:active{ transform:translateY(1px); }
+.btn:focus-visible,.btn-out:focus-visible,.btn-red:focus-visible,.tab:focus-visible,.vtab:focus-visible{
+  outline:2px solid var(--cyan); outline-offset:2px;
+}
+
+/* — Champs : halo de focus or — */
+.inp:focus{ border-color:var(--cyan)!important; box-shadow:0 0 0 3px rgba(245,196,83,.18); }
+
+/* — Badges & onglets : légère respiration au survol (couleurs inchangées) — */
+.badge{ transition:transform .15s ease, box-shadow .15s ease; }
+.badge:hover{ transform:translateY(-1px); }
+.tab,.vtab{ transition:border-color .15s ease, background .15s ease, color .15s ease; }
+
+/* — Barre de défilement discrète et raccord charte — */
+*{ scrollbar-width:thin; scrollbar-color:rgba(245,196,83,.45) transparent; }
+::-webkit-scrollbar{ width:9px; height:9px; }
+::-webkit-scrollbar-thumb{ background:linear-gradient(180deg,rgba(245,196,83,.55),rgba(0,180,216,.45)); border-radius:999px; }
+::-webkit-scrollbar-track{ background:transparent; }
+
+/* ====== MODIFIÉ : barre de répartition par zone (accueil) ====== */
+#h-zonebar .h-zone-row{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+#h-zonebar .h-zone-card{
+  display:flex; flex-direction:column; align-items:center; gap:1px;
+  padding:12px 10px; border-radius:12px; border:1px solid var(--border);
+  background:linear-gradient(180deg,rgba(17,34,64,.78),rgba(10,25,47,.6));
+  box-shadow:0 10px 26px -20px rgba(0,0,0,.7);
+}
+#h-zonebar .h-zone-card.uemoa{ border-color:rgba(245,196,83,.4); }
+#h-zonebar .h-zone-card.cemac{ border-color:rgba(0,180,216,.4); }
+#h-zonebar .h-zone-flag{ font-size:18px; }
+#h-zonebar .h-zone-name{ font-size:11px; font-weight:700; color:#cdd8ef; letter-spacing:.2px; }
+#h-zonebar .h-zone-card.uemoa .h-zone-n{ color:var(--cyan); }
+#h-zonebar .h-zone-card.cemac .h-zone-n{ color:var(--green); }
+#h-zonebar .h-zone-n{ font-family:"Syne",sans-serif; font-size:26px; font-weight:900; line-height:1.05; }
+#h-zonebar .h-zone-q{ font-size:10px; color:var(--sub); text-transform:uppercase; letter-spacing:.6px; }
+#h-zonebar .h-zone-bar{ display:flex; height:9px; border-radius:999px; overflow:hidden; margin:10px 0 6px; background:rgba(10,33,62,.9); border:1px solid var(--border); }
+#h-zonebar .h-zone-fill-u{ background:linear-gradient(90deg,#E8B520,#C9991A); }
+#h-zonebar .h-zone-fill-c{ background:linear-gradient(90deg,#00B4D8,#0090b3); }
+#h-zonebar .h-zone-fill-u,#h-zonebar .h-zone-fill-c{ height:100%; transition:width .8s cubic-bezier(.22,1,.36,1); }
+#h-zonebar .h-zone-leg{ display:flex; justify-content:center; gap:18px; font-size:11px; color:var(--sub); font-weight:600; }
+#h-zonebar .h-zone-leg i{ display:inline-block; width:9px; height:9px; border-radius:3px; margin-right:5px; vertical-align:middle; }
+#h-zonebar .h-zone-leg .dot-u{ background:var(--cyan); }
+#h-zonebar .h-zone-leg .dot-c{ background:var(--green); }
+
+@media(prefers-reduced-motion:reduce){
+  .card,.btn,.btn-out,.btn-red,.badge,#h-zonebar .h-zone-fill-u,#h-zonebar .h-zone-fill-c{ transition:none!important; }
+  .btn:active,.btn-out:active,.btn-red:active,.badge:hover{ transform:none!important; }
+}
+</style>
 
 </body>
 </html>
