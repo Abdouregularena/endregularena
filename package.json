@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": { "start": "node index.js" },
-  "dependencies": {
+  "dependencies": {web-push": "^3.6.7",
     "express": "^4.18.2",
     "better-sqlite3": "^9.4.3",
     "helmet": "^7.1.0",
