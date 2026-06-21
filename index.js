@@ -2745,6 +2745,317 @@ app.get('/sprint/leaderboard', (req, res) => {
 });
 /* ════════════════ FIN MODE SPRINT / BLITZ ════════════════ */
 
+/* ════════════════ MODE ROI DE LA MANCHE (King of the Hill 1v1) — ROI AJOUT ════════════════
+   Tir à la corde réglementaire. Deux joueurs, une séquence figée de N questions.
+   À chaque question, le PREMIER à répondre juste rafle la question et s'assoit
+   (ou se maintient) sur le trône. Tenir le trône plusieurs questions d'affilée
+   fait grimper un bonus de défense (effet boule de neige) ; voler le trône remet
+   l'élan de l'adversaire à zéro. Vainqueur = meilleur score après N questions.
+
+   Réutilise : l'horodatage SERVEUR du Sprint (served_at_ms, chrono équitable) +
+   le verrou « premier juste » du Duel (cur_index partagé). AUCUNE boucle de fond :
+   les fins de manche par temps écoulé ou double-erreur sont résolues paresseusement
+   (lazy) au moment du /answer ou du /state. Le scoring fait foi côté serveur.
+   ──────────────────────────────────────────────────────────────────────────── */
+db.exec(`
+  CREATE TABLE IF NOT EXISTS kotm_games (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    code           TEXT    NOT NULL UNIQUE,
+    creator_id     INTEGER NOT NULL REFERENCES users(id),
+    joiner_id      INTEGER REFERENCES users(id),
+    pack_id        TEXT    NOT NULL DEFAULT 'general',
+    num_questions  INTEGER NOT NULL DEFAULT 12,
+    timer_sec      INTEGER NOT NULL DEFAULT 20,
+    questions_json TEXT    NOT NULL DEFAULT '[]',
+    cur_index      INTEGER NOT NULL DEFAULT 0,
+    served_at_ms   INTEGER,
+    king_id        INTEGER,
+    king_streak    INTEGER NOT NULL DEFAULT 0,
+    c_wrong        INTEGER NOT NULL DEFAULT 0,
+    j_wrong        INTEGER NOT NULL DEFAULT 0,
+    status         TEXT    NOT NULL DEFAULT 'waiting',
+    started_at     TEXT,
+    created_at     TEXT    NOT NULL DEFAULT (datetime('now')),
+    finished_at    TEXT
+  );
+  CREATE TABLE IF NOT EXISTS kotm_scores (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    game_id       INTEGER NOT NULL REFERENCES kotm_games(id) ON DELETE CASCADE,
+    user_id       INTEGER NOT NULL REFERENCES users(id),
+    score         INTEGER NOT NULL DEFAULT 0,
+    questions_won INTEGER NOT NULL DEFAULT 0,
+    UNIQUE(game_id, user_id)
+  );
+`);
+try { db.exec('CREATE INDEX IF NOT EXISTS idx_kotm_status ON kotm_games (status, created_at DESC)'); } catch(_){}
+
+const KOTM_WIN_PTS     = 100; // prise / maintien du trône (bonne réponse en 1er)
+const KOTM_DEFEND_STEP = 30;  // bonus de défense par question déjà tenue (boule de neige)
+const KOTM_SPEED_MAX   = 60;  // bonus de vitesse max (réponse quasi instantanée)
+const KOTM_FLOOR_MS    = 800; // plancher anti-bot
+
+function kotmSpeed(elapsedMs, budgetMs) {
+  const e = Math.max(KOTM_FLOOR_MS, Math.min(budgetMs, Number(elapsedMs) || budgetMs));
+  const frac = (budgetMs - e) / (budgetMs - KOTM_FLOOR_MS); // 1 = rapide, 0 = lent
+  return Math.round(KOTM_SPEED_MAX * Math.max(0, frac));
+}
+
+function _kotmEnsureScore(gameId, userId) {
+  let r = db.prepare('SELECT * FROM kotm_scores WHERE game_id=? AND user_id=?').get(gameId, userId);
+  if (!r) {
+    db.prepare('INSERT INTO kotm_scores (game_id, user_id) VALUES (?,?)').run(gameId, userId);
+    r = db.prepare('SELECT * FROM kotm_scores WHERE game_id=? AND user_id=?').get(gameId, userId);
+  }
+  return r;
+}
+
+// Vue complète d'une partie (questions révélées seulement à la fin = feuille de match).
+function _kotmFull(code) {
+  const g = db.prepare('SELECT * FROM kotm_games WHERE code=?').get(code);
+  if (!g) return null;
+  const creator = db.prepare('SELECT id,name,country FROM users WHERE id=?').get(g.creator_id);
+  const joiner  = g.joiner_id ? db.prepare('SELECT id,name,country FROM users WHERE id=?').get(g.joiner_id) : null;
+  const scores  = db.prepare('SELECT user_id,score,questions_won FROM kotm_scores WHERE game_id=?').all(g.id);
+  const reveal  = g.status === 'finished';
+  const { questions_json, ...safe } = g;
+  return { ...safe, questions_json: reveal ? questions_json : undefined, creator, joiner, scores };
+}
+
+// Finalise une partie : alimente le classement GLOBAL (paliers + Flash Info) avec
+// les questions remportées par chaque joueur (1 pt / trône gagné). Idempotent par
+// construction : appelé une seule fois, au moment exact où status passe à 'finished'.
+function _kotmFinalize(gameId) {
+  const g = db.prepare('SELECT * FROM kotm_games WHERE id=?').get(gameId);
+  if (!g) return;
+  const rows = db.prepare('SELECT user_id, questions_won FROM kotm_scores WHERE game_id=?').all(gameId);
+  for (const r of rows) {
+    db.prepare('INSERT INTO user_scores (user_id, pack_id, score, total) VALUES (?,?,?,?)')
+      .run(r.user_id, 'kotm', r.questions_won, g.num_questions);
+  }
+}
+
+// Avance l'index courant SANS changer le trône (manche neutre : temps écoulé ou
+// les deux joueurs se sont trompés). Gère la transition de fin + finalisation.
+function _kotmNeutralAdvance(g) {
+  const newIndex = g.cur_index + 1;
+  const finished = newIndex >= g.num_questions;
+  db.prepare(`UPDATE kotm_games SET cur_index=?, served_at_ms=NULL, c_wrong=0, j_wrong=0,
+              status=?, finished_at=? WHERE id=?`)
+    .run(newIndex, finished ? 'finished' : g.status,
+         finished ? new Date().toISOString() : g.finished_at, g.id);
+  if (finished) _kotmFinalize(g.id);
+  return newIndex;
+}
+
+// Résout paresseusement une question expirée (temps écoulé) en manche neutre.
+// Retourne true si une avance a eu lieu. Handlers synchrones better-sqlite3 →
+// pas de course possible : chaque requête s'exécute atomiquement.
+function _kotmCheckTimeout(g) {
+  if (g.status !== 'active') return false;
+  if (g.served_at_ms == null) return false;
+  if (Date.now() - Number(g.served_at_ms) <= g.timer_sec * 1000) return false;
+  _kotmNeutralAdvance(g);
+  return true;
+}
+
+// POST /kotm — crée une partie (body { pack_id, num_questions, timer_sec, target_user_id })
+app.post('/kotm', requireAuth, (req, res) => {
+  const { pack_id, num_questions = 12, timer_sec = 20, target_user_id } = req.body || {};
+  let code;
+  for (let i = 0; i < 10; i++) { code = genCode('K'); if (!db.prepare('SELECT id FROM kotm_games WHERE code=?').get(code)) break; }
+  const nq = Math.min(21, Math.max(6, Number(num_questions) || 12));
+  const ts = Math.min(40, Math.max(10, Number(timer_sec) || 20));
+  db.prepare('INSERT INTO kotm_games (code, creator_id, pack_id, num_questions, timer_sec) VALUES (?,?,?,?,?)')
+    .run(code, req.user.id, pack_id || 'general', nq, ts);
+  const tid = target_user_id ? Number(target_user_id) : null;
+  if (tid && tid !== req.user.id) {
+    db.prepare('INSERT INTO notifications (user_id, type, message) VALUES (?,?,?)')
+      .run(tid, 'kotm_challenge', `👑 ${req.user.name} vous défie au Roi de la Manche ! Code : ${code}`);
+    sendPushToUser(tid, { title: '👑 Défi Roi de la Manche', body: `${req.user.name} veut vous voler le trône. Code : ${code}`, tag: 'kotm-' + code, url: '/?kotm=' + code });
+  }
+  notifyAllExcept(req.user.id, 'kotm_created', `👑 ${req.user.name} ouvre un Roi de la Manche ! Code : ${code}`);
+  return ok(res, { code, game: _kotmFull(code) });
+});
+
+// GET /kotm/lobby — parties ouvertes (DOIT précéder /kotm/:code)
+app.get('/kotm/lobby', requireAuth, (req, res) => {
+  const rows = db.prepare(`SELECT g.code, g.num_questions, g.timer_sec, g.created_at,
+                                  u.name AS creator_name, u.country
+                           FROM kotm_games g JOIN users u ON u.id = g.creator_id
+                           WHERE g.status='waiting' AND g.creator_id != ?
+                           ORDER BY g.created_at DESC LIMIT 20`).all(req.user.id);
+  return ok(res, { games: rows });
+});
+
+// GET /kotm/:code — état complet
+app.get('/kotm/:code', requireAuth, (req, res) => {
+  const g = _kotmFull(req.params.code);
+  if (!g) return err(res, 404, 'Partie introuvable');
+  return ok(res, { game: g });
+});
+
+// POST /kotm/:code/join — l'adversaire rejoint
+app.post('/kotm/:code/join', requireAuth, (req, res) => {
+  const g = db.prepare('SELECT * FROM kotm_games WHERE code=?').get(req.params.code);
+  if (!g) return err(res, 404, 'Partie introuvable');
+  if (g.creator_id === req.user.id) return ok(res, { message: 'Tu es le créateur', game: _kotmFull(req.params.code) });
+  if (g.joiner_id === req.user.id) return ok(res, { message: 'Déjà dans la partie', game: _kotmFull(req.params.code) });
+  if (g.joiner_id) return err(res, 400, 'Partie déjà pleine');
+  if (g.status !== 'waiting') return err(res, 400, 'Partie déjà commencée');
+  db.prepare('UPDATE kotm_games SET joiner_id=?, status=? WHERE code=?').run(req.user.id, 'joined', req.params.code);
+  db.prepare('INSERT INTO notifications (user_id, type, message) VALUES (?,?,?)')
+    .run(g.creator_id, 'kotm_joined', `👑 ${req.user.name} a rejoint votre Roi de la Manche (${req.params.code})`);
+  sendPushToUser(g.creator_id, { title: '👑 Adversaire prêt', body: `${req.user.name} a rejoint. Lancez la manche !`, tag: 'kotm-' + req.params.code, url: '/?kotm=' + req.params.code });
+  return ok(res, { message: 'Rejoint', game: _kotmFull(req.params.code) });
+});
+
+// POST /kotm/:code/start — le créateur lance : tire et FIGE les questions côté serveur
+app.post('/kotm/:code/start', requireAuth, (req, res) => {
+  const g = db.prepare('SELECT * FROM kotm_games WHERE code=?').get(req.params.code);
+  if (!g) return err(res, 404, 'Partie introuvable');
+  if (g.creator_id !== req.user.id) return err(res, 403, 'Seul le créateur peut lancer');
+  if (!g.joiner_id) return err(res, 400, "Personne n'a encore rejoint");
+  if (g.status === 'active') return ok(res, { message: 'Déjà active', game: _kotmFull(req.params.code) });
+  const picked = pickQuestions(g.pack_id, g.num_questions);
+  if (!picked || picked.length === 0) return err(res, 500, 'Pack introuvable ou vide côté serveur');
+  const realN = picked.length;
+  db.prepare(`UPDATE kotm_games SET status='active', questions_json=?, num_questions=?, started_at=?,
+              cur_index=0, served_at_ms=NULL, king_id=NULL, king_streak=0, c_wrong=0, j_wrong=0 WHERE code=?`)
+    .run(JSON.stringify(picked), realN, new Date().toISOString(), req.params.code);
+  _kotmEnsureScore(g.id, g.creator_id);
+  _kotmEnsureScore(g.id, g.joiner_id);
+  return ok(res, { message: 'Manche lancée', game: _kotmFull(req.params.code) });
+});
+
+// GET /kotm/:code/question/:index — sert la question courante SANS la bonne réponse ;
+// arme le chrono serveur au tout premier service (partagé par les deux joueurs).
+app.get('/kotm/:code/question/:index', requireAuth, (req, res) => {
+  let g = db.prepare('SELECT * FROM kotm_games WHERE code=?').get(req.params.code);
+  if (!g) return err(res, 404, 'Partie introuvable');
+  if (g.creator_id !== req.user.id && g.joiner_id !== req.user.id) return err(res, 403, 'Accès refusé');
+  if (_kotmCheckTimeout(g)) g = db.prepare('SELECT * FROM kotm_games WHERE code=?').get(req.params.code);
+  if (g.status !== 'active') return err(res, 400, 'Partie non active');
+  const idx = Number(req.params.index);
+  if (idx !== g.cur_index) return err(res, 403, 'Question non débloquée');
+  let questions = []; try { questions = JSON.parse(g.questions_json || '[]'); } catch (_) {}
+  const q = questions[idx];
+  if (!q) return err(res, 500, 'Question introuvable');
+  if (g.served_at_ms == null) db.prepare('UPDATE kotm_games SET served_at_ms=? WHERE id=?').run(Date.now(), g.id);
+  return ok(res, {
+    question: { index: idx, q: q.q, choices: q.choices, reference: q.source || q.reference || 'BCEAO/CIMA 2026' },
+    total: g.num_questions, budget_ms: g.timer_sec * 1000,
+  });
+});
+
+// POST /kotm/:code/answer — body { q_index, choice_index }. Le serveur fait foi :
+// 1re bonne réponse rafle la question (prise/maintien du trône), double erreur ou
+// temps écoulé = manche neutre.
+app.post('/kotm/:code/answer', requireAuth, (req, res) => {
+  try {
+    const { q_index, choice_index } = req.body || {};
+    if (q_index == null) return err(res, 400, 'q_index requis');
+    const g = db.prepare('SELECT * FROM kotm_games WHERE code=?').get(req.params.code);
+    if (!g) return err(res, 404, 'Partie introuvable');
+    if (g.status !== 'active') return err(res, 400, 'Partie non active');
+    const meId = req.user.id;
+    const isCreator = g.creator_id === meId, isJoiner = g.joiner_id === meId;
+    if (!isCreator && !isJoiner) return err(res, 403, 'Accès refusé');
+
+    // Temps écoulé sur la question courante → manche neutre, on renvoie l'état.
+    if (_kotmCheckTimeout(g)) {
+      const gg = _kotmFull(req.params.code);
+      return ok(res, { locked: true, timeout: true, correct: null, points_earned: 0, game: gg,
+        cur_index: gg.cur_index, king_id: gg.king_id, king_streak: gg.king_streak, finished: gg.status === 'finished' });
+    }
+    // Question déjà résolue par l'adversaire (il a répondu juste avant moi).
+    if (Number(q_index) < g.cur_index) {
+      const gg = _kotmFull(req.params.code);
+      return ok(res, { locked: true, correct: null, points_earned: 0, game: gg,
+        cur_index: gg.cur_index, king_id: gg.king_id, king_streak: gg.king_streak, finished: gg.status === 'finished' });
+    }
+    if (Number(q_index) !== g.cur_index) return err(res, 400, 'Question hors séquence');
+    if (g.served_at_ms == null) return err(res, 400, 'Question non servie');
+
+    // Anti-2e-essai : si j'ai déjà répondu (faux) à CETTE question, je suis bloqué.
+    if ((isCreator && g.c_wrong === 1) || (isJoiner && g.j_wrong === 1)) {
+      const gg = _kotmFull(req.params.code);
+      return ok(res, { already: true, correct: false, points_earned: 0, game: gg,
+        cur_index: gg.cur_index, king_id: gg.king_id, king_streak: gg.king_streak, finished: gg.status === 'finished' });
+    }
+
+    let questions = []; try { questions = JSON.parse(g.questions_json || '[]'); } catch (_) {}
+    const q = questions[g.cur_index];
+    if (!q) return err(res, 500, 'Question introuvable');
+
+    const elapsed = Math.max(0, Date.now() - Number(g.served_at_ms));
+    const isCorrect = Number(choice_index) === Number(q.correct);
+
+    if (isCorrect) {
+      const wasKing = g.king_id === meId;
+      const newStreak = wasKing ? g.king_streak + 1 : 1;
+      const defendBonus = wasKing ? KOTM_DEFEND_STEP * g.king_streak : 0; // croît tant qu'on tient
+      const speed = kotmSpeed(elapsed, g.timer_sec * 1000);
+      const pts = KOTM_WIN_PTS + defendBonus + speed;
+      const newIndex = g.cur_index + 1;
+      const finished = newIndex >= g.num_questions;
+      const sc = _kotmEnsureScore(g.id, meId);
+      const tx = db.transaction(() => {
+        db.prepare('UPDATE kotm_scores SET score=?, questions_won=? WHERE game_id=? AND user_id=?')
+          .run(sc.score + pts, sc.questions_won + 1, g.id, meId);
+        db.prepare(`UPDATE kotm_games SET king_id=?, king_streak=?, cur_index=?, served_at_ms=NULL,
+                    c_wrong=0, j_wrong=0, status=?, finished_at=? WHERE id=?`)
+          .run(meId, newStreak, newIndex, finished ? 'finished' : 'active',
+               finished ? new Date().toISOString() : g.finished_at, g.id);
+      });
+      tx();
+      if (finished) _kotmFinalize(g.id);
+      const gg = _kotmFull(req.params.code);
+      return ok(res, {
+        correct: true, stole: !wasKing, defended: wasKing, points_earned: pts,
+        speed_bonus: speed, defend_bonus: defendBonus, elapsed_ms: elapsed,
+        king_id: meId, king_streak: newStreak, correct_index: q.correct,
+        cur_index: newIndex, finished, game: gg,
+      });
+    } else {
+      // Mauvaise réponse : on marque le fautif. Si les DEUX se trompent → manche neutre.
+      const col = isCreator ? 'c_wrong' : 'j_wrong';
+      db.prepare(`UPDATE kotm_games SET ${col}=1 WHERE id=?`).run(g.id);
+      const g2 = db.prepare('SELECT * FROM kotm_games WHERE code=?').get(req.params.code);
+      let neutral = false;
+      if (g2.c_wrong === 1 && g2.j_wrong === 1) { _kotmNeutralAdvance(g2); neutral = true; }
+      const gg = _kotmFull(req.params.code);
+      return ok(res, {
+        correct: false, points_earned: 0, correct_index: q.correct,
+        neutral, both_wrong: neutral, king_id: gg.king_id, king_streak: gg.king_streak,
+        cur_index: gg.cur_index, finished: gg.status === 'finished', game: gg,
+      });
+    }
+  } catch (e) { return err(res, 500, 'Erreur serveur Roi de la Manche (answer)'); }
+});
+
+// GET /kotm/:code/state — poll temps réel (~1s) : trône, scores, chrono restant.
+app.get('/kotm/:code/state', requireAuth, (req, res) => {
+  let g = db.prepare('SELECT * FROM kotm_games WHERE code=?').get(req.params.code);
+  if (!g) return err(res, 404, 'Partie introuvable');
+  if (g.creator_id !== req.user.id && g.joiner_id !== req.user.id) return err(res, 403, 'Accès refusé');
+  if (_kotmCheckTimeout(g)) g = db.prepare('SELECT * FROM kotm_games WHERE code=?').get(req.params.code);
+  let q_elapsed_ms = null, q_remaining_ms = null;
+  if (g.status === 'active' && g.served_at_ms != null) {
+    q_elapsed_ms = Math.max(0, Date.now() - Number(g.served_at_ms));
+    q_remaining_ms = Math.max(0, g.timer_sec * 1000 - q_elapsed_ms);
+  }
+  const meId = req.user.id;
+  const iAnswered = g.status === 'active' &&
+    ((g.creator_id === meId && g.c_wrong === 1) || (g.joiner_id === meId && g.j_wrong === 1));
+  return ok(res, {
+    game: _kotmFull(req.params.code), status: g.status, cur_index: g.cur_index,
+    king_id: g.king_id, king_streak: g.king_streak,
+    q_elapsed_ms, q_remaining_ms, i_answered_current: iAnswered,
+  });
+});
+/* ════════════════ FIN MODE ROI DE LA MANCHE ════════════════ */
+
+
 app.use('/api/debats', require('./debats')(db, requireAuth));
 
 app.use(express.static(path.join(__dirname, 'public')));
