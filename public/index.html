@@ -107,6 +107,7 @@ select.inp{cursor:pointer;}
 .lnk{background:none;border:none;color:var(--cyan);cursor:pointer;font-size:13px;font-family:"Space Grotesk",sans-serif;font-weight:600;text-decoration:underline;padding:0;}
 /* ─── Ticker défilant homepage ─── */
 #home-ticker{position:sticky;top:0;z-index:55;} /* MODIFIÉ : barre toujours visible en haut */
+#dash-ticker{position:sticky;top:0;z-index:90;} /* MODIFIÉ : Flash Info sticky en haut du tableau de bord */
 .ticker-wrap{background:rgba(10,33,62,.96);border-bottom:1px solid rgba(110,150,210,.4);padding:9px 0;overflow:hidden;white-space:nowrap;} /* MODIFIÉ : défilant */
 .ticker-inner{display:inline-block;white-space:nowrap;animation:tick 42s linear infinite;} /* MODIFIÉ : défilant */
 .ticker-wrap:hover .ticker-inner{animation-play-state:paused;}
@@ -337,7 +338,7 @@ h2,h3{animation:raReveal .45s ease both;}
   </nav>
   <!-- ═══ BANDE DÉFILANTE ═══ -->
   <div class="ticker-wrap" id="home-ticker">
-    <div class="ticker-inner" id="ticker-txt"></div>
+    <div class="ticker-inner" id="ticker-txt" data-ticker="1"></div>
   </div>
   <div style="max-width:1100px;margin:0 auto;padding:50px 18px 36px;text-align:center;" class="fi">
     <h1 style="font-size:clamp(1.8rem,4.5vw,3.2rem);color:white;line-height:1.2;margin-bottom:16px;">
@@ -692,6 +693,7 @@ h2,h3{animation:raReveal .45s ease both;}
         </div>
       </div>
     </div>
+    <div class="ticker-wrap" id="dash-ticker"><div class="ticker-inner" data-ticker="1"></div></div> <!-- MODIFIÉ : Flash Info visible sur tous les écrans connectés -->
     <div id="ct"></div>
   </div>
 </div>
@@ -2683,6 +2685,9 @@ function rACH_render(){
 function lbFlag(c){ var ids={SN:'sn',CI:'ci',ML:'ml',BF:'bf',BJ:'bj',NE:'ne',TG:'tg',GW:'gw',CM:'cm',CG:'cg',GA:'ga',GQ:'gq',CF:'cf',TD:'td',HT:'ht'}; var id=ids[c]; return id?'<svg class="flag" style="width:18px;height:12px;vertical-align:middle;border-radius:2px;margin-right:5px;box-shadow:0 0 0 1px rgba(0,0,0,.2);"><use href="#fl-'+id+'"/></svg>':''; }
 function lbCountryLabel(c){ var names={SN:'Sénégal',CI:"Côte d'Ivoire",ML:'Mali',BF:'Burkina Faso',BJ:'Bénin',NE:'Niger',TG:'Togo',GW:'Guinée-Bissau',CM:'Cameroun',CG:'Congo',GA:'Gabon',GQ:'Guinée éq.',CF:'Centrafrique',TD:'Tchad',HT:'Haïti'}; var n=names[c]; return n?(lbFlag(c)+n):arChatEsc(c||''); }
 function lbProfileLabel(p){ return p==='etudiant'?'🎓 Étudiant':p==='professionnel'?'💼 Professionnel':(p?arChatEsc(p):''); }
+// MODIFIÉ : noms admin exclus du classement (je suis admin, je ne fais pas partie du classement)
+var LB_HIDDEN=['abdou ndao','kaiser ndao'];
+function lbHidden(name){ var n=(name||'').toLowerCase().replace(/\s+/g,' ').trim(); return LB_HIDDEN.indexOf(n)!==-1; } // MODIFIÉ
 function rLB(){
   // MODIFIÉ : classement réel chargé depuis le backend /leaderboard
   setTimeout(function(){ lbLoad('all'); }, 40);
@@ -2708,6 +2713,7 @@ function lbLoad(zone){
   var hdr=(typeof U!=='undefined'&&U&&U.token)?{'Authorization':'Bearer '+U.token}:{};
   fetch(url,{headers:hdr}).then(function(r){return r.json();}).then(function(d){
     var list=(d&&d.leaderboard)||[]; var myRank=d&&d.my_rank;
+    list=list.filter(function(p){ return !lbHidden(p.name); }); // MODIFIÉ : retire les comptes admin (Abdou/Kaiser NDAO)
     if(!list.length){ box.innerHTML='<div class="al al-info" style="font-size:12px;">Le classement se construit au fil des quiz. Sois le premier à marquer des points !</div>'; return; }
     box.innerHTML=list.map(function(p,i){
       var r=i+1, me=(myRank&&r===myRank), medal=r<=3?['🥇','🥈','🥉'][r-1]:r;
@@ -5039,7 +5045,8 @@ window.addEventListener('load', function(){
       var seg=parts.join(_SEP);
       return seg + _SEP + seg; // dupliqué pour boucle fluide
     }
-    _tk.innerHTML = _buildTicker(null); // MODIFIÉ : affichage immédiat sans attendre le réseau
+    function _setTickers(html){ var els=document.querySelectorAll('[data-ticker]'); for(var k=0;k<els.length;k++){ els[k].innerHTML=html; } } // MODIFIÉ : remplit tous les tickers (accueil + tableau de bord)
+    _setTickers(_buildTicker(null)); // MODIFIÉ : affichage immédiat sans attendre le réseau, sur tous les écrans
     /* MODIFIÉ — récupère les "Maîtres de l'Arène" (top-3 par zone) en arrière-plan */
     (function(){
       var _hdr=(typeof U!=='undefined'&&U&&U.token)?{'Authorization':'Bearer '+U.token}:{};
@@ -5047,6 +5054,7 @@ window.addEventListener('load', function(){
         return fetch('/leaderboard?zone='+zone,{headers:_hdr}).then(function(r){return r.json();})
           .then(function(d){
             var l=(d&&d.leaderboard)||[]; if(!l.length) return [];
+            l=l.filter(function(p){ return typeof lbHidden!=='function' || !lbHidden(p.name); }); // MODIFIÉ : exclut les comptes admin du Flash Info
             var med=['🥇','🥈','🥉'];
             return l.slice(0,3).map(function(p,i){
               return '<span style="font-size:13px;font-weight:700;color:#fbbf24;">🏆 Maître '+label+' '+med[i]+' '+arChatEsc(p.name||'?')+' — '+(p.total_score||0)+' pts</span>';
@@ -5055,7 +5063,7 @@ window.addEventListener('load', function(){
       }
       Promise.all([top3('uemoa','UEMOA'), top3('cemac','CEMAC')]).then(function(res){
         var m=[]; (res[0]||[]).forEach(function(x){m.push(x);}); (res[1]||[]).forEach(function(x){m.push(x);});
-        if(m.length && ge('ticker-txt')) ge('ticker-txt').innerHTML=_buildTicker(m);
+        if(m.length) _setTickers(_buildTicker(m)); // MODIFIÉ : maj sur tous les écrans
       });
     })();
   } // MODIFIÉ
