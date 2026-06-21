@@ -3025,11 +3025,12 @@ function rAR(){
     '<button class="ar-tab'+(AR.tab==='duels'?' ac':'')+'" onclick="AR.tab=\'duels\';render()">⚔️ Duels 1v1</button>'+
     '<button class="ar-tab'+(AR.tab==='tournois'?' ac':'')+'" onclick="AR.tab=\'tournois\';render()">🏆 Tournois</button>'+
     '<button class="ar-tab'+(AR.tab==='sprint'?' ac':'')+'" onclick="AR.tab=\'sprint\';render()">⚡ Sprint</button>'+  /* MODIFIÉ : onglet Sprint/Blitz */
+    '<button class="ar-tab'+(AR.tab==='kotm'?' ac':'')+'" onclick="AR.tab=\'kotm\';render()">👑 Roi de la Manche</button>'+  /* MODIFIÉ : onglet Roi de la Manche (King of the Hill 1v1) */
   '</div>';
   return '<div style="display:flex;flex-direction:column;gap:14px;">'+
     '<h2 style="font-size:22px;color:white;">L\'Arène – Défis Professionnels</h2>'+
     tabs +
-    (AR.tab==='duels' ? rARDuelsHome() : AR.tab==='sprint' ? (typeof rSprintRoot==='function'?rSprintRoot():'') : rARTournoisHome()) +  /* MODIFIÉ : ajout Sprint */
+    (AR.tab==='duels' ? rARDuelsHome() : AR.tab==='sprint' ? (typeof rSprintRoot==='function'?rSprintRoot():'') : AR.tab==='kotm' ? (typeof rKotmRoot==='function'?rKotmRoot():'') : rARTournoisHome()) +  /* MODIFIÉ : ajout Sprint + Roi de la Manche */
   '</div>';
 }
 
@@ -4206,6 +4207,7 @@ function arArenaAfterRender(){
   if(ge('ar-open-duels')) arLoadOpenDuels();
   if(ge('ar-open-tours')) arLoadOpenTours();
   if(AR.tab==='sprint' && typeof sprintAfterRender==='function'){ try{ sprintAfterRender(); }catch(e){} } /* MODIFIÉ : Sprint */
+  if(AR.tab==='kotm' && typeof kotmAfterRender==='function'){ try{ kotmAfterRender(); }catch(e){} } /* MODIFIÉ : Roi de la Manche */
 }
 function arPackLabel(pid){
   var m={'rfe-uemoa':'🏛️ RFE UEMOA','bale-umoa':'⚖️ Bâle II/III','mix':'🔀 Mix','cemac':'🌍 CEMAC','qn':'📚 Thématiques','itb':'🎓 ITB','pcb':'📋 PCB','general':'🔀 Général'};
@@ -8861,6 +8863,522 @@ if('serviceWorker' in navigator){
       })
       .catch(function(){ var bx=ge('sp-board'); if(bx) bx.innerHTML='<div style="font-size:12px;color:var(--sub);text-align:center;padding:8px;">Classement indisponible.</div>'; });
   }
+})();
+</script>
+<!-- ════════ REGUL ARENA · MODE ROI DE LA MANCHE (front) — MODIFIÉ ════════ -->
+<script id="ra-kotm-js">
+/* ════════════════════════════════════════════════════════════════
+   MODE ROI DE LA MANCHE — King of the Hill 1v1 (AJOUT 100% additif // MODIFIÉ)
+   Backend déjà livré/en prod (index.js, routes /kotm/*). Contrat figé :
+     POST /kotm {pack_id,num_questions,timer_sec,target_user_id}
+     GET  /kotm/lobby
+     GET  /kotm/:code · POST /kotm/:code/join · POST /kotm/:code/start
+     GET  /kotm/:code/question/:index
+     POST /kotm/:code/answer {q_index,choice_index}
+       -> {correct,stole,defended,points_earned,speed_bonus,defend_bonus,
+           king_id,king_streak,cur_index,finished,game}
+     GET  /kotm/:code/state (poll ~1s) -> {game,status,cur_index,king_id,
+           king_streak,q_remaining_ms,i_answered_current}
+   Règle : 1v1, premier à répondre juste rafle/garde le trône ; tenir = bonus
+   de défense croissant ; vainqueur = meilleur score après N questions.
+   Réutilise : polling + timer ancré Date.now() du Duel, UI/charte du Sprint,
+   sons/fx (snd_/fx_), helpers (arPackQ/arPoolSize/arPackLabel/arChatEsc/arAvatar).
+   NB : les bonnes réponses sont validées CÔTÉ SERVEUR (choice_index) ; le chrono
+   affiché est resynchronisé sur q_remaining_ms à chaque poll (sync équitable).
+================================================================ */
+(function(){
+  var K = window.KOTM = {
+    view:'home',          // 'home' | 'wait' | 'game' | 'result'
+    code:'', pack:'rfe-uemoa', nq:10, timer:20,
+    isCreator:false, loading:false,
+    game:null, status:'', curIdx:-1, qIndex:-1, total:10,
+    kingId:null, kingStreak:0,
+    q:null, answered:false, loadingQ:false,
+    myId:'', _picked:null, _startSent:false, _waitSig:'', _finPlayed:false,
+    pollId:null, timerId:null, deadline:0, budgetMs:20000, lastFb:null
+  };
+
+  var PACKS = [
+    { id:'rfe-uemoa', label:'🏛️ RFE UEMOA' },
+    { id:'bale-umoa', label:'⚖️ Bâle II/III' },
+    { id:'cemac',     label:'🌍 CEMAC' },
+    { id:'qn',        label:'📚 Thématiques' },
+    { id:'inter',     label:'🔀 Mix (tous packs)' }
+  ];
+
+  function kLogged(){ return (typeof U!=='undefined' && U && U.token); }
+  function kHdr(){ return {'Content-Type':'application/json','Authorization':'Bearer '+((typeof U!=='undefined'&&U&&U.token)||'')}; }
+  function kEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function kPackLabel(p){ try{ if(typeof arPackLabel==='function') return arPackLabel(p); }catch(e){} for(var i=0;i<PACKS.length;i++){ if(PACKS[i].id===p) return PACKS[i].label; } return p||'Général'; }
+  function kPoolSize(p){ try{ return (typeof arPoolSize==='function')?arPoolSize(p):10; }catch(e){ return 10; } }
+
+  // Questions tirées localement (déterministe via arPackQ) et envoyées au serveur
+  // qui les fige (pickQuestions). Si le backend a sa propre source, ces champs
+  // sont simplement ignorés — aucun effet de bord (Express ignore les clés inconnues).
+  function kPick(pack, n, seed){
+    var qs=[]; try{ qs = (typeof arPackQ==='function')?arPackQ(pack, n, seed):[]; }catch(e){ qs=[]; }
+    return qs.map(function(q){ return { q:q.q, choices:q.choices, answer:q.answer, correct:q.answer, source:q.source||q.reference||'' }; });
+  }
+
+  /* ── lecture défensive de la structure du jeu (scores/joueurs/créateur-joiner) ── */
+  function kPlayers(g){
+    if(!g) return [];
+    var arr = (Array.isArray(g.scores)&&g.scores.length)?g.scores : (Array.isArray(g.players)&&g.players.length)?g.players : null;
+    if(arr){ return arr.map(function(s){ return { id:String(s.user_id!=null?s.user_id:(s.id!=null?s.id:'')), name:s.name||s.username||'Joueur', score:Number(s.score!=null?s.score:(s.points!=null?s.points:0))||0 }; }); }
+    var out=[];
+    if(g.creator_id!=null) out.push({ id:String(g.creator_id), name:(g.creator&&g.creator.name)||g.creator_name||'Créateur', score:Number(g.creator_score||0)||0 });
+    if(g.joiner_id!=null)  out.push({ id:String(g.joiner_id),  name:(g.joiner&&g.joiner.name)||g.joiner_name||'Adversaire', score:Number(g.joiner_score||0)||0 });
+    return out;
+  }
+  function kMyId(g){
+    if(K.myId) return K.myId;
+    if(g){
+      if(K.isCreator && g.creator_id!=null){ K.myId=String(g.creator_id); }
+      else if(!K.isCreator && g.joiner_id!=null){ K.myId=String(g.joiner_id); }
+    }
+    return K.myId||'';
+  }
+  function kSides(){
+    var ps=kPlayers(K.game), mid=kMyId(K.game), me=null, opp=null;
+    if(mid){ ps.forEach(function(p){ if(p.id===mid) me=p; else if(!opp) opp=p; }); }
+    if(!me)  me  = ps[0] || { id:'', name:((typeof U!=='undefined'&&U&&U.name)||'Vous'), score:0 };
+    if(!opp) opp = (ps[0]&&ps[0]!==me?ps[0]:ps[1]) || { id:'', name:'Adversaire', score:0 };
+    return { me:me, opp:opp };
+  }
+  function kKingName(){
+    if(K.kingId==null) return null;
+    var ps=kPlayers(K.game); for(var i=0;i<ps.length;i++){ if(ps[i].id===String(K.kingId)) return ps[i].name; }
+    return null;
+  }
+
+  /* ───────── RENDU ───────── */
+  window.rKotmRoot=function(){
+    if(K.view==='wait')   return kRenderWait();
+    if(K.view==='game')   return kRenderGame();
+    if(K.view==='result') return kRenderResult();
+    return kRenderHome();
+  };
+
+  function kRenderHome(){
+    if(!kLogged()){
+      return '<div class="card" style="text-align:center;padding:26px;">'+
+        '<div style="font-size:34px;margin-bottom:8px;">👑</div>'+
+        '<div style="font-weight:800;color:white;font-size:16px;margin-bottom:6px;">Roi de la Manche</div>'+
+        '<div style="font-size:13px;color:var(--sub);margin-bottom:14px;line-height:1.6;">Connectez-vous pour affronter un adversaire en 1v1 et conquérir le trône.</div>'+
+        '<button class="btn" onclick="ST(\'settings\')">Se connecter</button></div>';
+    }
+    var packOpts = PACKS.map(function(p){ var n=kPoolSize(p.id); return '<option value="'+p.id+'"'+(K.pack===p.id?' selected':'')+'>'+p.label+' ('+n+'Q)</option>'; }).join('');
+    return '<div style="display:flex;flex-direction:column;gap:14px;">'+
+      '<div class="al al-info" style="font-size:12.5px;line-height:1.6;">'+
+        '👑 <strong>Roi de la Manche (1v1).</strong> Le <strong>premier à répondre juste</strong> rafle la question et s\'assoit sur le trône. '+
+        'Le tenir rapporte un <strong>bonus de défense croissant</strong> (effet boule de neige). Voler le trône remet à zéro la série adverse. '+
+        'Après '+K.nq+' questions, le meilleur score est sacré. Vitesse mesurée côté serveur (équitable).</div>'+
+      '<div class="card" style="padding:16px;display:flex;flex-direction:column;gap:12px;">'+
+        '<div style="font-weight:800;color:white;font-size:14px;">⚙️ Réglages du trône</div>'+
+        '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Pack de questions</label>'+
+          '<select id="k-pack" class="inp" onchange="kotmSetPack(this.value)">'+packOpts+'</select></div>'+
+        '<div style="display:flex;gap:8px;">'+
+          '<div style="flex:1;"><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Questions</label>'+
+            '<select id="k-nq" class="inp" onchange="kotmSetNq(this.value)">'+
+              [5,10,15,20].map(function(v){return '<option value="'+v+'"'+(K.nq===v?' selected':'')+'>'+v+'Q</option>';}).join('')+'</select></div>'+
+          '<div style="flex:1;"><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Temps / question</label>'+
+            '<select id="k-ts" class="inp" onchange="kotmSetTimer(this.value)">'+
+              [15,20,30,45].map(function(v){return '<option value="'+v+'"'+(K.timer===v?' selected':'')+'>'+v+'s</option>';}).join('')+'</select></div>'+
+        '</div>'+
+        '<button class="btn" style="width:100%;padding:14px;font-size:15px;" '+(K.loading?'disabled':'')+' onclick="kotmCreate()">'+(K.loading?'⏳ Création…':'👑 Créer le trône & inviter')+'</button>'+
+      '</div>'+
+      '<div class="card" style="padding:16px;display:flex;flex-direction:column;gap:10px;">'+
+        '<div style="font-weight:800;color:white;font-size:14px;">🔑 Rejoindre par code</div>'+
+        '<div style="display:flex;gap:8px;">'+
+          '<input id="k-join-code" type="text" maxlength="8" placeholder="CODE" class="inp" style="flex:1;text-transform:uppercase;letter-spacing:2px;font-weight:800;" onkeydown="if(event.key===\'Enter\'){kotmJoinCode();}">'+
+          '<button class="btn btn-sm" style="flex-shrink:0;padding:0 16px;" onclick="kotmJoinCode()">Rejoindre</button>'+
+        '</div>'+
+      '</div>'+
+      '<div style="font-weight:800;color:white;font-size:14px;">🔥 Trônes ouverts</div>'+
+      '<div class="card" style="padding:14px;"><div id="k-lobby">'+
+        '<div style="font-size:12px;color:var(--sub);text-align:center;padding:10px;">Chargement…</div></div></div>'+
+    '</div>';
+  }
+
+  function kRenderWait(){
+    var sides=kSides();
+    var oppKnown = !!(kPlayers(K.game).length>=2 || (K.game&&K.game.joiner_id!=null));
+    var sub = K.isCreator
+      ? (oppKnown ? '⚔️ Adversaire trouvé — lancement du trône…' : 'En attente d\'un adversaire…')
+      : (K.status==='active' ? 'Lancement…' : 'En attente du lancement par l\'hôte…');
+    return '<div style="max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:14px;">'+
+      '<div class="card" style="text-align:center;padding:26px;background:linear-gradient(135deg,rgba(245,196,83,.12),rgba(201,153,26,.02));">'+
+        '<div class="pls" style="font-size:42px;margin-bottom:8px;">👑</div>'+
+        '<h3 style="color:white;font-size:18px;margin-bottom:4px;">Trône prêt</h3>'+
+        '<div style="font-size:12px;color:var(--sub);margin-bottom:12px;">'+kPackLabel(K.pack)+' · '+K.total+'Q · ⏱ '+K.timer+'s</div>'+
+        '<div style="display:inline-block;background:rgba(0,0,0,.25);border:1px dashed rgba(245,196,83,.5);border-radius:12px;padding:10px 22px;margin-bottom:12px;">'+
+          '<div style="font-size:10px;color:var(--sub);letter-spacing:1px;">CODE DU TRÔNE</div>'+
+          '<div style="font-size:26px;font-weight:900;color:#F5C453;letter-spacing:4px;">'+kEsc(K.code)+'</div>'+
+        '</div>'+
+        '<div id="k-wait-sub" style="font-size:13px;color:#aac4e8;margin-bottom:14px;">'+sub+'</div>'+
+        (K.isCreator ? '<button class="btn btn-sm" onclick="arShareWA(\''+K.code+'\',\'duel\')">📱 Inviter via WhatsApp</button>' : '')+
+      '</div>'+
+      '<button class="btn-out btn-sm" style="width:100%;" onclick="kotmQuit()">← Quitter</button>'+
+    '</div>';
+  }
+
+  function kThroneHeader(){
+    var sides=kSides(), mid=kMyId(K.game);
+    var kingName=kKingName();
+    var meKing  = (K.kingId!=null && sides.me.id && String(K.kingId)===sides.me.id);
+    var oppKing = (K.kingId!=null && sides.opp.id && String(K.kingId)===sides.opp.id);
+    var throne = (kingName!=null)
+      ? '<span style="color:#F5C453;">👑 '+kEsc(kingName)+'</span>'+(K.kingStreak>0?' <span style="font-size:11px;color:#fbbf24;">🛡️ défense ×'+K.kingStreak+'</span>':'')
+      : '<span style="color:var(--sub);">Trône vacant — à conquérir !</span>';
+    return '<div style="position:sticky;top:0;z-index:5;background:rgba(8,22,18,.97);backdrop-filter:blur(4px);padding:8px 0;display:flex;flex-direction:column;gap:9px;">'+
+      '<div id="k-throne" style="text-align:center;font-size:13.5px;font-weight:800;padding:6px 8px;border-radius:10px;background:rgba(245,196,83,.07);border:1px solid rgba(245,196,83,.3);">'+throne+'</div>'+
+      '<div class="vs-wrap">'+
+        '<div class="vs-panel" style="border-color:rgba(201,153,26,.3);">'+
+          '<div class="vs-score" id="k-sc-me" style="color:#4ade80;">'+sides.me.score+'</div>'+
+          '<div class="vs-name"><span id="k-crown-me">'+(meKing?'👑 ':'')+'</span>Vous</div>'+
+        '</div>'+
+        '<div class="vs-sep">VS</div>'+
+        '<div class="vs-panel" style="border-color:rgba(239,68,68,.3);">'+
+          '<div class="vs-score" id="k-sc-opp" style="color:#f87171;">'+sides.opp.score+'</div>'+
+          '<div class="vs-name"><span id="k-crown-opp">'+(oppKing?'👑 ':'')+'</span><span id="k-name-opp">'+kEsc(sides.opp.name||'Adversaire')+'</span></div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="tmr-bar"><div class="tmr-fill" id="k-timerbar" style="width:100%;"></div></div>'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--sub);">'+
+        '<span>Q '+(K.qIndex+1)+' / '+K.total+'</span>'+
+        '<span id="k-timernum" style="color:var(--cyan);">⏱ '+Math.ceil(K.budgetMs/1000)+'s</span>'+
+      '</div>'+
+    '</div>';
+  }
+
+  function kRenderGame(){
+    var q=K.q;
+    if(!q){
+      return '<div style="display:flex;flex-direction:column;gap:12px;">'+kThroneHeader()+
+        '<div class="card" style="text-align:center;padding:24px;color:var(--sub);">'+
+          '<span class="spin">⏳</span> Chargement de la manche…'+
+        '</div>'+
+        '<button class="btn-out btn-sm" style="align-self:flex-start;" onclick="kotmQuit()">← Abandonner</button></div>';
+    }
+    var opts=(q.choices||[]).map(function(c,i){
+      return '<button class="opt" id="k-opt-'+i+'" onclick="kotmPick('+i+')">'+
+        '<span style="font-weight:700;color:var(--sub);margin-right:8px;">'+String.fromCharCode(65+i)+'.</span>'+kEsc(c)+'</button>';
+    }).join('');
+    return '<div class="ar-game" style="max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:11px;">'+
+      kThroneHeader()+
+      (q.cat?'<span class="badge" style="align-self:flex-start;">'+kEsc(q.cat)+'</span>':'')+
+      '<div class="card" style="padding:18px;"><p style="font-size:15px;font-weight:600;color:white;line-height:1.6;">'+kEsc(q.q)+'</p></div>'+
+      '<div id="k-choices">'+opts+'</div>'+
+      '<div id="k-foot"></div>'+
+      '<button class="btn-out btn-sm" style="align-self:flex-start;" onclick="kotmQuit()">← Abandonner</button>'+
+    '</div>';
+  }
+
+  function kRenderResult(){
+    var sides=kSides();
+    var mine=sides.me.score, opp=sides.opp.score;
+    var win = mine>opp, tie = mine===opp;
+    if(!K._finPlayed){ K._finPlayed=true; setTimeout(function(){ try{ if(win){ if(typeof sndWin==='function')sndWin(); if(typeof fxFireworks==='function')fxFireworks(); if(typeof fxFlash==='function')fxFlash('👑 TRÔNE CONQUIS !','#F5C453'); } else if(tie){ if(typeof fxFlash==='function')fxFlash('Égalité ⚔️','#C9991A'); } else { if(typeof sndLose==='function')sndLose(); if(typeof fxFlash==='function')fxFlash('Bien battu 💪','#C9991A'); } }catch(e){} }, 200); }
+    var icon = win?'👑':tie?'🤝':'💪';
+    var title= win?'Vous êtes le Roi de la Manche !':tie?'Égalité parfaite !':'Belle bataille !';
+    return '<div style="max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:14px;">'+
+      '<div class="card" style="text-align:center;padding:28px;background:linear-gradient(135deg,rgba(245,196,83,.14),rgba(201,153,26,.03));">'+
+        '<div style="font-size:48px;margin-bottom:8px;">'+icon+'</div>'+
+        '<h3 style="color:white;font-size:19px;margin-bottom:4px;">'+title+'</h3>'+
+        '<p style="color:var(--sub);font-size:12px;margin-bottom:16px;">Roi de la Manche · '+kEsc(K.code)+'</p>'+
+        '<div class="vs-wrap" style="margin-bottom:0;">'+
+          '<div class="vs-panel" style="border-color:rgba(201,153,26,.4);"><div class="vs-score" style="color:#4ade80;">'+mine+'</div><div class="vs-name">Vous</div></div>'+
+          '<div class="vs-sep">VS</div>'+
+          '<div class="vs-panel" style="border-color:rgba(239,68,68,.4);"><div class="vs-score" style="color:#f87171;">'+opp+'</div><div class="vs-name">'+kEsc(sides.opp.name||'Adversaire')+'</div></div>'+
+        '</div>'+
+      '</div>'+
+      '<div style="display:flex;gap:9px;">'+
+        '<button class="btn" style="flex:1;padding:13px;" onclick="kotmHome()">👑 Nouveau trône</button>'+
+        '<button class="btn-out" style="flex:1;padding:13px;" onclick="ST(\'leaderboard\')">📊 Classement</button>'+
+      '</div>'+
+      '<button class="btn-out btn-sm" style="width:100%;" onclick="kotmQuit()">← Retour à l\'Arène</button>'+
+    '</div>';
+  }
+
+  /* ───────── APRÈS RENDU ───────── */
+  window.kotmAfterRender=function(){
+    if(K.view==='home'){ kStopPoll(); kStopTimer(); kLoadLobby(); }
+    else if(K.view==='wait'){ kStartPoll(); }
+    else if(K.view==='game'){ kStartPoll(); if(K.q && !K.answered) kStartTimer(); }
+    else { kStopPoll(); kStopTimer(); }
+  };
+
+  /* ───────── RÉGLAGES ───────── */
+  window.kotmSetPack =function(v){ K.pack=v; };
+  window.kotmSetNq   =function(v){ K.nq=parseInt(v,10)||10; };
+  window.kotmSetTimer=function(v){ K.timer=parseInt(v,10)||20; };
+
+  /* ───────── LOBBY ───────── */
+  function kLoadLobby(){
+    var box=ge('k-lobby'); if(!box) return;
+    fetch('/kotm/lobby',{headers:kHdr()})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        var bx=ge('k-lobby'); if(!bx) return;
+        var rows = (d&&(d.open||d.games||d.lobby||d.rooms)) || (Array.isArray(d)?d:[]);
+        rows = (rows||[]).filter(function(x){ return x && x.code && (x.status===undefined||x.status==='waiting'||x.status==='lobby'||x.status==='open'); });
+        if(!rows.length){ bx.innerHTML='<div style="font-size:12px;color:var(--sub);text-align:center;padding:8px;">Aucun trône ouvert. Créez le vôtre 👑</div>'; return; }
+        bx.innerHTML=rows.map(function(x){
+          var nm=x.creator_name||(x.creator&&x.creator.name)||'Joueur';
+          var av=(typeof arAvatar==='function')?arAvatar(nm):'';
+          return '<div class="card" style="display:flex;align-items:center;gap:10px;padding:12px;margin-bottom:8px;border:1px solid rgba(245,196,83,.25);background:rgba(245,196,83,.04);">'+
+            av+
+            '<div style="min-width:0;flex:1;">'+
+              '<div style="font-weight:700;color:white;font-size:13px;">'+kEsc(nm)+(x.country?' <span style="font-size:10px;color:var(--sub);">('+kEsc(x.country)+')</span>':'')+'</div>'+
+              '<div style="font-size:11px;margin-top:3px;display:flex;gap:5px;flex-wrap:wrap;align-items:center;">'+
+                '<span style="background:rgba(245,196,83,.18);color:#F5C453;padding:1px 7px;border-radius:4px;font-weight:600;">'+kEsc(kPackLabel(x.pack_id))+'</span>'+
+                '<span style="color:var(--sub);">'+((x.num_questions||10))+'Q</span>'+
+                '<span style="color:var(--sub);">⏱ '+((x.timer_sec||20))+'s</span>'+
+              '</div>'+
+            '</div>'+
+            '<button class="btn btn-sm" style="flex-shrink:0;" onclick="kotmJoinLobby(\''+kEsc(x.code)+'\')">👑 Affronter</button>'+
+          '</div>';
+        }).join('')+
+        '<button class="btn-out btn-sm" style="width:100%;margin-top:4px;font-size:11px;" onclick="kotmRefreshLobby()">🔄 Actualiser</button>';
+      })
+      .catch(function(){ var bx=ge('k-lobby'); if(bx) bx.innerHTML='<div style="font-size:12px;color:var(--sub);text-align:center;padding:8px;">Trônes ouverts indisponibles.</div>'; });
+  }
+  window.kotmRefreshLobby=function(){ kLoadLobby(); };
+
+  /* ───────── CRÉATION / ENTRÉE ───────── */
+  function kResetMatch(){
+    K.game=null; K.status=''; K.curIdx=-1; K.qIndex=-1; K.kingId=null; K.kingStreak=0;
+    K.q=null; K.answered=false; K.loadingQ=false; K.myId=''; K._startSent=false;
+    K._waitSig=''; K._finPlayed=false; K.lastFb=null;
+    kStopTimer();
+  }
+
+  window.kotmCreate=function(){
+    if(K.loading) return;
+    if(!kLogged()){ ST('settings'); return; }
+    var pool=kPoolSize(K.pack);
+    var nq=Math.max(1, Math.min(K.nq, pool));
+    if(pool<1){ alert('Pas de questions disponibles pour ce pack.'); return; }
+    K.loading=true; render();
+    var picked=kPick(K.pack, nq, 'K'+Date.now()+Math.random());
+    K._picked=picked;
+    fetch('/kotm',{method:'POST',headers:kHdr(),body:JSON.stringify({pack_id:K.pack,num_questions:nq,timer_sec:K.timer,questions:picked})})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        K.loading=false;
+        var code=d&&(d.code||(d.game&&d.game.code));
+        if(!code){ alert((d&&d.error)||'Création impossible.'); render(); return; }
+        kResetMatch();
+        K.code=code; K.isCreator=true; K.total=nq; K.game=d.game||null; K.status=(d.game&&d.game.status)||'waiting';
+        K.view='wait'; render();
+      })
+      .catch(function(){ K.loading=false; alert('Erreur réseau (création).'); render(); });
+  };
+
+  window.kotmJoinCode=function(){
+    var el=ge('k-join-code'); var code=(el&&el.value||'').trim().toUpperCase();
+    if(!code){ if(el) el.focus(); return; }
+    kDoJoin(code);
+  };
+  window.kotmJoinLobby=function(code){ kDoJoin((code||'').trim().toUpperCase()); };
+
+  function kDoJoin(code){
+    if(!code) return;
+    if(!kLogged()){ ST('settings'); return; }
+    fetch('/kotm/'+code+'/join',{method:'POST',headers:kHdr(),body:JSON.stringify({})})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(d && d.error && !d.game && d.success===false){ throw new Error(d.error); }
+        kResetMatch();
+        K.code=code; K.isCreator=false;
+        K.game=d.game||null; K.status=(d.game&&d.game.status)||'waiting';
+        K.pack=(d.game&&d.game.pack_id)||K.pack;
+        K.total=(d.game&&d.game.num_questions)||K.nq;
+        K.timer=(d.game&&d.game.timer_sec)||K.timer;
+        K.view='wait'; render();
+      })
+      .catch(function(e){ showModal('Oups','<div class="al al-err" style="font-size:13px;">'+kEsc(e.message||'Impossible de rejoindre ce trône.')+'</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>'); });
+  }
+
+  // Lancement par l'hôte une fois l'adversaire présent (pickQuestions fige les Q serveur)
+  function kHostStart(){
+    fetch('/kotm/'+K.code+'/start',{method:'POST',headers:kHdr(),body:JSON.stringify({questions:K._picked||undefined})})
+      .then(function(r){return r.json();})
+      .then(function(d){ if(d&&d.game) K.game=d.game; if(d&&d.status) K.status=d.status; })
+      .catch(function(){ K._startSent=false; }); // ré-essai au prochain poll si échec
+  }
+
+  /* ───────── POLLING (heartbeat /state) ───────── */
+  function kStartPoll(){ if(K.pollId) return; K.pollId=setInterval(kPollTick, 1100); kPollTick(); }
+  function kStopPoll(){ if(K.pollId){ clearInterval(K.pollId); K.pollId=null; } }
+
+  function kPollTick(){
+    if(typeof TAB!=='undefined' && (TAB!=='arena' || AR.tab!=='kotm') ){ kStopPoll(); return; }
+    if(!K.code || (K.view!=='wait' && K.view!=='game')){ kStopPoll(); return; }
+    fetch('/kotm/'+K.code+'/state',{headers:kHdr()})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(!d) return;
+        if(d.game) K.game=d.game;
+        if(d.status) K.status=d.status; else if(K.game&&K.game.status) K.status=K.game.status;
+        if(d.king_id!=null) K.kingId=String(d.king_id); else if(K.game&&K.game.king_id!=null) K.kingId=String(K.game.king_id);
+        if(typeof d.king_streak==='number') K.kingStreak=d.king_streak; else if(K.game&&typeof K.game.king_streak==='number') K.kingStreak=K.game.king_streak;
+        var srvCur = (typeof d.cur_index==='number')?d.cur_index : (K.game&&typeof K.game.cur_index==='number'?K.game.cur_index:K.curIdx);
+        K.curIdx = srvCur;
+        if(K.game&&K.game.num_questions) K.total=K.game.num_questions;
+        kMyId(K.game);
+
+        if(K.status==='finished'){ kFinish(); return; }
+
+        // Hôte : lance dès qu'un adversaire a rejoint
+        if(K.isCreator && !K._startSent && K.status!=='active'){
+          var hasOpp = (K.game&&K.game.joiner_id!=null) || kPlayers(K.game).length>=2;
+          if(hasOpp){ K._startSent=true; kHostStart(); }
+        }
+
+        if(K.status==='active'){
+          if(K.view==='wait'){ K.view='game'; render(); } // afterRender (re)lance poll/timer ; question chargée ci-dessous
+          // chargement / avancée de manche pilotée par cur_index serveur
+          if(typeof srvCur==='number' && srvCur>=0 && srvCur!==K.qIndex && !K.loadingQ){
+            kLoadQuestion(srvCur);
+          } else {
+            kSyncThrone(d);
+            // resync chrono sur l'horloge serveur (équitable, anti-dérive) tant que je n'ai pas répondu
+            if(!K.answered && typeof d.q_remaining_ms==='number' && d.q_remaining_ms>=0 && srvCur===K.qIndex){
+              K.deadline = Date.now() + d.q_remaining_ms;
+            }
+          }
+        } else {
+          // En salle d'attente : re-render si l'état a changé (présence adversaire, etc.)
+          var sig = K.status+'|'+kPlayers(K.game).length+'|'+((K.game&&K.game.joiner_id)||'');
+          if(sig!==K._waitSig){ K._waitSig=sig; if(K.view==='wait') render(); }
+        }
+      })
+      .catch(function(){});
+  }
+
+  // Maj DOM du bandeau trône + scores SANS re-render (préserve l'état des boutons en cours de manche)
+  function kSyncThrone(d){
+    var sides=kSides();
+    var me=ge('k-sc-me'), op=ge('k-sc-opp'); if(me) me.textContent=sides.me.score; if(op) op.textContent=sides.opp.score;
+    var nm=ge('k-name-opp'); if(nm && sides.opp.name) nm.textContent=sides.opp.name;
+    var kn=kKingName();
+    var th=ge('k-throne');
+    if(th){
+      th.innerHTML = (kn!=null)
+        ? ('<span style="color:#F5C453;">👑 '+kEsc(kn)+'</span>'+(K.kingStreak>0?' <span style="font-size:11px;color:#fbbf24;">🛡️ défense ×'+K.kingStreak+'</span>':''))
+        : '<span style="color:var(--sub);">Trône vacant — à conquérir !</span>';
+    }
+    var cMe=ge('k-crown-me'), cOp=ge('k-crown-opp');
+    if(cMe) cMe.textContent=(K.kingId!=null && sides.me.id && String(K.kingId)===sides.me.id)?'👑 ':'';
+    if(cOp) cOp.textContent=(K.kingId!=null && sides.opp.id && String(K.kingId)===sides.opp.id)?'👑 ':'';
+  }
+
+  /* ───────── CHARGEMENT D'UNE MANCHE ───────── */
+  function kLoadQuestion(idx){
+    K.loadingQ=true; kStopTimer();
+    fetch('/kotm/'+K.code+'/question/'+idx,{headers:kHdr()})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        K.loadingQ=false;
+        var q=d&&(d.question||d.q||(d.choices?d:null));
+        if(!q || !q.choices){ // question indisponible : on retentera au prochain poll
+          K.q=null; render(); return;
+        }
+        K.qIndex=idx; K.q=q; K.answered=false; K.lastFb=null;
+        if(d.total) K.total=d.total; if(K.game&&K.game.num_questions) K.total=K.game.num_questions;
+        var budget = (typeof d.budget_ms==='number'?d.budget_ms : (typeof d.timer_sec==='number'?d.timer_sec*1000 : (typeof q.timer_sec==='number'?q.timer_sec*1000 : K.timer*1000)));
+        K.budgetMs = budget||K.timer*1000;
+        render(); // kotmAfterRender démarre le chrono
+      })
+      .catch(function(){ K.loadingQ=false; K.q=null; render(); });
+  }
+
+  /* ───────── RÉPONSE ───────── */
+  window.kotmPick=function(i){
+    if(K.answered || !K.q) return;
+    K.answered=true; kStopTimer();
+    var q=K.q;
+    for(var k2=0;k2<(q.choices||[]).length;k2++){ var b=ge('k-opt-'+k2); if(b) b.disabled=true; }
+    var foot=ge('k-foot'); if(foot) foot.innerHTML='<div class="al al-info" style="font-size:12px;"><span class="spin">⏳</span> Validation…</div>';
+    fetch('/kotm/'+K.code+'/answer',{method:'POST',headers:kHdr(),body:JSON.stringify({q_index:K.qIndex,choice_index:i})})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(!d || d.error){ if(foot) foot.innerHTML='<div class="al al-err" style="font-size:12px;">'+kEsc((d&&d.error)||'Réponse refusée.')+'</div>'; return; }
+        if(d.game) K.game=d.game;
+        if(d.king_id!=null) K.kingId=String(d.king_id);
+        if(typeof d.king_streak==='number') K.kingStreak=d.king_streak;
+        // surlignage : index correct si fourni, sinon depuis la question locale
+        var ci = (typeof d.correct_index==='number')?d.correct_index : (typeof q.answer==='number'?q.answer : (typeof q.correct==='number'?q.correct:null));
+        var chosen=ge('k-opt-'+i); if(ci!=null){ var good=ge('k-opt-'+ci); if(good) good.classList.add('right'); }
+        if(!d.correct && chosen && i>=0) chosen.classList.add('wrong');
+        kSyncThrone({});
+        // sons / fx
+        try{
+          if(d.correct){ if(d.stole){ if(typeof sndWin==='function')sndWin(); if(typeof fxFlash==='function')fxFlash('👑 Trône volé !','#F5C453'); } else { if(typeof sndCorrect==='function')sndCorrect(); if(typeof fxBravo==='function')fxBravo(); } }
+          else { if(typeof sndWrong==='function')sndWrong(); }
+        }catch(e){}
+        var pts = (d.points_earned!=null?d.points_earned:0);
+        var bonusBits=[]; if(d.speed_bonus) bonusBits.push('vitesse +'+d.speed_bonus); if(d.defend_bonus) bonusBits.push('défense +'+d.defend_bonus);
+        var bonusTxt = bonusBits.length?(' <span style="font-size:11px;color:var(--sub);">('+bonusBits.join(' · ')+')</span>'):'';
+        var head;
+        if(d.correct && d.stole)      head='👑 <strong>Vous RAFLEZ le trône !</strong> +'+pts;
+        else if(d.correct && d.defended) head='🛡️ <strong>Trône défendu !</strong> +'+pts+' <span style="font-size:11px;color:#fbbf24;">(série ×'+(K.kingStreak||1)+')</span>';
+        else if(d.correct)            head='✅ <strong>Bonne réponse !</strong> +'+pts;
+        else                          head='❌ '+(i<0?'Temps écoulé':'Raté')+' — '+(d.finished?'manche terminée':'en attente de l\'adversaire…');
+        var cls=d.correct?'al-ok':'al-err';
+        if(foot){
+          foot.innerHTML='<div class="al '+cls+'" style="font-size:12.5px;">'+head+bonusTxt+'</div>'+
+            (q.source?('<div style="font-size:11px;color:#aac4e8;background:rgba(201,153,26,.07);border:1px solid rgba(201,153,26,.4);border-radius:9px;padding:8px 10px;margin-top:8px;">📚 '+kEsc(q.source)+'</div>'):'')+
+            (!d.finished && (typeof d.cur_index!=='number' || d.cur_index===K.qIndex)?'<div style="font-size:11px;color:var(--sub);margin-top:8px;text-align:center;">⏳ Manche en cours… le premier juste l\'emporte.</div>':'');
+        }
+        // avancée : si le serveur a fait progresser cur_index, charger la manche suivante
+        if(d.finished){ setTimeout(kFinish, 1100); return; }
+        if(typeof d.cur_index==='number' && d.cur_index>K.qIndex){
+          setTimeout(function(){ if(K.status!=='finished') kLoadQuestion(d.cur_index); }, 1150);
+        }
+        // sinon : j'attends que l'adversaire réponde → le poll détectera l'avancée de cur_index
+      })
+      .catch(function(){ if(foot) foot.innerHTML='<div class="al al-err" style="font-size:12px;">Erreur réseau (réponse).</div>'; });
+  };
+
+  /* ───────── CHRONO LOCAL (resynchronisé sur le serveur) ───────── */
+  function kStartTimer(){
+    kStopTimer();
+    K.deadline = Date.now() + (K.budgetMs||K.timer*1000);
+    K.timerId = setInterval(kTimerTick, 250);
+    kTimerTick();
+  }
+  function kStopTimer(){ if(K.timerId){ clearInterval(K.timerId); K.timerId=null; } }
+  function kTimerTick(){
+    if(typeof TAB!=='undefined' && (TAB!=='arena' || AR.tab!=='kotm' || K.view!=='game')){ kStopTimer(); return; }
+    var budget=K.budgetMs||K.timer*1000;
+    var left=Math.max(0, K.deadline-Date.now());
+    var bar=ge('k-timerbar'), num=ge('k-timernum');
+    if(bar){ bar.style.width=(left/budget*100)+'%'; bar.style.background = left<=5000?'#ef4444' : left<=10000?'#fbbf24' : ''; }
+    if(num){ var s=Math.ceil(left/1000); num.textContent='⏱ '+s+'s'; num.style.color = left<=5000?'#f87171' : left<=10000?'#fbbf24' : 'var(--cyan)'; }
+    if(left<=0){
+      kStopTimer();
+      if(!K.answered){
+        // temps écoulé : verrouillage local. Le serveur résout la manche en lazy
+        // (manche neutre si double-échec/timeout) ; le poll /state chargera la suite.
+        K.answered=true;
+        var q=K.q; if(q){ for(var j=0;j<(q.choices||[]).length;j++){ var b=ge('k-opt-'+j); if(b) b.disabled=true; } }
+        var foot=ge('k-foot'); if(foot) foot.innerHTML='<div class="al al-warn" style="font-size:12px;">⏱ Temps écoulé — résolution de la manche…</div>';
+        try{ if(typeof sndWrong==='function') sndWrong(); }catch(e){}
+      }
+    }
+  }
+
+  /* ───────── FIN ───────── */
+  function kFinish(){
+    kStopPoll(); kStopTimer();
+    if(K.view!=='result'){ K.view='result'; render(); }
+  }
+
+  /* ───────── NAVIGATION ───────── */
+  window.kotmHome=function(){ kStopPoll(); kStopTimer(); kResetMatch(); K.code=''; K.view='home'; render(); };
+  window.kotmQuit=function(){ kStopPoll(); kStopTimer(); kResetMatch(); K.code=''; K.view='home'; render(); };
 })();
 </script>
 </body>
