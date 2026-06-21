@@ -2452,11 +2452,41 @@ function rARDuelGame(){
   '</div>';
 }
 
+/* MODIFIÉ : appelé par le bouton ⚔️ Défier (lecture sûre du nom via data-attributes) */
+function arChallengePlayerEl(el){
+  if(!el) return;
+  arChallengePlayer(el.getAttribute('data-uid'), el.getAttribute('data-uname')||'');
+}
+
+/* MODIFIÉ : filet de sécurité — force l'affichage de la feuille de match si le serveur
+   ne bascule jamais le duel en "finished" (corrige le blocage "En attente de…" permanent). */
+function arForceResult(){
+  if(AR._waitTO){ clearTimeout(AR._waitTO); AR._waitTO=null; }
+  if(!AR.duelObj) AR.duelObj={};
+  AR.duelObj.status='finished';
+  if(!AR.duelObj.scores || !AR.duelObj.scores.length){
+    AR.duelObj.scores=[
+      {user_id:AR.myUserId||'_me', score:AR.sc||0},
+      {user_id:'_opp', score:AR.oppSc||0}
+    ];
+  }
+  if(AR.pollId){ clearInterval(AR.pollId); AR.pollId=null; }
+  render();
+}
+
 /* ── Résultats duel ── */
 function arWaitOpponent(){
   var on = arOppName();
   // MODIFIÉ — s'assurer que le poll tourne (sinon "En attente" permanent)
   if(!AR.pollId && AR.code && AR.type==='duel') arStartPollDuel();
+  // MODIFIÉ — filet anti-blocage : si le serveur ne passe jamais en "finished",
+  // on affiche automatiquement la feuille de match après 45 s d'attente.
+  if(!AR._waitTO){
+    AR._waitTO=setTimeout(function(){
+      AR._waitTO=null;
+      if(AR.type==='duel' && AR.code && (!AR.duelObj || AR.duelObj.status!=='finished')) arForceResult();
+    }, 45000);
+  }
   return '<div style="max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:14px;">'+
     '<div class="card" style="text-align:center;padding:26px;">'+
       '<div class="pls" style="font-size:40px;margin-bottom:10px;">⏳</div>'+
@@ -2468,6 +2498,7 @@ function arWaitOpponent(){
         '<div class="vs-panel" style="border-color:rgba(239,68,68,.4);"><div class="vs-score" style="color:#f87171;">'+AR.oppSc+'</div><div class="vs-name">'+on+'</div></div>'+
       '</div>'+
     '</div>'+
+    '<button class="btn btn-sm" style="width:100%;" onclick="arForceResult()">📋 Voir la feuille de match →</button>'+ // MODIFIÉ : débloque l\'écran sans attendre le serveur
     '<button class="btn-out btn-sm" style="width:100%;" onclick="arQuit()">← Quitter</button>'+
   '</div>';
 }
@@ -3392,7 +3423,7 @@ function arSearchPlayer(q){
           '<div style="flex:1;min-width:0;"><div style="font-weight:600;color:white;font-size:13px;">'+safe+'</div>'+
           (u.country?'<div style="font-size:11px;color:var(--sub);">'+arChatEsc(u.country)+'</div>':'')+
           '</div>'+
-          '<button class="btn btn-sm" style="flex-shrink:0;" onclick="arChallengePlayer('+u.id+','+JSON.stringify(u.name||'')+')" >⚔️ Défier</button>'+
+          '<button class="btn btn-sm" style="flex-shrink:0;" data-uid="'+u.id+'" data-uname="'+safe+'" onclick="arChallengePlayerEl(this)">⚔️ Défier</button>'+ // MODIFIÉ : data-attributes (l\'ancien onclick avec JSON.stringify cassait l\'attribut HTML → bouton inerte)
         '</div>';
       }).join('');
     }).catch(function(){
@@ -4986,8 +5017,47 @@ window.addEventListener('load', function(){
     var _pays = [['sn','Sénégal'],['ci',"Côte d'Ivoire"],['ml','Mali'],['bf','Burkina Faso'],['bj','Bénin'],['ne','Niger'],['tg','Togo'],['gw','Guinée-Bissau'],['cm','Cameroun'],['cg','Congo'],['ga','Gabon'],['gq','Guinée éq.'],['cf','Centrafrique'],['td','Tchad']]; // MODIFIÉ
     var _info = '<span style="font-size:13px;font-weight:700;color:var(--cyan);">📚 '+tot+' questions · '+nThemes+' thèmes · 2 zones : UEMOA (BCEAO) &amp; CEMAC (BEAC)</span>'; // MODIFIÉ
     var _chips = _pays.map(function(p){ return '<span class="flagchip"><svg class="flag"><use href="#fl-'+p[0]+'"/></svg>'+p[1]+'</span>'; }).join(''); // MODIFIÉ
-    var _seg = _info + '<span class="ticker-sep">●</span>' + _chips; // MODIFIÉ
-    _tk.innerHTML = _seg + '<span class="ticker-sep">●</span>' + _seg; // MODIFIÉ : dupliqué pour boucle fluide
+    var _seg = _info + '<span class="ticker-sep">●</span>' + _chips; // MODIFIÉ (conservé en repli)
+    /* MODIFIÉ — Flash Info : actualités PI-SPI + GAFI alternées avec les Maîtres de l'Arène.
+       ⚠️ Textes d'actualité éditables ci-dessous — à valider/personnaliser par Abdou. */
+    var FLASH_NEWS = [
+      {ic:'⚡', t:'PI-SPI BCEAO — l\'interopérabilité des paiements instantanés accélère les transferts dans l\'UEMOA.'},
+      {ic:'⚡', t:'PI-SPI — paiements instantanés : pensez aux obligations de vigilance LBC/FT.'},
+      {ic:'🛡️', t:'GAFI — les 40 Recommandations restent le standard mondial LBC/FT.'},
+      {ic:'🛡️', t:'GAFI — liste grise : vigilance renforcée sur les juridictions sous surveillance accrue.'}
+    ];
+    var _SEP = '<span class="ticker-sep">●</span>'; // MODIFIÉ
+    function _flashItem(o){ return '<span style="font-size:13px;color:#e8eefb;">'+o.ic+' '+o.t+'</span>'; } // MODIFIÉ
+    function _buildTicker(maitres){ // MODIFIÉ : intercale actualité / maître / actualité / maître…
+      var parts=[_info];
+      for(var i=0;i<FLASH_NEWS.length;i++){
+        parts.push(_flashItem(FLASH_NEWS[i]));
+        if(maitres && maitres[i]) parts.push(maitres[i]);
+      }
+      if(maitres){ for(var j=FLASH_NEWS.length;j<maitres.length;j++) parts.push(maitres[j]); }
+      parts.push(_chips);
+      var seg=parts.join(_SEP);
+      return seg + _SEP + seg; // dupliqué pour boucle fluide
+    }
+    _tk.innerHTML = _buildTicker(null); // MODIFIÉ : affichage immédiat sans attendre le réseau
+    /* MODIFIÉ — récupère les "Maîtres de l'Arène" (top-3 par zone) en arrière-plan */
+    (function(){
+      var _hdr=(typeof U!=='undefined'&&U&&U.token)?{'Authorization':'Bearer '+U.token}:{};
+      function top3(zone,label){
+        return fetch('/leaderboard?zone='+zone,{headers:_hdr}).then(function(r){return r.json();})
+          .then(function(d){
+            var l=(d&&d.leaderboard)||[]; if(!l.length) return [];
+            var med=['🥇','🥈','🥉'];
+            return l.slice(0,3).map(function(p,i){
+              return '<span style="font-size:13px;font-weight:700;color:#fbbf24;">🏆 Maître '+label+' '+med[i]+' '+arChatEsc(p.name||'?')+' — '+(p.total_score||0)+' pts</span>';
+            });
+          }).catch(function(){ return []; });
+      }
+      Promise.all([top3('uemoa','UEMOA'), top3('cemac','CEMAC')]).then(function(res){
+        var m=[]; (res[0]||[]).forEach(function(x){m.push(x);}); (res[1]||[]).forEach(function(x){m.push(x);});
+        if(m.length && ge('ticker-txt')) ge('ticker-txt').innerHTML=_buildTicker(m);
+      });
+    })();
   } // MODIFIÉ
 });
 </script>
