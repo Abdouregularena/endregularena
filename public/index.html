@@ -6222,7 +6222,7 @@ function rFEEDBACK(){
       '<h2 style="margin-bottom:4px;font-size:22px;color:white;">💡 Votre avis fait grandir l\'Arène</h2>'+
       '<div style="font-size:13px;color:var(--sub);line-height:1.55;">REGUL ARENA est construite avec vous. Une idée, une question mal posée, un bug, une suggestion de fonctionnalité&nbsp;? Dites-le ici&nbsp;: votre retour part directement au fondateur.</div>'+
     '</div>'+
-    '<div class="card">'+
+    '<div class="card" id="rafb-form">'+ // MODIFIÉ : id pour réinitialiser après envoi
       '<div style="font-size:12px;font-weight:700;color:#cdd8ef;margin-bottom:8px;">De quoi s\'agit-il&nbsp;?</div>'+
       '<div id="rafb-chips" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">'+chips+'</div>'+
       '<div style="font-size:12px;font-weight:700;color:#cdd8ef;margin-bottom:4px;">Votre note (facultatif)</div>'+
@@ -6235,7 +6235,7 @@ function rFEEDBACK(){
           'style="flex:1;min-width:140px;padding:11px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:white;font-size:13px;box-sizing:border-box;">'+
         '<input id="rafb-contact" type="text" maxlength="120" value="'+raFbEsc(mail)+'" placeholder="Email / téléphone (si vous voulez une réponse)" '+
           'style="flex:1;min-width:140px;padding:11px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:white;font-size:13px;box-sizing:border-box;"></div>'+
-      '<button class="btn" style="width:100%;margin-top:14px;padding:14px;font-size:15px;" onclick="raFbSend()">📩 Envoyer mon avis</button>'+
+      '<button class="btn" id="rafb-sendbtn" style="width:100%;margin-top:14px;padding:14px;font-size:15px;" onclick="raFbSend()">📩 Envoyer mon avis</button>'+
       '<div id="rafb-status" style="margin-top:10px;"></div>'+
       '<div style="font-size:11px;color:var(--sub);margin-top:8px;text-align:center;">Votre retour est transmis à l\'équipe REGUL ARENA. Merci de faire avancer la plateforme&nbsp;🙏</div>'+
     '</div>'+
@@ -6251,6 +6251,7 @@ function raFbSetStar(n){
   }
 }
 function raFbSend(){
+  if(window._raFbSending) return; // MODIFIÉ : anti double-envoi
   var msgEl=document.getElementById('rafb-msg');
   var st=document.getElementById('rafb-status');
   var msg=(msgEl&&msgEl.value||'').trim();
@@ -6272,22 +6273,70 @@ function raFbSend(){
     '— Envoyé depuis REGUL ARENA'
   ];
   var body=lines.join('\n');
-  // Best-effort backend (silencieux) : prêt si une route /feedback est ajoutée côté serveur. N'empêche jamais l'envoi e-mail.
+  window._raFbLast=body;
+  // MODIFIÉ : envoi serveur PRIORITAIRE — on attend la réponse. Si OK → fermeture + notif, SANS ouvrir l'e-mail.
+  window._raFbSending=true;
+  var btn=document.getElementById('rafb-sendbtn');
+  if(btn){ btn.disabled=true; btn.style.opacity='.7'; btn.textContent='⏳ Envoi en cours…'; }
+  if(st) st.innerHTML='';
+  var tok=(typeof U!=='undefined'&&U&&U.token)?U.token:'';
+  var fbHeaders={'Content-Type':'application/json'};
+  if(tok){ fbHeaders['Authorization']='Bearer '+tok; }
+  var done=false;
+  function finish(ok){
+    if(done) return; done=true; window._raFbSending=false;
+    if(ok){ raFbSuccess(); }            // serveur a accepté → silencieux
+    else { raFbMailFallback(subject,body,st); } // secours : ouverture e-mail pré-rempli
+  }
+  // garde-fou réseau : si le serveur ne répond pas sous 8 s, on bascule sur le secours e-mail
+  var guard=setTimeout(function(){ finish(false); },8000);
   try{
-    var tok=(typeof U!=='undefined'&&U&&U.token)?U.token:'';
-    var fbHeaders={'Content-Type':'application/json'};
-    if(tok){ fbHeaders['Authorization']='Bearer '+tok; }
     fetch('/feedback',{method:'POST',headers:fbHeaders,
-      body:JSON.stringify({type:window._raFb.type,stars:window._raFb.stars,name:nm,contact:ct,message:msg})}).catch(function(){});
-  }catch(e){}
-  // Canal garanti : ouverture de l'application e-mail pré-remplie
+      body:JSON.stringify({type:window._raFb.type,stars:window._raFb.stars,name:nm,contact:ct,message:msg,subject:subject})})
+    .then(function(r){ clearTimeout(guard); finish(!!(r&&r.ok)); })
+    .catch(function(){ clearTimeout(guard); finish(false); });
+  }catch(e){ clearTimeout(guard); finish(false); }
+}
+function raFbSuccess(){ // MODIFIÉ : remplace le formulaire par un écran de confirmation + toast
+  raToast('✅ Votre avis a bien été envoyé. Merci&nbsp;!');
+  var form=document.getElementById('rafb-form');
+  if(form){
+    form.innerHTML='<div style="text-align:center;padding:14px 6px;">'+
+      '<div style="font-size:40px;line-height:1;margin-bottom:10px;">✅</div>'+
+      '<div style="font-size:17px;font-weight:800;color:white;margin-bottom:6px;">Avis envoyé&nbsp;!</div>'+
+      '<div style="font-size:13px;color:var(--sub);line-height:1.55;margin-bottom:16px;">Merci d\'aider à faire grandir REGUL ARENA. Votre retour est bien arrivé à l\'équipe.&nbsp;🙏</div>'+
+      '<button class="btn" style="padding:11px 18px;font-size:14px;" onclick="raFbReset()">✍️ Envoyer un autre avis</button>'+
+    '</div>';
+  }
+  // réinitialise l\'état du formulaire pour le prochain envoi
+  window._raFb.stars=0;
+}
+function raFbReset(){ window._raFb={type:'suggestion',stars:0}; if(typeof render==='function') render(); } // MODIFIÉ
+function raFbMailFallback(subject,body,st){ // MODIFIÉ : secours si le serveur ne répond pas
+  var btn=document.getElementById('rafb-sendbtn');
+  if(btn){ btn.disabled=false; btn.style.opacity='1'; btn.textContent='📩 Envoyer mon avis'; }
   try{ window.location.href='mailto:'+RA_FB_EMAIL+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body); }catch(e){}
   if(st){
-    st.innerHTML='<div class="al al-ok" style="font-size:12.5px;line-height:1.5;">✅ Merci&nbsp;! Votre application e-mail s\'ouvre avec votre avis pré-rempli — il ne reste qu\'à appuyer sur «&nbsp;Envoyer&nbsp;».<br>'+
-      '<span style="color:var(--sub);">Si rien ne s\'ouvre, écrivez à <strong>'+RA_FB_EMAIL+'</strong> ou '+
-      '<a href="#" onclick="raFbCopy();return false;" style="color:#E8B520;font-weight:700;">copiez votre message</a>.</span></div>';
+    st.innerHTML='<div class="al al-ok" style="font-size:12.5px;line-height:1.5;">📨 Envoi direct momentanément indisponible — votre application e-mail s\'ouvre avec l\'avis pré-rempli, appuyez sur «&nbsp;Envoyer&nbsp;».<br>'+
+      '<span style="color:var(--sub);">Vous pouvez aussi écrire à <strong>'+RA_FB_EMAIL+'</strong> ou '+
+      '<a href="#" onclick="raFbCopy();return false;" style="color:#E8B520;font-weight:700;">copier votre message</a>.</span></div>';
   }
-  window._raFbLast=body;
+}
+function raToast(html){ // MODIFIÉ : petite notification flottante (auto-disparition)
+  try{
+    var t=document.getElementById('ra-toast');
+    if(!t){ t=document.createElement('div'); t.id='ra-toast';
+      t.style.cssText='position:fixed;left:50%;bottom:84px;transform:translateX(-50%) translateY(20px);z-index:99999;'+
+      'background:linear-gradient(135deg,#0d2a22,#10362c);border:1px solid rgba(0,180,216,.5);color:#eafff7;'+
+      'padding:12px 18px;border-radius:12px;font-size:13.5px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.45);'+
+      'max-width:90vw;text-align:center;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;';
+      document.body.appendChild(t);
+    }
+    t.innerHTML=html;
+    requestAnimationFrame(function(){ t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0)'; });
+    clearTimeout(window._raToastT);
+    window._raToastT=setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(20px)'; },3200);
+  }catch(e){}
 }
 function raFbCopy(){
   var st=document.getElementById('rafb-status');
