@@ -2715,16 +2715,37 @@ function lbLoad(zone){
     var list=(d&&d.leaderboard)||[]; var myRank=d&&d.my_rank;
     list=list.filter(function(p){ return !lbHidden(p.name); }); // MODIFIÉ : retire les comptes admin (Abdou/Kaiser NDAO)
     if(!list.length){ box.innerHTML='<div class="al al-info" style="font-size:12px;">Le classement se construit au fil des quiz. Sois le premier à marquer des points !</div>'; return; }
-    box.innerHTML=list.map(function(p,i){
-      var r=i+1, me=(myRank&&r===myRank), medal=r<=3?['🥇','🥈','🥉'][r-1]:r;
-      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(10,33,62,.6);background:'+(me?'rgba(201,153,26,.08)':'transparent')+';border-left:3px solid '+(me?'#C9991A':'transparent')+';">'+
-        '<div style="display:flex;align-items:center;gap:11px;">'+
-        '<span style="font-weight:900;font-size:15px;color:'+(r<=3?'#fbbf24':'#8aa3d4')+';width:26px;text-align:center;">'+medal+'</span>'+
-        '<div class="av" style="width:32px;height:32px;font-size:12px;">'+arChatEsc((p.name||'?').charAt(0))+'</div>'+
-        '<div><div style="font-weight:600;color:white;font-size:13px;">'+arChatEsc(p.name||'')+(me?' (Vous)':'')+'</div>'+
-        '<div style="font-size:10px;color:#8aa3d4;">'+[lbCountryLabel(p.country), (p.etablissement?arChatEsc(p.etablissement):lbProfileLabel(p.profile))].filter(Boolean).join(' · ')+'</div></div></div>'+
-        '<div style="text-align:right;"><div style="font-weight:700;color:#4ade80;font-size:13px;">'+(p.total_score||0)+' pts</div><div style="font-size:10px;color:var(--sub);">'+(p.games||0)+' parties</div></div></div>';
+    // MODIFIÉ : restauration du PODIUM top-3 (médailles, marches, badges paliers) + liste rang 4+
+    var lbTier=function(s){ s=s||0; if(s>=600)return ['👑','Maître']; if(s>=250)return ['⭐','Expert']; if(s>=100)return ['🔷','Confirmé']; return ['📙','Initié']; };
+    var podCol=function(p,rank){
+      var t=lbTier(p.total_score), av=(rank===1?56:48), med=['🥇','🥈','🥉'][rank-1], h=(rank===1?118:(rank===2?92:72));
+      return '<div style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:0;">'+
+        '<div style="font-size:30px;line-height:1;margin-bottom:2px;">'+med+'</div>'+
+        '<div class="av" style="width:'+av+'px;height:'+av+'px;font-size:'+(rank===1?22:18)+'px;border-radius:14px;box-shadow:0 6px 16px rgba(201,153,26,.4);">'+arChatEsc((p.name||'?').charAt(0))+'</div>'+
+        '<div style="font-weight:700;color:white;font-size:13px;text-align:center;margin-top:7px;line-height:1.2;word-break:break-word;">'+arChatEsc(p.name||'')+'</div>'+
+        '<div style="font-weight:800;color:#4ade80;font-size:14px;margin-top:2px;">'+(p.total_score||0)+' pts</div>'+
+        '<div style="margin-top:5px;display:inline-flex;align-items:center;gap:4px;background:rgba(201,153,26,.18);border:1px solid rgba(201,153,26,.55);color:#fbbf24;font-size:10px;font-weight:800;padding:3px 10px;border-radius:999px;white-space:nowrap;">'+t[0]+' '+t[1]+'</div>'+
+        '<div style="margin-top:8px;width:100%;height:'+h+'px;background:linear-gradient(180deg,rgba(201,153,26,.26),rgba(201,153,26,.05));border:1px solid rgba(201,153,26,.35);border-bottom:none;border-radius:14px 14px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:12px;font-size:24px;font-weight:900;color:#fbbf24;">'+rank+'</div>'+
+      '</div>';
+    };
+    var top3=list.slice(0,3), rest=list.slice(3);
+    var cta='<div style="border:1px solid rgba(201,153,26,.4);border-radius:12px;padding:13px 15px;margin-bottom:14px;background:rgba(201,153,26,.05);">'+
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span style="font-size:15px;">🎯</span><span style="font-weight:800;color:#fbbf24;font-size:14px;">Entrez dans le classement</span></div>'+
+      '<div style="font-size:12px;color:var(--sub);line-height:1.45;">Jouez un quiz pour apparaître dans le tableau et viser le sommet.</div>'+
+    '</div>';
+    var order = top3.length>=3 ? [[top3[1],2],[top3[0],1],[top3[2],3]] : (top3.length===2 ? [[top3[1],2],[top3[0],1]] : [[top3[0],1]]);
+    var podium = '<div style="display:flex;align-items:flex-end;justify-content:center;gap:8px;padding:8px 2px 0;">'+order.map(function(o){ return podCol(o[0],o[1]); }).join('')+'</div>';
+    var rows = rest.map(function(p,i){
+      var r=i+4, me=(myRank&&r===myRank);
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:13px 6px;border-bottom:1px solid rgba(10,33,62,.6);background:'+(me?'rgba(201,153,26,.08)':'transparent')+';border-left:3px solid '+(me?'#C9991A':'transparent')+';padding-left:'+(me?'9px':'6px')+';">'+
+        '<div style="display:flex;align-items:center;gap:11px;min-width:0;">'+
+        '<span style="font-weight:900;font-size:16px;color:#8aa3d4;width:24px;text-align:center;flex-shrink:0;">'+r+'</span>'+
+        '<div class="av" style="width:40px;height:40px;font-size:15px;border-radius:10px;">'+arChatEsc((p.name||'?').charAt(0))+'</div>'+
+        '<div style="min-width:0;"><div style="font-weight:700;color:white;font-size:14px;">'+arChatEsc(p.name||'')+(me?' (Vous)':'')+'</div>'+
+        '<div style="font-size:11px;color:#8aa3d4;display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:2px;">'+[lbCountryLabel(p.country), (p.etablissement?arChatEsc(p.etablissement):lbProfileLabel(p.profile))].filter(Boolean).join(' · ')+'</div></div></div>'+
+        '<div style="text-align:right;flex-shrink:0;"><div style="font-weight:800;color:#4ade80;font-size:14px;">'+(p.total_score||0)+' pts</div><div style="font-size:10px;color:var(--sub);">'+(p.games||0)+' parties</div></div></div>';
     }).join('');
+    box.innerHTML = cta + podium + (rows ? '<div style="margin-top:10px;">'+rows+'</div>' : '');
   }).catch(function(){ box.innerHTML='<div class="al al-warn" style="font-size:12px;">Classement momentanément indisponible.</div>'; });
 }
 
