@@ -540,27 +540,106 @@ app.get('/auth/verify', limiterLoose, (req, res) => {
 
 
 /* GET /auth/login-verify?login_token=xxx
-   &#8594; connexion magique (lien email)
-*/
+   -> connexion magique (lien email)
+   MODIFIÉ 21/06 — ANTI-SCANNER : un simple GET ne consomme PLUS le token.
+   Les scanners d'email / le préchargement Chrome ouvraient le lien avant le vrai
+   clic et le grillaient (« déjà utilisé »). Désormais le GET ne fait QUE lire
+   (aucune écriture) et affiche une page propre ; la consommation se fait via
+   POST /auth/login-consume déclenché en JS (que les scanners n'exécutent pas).
+   Le JWT n'est donc jamais exposé dans une URL de redirection. */
 app.get('/auth/login-verify', limiterLoose, (req, res) => {
   const { login_token } = req.query;
+  res.set('Content-Type', 'text/html; charset=utf-8');
+
+  const tok = typeof login_token === 'string' ? login_token : '';
+  const row = tok ? db.prepare('SELECT * FROM login_tokens WHERE token = ?').get(tok) : null;
+
+  let state = 'invalid';
+  if (row) state = (new Date(row.expires_at) < new Date()) ? 'expired' : 'valid';
+
+  return res.send(renderLoginVerifyPage(tok, state));
+});
+
+/* POST /auth/login-consume   Body : { login_token }
+   MODIFIÉ 21/06 — consomme réellement le token (appelé en JS par la page ci-dessus).
+   Idempotent tant que le token n'est pas expiré : si le POST se déclenche deux fois
+   (préchargement + vrai clic), les deux réussissent -> plus jamais de « déjà utilisé ». */
+app.post('/auth/login-consume', limiterLoose, (req, res) => {
+  const { login_token } = req.body || {};
   if (!login_token) return err(res, 400, 'Token manquant');
 
-  const row = db.prepare(
-    'SELECT * FROM login_tokens WHERE token = ? AND used = 0'
-  ).get(login_token);
-
-  if (!row) return err(res, 400, 'Lien invalide ou d&#233;j&#224; utilis&#233;');
-  if (new Date(row.expires_at) < new Date()) return err(res, 400, 'Lien expir&#233;');
+  const row = db.prepare('SELECT * FROM login_tokens WHERE token = ?').get(login_token);
+  if (!row) return err(res, 400, 'Lien invalide');
+  if (new Date(row.expires_at) < new Date()) return err(res, 400, 'Lien expiré');
 
   db.prepare('UPDATE login_tokens SET used = 1 WHERE id = ?').run(row.id);
 
   const user = db.prepare('SELECT * FROM users WHERE email = ?').get(row.email);
   if (!user) return err(res, 404, 'Compte introuvable');
 
-  const jwtToken = signJWT(user); // MODIFIÉ — redirige vers le frontend au lieu de renvoyer du JSON brut
-  return res.redirect(302, `${BASE_URL}/?confirmed=true&jwt=${encodeURIComponent(jwtToken)}`); // MODIFIÉ
+  const jwtToken = signJWT(user);
+  return ok(res, { redirect: `${BASE_URL}/?confirmed=true&jwt=${encodeURIComponent(jwtToken)}` });
 });
+
+/* Page HTML de connexion (interstitiel anti-scanner) — MODIFIÉ 21/06 */
+function renderLoginVerifyPage(tok, state) {
+  const base = `<!doctype html><html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Connexion — REGUL ARENA</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
+background:radial-gradient(700px 400px at 15% 0%,rgba(245,196,83,.10),transparent 60%),linear-gradient(160deg,#112240,#0A192F 55%,#040D1A);
+font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#F8F9FA}
+.card{width:100%;max-width:420px;background:rgba(17,34,64,.72);border:1px solid rgba(35,53,84,.6);
+border-radius:22px;padding:34px 28px;text-align:center;box-shadow:0 18px 50px rgba(0,0,0,.35)}
+.brand{font-size:14px;letter-spacing:4px;font-weight:800;color:#F5C453;margin-bottom:18px}
+.sp{width:46px;height:46px;border:4px solid rgba(245,196,83,.25);border-top-color:#F5C453;border-radius:50%;
+animation:spin 1s linear infinite;margin:6px auto 18px}
+@keyframes spin{to{transform:rotate(360deg)}}
+h1{font-size:21px;margin:0 0 8px}
+p{color:#9DB2D0;font-size:15px;line-height:1.55;margin:0 0 20px}
+.btn{display:inline-block;background:linear-gradient(180deg,#FFE08A,#E8B520);color:#0A192F;font-weight:800;
+text-decoration:none;border:0;cursor:pointer;font-size:16px;padding:14px 26px;border-radius:30px}
+.ic{font-size:42px;margin-bottom:10px}
+.muted{color:#5C6B85;font-size:12px;margin-top:18px}
+</style></head><body><div class="card"><div class="brand">REGUL ARENA</div>`;
+  const foot = `<div class="muted">Connexion sécurisée — UEMOA &amp; CEMAC</div></div></body></html>`;
+
+  if (state === 'valid') {
+    return base +
+`<div class="sp" id="spin"></div>
+<h1>Connexion en cours…</h1>
+<p id="msg">Un instant, on vous connecte.</p>
+<button class="btn" id="go" style="display:none">Se connecter</button>
+<script>
+(function(){
+  var TOK=${JSON.stringify(tok)};
+  var spin=document.getElementById('spin'),msg=document.getElementById('msg'),btn=document.getElementById('go');
+  function fail(t){ if(spin)spin.style.display='none'; msg.textContent=t||'Lien invalide ou déjà utilisé.'; btn.style.display='inline-block'; btn.textContent='Réessayer'; }
+  function go(){
+    fetch('/auth/login-consume',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({login_token:TOK})})
+      .then(function(r){return r.json();})
+      .then(function(d){ if(d&&d.success&&d.redirect){ location.replace(d.redirect); } else { fail(d&&d.error); } })
+      .catch(function(){ fail('Erreur réseau — réessayez.'); });
+  }
+  btn.addEventListener('click',go);
+  setTimeout(go,350);
+})();
+</script>` + foot;
+  }
+
+  const icon  = state === 'expired' ? '⏱️' : '🔗';
+  const title = state === 'expired' ? 'Lien expiré' : 'Lien invalide';
+  const note  = state === 'expired'
+    ? 'Ce lien de connexion a dépassé sa durée de validité.'
+    : 'Ce lien est invalide ou a déjà servi à se connecter.';
+  return base +
+`<div class="ic">${icon}</div>
+<h1>${title}</h1>
+<p>${note} Demandez-en un nouveau, c'est immédiat.</p>
+<a class="btn" href="${BASE_URL}/">Demander un nouveau lien</a>` + foot;
+}
 
 
 /* GET /auth/me   Header : Authorization: Bearer <jwt>
