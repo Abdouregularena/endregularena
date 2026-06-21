@@ -3105,11 +3105,11 @@ function arMatchSheet(){
   var items = AR.q.map(function(qq,i){
     var ans = (qq.answer!==undefined?qq.answer:(qq.correct!==undefined?Number(qq.correct):0));
     var L   = String.fromCharCode(65+ans);
-    var ref = qq.source||qq.reference||'';
+    var ref = qq.source||qq.reference||qq.ref||''; // MODIFIÉ : reconnaît source/reference/ref
     return '<div style="padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:rgba(255,255,255,.02);">'+
       '<div style="font-size:12px;color:#cdd9ee;margin-bottom:5px;line-height:1.45;"><strong>Q'+(i+1)+'.</strong> '+qq.q+'</div>'+
       '<div style="font-size:12px;color:#4ade80;font-weight:600;">✅ '+L+'. '+(qq.choices[ans]||'')+'</div>'+
-      (ref?'<div style="font-size:11px;color:var(--sub);margin-top:3px;">📚 '+ref+'</div>':'')+
+      '<div style="font-size:11px;color:var(--sub);margin-top:3px;">📚 '+(ref||'Acte réglementaire — voir le module Bibliothèque')+'</div>'+ // MODIFIÉ : toujours un repère réglementaire
     '</div>';
   }).join('');
   return '<div class="card" style="padding:16px;">'+
@@ -4161,14 +4161,15 @@ function arSearchPlayer(q){
         box.innerHTML='<div style="font-size:12px;color:var(--sub);text-align:center;padding:8px;">Aucun joueur trouvé</div>';
         return;
       }
-      box.innerHTML=d.users.map(function(u){
+      window._arSrch=d.users; // MODIFIÉ : mémorise les résultats pour un appel par index (anti-bug noms à apostrophe/accents)
+      box.innerHTML=d.users.map(function(u,i){
         var safe=arChatEsc(u.name||'');
         return '<div style="display:flex;align-items:center;gap:10px;padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.06);">'+
           arAvatar(u.name)+
           '<div style="flex:1;min-width:0;"><div style="font-weight:600;color:white;font-size:13px;">'+safe+'</div>'+
           (u.country?'<div style="font-size:11px;color:var(--sub);">'+arChatEsc(u.country)+'</div>':'')+
           '</div>'+
-          '<button class="btn btn-sm" style="flex-shrink:0;" onclick="arChallengePlayer('+u.id+','+JSON.stringify(u.name||'')+')" >⚔️ Défier</button>'+
+          '<button class="btn btn-sm" style="flex-shrink:0;" onclick="arChallengeIdx('+i+')">⚔️ Défier</button>'+ // MODIFIÉ : appel par index (plus de JSON.stringify dans l\'attribut)
         '</div>';
       }).join('');
     }).catch(function(){
@@ -4176,6 +4177,10 @@ function arSearchPlayer(q){
       if(box) box.innerHTML='<div style="font-size:12px;color:#f87171;padding:6px;">Erreur réseau</div>';
     });
   },420);
+}
+function arChallengeIdx(i){ // MODIFIÉ : défi par index (évite toute casse d'attribut HTML avec noms type N'Diaye, accents, guillemets)
+  var u=(window._arSrch||[])[i];
+  if(u && u.id!=null) arChallengePlayer(u.id, u.name||'');
 }
 function arChallengePlayer(tid,tname){
   AR._chalTid=tid; AR._chalTname=tname;
@@ -4535,7 +4540,20 @@ function arStartPollDuel(){
       // MODIFIÉ — stoppe poll APRÈS render (avant = poll mort => En attente permanent si adversaire finit après moi)
       if(d.duel.status==='finished'){
         if(AR.timerId){clearInterval(AR.timerId);AR.timerId=null;}
-        if(d.duel.questions_json){ try{ var sq=JSON.parse(d.duel.questions_json); if(sq&&sq.length) AR.q=sq; }catch(e){} }
+        if(d.duel.questions_json){ try{ var sq=JSON.parse(d.duel.questions_json); if(sq&&sq.length){
+          /* MODIFIÉ : la feuille de match doit garder les références réglementaires.
+             Si le serveur renvoie des questions sans "source", on les ré-enrichit
+             depuis les questions locales (QR/QB/QC/QN, toutes sourcées) par texte. */
+          var _loc=AR.q||[];
+          sq.forEach(function(s){
+            if(!s.source && !s.reference){
+              for(var _i=0;_i<_loc.length;_i++){
+                if(_loc[_i] && _loc[_i].q===s.q && (_loc[_i].source||_loc[_i].reference)){ s.source=_loc[_i].source||_loc[_i].reference; break; }
+              }
+            }
+          });
+          AR.q=sq;
+        } }catch(e){} }
         clearInterval(AR.pollId); AR.pollId=null;
         render(); return;
       }
@@ -7938,7 +7956,11 @@ window.raOpenNotif=function(){
 (function(){
   // ===== MODIFIÉ — Éditez cette liste pour gérer le Flash Info =====
   // Chaque actu : { date, txt, tab? }  (tab : ouvre un onglet via ST('id'))
+  // MODIFIÉ : compte à rebours dynamique PI-SPI vers la date butoir BCEAO du 30 juin 2026
+  var _piDays = Math.ceil((new Date('2026-06-30T00:00:00') - new Date()) / 86400000);
+  var _piLabel = _piDays > 1 ? ('BCEAO · J-'+_piDays) : (_piDays===1?'BCEAO · J-1':_piDays===0?'BCEAO · JOUR J':'BCEAO · UEMOA');
   var RA_FLASH = [
+    { date:_piLabel, txt:"PI-SPI — paiement instantané interopérable : 11 des 80 institutions de microfinance connectées (au 2 avril 2026). Date butoir de connexion : 30 juin 2026. Le retard n'est pas technique, il est réglementaire.", tab:'quiz' }, // MODIFIÉ : alerte PI-SPI
     { date:'19 JUIN 2026', txt:"GAFI : l'Algérie et la Namibie sortent de la liste grise ; l'Irak et la Bosnie-Herzégovine y entrent.", tab:'quiz' },
     { date:'UEMOA 2024',   txt:"Règlement n° 06/2024/CM/UEMOA sur les relations financières extérieures : en vigueur.", tab:'quiz' },
     { date:'UMOA 2023',    txt:"Loi uniforme bancaire : intégration de la finance islamique (Articles 70–75).", tab:'quiz' },
@@ -7972,6 +7994,42 @@ window.raOpenNotif=function(){
     requestAnimationFrame(function(){ var w=track.scrollWidth/2; track.style.animationDuration=Math.max(20,Math.round(w/70))+'s'; });
     bar.addEventListener('touchstart',function(){ bar.classList.add('raf-pause'); },{passive:true});
     bar.addEventListener('touchend',function(){ setTimeout(function(){ bar.classList.remove('raf-pause'); },1500); },{passive:true});
+    addTopScorers();                 // MODIFIÉ : injecte les Maîtres de l'Arène (top scoreurs)
+    setTimeout(addTopScorers, 4000); // MODIFIÉ : nouvelle tentative si le token de session arrive plus tard
+  }
+  /* ════ MODIFIÉ — TOP SCOREURS dans le Flash Info (nom + drapeau + zone) ════ */
+  var RAF_UEMOA={SN:1,CI:1,ML:1,BF:1,BJ:1,NE:1,TG:1,GW:1};
+  var RAF_CEMAC={CM:1,CG:1,GA:1,GQ:1,CF:1,TD:1};
+  function rafFlag(cc){ cc=String(cc||'').toUpperCase(); if(!/^[A-Z]{2}$/.test(cc)) return '🌍'; try{ return String.fromCodePoint(0x1F1E6+cc.charCodeAt(0)-65, 0x1F1E6+cc.charCodeAt(1)-65); }catch(e){ return '🌍'; } }
+  function rafZone(cc){ cc=String(cc||'').toUpperCase(); return RAF_UEMOA[cc]?'UEMOA':RAF_CEMAC[cc]?'CEMAC':''; }
+  function makeScorer(rank,name,cc,pts){
+    var it=el('span','raf-item raf-go');
+    var d=el('span','raf-date'); d.textContent=(['🥇','🥈','🥉'][rank-1]||('#'+rank))+' MAÎTRE DE L\'ARÈNE'; it.appendChild(d);
+    var t=el('span'); var z=rafZone(cc);
+    t.textContent=' '+rafFlag(cc)+' '+(name||'?')+(z?(' · '+z):'')+' — '+(pts||0)+' pts'; // textContent = anti-XSS
+    it.appendChild(t);
+    var s=el('span','raf-sep'); s.textContent='◆'; it.appendChild(s);
+    it.addEventListener('click',function(){ if(typeof ST==='function') ST('arena'); });
+    return it;
+  }
+  function addTopScorers(){
+    var bar=document.getElementById('ra-flash'); if(!bar) return;
+    var track=bar.querySelector('.raf-track'); if(!track) return;
+    var hdr=(typeof U!=='undefined'&&U&&U.token)?{'Authorization':'Bearer '+U.token}:{};
+    fetch('/leaderboard',{headers:hdr}).then(function(r){return r.json();}).then(function(d){
+      var list=(d&&d.leaderboard)||[];
+      var HIDE=['kaiser ndao','abdou ndao']; // MODIFIÉ : masque les comptes admin/test (cohérent avec le classement)
+      list=list.filter(function(p){ return HIDE.indexOf(String((p&&p.name)||'').trim().toLowerCase())===-1; });
+      if(!list.length) return;
+      var top=list.slice(0,3);
+      track.innerHTML=''; // reconstruit : Maîtres de l'Arène d'abord, puis les actus, le tout doublé pour la boucle
+      function pass(){
+        top.forEach(function(p,k){ track.appendChild(makeScorer(k+1, p.name||'?', p.country||'', p.total_score||0)); });
+        RA_FLASH.forEach(function(f){ track.appendChild(makeItem(f)); });
+      }
+      pass(); pass();
+      requestAnimationFrame(function(){ var w=track.scrollWidth/2; track.style.animationDuration=Math.max(20,Math.round(w/70))+'s'; });
+    }).catch(function(){});
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',build); else build();
 })();
