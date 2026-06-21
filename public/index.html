@@ -2318,11 +2318,11 @@ var NAV=[
   {id:'metiers',ic:'🏦',l:'Métiers Bancaires',sec:'JOUER'}, // MODIFIÉ : repositionné après L'Arène des Débats
   {id:'achievements',ic:'🏆',l:'Réalisations',sec:'JOUER'},
   {id:'leaderboard',ic:'📈',l:'Classements',sec:'JOUER'},
-  {id:'communaute',ic:'💬',l:'Communauté',sec:'JOUER'},
   {id:'quiz',ic:'📚',l:'Quiz & Formation',sec:'APPRENDRE'},
   {id:'autoeval',ic:'📝',l:'Auto-évaluation',sec:'APPRENDRE'},
   {id:'biblio',ic:'📖',l:'Bibliothèque',sec:'APPRENDRE'},
   {id:'academy',ic:'💡',l:'Académie',sec:'APPRENDRE'},
+  {id:'feedback',ic:'💡',l:'Avis & Suggestions',sec:'COMPTE'}, // MODIFIÉ : remplace l'onglet Communauté
   {id:'about',ic:'ℹ️',l:'À propos',sec:'COMPTE'},
 ];
 
@@ -2402,7 +2402,7 @@ function render(){
   if(BF!==null&&BA){ c.innerHTML=rFD(); return; }
   if(BA){ c.innerHTML=rBD(); return; }
   if(TAB==='autoeval'&&AEF){ c.innerHTML=rAEF(); return; } // MODIFIÉ : affiche le format d'auto-éval sélectionné
-  var pages={dashboard:rDB,quiz:rQP,biblio:rBP,arena:rAR,achievements:rACH,leaderboard:rLB,academy:rAC,settings:rST,autoeval:rAE,admin:rADMIN,about:rABOUT,communaute:rSALON,debats:rDEBATS,debatsadm:rDEBATSADM,metiers:rMETIERS}; // MODIFIÉ : ajout métiers
+  var pages={dashboard:rDB,quiz:rQP,biblio:rBP,arena:rAR,achievements:rACH,leaderboard:rLB,academy:rAC,settings:rST,autoeval:rAE,admin:rADMIN,about:rABOUT,communaute:rSALON,feedback:rFEEDBACK,debats:rDEBATS,debatsadm:rDEBATSADM,metiers:rMETIERS}; // MODIFIÉ : ajout métiers + page Avis/Suggestions (feedback)
   c.innerHTML=(pages[TAB]||rDB)();
   if(TAB==='quiz'){ try{ raQuizFx(); }catch(e){} } // MODIFIÉ : compteur animé en-tête Quiz
   if(TAB==='arena'){ try{ arArenaAfterRender(); }catch(e){} } // MODIFIÉ : charge les fils duels/tournois ouverts
@@ -3409,21 +3409,38 @@ function lbLoad(zone){
       }
       goalBox.innerHTML=gh;
     }
-    // MODIFIÉ : 🏆 podium top 3
+    // MODIFIÉ : 🏆 podium top 3 — animations (couronne, ceinture, flottement, pétards)
     var pod=list.slice(0,3), podHTML='';
     if(pod.length>=3){
       var order=[1,0,2], hh=[84,64,52]; // MODIFIÉ : #1 (centre) = socle le plus haut
-      podHTML='<div style="display:flex;align-items:flex-end;justify-content:center;gap:8px;padding:14px 6px 4px;">'+
-        order.map(function(idx){ var p=pod[idx]; if(!p) return ''; var rr=idx+1; var meP=(myRank&&rr===myRank);
-          return '<div class="lb-podium-item" style="flex:1;max-width:108px;text-align:center;animation-delay:'+(idx*0.08)+'s;">'+
+      // MODIFIÉ : couche de pétards/confettis (CSS pur, générée ici)
+      var _cfc=['#E8B520','#00B4D8','#4ade80','#f87171','#ffffff','#C9991A','#FFD75E'];
+      var _conf='<div class="ra-conf-layer" aria-hidden="true">';
+      for(var _ci=0;_ci<22;_ci++){
+        var _l=Math.round(Math.random()*100),
+            _dl=(Math.random()*3).toFixed(2),
+            _du=(2.8+Math.random()*2.4).toFixed(2),
+            _col=_cfc[_ci%_cfc.length],
+            _rot=Math.round(Math.random()*360),
+            _w=(5+Math.round(Math.random()*4)),
+            _h=(8+Math.round(Math.random()*7));
+        _conf+='<i style="left:'+_l+'%;width:'+_w+'px;height:'+_h+'px;background:'+_col+';animation-delay:'+_dl+'s;animation-duration:'+_du+'s;transform:rotate('+_rot+'deg);"></i>';
+      }
+      _conf+='</div>';
+      podHTML='<div class="ra-podium-wrap">'+_conf+
+        '<div class="ra-podium-row" style="display:flex;align-items:flex-end;justify-content:center;gap:8px;padding:30px 6px 4px;position:relative;z-index:1;">'+
+        order.map(function(idx){ var p=pod[idx]; if(!p) return ''; var rr=idx+1; var meP=(myRank&&rr===myRank); var isKing=(idx===0);
+          return '<div class="lb-podium-item'+(isKing?' ra-king':'')+'" style="flex:1;max-width:108px;text-align:center;animation-delay:'+(idx*0.1)+'s;">'+
+            (isKing?'<div class="ra-crown" aria-hidden="true">👑</div>':'')+
             '<div style="font-size:20px;">'+['🥇','🥈','🥉'][idx]+'</div>'+
-            '<div class="av" style="width:38px;height:38px;font-size:14px;margin:2px auto 5px;'+(meP?'box-shadow:0 0 0 2px #E8B520;':'')+'">'+arChatEsc((p.name||'?').charAt(0))+'</div>'+
+            '<div class="av'+(isKing?' ra-king-av':'')+'" style="width:'+(isKing?44:38)+'px;height:'+(isKing?44:38)+'px;font-size:'+(isKing?16:14)+'px;margin:2px auto 5px;'+((meP&&!isKing)?'box-shadow:0 0 0 2px #E8B520;':'')+'">'+arChatEsc((p.name||'?').charAt(0))+'</div>'+
             '<div style="font-size:11px;font-weight:700;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+arChatEsc(p.name||'')+(meP?' (Vous)':'')+'</div>'+
             '<div style="font-size:10px;color:#4ade80;font-weight:700;">'+(p.total_score||0)+' pts</div>'+
+            (isKing?'<div class="ra-belt" aria-hidden="true">🏆 CHAMPION</div>':'')+
             '<div style="margin-top:3px;">'+raTierPill(p.total_score||0)+'</div>'+
-            '<div style="height:'+hh[idx]+'px;margin-top:5px;border-radius:8px 8px 0 0;background:linear-gradient(180deg,rgba(201,153,26,.4),rgba(201,153,26,.08));border:1px solid rgba(201,153,26,.35);display:flex;align-items:flex-start;justify-content:center;font-weight:900;color:#E8B520;padding-top:5px;">'+rr+'</div>'+
+            '<div class="ra-podium-base'+(isKing?' ra-king-base':'')+'" style="height:'+hh[idx]+'px;margin-top:5px;border-radius:8px 8px 0 0;background:linear-gradient(180deg,rgba(201,153,26,.4),rgba(201,153,26,.08));border:1px solid rgba(201,153,26,.35);display:flex;align-items:flex-start;justify-content:center;font-weight:900;color:#E8B520;padding-top:5px;">'+rr+'</div>'+
           '</div>';
-        }).join('')+'</div>';
+        }).join('')+'</div></div>';
     }
     // MODIFIÉ : liste rang 4+ (ou tout si <3 joueurs), lignes animées + ligne perso qui pulse
     var startI=pod.length>=3?3:0;
@@ -6116,6 +6133,115 @@ function salonSend(){
 }
 /* ════════════ FIN MODULE SALON ════════════ */
 
+/* ════════════ MODIFIÉ — PAGE AVIS & SUGGESTIONS (feedback) ════════════ */
+window._raFb = window._raFb || { type:'suggestion', stars:0 };
+var RA_FB_EMAIL = 'abdou.ndao@regularena.com'; // destinataire des retours
+var RA_FB_TYPES = [
+  {id:'suggestion', ic:'💡', l:'Suggestion'},
+  {id:'bug',        ic:'🐞', l:'Bug / Problème'},
+  {id:'avis',       ic:'⭐', l:'Avis général'},
+  {id:'autre',      ic:'📌', l:'Autre'}
+];
+function raFbEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function rFEEDBACK(){
+  var name=(typeof U!=='undefined'&&U&&U.name)?U.name:'';
+  var mail=(typeof U!=='undefined'&&U&&U.email)?U.email:'';
+  var chips = RA_FB_TYPES.map(function(t){
+    var ac=(window._raFb.type===t.id);
+    return '<button type="button" onclick="raFbSetType(\''+t.id+'\')" class="rafb-chip'+(ac?' ac':'')+'" '+
+      'style="flex:0 0 auto;padding:9px 13px;border-radius:999px;border:1px solid '+(ac?'#E8B520':'var(--border)')+';'+
+      'background:'+(ac?'linear-gradient(135deg,rgba(232,181,32,.22),rgba(201,153,26,.08))':'rgba(255,255,255,.04)')+';'+
+      'color:'+(ac?'#E8B520':'#cdd8ef')+';font-weight:700;font-size:13px;cursor:pointer;">'+t.ic+' '+t.l+'</button>';
+  }).join('');
+  var stars='';
+  for(var i=1;i<=5;i++){
+    stars+='<button type="button" onclick="raFbSetStar('+i+')" id="rafb-star-'+i+'" '+
+      'style="background:none;border:none;font-size:30px;line-height:1;cursor:pointer;padding:0 3px;filter:grayscale(1);opacity:.55;transition:.15s;">⭐</button>';
+  }
+  return ''+
+  '<div style="display:flex;flex-direction:column;gap:14px;">'+
+    '<div class="card" style="border:1px solid rgba(232,181,32,.35);">'+
+      '<h2 style="margin-bottom:4px;font-size:22px;color:white;">💡 Votre avis fait grandir l\'Arène</h2>'+
+      '<div style="font-size:13px;color:var(--sub);line-height:1.55;">REGUL ARENA est construite avec vous. Une idée, une question mal posée, un bug, une suggestion de fonctionnalité&nbsp;? Dites-le ici&nbsp;: votre retour part directement au fondateur.</div>'+
+    '</div>'+
+    '<div class="card">'+
+      '<div style="font-size:12px;font-weight:700;color:#cdd8ef;margin-bottom:8px;">De quoi s\'agit-il&nbsp;?</div>'+
+      '<div id="rafb-chips" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">'+chips+'</div>'+
+      '<div style="font-size:12px;font-weight:700;color:#cdd8ef;margin-bottom:4px;">Votre note (facultatif)</div>'+
+      '<div id="rafb-stars" style="margin-bottom:16px;">'+stars+'</div>'+
+      '<div style="font-size:12px;font-weight:700;color:#cdd8ef;margin-bottom:6px;">Votre message</div>'+
+      '<textarea id="rafb-msg" maxlength="2000" placeholder="Décrivez votre avis, votre idée ou le problème rencontré…" '+
+        'style="width:100%;min-height:130px;padding:12px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:white;font-size:14px;font-family:inherit;resize:vertical;box-sizing:border-box;"></textarea>'+
+      '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">'+
+        '<input id="rafb-name" type="text" maxlength="80" value="'+raFbEsc(name)+'" placeholder="Votre nom (facultatif)" '+
+          'style="flex:1;min-width:140px;padding:11px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:white;font-size:13px;box-sizing:border-box;">'+
+        '<input id="rafb-contact" type="text" maxlength="120" value="'+raFbEsc(mail)+'" placeholder="Email / téléphone (si vous voulez une réponse)" '+
+          'style="flex:1;min-width:140px;padding:11px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:white;font-size:13px;box-sizing:border-box;"></div>'+
+      '<button class="btn" style="width:100%;margin-top:14px;padding:14px;font-size:15px;" onclick="raFbSend()">📩 Envoyer mon avis</button>'+
+      '<div id="rafb-status" style="margin-top:10px;"></div>'+
+      '<div style="font-size:11px;color:var(--sub);margin-top:8px;text-align:center;">Votre retour est transmis à l\'équipe REGUL ARENA. Merci de faire avancer la plateforme&nbsp;🙏</div>'+
+    '</div>'+
+  '</div>';
+}
+function raFbSetType(id){ window._raFb.type=id; if(typeof render==='function') render(); }
+function raFbSetStar(n){
+  window._raFb.stars=n;
+  for(var i=1;i<=5;i++){
+    var b=document.getElementById('rafb-star-'+i); if(!b) continue;
+    if(i<=n){ b.style.filter='none'; b.style.opacity='1'; b.style.transform='scale(1.06)'; }
+    else { b.style.filter='grayscale(1)'; b.style.opacity='.55'; b.style.transform='none'; }
+  }
+}
+function raFbSend(){
+  var msgEl=document.getElementById('rafb-msg');
+  var st=document.getElementById('rafb-status');
+  var msg=(msgEl&&msgEl.value||'').trim();
+  if(msg.length<4){ if(st) st.innerHTML='<div class="al al-warn" style="font-size:12px;">Merci d\'écrire quelques mots avant d\'envoyer.</div>'; if(msgEl) msgEl.focus(); return; }
+  var nm=(document.getElementById('rafb-name')||{}).value||'';
+  var ct=(document.getElementById('rafb-contact')||{}).value||'';
+  var tObj=RA_FB_TYPES.filter(function(t){return t.id===window._raFb.type;})[0]||RA_FB_TYPES[0];
+  var starsTxt=window._raFb.stars?(window._raFb.stars+'/5'):'(non noté)';
+  var subject='[REGUL ARENA] '+tObj.l+(window._raFb.stars?(' — '+window._raFb.stars+'/5'):'');
+  var lines=[
+    'Type : '+tObj.l,
+    'Note : '+starsTxt,
+    'Nom : '+(nm.trim()||'(anonyme)'),
+    'Contact : '+(ct.trim()||'(non communiqué)'),
+    '',
+    'Message :',
+    msg,
+    '',
+    '— Envoyé depuis REGUL ARENA'
+  ];
+  var body=lines.join('\n');
+  // Best-effort backend (silencieux) : prêt si une route /feedback est ajoutée côté serveur. N'empêche jamais l'envoi e-mail.
+  try{
+    var tok=(typeof U!=='undefined'&&U&&U.token)?U.token:'';
+    var fbHeaders={'Content-Type':'application/json'};
+    if(tok){ fbHeaders['Authorization']='Bearer '+tok; }
+    fetch('/feedback',{method:'POST',headers:fbHeaders,
+      body:JSON.stringify({type:window._raFb.type,stars:window._raFb.stars,name:nm,contact:ct,message:msg})}).catch(function(){});
+  }catch(e){}
+  // Canal garanti : ouverture de l'application e-mail pré-remplie
+  try{ window.location.href='mailto:'+RA_FB_EMAIL+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body); }catch(e){}
+  if(st){
+    st.innerHTML='<div class="al al-ok" style="font-size:12.5px;line-height:1.5;">✅ Merci&nbsp;! Votre application e-mail s\'ouvre avec votre avis pré-rempli — il ne reste qu\'à appuyer sur «&nbsp;Envoyer&nbsp;».<br>'+
+      '<span style="color:var(--sub);">Si rien ne s\'ouvre, écrivez à <strong>'+RA_FB_EMAIL+'</strong> ou '+
+      '<a href="#" onclick="raFbCopy();return false;" style="color:#E8B520;font-weight:700;">copiez votre message</a>.</span></div>';
+  }
+  window._raFbLast=body;
+}
+function raFbCopy(){
+  var st=document.getElementById('rafb-status');
+  var txt=window._raFbLast||'';
+  function done(ok){ if(st){ var d=document.createElement('div'); d.className='al '+(ok?'al-ok':'al-warn'); d.style.cssText='font-size:12px;margin-top:6px;'; d.textContent=ok?'Message copié dans le presse-papier.':'Copie impossible — sélectionnez le texte manuellement.'; st.appendChild(d); } }
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(function(){done(true);},function(){done(false);}); }
+    else { var ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); var ok=document.execCommand('copy'); document.body.removeChild(ta); done(ok); }
+  }catch(e){ done(false); }
+}
+/* ════════════ FIN PAGE AVIS & SUGGESTIONS ════════════ */
+
 window.addEventListener('load', function(){
   // 0. Test connectivité
   testAPI();
@@ -7703,7 +7829,7 @@ window.raOpenNotif=function(){
       '<div style="font-size:12px;color:var(--sub);margin-bottom:12px;">Vous serez prévenu ici dès qu’un adversaire rejoint un duel ou un tournoi.</div>'+
       '<div style="display:flex;flex-direction:column;gap:8px;">'+
         '<button class="btn btn-sm" onclick="closeModal();ST(\'arena\')">⚔️ Aller à l’Arène</button>'+
-        '<button class="btn-out btn-sm" onclick="closeModal();ST(\'communaute\')">💬 Communauté</button>'+
+        '<button class="btn-out btn-sm" onclick="closeModal();ST(\'feedback\')">💡 Donner mon avis</button>'+
         '<button class="btn-out btn-sm" onclick="closeModal();ST(\'dashboard\')">🎯 Objectifs du jour</button>'+
       '</div>';
     showModal('Notifications',body);
@@ -8002,11 +8128,26 @@ window.raOpenNotif=function(){
   var RAF_CEMAC={CM:1,CG:1,GA:1,GQ:1,CF:1,TD:1};
   function rafFlag(cc){ cc=String(cc||'').toUpperCase(); if(!/^[A-Z]{2}$/.test(cc)) return '🌍'; try{ return String.fromCodePoint(0x1F1E6+cc.charCodeAt(0)-65, 0x1F1E6+cc.charCodeAt(1)-65); }catch(e){ return '🌍'; } }
   function rafZone(cc){ cc=String(cc||'').toUpperCase(); return RAF_UEMOA[cc]?'UEMOA':RAF_CEMAC[cc]?'CEMAC':''; }
-  function makeScorer(rank,name,cc,pts){
+  function rafFlagNode(cc){ // MODIFIÉ : vrai drapeau image (flagcdn) — les emojis drapeaux ne s'affichent pas sur de nombreux appareils (on ne voyait que « SN », « CI »…)
+    cc=String(cc||'').toLowerCase();
+    if(/^[a-z]{2}$/.test(cc)){
+      var img=el('img');
+      img.src='https://flagcdn.com/20x15/'+cc+'.png';
+      img.srcset='https://flagcdn.com/40x30/'+cc+'.png 2x';
+      img.width=20; img.height=15; img.alt=cc.toUpperCase(); img.loading='lazy';
+      img.style.cssText='border-radius:2px;vertical-align:middle;margin:0 1px;box-shadow:0 0 0 1px rgba(255,255,255,.2);';
+      img.onerror=function(){ var s=document.createElement('span'); s.textContent='🌍'; if(img.parentNode){ img.parentNode.replaceChild(s,img); } };
+      return img;
+    }
+    var sp=el('span'); sp.textContent='🌍'; return sp;
+  }
+  function makeScorer(rank,name,cc,pts){ // MODIFIÉ : drapeau image au lieu d'emoji
     var it=el('span','raf-item raf-go');
     var d=el('span','raf-date'); d.textContent=(['🥇','🥈','🥉'][rank-1]||('#'+rank))+' MAÎTRE DE L\'ARÈNE'; it.appendChild(d);
-    var t=el('span'); var z=rafZone(cc);
-    t.textContent=' '+rafFlag(cc)+' '+(name||'?')+(z?(' · '+z):'')+' — '+(pts||0)+' pts'; // textContent = anti-XSS
+    it.appendChild(document.createTextNode(' '));
+    it.appendChild(rafFlagNode(cc));
+    var z=rafZone(cc);
+    var t=el('span'); t.textContent=' '+(name||'?')+(z?(' · '+z):'')+' — '+(pts||0)+' pts'; // textContent = anti-XSS
     it.appendChild(t);
     var s=el('span','raf-sep'); s.textContent='◆'; it.appendChild(s);
     it.addEventListener('click',function(){ if(typeof ST==='function') ST('arena'); });
@@ -8099,6 +8240,28 @@ window.raOpenNotif=function(){
 @media(prefers-reduced-motion:reduce){
   .card,.btn,.btn-out,.btn-red,.badge,#h-zonebar .h-zone-fill-u,#h-zonebar .h-zone-fill-c{ transition:none!important; }
   .btn:active,.btn-out:active,.btn-red:active,.badge:hover{ transform:none!important; }
+}
+</style>
+<style id="ra-podium-fx">/* MODIFIÉ : effets du podium du Classement — couronne, ceinture Champion, flottement, pétards */
+.ra-podium-wrap{position:relative;overflow:hidden;border-radius:14px;}
+.ra-podium-wrap .lb-podium-item{animation:raPodRise .6s cubic-bezier(.22,1,.36,1) both, raPodFloat 3.4s ease-in-out infinite;}
+.ra-podium-wrap .lb-podium-item.ra-king{animation:raPodRise .6s cubic-bezier(.22,1,.36,1) both, raKingFloat 3s ease-in-out infinite;}
+@keyframes raPodRise{from{opacity:0;transform:translateY(16px) scale(.96);}to{opacity:1;transform:translateY(0) scale(1);}}
+@keyframes raPodFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
+@keyframes raKingFloat{0%,100%{transform:translateY(-2px);}50%{transform:translateY(-9px);}}
+.ra-crown{font-size:25px;line-height:1;margin-bottom:-3px;filter:drop-shadow(0 2px 7px rgba(232,181,32,.85));animation:raCrownBob 2.2s ease-in-out infinite;transform-origin:bottom center;}
+@keyframes raCrownBob{0%,100%{transform:translateY(0) rotate(-5deg);}50%{transform:translateY(-4px) rotate(5deg);}}
+.ra-king-av{box-shadow:0 0 0 2px #E8B520,0 0 18px rgba(232,181,32,.65)!important;animation:raKingGlow 2s ease-in-out infinite;}
+@keyframes raKingGlow{0%,100%{box-shadow:0 0 0 2px #E8B520,0 0 12px rgba(232,181,32,.5);}50%{box-shadow:0 0 0 2px #FFD75E,0 0 24px rgba(232,181,32,.9);}}
+.ra-belt{display:inline-block;margin:4px auto 0;padding:2px 10px;font-size:9px;font-weight:900;letter-spacing:.9px;color:#1a1205;background:linear-gradient(180deg,#FFE07A,#C9991A);border:1px solid #fff3c4;border-radius:999px;box-shadow:0 2px 9px rgba(201,153,26,.65),inset 0 0 0 2px rgba(0,0,0,.28);white-space:nowrap;animation:raBeltShine 2.6s ease-in-out infinite;}
+@keyframes raBeltShine{0%,100%{filter:brightness(1);}50%{filter:brightness(1.18);}}
+.ra-king-base{background:linear-gradient(180deg,rgba(255,224,122,.55),rgba(201,153,26,.12))!important;border-color:rgba(255,224,122,.6)!important;box-shadow:0 -2px 18px rgba(232,181,32,.4);}
+.ra-conf-layer{position:absolute;inset:0;pointer-events:none;z-index:2;overflow:hidden;}
+.ra-conf-layer i{position:absolute;top:-18px;display:block;border-radius:1px;opacity:.92;animation-name:raConfFall;animation-timing-function:linear;animation-iteration-count:infinite;}
+@keyframes raConfFall{0%{transform:translateY(-18px) rotate(0);opacity:0;}12%{opacity:.95;}100%{transform:translateY(250px) rotate(540deg);opacity:0;}}
+@media(prefers-reduced-motion:reduce){
+  .ra-podium-wrap .lb-podium-item,.ra-podium-wrap .lb-podium-item.ra-king,.ra-crown,.ra-king-av,.ra-belt,.ra-conf-layer i{animation:none!important;}
+  .ra-conf-layer{display:none;}
 }
 </style>
 
