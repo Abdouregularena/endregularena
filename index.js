@@ -17,6 +17,9 @@ const { Resend }   = require('resend');
 const crypto       = require('crypto');
 const path         = require('path');
 const { pickQuestions } = require('./packs'); // FIX anti-triche : source serveur pour les questions de duel
+// PUSH — module web-push chargé en mode garde : si non installé, le serveur démarre quand même (push simplement désactivées)
+let webpush = null;
+try { webpush = require('web-push'); } catch (_) { console.warn('[PUSH] module "web-push" non installé — npm install web-push pour activer les notifications push.'); }
 
 /* â”€â”€ CONFIG â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const PORT         = process.env.PORT || 3000;
@@ -27,6 +30,18 @@ const FROM_EMAIL   = process.env.FROM_EMAIL || 'noreply@regularena.com';
 // SOURCE DE VERITE UNIQUE
 const BASE_URL = process.env.BASE_URL || 'https://endregularena-production.up.railway.app';
 const TOKEN_TTL_H = 24;
+
+// PUSH — configuration VAPID (clés à définir dans les variables d'env Railway)
+const VAPID_PUBLIC  = process.env.VAPID_PUBLIC_KEY  || '';
+const VAPID_PRIVATE = process.env.VAPID_PRIVATE_KEY || '';
+const VAPID_SUBJECT = process.env.VAPID_SUBJECT || 'mailto:abdou.ndao@regularena.com';
+let PUSH_ENABLED = false;
+if (webpush && VAPID_PUBLIC && VAPID_PRIVATE) {
+  try { webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC, VAPID_PRIVATE); PUSH_ENABLED = true; console.log('[PUSH] Notifications push activées.'); }
+  catch (e) { console.warn('[PUSH] Clés VAPID invalides — push désactivées :', e.message); }
+} else {
+  console.warn('[PUSH] VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY manquantes — push désactivées.');
+}
 
 const resend = new Resend(RESEND_KEY);
 
@@ -186,6 +201,8 @@ try { db.exec('CREATE INDEX IF NOT EXISTS idx_tp_tid_score ON tournament_partici
  // FEATURE 1/2 — invitation bêta + CGU
  'ALTER TABLE users ADD COLUMN cgu_accepted_at TEXT',
  'ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT "user"',
+ // PRÉSENCE — dernière activité de l'utilisateur (heartbeat frontend)
+ 'ALTER TABLE users ADD COLUMN last_seen TEXT',
 ].forEach(sql => { try { db.exec(sql); } catch(_) {} }); // TOURNOI AJOUT
 
 // TOURNOI AJOUT — nouvelles tables module tournoi
@@ -228,6 +245,50 @@ function notifyAllExcept(excludeUserId, type, message) {
   const insert = db.prepare('INSERT INTO notifications (user_id, type, message) VALUES (?, ?, ?)');
   const tx = db.transaction(() => { users.forEach(u => insert.run(u.id, type, message)); });
   tx();
+}
+
+/* ── PUSH WEB (VAPID) ──────────────────────────────────────────────── */
+// PUSH — table des abonnements push (un appareil = une ligne, dédoublonné par endpoint)
+db.exec(`
+  CREATE TABLE IF NOT EXISTS push_subscriptions (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER NOT NULL REFERENCES users(id),
+    endpoint   TEXT    NOT NULL UNIQUE,
+    p256dh     TEXT    NOT NULL,
+    auth       TEXT    NOT NULL,
+    created_at TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
+`);
+try { db.exec('CREATE INDEX IF NOT EXISTS idx_push_user ON push_subscriptions (user_id)'); } catch (_) {}
+
+// PUSH — envoie une notif push à un utilisateur (tous ses appareils). Nettoie les abonnements périmés (404/410).
+function sendPushToUser(userId, payload) {
+  if (!PUSH_ENABLED) return;
+  let subs;
+  try { subs = db.prepare('SELECT * FROM push_subscriptions WHERE user_id = ?').all(userId); }
+  catch (_) { return; }
+  if (!subs.length) return;
+  const body = JSON.stringify(payload);
+  subs.forEach(s => {
+    webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, body)
+      .catch(e => {
+        if (e && (e.statusCode === 404 || e.statusCode === 410)) {
+          try { db.prepare('DELETE FROM push_subscriptions WHERE id = ?').run(s.id); } catch (_) {}
+        }
+      });
+  });
+}
+
+// PUSH — diffuse une push à tous les inscrits vérifiés sauf l'auteur (max 50, comme l'in-app)
+function pushAllExcept(excludeUserId, payload) {
+  if (!PUSH_ENABLED) return;
+  let rows;
+  try {
+    rows = db.prepare(
+      'SELECT DISTINCT ps.user_id AS id FROM push_subscriptions ps JOIN users u ON u.id = ps.user_id WHERE u.email_verified = 1 AND ps.user_id != ? LIMIT 50'
+    ).all(excludeUserId);
+  } catch (_) { return; }
+  rows.forEach(r => sendPushToUser(r.id, payload));
 }
 
 /* â”€â”€ HELPERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
@@ -788,6 +849,99 @@ app.post('/notifications/seen-all', requireAuth, (req, res) => {
   return ok(res, { message: 'Tout marqué comme lu' });
 });
 
+/* ── PUSH WEB : routes ──────────────────────────────────────────────── */
+// PUSH — clé publique VAPID + état (le frontend en a besoin pour s'abonner). Pas d'auth.
+app.get('/push/vapid-public-key', (req, res) => {
+  return ok(res, { key: VAPID_PUBLIC, enabled: PUSH_ENABLED });
+});
+
+// PUSH — enregistre / met à jour l'abonnement push de l'appareil courant
+app.post('/push/subscribe', requireAuth, (req, res) => {
+  const sub = (req.body && req.body.subscription) || req.body || {};
+  const endpoint = sub && sub.endpoint;
+  const keys = sub && sub.keys;
+  if (!endpoint || !keys || !keys.p256dh || !keys.auth) return err(res, 400, 'Abonnement push invalide');
+  try {
+    // upsert par endpoint : on réattribue à l'utilisateur courant si l'endpoint existe déjà
+    db.prepare(
+      `INSERT INTO push_subscriptions (user_id, endpoint, p256dh, auth) VALUES (?, ?, ?, ?)
+       ON CONFLICT(endpoint) DO UPDATE SET user_id = excluded.user_id, p256dh = excluded.p256dh, auth = excluded.auth`
+    ).run(req.user.id, endpoint, keys.p256dh, keys.auth);
+  } catch (e) {
+    return err(res, 500, 'Enregistrement push impossible');
+  }
+  return ok(res, { message: 'Abonné aux notifications', enabled: PUSH_ENABLED });
+});
+
+// PUSH — supprime l'abonnement de l'appareil courant
+app.post('/push/unsubscribe', requireAuth, (req, res) => {
+  const endpoint = (req.body && req.body.endpoint) || ((req.body && req.body.subscription && req.body.subscription.endpoint));
+  if (endpoint) { try { db.prepare('DELETE FROM push_subscriptions WHERE endpoint = ? AND user_id = ?').run(endpoint, req.user.id); } catch (_) {} }
+  return ok(res, { message: 'Désabonné' });
+});
+
+/* ── PRÉSENCE EN LIGNE ──────────────────────────────────────────────── */
+// PRÉSENCE — fenêtre (secondes) pendant laquelle un utilisateur est considéré « en ligne »
+const PRESENCE_WINDOW_S = 120;
+// PRÉSENCE — noms masqués (comptes admin / tests), alignés avec le frontend
+const PRESENCE_HIDDEN = ['abdou ndao', 'kaiser ndao'];
+
+// PRÉSENCE — heartbeat : met à jour last_seen. Si l'utilisateur revient après une absence,
+// pousse « 🟢 X est en ligne » aux autres joueurs actuellement connectés (sans spam).
+app.post('/presence/ping', requireAuth, (req, res) => {
+  let wasOffline = true;
+  try {
+    const prev = db.prepare('SELECT last_seen FROM users WHERE id = ?').get(req.user.id);
+    if (prev && prev.last_seen) {
+      const ageSec = (Date.now() - new Date(prev.last_seen.replace(' ', 'T') + 'Z').getTime()) / 1000;
+      // « revient en ligne » seulement après > 5 min d'absence → évite les push répétés du heartbeat (45 s)
+      wasOffline = !(ageSec >= 0 && ageSec < 300);
+    }
+  } catch (_) {}
+  try { db.prepare("UPDATE users SET last_seen = datetime('now') WHERE id = ?").run(req.user.id); } catch (_) {}
+
+  if (wasOffline && PUSH_ENABLED) {
+    try {
+      const me = db.prepare('SELECT name FROM users WHERE id = ?').get(req.user.id);
+      const myName = me && me.name ? me.name : 'Un joueur';
+      if (PRESENCE_HIDDEN.indexOf(myName.trim().toLowerCase()) === -1) {
+        // cibles = autres joueurs en ligne à l'instant et abonnés aux push
+        const others = db.prepare(
+          `SELECT DISTINCT u.id AS id FROM users u
+           JOIN push_subscriptions ps ON ps.user_id = u.id
+           WHERE u.id != ? AND u.email_verified = 1
+             AND u.last_seen IS NOT NULL
+             AND (julianday('now') - julianday(u.last_seen)) * 86400 < ?
+           LIMIT 50`
+        ).all(req.user.id, PRESENCE_WINDOW_S);
+        others.forEach(o => sendPushToUser(o.id, {
+          title: '🟢 ' + myName + ' est en ligne',
+          body: 'Défiez-le en duel ou lancez un débat maintenant !',
+          tag: 'online-' + req.user.id,
+          url: '/?arena=1'
+        }));
+      }
+    } catch (_) {}
+  }
+  return ok(res, { ok: true });
+});
+
+// PRÉSENCE — liste des joueurs en ligne (hors soi-même et comptes masqués)
+app.get('/presence/online', requireAuth, (req, res) => {
+  let rows = [];
+  try {
+    rows = db.prepare(
+      `SELECT id, name, country FROM users
+       WHERE id != ? AND email_verified = 1
+         AND last_seen IS NOT NULL
+         AND (julianday('now') - julianday(last_seen)) * 86400 < ?
+       ORDER BY last_seen DESC LIMIT 30`
+    ).all(req.user.id, PRESENCE_WINDOW_S);
+  } catch (_) {}
+  const online = rows.filter(u => PRESENCE_HIDDEN.indexOf((u.name || '').trim().toLowerCase()) === -1);
+  return ok(res, { online });
+});
+
 /* ── DUELS ──────────────────────────────────────────────────────── */
 function _duelFull(code, revealQuestions = false) {
   const duel = db.prepare('SELECT * FROM duels WHERE code = ?').get(code);
@@ -815,8 +969,12 @@ app.post('/duels', requireAuth, (req, res) => {
   if (tid && tid !== req.user.id) {
     db.prepare('INSERT INTO notifications (user_id, type, message) VALUES (?, ?, ?)')
       .run(tid, 'duel_challenge', `⚔️ ${req.user.name} vous défie personnellement ! Code : ${code}`);
+    // PUSH — défi personnel reçu : push ciblée vers l'adversaire
+    sendPushToUser(tid, { title: '⚔️ Vous êtes défié !', body: `${req.user.name} vous défie en duel. Code : ${code}`, tag: 'duel-' + code, url: '/?duel=' + code });
   }
   notifyAllExcept(req.user.id, 'duel_created', `🥊 ${req.user.name} vous défie en duel ! Code : ${code}`);
+  // PUSH — nouveau duel ouvert : diffusion aux abonnés (sauf défi déjà ciblé)
+  if (!tid) pushAllExcept(req.user.id, { title: '🥊 Nouveau duel dans l\'Arène', body: `${req.user.name} lance un duel. Code : ${code}`, tag: 'duel-' + code, url: '/?duel=' + code });
   return ok(res, { code, duel: _duelFull(code) });
 });
 
@@ -838,6 +996,8 @@ app.post('/duels/:code/join', requireAuth, (req, res) => {
   if (duel.creator_id === req.user.id) return ok(res, { message: 'Tu es le créateur', duel: _duelFull(req.params.code) });
   db.prepare('UPDATE duels SET joiner_id = ?, status = ? WHERE code = ?').run(req.user.id, 'joined', req.params.code);
   db.prepare('INSERT INTO notifications (user_id, type, message) VALUES (?, ?, ?)').run(duel.creator_id, 'duel_joined', `⚔️ ${req.user.name} a rejoint votre duel (code : ${req.params.code})`);
+  // PUSH — un adversaire a rejoint ton duel : push vers le créateur
+  sendPushToUser(duel.creator_id, { title: '⚔️ Adversaire trouvé !', body: `${req.user.name} a rejoint votre duel. À vous de jouer !`, tag: 'duel-' + req.params.code, url: '/?duel=' + req.params.code });
   return ok(res, { message: 'Rejoint', duel: _duelFull(req.params.code) });
 });
 
@@ -1251,6 +1411,8 @@ app.post('/tournament/create', requireAuth, (req, res) => { // TOURNOI AJOUT
   ).run(code, req.user.id, name.trim().slice(0,80), pack_id || 'general', mp, 'waiting', user.country || '', zone, start_date || ''); // TOURNOI AJOUT
   db.prepare('INSERT INTO tournament_participants (tournament_id, user_id) VALUES (?,?)').run(result.lastInsertRowid, req.user.id); // TOURNOI AJOUT
   notifyAllExcept(req.user.id, 'tournament_created', '🏆 ' + user.name + ' crée le tournoi "' + name.trim() + '" ! Code : ' + code); // TOURNOI AJOUT
+  // PUSH — nouveau tournoi : diffusion aux abonnés
+  pushAllExcept(req.user.id, { title: '🏆 Nouveau tournoi !', body: user.name + ' lance « ' + name.trim() + ' ». Code : ' + code, tag: 'tour-' + code, url: '/?tournoi=' + code });
   return ok(res, { code, id: result.lastInsertRowid }); // TOURNOI AJOUT
 }); // TOURNOI AJOUT
 
@@ -1272,6 +1434,8 @@ app.post('/tournament/join', requireAuth, (req, res) => { // TOURNOI AJOUT
   if (count >= t.max_players) return err(res, 400, 'Tournoi complet (' + count + '/' + t.max_players + ')'); // TOURNOI AJOUT
   db.prepare('INSERT INTO tournament_participants (tournament_id, user_id) VALUES (?,?)').run(t.id, req.user.id); // TOURNOI AJOUT
   db.prepare('INSERT INTO notifications (user_id, type, message) VALUES (?,?,?)').run(t.creator_id, 'tournament_joined', '🏟 ' + user.name + ' a rejoint "' + t.name + '" ! (' + (count+1) + '/' + t.max_players + ')'); // TOURNOI AJOUT
+  // PUSH — un participant a rejoint ton tournoi : push vers le créateur
+  sendPushToUser(t.creator_id, { title: '🏟 Nouveau participant', body: user.name + ' a rejoint « ' + t.name + ' » (' + (count+1) + '/' + t.max_players + ')', tag: 'tour-' + t.code, url: '/?tournoi=' + t.code });
   return ok(res, { message: 'Inscrit au tournoi', tournament: _tFull(t.code) }); // TOURNOI AJOUT
 }); // TOURNOI AJOUT
 
