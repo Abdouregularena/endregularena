@@ -3024,11 +3024,12 @@ function rAR(){
   var tabs = '<div style="display:flex;gap:7px;margin-bottom:18px;flex-wrap:wrap;">'+
     '<button class="ar-tab'+(AR.tab==='duels'?' ac':'')+'" onclick="AR.tab=\'duels\';render()">⚔️ Duels 1v1</button>'+
     '<button class="ar-tab'+(AR.tab==='tournois'?' ac':'')+'" onclick="AR.tab=\'tournois\';render()">🏆 Tournois</button>'+
+    '<button class="ar-tab'+(AR.tab==='sprint'?' ac':'')+'" onclick="AR.tab=\'sprint\';render()">⚡ Sprint</button>'+  /* MODIFIÉ : onglet Sprint/Blitz */
   '</div>';
   return '<div style="display:flex;flex-direction:column;gap:14px;">'+
     '<h2 style="font-size:22px;color:white;">L\'Arène – Défis Professionnels</h2>'+
     tabs +
-    (AR.tab==='duels' ? rARDuelsHome() : rARTournoisHome()) +
+    (AR.tab==='duels' ? rARDuelsHome() : AR.tab==='sprint' ? (typeof rSprintRoot==='function'?rSprintRoot():'') : rARTournoisHome()) +  /* MODIFIÉ : ajout Sprint */
   '</div>';
 }
 
@@ -4204,6 +4205,7 @@ function arBuildCertPDF(info){ // MODIFIÉ : Canvas pur, zéro CDN
 function arArenaAfterRender(){
   if(ge('ar-open-duels')) arLoadOpenDuels();
   if(ge('ar-open-tours')) arLoadOpenTours();
+  if(AR.tab==='sprint' && typeof sprintAfterRender==='function'){ try{ sprintAfterRender(); }catch(e){} } /* MODIFIÉ : Sprint */
 }
 function arPackLabel(pid){
   var m={'rfe-uemoa':'🏛️ RFE UEMOA','bale-umoa':'⚖️ Bâle II/III','mix':'🔀 Mix','cemac':'🌍 CEMAC','qn':'📚 Thématiques','itb':'🎓 ITB','pcb':'📋 PCB','general':'🔀 Général'};
@@ -8544,6 +8546,321 @@ if('serviceWorker' in navigator){
   }
   if(document.readyState==='complete'||document.readyState==='interactive'){ setTimeout(boot, 1500); }
   else { window.addEventListener('load', function(){ setTimeout(boot, 1500); }); }
+})();
+</script>
+<!-- ════════ REGUL ARENA · MODE SPRINT/BLITZ (front) — MODIFIÉ ════════ -->
+<script id="ra-sprint-js">
+/* ════════════════════════════════════════════════════════════════
+   MODE SPRINT / BLITZ — front (AJOUT 100% additif // MODIFIÉ)
+   Phase 1 du brainstorm "nouveaux modes". Solo contre-la-montre.
+   Vitesse mesurée CÔTÉ SERVEUR (routes /sprint/* de index.js) :
+   le chrono affiché ici est purement cosmétique, le score fait foi serveur.
+   Réutilise : classement (user_scores via /sprint answer), paliers,
+   certificat (arBuildCertPDF + POST /certificates), charte navy/gold.
+================================================================ */
+(function(){
+  var SP = window.SPRINT = {
+    view:'home',      // 'home' | 'game' | 'result'
+    code:'', format:'pro', zone:'mixte',
+    total:0, idx:0, q:null, answered:false,
+    score:0, correct:0, totalMs:0,
+    budgetMs:20000, timerId:null, deadline:0,
+    result:null, board:[], myBest:null, boardFmt:'pro', loading:false
+  };
+
+  var FMT = {
+    eclair:   { n:7,  ic:'⚡', label:'Éclair',   desc:'7 questions',  col:'#60a5fa' },
+    pro:      { n:15, ic:'🎯', label:'Pro',      desc:'15 questions', col:'#C9991A' },
+    marathon: { n:21, ic:'🏆', label:'Marathon', desc:'21 questions', col:'#a78bfa' }
+  };
+  var ZONES = [
+    { id:'mixte', label:'🌍 Mixte' },
+    { id:'uemoa', label:'🏛️ UEMOA' },
+    { id:'cemac', label:'🌍 CEMAC' }
+  ];
+
+  function spLogged(){ return (typeof U!=='undefined' && U && U.token); }
+  function spHdr(){ return {'Content-Type':'application/json','Authorization':'Bearer '+((typeof U!=='undefined'&&U&&U.token)||'')}; }
+  function spEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function spFmtTime(ms){ var t=Math.round((Number(ms)||0)/1000); var m=Math.floor(t/60), s=t%60; return m>0?(m+'min '+(s<10?'0':'')+s+'s'):(s+'s'); }
+  function spRating(pct){
+    if(pct>=90) return {t:'👑 Maître de l\'Arène', c:'#F5C453'};
+    if(pct>=80) return {t:'⭐ Expert',            c:'#a78bfa'};
+    if(pct>=60) return {t:'🔷 Confirmé',          c:'#60a5fa'};
+    return            {t:'📙 Initié',            c:'#9fb4d8'};
+  }
+
+  // Pool figé tiré dans QR/QB/QC/QN selon la zone, dédoublonné + Fisher-Yates.
+  function spPool(zone){
+    var uemoa=[], cemac=[];
+    try{ uemoa = [].concat((typeof QR!=='undefined'?QR:[]), (typeof QB!=='undefined'?QB:[]), (window.QN_U||[])); }catch(e){ uemoa=[]; }
+    try{ cemac = [].concat((typeof QC!=='undefined'?QC:[]), (window.QN_C||[])); }catch(e){ cemac=[]; }
+    var base = zone==='uemoa'?uemoa : zone==='cemac'?cemac : [].concat(uemoa,cemac);
+    var seen={}, out=[];
+    base.forEach(function(q){
+      if(q && typeof q.q==='string' && Array.isArray(q.choices) && q.choices.length>=2 &&
+         typeof q.answer==='number' && q.answer>=0 && q.answer<q.choices.length && !seen[q.q]){
+        seen[q.q]=1; out.push(q);
+      }
+    });
+    for(var i=out.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=out[i]; out[i]=out[j]; out[j]=t; }
+    return out;
+  }
+
+  /* ───────── RENDU ───────── */
+  window.rSprintRoot=function(){
+    if(SP.view==='game')   return spRenderGame();
+    if(SP.view==='result') return spRenderResult();
+    return spRenderHome();
+  };
+
+  function spRenderHome(){
+    if(!spLogged()){
+      return '<div class="card" style="text-align:center;padding:26px;">'+
+        '<div style="font-size:34px;margin-bottom:8px;">⚡</div>'+
+        '<div style="font-weight:800;color:white;font-size:16px;margin-bottom:6px;">Sprint / Blitz</div>'+
+        '<div style="font-size:13px;color:var(--sub);margin-bottom:14px;line-height:1.6;">Connectez-vous pour lancer un sprint chronométré et apparaître au classement.</div>'+
+        '<button class="btn" onclick="ST(\'settings\')">Se connecter</button></div>';
+    }
+    var fmtCards = Object.keys(FMT).map(function(k){
+      var f=FMT[k], on=(SP.format===k);
+      return '<div class="ch" onclick="sprintSetFormat(\''+k+'\')" style="cursor:pointer;text-align:center;border-radius:14px;padding:16px 10px;'+
+        'background:'+(on?('linear-gradient(135deg,'+f.col+'33,'+f.col+'0d)'):'rgba(255,255,255,.04)')+';'+
+        'border:1px solid '+(on?f.col:'rgba(110,150,210,.35)')+';">'+
+        '<div style="font-size:26px;line-height:1;">'+f.ic+'</div>'+
+        '<div style="font-weight:800;color:white;font-size:14px;margin:8px 0 2px;">'+f.label+'</div>'+
+        '<div style="font-size:11px;color:var(--sub);">'+f.desc+'</div></div>';
+    }).join('');
+    var zoneChips = ZONES.map(function(z){
+      var on=(SP.zone===z.id);
+      return '<button class="ar-tab'+(on?' ac':'')+'" style="font-size:12px;padding:7px 12px;" onclick="sprintSetZone(\''+z.id+'\')">'+z.label+'</button>';
+    }).join('');
+    return '<div style="display:flex;flex-direction:column;gap:14px;">'+
+      '<div class="al al-info" style="font-size:12.5px;line-height:1.6;">'+
+        '⚡ <strong>Sprint contre-la-montre.</strong> Questions chronométrées, tous thèmes. '+
+        'La <strong>vitesse est mesurée côté serveur</strong> (équitable) : bonne réponse = 100 pts + bonus de rapidité. '+
+        'Votre classement global progresse d\'1 point par bonne réponse.</div>'+
+      '<div style="font-weight:800;color:white;font-size:14px;">1 · Choisissez un format</div>'+
+      '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">'+fmtCards+'</div>'+
+      '<div style="font-weight:800;color:white;font-size:14px;margin-top:2px;">2 · Choisissez une zone</div>'+
+      '<div style="display:flex;gap:7px;flex-wrap:wrap;">'+zoneChips+'</div>'+
+      '<button class="btn" style="width:100%;padding:15px;font-size:15px;margin-top:4px;" '+(SP.loading?'disabled':'')+' onclick="sprintStart()">'+
+        (SP.loading?'⏳ Préparation…':('🚀 Lancer le Sprint '+FMT[SP.format].ic+' '+FMT[SP.format].label))+'</button>'+
+      '<div style="font-weight:800;color:white;font-size:14px;margin-top:6px;">🏅 Classement Sprint</div>'+
+      '<div class="card" style="padding:14px;"><div id="sp-board">'+
+        '<div style="font-size:12px;color:var(--sub);text-align:center;padding:10px;">Chargement…</div></div></div>'+
+    '</div>';
+  }
+
+  function spRenderGame(){
+    var q=SP.q;
+    if(!q) return '<div class="card" style="text-align:center;padding:24px;color:var(--sub);">Chargement de la question…</div>';
+    var f=FMT[SP.format];
+    var opts=q.choices.map(function(c,i){
+      return '<button id="sp-opt-'+i+'" class="btn-out" style="display:block;width:100%;text-align:left;margin-bottom:9px;padding:13px 14px;font-size:13.5px;line-height:1.45;white-space:normal;" onclick="sprintPick('+i+')">'+
+        '<strong style="color:var(--cyan);margin-right:7px;">'+String.fromCharCode(65+i)+'.</strong>'+spEsc(c)+'</button>';
+    }).join('');
+    return '<div style="display:flex;flex-direction:column;gap:12px;">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">'+
+        '<div style="font-weight:800;color:white;font-size:14px;">'+f.ic+' Sprint '+f.label+'</div>'+
+        '<div style="font-size:12px;color:var(--sub);">Question <strong style="color:white;">'+(SP.idx+1)+'</strong> / '+SP.total+'</div>'+
+        '<div id="sp-score" style="font-size:12px;color:#4ade80;font-weight:800;">'+SP.score+' pts</div>'+
+      '</div>'+
+      '<div style="height:8px;border-radius:5px;background:rgba(255,255,255,.08);overflow:hidden;">'+
+        '<div id="sp-timerbar" style="height:100%;width:100%;background:linear-gradient(90deg,#4ade80,#C9991A);transition:width .25s linear;"></div></div>'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;">'+
+        '<div style="font-size:11px;color:var(--sub);">⏱ <span id="sp-timernum">'+Math.round(SP.budgetMs/1000)+'</span> s</div>'+
+        '<button class="btn-out btn-sm" style="font-size:11px;padding:5px 10px;" onclick="sprintQuit()">Quitter</button>'+
+      '</div>'+
+      '<div class="card" style="padding:16px;">'+
+        '<div style="font-size:15px;color:white;font-weight:700;line-height:1.5;margin-bottom:14px;">'+spEsc(q.q)+'</div>'+
+        opts+
+        '<div id="sp-feedback" style="margin-top:6px;"></div>'+
+      '</div>'+
+    '</div>';
+  }
+
+  function spRenderResult(){
+    var r=SP.result||{}; var tot=r.total||SP.total||1;
+    var correct=r.correct_count!=null?r.correct_count:SP.correct;
+    var pct=Math.round(correct/tot*100);
+    var rating=spRating(pct);
+    var f=FMT[SP.format];
+    var canCert=(pct>=80);
+    var cert = canCert
+      ? '<button class="btn" style="width:100%;padding:13px;font-size:14px;margin-top:4px;" onclick="sprintCert()">🏆 Générer mon certificat</button>'
+      : '<div class="al al-warn" style="font-size:12px;">Atteignez 80% pour débloquer le certificat (vous êtes à '+pct+'%).</div>';
+    var best=SP.myBest;
+    var bestLine = best ? ('<div style="font-size:12px;color:var(--sub);margin-top:6px;">⭐ Votre record '+f.label+' : <strong style="color:var(--cyan);">'+best.score+' pts</strong> · '+spFmtTime(best.total_ms)+'</div>') : '';
+    return '<div style="display:flex;flex-direction:column;gap:14px;">'+
+      '<div class="card" style="text-align:center;padding:22px;background:linear-gradient(135deg,rgba(201,153,26,.14),rgba(201,153,26,.03));">'+
+        '<div style="font-size:34px;margin-bottom:4px;">'+f.ic+'</div>'+
+        '<div style="font-weight:800;color:white;font-size:17px;">Sprint '+f.label+' terminé !</div>'+
+        '<div style="color:'+rating.c+';font-weight:800;font-size:14px;margin:6px 0;">'+rating.t+'</div>'+
+        '<div style="font-size:40px;font-weight:900;color:#4ade80;line-height:1.1;">'+(r.my_score!=null?r.my_score:SP.score)+'<span style="font-size:15px;color:var(--sub);font-weight:700;"> pts vitesse</span></div>'+
+        '<div style="display:flex;justify-content:center;gap:18px;margin-top:12px;flex-wrap:wrap;">'+
+          '<div><div style="font-size:20px;font-weight:800;color:white;">'+correct+'/'+tot+'</div><div style="font-size:10px;color:var(--sub);">bonnes réponses</div></div>'+
+          '<div><div style="font-size:20px;font-weight:800;color:white;">'+pct+'%</div><div style="font-size:10px;color:var(--sub);">précision</div></div>'+
+          '<div><div style="font-size:20px;font-weight:800;color:white;">'+spFmtTime(r.total_ms!=null?r.total_ms:SP.totalMs)+'</div><div style="font-size:10px;color:var(--sub);">temps total</div></div>'+
+        '</div>'+ bestLine +
+      '</div>'+
+      cert+
+      '<div style="display:flex;gap:9px;">'+
+        '<button class="btn" style="flex:1;padding:12px;" onclick="sprintStart()">🔄 Rejouer</button>'+
+        '<button class="btn-out" style="flex:1;padding:12px;" onclick="sprintHome()">↩︎ Formats</button>'+
+      '</div>'+
+      '<button class="btn-out" style="width:100%;padding:11px;font-size:13px;" onclick="ST(\'leaderboard\')">📊 Voir le classement global</button>'+
+      '<div style="font-weight:800;color:white;font-size:14px;">🏅 Classement Sprint '+f.label+'</div>'+
+      '<div class="card" style="padding:14px;"><div id="sp-board"><div style="font-size:12px;color:var(--sub);text-align:center;padding:10px;">Chargement…</div></div></div>'+
+    '</div>';
+  }
+
+  /* ───────── APRÈS RENDU (timer + classement) ───────── */
+  window.sprintAfterRender=function(){
+    if(SP.view==='home'){ SP.boardFmt=SP.format; spLoadBoard(); }
+    else if(SP.view==='result'){ SP.boardFmt=SP.format; spLoadBoard(); }
+    else if(SP.view==='game' && SP.q && !SP.answered){ spStartTimer(); }
+  };
+
+  /* ───────── ACTIONS UI ───────── */
+  window.sprintSetFormat=function(k){ if(FMT[k]){ SP.format=k; render(); } };
+  window.sprintSetZone=function(z){ SP.zone=z; render(); };
+  window.sprintHome=function(){ spStopTimer(); SP.view='home'; SP.q=null; render(); };
+  window.sprintQuit=function(){ spStopTimer(); SP.view='home'; SP.q=null; SP.code=''; render(); };
+
+  window.sprintStart=function(){
+    if(SP.loading) return;
+    if(!spLogged()){ ST('settings'); return; }
+    var n=FMT[SP.format].n;
+    var pool=spPool(SP.zone);
+    if(pool.length<n){ alert('Pas assez de questions dans cette zone pour ce format ('+pool.length+'/'+n+'). Choisissez une autre zone ou un format plus court.'); return; }
+    var picked=pool.slice(0,n).map(function(q){ return { q:q.q, choices:q.choices, correct:q.answer, source:q.source||'' }; });
+    SP.loading=true; render();
+    fetch('/sprint/start',{method:'POST',headers:spHdr(),body:JSON.stringify({format:SP.format,zone:SP.zone,questions:picked})})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        SP.loading=false;
+        if(!d || !d.code){ alert((d&&d.error)||'Démarrage impossible.'); render(); return; }
+        SP.code=d.code; SP.total=d.total; SP.budgetMs=d.budget_ms||20000;
+        SP.idx=0; SP.score=0; SP.correct=0; SP.totalMs=0; SP.q=null; SP.answered=false; SP.result=null;
+        SP.view='game';
+        spLoadQuestion(0);
+      })
+      .catch(function(){ SP.loading=false; alert('Erreur réseau au démarrage.'); render(); });
+  };
+
+  function spLoadQuestion(idx){
+    spStopTimer();
+    fetch('/sprint/'+SP.code+'/question/'+idx,{headers:spHdr()})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(!d || !d.question){ alert((d&&d.error)||'Question indisponible.'); sprintQuit(); return; }
+        SP.idx=idx; SP.q=d.question; SP.total=d.total||SP.total; SP.budgetMs=d.budget_ms||SP.budgetMs;
+        SP.answered=false;
+        render(); // sprintAfterRender démarre le chrono
+      })
+      .catch(function(){ alert('Erreur réseau (question).'); sprintQuit(); });
+  }
+
+  window.sprintPick=function(i){
+    if(SP.answered) return;
+    SP.answered=true; spStopTimer();
+    var q=SP.q;
+    // désactive les boutons immédiatement
+    if(q){ for(var k=0;k<q.choices.length;k++){ var b=ge('sp-opt-'+k); if(b) b.disabled=true; } }
+    fetch('/sprint/'+SP.code+'/answer',{method:'POST',headers:spHdr(),body:JSON.stringify({q_index:SP.idx,choice_index:i})})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(!d || d.error){ alert((d&&d.error)||'Réponse refusée.'); return; }
+        SP.score=d.my_score; SP.correct=d.correct_count; SP.totalMs=d.total_ms;
+        var ci=d.correct_index;
+        var chosen=ge('sp-opt-'+i), good=ge('sp-opt-'+ci);
+        if(good) good.classList.add('right');
+        if(!d.correct && chosen && i>=0) chosen.classList.add('wrong');
+        var sc=ge('sp-score'); if(sc) sc.textContent=SP.score+' pts';
+        var fb=ge('sp-feedback');
+        if(fb){
+          fb.innerHTML='<div class="al '+(d.correct?'al-ok':'al-err')+'" style="font-size:12.5px;margin-top:8px;">'+
+            (d.correct?('✅ Bonne réponse ! <strong>+'+d.points_earned+' pts</strong> ('+(Math.round((d.elapsed_ms||0)/100)/10)+'s)')
+                      : ('❌ '+(i<0?'Temps écoulé':'Mauvaise réponse')+' — bonne réponse : <strong>'+String.fromCharCode(65+ci)+'</strong>'))+
+            (SP.q&&SP.q.source?('<div style="font-size:10.5px;color:var(--sub);margin-top:5px;">📚 '+spEsc(SP.q.source)+'</div>'):'')+
+          '</div>';
+        }
+        setTimeout(function(){
+          if(d.finished){ spFinish(d); }
+          else { spLoadQuestion(SP.idx+1); }
+        }, 1250);
+      })
+      .catch(function(){ alert('Erreur réseau (réponse).'); });
+  };
+
+  function spFinish(d){
+    spStopTimer();
+    SP.result=d; SP.view='result';
+    render();
+  }
+
+  /* ───────── CHRONO LOCAL (cosmétique) ───────── */
+  function spStartTimer(){
+    spStopTimer();
+    SP.deadline=Date.now()+SP.budgetMs;
+    SP.timerId=setInterval(spTick,200);
+    spTick();
+  }
+  function spStopTimer(){ if(SP.timerId){ clearInterval(SP.timerId); SP.timerId=null; } }
+  function spTick(){
+    if(TAB!=='arena' || AR.tab!=='sprint' || SP.view!=='game'){ spStopTimer(); return; }
+    var left=Math.max(0, SP.deadline-Date.now());
+    var bar=ge('sp-timerbar'), num=ge('sp-timernum');
+    if(bar) bar.style.width=(left/SP.budgetMs*100)+'%';
+    if(num) num.textContent=Math.ceil(left/1000);
+    if(left<=0){ spStopTimer(); if(!SP.answered) sprintPick(-1); }
+  }
+
+  /* ───────── CERTIFICAT (réutilise arBuildCertPDF + /certificates) ───────── */
+  window.sprintCert=function(){
+    var r=SP.result||{}; var tot=r.total||SP.total||1; var correct=r.correct_count!=null?r.correct_count:SP.correct;
+    var pct=Math.round(correct/tot*100); if(pct<80) return;
+    var f=FMT[SP.format];
+    var zoneLbl=SP.zone==='uemoa'?'UEMOA':SP.zone==='cemac'?'CEMAC':'UEMOA & CEMAC';
+    var theme='Sprint '+f.label+' — Zone '+zoneLbl;
+    var name=(typeof U!=='undefined'&&U&&U.name)||'Apprenant';
+    var resultLine='Sprint '+f.label+' : '+correct+'/'+tot+' ('+pct+'%) · '+(r.my_score!=null?r.my_score:SP.score)+' pts vitesse · '+spFmtTime(r.total_ms!=null?r.total_ms:SP.totalMs);
+    fetch('/certificates',{method:'POST',headers:spHdr(),body:JSON.stringify({theme:theme,zone:(SP.zone==='cemac'?'CEMAC':'UEMOA'),score:correct,total:tot})})
+      .then(function(r2){return r2.json();}).catch(function(){return {};})
+      .then(function(c){
+        var cid=(c&&c.certificate_id)||('RA-'+Date.now().toString(36).toUpperCase());
+        var date=(c&&c.date)||new Date().toISOString();
+        if(typeof arBuildCertPDF==='function'){
+          arBuildCertPDF({certificate_id:cid,name:name,theme:theme,zone:(SP.zone==='cemac'?'CEMAC':'UEMOA'),resultLine:resultLine,score:correct,total:tot,date:date});
+        }
+      });
+  };
+
+  /* ───────── CLASSEMENT SPRINT ───────── */
+  function spLoadBoard(){
+    var box=ge('sp-board'); if(!box) return;
+    fetch('/sprint/leaderboard?format='+encodeURIComponent(SP.boardFmt||SP.format),{headers:spHdr()})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        SP.myBest=(d&&d.my_best)||null;
+        var rows=(d&&d.leaderboard)||[];
+        var bx=ge('sp-board'); if(!bx) return;
+        if(!rows.length){ bx.innerHTML='<div style="font-size:12px;color:var(--sub);text-align:center;padding:8px;">Aucun sprint classé pour ce format. Soyez le premier ⚡</div>'; return; }
+        var med=['🥇','🥈','🥉'];
+        bx.innerHTML=rows.map(function(r,i){
+          var nm=spEsc(r.name||'Joueur');
+          var rank=i<3?med[i]:('#'+(i+1));
+          return '<div style="display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--border);">'+
+            '<span style="width:26px;text-align:center;font-weight:800;color:var(--cyan);font-size:13px;flex-shrink:0;">'+rank+'</span>'+
+            '<span style="flex:1;font-size:13px;color:white;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+nm+'</span>'+
+            '<span style="font-size:11px;color:var(--sub);flex-shrink:0;">'+r.correct_count+'/'+r.num_questions+'</span>'+
+            '<span style="font-size:13px;font-weight:800;color:#4ade80;flex-shrink:0;min-width:54px;text-align:right;">'+r.score+' pts</span>'+
+          '</div>';
+        }).join('');
+      })
+      .catch(function(){ var bx=ge('sp-board'); if(bx) bx.innerHTML='<div style="font-size:12px;color:var(--sub);text-align:center;padding:8px;">Classement indisponible.</div>'; });
+  }
 })();
 </script>
 </body>
