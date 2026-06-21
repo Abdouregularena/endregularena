@@ -7944,12 +7944,15 @@ window.raOpenNotif=function(){
     try{ if(typeof AR!=='undefined' && AR && AR.pendingTour && AR.pendingTour.code){ pend='<div class="al al-ok" style="font-size:12px;margin-bottom:10px;">🏆 Tournoi en attente — code <strong>'+AR.pendingTour.code+'</strong></div>'; } }catch(e){}
     var body=pend+
       '<div style="font-size:12px;color:var(--sub);margin-bottom:12px;">Vous serez prévenu ici dès qu’un adversaire rejoint un duel ou un tournoi.</div>'+
+      (typeof raPushButtonHTML==='function'?raPushButtonHTML():'')+/* MODIFIÉ PUSH : bouton activer notifications */
+      '<div id="ra-online-box" style="margin-bottom:12px;"></div>'+/* MODIFIÉ PRÉSENCE : liste des joueurs en ligne */
       '<div style="display:flex;flex-direction:column;gap:8px;">'+
         '<button class="btn btn-sm" onclick="closeModal();ST(\'arena\')">⚔️ Aller à l’Arène</button>'+
         '<button class="btn-out btn-sm" onclick="closeModal();ST(\'feedback\')">💡 Donner mon avis</button>'+
         '<button class="btn-out btn-sm" onclick="closeModal();ST(\'dashboard\')">🎯 Objectifs du jour</button>'+
       '</div>';
     showModal('Notifications',body);
+    try{ if(typeof raOnlineLoad==='function') raOnlineLoad(); }catch(e){}/* MODIFIÉ PRÉSENCE */
   }catch(e){ try{ ST('arena'); }catch(_){} }
 };
 </script>
@@ -8389,6 +8392,123 @@ if('serviceWorker' in navigator){
     navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn('SW non enregistré',e);});
   });
 }
+</script>
+
+<!-- MODIFIÉ PUSH+PRÉSENCE : notifications push Web (Option B) + présence en ligne (défier / débattre) -->
+<script id="ra-push-presence-js">
+(function(){
+  /* ───────── Outils ───────── */
+  function loggedIn(){ return (typeof U!=='undefined' && U && U.token); }
+  function authHdr(){ return loggedIn() ? {'Authorization':'Bearer '+U.token} : {}; }
+  function jsonHdr(){ return Object.assign({'Content-Type':'application/json'}, authHdr()); }
+  function urlB64ToUint8(base64){
+    var pad='='.repeat((4-base64.length%4)%4);
+    var b64=(base64+pad).replace(/-/g,'+').replace(/_/g,'/');
+    var raw=atob(b64); var arr=new Uint8Array(raw.length);
+    for(var i=0;i<raw.length;i++){ arr[i]=raw.charCodeAt(i); }
+    return arr;
+  }
+  function flag(cc){
+    if(!cc||cc.length!==2) return '🌍';
+    try{ return String.fromCodePoint.apply(null, cc.toUpperCase().split('').map(function(c){return 127397+c.charCodeAt(0);})); }
+    catch(e){ return '🌍'; }
+  }
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function toast(msg){ try{ if(typeof raToast==='function'){ raToast(msg); return; } }catch(e){} try{ if(typeof showModal==='function'){ showModal('Notifications','<div class="al al-ok" style="font-size:13px;">'+msg+'</div><button class="btn btn-sm" style="margin-top:10px;" onclick="closeModal()">OK</button>'); } }catch(e){} }
+
+  /* ───────── PUSH WEB ───────── */
+  var _vapid=null;
+  function getVapidKey(){
+    if(_vapid!==null) return Promise.resolve(_vapid);
+    return fetch('/push/vapid-public-key').then(function(r){return r.json();}).then(function(d){
+      _vapid=(d && (d.key||(d.data&&d.data.key)))||''; return _vapid;
+    }).catch(function(){ _vapid=''; return ''; });
+  }
+  function pushSupported(){
+    return ('serviceWorker' in navigator) && ('PushManager' in window) && (typeof Notification!=='undefined');
+  }
+  // Abonne l'appareil et envoie l'abonnement au serveur. silent=true → n'émet pas de toast.
+  window.raPushSubscribe=function(silent){
+    if(!pushSupported()||!loggedIn()) return Promise.resolve(false);
+    return getVapidKey().then(function(key){
+      if(!key){ if(!silent) toast('Les notifications push ne sont pas encore activées côté serveur.'); return false; }
+      return navigator.serviceWorker.ready.then(function(reg){
+        return reg.pushManager.getSubscription().then(function(sub){
+          if(sub) return sub;
+          return reg.pushManager.subscribe({ userVisibleOnly:true, applicationServerKey: urlB64ToUint8(key) });
+        });
+      }).then(function(sub){
+        return fetch('/push/subscribe',{ method:'POST', headers: jsonHdr(), body: JSON.stringify({subscription: sub}) })
+          .then(function(){ if(!silent) toast('🔔 Notifications activées ! Vous serez prévenu même app fermée.'); return true; });
+      });
+    }).catch(function(e){ console.warn('push subscribe',e); if(!silent) toast('Activation impossible sur cet appareil pour le moment.'); return false; });
+  };
+  // Geste utilisateur : demande la permission puis abonne (requis sur iPhone installé)
+  window.raEnablePush=function(){
+    if(!pushSupported()){ toast('Votre navigateur ne gère pas les notifications push. Sur iPhone : ajoutez l’app à l’écran d’accueil.'); return; }
+    if(Notification.permission==='granted'){ raPushSubscribe(false); return; }
+    if(Notification.permission==='denied'){ toast('Notifications bloquées. Réautorisez-les dans les réglages de votre navigateur.'); return; }
+    Notification.requestPermission().then(function(p){
+      if(p==='granted'){ raPushSubscribe(false); }
+      else { toast('Activez les notifications pour ne rater aucun défi.'); }
+      try{ if(typeof closeModal==='function'){} }catch(e){}
+    });
+  };
+  // Bouton affiché dans le panneau Notifications, selon l'état de permission
+  window.raPushButtonHTML=function(){
+    if(!pushSupported()) return '<div class="al al-info" style="font-size:11px;margin-bottom:12px;">📱 Pour les notifications même app fermée, installez l’app sur votre écran d’accueil.</div>';
+    var p=(typeof Notification!=='undefined')?Notification.permission:'default';
+    if(p==='granted') return '<div class="al al-ok" style="font-size:12px;margin-bottom:12px;">🔔 Notifications activées — vous êtes prévenu même app fermée.</div>';
+    if(p==='denied') return '<div class="al al-info" style="font-size:11px;margin-bottom:12px;">🔕 Notifications bloquées. Réautorisez-les dans les réglages du navigateur pour être averti des défis.</div>';
+    return '<button class="btn btn-sm" style="width:100%;margin-bottom:12px;" onclick="raEnablePush()">🔔 Activer les notifications (défis, tournois)</button>';
+  };
+
+  /* ───────── PRÉSENCE EN LIGNE ───────── */
+  var hbTimer=null;
+  function ping(){ if(!loggedIn()) return; fetch('/presence/ping',{method:'POST',headers:jsonHdr(),body:'{}'}).catch(function(){}); }
+  function startHeartbeat(){
+    if(hbTimer||!loggedIn()) return;
+    ping();
+    hbTimer=setInterval(ping, 45000);
+    document.addEventListener('visibilitychange',function(){ if(!document.hidden) ping(); });
+  }
+  window.raPresencePing=ping;
+  // Charge et affiche les joueurs en ligne dans le conteneur #ra-online-box
+  window.raOnlineLoad=function(){
+    var box=document.getElementById('ra-online-box'); if(!box||!loggedIn()) return;
+    box.innerHTML='<div style="font-size:12px;color:var(--sub);">Chargement des joueurs en ligne…</div>';
+    fetch('/presence/online',{headers:authHdr()}).then(function(r){return r.json();}).then(function(d){
+      var list=(d && (d.online||(d.data&&d.data.online)))||[];
+      if(!list.length){ box.innerHTML='<div class="al al-info" style="font-size:12px;">Personne d’autre en ligne à l’instant. Lancez un duel, les autres seront notifiés !</div>'; return; }
+      var html='<div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:6px;">🟢 En ligne maintenant ('+list.length+')</div>';
+      html+=list.map(function(u){
+        var nm=esc(u.name||'Joueur'); var fl=flag(u.country||'');
+        return '<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);">'+
+          '<span style="width:8px;height:8px;border-radius:50%;background:#22c55e;flex-shrink:0;box-shadow:0 0 6px #22c55e;"></span>'+
+          '<span style="flex:1;font-size:13px;color:white;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+fl+' '+nm+'</span>'+
+          '<button class="btn btn-sm" style="flex-shrink:0;padding:5px 9px;font-size:12px;" onclick="raOnlineChallenge('+u.id+')">⚔️</button>'+
+          '<button class="btn-out btn-sm" style="flex-shrink:0;padding:5px 9px;font-size:12px;" onclick="closeModal();ST(\'debats\')">💬</button>'+
+          '</div>';
+      }).join('');
+      window._raOnline=list;
+      box.innerHTML=html;
+    }).catch(function(){ box.innerHTML='<div style="font-size:12px;color:var(--sub);">Liste indisponible.</div>'; });
+  };
+  window.raOnlineChallenge=function(id){
+    var u=(window._raOnline||[]).filter(function(x){return x.id===id;})[0];
+    if(u && typeof arChallengePlayer==='function'){ try{ if(typeof closeModal==='function') closeModal(); }catch(e){} arChallengePlayer(u.id, u.name||''); }
+  };
+
+  /* ───────── Démarrage ───────── */
+  function boot(){
+    if(!loggedIn()){ setTimeout(boot, 4000); return; } // attend la restauration de session
+    startHeartbeat();
+    // Ré-abonnement push silencieux si la permission est déjà accordée
+    try{ if(typeof Notification!=='undefined' && Notification.permission==='granted'){ raPushSubscribe(true); } }catch(e){}
+  }
+  if(document.readyState==='complete'||document.readyState==='interactive'){ setTimeout(boot, 1500); }
+  else { window.addEventListener('load', function(){ setTimeout(boot, 1500); }); }
+})();
 </script>
 </body>
 </html>
