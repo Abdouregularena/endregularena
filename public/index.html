@@ -298,7 +298,7 @@ h2,h3{animation:raReveal .45s ease both;}
 <div id="pushNotif" class="push-notification">
   <div class="push-icon">🎓</div>
   <div class="push-content">
-    <strong id="pushTitle">502 questions sourcées</strong>
+    <strong id="pushTitle">673 questions sourcées</strong>
     <p id="pushBody">Bâle, RFE, PCB et CEMAC — d'après les textes officiels BCEAO, BEAC et COBAC.</p><!-- MODIFIÉ : contenu réel -->
   </div>
 </div>
@@ -1863,11 +1863,28 @@ function render(){
 /* ════════════════════════════════════════════════
    DASHBOARD
 ════════════════════════════════════════════════ */
+/* MODIFIÉ — source de vérité unique : total RÉEL de questions distinctes (dé-doublonné par énoncé), inclut QN */
+/* MODIFIÉ — Pack dédié "Nouveaux textes" : questions QN net-nouvelles (absentes de QR/QB/QC), dé-doublonnées, séparées par zone */
+var QNX_U=[], QNX_C=[];
+(function(){
+  var seen={};
+  [QR,QB,QC].forEach(function(a){a.forEach(function(q){var t=(q&&q.q||'').trim(); if(t)seen[t]=1;});});
+  QN.forEach(function(q){
+    var t=(q&&q.q||'').trim(); if(!t||seen[t]) return; seen[t]=1;
+    var blob=((q.cat||'')+' '+(q.source||'')).toUpperCase();
+    if(/CEMAC|COBAC|BEAC|XAF/.test(blob)) QNX_C.push(q); else QNX_U.push(q);
+  });
+})();
+var _raQT=null,_raTh=null;
+/* Pools réellement jouables (solo rQP + compteurs). QNX désormais branché → ~673. */
+function raPlayablePools(){ return [QR,QB,QC,QNX_U,QNX_C]; } // MODIFIÉ — QNX branché
+function raQTotal(){ if(_raQT!=null)return _raQT; var s={}; raPlayablePools().forEach(function(a){a.forEach(function(q){var t=(q&&q.q||'').trim(); if(t)s[t]=1;});}); _raQT=Object.keys(s).length; return _raQT; }
+function raQThemes(){ if(_raTh!=null)return _raTh; var s={}; raPlayablePools().forEach(function(a){a.forEach(function(q){if(q&&q.cat)s[q.cat]=1;});}); _raTh=Object.keys(s).length; return _raTh; }
 function rDB(){
   var pct=Math.round((U.xp%1000)/10);
   return '<div style="display:flex;flex-direction:column;gap:16px;">'+
   '<div class="card" style="background:linear-gradient(to right,rgba(10,33,62,.7),rgba(30,58,138,.25));"><h2 style="font-size:21px;color:white;margin-bottom:4px;">Bienvenue, '+(U.name||'Pro').split(' ')[0]+' 👋</h2>'+
-  '<p style="color:var(--sub);font-size:13px;">'+(U.profile||'Professionnel UEMOA')+' · '+QR.length + QB.length + QC.length + QN.length // MODIFIÉ+' questions disponibles</p></div>'+
+  '<p style="color:var(--sub);font-size:13px;">'+(U.profile||'Professionnel UEMOA')+' · '+raQTotal()+' questions disponibles</p></div>'+ // MODIFIÉ — total réel dé-doublonné, label + balises restaurés
   /* ── MODIFIÉ : bloc 3 actions « Que voulez-vous faire ? » ── */
   '<div class="card" style="padding:16px;">'+
   '<div style="font-weight:800;color:white;font-size:15px;margin-bottom:2px;">Que voulez-vous faire ?</div>'+
@@ -1932,7 +1949,7 @@ function startQ(qs, pack){
   TAB='quiz'; buildNav(); render();
 }
 function startQCat(ds, cat, pack){
-  var src=ds==='QR'?QR:ds==='QC'?QC:QB;
+  var src=ds==='QR'?QR:ds==='QC'?QC:ds==='QNX_U'?QNX_U:ds==='QNX_C'?QNX_C:QB; // MODIFIÉ — packs Nouveaux textes
   startQ(src.filter(function(q){return q.cat===cat;}), cat+' — '+pack);
 }
 
@@ -1940,17 +1957,19 @@ function rQP(){
   var packs=[
     {t:'Relations Financières Extérieures',sub:'UEMOA — Règlement 06/2024',q:QR,ds:'QR',zone:'uemoa'},
     {t:'Dispositif Prudentiel UMOA',sub:'Bâle II/III — Décision 013/2016',q:QB,ds:'QB',zone:'uemoa'},
+    {t:'🆕 Nouveaux textes 2024-2026',sub:'BCEAO/UMOA — Notes & Instructions récentes',q:QNX_U,ds:'QNX_U',zone:'uemoa'}, // MODIFIÉ
     {t:'Réglementation CEMAC (BEAC · COBAC)',sub:'BEAC · COBAC · Règlement 02/18 — sources beac.int',q:QC,ds:'QC',zone:'cemac'},
+    {t:'🆕 CEMAC — Actualités 2024-2026',sub:'BEAC · COBAC — textes récents',q:QNX_C,ds:'QNX_C',zone:'cemac'}, // MODIFIÉ
   ];
   var zpacks=packs.filter(function(p){return p.zone===QZONE;});
-  var uTot=QR.length+QB.length, cTot=QC.length;
+  var uTot=QR.length+QB.length+QNX_U.length, cTot=QC.length+QNX_C.length; // MODIFIÉ — inclut les Nouveaux textes
   var zoneBtns='<div style="display:flex;gap:8px;flex-wrap:wrap;">'+
     '<button class="btn'+(QZONE==='uemoa'?'':'-out')+' btn-sm" onclick="setQZone(\'uemoa\')">🌍 Zone UEMOA ('+uTot+')</button>'+
     '<button class="btn'+(QZONE==='cemac'?'':'-out')+' btn-sm" onclick="setQZone(\'cemac\')">🌍 Zone CEMAC ('+cTot+')</button>'+
   '</div>';
   return '<div style="display:flex;flex-direction:column;gap:16px;">'+
   '<h2 style="font-size:22px;color:white;">Quiz & Formation</h2>'+
-  '<p style="font-size:13px;color:var(--sub);margin-top:-10px;">'+(QR.length+QB.length+QC.length)+' questions — textes officiels BCEAO/UEMOA & BEAC/COBAC/CEMAC</p>'+
+  '<p style="font-size:13px;color:var(--sub);margin-top:-10px;">'+raQTotal()+' questions — textes officiels BCEAO/UEMOA & BEAC/COBAC/CEMAC</p>'+
   zoneBtns+
   zpacks.map(function(p){
     var cats=[...new Set(p.q.map(function(x){return x.cat;}))];
@@ -2737,7 +2756,7 @@ function rST(){
   '<div class="card">'+
   '<div style="font-weight:700;color:white;font-size:14px;margin-bottom:12px;">Statistiques</div>'+
   '<div class="g2">'+
-  [['XP',U.xp.toLocaleString()],['Niveau',U.lvl],['Questions',QR.length+QB.length+QC.length],['Pays','14']].map(function(s){
+  [['XP',U.xp.toLocaleString()],['Niveau',U.lvl],['Questions',raQTotal()],['Pays','14']].map(function(s){
     return '<div style="padding:12px;background:rgba(255,255,255,.05);border-radius:8px;border:1px solid var(--border);">'+
     '<div style="font-size:11px;color:var(--sub);">'+s[0]+'</div>'+
     '<div class="ra-count" style="font-size:18px;font-weight:900;color:var(--cyan);margin-top:2px;">'+s[1]+'</div></div>';
@@ -4940,8 +4959,8 @@ window.addEventListener('load', function(){
   checkURLToken();
 
   // 2. Remplir la page d'accueil
-  var tot = QR.length+QB.length+QC.length;
-  var nThemes = (new Set([].concat(QR,QB,QC).map(function(q){return q.cat;}))).size;
+  var tot = raQTotal(); // MODIFIÉ — total réel dé-doublonné (inclut QN, fini le 315)
+  var nThemes = raQThemes(); // MODIFIÉ — thèmes distincts incluant QN
   var nPacks = [QR,QB,QC].filter(function(a){return a&&a.length;}).length; // grands packs réels
   var nMetiers = 4; // MODIFIÉ : métiers couverts (Conformité, Trade Finance, Crédit/Risques, CEMAC)
   var hs = ge('h-sub');
@@ -5094,7 +5113,7 @@ window.addEventListener('load', function(){
 <script>
 (function(){
   var notifications = [ // MODIFIÉ : messages réels uniquement (aucun faux utilisateur ni chiffre gonflé)
-    { title: "🎓 502 questions sourcées", body: "Bâle, RFE, PCB et CEMAC — d'après les textes officiels BCEAO, BEAC et COBAC." },
+    { title: "🎓 673 questions sourcées", body: "Bâle, RFE, PCB et CEMAC — d'après les textes officiels BCEAO, BEAC et COBAC." },
     { title: "⚔️ Mode Duel", body: "Affronte un collègue en temps réel sur la réglementation bancaire." },
     { title: "🏆 Certificat vérifiable", body: "Obtiens un certificat PDF avec QR code de vérification en ligne." },
     { title: "📚 Quiz par métier", body: "Choisis ton métier (Trade Finance, Conformité, Audit…) et entraîne-toi ciblé." },
