@@ -2544,6 +2544,207 @@ if(tok())load();
 });
 
 // MODIFIÉ — Module "L'Arène des Débats" : on passe requireAuth (et NON authMiddleware)
+/* ════════════════════════════════════════════════════════════════
+   MODE SPRINT / BLITZ — solo contre-la-montre, vitesse mesurée SERVEUR
+   (AJOUT — 100% additif). Phase 1 du brainstorm "nouveaux modes".
+   Principe anti-triche timing : le serveur horodate l'instant où il sert
+   chaque question (served_at_ms) et calcule lui-même le temps de réponse
+   à la réception. Le polling REST ne joue plus : chaque question est un
+   aller-retour serveur, donc le chrono est équitable et non manipulable.
+   Le score de vitesse n'inflle PAS le classement global : à la fin, on
+   poste seulement correct_count dans user_scores (1 pt / bonne réponse,
+   comme les autres modes) → alimente classement + paliers + Flash Info.
+   Le score "vitesse" sert au classement Sprint dédié + au certificat.
+================================================================ */
+db.exec(`
+  CREATE TABLE IF NOT EXISTS sprints (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    code           TEXT    NOT NULL UNIQUE,
+    user_id        INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    format         TEXT    NOT NULL DEFAULT 'pro',
+    zone           TEXT    NOT NULL DEFAULT '',
+    num_questions  INTEGER NOT NULL DEFAULT 15,
+    questions_json TEXT    NOT NULL DEFAULT '[]',
+    cur_index      INTEGER NOT NULL DEFAULT 0,
+    served_at_ms   INTEGER,
+    score          INTEGER NOT NULL DEFAULT 0,
+    correct_count  INTEGER NOT NULL DEFAULT 0,
+    total_ms       INTEGER NOT NULL DEFAULT 0,
+    status         TEXT    NOT NULL DEFAULT 'active',
+    created_at     TEXT    NOT NULL DEFAULT (datetime('now')),
+    finished_at    TEXT
+  );
+`);
+try { db.exec('CREATE INDEX IF NOT EXISTS idx_sprints_user ON sprints (user_id, status)'); } catch(_) {}
+try { db.exec('CREATE INDEX IF NOT EXISTS idx_sprints_board ON sprints (format, score DESC, total_ms ASC)'); } catch(_) {}
+
+const SPRINT_FORMATS   = { eclair: 7, pro: 15, marathon: 21 }; // ⚡Éclair / 🎯Pro / 🏆Marathon
+const SPRINT_BUDGET_MS = 20000;  // budget de 20 s par question (base du bonus de vitesse)
+const SPRINT_FLOOR_MS  = 1000;   // plancher anti-bot : en-deçà, bonus plafonné (pas de score "0 ms")
+const SPRINT_BASE_PTS  = 100;    // points d'une bonne réponse
+const SPRINT_SPEED_MAX = 100;    // bonus de vitesse maximal (réponse quasi instantanée)
+
+// Score serveur d'une réponse : 0 si faux ; sinon base + bonus de vitesse décroissant.
+function sprintPoints(correct, elapsedMs) {
+  if (!correct) return 0;
+  const e = Math.max(SPRINT_FLOOR_MS, Math.min(SPRINT_BUDGET_MS, Number(elapsedMs) || SPRINT_BUDGET_MS));
+  const frac = (SPRINT_BUDGET_MS - e) / (SPRINT_BUDGET_MS - SPRINT_FLOOR_MS); // 1 = rapide, 0 = lent
+  return SPRINT_BASE_PTS + Math.round(SPRINT_SPEED_MAX * frac);
+}
+
+// POST /sprint/start — body { format, zone, questions:[{q,choices,correct,source}] }
+// Le client envoie le pool figé (tiré dans QR/QB/QC/QN selon la zone). Le serveur
+// nettoie, fige et NE RENVOIE JAMAIS le champ correct.
+app.post('/sprint/start', requireAuth, (req, res) => {
+  try {
+    const { format, zone, questions } = req.body || {};
+    const n = SPRINT_FORMATS[format];
+    if (!n) return err(res, 400, 'Format invalide (eclair, pro ou marathon)');
+    if (!Array.isArray(questions) || questions.length !== n) {
+      return err(res, 400, `${n} questions attendues pour ce format`);
+    }
+    const clean = [];
+    for (const raw of questions) {
+      if (!raw || typeof raw.q !== 'string' || !Array.isArray(raw.choices)) {
+        return err(res, 400, 'Question malformée');
+      }
+      const choices = raw.choices.map(c => String(c)).slice(0, 6);
+      if (choices.length < 2) return err(res, 400, 'Choix insuffisants');
+      const correct = Number(raw.correct);
+      if (!Number.isInteger(correct) || correct < 0 || correct >= choices.length) {
+        return err(res, 400, 'Indice de bonne réponse invalide');
+      }
+      clean.push({
+        q:       String(raw.q).slice(0, 600),
+        choices,
+        correct,
+        source:  String(raw.source || '').slice(0, 240),
+      });
+    }
+    const code = 'S-' + crypto.randomBytes(4).toString('hex').toUpperCase();
+    db.prepare(`INSERT INTO sprints (code, user_id, format, zone, num_questions, questions_json, cur_index, status)
+                VALUES (?,?,?,?,?,?,0,'active')`)
+      .run(code, req.user.id, format, String(zone || '').slice(0, 12), n, JSON.stringify(clean));
+    return ok(res, { code, total: n, format, budget_ms: SPRINT_BUDGET_MS });
+  } catch (e) { return err(res, 500, 'Erreur serveur sprint (start)'); }
+});
+
+// GET /sprint/:code/question/:index — sert la question courante SANS la bonne réponse,
+// et horodate l'instant exact où elle est servie (base du chrono serveur).
+app.get('/sprint/:code/question/:index', requireAuth, (req, res) => {
+  const s = db.prepare('SELECT * FROM sprints WHERE code = ?').get(req.params.code);
+  if (!s) return err(res, 404, 'Sprint introuvable');
+  if (s.user_id !== req.user.id) return err(res, 403, 'Accès refusé');
+  if (s.status !== 'active') return err(res, 400, 'Sprint terminé');
+  const idx = Number(req.params.index);
+  if (idx !== s.cur_index) return err(res, 403, 'Question non débloquée'); // anti-prefetch
+  let questions = [];
+  try { questions = JSON.parse(s.questions_json || '[]'); } catch (_) {}
+  const q = questions[idx];
+  if (!q) return err(res, 500, 'Question introuvable');
+  // N'arme le chrono qu'au PREMIER service de cette question (un re-fetch ne le
+  // remet pas à zéro → impossible de gagner du bonus en rechargeant).
+  if (s.served_at_ms == null) {
+    db.prepare('UPDATE sprints SET served_at_ms = ? WHERE id = ?').run(Date.now(), s.id);
+  }
+  return ok(res, {
+    question: { index: idx, q: q.q, choices: q.choices, source: q.source || '' },
+    total: s.num_questions,
+    budget_ms: SPRINT_BUDGET_MS,
+  });
+});
+
+// POST /sprint/:code/answer — body { q_index, choice_index } (choice_index = -1 si temps écoulé)
+// Le serveur calcule elapsed = now - served_at_ms, valide la réponse et fait foi.
+app.post('/sprint/:code/answer', requireAuth, (req, res) => {
+  try {
+    const { q_index, choice_index } = req.body || {};
+    const s = db.prepare('SELECT * FROM sprints WHERE code = ?').get(req.params.code);
+    if (!s) return err(res, 404, 'Sprint introuvable');
+    if (s.user_id !== req.user.id) return err(res, 403, 'Accès refusé');
+    if (s.status !== 'active') return err(res, 400, 'Sprint terminé');
+    if (Number(q_index) !== s.cur_index) return err(res, 400, 'Question hors séquence');
+    if (s.served_at_ms == null) return err(res, 400, 'Question non servie');
+
+    let questions = [];
+    try { questions = JSON.parse(s.questions_json || '[]'); } catch (_) {}
+    const q = questions[s.cur_index];
+    if (!q) return err(res, 500, 'Question introuvable');
+
+    const elapsed   = Math.max(0, Date.now() - Number(s.served_at_ms));
+    const isCorrect = Number(choice_index) === Number(q.correct);
+    const pts       = sprintPoints(isCorrect, elapsed);
+
+    const newScore   = s.score + pts;
+    const newCorrect = s.correct_count + (isCorrect ? 1 : 0);
+    const newTotalMs = s.total_ms + Math.min(elapsed, SPRINT_BUDGET_MS);
+    const newIndex   = s.cur_index + 1;
+    const finished   = newIndex >= s.num_questions;
+
+    const tx = db.transaction(() => {
+      db.prepare(`UPDATE sprints SET score = ?, correct_count = ?, total_ms = ?, cur_index = ?,
+                  served_at_ms = NULL, status = ?, finished_at = ? WHERE id = ?`)
+        .run(newScore, newCorrect, newTotalMs, newIndex,
+             finished ? 'finished' : 'active',
+             finished ? new Date().toISOString() : null, s.id);
+      // À la fin : on alimente le classement GLOBAL avec correct_count (1 pt/bonne
+      // réponse), cohérent avec les autres modes — paliers & Flash Info suivent.
+      if (finished) {
+        db.prepare('INSERT INTO user_scores (user_id, pack_id, score, total) VALUES (?,?,?,?)')
+          .run(req.user.id, 'sprint-' + s.format, newCorrect, s.num_questions);
+      }
+    });
+    tx();
+
+    return ok(res, {
+      correct:       isCorrect,
+      correct_index: q.correct,
+      points_earned: pts,
+      elapsed_ms:    elapsed,
+      my_score:      newScore,
+      correct_count: newCorrect,
+      total_ms:      newTotalMs,
+      cur_index:     newIndex,
+      total:         s.num_questions,
+      finished,
+    });
+  } catch (e) { return err(res, 500, 'Erreur serveur sprint (answer)'); }
+});
+
+// GET /sprint/leaderboard?format=pro — classement Sprint dédié (par score de vitesse,
+// départage par temps total). Renvoie aussi mon meilleur run si token fourni.
+app.get('/sprint/leaderboard', (req, res) => {
+  try {
+    const fmt = req.query.format;
+    const where = ["s.status = 'finished'", 'u.email_verified = 1'];
+    const params = [];
+    if (fmt && SPRINT_FORMATS[fmt]) { where.push('s.format = ?'); params.push(fmt); }
+    const rows = db.prepare(`
+      SELECT s.score, s.correct_count, s.num_questions, s.total_ms, s.format,
+             u.id AS user_id, u.name, u.country
+      FROM sprints s JOIN users u ON u.id = s.user_id
+      WHERE ${where.join(' AND ')}
+      ORDER BY s.score DESC, s.total_ms ASC
+      LIMIT 20
+    `).all(...params);
+    let myBest = null;
+    const hdr = req.headers['authorization'] || '';
+    const tok = hdr.startsWith('Bearer ') ? hdr.slice(7) : null;
+    if (tok) {
+      try {
+        const p = jwt.verify(tok, JWT_SECRET);
+        const mw = ["status = 'finished'", 'user_id = ?']; const mp = [p.id];
+        if (fmt && SPRINT_FORMATS[fmt]) { mw.push('format = ?'); mp.push(fmt); }
+        myBest = db.prepare(`SELECT score, correct_count, num_questions, total_ms, format
+                             FROM sprints WHERE ${mw.join(' AND ')}
+                             ORDER BY score DESC, total_ms ASC LIMIT 1`).get(...mp) || null;
+      } catch (_) {}
+    }
+    return ok(res, { leaderboard: rows, my_best: myBest });
+  } catch (e) { return err(res, 500, 'Erreur serveur sprint (leaderboard)'); }
+});
+/* ════════════════ FIN MODE SPRINT / BLITZ ════════════════ */
+
 app.use('/api/debats', require('./debats')(db, requireAuth));
 
 app.use(express.static(path.join(__dirname, 'public')));
