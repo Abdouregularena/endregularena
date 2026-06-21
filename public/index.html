@@ -4,6 +4,15 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>REGULARENA PRO</title>
+<!-- MODIFIÉ : PWA installable (réinjecté 21/06) -->
+<link rel="manifest" href="/manifest.json"/>
+<meta name="theme-color" content="#0A192F"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="REGUL ARENA"/>
+<link rel="apple-touch-icon" href="/icon-192.png"/>
+<link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Syne:wght@700;900&family=Playfair+Display:wght@600;700;900&display=swap" rel="stylesheet"/><!-- MODIFIÉ : +Playfair Display (utilisée Métiers/VF/Débats, manquait à l'import) -->
 <style>
 :root{--bg:#0A192F;--bg2:#112240;--card:rgba(17,34,64,0.70);--border:rgba(35,53,84,0.45);--cyan:#F5C453;--green:#00B4D8;--text:#F8F9FA;--sub:#8892B0;}
@@ -8372,5 +8381,13 @@ window.raOpenNotif=function(){
 }
 </style>
 
+<!-- MODIFIÉ : enregistrement du service worker (PWA installable, réinjecté 21/06) -->
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn('SW non enregistré',e);});
+  });
+}
+</script>
 </body>
 </html>
