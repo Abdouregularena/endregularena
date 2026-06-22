@@ -4,6 +4,8 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>REGULARENA PRO</title>
+<!-- MODIFIÉ : meta description SEO (modes de jeu + rubriques) -->
+<meta name="description" content="REGUL ARENA — Maîtrisez la réglementation bancaire UEMOA & CEMAC en jouant : quiz solo, duels 1v1, tournois, sprint, Roi de la Manche, bibliothèque réglementaire, fiches de révision et parcours par métier."/>
 <!-- MODIFIÉ : PWA installable (réinjecté 21/06) -->
 <link rel="manifest" href="/manifest.json"/>
 <meta name="theme-color" content="#0A192F"/>
@@ -9380,6 +9382,53 @@ if('serviceWorker' in navigator){
   window.kotmHome=function(){ kStopPoll(); kStopTimer(); kResetMatch(); K.code=''; K.view='home'; render(); };
   window.kotmQuit=function(){ kStopPoll(); kStopTimer(); kResetMatch(); K.code=''; K.view='home'; render(); };
 })();
+</script>
+<!-- MODIFIÉ : bloc SEO crawlable (lu par Google / Mode IA) -->
+<section id="ra-seo-features" style="max-width:900px;margin:40px auto;padding:24px;font-family:'Space Grotesk',sans-serif;color:#8892B0;line-height:1.6;font-size:14px">
+  <h2 style="color:#F8F9FA">REGUL ARENA — La plateforme de gamification réglementaire UEMOA &amp; CEMAC</h2>
+  <p>REGUL ARENA forme les professionnels de la banque et de la finance aux réglementations UEMOA et CEMAC à travers le jeu : plus de 670 questions issues de textes officiels (BCEAO, COBAC, Bâle III, RFE, LBC/FT, Finance islamique), réparties en 44 thèmes.</p>
+  <h3 style="color:#F8F9FA">Modes de jeu</h3>
+  <ul>
+    <li><strong>Quiz Solo</strong> — entraînement libre par thème et par métier.</li>
+    <li><strong>Duels 1v1</strong> — affrontements en temps réel avec anti-triche.</li>
+    <li><strong>Tournois</strong> — brackets à élimination.</li>
+    <li><strong>Sprint / Blitz</strong> — défis chronométrés (formats éclair, pro, marathon).</li>
+    <li><strong>Roi de la Manche</strong> — duel King of the Hill, le gagnant garde sa place.</li>
+  </ul>
+  <h3 style="color:#F8F9FA">Apprendre &amp; réviser</h3>
+  <ul>
+    <li><strong>Bibliothèque réglementaire</strong> — pyramide des textes UEMOA et CEMAC.</li>
+    <li><strong>Fiches de révision</strong> par thème réglementaire.</li>
+    <li><strong>7 métiers bancaires</strong> — quiz « Réglementation sourcée » adapté à chaque métier.</li>
+    <li><strong>Auto-évaluation UEMOA &amp; CEMAC</strong> — cas pratiques, calculs prudentiels, audits, examens blancs.</li>
+    <li><strong>Certificats</strong> et <strong>classement</strong> communautaire.</li>
+  </ul>
+</section>
+<!-- MODIFIÉ : données structurées schema.org -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "REGUL ARENA",
+  "url": "https://www.regularena.com",
+  "applicationCategory": "EducationalApplication",
+  "operatingSystem": "Web",
+  "description": "Plateforme de gamification de la réglementation bancaire pour les professionnels de la finance en zones UEMOA et CEMAC. Quiz, duels temps réel, tournois, sprint, mode Roi de la Manche, bibliothèque réglementaire, fiches de révision et parcours par métier.",
+  "inLanguage": "fr",
+  "featureList": [
+    "Quiz solo par thème et par métier",
+    "Duels 1v1 en temps réel",
+    "Tournois à élimination",
+    "Sprint / Blitz chronométré",
+    "Roi de la Manche (King of the Hill)",
+    "Bibliothèque réglementaire UEMOA et CEMAC",
+    "Fiches de révision",
+    "Quiz par métier bancaire",
+    "Auto-évaluation et examens blancs",
+    "Certificats et classement"
+  ],
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "XOF" }
+}
 </script>
 </body>
 </html>
