@@ -198,6 +198,8 @@ try { db.exec('CREATE INDEX IF NOT EXISTS idx_tp_tid_score ON tournament_partici
  'ALTER TABLE tournaments ADD COLUMN zone TEXT NOT NULL DEFAULT "uemoa"', // TOURNOI AJOUT
  'ALTER TABLE tournaments ADD COLUMN start_date TEXT NOT NULL DEFAULT ""',// TOURNOI AJOUT
  'ALTER TABLE tournament_participants ADD COLUMN qualified INTEGER NOT NULL DEFAULT 0', // TOURNOI AJOUT
+ 'ALTER TABLE tournaments ADD COLUMN match_mode TEXT NOT NULL DEFAULT \'duel\'', // ROI-POULES : mode des matchs (duel | kotm)
+ 'ALTER TABLE tournaments ADD COLUMN champion_id INTEGER', // ROI-POULES : vainqueur final du bracket
  // FEATURE 1/2 — invitation bêta + CGU
  'ALTER TABLE users ADD COLUMN cgu_accepted_at TEXT',
  'ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT "user"',
@@ -1390,7 +1392,7 @@ function _tFull(code) { // TOURNOI AJOUT
 
 /* POST /tournament/create */
 app.post('/tournament/create', requireAuth, (req, res) => { // TOURNOI AJOUT
-  const { name, zone, pack_id, max_players, start_date } = req.body || {}; // TOURNOI AJOUT
+  const { name, zone, pack_id, max_players, start_date, match_mode } = req.body || {}; // TOURNOI AJOUT // ROI-POULES: match_mode
   if (!name || !zone) return err(res, 400, 'name et zone requis'); // TOURNOI AJOUT
   if (!['uemoa','cemac','inter','country'].includes(zone)) return err(res, 400, 'Zone invalide'); // TOURNOI AJOUT
   const mp = Number(max_players); // TOURNOI AJOUT
@@ -1407,8 +1409,8 @@ app.post('/tournament/create', requireAuth, (req, res) => { // TOURNOI AJOUT
     if (!db.prepare('SELECT id FROM tournaments WHERE code = ?').get(code)) break; // TOURNOI AJOUT
   } // TOURNOI AJOUT
   const result = db.prepare( // TOURNOI AJOUT
-    'INSERT INTO tournaments (code, creator_id, name, pack_id, max_players, status, country, zone, start_date) VALUES (?,?,?,?,?,?,?,?,?)' // TOURNOI AJOUT
-  ).run(code, req.user.id, name.trim().slice(0,80), pack_id || 'general', mp, 'waiting', user.country || '', zone, start_date || ''); // TOURNOI AJOUT
+    'INSERT INTO tournaments (code, creator_id, name, pack_id, max_players, status, country, zone, start_date, match_mode) VALUES (?,?,?,?,?,?,?,?,?,?)' // TOURNOI AJOUT // ROI-POULES
+  ).run(code, req.user.id, name.trim().slice(0,80), pack_id || 'general', mp, 'waiting', user.country || '', zone, start_date || '', (match_mode === 'kotm' ? 'kotm' : 'duel')); // TOURNOI AJOUT // ROI-POULES
   db.prepare('INSERT INTO tournament_participants (tournament_id, user_id) VALUES (?,?)').run(result.lastInsertRowid, req.user.id); // TOURNOI AJOUT
   notifyAllExcept(req.user.id, 'tournament_created', '🏆 ' + user.name + ' crée le tournoi "' + name.trim() + '" ! Code : ' + code); // TOURNOI AJOUT
   // PUSH — nouveau tournoi : diffusion aux abonnés
@@ -1541,39 +1543,115 @@ app.post('/tournament/:code/start-qualif', requireAuth, (req, res) => { // TOURN
   return ok(res, { message: 'Phase de qualification lancée' }); // TOURNOI AJOUT
 }); // TOURNOI AJOUT
 
-/* POST /tournament/:code/generate-bracket */
-app.post('/tournament/:code/generate-bracket', requireAuth, (req, res) => { // TOURNOI AJOUT
-  const t = db.prepare('SELECT * FROM tournaments WHERE code = ?').get(req.params.code); // TOURNOI AJOUT
-  if (!t) return err(res, 404, 'Tournoi introuvable'); // TOURNOI AJOUT
-  if (t.creator_id !== req.user.id) return err(res, 403, 'Seul le créateur peut générer le bracket'); // TOURNOI AJOUT
-  if (!['qualif','waiting'].includes(t.status)) return err(res, 400, 'Phase invalide pour générer un bracket'); // TOURNOI AJOUT
-  const participants = db.prepare('SELECT * FROM tournament_participants WHERE tournament_id = ? ORDER BY score DESC').all(t.id); // TOURNOI AJOUT
-  if (participants.length < 2) return err(res, 400, 'Minimum 2 participants requis'); // TOURNOI AJOUT
-  db.prepare('DELETE FROM tournament_matches WHERE tournament_id = ?').run(t.id); // TOURNOI AJOUT
-  const mIns = db.prepare('INSERT INTO tournament_matches (tournament_id, round, player1_id, player2_id, duel_code, status) VALUES (?,?,?,?,?,?)'); // TOURNOI AJOUT
-  const dIns = db.prepare('INSERT INTO duels (code, creator_id, pack_id, num_questions, timer_sec) VALUES (?,?,?,?,?)'); // TOURNOI AJOUT
-  const tx = db.transaction(() => { // TOURNOI AJOUT
-    const pairs = Math.floor(participants.length / 2); // TOURNOI AJOUT
-    for (let i = 0; i < pairs; i++) { // TOURNOI AJOUT
-      const p1 = participants[i * 2]; // TOURNOI AJOUT
-      const p2 = participants[i * 2 + 1]; // TOURNOI AJOUT
-      let dCode; // TOURNOI AJOUT
-      for (let j = 0; j < 10; j++) { // TOURNOI AJOUT
-        dCode = genCode('D'); // TOURNOI AJOUT
-        if (!db.prepare('SELECT id FROM duels WHERE code = ?').get(dCode)) break; // TOURNOI AJOUT
-      } // TOURNOI AJOUT
-      dIns.run(dCode, p1.user_id, t.pack_id || 'general', 10, 30); // TOURNOI AJOUT
-      mIns.run(t.id, 1, p1.user_id, p2.user_id, dCode, 'pending'); // TOURNOI AJOUT
-    } // TOURNOI AJOUT
-  }); // TOURNOI AJOUT
-  tx(); // TOURNOI AJOUT
-  db.prepare('UPDATE tournaments SET status = ? WHERE code = ?').run('elim', req.params.code); // TOURNOI AJOUT
-  const allParts = db.prepare('SELECT user_id FROM tournament_participants WHERE tournament_id = ?').all(t.id); // TOURNOI AJOUT
-  const nIns = db.prepare('INSERT INTO notifications (user_id, type, message) VALUES (?,?,?)'); // TOURNOI AJOUT
-  const nTx = db.transaction(() => allParts.forEach(p => nIns.run(p.user_id, 'tournament_bracket', '🏆 Bracket généré pour "' + t.name + '" ! Les matchs d\'élimination débutent.'))); // TOURNOI AJOUT
-  nTx(); // TOURNOI AJOUT
-  return ok(res, { message: 'Bracket généré', tournament: _tFull(req.params.code) }); // TOURNOI AJOUT
-}); // TOURNOI AJOUT
+/* ── ROI-POULES : helpers bracket multi-mode (duel | kotm) ── */
+function _tMatchGame(t, p1id, p2id) {
+  // Crée le jeu support d'un match 1v1 selon le mode du tournoi ; renvoie son code.
+  let code;
+  if (t.match_mode === 'kotm') {
+    for (let j = 0; j < 12; j++) { code = genCode('K'); if (!db.prepare('SELECT id FROM kotm_games WHERE code = ?').get(code)) break; }
+    // Les 2 joueurs sont pré-assignés (créateur = p1, adversaire = p2, statut 'joined') :
+    // le créateur n'a plus qu'à lancer (/kotm/:code/start) — le contrat KOTM gelé fait le reste.
+    db.prepare("INSERT INTO kotm_games (code, creator_id, joiner_id, pack_id, num_questions, timer_sec, status) VALUES (?,?,?,?,?,?, 'joined')")
+      .run(code, p1id, p2id, t.pack_id || 'general', 12, 20);
+  } else {
+    for (let j = 0; j < 12; j++) { code = genCode('D'); if (!db.prepare('SELECT id FROM duels WHERE code = ?').get(code)) break; }
+    db.prepare('INSERT INTO duels (code, creator_id, pack_id, num_questions, timer_sec) VALUES (?,?,?,?,?)')
+      .run(code, p1id, t.pack_id || 'general', 10, 30);
+  }
+  return code;
+}
+function _tBuildRound(t, round, ids) {
+  // Apparie séquentiellement les `ids` (déjà ordonnés) et crée les matchs du tour.
+  // Nombre impair → le dernier reçoit un bye (qualifié d'office, match déjà 'done').
+  const mIns = db.prepare('INSERT INTO tournament_matches (tournament_id, round, player1_id, player2_id, winner_id, duel_code, status) VALUES (?,?,?,?,?,?,?)');
+  const q = ids.slice();
+  while (q.length >= 2) {
+    const p1 = q.shift(), p2 = q.shift();
+    const code = _tMatchGame(t, p1, p2);
+    mIns.run(t.id, round, p1, p2, null, code, 'pending');
+  }
+  if (q.length === 1) { const bye = q.shift(); mIns.run(t.id, round, bye, null, bye, null, 'done'); }
+}
+function _tRoundWinners(tid, round) {
+  // Vainqueurs d'un tour, dans l'ordre des matchs (appariement stable au tour suivant).
+  return db.prepare("SELECT winner_id FROM tournament_matches WHERE tournament_id = ? AND round = ? ORDER BY id").all(tid, round)
+    .map(m => m.winner_id).filter(Boolean);
+}
+
+/* POST /tournament/:code/generate-bracket — tour 1 (mode duel ou KOTM) */
+app.post('/tournament/:code/generate-bracket', requireAuth, (req, res) => {
+  const t = db.prepare('SELECT * FROM tournaments WHERE code = ?').get(req.params.code);
+  if (!t) return err(res, 404, 'Tournoi introuvable');
+  if (t.creator_id !== req.user.id) return err(res, 403, 'Seul le créateur peut générer le bracket');
+  if (!['qualif','waiting'].includes(t.status)) return err(res, 400, 'Phase invalide pour générer un bracket');
+  const participants = db.prepare('SELECT * FROM tournament_participants WHERE tournament_id = ? ORDER BY score DESC, COALESCE(rank,9999) ASC').all(t.id);
+  if (participants.length < 2) return err(res, 400, 'Minimum 2 participants requis');
+  const ids = participants.map(p => p.user_id);
+  db.transaction(() => {
+    db.prepare('DELETE FROM tournament_matches WHERE tournament_id = ?').run(t.id);
+    _tBuildRound(t, 1, ids);
+  })();
+  db.prepare('UPDATE tournaments SET status = ? WHERE code = ?').run('elim', req.params.code);
+  const allParts = db.prepare('SELECT user_id FROM tournament_participants WHERE tournament_id = ?').all(t.id);
+  const nIns = db.prepare('INSERT INTO notifications (user_id, type, message) VALUES (?,?,?)');
+  const modeLabel = t.match_mode === 'kotm' ? 'Roi de la Manche 👑' : 'duels';
+  db.transaction(() => allParts.forEach(pp => nIns.run(pp.user_id, 'tournament_bracket', '🏆 Bracket généré pour "' + t.name + '" — phase d\'élimination en ' + modeLabel + ' !')))();
+  return ok(res, { message: 'Bracket généré', tournament: _tFull(req.params.code) });
+});
+
+/* POST /tournament/:code/advance — clôt le tour courant et génère le suivant (ou la finale) */
+app.post('/tournament/:code/advance', requireAuth, (req, res) => {
+  const t = db.prepare('SELECT * FROM tournaments WHERE code = ?').get(req.params.code);
+  if (!t) return err(res, 404, 'Tournoi introuvable');
+  if (t.creator_id !== req.user.id) return err(res, 403, 'Seul le créateur peut faire avancer le tournoi');
+  if (t.status !== 'elim') return err(res, 400, "Le tournoi n'est pas en phase d'élimination");
+  const lastRound = (db.prepare('SELECT MAX(round) AS r FROM tournament_matches WHERE tournament_id = ?').get(t.id).r) || 1;
+  const pend = db.prepare("SELECT COUNT(*) AS n FROM tournament_matches WHERE tournament_id = ? AND round = ? AND status != 'done'").get(t.id, lastRound).n;
+  if (pend > 0) return err(res, 400, pend + ' match(s) du tour ' + lastRound + ' pas encore terminé(s)');
+  const winners = _tRoundWinners(t.id, lastRound);
+  if (winners.length <= 1) {
+    const champ = winners[0] || null;
+    db.prepare('UPDATE tournaments SET status = ?, champion_id = ? WHERE code = ?').run('finished', champ, req.params.code);
+    if (champ) {
+      const cu = db.prepare('SELECT name FROM users WHERE id = ?').get(champ);
+      const allParts = db.prepare('SELECT user_id FROM tournament_participants WHERE tournament_id = ?').all(t.id);
+      const nIns = db.prepare('INSERT INTO notifications (user_id, type, message) VALUES (?,?,?)');
+      db.transaction(() => allParts.forEach(pp => nIns.run(pp.user_id, 'tournament_finished', '🏆 ' + (cu ? cu.name : 'Un champion') + ' remporte le tournoi "' + t.name + '" !')))();
+    }
+    return ok(res, { message: 'Tournoi terminé', finished: true, champion_id: champ, tournament: _tFull(req.params.code) });
+  }
+  db.transaction(() => _tBuildRound(t, lastRound + 1, winners))();
+  return ok(res, { message: 'Tour ' + (lastRound + 1) + ' généré', finished: false, tournament: _tFull(req.params.code) });
+});
+
+/* POST /tournament/match/:matchId/settle — résout un match d'après son jeu support (serveur fait foi) */
+app.post('/tournament/match/:matchId/settle', requireAuth, (req, res) => {
+  const matchId = Number(req.params.matchId);
+  const m = db.prepare('SELECT * FROM tournament_matches WHERE id = ?').get(matchId);
+  if (!m) return err(res, 404, 'Match introuvable');
+  if (m.status === 'done') return ok(res, { message: 'Déjà résolu', winner_id: m.winner_id });
+  if (!m.duel_code) return err(res, 400, 'Aucun jeu associé à ce match');
+  const kg = db.prepare('SELECT * FROM kotm_games WHERE code = ?').get(m.duel_code);
+  let winnerId = null;
+  if (kg) {
+    if (kg.status !== 'finished') return err(res, 400, 'Manche pas encore terminée');
+    const sc = db.prepare('SELECT user_id, score, questions_won FROM kotm_scores WHERE game_id = ?').all(kg.id);
+    const s1 = sc.find(x => x.user_id === m.player1_id) || { score: 0, questions_won: 0 };
+    const s2 = sc.find(x => x.user_id === m.player2_id) || { score: 0, questions_won: 0 };
+    if (s1.score !== s2.score) winnerId = s1.score > s2.score ? m.player1_id : m.player2_id;
+    else if (s1.questions_won !== s2.questions_won) winnerId = s1.questions_won > s2.questions_won ? m.player1_id : m.player2_id;
+    else winnerId = m.player1_id; // égalité parfaite → tête de série
+  } else {
+    const d = db.prepare('SELECT * FROM duels WHERE code = ?').get(m.duel_code);
+    if (!d || d.status !== 'finished') return err(res, 400, 'Duel pas encore terminé');
+    const ds = db.prepare('SELECT user_id, score FROM duel_scores WHERE duel_id = ?').all(d.id);
+    const d1 = ds.find(x => x.user_id === m.player1_id) || { score: 0 };
+    const d2 = ds.find(x => x.user_id === m.player2_id) || { score: 0 };
+    winnerId = d1.score >= d2.score ? m.player1_id : m.player2_id;
+  }
+  db.prepare("UPDATE tournament_matches SET winner_id = ?, status = 'done' WHERE id = ?").run(winnerId, matchId);
+  return ok(res, { message: 'Match résolu', winner_id: winnerId });
+});
 
 /* DELETE /tournaments/:code/leave — participant quitte un tournoi en attente */ // MODIFIÉ
 app.delete('/tournaments/:code/leave', requireAuth, (req, res) => { // MODIFIÉ
@@ -3053,6 +3131,28 @@ app.get('/kotm/:code/state', requireAuth, (req, res) => {
     q_elapsed_ms, q_remaining_ms, i_answered_current: iAnswered,
   });
 });
+// GET /kotm/:code/watch — spectateur (lecture seule, tout utilisateur authentifié) : diffusion de la finale.
+app.get('/kotm/:code/watch', requireAuth, (req, res) => {
+  const g = db.prepare('SELECT * FROM kotm_games WHERE code = ?').get(req.params.code);
+  if (!g) return err(res, 404, 'Manche introuvable');
+  const creator = db.prepare('SELECT name, country FROM users WHERE id = ?').get(g.creator_id);
+  const joiner = g.joiner_id ? db.prepare('SELECT name, country FROM users WHERE id = ?').get(g.joiner_id) : null;
+  const scores = db.prepare('SELECT user_id, score, questions_won FROM kotm_scores WHERE game_id = ?').all(g.id);
+  let q_remaining_ms = null, current_question = null;
+  if (g.status === 'active' && g.served_at_ms != null) {
+    q_remaining_ms = Math.max(0, g.timer_sec * 1000 - (Date.now() - Number(g.served_at_ms)));
+    try { const qs = JSON.parse(g.questions_json || '[]'); const q = qs[g.cur_index];
+      if (q) current_question = { index: g.cur_index, q: q.q, choices: q.choices }; } catch (_) {} // sans la bonne réponse
+  }
+  return ok(res, {
+    status: g.status, code: g.code, cur_index: g.cur_index, total: g.num_questions,
+    king_id: g.king_id, king_streak: g.king_streak,
+    creator: { id: g.creator_id, name: creator ? creator.name : '', country: creator ? creator.country : '' },
+    joiner: joiner ? { id: g.joiner_id, name: joiner.name, country: joiner.country } : null,
+    scores, q_remaining_ms, current_question,
+  });
+});
+
 /* ════════════════ FIN MODE ROI DE LA MANCHE ════════════════ */
 
 
