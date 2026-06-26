@@ -2981,6 +2981,8 @@ function rFD(){
    ARÈNE
 ════════════════════════════════════════════════ */
 function rAR(){
+  // ROI-POULES : diffusion de la finale en direct (spectateur) — prioritaire sur le reste
+  if(AR.kWatch){ return rKotmWatch(); }
   // Si un duel est en cours (game active)
   if(AR.code && AR.type==='duel' && AR.duelObj){
     var st = AR.duelObj.status;
@@ -2992,15 +2994,23 @@ function rAR(){
   if(AR.code && AR.type==='tour' && AR.duelObj){
     return rTourMain();
   }
+  // Si une manche Roi de la Manche est en cours
+  if(AR.code && AR.type==='kotm' && AR.duelObj){
+    var ks = AR.duelObj.status;
+    if(ks==='active') return rARKotmGame();
+    if(ks==='finished') return rARKotmResult();
+    return rARKotmWaiting();
+  }
   // Écran principal Arène
   var tabs = '<div style="display:flex;gap:7px;margin-bottom:18px;flex-wrap:wrap;">'+
     '<button class="ar-tab'+(AR.tab==='duels'?' ac':'')+'" onclick="AR.tab=\'duels\';render()">⚔️ Duels 1v1</button>'+
+    '<button class="ar-tab'+(AR.tab==='kotm'?' ac':'')+'" onclick="AR.tab=\'kotm\';render()">👑 Roi de la Manche</button>'+
     '<button class="ar-tab'+(AR.tab==='tournois'?' ac':'')+'" onclick="AR.tab=\'tournois\';render()">🏆 Tournois</button>'+
   '</div>';
   return '<div style="display:flex;flex-direction:column;gap:14px;">'+
     '<h2 style="font-size:22px;color:white;">L\'Arène – Défis Professionnels</h2>'+
     tabs +
-    (AR.tab==='duels' ? rARDuelsHome() : rARTournoisHome()) +
+    (AR.tab==='duels' ? rARDuelsHome() : AR.tab==='kotm' ? rARKotmHome() : rARTournoisHome()) +
   '</div>';
 }
 
@@ -3251,11 +3261,13 @@ function rARDuelResult(){
       '</div>'+
     '</div>'+
     arMatchSheet()+ // MODIFIÉ : feuille de match en grille responsive (remplit la largeur au lieu d'une colonne étroite)
-    '<div style="display:flex;gap:8px;flex-wrap:wrap;">'+
-      '<button class="btn" style="flex:1;min-width:150px;padding:13px;" onclick="arDoRematch()">🔁 Revanche (même thème)</button>'+ // MODIFIE
-      '<button class="btn-out" style="flex:1;min-width:120px;padding:13px;" onclick="arRematchModal()">🔄 Autre thème</button>'+ // MODIFIE
-    '</div>'+
-    '<button class="btn-out btn-sm" style="width:100%;" onclick="arQuit()">← Retour à l\'Arène</button>'+ // MODIFIE
+    (AR.kTour
+      ? '<button class="btn" style="width:100%;padding:14px;" onclick="arTourSettleReturn()">↩️ Valider le résultat & retour au tournoi</button>'
+      : '<div style="display:flex;gap:8px;flex-wrap:wrap;">'+
+          '<button class="btn" style="flex:1;min-width:150px;padding:13px;" onclick="arDoRematch()">🔁 Revanche (même thème)</button>'+ // MODIFIE
+          '<button class="btn-out" style="flex:1;min-width:120px;padding:13px;" onclick="arRematchModal()">🔄 Autre thème</button>'+ // MODIFIE
+        '</div>'+
+        '<button class="btn-out btn-sm" style="width:100%;" onclick="arQuit()">← Retour à l\'Arène</button>')+ // MODIFIE
     '</div>'+
   '</div>';
 }
@@ -3971,6 +3983,8 @@ function arCopyCode(code){
 function arShareWA(code, type){
   var msg = type==='duel'
     ? '⚔️ Je vous défie sur REGULARENA PRO ! Code duel : *'+code+'*\nRejoignez-nous sur https://www.regularena.com\nRègle : même pack, même chrono, qui connaît le mieux la réglementation UEMOA/CEMAC ?'
+    : type==='kotm'
+    ? '👑 Montez sur le ring du *Roi de la Manche* sur REGULARENA PRO ! Code : *'+code+'*\nRejoignez-nous sur https://www.regularena.com\nRègle : le premier à répondre juste rafle le trône — tiendrez-vous la couronne ?'
     : '🏆 Vous êtes invité(e) au tournoi *'+code+'* sur REGULARENA PRO !\nRejoignez-nous sur https://www.regularena.com';
   window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
 }
@@ -3979,6 +3993,7 @@ function arQuit(){
   try{ arwUnwatch(AR.code); }catch(e){} // MODIFIÉ : stoppe la veille de fond
   if(AR.pollId){ clearInterval(AR.pollId); AR.pollId=null; }
   if(AR.timerId){ clearInterval(AR.timerId); AR.timerId=null; }
+  if(AR.watchPollId){ clearInterval(AR.watchPollId); AR.watchPollId=null; } // ROI-POULES : stoppe la diffusion
   try{ if(TQ.timerId) clearInterval(TQ.timerId); }catch(e){} TQ.playing=false; TQ.done=false; TQ.chatSig='';
   AR = {tab:AR.tab,code:'',type:'',q:[],idx:0,ans:false,sc:0,oppSc:0,
     pollId:null,timerId:null,timerVal:30,timerMax:30,
@@ -3988,6 +4003,14 @@ function arQuit(){
 
 function arAuthHdr(){
   return {'Content-Type':'application/json','Authorization':'Bearer '+U.token};
+}
+
+/* ROI-POULES : hint dynamique sous le sélecteur de mode des matchs */
+function arTmodeHint(){
+  var sel=ge('ar-tmatchmode'), hint=ge('ar-tmode-hint'); if(!sel||!hint) return;
+  hint.innerHTML = sel.value==='kotm'
+    ? '👑 La phase d\'élimination se jouera en <strong>Roi de la Manche</strong> : à chaque tour, deux joueurs s\'affrontent pour le trône, le vainqueur passe au tour suivant jusqu\'à la finale.'
+    : 'La phase d\'élimination se jouera en duels classiques 1v1.';
 }
 
 /* ════════════════════════════════════════════════
@@ -4053,6 +4076,12 @@ function arModalCreateTour(format){ // MODIFIÉ : format 'classic' | 'intra' | '
     '<select id="ar-tpack" class="inp"><optgroup label="Packs généraux"><option value="rfe-uemoa">🏛️ RFE UEMOA</option><option value="bale-umoa">⚖️ Bâle II/III</option><option value="mix">🔀 Mix</option><option value="cemac">🌍 CEMAC (BEAC/COBAC)</option><option value="qn">📚 Thématiques approfondies</option></optgroup><optgroup label="🎯 Thèmes Atelier (défis ciblés)">'+arThemeOptions()+'</optgroup><optgroup label="Thèmes précis">'+arCatOptions()+'</optgroup></select></div>'+
     (format!=='classic' ? '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Mode de classement des '+(format==='inter'?'pays':'institutions')+'</label>'+
     '<select id="ar-tscoring" class="inp"><option value="total">Score total cumulé</option><option value="avg">Moyenne par participant (équitable)</option><option value="top3">Somme des 3 meilleurs</option></select></div>' : '')+
+    '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Mode des matchs (phase finale)</label>'+ // ROI-POULES
+    '<select id="ar-tmatchmode" class="inp" onchange="arTmodeHint()">'+ // ROI-POULES
+      '<option value="duel">⚔️ Duel 1v1 — 10 questions simultanées</option>'+ // ROI-POULES
+      '<option value="kotm">👑 Roi de la Manche — course au trône</option>'+ // ROI-POULES
+    '</select>'+ // ROI-POULES
+    '<div id="ar-tmode-hint" style="font-size:11px;color:var(--sub);margin-top:6px;">La phase d\'élimination se jouera en duels classiques 1v1.</div></div>'+ // ROI-POULES
     '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Participants max</label>'+
     '<select id="ar-tmax" class="inp"><option value="4" selected>4 joueurs</option><option value="8">8 joueurs</option><option value="16">16 joueurs</option><option value="32">32 joueurs</option></select></div>'+ // MODIFIÉ
     '<div id="ar-tour-msg"></div>'+
@@ -4259,7 +4288,623 @@ function arBuildCertPDF(info){ // MODIFIÉ : Canvas pur, zéro CDN
 function arArenaAfterRender(){
   if(ge('ar-open-duels')) arLoadOpenDuels();
   if(ge('ar-open-tours')) arLoadOpenTours();
+  if(ge('ar-open-kotm')) arLoadOpenKotm();
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   👑 ROI DE LA MANCHE — FRONTEND (1v1 tir à la corde réglementaire)
+   ── ROI AJOUT (frontend) ──
+   Calqué sur le pattern Duel : polling /state (~1.1 s) + chrono ancré serveur.
+   Contrat backend GELÉ (index.js) :
+     POST /kotm                      { pack_id, num_questions, timer_sec, target_user_id? } → { code, game }
+     GET  /kotm/lobby                → { games:[{code,num_questions,timer_sec,creator_name,country}] }
+     GET  /kotm/:code                → { game }
+     POST /kotm/:code/join           → { message, game }
+     POST /kotm/:code/start          (créateur) → { game }
+     GET  /kotm/:code/question/:i    → { question:{index,q,choices,reference}, total, budget_ms }  (SANS la bonne réponse)
+     POST /kotm/:code/answer         { q_index, choice_index } → { correct, stole, defended, points_earned,
+                                        speed_bonus, defend_bonus, correct_index, king_id, king_streak,
+                                        cur_index, finished, neutral, both_wrong, locked, timeout, already, game }
+     GET  /kotm/:code/state          → { game, status, cur_index, king_id, king_streak,
+                                          q_elapsed_ms, q_remaining_ms, i_answered_current }
+   Les questions sont FIGÉES côté serveur au /start ; le client les tire UNE PAR UNE
+   et n'envoie qu'un choice_index. Le serveur fait foi sur la justesse, le trône et le chrono.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── Identité / helpers ── */
+function arKotmMyId(){
+  var g = AR.duelObj; if(!g) return AR.myUserId||'';
+  return String(AR.isCreator ? (g.creator_id||'') : (g.joiner_id||''));
+}
+function arKotmOppName(){
+  var g = AR.duelObj; if(!g) return 'Adversaire';
+  var o = AR.isCreator ? g.joiner : g.creator;
+  return (o && o.name) ? o.name : 'Adversaire';
+}
+function arKotmMeName(){
+  var g = AR.duelObj; if(!g) return (U.name||'Moi');
+  var m = AR.isCreator ? g.creator : g.joiner;
+  return (m && m.name) ? m.name : (U.name||'Moi');
+}
+function arKotmScoreOf(uid){
+  var g = AR.duelObj; if(!g || !g.scores) return {score:0,questions_won:0};
+  for(var i=0;i<g.scores.length;i++){ if(String(g.scores[i].user_id)===String(uid)) return g.scores[i]; }
+  return {score:0,questions_won:0};
+}
+
+/* ── Accueil onglet 👑 ── */
+function rARKotmHome(){
+  return '<div style="display:flex;flex-direction:column;gap:12px;">'+
+  '<div class="al al-info" style="font-size:12px;">👑 <strong>Roi de la Manche — duel 1v1 :</strong> une séquence figée de questions. Le <strong>premier à répondre juste</strong> rafle la question et s\'assoit sur le trône. Tenez le trône plusieurs questions d\'affilée → le <strong>bonus de défense grimpe</strong> (effet boule de neige). Le voler remet l\'élan de l\'adversaire à zéro. Vainqueur : meilleur score après toutes les questions.</div>'+
+  '<div class="g2">'+
+    '<button class="card ch" style="padding:20px;text-align:center;cursor:pointer;border:1px solid rgba(201,153,26,.45);background:rgba(201,153,26,.08);" onclick="arModalCreateKotm()">'+
+      '<div style="font-size:32px;margin-bottom:8px;">👑</div>'+
+      '<div style="font-weight:800;color:#E8B520;font-size:14px;margin-bottom:3px;">Ouvrir une manche</div>'+
+      '<div style="font-size:11px;color:var(--sub);">Choisissez le pack &amp; invitez</div>'+
+    '</button>'+
+    '<button class="card ch" style="padding:20px;text-align:center;cursor:pointer;border:1px solid rgba(201,153,26,.45);background:rgba(201,153,26,.06);" onclick="arModalJoinKotm()">'+
+      '<div style="font-size:32px;margin-bottom:8px;">🔑</div>'+
+      '<div style="font-weight:800;color:var(--cyan);font-size:14px;margin-bottom:3px;">Rejoindre une manche</div>'+
+      '<div style="font-size:11px;color:var(--sub);">Entrez le code reçu</div>'+
+    '</button>'+
+  '</div>'+
+  '<button onclick="arKotmHelp()" aria-label="Comment fonctionne le Roi de la Manche" style="display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:rgba(0,180,216,.08);border:1px solid rgba(0,180,216,.30);border-radius:9px;padding:11px 14px;cursor:pointer;color:var(--green);font-family:inherit;font-size:12px;font-weight:700;min-height:44px;touch-action:manipulation;">'+
+    'ℹ️ Comment gagner le trône ?'+
+    '<span style="margin-left:auto;color:var(--sub);font-size:15px;line-height:1;">›</span>'+
+  '</button>'+
+  '<div class="card">'+
+    '<div style="font-weight:700;color:white;font-size:13px;margin-bottom:10px;">👑 Manches ouvertes — montez sur le ring</div>'+
+    '<div id="ar-open-kotm"><div style="font-size:12px;color:var(--sub);text-align:center;padding:10px;"><span class="spin">⏳</span> Chargement…</div></div>'+
+  '</div>'+
+  '</div>';
+}
+
+function arKotmHelp(){
+  showModal('👑 Roi de la Manche — comment gagner',
+    '<div style="display:flex;flex-direction:column;gap:13px;font-size:13px;color:var(--sub);line-height:1.55;">'+
+      '<div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:18px;">⚡</span><div><strong style="color:#fff;">Le plus rapide ET juste rafle la question</strong><br>À chaque question, les deux joueurs répondent. Le premier à donner la bonne réponse prend le trône et marque les points.</div></div>'+
+      '<div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:18px;">🛡️</span><div><strong style="color:#fff;">Tenir le trône rapporte de plus en plus</strong><br>Chaque question gardée d\'affilée ajoute un bonus de défense croissant (+30, +60, +90…). Plus vous régnez, plus chaque victoire pèse lourd.</div></div>'+
+      '<div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:18px;">🗡️</span><div><strong style="color:#fff;">Voler le trône casse l\'élan adverse</strong><br>Si vous reprenez le trône à l\'adversaire, sa série de défense retombe à zéro.</div></div>'+
+      '<div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:18px;">🏁</span><div><strong style="color:#fff;">Vainqueur = meilleur score final</strong><br>Si les deux se trompent ou si le temps s\'écoule, la question est neutre (personne ne marque) et on passe à la suivante.</div></div>'+
+      '<button class="btn btn-sm" onclick="closeModal()" style="margin-top:4px;">Compris 👑</button>'+
+    '</div>');
+}
+
+/* ── Liste des manches ouvertes ── */
+function arLoadOpenKotm(){
+  var box=ge('ar-open-kotm'); if(!box) return;
+  fetch('/kotm/lobby',{headers:arAuthHdr()})
+  .then(function(r){return r.json();}).then(function(d){
+    var box=ge('ar-open-kotm'); if(!box) return;
+    if(!d.success||!d.games||!d.games.length){
+      box.innerHTML='<div style="font-size:12px;color:var(--sub);text-align:center;padding:10px;">Aucune manche ouverte. Lancez la vôtre ! 👑</div>';
+      return;
+    }
+    box.innerHTML=d.games.map(function(x){
+      var lbl=arPackLabel(x.pack_id);
+      return '<div class="card" style="display:flex;align-items:center;gap:10px;padding:12px;margin-bottom:8px;border:1px solid rgba(201,153,26,.30);background:rgba(201,153,26,.05);">'+
+        arAvatar(x.creator_name)+
+        '<div style="min-width:0;flex:1;">'+
+          '<div style="font-weight:700;color:white;font-size:13px;">'+arChatEsc(x.creator_name||'Joueur')+(x.country?' <span style="font-size:10px;color:var(--sub);">('+arChatEsc(x.country)+')</span>':'')+'</div>'+
+          '<div style="font-size:11px;margin-top:3px;display:flex;gap:5px;flex-wrap:wrap;align-items:center;">'+
+            '<span style="background:rgba(201,153,26,.18);color:#C9991A;padding:1px 7px;border-radius:4px;font-weight:600;">'+arChatEsc(lbl)+'</span>'+
+            '<span style="color:var(--sub);">'+((x.num_questions||12))+'Q</span>'+
+            '<span style="color:var(--sub);">⏱ '+((x.timer_sec||20))+'s</span>'+
+          '</div>'+
+        '</div>'+
+        '<button class="btn btn-sm" style="flex-shrink:0;" onclick="arQuickJoinKotm(\''+x.code+'\')">👑 Défier</button>'+
+      '</div>';
+    }).join('')+
+    '<button class="btn-out btn-sm" style="width:100%;margin-top:4px;font-size:11px;" onclick="arLoadOpenKotm()">🔄 Actualiser</button>';
+  }).catch(function(){});
+}
+
+/* ── Modales création / jonction ── */
+function arModalCreateKotm(){
+  showModal('👑 Ouvrir une manche',
+    '<div style="display:flex;flex-direction:column;gap:13px;">'+
+    '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Pack de questions</label>'+
+    '<select id="ar-kpack" class="inp">'+
+      '<optgroup label="Packs généraux">'+
+      '<option value="rfe-uemoa">🏛️ RFE UEMOA ('+QR.length+' questions)</option>'+
+      '<option value="bale-umoa">⚖️ Bâle II/III UMOA ('+QB.length+' questions)</option>'+
+      '<option value="mix">🔀 Mix RFE + Bâle</option>'+
+      '<option value="cemac">🌍 CEMAC — BEAC/COBAC ('+QC.length+' questions)</option>'+
+      '<option value="qn">📚 Thématiques approfondies ('+QN.length+' questions)</option>'+
+      '</optgroup>'+
+      '<optgroup label="🎯 Thèmes Atelier (défis ciblés)">'+arThemeOptions()+'</optgroup><optgroup label="Thèmes précis">'+arCatOptions()+'</optgroup>'+
+    '</select></div>'+
+    '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Nombre de questions</label>'+
+    '<select id="ar-knq" class="inp"><option value="6">6 questions</option><option value="9">9 questions</option><option value="12" selected>12 questions</option><option value="15">15 questions</option><option value="21">21 questions</option></select></div>'+
+    '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Temps par question</label>'+
+    '<select id="ar-kts" class="inp"><option value="10">10 secondes (nerveux)</option><option value="15">15 secondes</option><option value="20" selected>20 secondes</option><option value="30">30 secondes</option><option value="40">40 secondes</option></select></div>'+
+    '<div class="al al-info" style="font-size:11px;">⚡ Chrono court = plus d\'adrénaline. 20 s est l\'équilibre conseillé.</div>'+
+    '<div id="ar-kcreate-msg"></div>'+
+    '<button class="btn" style="width:100%;padding:13px;" onclick="arDoCreateKotm()">👑 Ouvrir la manche →</button>'+
+    '<button class="btn-out btn-sm" style="width:100%;" onclick="closeModal()">Annuler</button>'+
+    '</div>'
+  );
+}
+
+function arModalJoinKotm(){
+  showModal('🔑 Rejoindre une manche',
+    '<div style="display:flex;flex-direction:column;gap:13px;">'+
+    '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Code de la manche (ex: K-ABC-123)</label>'+
+    '<input type="text" id="ar-kjoin-code" class="inp" placeholder="K-ABC-123" style="text-transform:uppercase;letter-spacing:2px;" oninput="this.value=this.value.toUpperCase()"/></div>'+
+    '<div id="ar-kjoin-msg"></div>'+
+    '<button class="btn" style="width:100%;padding:13px;" onclick="arDoJoinKotm()">Rejoindre →</button>'+
+    '<button class="btn-out btn-sm" style="width:100%;" onclick="closeModal()">Annuler</button>'+
+    '</div>'
+  );
+}
+
+/* ── Réinitialise l'état KOTM local ── */
+function arKotmResetState(){
+  AR.kIdx = -1; AR.kCur = null; AR.kAns = false; AR.kKing = null; AR.kStreak = 0;
+  AR.kTotal = 0; AR.kBudget = 0; AR.kServed = 0; AR.kFetching = false;
+  AR.kReveal = false; AR._kAuto = false; AR.kResultPlayed = false;
+  AR.sc = 0; AR.oppSc = 0;
+}
+
+/* ── Création ── */
+function arDoCreateKotm(){
+  var pack = ge('ar-kpack').value;
+  var nq   = parseInt(ge('ar-knq').value)||12;
+  nq = Math.max(6, Math.min(nq, Math.max(6, arPoolSize(pack)))); // s'adapter au nombre réel du thème (serveur reclampe 6..21)
+  var ts   = parseInt(ge('ar-kts').value)||20;
+  var msg  = ge('ar-kcreate-msg');
+  if(msg) msg.innerHTML='<div class="al al-info"><span class="spin">⏳</span> Création en cours…</div>';
+  fetch('/kotm',{method:'POST',headers:arAuthHdr(),body:JSON.stringify({pack_id:pack,num_questions:nq,timer_sec:ts})})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(!d.success) throw new Error(d.error||'Erreur serveur');
+    arKotmResetState();
+    AR.code      = d.code;
+    AR.type      = 'kotm';
+    AR.packId    = pack;
+    AR.isCreator = true;
+    AR.duelObj   = d.game;
+    AR.kTotal    = (d.game&&d.game.num_questions)||nq;
+    AR.kBudget   = ((d.game&&d.game.timer_sec)||ts)*1000;
+    AR.myUserId  = d.game&&d.game.creator_id ? String(d.game.creator_id) : '';
+    closeModal();
+    arStartPollKotm();
+    render();
+  })
+  .catch(function(e){ if(msg) msg.innerHTML='<div class="al al-err">❌ '+e.message+'</div>'; });
+}
+
+/* ── Jonction (par code saisi) ── */
+function arDoJoinKotm(){
+  var code = (ge('ar-kjoin-code').value||'').trim().toUpperCase();
+  var msg  = ge('ar-kjoin-msg');
+  if(!code){ if(msg) msg.innerHTML='<div class="al al-warn">⚠️ Entrez un code</div>'; return; }
+  if(msg) msg.innerHTML='<div class="al al-info"><span class="spin">⏳</span> Connexion…</div>';
+  arKotmJoinByCode(code, function(e){ if(msg) msg.innerHTML='<div class="al al-err">❌ '+e+'</div>'; });
+}
+
+/* ── Jonction rapide depuis la liste ── */
+function arQuickJoinKotm(code){
+  arKotmJoinByCode(code, function(e){ showModal('Impossible de rejoindre','<div class="al al-err" style="font-size:12px;">'+e+'</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>'); });
+}
+
+function arKotmJoinByCode(code, onErr){
+  fetch('/kotm/'+code+'/join',{method:'POST',headers:arAuthHdr()})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(!d.success) throw new Error(d.error||'Code invalide ou manche introuvable');
+    arKotmResetState();
+    AR.code      = code;
+    AR.type      = 'kotm';
+    AR.isCreator = false;
+    AR.duelObj   = d.game;
+    AR.packId    = (d.game&&d.game.pack_id)||'general';
+    AR.kTotal    = (d.game&&d.game.num_questions)||12;
+    AR.kBudget   = ((d.game&&d.game.timer_sec)||20)*1000;
+    AR.myUserId  = d.game&&d.game.joiner_id ? String(d.game.joiner_id) : '';
+    closeModal();
+    arStartPollKotm();
+    render();
+  })
+  .catch(function(e){ if(onErr) onErr(e.message); });
+}
+
+/* ── Lancement par le créateur : fige les questions serveur ── */
+function arKotmStart(){
+  fetch('/kotm/'+AR.code+'/start',{method:'POST',headers:arAuthHdr()})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(!d.success){ AR._kAuto=false; throw new Error(d.error||'Erreur'); }
+    AR.duelObj = d.game;
+    AR.kTotal  = (d.game&&d.game.num_questions)||AR.kTotal;
+    // Le poll /state prendra le relais pour servir la question 0.
+    render();
+  })
+  .catch(function(e){ AR._kAuto=false; showModal('Erreur','<div class="al al-err">'+e.message+'</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>'); });
+}
+
+/* ── Salle d'attente ── */
+function rARKotmWaiting(){
+  var g = AR.duelObj;
+  var st = g ? g.status : 'waiting';
+  var code = AR.code, isCreator = AR.isCreator;
+  var oppJoined = !!(g && g.joiner_id);
+  var oppName = arKotmOppName();
+  var waMsg = st==='waiting'
+    ? (isCreator ? '⏳ En attente que votre adversaire rejoigne…' : '✅ Manche rejointe ! Elle démarrera dès que le créateur lance…')
+    : '✅ Adversaire prêt ! La manche va commencer…';
+  return '<div style="display:flex;flex-direction:column;gap:14px;max-width:500px;margin:0 auto;">'+
+    '<div class="code-box">'+
+      '<span class="code-big">'+code+'</span>'+
+      '<div style="font-size:11px;color:var(--sub);margin-bottom:14px;">Code de la manche — partagez-le à votre adversaire</div>'+
+      '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">'+
+        '<button class="btn btn-sm" onclick="arCopyCode(\''+code+'\')">📋 Copier le code</button>'+
+        '<button class="btn btn-sm" onclick="arShareWA(\''+code+'\',\'kotm\')">📱 WhatsApp</button>'+
+      '</div>'+
+    '</div>'+
+    '<div class="card" style="text-align:center;">'+
+      '<div class="pls" style="font-size:30px;margin-bottom:8px;">👑</div>'+
+      '<div style="font-size:13px;color:var(--sub);margin-bottom:6px;">'+waMsg+'</div>'+
+      (oppJoined ? '<div style="font-weight:700;color:#4ade80;font-size:14px;">'+arChatEsc(oppName)+' est dans l\'arène !</div>' : '')+
+    '</div>'+
+    (isCreator && oppJoined && st!=='active' ?
+      '<button class="btn" style="width:100%;padding:14px;font-size:14px;" onclick="arKotmStart()">👑 Lancer la manche</button>' : '')+
+    '<button class="btn-out btn-sm" style="width:100%;" onclick="arQuit()">← Abandonner</button>'+
+  '</div>';
+}
+
+/* ── Polling /state (~1.1 s) ── */
+function arStartPollKotm(){
+  if(AR.pollId) clearInterval(AR.pollId);
+  AR.pollId = setInterval(function(){
+    if(!AR.code || AR.type!=='kotm'){ clearInterval(AR.pollId); AR.pollId=null; return; }
+    fetch('/kotm/'+AR.code+'/state',{headers:arAuthHdr()})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(!d.success || !d.game) return;
+      var prevStatus = AR.duelObj ? AR.duelObj.status : '';
+      // Sync état + chrono serveur
+      AR.duelObj = d.game;
+      AR.kKing   = d.king_id;
+      AR.kStreak = d.king_streak||0;
+      AR.kTotal  = d.game.num_questions||AR.kTotal;
+      if(typeof d.q_elapsed_ms==='number'){ AR.kBudget = (d.game.timer_sec||20)*1000; AR.kServed = Date.now() - d.q_elapsed_ms; }
+
+      var st = d.status;
+
+      // Lancement AUTO par le créateur dès qu'un adversaire a rejoint
+      if(st==='joined' && AR.isCreator && !AR._kAuto){ AR._kAuto=true; arKotmStart(); }
+      if(st==='joined' && prevStatus!=='joined'){ render(); }
+
+      if(st==='finished'){
+        if(AR.timerId){ clearInterval(AR.timerId); AR.timerId=null; }
+        clearInterval(AR.pollId); AR.pollId=null;
+        // ROI-POULES : si la manche fait partie d'un tournoi, on résout le match côté serveur une seule fois.
+        if(AR.kTour && AR.kTour.matchId && !AR.kTourSettled){
+          AR.kTourSettled = true;
+          fetch('/tournament/match/'+AR.kTour.matchId+'/settle',{method:'POST',headers:arAuthHdr()}).catch(function(){});
+        }
+        render();
+        return;
+      }
+
+      if(st==='active'){
+        // Si la manche vient de démarrer
+        if(prevStatus!=='active') sndStart();
+        if(d.i_answered_current) AR.kAns = true;
+
+        var ci = d.cur_index;
+        // Pendant un reveal local, on ne yank pas l'UI : on attend la fin du reveal.
+        if(AR.kReveal) return;
+
+        if(ci !== AR.kIdx){
+          // La question a avancé (adversaire a raflé, ou manche neutre, ou tout début).
+          var beaten = (AR.kIdx>=0 && !AR.kAns); // l'adversaire a répondu avant moi
+          AR.kIdx = ci; AR.kAns = false; AR.kCur = null;
+          if(ci < AR.kTotal){
+            if(beaten){ arKotmRevealBeaten(ci); }
+            else { arKotmFetchQuestion(ci); }
+          }
+        } else {
+          // Même question : rafraîchir trône / scores / chrono sans casser les boutons.
+          arKotmRefreshHud();
+        }
+      }
+    })
+    .catch(function(){});
+  }, 1100);
+}
+
+/* ── Récupère la question courante (figée serveur) ── */
+function arKotmFetchQuestion(idx){
+  if(AR.kFetching) return;
+  if(AR.kCur && AR.kCur.index===idx){ render(); return; }
+  AR.kFetching = true;
+  fetch('/kotm/'+AR.code+'/question/'+idx,{headers:arAuthHdr()})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    AR.kFetching = false;
+    if(!d.success || !d.question){
+      // 403 « non débloquée » = l'index a déjà bougé ; le prochain poll corrigera.
+      return;
+    }
+    AR.kCur    = d.question;
+    AR.kIdx    = d.question.index;
+    AR.kTotal  = d.total||AR.kTotal;
+    AR.kBudget = d.budget_ms||AR.kBudget;
+    AR.kAns    = false;
+    // Ancre le chrono : le /state suivant le re-calera précisément via q_elapsed_ms.
+    if(!AR.kServed) AR.kServed = Date.now();
+    render();
+    arKotmTimerStart();
+  })
+  .catch(function(){ AR.kFetching=false; });
+}
+
+/* ── Interface de jeu ── */
+function rARKotmGame(){
+  var q = AR.kCur;
+  if(!q) return arKotmWait();
+  var meId = arKotmMyId(), oppId = String(AR.isCreator ? (AR.duelObj.joiner_id||'') : (AR.duelObj.creator_id||''));
+  var meSc = arKotmScoreOf(meId), opSc = arKotmScoreOf(oppId);
+  var kingName = AR.kKing==null ? null : (String(AR.kKing)===meId ? arKotmMeName() : arKotmOppName());
+  var iAmKing = AR.kKing!=null && String(AR.kKing)===meId;
+  var tot = AR.kTotal||1, pos = (AR.kIdx||0)+1;
+  var progPct = Math.round((AR.kIdx)/tot*100);
+
+  var throne = AR.kKing==null
+    ? '<div style="display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;color:var(--sub);">🪑 Trône vacant — à prendre !</div>'
+    : '<div id="k-king" style="display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;font-weight:800;color:'+(iAmKing?'#E8B520':'#f87171')+';">'+
+        '<span class="ra-crown" style="font-size:18px;">👑</span>'+
+        (iAmKing?'Vous tenez le trône':arChatEsc(kingName)+' tient le trône')+
+        (AR.kStreak>1?' <span style="font-size:11px;color:#fb923c;">🔥 '+AR.kStreak+' défenses</span>':'')+
+      '</div>';
+
+  return '<div style="display:flex;flex-direction:column;gap:13px;max-width:560px;margin:0 auto;">'+
+    /* Bandeau trône */
+    '<div class="card" style="padding:12px;border:1px solid rgba(201,153,26,.4);background:linear-gradient(135deg,rgba(201,153,26,.10),rgba(201,153,26,.02));">'+throne+'</div>'+
+    /* Scores */
+    '<div style="display:flex;gap:10px;align-items:stretch;">'+
+      '<div class="card" style="flex:1;text-align:center;padding:10px;border:1px solid '+(iAmKing?'rgba(201,153,26,.55)':'rgba(255,255,255,.08)')+';">'+
+        '<div style="font-size:11px;color:var(--sub);">'+arChatEsc(arKotmMeName().split(' ')[0])+' (vous)</div>'+
+        '<div id="k-sc-me" style="font-weight:800;font-size:22px;color:#E8B520;">'+(meSc.score||0)+'</div>'+
+        '<div style="font-size:10px;color:var(--sub);">'+(meSc.questions_won||0)+' trône(s)</div>'+
+      '</div>'+
+      '<div style="display:flex;align-items:center;font-weight:800;color:var(--sub);font-size:13px;">VS</div>'+
+      '<div class="card" style="flex:1;text-align:center;padding:10px;border:1px solid '+(AR.kKing!=null&&String(AR.kKing)===oppId?'rgba(248,113,113,.45)':'rgba(255,255,255,.08)')+';">'+
+        '<div id="k-opp-name" style="font-size:11px;color:var(--sub);">'+arChatEsc(arKotmOppName().split(' ')[0])+'</div>'+
+        '<div id="k-sc-opp" style="font-weight:800;font-size:22px;color:#f87171;">'+(opSc.score||0)+'</div>'+
+        '<div style="font-size:10px;color:var(--sub);">'+(opSc.questions_won||0)+' trône(s)</div>'+
+      '</div>'+
+    '</div>'+
+    /* Progression + chrono */
+    '<div style="display:flex;align-items:center;gap:10px;font-size:11px;color:var(--sub);">'+
+      '<span style="font-weight:700;color:#aac4e8;">Question '+pos+'/'+tot+'</span>'+
+      '<div style="flex:1;height:6px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;"><div style="height:100%;width:'+progPct+'%;background:#C9991A;border-radius:99px;"></div></div>'+
+    '</div>'+
+    '<div class="tmr-bar" style="height:8px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;"><div id="tmr-fill" style="height:100%;width:100%;background:#4ade80;border-radius:99px;transition:width .25s linear;"></div></div>'+
+    '<div style="display:flex;justify-content:space-between;font-size:11px;"><span style="color:var(--sub);">⚡ Le 1ᵉʳ juste rafle le trône</span><span style="color:var(--cyan);font-weight:700;">⏱ '+Math.ceil(AR.kBudget/1000)+'s</span></div>'+
+    /* Question */
+    '<div class="card" style="padding:16px;">'+
+      '<div style="font-size:15px;font-weight:600;color:white;line-height:1.5;margin-bottom:14px;">'+arChatEsc(q.q)+'</div>'+
+      '<div style="display:flex;flex-direction:column;gap:9px;">'+
+        q.choices.map(function(c,i){
+          return '<button id="k-opt-'+i+'" class="ar-opt" onclick="arKotmChoose('+i+')" style="text-align:left;padding:13px 14px;border-radius:11px;border:1px solid rgba(201,153,26,.3);background:rgba(255,255,255,.03);color:#e8eefc;font-family:inherit;font-size:13px;cursor:pointer;display:flex;gap:10px;align-items:center;min-height:46px;">'+
+            '<span style="flex-shrink:0;width:24px;height:24px;border-radius:50%;background:rgba(201,153,26,.18);color:#C9991A;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;">'+String.fromCharCode(65+i)+'</span>'+
+            '<span>'+arChatEsc(c)+'</span>'+
+          '</button>';
+        }).join('')+
+      '</div>'+
+      '<div id="k-foot" style="margin-top:12px;">'+(AR.kAns?'<div class="al al-info" style="font-size:12px;"><span class="spin">⏳</span> En attente de la résolution…</div>':'')+'</div>'+
+    '</div>'+
+    '<button class="btn-out btn-sm" style="width:100%;" onclick="arQuit()">← Abandonner</button>'+
+  '</div>';
+}
+
+function arKotmWait(){
+  return '<div class="card" style="text-align:center;padding:30px;max-width:500px;margin:0 auto;">'+
+    '<div class="pls" style="font-size:30px;margin-bottom:10px;">👑</div>'+
+    '<div style="font-size:13px;color:var(--sub);">Préparation de la question…</div>'+
+    '<button class="btn-out btn-sm" style="margin-top:16px;" onclick="arQuit()">← Abandonner</button>'+
+  '</div>';
+}
+
+/* ── Rafraîchit trône + scores sans recréer les boutons ── */
+function arKotmRefreshHud(){
+  var meId = arKotmMyId(), oppId = String(AR.isCreator ? (AR.duelObj.joiner_id||'') : (AR.duelObj.creator_id||''));
+  var meEl=ge('k-sc-me'), opEl=ge('k-sc-opp');
+  if(meEl) meEl.textContent = arKotmScoreOf(meId).score||0;
+  if(opEl) opEl.textContent = arKotmScoreOf(oppId).score||0;
+  var kEl=ge('k-king');
+  if(kEl && AR.kKing!=null){
+    var iAmKing = String(AR.kKing)===meId;
+    kEl.style.color = iAmKing?'#E8B520':'#f87171';
+    kEl.innerHTML = '<span class="ra-crown" style="font-size:18px;">👑</span>'+
+      (iAmKing?'Vous tenez le trône':arChatEsc(iAmKing?arKotmMeName():arKotmOppName())+' tient le trône')+
+      (AR.kStreak>1?' <span style="font-size:11px;color:#fb923c;">🔥 '+AR.kStreak+' défenses</span>':'');
+  }
+}
+
+/* ── Chrono ancré serveur ── */
+function arKotmTimerStart(){
+  if(AR.timerId){ clearInterval(AR.timerId); AR.timerId=null; }
+  if(!AR.kServed) AR.kServed = Date.now();
+  arKotmTick();
+  AR.timerId = setInterval(arKotmTick, 250);
+}
+function arKotmTick(){
+  if(AR.type!=='kotm' || !AR.duelObj || AR.duelObj.status!=='active'){ if(AR.timerId){clearInterval(AR.timerId);AR.timerId=null;} return; }
+  var remMs = AR.kBudget - (Date.now() - AR.kServed);
+  if(remMs<0) remMs=0;
+  var p = AR.kBudget>0 ? Math.max(0, Math.round(remMs/AR.kBudget*100)) : 0;
+  var remS = Math.ceil(remMs/1000);
+  var tf=ge('tmr-fill');
+  if(tf){ tf.style.width=p+'%'; tf.style.background = remS<=3?'#ef4444':remS<=6?'#fbbf24':'#4ade80'; }
+  if(remMs<=0){
+    if(AR.timerId){ clearInterval(AR.timerId); AR.timerId=null; }
+    if(!AR.kAns){
+      // Temps écoulé : on verrouille localement. Le serveur résout la manche neutre
+      // paresseusement ; le prochain /state fera avancer l'index.
+      AR.kAns = true;
+      var q=AR.kCur;
+      if(q){ q.choices.forEach(function(_,i){ var b=ge('k-opt-'+i); if(b){ b.disabled=true; b.style.opacity='.55'; } }); }
+      var foot=ge('k-foot');
+      if(foot) foot.innerHTML='<div class="al al-warn" style="font-size:12px;">⏱ Temps écoulé — manche neutre, on enchaîne…</div>';
+      sndWrong();
+    }
+  }
+}
+
+/* ── Choix d'une réponse ── */
+function arKotmChoose(i){
+  if(AR.kAns) return;
+  AR.kAns = true;
+  if(AR.timerId){ clearInterval(AR.timerId); AR.timerId=null; }
+  var q = AR.kCur; if(!q) return;
+  var myIdx = AR.kIdx;
+  // Verrouille visuellement (en attente du verdict serveur)
+  q.choices.forEach(function(_,j){ var b=ge('k-opt-'+j); if(b){ b.disabled=true; if(j===i){ b.style.borderColor='rgba(96,165,250,.7)'; } } });
+  var foot=ge('k-foot');
+  if(foot) foot.innerHTML='<div class="al al-info" style="font-size:12px;"><span class="spin">⏳</span> Validation…</div>';
+  fetch('/kotm/'+AR.code+'/answer',{method:'POST',headers:arAuthHdr(),body:JSON.stringify({q_index:myIdx,choice_index:i})})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(!d.success){ if(foot) foot.innerHTML='<div class="al al-err" style="font-size:12px;">'+(d.error||'Erreur')+'</div>'; return; }
+    if(d.game){ AR.duelObj=d.game; }
+    if(typeof d.king_id!=='undefined') AR.kKing=d.king_id;
+    if(typeof d.king_streak!=='undefined') AR.kStreak=d.king_streak||0;
+    arKotmRefreshHud();
+
+    var correctIdx = (typeof d.correct_index==='number') ? d.correct_index : -1;
+    // Surligne bonne / mauvaise
+    q.choices.forEach(function(_,j){
+      var b=ge('k-opt-'+j); if(!b) return;
+      if(j===correctIdx){ b.style.borderColor='rgba(74,222,128,.8)'; b.style.background='rgba(74,222,128,.12)'; }
+      else if(j===i && !d.locked && d.correct===false){ b.style.borderColor='rgba(248,113,113,.8)'; b.style.background='rgba(248,113,113,.10)'; }
+    });
+
+    var html='';
+    if(d.locked && d.timeout){ html='<div class="al al-warn" style="font-size:12px;">⏱ Temps écoulé — manche neutre.</div>'; sndWrong(); }
+    else if(d.locked){ html='<div class="al al-warn" style="font-size:12px;">🗡️ Trop tard ! '+arChatEsc(arKotmOppName())+' a raflé le trône en premier.</div>'; sndWrong(); }
+    else if(d.already){ html='<div class="al al-warn" style="font-size:12px;">Déjà répondu à cette question.</div>'; }
+    else if(d.correct){
+      var bits=[]; if(d.speed_bonus) bits.push('vitesse +'+d.speed_bonus); if(d.defend_bonus) bits.push('défense +'+d.defend_bonus);
+      var head = d.stole ? '🗡️ Trône volé !' : (d.defended ? '🛡️ Trône défendu !' : '👑 Trône pris !');
+      html='<div class="al al-ok" style="font-size:12px;">'+head+' <strong>+'+d.points_earned+'</strong>'+(bits.length?' <span style="color:var(--sub);">('+bits.join(' · ')+')</span>':'')+'</div>';
+      sndCorrect(); fxBravo();
+    }
+    else if(d.neutral || d.both_wrong){ html='<div class="al al-warn" style="font-size:12px;">❌ Mauvaise réponse — vous deux vous êtes trompés. Manche neutre.</div>'; sndWrong(); }
+    else { html='<div class="al al-err" style="font-size:12px;">❌ Mauvaise réponse. '+arChatEsc(arKotmOppName())+' peut encore rafler le trône…</div>'; sndWrong(); }
+
+    // Référence réglementaire (pédagogie)
+    if(q.reference){ html+='<div style="font-size:11px;color:#aac4e8;background:rgba(201,153,26,.07);border:1px solid rgba(201,153,26,.4);border-radius:9px;padding:8px 10px;margin-top:8px;">📚 '+arChatEsc(q.reference)+'</div>'; }
+    if(foot) foot.innerHTML=html;
+
+    // Suite : si la question est résolue (je l'ai raflée, ou neutre), on enchaîne.
+    var resolved = d.correct || d.neutral || d.both_wrong || (d.locked && d.timeout);
+    if(d.finished){
+      AR.kReveal=true;
+      setTimeout(function(){ AR.kReveal=false; /* le /state basculera en 'finished' */ if(AR.duelObj) AR.duelObj.status='finished'; render(); }, 1700);
+    } else if(resolved){
+      var nextIdx = (typeof d.cur_index==='number') ? d.cur_index : (myIdx+1);
+      AR.kReveal=true;
+      setTimeout(function(){
+        AR.kReveal=false; AR.kIdx=nextIdx; AR.kAns=false; AR.kCur=null; AR.kServed=0;
+        if(nextIdx < AR.kTotal) arKotmFetchQuestion(nextIdx);
+      }, 1600);
+    }
+    // Si mauvaise réponse NON résolue (l'adversaire n'a pas encore répondu),
+    // on laisse le poll détecter quand il rafle ou quand la manche devient neutre.
+  })
+  .catch(function(){ if(foot) foot.innerHTML='<div class="al al-warn" style="font-size:12px;">Réseau instable — nouvelle tentative au prochain cycle…</div>'; AR.kAns=false; });
+}
+
+/* ── L'adversaire a raflé avant moi (détecté par le poll) ── */
+function arKotmRevealBeaten(nextIdx){
+  AR.kReveal=true;
+  var foot=ge('k-foot');
+  if(foot) foot.innerHTML='<div class="al al-warn" style="font-size:12px;">🗡️ '+arChatEsc(arKotmOppName())+' a été plus rapide sur la question précédente.</div>';
+  arKotmRefreshHud();
+  sndWrong();
+  setTimeout(function(){
+    AR.kReveal=false; AR.kIdx=nextIdx; AR.kAns=false; AR.kCur=null; AR.kServed=0;
+    if(nextIdx < AR.kTotal) arKotmFetchQuestion(nextIdx);
+  }, 1400);
+}
+
+/* ── Écran de résultat (feuille de match) ── */
+function rARKotmResult(){
+  var g = AR.duelObj || {};
+  var meId = arKotmMyId(), oppId = String(AR.isCreator ? (g.joiner_id||'') : (g.creator_id||''));
+  var meSc = arKotmScoreOf(meId), opSc = arKotmScoreOf(oppId);
+  var iWin = (meSc.score||0) > (opSc.score||0);
+  var draw = (meSc.score||0) === (opSc.score||0);
+
+  if(!AR.kResultPlayed){ AR.kResultPlayed=true; if(iWin){ try{ fxConfetti(120); }catch(e){} try{ sndStart(); }catch(e){} } }
+
+  var verdict = draw
+    ? '<div style="font-size:30px;">🤝</div><div style="font-weight:800;font-size:20px;color:#aac4e8;">Égalité !</div>'
+    : iWin
+      ? '<div style="font-size:34px;">👑</div><div style="font-weight:800;font-size:22px;color:#E8B520;">Vous êtes Roi de la Manche !</div>'
+      : '<div style="font-size:30px;">🥈</div><div style="font-weight:800;font-size:20px;color:#f87171;">'+arChatEsc(arKotmOppName())+' l\'emporte</div>';
+
+  // Feuille de match (questions révélées par le serveur à la fin)
+  var sheet='';
+  try{
+    var qs = JSON.parse(g.questions_json||'[]');
+    if(qs && qs.length){
+      sheet='<div class="card" style="padding:14px;"><div style="font-weight:700;color:white;font-size:13px;margin-bottom:10px;">📋 Feuille de match — '+qs.length+' questions</div>'+
+        qs.map(function(q,idx){
+          var corr = (typeof q.correct==='number' && q.choices && q.choices[q.correct]!=null) ? q.choices[q.correct] : '';
+          return '<div style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06);">'+
+            '<div style="font-size:12px;color:#e8eefc;font-weight:600;">'+(idx+1)+'. '+arChatEsc(q.q)+'</div>'+
+            '<div style="font-size:11px;color:#4ade80;margin-top:3px;">✅ '+arChatEsc(corr)+'</div>'+
+            (q.source||q.reference ? '<div style="font-size:10px;color:var(--sub);margin-top:2px;">📚 '+arChatEsc(q.source||q.reference)+'</div>' : '')+
+          '</div>';
+        }).join('')+
+      '</div>';
+    }
+  }catch(e){}
+
+  return '<div style="display:flex;flex-direction:column;gap:14px;max-width:560px;margin:0 auto;">'+
+    '<div class="card" style="text-align:center;padding:22px;border:1px solid rgba(201,153,26,.45);background:linear-gradient(135deg,rgba(201,153,26,.10),rgba(201,153,26,.02));">'+
+      verdict+
+      '<div style="display:flex;gap:14px;justify-content:center;margin-top:16px;">'+
+        '<div><div style="font-size:11px;color:var(--sub);">Vous</div><div style="font-weight:800;font-size:26px;color:#E8B520;">'+(meSc.score||0)+'</div><div style="font-size:10px;color:var(--sub);">'+(meSc.questions_won||0)+' trône(s)</div></div>'+
+        '<div style="align-self:center;color:var(--sub);font-weight:800;">—</div>'+
+        '<div><div style="font-size:11px;color:var(--sub);">'+arChatEsc(arKotmOppName().split(' ')[0])+'</div><div style="font-weight:800;font-size:26px;color:#f87171;">'+(opSc.score||0)+'</div><div style="font-size:10px;color:var(--sub);">'+(opSc.questions_won||0)+' trône(s)</div></div>'+
+      '</div>'+
+    '</div>'+
+    sheet+
+    (AR.kTour
+      ? '<button class="btn" style="width:100%;padding:14px;" onclick="arTourSettleReturn()">↩️ Valider le résultat & retour au tournoi</button>'
+      : '<div class="g2">'+
+          '<button class="btn" style="width:100%;padding:13px;" onclick="arKotmRematch()">🔁 Revanche</button>'+
+          '<button class="btn-out" style="width:100%;padding:13px;" onclick="arQuit()">👑 Nouvelle manche</button>'+
+        '</div>')+
+  '</div>';
+}
+
+/* ── Revanche : nouvelle manche ciblant le même adversaire (mêmes réglages) ── */
+function arKotmRematch(){
+  var g = AR.duelObj || {};
+  var oppId = AR.isCreator ? g.joiner_id : g.creator_id;
+  var pack = g.pack_id||AR.packId||'general';
+  var nq   = g.num_questions||12;
+  var ts   = g.timer_sec||20;
+  fetch('/kotm',{method:'POST',headers:arAuthHdr(),body:JSON.stringify({pack_id:pack,num_questions:nq,timer_sec:ts,target_user_id:oppId})})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(!d.success) throw new Error(d.error||'Erreur');
+    arKotmResetState();
+    AR.code=d.code; AR.type='kotm'; AR.packId=pack; AR.isCreator=true; AR.duelObj=d.game;
+    AR.kTotal=(d.game&&d.game.num_questions)||nq; AR.kBudget=((d.game&&d.game.timer_sec)||ts)*1000;
+    AR.myUserId=d.game&&d.game.creator_id?String(d.game.creator_id):'';
+    arStartPollKotm(); render();
+  })
+  .catch(function(e){ showModal('Erreur','<div class="al al-err">'+e.message+'</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>'); });
+}
+
 function arPackLabel(pid){
   var m={'rfe-uemoa':'🏛️ RFE UEMOA','bale-umoa':'⚖️ Bâle II/III','mix':'🔀 Mix','cemac':'🌍 CEMAC','qn':'📚 Thématiques','itb':'🎓 ITB','pcb':'📋 PCB','general':'🔀 Général'};
   if(pid && pid.indexOf('thm:')===0){ return (typeof ARENA_THEMES!=='undefined' && ARENA_THEMES[pid.slice(4)] && ARENA_THEMES[pid.slice(4)].l) || pid.slice(4); } // MODIFIÉ
@@ -4865,12 +5510,13 @@ function arDoCreateTour(){
   var maxp  = parseInt(ge('ar-tmax').value)||8;
   var format= (ge('ar-tformat')&&ge('ar-tformat').value)||'classic'; // MODIFIÉ
   var scoring=(ge('ar-tscoring')&&ge('ar-tscoring').value)||'total'; // MODIFIÉ
+  var matchMode=(ge('ar-tmatchmode')&&ge('ar-tmatchmode').value)==='kotm'?'kotm':'duel'; // ROI-POULES
   var msg   = ge('ar-tour-msg');
   if(!name){ if(msg) msg.innerHTML='<div class="al al-warn">⚠️ Donnez un nom au tournoi</div>'; return; }
   if(msg) msg.innerHTML='<div class="al al-info"><span class="spin">⏳</span> Création…</div>';
   AR.tourFormat=format; AR.tourScoring=scoring; // MODIFIÉ : fallback affichage local
   fetch('/tournament/create',{method:'POST',headers:arAuthHdr(),
-    body:JSON.stringify({name:name,zone:zone,pack_id:pack,max_players:maxp,format:format,scoring:scoring})}) // MODIFIÉ : champs envoyés
+    body:JSON.stringify({name:name,zone:zone,pack_id:pack,max_players:maxp,format:format,scoring:scoring,match_mode:matchMode})}) // MODIFIÉ : champs envoyés // ROI-POULES: match_mode
   .then(function(r){return r.json();})
   .then(function(d){
     if(!d.success&&!d.code) throw new Error(d.error||'Erreur');
@@ -4925,6 +5571,8 @@ function rTourMain(){
     if(submitted) return rTourBoard(t,parts,'\u26A1 Qualifications \u2014 classement en direct');
     return rTourReady(t,parts);
   }
+  if(t.status==='elim') return rTourBracket(t,parts); // ROI-POULES : phase d'élimination (duel ou KOTM)
+  if(t.status==='finished' && t.matches && t.matches.length) return rTourBracket(t,parts); // ROI-POULES : podium final + bracket
   return rTourBoard(t,parts, t.status==='finished' ? '\uD83C\uDFC6 Tournoi termin\u00e9' : 'Classement');
 }
 
@@ -5036,6 +5684,321 @@ function tourGroupCard(parts, by, scoring){
     '</div>';
   }).join('') : '<div class="al al-info" style="font-size:12px;">Aucun participant pour le moment.</div>';
   return '<div class="card">'+head+body+'</div>';
+}
+
+/* ════════════════════════════════════════════════════════════════
+   ROI-POULES — PHASE D'ÉLIMINATION (BRACKET) : duel ou Roi de la Manche
+   Contrats backend gelés réutilisés :
+     POST /tournament/:code/generate-bracket   (déjà déclenché ailleurs)
+     POST /tournament/:code/advance            → {finished, champion_id, tournament}
+     POST /tournament/match/:id/settle         → vainqueur serveur
+     GET  /kotm/:code/watch                     → diffusion finale (sans réponse)
+   Le duel_code d'un match KOTM est le code K du kotm_game pré-créé
+   (créateur = player1, adversaire = player2, statut 'joined').
+═══════════════════════════════════════════════════════════════════ */
+
+function tourMatches(){ var t=tourT(); return (t&&t.matches)?t.matches : (AR.duelObj&&AR.duelObj.matches?AR.duelObj.matches:[]); }
+
+/* Libellé d'un tour selon le nombre de matchs (1=finale, 2=demies, 4=quarts…) */
+function arRoundLabel(nMatches, roundNo){
+  if(nMatches===1) return '🏆 Finale';
+  if(nMatches===2) return '🥈 Demi-finales';
+  if(nMatches===4) return '🎯 Quarts de finale';
+  if(nMatches===8) return '🏟️ Huitièmes de finale';
+  return 'Tour '+roundNo;
+}
+
+/* Écran bracket — rendu des tours, actions joueur/créateur, diffusion */
+function rTourBracket(t, parts){
+  t = t||tourT()||{}; parts = parts||tourParts();
+  setTimeout(tchatLoad,120);
+  var me = myUid();
+  var mode = t.match_mode==='kotm' ? 'kotm' : 'duel';
+  var isC  = tourIsCreator();
+  var matches = tourMatches().slice().sort(function(a,b){ return (a.round-b.round)||(a.id-b.id); });
+
+  // Regroupement par tour
+  var rounds = {}; matches.forEach(function(m){ (rounds[m.round]=rounds[m.round]||[]).push(m); });
+  var roundNos = Object.keys(rounds).map(Number).sort(function(a,b){return a-b;});
+  var lastRound = roundNos.length ? roundNos[roundNos.length-1] : 1;
+  var lastList  = rounds[lastRound]||[];
+  var pendingLast = lastList.filter(function(m){ return m.status!=='done'; }).length;
+  var finalReached = (lastList.length===1 && t.status==='elim');
+
+  // Bannière en-tête / champion
+  var champ = (t.status==='finished' && t.champion_id) ? (parts.find(function(p){return String(p.user_id)===String(t.champion_id);})) : null;
+  var head;
+  if(t.status==='finished'){
+    if(!AR._tChampFx){ AR._tChampFx=true; try{ fxConfetti(160); }catch(e){} try{ sndWin&&sndWin(); }catch(e){} }
+    head = '<div class="card" style="text-align:center;padding:24px;border:1px solid rgba(201,153,26,.5);background:linear-gradient(135deg,rgba(201,153,26,.12),rgba(201,153,26,.02));">'+
+      '<div style="font-size:42px;margin-bottom:6px;">🏆</div>'+
+      '<div style="font-weight:800;font-size:20px;color:#E8B520;margin-bottom:2px;">'+(champ?arChatEsc(champ.name):'Champion')+'</div>'+
+      '<div style="font-size:12px;color:var(--sub);">Champion du tournoi '+arChatEsc(t.name||'')+(champ&&champ.country?' · '+arChatEsc(champ.country):'')+'</div>'+
+    '</div>';
+  } else {
+    head = '<div class="card" style="text-align:center;padding:16px;">'+
+      '<div style="font-size:24px;margin-bottom:4px;">'+(mode==='kotm'?'👑':'⚔️')+'</div>'+
+      '<h3 style="color:white;font-size:17px;margin-bottom:2px;">Phase d\'élimination'+(mode==='kotm'?' — Roi de la Manche':'')+'</h3>'+
+      '<p style="color:var(--sub);font-size:12px;">'+arChatEsc(t.name||'Tournoi')+' · code '+AR.code+'</p>'+
+    '</div>';
+  }
+
+  // Rendu des tours (du plus récent au plus ancien)
+  var body = roundNos.slice().reverse().map(function(rn){
+    var list = rounds[rn];
+    var lbl = arRoundLabel(list.length, rn);
+    var isActiveRound = (rn===lastRound && t.status==='elim');
+    var cards = list.map(function(m){ return arBracketMatchCard(m, me, mode, isActiveRound); }).join('');
+    return '<div class="card" style="padding:14px;">'+
+      '<div style="font-weight:700;color:white;font-size:13px;margin-bottom:10px;display:flex;align-items:center;gap:8px;">'+lbl+
+        (isActiveRound?'<span style="font-size:10px;font-weight:700;color:#0a1628;background:#E8B520;border-radius:6px;padding:2px 7px;">EN COURS</span>':'')+'</div>'+
+      cards+
+    '</div>';
+  }).join('');
+
+  // Contrôles créateur : faire avancer le tournoi
+  var ctrl='';
+  if(isC && t.status==='elim'){
+    if(pendingLast>0){
+      ctrl = '<div class="al al-info" style="font-size:12px;">⏳ '+pendingLast+' manche(s) du tour en cours pas encore terminée(s). Le bouton « Tour suivant » s\'activera une fois toutes les manches validées.</div>'+
+             '<button class="btn-out btn-sm" style="width:100%;opacity:.55;" onclick="arTourAdvance()">⏭️ Tour suivant ('+pendingLast+' en attente)</button>';
+    } else if(finalReached){
+      ctrl = '<button class="btn" style="width:100%;padding:14px;" onclick="arTourAdvance()">🏆 Clore le tournoi & couronner le champion</button>';
+    } else {
+      ctrl = '<button class="btn" style="width:100%;padding:14px;" onclick="arTourAdvance()">⏭️ Générer le tour suivant →</button>';
+    }
+  }
+
+  return '<div style="display:flex;flex-direction:column;gap:12px;max-width:640px;margin:0 auto;">'+
+    head + body + ctrl +
+    tchatBox()+
+    '<div style="display:flex;gap:8px;"><button class="btn btn-sm" style="flex:1;" onclick="arRefreshTour()">🔄 Actualiser</button><button class="btn-out btn-sm" style="flex:1;" onclick="arQuit()">← Quitter</button></div>'+
+  '</div>';
+}
+
+/* Carte d'un match du bracket + actions contextuelles */
+function arBracketMatchCard(m, me, mode, isActiveRound){
+  var bye = !m.player2_id;
+  var p1Win = m.winner_id && String(m.winner_id)===String(m.player1_id);
+  var p2Win = m.winner_id && String(m.winner_id)===String(m.player2_id);
+  var amIn = (String(m.player1_id)===String(me)) || (String(m.player2_id)===String(me));
+  var done = m.status==='done';
+
+  function side(name, country, isW, isMe){
+    return '<div style="flex:1;min-width:0;display:flex;align-items:center;gap:7px;padding:7px 9px;border-radius:8px;'+
+      (isW?'background:rgba(201,153,26,.14);border:1px solid rgba(201,153,26,.45);':'background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);')+'">'+
+      (isW?'<span style="font-size:13px;">👑</span>':'')+
+      '<div style="min-width:0;"><div style="font-size:12px;font-weight:700;color:'+(isW?'#E8B520':'white')+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+arChatEsc(name||'—')+(isMe?' <span style=\"font-size:9px;color:var(--cyan);\">(vous)</span>':'')+'</div>'+
+      (country?'<div style="font-size:10px;color:var(--sub);">'+arChatEsc(country)+'</div>':'')+'</div></div>';
+  }
+
+  var pair = '<div style="display:flex;align-items:center;gap:6px;">'+
+      side(m.p1_name, m.p1_country, p1Win, String(m.player1_id)===String(me))+
+      '<div style="font-size:10px;font-weight:800;color:var(--sub);flex-shrink:0;">VS</div>'+
+      (bye ? '<div style="flex:1;text-align:center;font-size:11px;color:var(--sub);padding:7px 9px;border-radius:8px;border:1px dashed rgba(255,255,255,.12);">— exempt —</div>'
+           : side(m.p2_name, m.p2_country, p2Win, String(m.player2_id)===String(me)))+
+    '</div>';
+
+  // Statut
+  var statut;
+  if(bye){ statut='<div style="font-size:11px;color:#4ade80;margin-top:6px;">✅ Qualifié d\'office (bye)</div>'; }
+  else if(done){ statut='<div style="font-size:11px;color:#4ade80;margin-top:6px;">✅ Terminé — '+arChatEsc(m.winner_name||'vainqueur')+' passe au tour suivant</div>'; }
+  else { statut='<div style="font-size:11px;color:#fbbf24;margin-top:6px;">⏳ '+(isActiveRound?'Manche à jouer':'En attente')+'</div>'; }
+
+  // Actions
+  var act='';
+  if(!done && !bye && isActiveRound){
+    if(amIn){
+      act += '<button class="btn btn-sm" style="flex:1;min-width:150px;" onclick="arTourPlayMatch('+m.id+',\''+m.duel_code+'\',\''+mode+'\')">'+(mode==='kotm'?'👑':'⚔️')+' Jouer ma manche</button>';
+      act += '<button class="btn-out btn-sm" style="flex:1;min-width:130px;" onclick="arTourSettle('+m.id+')">✅ Valider le résultat</button>';
+    } else if(mode==='kotm'){
+      act += '<button class="btn-out btn-sm" style="flex:1;min-width:150px;border-color:rgba(0,180,216,.5);color:var(--cyan);" onclick="arTourWatch(\''+m.duel_code+'\')">📺 Suivre en direct</button>';
+    }
+  }
+  var actRow = act ? '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:9px;">'+act+'</div>' : '';
+
+  return '<div style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);">'+pair+statut+actRow+'</div>';
+}
+
+/* ── Lancer SA manche (réutilise l'écran KOTM existant, ou le duel) ── */
+function arTourPlayMatch(matchId, code, mode){
+  var me = myUid();
+  AR.kTour = { code: AR.code, matchId: matchId, mode: mode }; // contexte de retour au tournoi
+  AR.kTourSettled = false;
+  if(mode==='kotm'){
+    // Les 2 joueurs sont pré-assignés (statut 'joined') : /join renvoie le jeu sans erreur des deux côtés.
+    fetch('/kotm/'+code+'/join',{method:'POST',headers:arAuthHdr()})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(!d.success || !d.game) throw new Error(d.error||'Manche introuvable');
+      var g = d.game;
+      arKotmResetState();
+      AR.code      = code;
+      AR.type      = 'kotm';
+      AR.packId    = g.pack_id||'general';
+      AR.isCreator = String(g.creator_id)===String(me); // côté serveur : créateur = player1
+      AR.myUserId  = me;
+      AR.duelObj   = g;
+      AR.kTotal    = g.num_questions||12;
+      AR.kBudget   = (g.timer_sec||20)*1000;
+      arStartPollKotm(); // le poll auto-lance la manche côté créateur dès le statut 'joined'
+      render();
+    })
+    .catch(function(e){ AR.kTour=null; showModal('Impossible de lancer','<div class="al al-err" style="font-size:12px;">'+e.message+'</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>'); });
+  } else {
+    // Mode duel : le support est un duel (créateur = player1). /join indique mon rôle via son message.
+    fetch('/duels/'+code+'/join',{method:'POST',headers:arAuthHdr()})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(!d.success) throw new Error(d.error||'Duel introuvable');
+      var amCreator = /créateur/i.test(d.message||''); // "Tu es le créateur" → player1
+      AR.pendingDuel = { code: code, isCreator: amCreator };
+      arResumeDuel(); // réutilise le flux duel existant (poll + écran d'attente/jeu)
+    })
+    .catch(function(e){ AR.kTour=null; showModal('Impossible de lancer','<div class="al al-err" style="font-size:12px;">'+e.message+'</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>'); });
+  }
+}
+
+/* ── Valider une manche terminée (serveur fait foi) sans quitter le bracket ── */
+function arTourSettle(matchId){
+  fetch('/tournament/match/'+matchId+'/settle',{method:'POST',headers:arAuthHdr()})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(!d.success) throw new Error(d.error||'Validation impossible');
+    arRefreshTour();
+    showModal('Résultat validé ✅','<div class="al al-ok" style="font-size:12px;">Le vainqueur est enregistré. Le classement du bracket est à jour.</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>');
+  })
+  .catch(function(e){ showModal('Pas encore validable','<div class="al al-warn" style="font-size:12px;">'+e.message+'</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>'); });
+}
+
+/* ── Faire avancer le tournoi (clôt le tour courant → tour suivant ou champion) ── */
+function arTourAdvance(){
+  if(!AR.code||AR.type!=='tour') return;
+  fetch('/tournament/'+AR.code+'/advance',{method:'POST',headers:arAuthHdr()})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(!d.success) throw new Error(d.error||'Impossible de faire avancer le tournoi');
+    AR._tChampFx=false;
+    arRefreshTour();
+    if(d.finished){
+      try{ fxConfetti(160); }catch(e){}
+      showModal('🏆 Tournoi terminé','<div class="al al-ok" style="font-size:13px;">'+(d.champion_id?'Le champion est couronné !':'Tournoi clôturé.')+'</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">Voir le podium</button>');
+    } else {
+      showModal('Tour suivant généré ✅','<div class="al al-ok" style="font-size:12px;">Les nouvelles manches sont prêtes. Les joueurs concernés peuvent lancer leur manche.</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>');
+    }
+    render();
+  })
+  .catch(function(e){ showModal('Action impossible','<div class="al al-warn" style="font-size:12px;">'+e.message+'</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>'); });
+}
+
+/* ── Valider sa manche & revenir au tournoi (appelé depuis l'écran de résultat) ── */
+function arTourSettleReturn(){
+  var kt = AR.kTour; if(!kt){ arQuit(); return; }
+  var finish = function(){
+    if(AR.pollId){ clearInterval(AR.pollId); AR.pollId=null; }
+    if(AR.timerId){ clearInterval(AR.timerId); AR.timerId=null; }
+    TQ.playing=false; TQ.done=false;
+    AR.type='tour'; AR.code=kt.code; AR.duelObj=null; AR.isCreator=false; AR.myUserId='';
+    AR.kTour=null; AR.kTourSettled=false; AR._tChampFx=false;
+    arStartPollTour(); arRefreshTour(); render();
+  };
+  fetch('/tournament/match/'+kt.matchId+'/settle',{method:'POST',headers:arAuthHdr()})
+  .then(function(r){return r.json();}).then(function(){ finish(); })
+  .catch(function(){ finish(); }); // même en cas d'échec de settle, on revient au bracket
+}
+
+/* ════════════════ DIFFUSION DE LA FINALE (spectateur) ════════════════ */
+function arTourWatch(kotmCode){
+  AR.kWatch = { code: kotmCode, tourCode: AR.code };
+  AR.kWatchData = null;
+  if(AR.watchPollId){ clearInterval(AR.watchPollId); AR.watchPollId=null; }
+  arWatchTick();
+  AR.watchPollId = setInterval(arWatchTick, 1500);
+  render();
+}
+function arWatchTick(){
+  if(!AR.kWatch){ if(AR.watchPollId){ clearInterval(AR.watchPollId); AR.watchPollId=null; } return; }
+  fetch('/kotm/'+AR.kWatch.code+'/watch',{headers:arAuthHdr()})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(!d.success) return;
+    AR.kWatchData = d;
+    if(AR.kWatch) render();
+    if(d.status==='finished'){ if(AR.watchPollId){ clearInterval(AR.watchPollId); AR.watchPollId=null; } }
+  }).catch(function(){});
+}
+function arTourWatchExit(){
+  if(AR.watchPollId){ clearInterval(AR.watchPollId); AR.watchPollId=null; }
+  AR.kWatch=null; AR.kWatchData=null; render();
+}
+function arWatchScoreOf(d, uid){
+  if(!d||!d.scores) return {score:0,questions_won:0};
+  for(var i=0;i<d.scores.length;i++){ if(String(d.scores[i].user_id)===String(uid)) return d.scores[i]; }
+  return {score:0,questions_won:0};
+}
+function rKotmWatch(){
+  var d = AR.kWatchData;
+  if(!d){
+    return '<div style="max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:14px;">'+
+      '<div class="card" style="text-align:center;padding:26px;"><div class="spin" style="font-size:30px;">⏳</div><div style="font-size:13px;color:var(--sub);margin-top:8px;">Connexion à la diffusion…</div></div>'+
+      '<button class="btn-out btn-sm" style="width:100%;" onclick="arTourWatchExit()">← Retour au bracket</button>'+
+    '</div>';
+  }
+  var c = d.creator||{}, j = d.joiner||{};
+  var cSc = arWatchScoreOf(d, c.id), jSc = arWatchScoreOf(d, j.id);
+  var cKing = d.king_id!=null && String(d.king_id)===String(c.id);
+  var jKing = d.king_id!=null && String(d.king_id)===String(j.id);
+  var status = d.status;
+
+  function panel(u, sc, isKing, col){
+    return '<div style="flex:1;text-align:center;padding:14px 10px;border-radius:12px;border:1px solid '+(isKing?'rgba(201,153,26,.5)':'rgba(255,255,255,.08)')+';background:'+(isKing?'rgba(201,153,26,.10)':'rgba(255,255,255,.03)')+';">'+
+      '<div style="font-size:22px;">'+(isKing?'👑':'🎯')+'</div>'+
+      '<div style="font-size:13px;font-weight:700;color:white;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+arChatEsc((u.name||'—').split(' ')[0])+'</div>'+
+      '<div style="font-size:26px;font-weight:800;color:'+col+';margin-top:2px;">'+(sc.score||0)+'</div>'+
+      '<div style="font-size:10px;color:var(--sub);">'+(sc.questions_won||0)+' trône(s)</div>'+
+    '</div>';
+  }
+
+  // Question courante (sans la bonne réponse)
+  var qBlock='';
+  if(status==='active' && d.current_question){
+    var q=d.current_question;
+    var secs = (typeof d.q_remaining_ms==='number') ? Math.ceil(d.q_remaining_ms/1000) : null;
+    qBlock = '<div class="card" style="padding:16px;">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'+
+        '<div style="font-size:11px;color:var(--sub);">Question '+((d.cur_index||0)+1)+' / '+(d.total||'?')+'</div>'+
+        (secs!=null?'<div style="font-size:12px;font-weight:800;color:'+(secs<=5?'#f87171':'#E8B520')+';">⏱ '+secs+'s</div>':'')+
+      '</div>'+
+      '<div style="font-size:14px;font-weight:600;color:#e8eefc;margin-bottom:10px;">'+arChatEsc(q.q||'')+'</div>'+
+      (q.choices||[]).map(function(ch){ return '<div style="font-size:12px;color:#aac4e8;padding:9px 11px;border-radius:9px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.02);margin-bottom:6px;">'+arChatEsc(ch)+'</div>'; }).join('')+
+      '<div style="font-size:10px;color:var(--sub);text-align:center;margin-top:4px;">🔒 Réponses masquées pendant la diffusion</div>'+
+    '</div>';
+  } else if(status==='finished'){
+    var win = (cSc.score||0)===(jSc.score||0) ? null : ((cSc.score||0)>(jSc.score||0)? c : j);
+    qBlock = '<div class="card" style="text-align:center;padding:20px;border:1px solid rgba(201,153,26,.45);">'+
+      '<div style="font-size:30px;">'+(win?'👑':'🤝')+'</div>'+
+      '<div style="font-weight:800;font-size:18px;color:#E8B520;margin-top:4px;">'+(win?arChatEsc(win.name)+' remporte la manche !':'Égalité')+'</div>'+
+    '</div>';
+  } else {
+    qBlock = '<div class="card" style="text-align:center;padding:20px;"><div style="font-size:26px;">⏳</div><div style="font-size:13px;color:var(--sub);margin-top:6px;">La manche n\'a pas encore démarré…</div></div>';
+  }
+
+  var streak = (d.king_streak||0)>1 ? '<div style="text-align:center;font-size:11px;color:#E8B520;">🔥 Série de '+d.king_streak+' question(s) sur le trône — bonus de défense actif</div>' : '';
+
+  return '<div style="max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:12px;">'+
+    '<div class="card" style="text-align:center;padding:12px;background:rgba(0,180,216,.06);border:1px solid rgba(0,180,216,.25);">'+
+      '<div style="font-size:12px;font-weight:800;color:var(--cyan);">📺 DIFFUSION EN DIRECT · Roi de la Manche</div>'+
+      '<div style="font-size:10px;color:var(--sub);">Manche '+arChatEsc(d.code||AR.kWatch.code)+'</div>'+
+    '</div>'+
+    '<div style="display:flex;gap:10px;align-items:stretch;">'+
+      panel(c, cSc, cKing, '#E8B520')+
+      '<div style="align-self:center;font-weight:800;color:var(--sub);">—</div>'+
+      panel(j, jSc, jKing, '#60a5fa')+
+    '</div>'+
+    streak +
+    qBlock +
+    '<button class="btn-out btn-sm" style="width:100%;" onclick="arTourWatchExit()">← Retour au bracket</button>'+
+  '</div>';
 }
 
 function rTourQuiz(){
