@@ -756,6 +756,7 @@ h2,h3{animation:raReveal .45s ease both;}
     </div>
     <div style="text-align:center;margin-top:22px;">
       <button class="btn" style="padding:13px 30px;font-size:15px;" onclick="SP('reg-wrap')">Créer mon compte gratuit →</button>
+      <div style="margin-top:12px;"><button class="btn-out btn-sm" style="border-color:rgba(0,180,216,.45);color:var(--cyan);" onclick="raOnbOpen()">📖 Visite guidée (1 min)</button></div>
       <div style="margin-top:12px;font-size:13px;color:var(--sub);">Déjà inscrit&nbsp;? <a href="#" onclick="SP('login-wrap');return false;" style="color:var(--cyan);text-decoration:none;font-weight:600;">Se connecter</a></div>
     </div>
   </div>
@@ -937,6 +938,7 @@ h2,h3{animation:raReveal .45s ease both;}
           <h2 style="font-family:Syne,sans-serif;font-size:22px;color:white;margin-bottom:10px;">Vérifiez votre email !</h2>
           <p id="reg-confirm-msg" style="font-size:14px;color:#aac4e8;line-height:1.6;margin-bottom:20px;"></p>
           <div class="al al-info">Cliquez sur le lien dans l'email pour activer votre compte. Pensez à vérifier vos spams.</div>
+          <button class="btn-out" style="margin-top:10px;width:100%;border-color:rgba(0,180,216,.45);color:var(--cyan);" onclick="raOnbOpen()">📖 Revoir le guide de démarrage</button>
           <button class="btn-out" style="margin-top:8px;width:100%;" id="resend-btn" onclick="doResend()">
             📨 Renvoyer l'email de confirmation
           </button>
@@ -9836,6 +9838,137 @@ window.raOpenNotif=function(){
 })();
 </script>
 <!-- ════════ FIN FLASH INFO ════════ -->
+
+<!-- ════════ REGUL ARENA · CARROUSEL D'ACCUEIL (guide de démarrage) — MODIFIÉ ════════ -->
+<style id="ra-onb-css">
+#ra-onb{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;
+  background:radial-gradient(120% 100% at 50% 0%,rgba(0,43,92,.96),rgba(8,18,38,.98));
+  padding:18px;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);}
+#ra-onb.on{display:flex;animation:raOnbFade .25s ease;}
+@keyframes raOnbFade{from{opacity:0}to{opacity:1}}
+#ra-onb .onb-card{width:100%;max-width:430px;background:linear-gradient(180deg,#0d233f,#0a1a30);border:1px solid rgba(201,153,26,.35);
+  border-radius:20px;padding:22px 20px 18px;box-shadow:0 30px 80px -30px rgba(0,0,0,.85);position:relative;overflow:hidden;}
+#ra-onb .onb-card::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;
+  background:linear-gradient(90deg,#C9991A,#F5C453,#00B4D8);opacity:.9;}
+#ra-onb .onb-x{position:absolute;top:12px;right:14px;background:transparent;border:none;color:#8aa3d4;
+  font-size:26px;line-height:1;cursor:pointer;padding:2px 6px;z-index:3;}
+#ra-onb .onb-stage{position:relative;min-height:330px;}
+#ra-onb .onb-slide{text-align:center;animation:raOnbSlide .3s ease;}
+@keyframes raOnbSlide{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+#ra-onb .onb-ic{font-size:62px;line-height:1;margin:6px 0 14px;filter:drop-shadow(0 6px 14px rgba(0,0,0,.4));}
+#ra-onb .onb-tag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:1px;color:#0a1628;
+  background:linear-gradient(135deg,#F5C453,#C9991A);border-radius:20px;padding:4px 13px;margin-bottom:12px;}
+#ra-onb .onb-title{font-family:Syne,sans-serif;font-size:21px;font-weight:900;color:#fff;margin-bottom:10px;line-height:1.2;}
+#ra-onb .onb-body{font-size:14px;color:#c2d2ec;line-height:1.62;padding:0 6px;}
+#ra-onb .onb-note{margin-top:14px;font-size:12px;color:#aac4e8;background:rgba(0,180,216,.10);
+  border:1px solid rgba(0,180,216,.28);border-radius:11px;padding:10px 12px;line-height:1.5;text-align:left;}
+#ra-onb .onb-dots{display:flex;gap:7px;justify-content:center;margin:18px 0 14px;}
+#ra-onb .onb-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.22);transition:all .25s;cursor:pointer;}
+#ra-onb .onb-dot.ac{width:22px;border-radius:5px;background:linear-gradient(90deg,#F5C453,#C9991A);}
+#ra-onb .onb-nav{display:flex;align-items:center;gap:10px;}
+#ra-onb .onb-btn{flex:1;padding:13px;border-radius:12px;font-family:inherit;font-size:14px;font-weight:800;
+  cursor:pointer;border:none;min-height:46px;touch-action:manipulation;}
+#ra-onb .onb-next{background:linear-gradient(135deg,#E8B520,#C9991A);color:#0a1628;}
+#ra-onb .onb-prev{background:transparent;border:1px solid rgba(255,255,255,.18);color:#c2d2ec;flex:0 0 auto;padding:13px 16px;}
+#ra-onb .onb-skip{display:block;width:100%;text-align:center;margin-top:12px;background:transparent;border:none;
+  color:#8aa3d4;font-size:12px;font-family:inherit;cursor:pointer;text-decoration:underline;padding:6px;}
+@media (max-width:380px){#ra-onb .onb-ic{font-size:52px}#ra-onb .onb-title{font-size:19px}}
+</style>
+<script id="ra-onb-js">
+(function(){
+  // ── Étapes du guide : inscription → confirmation e-mail (boîte/spam) → écrans principaux ──
+  var RA_ONB = [
+    { ic:'🌐👑', tag:'BIENVENUE', title:'Bienvenue dans REGUL ARENA',
+      body:"La plateforme <b>gamifiée</b> de formation à la réglementation bancaire <b>UEMOA &amp; CEMAC</b>. Apprenez, défiez vos pairs et décrochez vos certificats." },
+    { ic:'✍️', tag:'ÉTAPE 1 · INSCRIPTION', title:'Créez votre compte',
+      body:"Renseignez votre <b>prénom</b>, <b>nom</b>, <b>e-mail professionnel</b>, votre <b>institution</b> et votre <b>pays</b>, puis validez. C'est gratuit et sans mot de passe." },
+    { ic:'📧', tag:'ÉTAPE 2 · CONFIRMATION', title:'Confirmez votre e-mail',
+      body:"Un e-mail d'activation vous est envoyé. <b>Ouvrez votre boîte de réception</b> et cliquez sur le lien pour activer votre compte.",
+      note:"📁 <b>Rien reçu&nbsp;?</b> Vérifiez le dossier <b style='color:#F5C453'>SPAM / Courriers indésirables</b> — c'est souvent là qu'il se trouve. Astuce&nbsp;: ajoutez l'expéditeur à vos contacts pour ne plus le manquer." },
+    { ic:'🏠', tag:'ÉCRAN · ACCUEIL', title:'Votre tableau de bord',
+      body:"Suivez votre <b>progression</b>, vos points et vos badges, et gardez un œil sur l'actualité réglementaire en direct avec le <b>Flash&nbsp;Info</b>." },
+    { ic:'▶️', tag:'ÉCRAN · JOUER', title:'Les modules de quiz',
+      body:"Entraînez-vous thème par thème&nbsp;: <b>RFE</b>, <b>Bâle&nbsp;II/III</b>, <b>CEMAC</b>, <b>LBC/FT</b>, finance islamique… des centaines de questions sourcées sur les textes officiels." },
+    { ic:'⚔️', tag:'ÉCRAN · ARÈNE', title:'Défiez la communauté',
+      body:"<b>Duels 1v1</b>, <b>Roi de la Manche 👑</b> (la course au trône) et <b>Tournois</b> à élimination. Affrontez vos pairs en temps réel." },
+    { ic:'📈', tag:'ÉCRAN · CLASSEMENT', title:'Montez au sommet',
+      body:"Grimpez dans le classement, gagnez des <b>certificats</b> et devenez <b>Maître de l'Arène 🏆</b> de votre zone." },
+    { ic:'☰', tag:'ÉCRAN · MENU', title:'Tout à portée de main',
+      body:"Votre <b>profil</b>, vos <b>certificats PDF</b>, les paramètres et la bibliothèque réglementaire. Vous êtes prêt — bonne formation&nbsp;!" }
+  ];
+  var idx = 0;
+
+  function el(t,c){ var e=document.createElement(t); if(c) e.className=c; return e; }
+  function ensure(){
+    var ov=document.getElementById('ra-onb'); if(ov) return ov;
+    ov=el('div'); ov.id='ra-onb';
+    ov.innerHTML =
+      '<div class="onb-card">'+
+        '<button class="onb-x" aria-label="Fermer" onclick="raOnbClose(true)">×</button>'+
+        '<div class="onb-stage" id="onb-stage"></div>'+
+        '<div class="onb-dots" id="onb-dots"></div>'+
+        '<div class="onb-nav">'+
+          '<button class="onb-btn onb-prev" id="onb-prev" onclick="raOnbGo(-1)">‹</button>'+
+          '<button class="onb-btn onb-next" id="onb-next" onclick="raOnbNext()">Suivant ›</button>'+
+        '</div>'+
+        '<button class="onb-skip" id="onb-skip" onclick="raOnbClose(true)">Passer le guide</button>'+
+      '</div>';
+    document.body.appendChild(ov);
+    // Swipe tactile
+    var sx=0, card=ov.querySelector('.onb-card');
+    card.addEventListener('touchstart',function(e){ sx=e.changedTouches[0].clientX; },{passive:true});
+    card.addEventListener('touchend',function(e){
+      var dx=e.changedTouches[0].clientX - sx;
+      if(dx<-45) raOnbGo(1); else if(dx>45) raOnbGo(-1);
+    },{passive:true});
+    document.addEventListener('keydown',function(e){
+      if(!ov.classList.contains('on')) return;
+      if(e.key==='ArrowRight') raOnbGo(1);
+      else if(e.key==='ArrowLeft') raOnbGo(-1);
+      else if(e.key==='Escape') raOnbClose(true);
+    });
+    return ov;
+  }
+  function paint(){
+    var s=RA_ONB[idx];
+    var stage=document.getElementById('onb-stage'); if(!stage) return;
+    stage.innerHTML='<div class="onb-slide">'+
+      '<div class="onb-ic">'+s.ic+'</div>'+
+      '<div class="onb-tag">'+s.tag+'</div>'+
+      '<div class="onb-title">'+s.title+'</div>'+
+      '<div class="onb-body">'+s.body+'</div>'+
+      (s.note?'<div class="onb-note">'+s.note+'</div>':'')+
+    '</div>';
+    var dots=document.getElementById('onb-dots'); dots.innerHTML='';
+    RA_ONB.forEach(function(_,i){ var d=el('span','onb-dot'+(i===idx?' ac':'')); d.onclick=function(){ idx=i; paint(); }; dots.appendChild(d); });
+    var prev=document.getElementById('onb-prev'); prev.style.visibility = idx===0?'hidden':'visible';
+    var next=document.getElementById('onb-next'); next.innerHTML = idx===RA_ONB.length-1 ? "C'est parti ! ✓" : 'Suivant ›';
+    var skip=document.getElementById('onb-skip'); skip.style.display = idx===RA_ONB.length-1 ? 'none' : 'block';
+  }
+  // API globale
+  window.raOnbOpen = function(){ ensure(); idx=0; document.getElementById('ra-onb').classList.add('on'); paint(); };
+  window.raOnbClose = function(markSeen){
+    var ov=document.getElementById('ra-onb'); if(ov) ov.classList.remove('on');
+    if(markSeen){ try{ localStorage.setItem('ra_onb_seen','1'); }catch(e){} }
+  };
+  window.raOnbGo = function(dir){ var n=idx+dir; if(n<0||n>=RA_ONB.length) return; idx=n; paint(); };
+  window.raOnbNext = function(){ if(idx>=RA_ONB.length-1){ raOnbClose(true); } else { raOnbGo(1); } };
+
+  // Auto-affichage à la 1re visite (sauf si l'utilisateur arrive via un lien de vérification/connexion)
+  function maybeAutoOpen(){
+    try{
+      if(localStorage.getItem('ra_onb_seen')) return;
+      var q=location.search||'';
+      if(/login_token=|[?&]token=|confirmed=/.test(q)) { localStorage.setItem('ra_onb_seen','1'); return; }
+      raOnbOpen();
+    }catch(e){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){ setTimeout(maybeAutoOpen,700); });
+  else setTimeout(maybeAutoOpen,700);
+})();
+</script>
+<!-- ════════ FIN CARROUSEL D'ACCUEIL ════════ -->
+
 <style id="ra-visual-polish-2026">/* ====== MODIFIÉ : couche visuelle commune à TOUS les écrans (additive, non destructive) ====== */
 /* — Cartes : profondeur douce + liseré supérieur + survol non intrusif (pas de transform pour ne pas casser les reveals) — */
 .card{
