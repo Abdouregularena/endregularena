@@ -2321,6 +2321,55 @@ app.get('/org/members', requireAuth, (req, res) => {
   return ok(res, { org: { id: org.id, name: org.name }, members });
 });
 
+/* POST /org/create — JWT requis. Le créateur devient admin de l'établissement.
+   curl -X POST /org/create -H 'Authorization: Bearer JWT' -H 'Content-Type: application/json' -d '{"name":"ISM Dakar"}'
+*/
+app.post('/org/create', requireAuth, (req, res) => {
+  const name = ((req.body && req.body.name) || '').trim();
+  if (name.length < 2)   return err(res, 400, "Nom d'établissement requis (2 caractères min).");
+  if (name.length > 120) return err(res, 400, 'Nom trop long (120 caractères max).');
+  const info  = db.prepare('INSERT INTO organisations (name, admin_user_id) VALUES (?, ?)').run(name, req.user.id);
+  const orgId = info.lastInsertRowid;
+  // l'admin devient aussi membre (rôle admin) pour figurer dans les stats
+  try {
+    db.prepare("INSERT INTO org_members (org_id, user_id, role) VALUES (?, ?, 'admin')").run(orgId, req.user.id);
+  } catch(e) { if (!String(e.message).includes('UNIQUE')) throw e; }
+  return ok(res, { org: { id: orgId, name } });
+});
+
+/* GET /org/dashboard?org_id=xxx — JWT requis (admin de l'org).
+   Membres + stats agrégées (parties, précision, dernière activité).
+   curl -H 'Authorization: Bearer JWT' '/org/dashboard?org_id=1'
+*/
+app.get('/org/dashboard', requireAuth, (req, res) => {
+  const orgId = Number(req.query.org_id);
+  if (!orgId) return err(res, 400, 'org_id requis');
+  const org = db.prepare('SELECT * FROM organisations WHERE id = ?').get(orgId);
+  if (!org) return err(res, 404, 'Organisation introuvable');
+  if (org.admin_user_id !== req.user.id) return err(res, 403, "Accès réservé à l'administrateur de l'établissement");
+
+  const rows = db.prepare(
+    'SELECT u.id, u.name, u.email, u.country, om.role, om.joined_at, ' +
+    'COUNT(s.id) AS games, COALESCE(SUM(s.score),0) AS score_sum, ' +
+    'COALESCE(SUM(s.total),0) AS total_sum, MAX(s.played_at) AS last_played ' +
+    'FROM org_members om JOIN users u ON u.id = om.user_id ' +
+    'LEFT JOIN user_scores s ON s.user_id = u.id ' +
+    'WHERE om.org_id = ? GROUP BY u.id ORDER BY games DESC, score_sum DESC'
+  ).all(orgId);
+
+  const members = rows.map(function(m){
+    const acc = m.total_sum > 0 ? Math.round((m.score_sum / m.total_sum) * 100) : 0;
+    return { id:m.id, name:m.name, email:m.email, country:m.country, role:m.role,
+             joined_at:m.joined_at, games:m.games, accuracy:acc, last_played:m.last_played };
+  });
+  const totals = {
+    members: members.length,
+    active:  members.filter(function(m){ return m.games > 0; }).length,
+    games:   members.reduce(function(a,m){ return a + m.games; }, 0),
+  };
+  return ok(res, { org: { id: org.id, name: org.name, created_at: org.created_at }, totals, members });
+});
+
 /* ================================================================
    ADMIN — routes protégées par requireAdmin (JWT role=admin)
    curl -H 'Authorization: Bearer <admin_jwt>' /admin/stats
