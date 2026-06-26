@@ -183,6 +183,9 @@ db.exec(`
  // BUG2 FIX — index de question partagé entre les deux clients : avance dès qu'un joueur répond correctement
  'ALTER TABLE duels ADD COLUMN current_q_index INTEGER NOT NULL DEFAULT 0',
 ].forEach(sql => { try { db.exec(sql); } catch(_) {} });
+// ORG — code collectif réutilisable d'invitation (écoles/institutions)
+try { db.exec('ALTER TABLE organisations ADD COLUMN join_code TEXT'); } catch(_) {}
+try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_org_join_code ON organisations (join_code)'); } catch(_) {}
 try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_duel_scores_uq ON duel_scores (duel_id, user_id)'); } catch(_) {}
 try { db.exec('CREATE INDEX IF NOT EXISTS idx_notif_user ON notifications (user_id, seen, created_at DESC)'); } catch(_) {}
 // FIX performance : index manquants sur messages et dm
@@ -2367,7 +2370,64 @@ app.get('/org/dashboard', requireAuth, (req, res) => {
     active:  members.filter(function(m){ return m.games > 0; }).length,
     games:   members.reduce(function(a,m){ return a + m.games; }, 0),
   };
-  return ok(res, { org: { id: org.id, name: org.name, created_at: org.created_at }, totals, members });
+  return ok(res, { org: { id: org.id, name: org.name, created_at: org.created_at, join_code: org.join_code || null }, totals, members });
+});
+
+/* Helper — génère un code collectif lisible unique : SLUG + 4 hex (ex. UCAO-7F3A) */
+function _orgGenJoinCode(name){
+  const slug = String(name || 'ORG').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6) || 'ORG';
+  for (let i = 0; i < 12; i++) {
+    const code = slug + '-' + crypto.randomBytes(2).toString('hex').toUpperCase();
+    const exists = db.prepare('SELECT id FROM organisations WHERE join_code = ?').get(code);
+    if (!exists) return code;
+  }
+  return slug + '-' + crypto.randomUUID().slice(0, 8).toUpperCase();
+}
+
+/* POST /org/code — JWT requis (admin de l'org). Génère le code collectif (ou le régénère).
+   curl -X POST /org/code -H 'Authorization: Bearer JWT' -H 'Content-Type: application/json' -d '{"org_id":1}'
+   Body: { org_id, regenerate?:true }
+*/
+app.post('/org/code', requireAuth, (req, res) => {
+  const orgId = Number((req.body && req.body.org_id) || 0);
+  if (!orgId) return err(res, 400, 'org_id requis');
+  const org = db.prepare('SELECT * FROM organisations WHERE id = ?').get(orgId);
+  if (!org) return err(res, 404, 'Organisation introuvable');
+  if (org.admin_user_id !== req.user.id) return err(res, 403, "Accès réservé à l'administrateur de l'établissement");
+  let code = org.join_code;
+  if (!code || (req.body && req.body.regenerate)) {
+    code = _orgGenJoinCode(org.name);
+    db.prepare('UPDATE organisations SET join_code = ? WHERE id = ?').run(code, orgId);
+  }
+  return ok(res, { code });
+});
+
+/* GET /org/code-info?code=XXX — public. Valide un code collectif (pour l'écran « Rejoindre »).
+   curl '/org/code-info?code=UCAO-7F3A'
+*/
+app.get('/org/code-info', limiterLoose, (req, res) => {
+  const code = String((req.query.code || '')).trim().toUpperCase();
+  if (!code) return ok(res, { valid: false });
+  const org = db.prepare('SELECT id, name FROM organisations WHERE join_code = ?').get(code);
+  if (!org) return ok(res, { valid: false });
+  return ok(res, { valid: true, org_name: org.name });
+});
+
+/* POST /org/join-code — JWT requis. Rejoint une org via son code collectif (réutilisable).
+   curl -X POST /org/join-code -H 'Authorization: Bearer JWT' -H 'Content-Type: application/json' -d '{"code":"UCAO-7F3A"}'
+*/
+app.post('/org/join-code', requireAuth, (req, res) => {
+  const code = String(((req.body && req.body.code) || '')).trim().toUpperCase();
+  if (!code) return err(res, 400, 'code requis');
+  const org = db.prepare('SELECT id, name FROM organisations WHERE join_code = ?').get(code);
+  if (!org) return err(res, 400, 'Code établissement invalide.');
+  try {
+    db.prepare("INSERT INTO org_members (org_id, user_id, role) VALUES (?, ?, 'member')").run(org.id, req.user.id);
+  } catch(e) {
+    if (String(e.message).includes('UNIQUE')) return err(res, 409, 'Vous êtes déjà membre de cet établissement.');
+    throw e;
+  }
+  return ok(res, { message: 'Vous avez rejoint ' + org.name + ' avec succès !', org_name: org.name });
 });
 
 /* ================================================================
