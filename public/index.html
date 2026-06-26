@@ -30,6 +30,7 @@ h1,h2,h3{font-family:"Syne",sans-serif;}
 #ct{padding:18px 14px;max-width:960px;margin:0 auto;width:100%;}
 /* Cards */
 .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;}
+.card.ach-badge{padding:12px 10px;}/* MODIFIÉ C5 : padding réduit pour les cartes de badges (Réalisations) — densité accrue, scope strict */
 .ch{cursor:pointer;transition:border-color .2s;}.ch:hover{border-color:rgba(201,153,26,.45);}
 /* Buttons — tous avec min-height 48px pour mobile */
 .btn,.btn-out,.btn-red{min-height:48px;touch-action:manipulation;cursor:pointer;border-radius:9px;font-weight:700;font-size:14px;font-family:"Space Grotesk",sans-serif;padding:12px 20px;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:opacity .15s;border:none;}
@@ -3386,7 +3387,7 @@ function rACH_render(){
   '<div class="al al-info">'+ACH_BADGES.filter(function(b){return b[3];}).length+' / '+ACH_BADGES.length+' badges débloqués</div>'+
   '<div class="g3">'+
   ACH_BADGES.map(function(b,i){
-    return '<div class="card" style="text-align:center;opacity:'+(b[3]?1:.42)+';cursor:pointer;" onclick="achPreview('+i+')">'+
+    return '<div class="card ach-badge" style="text-align:center;opacity:'+(b[3]?1:.42)+';cursor:pointer;" onclick="achPreview('+i+')">'+
     '<div style="font-size:36px;margin-bottom:8px;">'+b[0]+'</div>'+
     '<div style="font-weight:700;color:white;font-size:12px;margin-bottom:3px;">'+b[1]+'</div>'+
     '<div style="font-size:10px;color:var(--sub);">'+b[2]+'</div>'+
