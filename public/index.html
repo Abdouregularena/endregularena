@@ -2,22 +2,8 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8"/>
-<!-- MODIFIÉ : validation Google Search Console (ne jamais supprimer) -->
-<meta name="google-site-verification" content="FCifwPRsrtl4k4WiokYReJfmLpXgrLD3jHhSKefYt_U" />
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>REGULARENA PRO</title>
-<!-- MODIFIÉ : meta description SEO (modes de jeu + rubriques) -->
-<meta name="description" content="REGUL ARENA — Maîtrisez la réglementation bancaire UEMOA & CEMAC en jouant : quiz solo, duels 1v1, tournois, sprint, Roi de la Manche, bibliothèque réglementaire, fiches de révision et parcours par métier."/>
-<!-- MODIFIÉ : PWA installable (réinjecté 21/06) -->
-<link rel="manifest" href="/manifest.json"/>
-<meta name="theme-color" content="#0A192F"/>
-<meta name="mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-<meta name="apple-mobile-web-app-title" content="REGUL ARENA"/>
-<link rel="apple-touch-icon" href="/icon-192x192.png"/>
-<link rel="apple-touch-icon" sizes="152x152" href="/icon-152x152.png"/>
-<link rel="icon" type="image/png" sizes="512x512" href="/icon-512x512.png"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Syne:wght@700;900&family=Playfair+Display:wght@600;700;900&display=swap" rel="stylesheet"/><!-- MODIFIÉ : +Playfair Display (utilisée Métiers/VF/Débats, manquait à l'import) -->
 <style>
 :root{--bg:#0A192F;--bg2:#112240;--card:rgba(17,34,64,0.70);--border:rgba(35,53,84,0.45);--cyan:#F5C453;--green:#00B4D8;--text:#F8F9FA;--sub:#8892B0;}
@@ -637,15 +623,6 @@ h2,h3{animation:raReveal .45s ease both;}
 .metier-texte-item:hover{transform:translateX(3px);}
 
 @media(prefers-reduced-motion:reduce){#main::before,.badge::after,.metier-tag.gold::after,.quiz-vf-progress-fill::after,.metier-score-fill::after,.ni.ac::after,.ar-tab.ac::after{animation:none!important;}}
-</style>
-<style id="ra-anim3">/* ====== MODIFIÉ : cascade d'entrée pour les écrans « calmes » (paramètres, académie, à propos, classement, auto-éval, communauté, avis…) — 100% additif, GPU-friendly ====== */
-@keyframes raStaggerIn{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
-/* éléments marqués par raScreenFx() : reçoivent un délai inline → apparition en relais doux comme le tableau de bord */
-.ra-stg{animation:raStaggerIn .5s cubic-bezier(.16,1,.3,1) both;will-change:transform,opacity;}
-/* survol vivant des onglets/puces qui n'avaient pas encore d'effet (Arène, Communauté, Bibliothèque, Avis) */
-.ar-tab,.tab,.rafb-chip{transition:transform .16s cubic-bezier(.16,1,.3,1),border-color .2s,box-shadow .2s,color .2s,background .2s;}
-.ar-tab:hover:not(.ac),.tab:hover:not(.ac),.rafb-chip:hover:not(.ac){transform:translateY(-2px);}
-@media(prefers-reduced-motion:reduce){.ra-stg{animation:none!important;opacity:1!important;transform:none!important;}}
 </style>
 </head>
 <body>
@@ -2432,32 +2409,6 @@ function raBNsync(){
   var act=map[TAB]; if(act){var e=document.getElementById(act); if(e)e.classList.add('ac');}
 }
 
-/* MODIFIÉ — cascade d'entrée des blocs de premier niveau sur les écrans « calmes ».
-   Purement cosmétique : pose un délai d'animation inline + la classe .ra-stg.
-   Ignore les écrans qui ont déjà leurs propres animations (jeu, duel, tournoi, métiers,
-   classement, biblio, débats) et les conteneurs de grilles (g2/g3/g4) déjà échelonnés. */
-function raScreenFx(){
-  try{
-    var calm={dashboard:1,settings:1,academy:1,autoeval:1,about:1,communaute:1,feedback:1};
-    if(!calm[TAB]) return;
-    if(QZ&&QZ.q&&QZ.q.length>0) return;        // un quiz est en cours → ne pas toucher
-    if(TAB==='autoeval'&&AEF) return;           // format d'auto-éval ouvert → animations dédiées
-    var c=ge('ct'); if(!c) return;
-    var root=c.firstElementChild; if(!root) return;
-    var blocks=root.children, d=0, n=0;
-    for(var i=0;i<blocks.length && n<16;i++){
-      var el=blocks[i];
-      if(!el||el.nodeType!==1) continue;
-      var cl=el.classList;
-      if(cl&&(cl.contains('g2')||cl.contains('g3')||cl.contains('g4'))) continue; // grilles déjà échelonnées
-      if(el.querySelector&&el.querySelector('.g2,.g3,.g4')) continue;              // bloc contenant une grille
-      el.classList.add('ra-stg');
-      el.style.animationDelay=d.toFixed(2)+'s';
-      d+=0.06; n++;
-    }
-  }catch(e){}
-}
-
 function render(){
   var c=ge('ct'); c.className='fi'; void c.offsetWidth;
   if(QZ.q.length>0){ rQE(); return; }
@@ -2471,7 +2422,6 @@ function render(){
   if(TAB==='debats'){ try{ RA_DEBATS.loadList(); }catch(e){} } // MODIFIÉ : charge la liste des débats après affichage
   if(TAB==='debatsadm'){ try{ RA_DEBATS.adminLoad(); }catch(e){} } // MODIFIÉ : charge le panneau jury
   try{ raBNsync(); }catch(e){} // MODIFIÉ : surligne l'onglet actif de la barre basse
-  try{ raScreenFx(); }catch(e){} // MODIFIÉ : cascade d'entrée douce sur les écrans calmes
 }
 
 /* ════════════════════════════════════════════════
@@ -3028,13 +2978,11 @@ function rAR(){
   var tabs = '<div style="display:flex;gap:7px;margin-bottom:18px;flex-wrap:wrap;">'+
     '<button class="ar-tab'+(AR.tab==='duels'?' ac':'')+'" onclick="AR.tab=\'duels\';render()">⚔️ Duels 1v1</button>'+
     '<button class="ar-tab'+(AR.tab==='tournois'?' ac':'')+'" onclick="AR.tab=\'tournois\';render()">🏆 Tournois</button>'+
-    '<button class="ar-tab'+(AR.tab==='sprint'?' ac':'')+'" onclick="AR.tab=\'sprint\';render()">⚡ Sprint</button>'+  /* MODIFIÉ : onglet Sprint/Blitz */
-    '<button class="ar-tab'+(AR.tab==='kotm'?' ac':'')+'" onclick="AR.tab=\'kotm\';render()">👑 Roi de la Manche</button>'+  /* MODIFIÉ : onglet Roi de la Manche (King of the Hill 1v1) */
   '</div>';
   return '<div style="display:flex;flex-direction:column;gap:14px;">'+
     '<h2 style="font-size:22px;color:white;">L\'Arène – Défis Professionnels</h2>'+
     tabs +
-    (AR.tab==='duels' ? rARDuelsHome() : AR.tab==='sprint' ? (typeof rSprintRoot==='function'?rSprintRoot():'') : AR.tab==='kotm' ? (typeof rKotmRoot==='function'?rKotmRoot():'') : rARTournoisHome()) +  /* MODIFIÉ : ajout Sprint + Roi de la Manche */
+    (AR.tab==='duels' ? rARDuelsHome() : rARTournoisHome()) +
   '</div>';
 }
 
@@ -4210,8 +4158,6 @@ function arBuildCertPDF(info){ // MODIFIÉ : Canvas pur, zéro CDN
 function arArenaAfterRender(){
   if(ge('ar-open-duels')) arLoadOpenDuels();
   if(ge('ar-open-tours')) arLoadOpenTours();
-  if(AR.tab==='sprint' && typeof sprintAfterRender==='function'){ try{ sprintAfterRender(); }catch(e){} } /* MODIFIÉ : Sprint */
-  if(AR.tab==='kotm' && typeof kotmAfterRender==='function'){ try{ kotmAfterRender(); }catch(e){} } /* MODIFIÉ : Roi de la Manche */
 }
 function arPackLabel(pid){
   var m={'rfe-uemoa':'🏛️ RFE UEMOA','bale-umoa':'⚖️ Bâle II/III','mix':'🔀 Mix','cemac':'🌍 CEMAC','qn':'📚 Thématiques','itb':'🎓 ITB','pcb':'📋 PCB','general':'🔀 Général'};
@@ -5659,6 +5605,283 @@ var AE_EXTRA_CEMAC = {   // MODIFIÉ
     if(AE_EXTRA_CEMAC.examen && AE_DATA_CEMAC.examen && AE_DATA_CEMAC.examen.questions){
       AE_DATA_CEMAC.examen.questions = AE_DATA_CEMAC.examen.questions.concat(AE_EXTRA_CEMAC.examen);
     }
+  }catch(e){}
+})();
+
+/* ════════════════════════════════════════════════════════════════
+   LOT FINAL — Intégration additive du contenu de l'atelier
+   Thèmes : IFRS 9 / ECL · Comités spécialisés · PPE · EME & Banque-Telco ·
+   Externalisation / Cloud · Protection du consommateur ; + lots prudentiel
+   (Bâle II/III), RFE, gouvernance & contrôle interne, LBC-FT (PPE/TBML),
+   division des risques, créances en souffrance.
+   Schéma identique à AE_DATA : vrai_faux / cas_pratique / texte_trous.
+   Fusion PUREMENT ADDITIVE (concat) → ZÉRO régression sur l'existant.
+   Sources citées item par item (BCEAO/UMOA, BEAC/COBAC, GAFI, IFRS 9).
+   // MODIFIÉ : ajout atelier (file d'attente vidée)
+════════════════════════════════════════════════════════════════ */
+var LOT_FINAL_UEMOA = {
+  vrai_faux: [
+    /* ── Division des risques / grands risques ── */
+    {affirmation:"Dans l'UEMOA, la limite individuelle sur un même bénéficiaire au titre des grands risques se calcule sur les fonds propres effectifs (FPE), comme sous l'ancien dispositif.",reponse:false,
+     justification:"La Décision n°013/24/06/2016 a changé le dénominateur : la norme se calcule désormais sur les fonds propres de base (T1), assiette plus étroite et de meilleure qualité, ce qui durcit la contrainte. Raisonner encore en FPE conduit à surestimer la marge.",ref:"BCEAO/UMOA — Décision n°013/24/06/2016, division des risques (transposition BCBS 283)"},
+    {affirmation:"Dans l'UEMOA, un engagement n'est qualifié de « grand risque » et déclarable que lorsqu'il atteint 25 % des fonds propres de base.",reponse:false,
+     justification:"Le seuil de qualification et de déclaration est de 10 % du T1. Les 25 % sont le plafond à ne jamais dépasser. Un engagement à 14 % du T1 est déjà un grand risque déclarable tout en restant conforme. Confondre seuil et plafond conduit à un sous-reporting.",ref:"BCEAO/UMOA — Décision n°013/24/06/2016, division des risques (BCBS 283)"},
+    /* ── Prudentiel / Bâle II-III ── */
+    {affirmation:"Dans l'UEMOA, le ratio minimum de fonds propres de base durs (CET1) au titre du Pilier 1 est fixé à 4,5 % des risques pondérés, comme le plancher bâlois.",reponse:false,
+     justification:"L'UEMOA calibre le CET1 minimum à 5 %, au-dessus du plancher de Bâle (4,5 %). S'y ajoutent un Tier 1 de 6 %, une solvabilité globale de 8 % et le coussin de conservation. Croire à une recopie du 4,5 % bâlois est un piège classique.",ref:"Décision n°013-2016/CM/UMOA — Pilier 1 (exigences minimales)"},
+    {affirmation:"Sur autorisation de la Commission bancaire, les banques de l'UEMOA peuvent utiliser les approches de notations internes (IRB) pour le risque de crédit.",reponse:false,
+     justification:"Le dispositif ne retient que l'approche standard (pondérations forfaitaires). Les approches IRB de Bâle II ne sont pas ouvertes, faute de maturité des systèmes de notation et d'historiques de défaut. Même refus côté CEMAC : convergence sur ce point.",ref:"Décision n°013-2016/CM/UMOA — mesure du risque de crédit (approche standard)"},
+    {affirmation:"Le dispositif prudentiel de l'UEMOA impose le LCR et le NSFR tels que définis par le Comité de Bâle.",reponse:false,
+     justification:"L'UEMOA n'a transposé ni le LCR ni le NSFR. Elle maintient un coefficient de liquidité classique (actif disponible/passif exigible ≥ 75 %) et un ratio de transformation abaissé de 75 % à 50 %. On reste sur une logique de stock, pas sur les HQLA et sorties stressées à 30 jours.",ref:"Décision n°013-2016/CM/UMOA — normes de liquidité"},
+    {affirmation:"L'exigence de fonds propres au titre du risque de change ne concerne que les banques disposant d'un portefeuille de négociation actif.",reponse:false,
+     justification:"Le risque de change se mesure sur la position nette globale de change (bilan + hors-bilan), indépendamment de toute activité de marché. Une banque de détail détenant des avoirs en devises est concernée. Le trading book conditionne le risque sur titres, pas le risque de change.",ref:"Décision n°013-2016/CM/UMOA — risque de marché (change et position)"},
+    {affirmation:"Le dispositif UEMOA introduit une exigence explicite de fonds propres au titre du risque opérationnel (Pilier 1), calculable selon l'approche de l'indicateur de base.",reponse:true,
+     justification:"Nouveauté majeure par rapport à Bâle I : les exigences minimales sont étendues au risque opérationnel. L'approche indicateur de base applique 15 % du PNB moyen sur 3 ans ; l'approche standardisée ventile par lignes de métier. Le PCA relève du dispositif de gestion, distinct de l'exigence quantitative.",ref:"Décision n°013-2016/CM/UMOA — risque opérationnel"},
+    /* ── Gouvernance UEMOA ── */
+    {affirmation:"Dans l'UEMOA, l'organe délibérant doit être composé majoritairement d'administrateurs non exécutifs et comporter au moins un tiers d'administrateurs indépendants.",reponse:true,
+     justification:"La Circulaire n°01-2017/CB/C impose une majorité de non-exécutifs et un tiers d'indépendants, et exige que le Président de l'organe délibérant soit désigné parmi les indépendants ou non exécutifs — consacrant la séparation présidence / direction générale.",ref:"Commission Bancaire UMOA — Circulaire n°01-2017/CB/C, art. 10"},
+    {affirmation:"Pour être qualifié d'indépendant dans l'UEMOA, un administrateur ne doit pas avoir eu de relation d'affaires avec l'établissement au cours des deux années précédentes.",reponse:false,
+     justification:"Le délai de viduité est de quatre ans, pas deux. Le statut est réexaminé chaque année. Un administrateur ayant cessé une relation d'affaires il y a trois ans n'est donc pas indépendant.",ref:"Commission Bancaire UMOA — Circulaire n°01-2017/CB/C, art. 11"},
+    {affirmation:"Dans l'UEMOA, le responsable de la conformité produit à l'organe délibérant un rapport annuel sur l'évaluation du risque de non-conformité.",reponse:false,
+     justification:"Le rapport d'évaluation du risque de non-conformité est semestriel. Le responsable rend compte au moins une fois par an de l'exécution de sa mission, mais informe sans délai la Commission Bancaire de toute insuffisance significative. La fonction conformité reste indépendante des unités contrôlées.",ref:"Commission Bancaire UMOA — Circulaire n°05-2017/CB/C, art. 18"},
+    /* ── Contrôle interne & comités ── */
+    {affirmation:"Dans l'UEMOA, depuis 2017, les fonctions de contrôle indépendantes se limitent à l'audit interne et à la gestion des risques.",reponse:false,
+     justification:"Trois fonctions de contrôle indépendantes coexistent : audit interne, gestion des risques et conformité, chacune dotée de sa circulaire (03, 04 et 05-2017). C'est l'architecture des trois lignes de défense pleinement formalisée.",ref:"Circulaires n°01, 03, 04 et 05-2017/CB/C (UMOA)"},
+    {affirmation:"Le contrôle permanent et le contrôle périodique (audit interne) désignent la même fonction, exercée par les mêmes agents.",reponse:false,
+     justification:"Ce sont deux niveaux distincts : le contrôle permanent est intégré à l'activité courante (1er niveau + surveillance risques/conformité) ; le contrôle périodique est l'audit interne, indépendant, évaluant a posteriori. Les confondre ruine l'indépendance de l'audit.",ref:"Circulaire n°03-2017/CB/C (UEMOA)"},
+    {affirmation:"Le comité d'audit prépare et éclaire les décisions du conseil sans s'y substituer ; la responsabilité reste celle du conseil dans son ensemble.",reponse:true,
+     justification:"Les comités spécialisés (audit, risques) émettent avis et recommandations mais ne diluent pas la collégialité : la responsabilité demeure au conseil. Ils renforcent la qualité de la surveillance.",ref:"Circulaires gouvernance CB/C n°01-2017 et n°02-2017 (UEMOA)"},
+    {affirmation:"Le comité d'audit et le comité des risques doivent obligatoirement être fusionnés en un comité unique.",reponse:false,
+     justification:"Les bonnes pratiques distinguent comité d'audit (information financière, contrôle interne, audit externe) et comité des risques (appétit, dispositif de gestion des risques). Une fusion peut être tolérée pour les petits établissements, mais la distinction des missions est la règle.",ref:"Circulaires gouvernance UEMOA ; standards Bâle gouvernance"},
+    {affirmation:"Dans l'UEMOA, le plan de continuité d'activité (PCA) doit être testé au moins une fois par an, et l'audit interne en vérifie périodiquement l'efficacité.",reponse:true,
+     justification:"L'établissement teste son PCA au moins une fois par an ; les résultats sont documentés et communiqués aux organes exécutif et délibérant et à l'audit interne, qui réalise des vérifications périodiques (y compris des prestataires). Le PCA relève de la maîtrise du risque opérationnel.",ref:"Circulaire n°04-2017/CB/C (gestion des risques, UEMOA)"},
+    /* ── Créances en souffrance (UEMOA vs CEMAC) ── */
+    {affirmation:"Dans l'UEMOA comme dans la CEMAC, une échéance impayée depuis 60 jours doit être déclassée en créances en souffrance.",reponse:false,
+     justification:"Divergence structurelle : en UEMOA, les impayés ≤ 90 jours, sans prorogation, restent en créances saines (la catégorie « impayée » a disparu avec le PCB-R). En CEMAC, les « créances impayées » (≤ 90 jours) sont une sous-catégorie des créances en souffrance. À 60 jours : sain à Dakar, déjà en souffrance à Douala.",ref:"Instruction BCEAO 026-11-2016, art. 4 ; Règlement COBAC R-2018/01, art. 6 et 8"},
+    {affirmation:"Une créance douteuse privée non garantie est intégralement provisionnée plus vite en UEMOA qu'en CEMAC.",reponse:true,
+     justification:"Rythme UEMOA en mois : 20 % au transfert, 50 % à 3 mois, 100 % à 9 mois. Rythme CEMAC en années : 50 % la 1re année, 100 % la 2e. Sur une créance non garantie, l'UEMOA atteint le plein provisionnement en moins d'un an, la CEMAC en deux exercices.",ref:"Instruction BCEAO 026-11-2016, art. 16 ; Règlement COBAC R-2018/01, art. 18"},
+    {affirmation:"La provision à caractère général sur encours sains est une obligation réglementaire dans les deux zones.",reponse:false,
+     justification:"La CEMAC impose une provision générale (dotation annuelle min. 0,5 %, cible 2 % de l'encours brut). L'Instruction UEMOA 026-11-2016 ne prévoit aucune provision générale : son provisionnement est exclusivement spécifique aux créances en souffrance. Deux logiques de coût du risque distinctes.",ref:"Règlement COBAC R-2018/01, art. 16 et 17 ; Instruction BCEAO 026-11-2016"},
+    /* ── LBC/FT — cadre, vigilance, BE, tipping-off ── */
+    {affirmation:"Dans l'UEMOA comme dans la CEMAC, le dispositif anti-blanchiment résulte d'une loi uniforme votée par chaque Parlement national.",reponse:false,
+     justification:"L'UEMOA fonctionne par directive (n°01/2023/CM/UEMOA) à transposer par loi uniforme nationale ; la CEMAC par règlement (n°02/24/CEMAC/UMAC/CM) d'applicabilité directe, sans transposition. À Dakar, le banquier vise la loi nationale ; à Douala, le texte communautaire s'impose tel quel.",ref:"Directive n°01/2023/CM/UEMOA ; Règlement n°02/24/CEMAC/UMAC/CM"},
+    {affirmation:"L'obligation de vigilance impose d'identifier le client, mais pas nécessairement le bénéficiaire effectif lorsque le client est une personne morale.",reponse:false,
+     justification:"L'institution doit identifier ET vérifier le bénéficiaire effectif (personne physique qui contrôle en dernier ressort, seuil GAFI 25 %) et comprendre la structure de propriété et de contrôle. Identifier le seul représentant légal ne suffit pas.",ref:"Directive n°01/2023/CM/UEMOA, art. 26 ; Recommandations 24/25 GAFI ; COBAC R-2023/01"},
+    {affirmation:"Quand une banque ne parvient pas à compléter ses mesures de vigilance (KYC incomplet), elle peut maintenir la relation sous simple surveillance du compte.",reponse:false,
+     justification:"La règle est inverse : ne pas ouvrir le compte, refuser l'opération ponctuelle, ou mettre fin à la relation existante — et transmettre une déclaration de soupçon. Un compte « sous surveillance » sans vigilance complète n'est pas une option.",ref:"Loi uniforme UMOA 2023, art. 25 ; Règlement n°02/24/CEMAC/UMAC/CM"},
+    {affirmation:"Le banquier peut informer son client qu'une déclaration de soupçon le concernant a été transmise, afin de recueillir ses explications.",reponse:false,
+     justification:"C'est l'interdiction de divulgation (tipping-off), pénalement sanctionnée. En contrepartie, le déclarant de bonne foi bénéficie d'une immunité civile, pénale et professionnelle et de la levée du secret bancaire. On déclare à la CRF sans alerter le client.",ref:"Loi uniforme UMOA 2023 ; Règlement n°02/24/CEMAC/UMAC/CM"},
+    /* ── LBC/FT — PPE & TBML ── */
+    {affirmation:"Au sens de la loi uniforme de l'UMOA, seules les personnes exerçant une haute fonction publique à l'étranger sont des PPE ; leurs proches et associés n'en sont pas.",reponse:false,
+     justification:"La Recommandation 12 du GAFI distingue PPE nationales, étrangères et d'organisations internationales, et inclut les proches (famille) et associés. Les ignorer viderait le dispositif de son sens.",ref:"Loi uniforme LBC/FT/FP UMOA 31/03/2023 ; Recommandation 12 GAFI"},
+    {affirmation:"Pour entrer en relation avec un client identifié comme PPE, un chargé de clientèle peut décider seul, sans validation hiérarchique.",reponse:false,
+     justification:"La vigilance renforcée PPE impose d'obtenir l'autorisation de la haute direction avant d'établir la relation, d'identifier l'origine du patrimoine et des fonds et d'assurer une surveillance continue renforcée. La décision ne relève pas du seul chargé de clientèle.",ref:"Loi uniforme LBC/FT/FP UMOA 2023 ; Recommandation 12 GAFI"},
+    {affirmation:"Dès qu'une PPE quitte sa fonction publique, elle perd automatiquement son statut après un délai fixe et la vigilance renforcée cesse.",reponse:false,
+     justification:"Le traitement après cessation des fonctions est fondé sur une évaluation des risques, non sur un délai prescrit. Une influence résiduelle peut subsister : la banque apprécie le risque au cas par cas avant de relâcher la vigilance.",ref:"Loi uniforme LBC/FT/FP UMOA 2023 (approche par les risques, Glossaire GAFI)"},
+    {affirmation:"Le blanchiment par le commerce (TBML) suppose toujours un mouvement physique réel de marchandises correspondant exactement à la facture.",reponse:false,
+     justification:"Le TBML manipule les transactions pour déplacer de la valeur : sous/surfacturation, facturation multiple, expéditions fictives (aucun bien déplacé). Descriptions vagues et factures multiples pour une même expédition sont des indicateurs GAFI. Le crédit documentaire peut servir d'apparence de légitimité.",ref:"Rapports GAFI sur le TBML (2006 ; GAFI/Egmont 2020)"},
+    /* ── IFRS 9 / ECL ── */
+    {affirmation:"IFRS 9 a remplacé IAS 39 et fait passer le provisionnement d'un modèle de pertes avérées à un modèle de pertes attendues.",reponse:true,
+     justification:"IAS 39 ne reconnaissait une dépréciation qu'après un événement de perte (incurred loss). IFRS 9 impose un modèle prospectif de pertes attendues (ECL) intégrant prévisions macroéconomiques : on provisionne avant le défaut.",ref:"Norme IFRS 9 (IASB)"},
+    {affirmation:"Le modèle ECL d'IFRS 9 repose sur trois stages selon l'évolution du risque de crédit depuis l'origine.",reponse:true,
+     justification:"Stage 1 (sain) : ECL à 12 mois. Stage 2 (SICR depuis l'origine) : ECL à maturité (lifetime). Stage 3 (déprécié/défaut) : ECL lifetime, intérêts sur valeur nette.",ref:"IFRS 9, modèle en 3 stages"},
+    {affirmation:"Le passage du Stage 1 au Stage 2 dépend du fait que l'exposition soit déjà en défaut.",reponse:false,
+     justification:"Le Stage 2 est déclenché par une augmentation significative du risque (SICR) — impayés > 30 jours (présomption réfragable), dégradation de notation — sans défaut. Le défaut correspond au Stage 3. Confondre SICR et défaut est une erreur classique.",ref:"IFRS 9, critères de transfert"},
+    {affirmation:"Sous IFRS 9, une banque ne provisionne un crédit sain qu'à partir du moment où un événement de défaut est avéré.",reponse:false,
+     justification:"Dès l'octroi, un actif sain (Stage 1) porte une provision « jour 1 » égale aux pertes attendues à 12 mois. IFRS 9 provisionne donc avant tout impayé — différence majeure avec IAS 39.",ref:"IFRS 9, reconnaissance initiale (day-1 loss)"},
+    {affirmation:"Sous IFRS 9, le classement d'un actif au coût amorti dépend uniquement de l'intention de le conserver jusqu'à l'échéance.",reponse:false,
+     justification:"IFRS 9 abandonne le classement par intention au profit d'un double test : modèle économique de gestion (business model) et test SPPI (flux = remboursement de principal et intérêts). Le croisement détermine coût amorti, FVOCI ou FVTPL.",ref:"IFRS 9, classification et évaluation"},
+    {affirmation:"Les provisions comptables IFRS 9 et les provisions prudentielles sur créances en souffrance sont une seule et même chose.",reponse:false,
+     justification:"Deux logiques coexistent : ECL comptable (prospective) et provisionnement prudentiel (taux/planchers réglementaires). Le superviseur peut exiger un complément prudentiel (backstop) si l'ECL est inférieure au minimum réglementaire.",ref:"Instruction BCEAO 026-11-2016 & Directive 01/2020/CM/UEMOA ; Règlement COBAC R-2018/01"},
+    {affirmation:"L'adoption d'IFRS 9 concerne surtout les comptes consolidés des groupes, le référentiel local (PCB / PCEC) restant la base du reporting prudentiel.",reponse:true,
+     justification:"Le plan comptable bancaire local (PCB en UEMOA, PCEC en CEMAC) reste le socle des comptes sociaux et du reporting prudentiel ; IFRS s'applique surtout aux comptes consolidés de certains groupes (calendrier/périmètre exacts à confirmer selon les avis de convergence).",ref:"Référentiels comptables bancaires régionaux (PCB révisé / PCEC)"},
+    /* ── Comités spécialisés (détail) ── */
+    {affirmation:"Le comité des risques se limite à valider a posteriori les pertes constatées.",reponse:false,
+     justification:"Le comité des risques a un rôle prospectif : il propose l'appétit pour le risque (RAS), revoit limites, stratégie de risque, stress tests et cohérence rémunération/risque. Il ne se réduit pas au constat ex post.",ref:"Circulaire gestion des risques CB/C n°04-2017 (UEMOA)"},
+    {affirmation:"Le comité des rémunérations veille à ce que les politiques de rémunération n'encouragent pas une prise de risque excessive.",reponse:true,
+     justification:"Il aligne la rémunération variable des dirigeants et preneurs de risques sur le long terme (différé, malus/clawback, équilibre fixe/variable) pour éviter les incitations court-termistes.",ref:"Principes de gouvernance ; circulaires UEMOA / dispositif COBAC"},
+    /* ── Externalisation / Cloud ── */
+    {affirmation:"En externalisant une fonction, la banque transfère au prestataire la responsabilité réglementaire de cette fonction.",reponse:false,
+     justification:"L'externalisation ne transfère jamais la responsabilité : la banque demeure pleinement responsable vis-à-vis du superviseur et des clients. Le prestataire exécute, la banque répond.",ref:"Circulaires contrôle interne/gouvernance UEMOA (CB/C 2017) ; dispositif COBAC"},
+    {affirmation:"Le recours au cloud relève de l'externalisation et nécessite une analyse de risque spécifique (sécurité, localisation, dépendance).",reponse:true,
+     justification:"Le cloud est une externalisation appelant une analyse dédiée : sécurité/chiffrement, localisation et souveraineté des données, dépendance fournisseur, continuité et droits d'audit en environnement mutualisé.",ref:"Encadrement du cloud bancaire ; circulaires 2017 (UEMOA)"},
+    {affirmation:"Une stratégie de sortie (réversibilité) n'est pas nécessaire tant que le prestataire est fiable.",reponse:false,
+     justification:"Une stratégie de réversibilité documentée est exigée dès l'origine, indépendamment de la fiabilité apparente : elle prévient le lock-in et garantit la continuité en cas de défaillance ou de rupture.",ref:"Exigences de réversibilité (externalisation prudentielle)"},
+    {affirmation:"L'externalisation en chaîne (sous-traitance par le prestataire) échappe au contrôle de la banque.",reponse:false,
+     justification:"La sous-traitance en cascade doit être encadrée et notifiée : la banque conserve une visibilité sur la chaîne, exige des garanties équivalentes et conserve ses droits d'audit jusqu'au sous-traitant.",ref:"Encadrement de la sous-traitance en chaîne"},
+    /* ── Protection du consommateur ── */
+    {affirmation:"En UEMOA, certaines prestations de services bancaires doivent être offertes à titre gratuit à la clientèle.",reponse:true,
+     justification:"La BCEAO a défini une liste de services bancaires gratuits (ex. ouverture/clôture de compte, certains relevés) pour réduire le coût de la bancarisation.",ref:"Décision/Instruction BCEAO sur les services bancaires gratuits (liste exacte à confirmer)"},
+    {affirmation:"Le taux effectif global (TEG) doit être communiqué au client afin de refléter le coût total du crédit.",reponse:true,
+     justification:"Le TEG intègre intérêts et frais obligatoires pour donner le coût réel ; sa communication est une obligation de transparence et un repère pour apprécier l'usure.",ref:"Obligations de transparence du coût du crédit (UEMOA/CEMAC)"},
+    {affirmation:"La médiation bancaire offre au client une voie de recours amiable, distincte et préalable au recours juridictionnel.",reponse:true,
+     justification:"La médiation propose une résolution amiable, gratuite ou peu coûteuse, sans renoncer au juge. Au Sénégal, l'OQSF joue un rôle d'observatoire/médiation.",ref:"Dispositifs de médiation financière (ex. OQSF Sénégal)"},
+    {affirmation:"La modification des conditions tarifaires d'un compte peut être appliquée sans information préalable du client.",reponse:false,
+     justification:"Toute modification des conditions (tarifs, taux) suppose une information préalable dans un délai raisonnable, le client pouvant en tirer les conséquences (clôture sans frais le cas échéant).",ref:"Obligations d'information sur les conditions de banque"},
+    /* ── EME / monnaie électronique (UEMOA) ── */
+    {affirmation:"Dans l'UEMOA, un opérateur télécom peut émettre directement de la monnaie électronique sans agrément, dès lors qu'il s'adosse à une banque.",reponse:false,
+     justification:"Deux schémas : soit l'OTM agit avec une banque émettrice, soit il émet lui-même et doit obtenir une licence d'EME auprès de la BCEAO avec autorisation avant démarrage. Capital social minimum d'un EME : 300 millions FCFA.",ref:"Instruction n°008-05-2015 (UMOA)"},
+    {affirmation:"Les fonds reçus par un EME en contrepartie de la monnaie électronique peuvent être mélangés à sa trésorerie commerciale.",reponse:false,
+     justification:"La contrepartie est cantonnée sur des comptes bancaires séparés (compte en fiducie), isolée des actifs de l'émetteur et protégée de ses créanciers. Le cantonnement doit être réparti dans au moins deux établissements de crédit de l'Union.",ref:"Instruction n°008-05-2015, art. 32"},
+    {affirmation:"Un EME est libre de placer la totalité de la contrepartie de sa monnaie électronique en titres, pour maximiser son rendement.",reponse:false,
+     justification:"Les placements en dépôts à vue doivent représenter au moins 75 % de l'encours de monnaie électronique en circulation. L'objectif est la liquidité immédiate des remboursements, pas le rendement.",ref:"Instruction n°008-05-2015 (UMOA)"},
+    {affirmation:"Un EME agréé dans l'UEMOA peut proposer librement des transferts d'argent entre un État membre et l'étranger.",reponse:false,
+     justification:"Les mouvements de capitaux entre l'UEMOA et l'étranger sont réservés aux établissements de crédit (intermédiaires agréés). La BCEAO a rappelé en mars 2017 que les EME ne sont pas autorisés à ces transferts. Pour ce corridor, adossement bancaire obligatoire.",ref:"Règlement n°09/2010/CM/UEMOA ; rappel BCEAO mars 2017"}
+  ],
+  cas_pratique: [
+    {scenario:"BANQUE ATLANTIQUE-TYPE SA, filiale d'un groupe panafricain agréée au Sénégal (UEMOA), tient son conseil. 9 membres : 2 exécutifs (DG, DGA), 6 nommés par l'actionnaire de référence, 1 seul indépendant. Le comité d'audit est présidé par le DGA. Le DG a, par note de service, muté le responsable de l'audit interne vers la direction commerciale. Un administrateur figure comme titulaire d'une créance en souffrance dans une autre banque de l'UMOA.",
+     questions:["La composition du conseil est-elle conforme à la Circulaire n°01-2017 ?","La présidence du comité d'audit par le DGA et la mutation du responsable de l'audit interne sont-elles régulières ?","Quelle conséquence pour la créance en souffrance de l'administrateur ?"],
+     correction:[
+       {a:"Majorité de non-exécutifs respectée (7/9). Mais le tiers d'indépendants requis = 3 ; un seul présent → non-conformité (déficit de 2). Les administrateurs de l'actionnaire de référence ne sont pas réputés indépendants.",ref:"Circulaire n°01-2017/CB/C, art. 10 et 11"},
+       {a:"Présidence par le DGA : irrégulière (les comités spécialisés excluent les exécutifs). Mutation du responsable de l'audit interne : irrégulière — toute désignation/mutation/révocation requiert l'approbation préalable de l'organe délibérant sur proposition du comité d'audit.",ref:"Circulaire n°01-2017/CB/C"},
+       {a:"Une créance en souffrance rend l'administrateur incompatible : il doit être suspendu, la Commission Bancaire informée par le Président de l'organe délibérant. S'y ajoute le manquement à la déclaration sur l'honneur annuelle.",ref:"Circulaire n°01-2017/CB/C, art. 42 ; Circulaire n°02-2017/CB/C"}
+     ]},
+    {scenario:"Un groupe bancaire consolidant de l'UEMOA détient un crédit corporate de 1 000 M FCFA (EAD). À l'octroi, l'actif est sain (Stage 1) : PD 12 mois = 1 %, LGD = 45 %. Six mois plus tard, dégradation nette de notation, sans impayé. Le crédit bascule en Stage 2 : PD à maturité = 12 %, LGD inchangée. Au plan prudentiel, faute d'impayé ≥ 90 jours, la créance reste saine.",
+     questions:["Calculer l'ECL en Stage 1 puis en Stage 2 (ECL = EAD × PD × LGD).","Quel événement déclenche S1 → S2 ? L'impayé est-il requis ?","Pourquoi provision comptable et prudentielle divergent-elles ?"],
+     correction:[
+       {a:"Stage 1 : 1 000 × 1 % × 45 % = 4,5 M. Stage 2 : 1 000 × 12 % × 45 % = 54 M. Le passage en lifetime multiplie la provision par 12.",ref:"IFRS 9, mesure de l'ECL"},
+       {a:"Déclenchement par une augmentation significative du risque (SICR) — dégradation de notation, watchlist — pas par un impayé. L'impayé ≥ 90 jours relèverait du Stage 3. IFRS 9 anticipe la perte avant tout incident.",ref:"IFRS 9, critères de transfert"},
+       {a:"IFRS 9 est comptable et prospectif ; le prudentiel est réglementaire et rétrospectif (ancienneté des impayés). En Stage 2 sans impayé : ECL = 54 M, provision prudentielle nulle. La banque tient les deux jeux ; l'écart prudentiel se traite en réserve/déduction des fonds propres.",ref:"IFRS 9 ; Instruction BCEAO 026-11-2016"}
+     ]},
+    {scenario:"Une banque sénégalaise (UEMOA) reçoit, sous crédit documentaire à l'import (UCP 600), une demande de règlement de 850 M FCFA pour 200 t de matériel électronique d'Asie. Le chargé trade finance relève : prix unitaire +45 % vs marché ; donneur d'ordre récemment immatriculé dont le bénéficiaire effectif est l'épouse d'un haut responsable public en exercice ; facture décrivant vaguement « équipements électroniques divers ».",
+     questions:["Quels indices de TBML et quel statut LBC/FT particulier ?","Quelles obligations de vigilance s'imposent ?","Quelle suite donner ?"],
+     correction:[
+       {a:"TBML : surfacturation (+45 %), description vague, société-écran récente. Statut PPE : le BE étant l'épouse d'un haut responsable public, le client relève des PPE (proche d'une PPE nationale).",ref:"Loi uniforme LBC/FT/FP UMOA 2023 ; typologies TBML GAFI"},
+       {a:"Double vigilance renforcée. PPE : origine du patrimoine et des fonds, autorisation de la haute direction, surveillance continue. TBML : contrôle prix/quantité/marché, description précise, vérification des documents (connaissement, certificat d'origine). La conformité documentaire UCP 600 ne dispense pas des obligations LBC/FT.",ref:"Loi uniforme LBC/FT/FP UMOA 2023 ; Reco 12 GAFI ; UCP 600"},
+       {a:"Si le soupçon persiste : déclaration de soupçon à la CENTIF, sans informer le client (tipping-off), et décision motivée sur l'exécution. La régularité documentaire du crédoc ne justifie pas le règlement d'une opération suspecte.",ref:"Loi uniforme LBC/FT/FP UMOA 2023 ; UCP 600 (RUU 600)"}
+     ]},
+    {scenario:"La banque PV ouvre un compte à M. K, récemment nommé directeur général d'une société publique d'un pays voisin. Dans le 1er mois, le compte reçoit 3 virements internationaux de 80 M FCFA (240 M) d'une société offshore, sans justificatif économique clair. L'ouverture a été validée par un chargé de clientèle junior.",
+     questions:["Quelles diligences d'identification du BE et quel statut PPE ?","Quels manquements relever ?","Quelle diligence immédiate ?"],
+     correction:[
+       {a:"M. K est une PPE étrangère (haute fonction publique d'un pays voisin). L'ouverture aurait dû être approuvée par la haute direction, avec établissement de l'origine du patrimoine et des fonds.",ref:"Loi uniforme LBC/FT/FP UMOA 2023 ; Reco 12 GAFI"},
+       {a:"Manquements : PPE non identifiée/non traitée en EDD ; approbation par un junior au lieu de la haute direction ; absence d'analyse de l'origine des 240 M atypiques.",ref:"Instruction BCEAO 007-09-2017 ; Reco 12 GAFI"},
+       {a:"Geler l'analyse, documenter l'origine fonds/patrimoine, escalader à la haute direction et à la conformité, et déclarer le soupçon à la CENTIF si l'incohérence persiste.",ref:"Loi uniforme LBC/FT/FP UMOA 2023 ; Instruction BCEAO 007-09-2017"}
+     ]},
+    {scenario:"La banque CX (UEMOA) migre son core banking vers un cloud dont les serveurs sont hors zone UEMOA. Le contrat ne prévoit ni clause d'audit, ni plan de réversibilité, et le prestataire sous-traite l'hébergement à un tiers non identifié. Le core banking est une fonction critique.",
+     questions:["Listez les non-conformités.","Quelles clauses imposer avant migration ?"],
+     correction:[
+       {a:"Non-conformités : pas de droit d'audit (banque/superviseur) ; pas de réversibilité sur une fonction critique ; sous-traitant non identifié (chaîne opaque) ; localisation hors zone sans garanties de protection des données.",ref:"Circulaires contrôle interne / gestion des risques 2017 (UEMOA)"},
+       {a:"Imposer : droits d'audit et d'accès, SLA + continuité (RTO/RPO), plan de réversibilité, transparence et garanties sur les sous-traitants, clauses de localisation/transfert conformes à la loi données personnelles, et notification au superviseur.",ref:"Circulaires contrôle interne / gestion des risques 2017 (UEMOA)"}
+     ]},
+    {scenario:"Un client de la banque PC (UEMOA) souscrit un crédit de 3 000 000 FCFA sur 24 mois. La banque facture 60 000 de frais de dossier, 90 000 d'assurance obligatoire, et un TEG calculé à 26 %. Elle facture aussi la clôture de compte. Le client conteste : aucune réponse depuis 2 mois.",
+     questions:["Quels points de non-conformité potentiels relever ?","Quelles voies de recours pour le client ?"],
+     correction:[
+       {a:"TEG à 26 % potentiellement supérieur au plafond d'usure des établissements de crédit (à vérifier sur la décision BCEAO en vigueur) ; facturation de la clôture de compte alors qu'elle figure parmi les services devant être gratuits ; absence de réponse à la réclamation depuis 2 mois.",ref:"Transparence tarifaire, usure, services gratuits, médiation (BCEAO)"},
+       {a:"Saisir le dispositif de réclamation interne, puis la médiation (ex. OQSF au Sénégal), signaler à la BCEAO/Commission Bancaire ; recours juridictionnel en dernier ressort.",ref:"Dispositifs de protection de la clientèle (UEMOA)"}
+     ]}
+  ],
+  texte_trous: [
+    {texte:"À l'origine, l'exposition est en Stage ___ , ECL calculée avec la PD à ___ . Un impayé > 30 jours fait présumer un(e) SICR, faisant basculer en Stage ___ , où l'ECL utilise la PD lifetime (à maturité).",
+     reponses:["1","12 mois","2"],ref:"IFRS 9, modèle ECL en 3 stages"},
+    {texte:"Le comité d'audit ne devrait pas être présidé par un membre de la direction ___ ; il devrait comporter des administrateurs ___ et des compétences ___ . L'absence de comité ___ est une lacune.",
+     reponses:["exécutive","indépendants","financières/comptables","des risques"],ref:"Circulaires CB/C 01 à 04 de 2017 (UEMOA)"},
+    {texte:"M. K est une PPE ___ . L'ouverture aurait dû être approuvée par ___ . La banque doit établir l'origine ___ et l'origine ___ . Les flux atypiques justifient une déclaration de soupçon.",
+     reponses:["étrangère","la haute direction","du patrimoine","des fonds"],ref:"Instruction BCEAO 007-09-2017 ; Reco 12 GAFI"},
+    {texte:"Le coût total se mesure par le ___ , qui inclut intérêts et frais obligatoires. Si le TEG dépasse le ___ applicable, le prêt est usuraire. La banque doit traiter la ___ dans un délai raisonnable. La ___ de compte doit être gratuite.",
+     reponses:["TEG","taux d'usure","réclamation","clôture"],ref:"Transparence tarifaire, usure, services gratuits (BCEAO)"},
+    {texte:"Le core banking est une fonction ___ . Le contrat doit prévoir un droit d'___ , un plan de ___ et l'encadrement de la ___ . La localisation hors zone soulève un enjeu de souveraineté des données.",
+     reponses:["critique","audit","réversibilité","sous-traitance"],ref:"Circulaires contrôle interne / gestion des risques 2017 (UEMOA)"}
+  ]
+};
+
+var LOT_FINAL_CEMAC = {
+  vrai_faux: [
+    /* ── Division des risques CEMAC ── */
+    {affirmation:"Depuis le 1er janvier 2023, la limite d'engagement sur un même bénéficiaire en zone CEMAC est de 25 % des fonds propres nets, contre 45 % auparavant.",reponse:true,
+     justification:"Le ratio individuel (45 % depuis 1996) a été abaissé à 40 % (2021), 35 % (2022) puis 25 % (2023) par le Règlement COBAC R-2020/01. La cible de 25 % est pleinement en vigueur, alignant la CEMAC sur le plafond individuel de l'UEMOA.",ref:"COBAC — Règlement R-2020/01, art. 1er (nouveau)"},
+    {affirmation:"En CEMAC, l'abaissement du seuil de qualification d'un grand risque de 15 % à 10 % des fonds propres nets s'est accompagné de la suppression de la limite globale de 800 %.",reponse:false,
+     justification:"Le seuil de qualification est bien passé de 15 % à 10 % des FPN au 1er janvier 2023, mais la limite globale demeure à 800 % (somme des grands risques ≤ 8 × FPN). Confondre seuil de définition et plafond agrégé est une erreur fréquente de conformité.",ref:"COBAC — Règlement R-2020/01 ; cadre R-2010/02"},
+    {affirmation:"En CEMAC, certaines entreprises de « grand standing et d'importance nationale » peuvent bénéficier d'une réduction du quart des quotités de risque, sur décision de la COBAC.",reponse:true,
+     justification:"L'article 7 (nouveau) du R-2020/01 permet à la COBAC de réduire d'un quart (25 %) les quotités sur ces sociétés, pour un an, via une liste annuelle (ex. Décision D-2024/418 pour 2025). Ce mécanisme discrétionnaire n'a pas d'équivalent en UEMOA : divergence structurelle majeure.",ref:"COBAC — Règlement R-2020/01, art. 7 ; Décision D-2024/418 du 12/12/2024"},
+    /* ── Créances en souffrance CEMAC ── */
+    {affirmation:"Le seuil de déclassement en douteux à 180 jours s'applique aux crédits immobiliers dans les deux zones, selon la même logique.",reponse:false,
+     justification:"En CEMAC, le 180 jours est adossé à l'objet du crédit (immobilier/crédit-bail immobilier ; 90 jours pour les autres concours). En UEMOA, aucun seuil spécifique à l'immobilier : le 180 jours vise les expositions sur les États, organismes publics et PME/PMI — critère fondé sur la contrepartie, pas sur le bien financé.",ref:"Règlement COBAC R-2018/01, art. 8 et 9 ; Instruction BCEAO 026-11-2016, art. 8"},
+    {affirmation:"En CEMAC, l'effet de contagion frappe l'intégralité des encours d'une contrepartie dès qu'une de ses créances devient douteuse, sans dérogation.",reponse:true,
+     justification:"La contagion CEMAC est totale (art. 10 du R-2018/01) : tous les encours de la contrepartie, indépendamment des garanties, et même les groupes et personnes liées. En UEMOA, la contagion épargne l'escompte commercial et la clientèle de détail. Le banquier CEMAC ne peut isoler un découvert de détail à jour.",ref:"Règlement COBAC R-2018/01, art. 10 ; Instruction BCEAO 026-11-2016, art. 11"},
+    /* ── Gouvernance CEMAC ── */
+    {affirmation:"En zone CEMAC, le comité d'audit doit être présidé par un membre de l'organe délibérant, compter au moins trois membres dont un administrateur indépendant, et exclure toute personne exerçant des responsabilités exécutives.",reponse:true,
+     justification:"L'article 30 du Règlement COBAC R-2016/04 l'exige ; aucun membre de l'organe exécutif, ni le responsable de l'audit interne/contrôle/risques/conformité, ni les commissaires aux comptes ne peuvent en être membres. La COBAC est notifiée avant prise d'effet.",ref:"COBAC — Règlement R-2016/04, art. 30 et 34"},
+    {affirmation:"À l'instar de l'UEMOA, la CEMAC impose un quota d'un tiers d'administrateurs indépendants au sein de l'organe délibérant.",reponse:false,
+     justification:"Divergence de fond : la CEMAC n'impose aucun quota d'un tiers au conseil ; l'exigence chiffrée se limite à au moins un indépendant au comité d'audit (art. 30, R-2016/04). Le socle reste le Règlement n°04/08 de 2008, moins prescriptif. Transposer le « tiers » UEMOA à une filiale CEMAC serait une erreur.",ref:"COBAC — Règlement R-2016/04, art. 30 ; Règlement n°04/08 du 06/10/2008"},
+    {affirmation:"En CEMAC, la mise en place d'un comité d'audit est obligatoire pour toutes les banques, quelle que soit la taille du bilan.",reponse:false,
+     justification:"L'obligation est conditionnée à un seuil : comité d'audit obligatoire pour les établissements dont le bilan excède 50 milliards FCFA. En deçà, le texte ne l'impose pas (la bonne gouvernance peut le recommander).",ref:"Règlement COBAC R-2001/07, refondu par R-2016/04 du 08/03/2016"},
+    /* ── LBC/FT CEMAC ── */
+    {affirmation:"En UEMOA les déclarations de soupçon vont à la CENTIF, en CEMAC à l'ANIF, chaque zone ayant son propre organisme régional de type GAFI.",reponse:true,
+     justification:"UEMOA : déclaration à la CENTIF (mise en réseau via le RECEN-UEMOA), organisme régional GIABA. CEMAC : cellule ANIF, organisme régional GABAC (Règlement n°01/CEMAC/UMAC/CM du 11/04/2016).",ref:"Loi uniforme LBC/FT/FP UMOA 2023 ; Règlement n°01/CEMAC/UMAC/CM"},
+    {affirmation:"En CEMAC, les documents de vigilance clientèle doivent être conservés pendant au moins 10 ans.",reponse:true,
+     justification:"Le Règlement COBAC R-2023/01 fixe une durée de conservation de 10 ans, condition de la traçabilité et des contrôles ex post. (L'équivalent UEMOA est à confirmer avant de généraliser.)",ref:"Règlement COBAC R-2023/01, art. 38"},
+    /* ── Prudentiel CEMAC / capital ── */
+    {affirmation:"Depuis le 1er janvier 2026, le capital social minimum d'une banque CEMAC est de 25 milliards FCFA, devenant supérieur au seuil UEMOA de 20 milliards.",reponse:true,
+     justification:"Le Règlement COBAC R-2025/02 du 10 décembre 2025 a relevé le capital social minimum de 10 à 25 milliards FCFA, soit une hausse de 150 %, désormais au-dessus du seuil UEMOA (20 milliards).",ref:"Règlement COBAC R-2025/02 du 10/12/2025"},
+    /* ── RFE / changes CEMAC ── */
+    {affirmation:"Dans la CEMAC, seules les exportations sont soumises à domiciliation bancaire ; les importations en sont dispensées.",reponse:false,
+     justification:"Le Règlement 02/18 soumet à domiciliation exportations comme importations dès 5 millions FCFA. La domiciliation ouvre un dossier à apurer (flux physique + flux financier). En UEMOA aussi, import et export sont soumis à domiciliation.",ref:"Règlement n°02/18/CEMAC/UMAC/CM, Titre III"},
+    {affirmation:"Le délai de rapatriement des recettes d'exportation est identique dans l'UEMOA et la CEMAC : 150 jours après l'expédition.",reponse:false,
+     justification:"CEMAC : 150 jours à compter de la date effective d'exportation. UEMOA : cession dans un mois à compter de l'exigibilité contractuelle, sans dépasser 120 jours après expédition. La CEMAC décompte dès l'expédition physique, l'UEMOA dès l'exigibilité.",ref:"Règlement 02/18/CEMAC ; Règlement 09/2010/CM/UEMOA"},
+    {affirmation:"Depuis 2019, une société résidente de la CEMAC (hors banque) peut librement ouvrir un compte en devises hors zone CEMAC.",reponse:false,
+     justification:"Le Règlement 02/18 fait défense aux personnes morales résidentes (hors établissements de crédit) d'ouvrir un compte en devises hors de la CEMAC ; seule la BEAC peut déroger. Les devises détenues doivent être cédées ou déposées auprès d'un établissement de crédit. L'UEMOA soumet à autorisation BCEAO, sans cette prohibition de principe.",ref:"Règlement 02/18/CEMAC ; Instruction BEAC n°005/GR/2019"},
+    {affirmation:"Une banque CEMAC qui tarde à rétrocéder à la BEAC les devises collectées encourt une pénalité de 5 % du montant non rétrocédé par jour de retard.",reponse:true,
+     justification:"Innovation répressive phare : amende de 5 % du montant non rétrocédé par jour, sanctions plafonnées à 15 % des fonds propres des intermédiaires agréés et 50 % pour les autres agents (art. 175), recouvrement par débit d'office. L'UEMOA n'a pas d'équivalent journalier.",ref:"Règlement 02/18/CEMAC, art. 175"},
+    /* ── Comptabilité / reporting CEMAC ── */
+    {affirmation:"En CEMAC, les banques transmettent leurs états à la COBAC via le système CERBER, le cadre comptable demeurant largement au coût historique, sans bascule IFRS comparable à l'UEMOA.",reponse:true,
+     justification:"Le reporting transite par CERBER (situation mensuelle pour les banques, trimestrielle pour les établissements financiers). Le plan comptable des établissements de crédit (R-2003/01, héritier du plan UDEAC) reste essentiellement au coût historique ; pas de transition IFRS comparable au PCB révisé UEMOA.",ref:"Système CERBER (COBAC) ; Règlement COBAC R-2003/01"},
+    /* ── EME CEMAC ── */
+    {affirmation:"En CEMAC, l'activité de services de paiement et d'émission de monnaie électronique fait l'objet d'un cadre réglementaire dédié.",reponse:true,
+     justification:"La CEMAC dispose d'un cadre régional des services de paiement (incluant la monnaie électronique) définissant agrément, cantonnement et protection de la clientèle (Règlement n°04/18/CEMAC/UMAC/COBAC du 21/12/2018 ; Règlements COBAC R-2019/01 à 03).",ref:"Règlement n°04/18/CEMAC/UMAC/COBAC ; COBAC R-2019/01 à 03"}
+  ],
+  cas_pratique: [
+    {scenario:"La Banque CENTRAFRIC SA (CEMAC) présente au 30/06/2026 des fonds propres nets (FPN) de 50 milliards FCFA. Son comité des engagements approuve une exposition nette consolidée sur le Groupe AGRO-X (même bénéficiaire) à 13 milliards FCFA. Le directeur de la conformité bloque le décaissement. Le directeur commercial objecte qu'AGRO-X figure sur la liste COBAC des entreprises de grand standing. La situation financière est jugée satisfaisante par la COBAC.",
+     questions:["La limite individuelle est-elle respectée avant tout régime dérogatoire ?","L'inscription sur la liste « grand standing » change-t-elle la conclusion ? Quantifiez.","En zone UEMOA, l'analyse serait-elle la même ?"],
+     correction:[
+       {a:"Plafond = 50 × 25 % = 12,5 Mds. Exposition 13 Mds > 12,5 Mds → dépassement de 0,5 Md (26 %). Le directeur de la conformité a raison en droit commun.",ref:"COBAC — R-2020/01, art. 1er (nouveau)"},
+       {a:"L'art. 7 réduit d'un quart les quotités : 13 × (1 − 0,25) = 9,75 Mds = 19,5 % des FPN < 25 % → conformité rétablie. Réserves : bénéfice temporaire (1 an, liste renouvelable), situation financière satisfaisante, traçabilité de la quotité réduite dans le reporting.",ref:"COBAC — R-2020/01, art. 7 ; décision annuelle type D-2024/418"},
+       {a:"Non : base = T1 (pas FPN) ; grand risque déclarable dès 10 % du T1, plafond 25 % du T1 ; aucun dispositif « grand standing » en UEMOA. Sans cette soupape, un dépassement imposerait une réduction de l'engagement ou un renforcement du T1, sous peine d'injonction de la Commission Bancaire UMOA.",ref:"Dispositif prudentiel UMOA, Décision n°013/24/06/2016"}
+     ]},
+    {scenario:"Une banque à Douala (CEMAC) détient sur la PME Sahel Négoce : un crédit d'équipement (bien mobilier) de 200 MFCFA, dont une échéance est impayée depuis 120 jours ; et un découvert autorisé de 50 MFCFA, à jour. Le crédit d'équipement est adossé à une hypothèque de 1er rang sur un entrepôt, évaluée à 180 MFCFA, révisée il y a 3 ans.",
+     questions:["Comment classer les deux concours au 120e jour ?","Quel encours est réputé couvert par l'hypothèque ?","Quel provisionnement spécifique minimal an 1 ?"],
+     correction:[
+       {a:"Crédit d'équipement : impayé > 90 jours → douteux (art. 9). Par contagion (art. 10), le découvert de 50 MFCFA bascule aussi en douteux (pas d'exception détail en CEMAC). Encours douteux contaminé = 250 MFCFA.",ref:"Règlement COBAC R-2018/01, art. 9 et 10"},
+       {a:"Pour être retenue à 100 %, l'hypothèque doit valoir ≥ 120 % de l'encours et avoir été révisée depuis < 4 ans (art. 22). Ici 180/200 = 90 % < 120 % → encours réputé couvert ramené à 80 % = 160 MFCFA couverts, 40 MFCFA non couverts. Le découvert (50 MFCFA) est non couvert.",ref:"Règlement COBAC R-2018/01, art. 22"},
+       {a:"Partie hypothéquée 160 MFCFA → 25 % = 40 MFCFA ; partie non couverte du crédit 40 MFCFA → 50 % = 20 MFCFA ; découvert non couvert 50 MFCFA → 50 % = 25 MFCFA. Total provision spécifique minimale an 1 = 85 MFCFA.",ref:"Règlement COBAC R-2018/01, art. 18 et 19"}
+     ]},
+    {scenario:"À l'agence de Yaoundé (CEMAC), M. O. ouvre un compte pour la SARL Equato-Trading dont il est gérant. Capital détenu à 60 % par une holding aux Seychelles, 30 % par M. O., 10 % par un tiers non identifié. Trois jours après l'ouverture, virement entrant de 80 000 000 FCFA d'une juridiction sous surveillance GAFI, suivi d'un ordre sortant de 78 000 000 FCFA vers un compte personnel à l'étranger. M. O. refuse de documenter l'origine des fonds.",
+     questions:["Quelles diligences d'identification du bénéficiaire effectif ?","Comment qualifier l'opération et quelle conduite ?","Le banquier peut-il informer le client ?"],
+     correction:[
+       {a:"Identifier et vérifier le(s) BE (seuil 25 %). La holding seychelloise (60 %) impose de remonter la chaîne jusqu'aux personnes physiques ; M. O. (30 %) est BE ; la structure offshore + l'opacité déclenchent une vigilance renforcée. KYC incomplet → la relation n'aurait pas dû être nouée.",ref:"COBAC R-2023/01 ; Règlement CEMAC 02/24 ; Reco 24/25 GAFI"},
+       {a:"Faisceau d'indices : compte de passage, montant sans rapport avec une activité naissante, juridiction à risque, refus de justifier. → Déclaration de soupçon à l'ANIF sans délai ; ne pas exécuter l'opération et mettre fin à la relation.",ref:"Règlement n°02/24/CEMAC/UMAC/CM ; COBAC R-2023/01"},
+       {a:"Non — interdiction de divulgation (tipping-off), pénalement sanctionnée. Le déclarant de bonne foi est couvert par l'immunité légale.",ref:"Règlement n°02/24/CEMAC/UMAC/CM"}
+     ]},
+    {scenario:"Le groupe SODICOM exporte vers l'Espagne. CAM-FISH SARL, filiale résidente au Cameroun (CEMAC), réalise une vente ferme de 480 M FCFA, expédiée le 3 mars, payable à 90 jours. CAM-FISH encaisse à l'échéance, mais sa banque domiciliataire ne rétrocède les devises à la BEAC que 20 jours après l'encaissement.",
+     questions:["L'opération est-elle soumise à domiciliation ?","Quelle date limite de rapatriement en CEMAC ?","Évaluer l'exposition à sanction de la banque."],
+     correction:[
+       {a:"Oui : domiciliation obligatoire car 480 M ≥ 5 M FCFA.",ref:"Règlement 02/18/CEMAC, Titre III"},
+       {a:"150 jours à compter de la date effective d'exportation (3 mars) → date limite ≈ fin juillet. Le délai court dès l'expédition, pas depuis l'échéance.",ref:"Règlement 02/18/CEMAC (rapatriement 150 j)"},
+       {a:"5 % × 480 M × 20 jours = 480 M FCFA (100 % de la créance atteint en 20 jours), ensuite plafonné à 15 % des fonds propres de la banque. La pénalité journalière escalade si vite qu'elle absorbe le montant en trois semaines — d'où la diligence extrême à rétrocéder.",ref:"Règlement 02/18/CEMAC, art. 175"}
+     ]},
+    {scenario:"BANQUE ALPHA (CEMAC, Cameroun) affiche un total de bilan de 65 milliards FCFA. Le conseil constitue un comité d'audit composé du Directeur Général Adjoint, du responsable de l'audit interne et de deux administrateurs non-exécutifs. La direction souhaite en outre que la même équipe d'audit interne assure le contrôle permanent opérationnel de 1er niveau.",
+     questions:["Le comité d'audit est-il obligatoire pour ALPHA ?","La composition proposée est-elle régulière ?","Le cumul audit interne + contrôle permanent de 1er niveau est-il admissible ?"],
+     correction:[
+       {a:"Oui : le bilan (65 Mds) excède le seuil de 50 milliards déclenchant l'obligation de comité d'audit.",ref:"Règlement COBAC R-2001/07 / R-2016/04"},
+       {a:"Irrégulière : le DGA (exécutif) et le responsable de l'audit interne ne peuvent siéger (ni les commissaires aux comptes). Seuls les deux non-exécutifs sont éligibles ; compléter avec d'autres administrateurs, idéalement indépendants.",ref:"Règlement COBAC R-2001/07 / R-2016/04, art. 30"},
+       {a:"Non : le contrôle permanent de 1er niveau et le contrôle périodique (audit interne, indépendant) sont deux niveaux distincts. Les fusionner détruit l'indépendance de l'audit. L'« économie » recherchée est une faille de gouvernance.",ref:"Règlement COBAC R-2016/04 ; principe transposable Circulaire 03-2017/CB/C"}
+     ]}
+  ],
+  texte_trous: [
+    {texte:"En CEMAC, la limite individuelle sur un même bénéficiaire est de ___ % des fonds propres nets depuis 2023 ; la limite globale des grands risques reste à ___ % (soit 8 × FPN). Le seuil de qualification d'un grand risque est de ___ % des FPN.",
+     reponses:["25","800","10"],ref:"COBAC — Règlement R-2020/01 ; cadre R-2010/02"},
+    {texte:"Le délai de rapatriement des recettes d'exportation en CEMAC est de ___ jours à compter de la date effective d'exportation. La domiciliation est obligatoire dès ___ millions FCFA. Le retard de rétrocession des devises est sanctionné à ___ % par jour.",
+     reponses:["150","5","5"],ref:"Règlement n°02/18/CEMAC/UMAC/CM, Titre III et art. 175"},
+    {texte:"En CEMAC, le comité d'audit est obligatoire dès que le bilan excède ___ milliards FCFA. Il exclut les membres de l'organe ___ , le responsable de l'audit ___ et les commissaires aux ___ .",
+     reponses:["50","exécutif","interne","comptes"],ref:"Règlement COBAC R-2016/04, art. 30 ; R-2001/07"}
+  ]
+};
+
+(function aeMergeLotFinal(){   // MODIFIÉ : fusion additive du contenu de l'atelier (UEMOA + CEMAC)
+  try{
+    ['vrai_faux','cas_pratique','texte_trous'].forEach(function(k){
+      if(LOT_FINAL_UEMOA[k] && AE_DATA && AE_DATA[k])           AE_DATA[k]       = AE_DATA[k].concat(LOT_FINAL_UEMOA[k]);
+      if(LOT_FINAL_CEMAC[k] && AE_DATA_CEMAC && AE_DATA_CEMAC[k]) AE_DATA_CEMAC[k] = AE_DATA_CEMAC[k].concat(LOT_FINAL_CEMAC[k]);
+    });
   }catch(e){}
 })();
 
@@ -7988,15 +8211,12 @@ window.raOpenNotif=function(){
     try{ if(typeof AR!=='undefined' && AR && AR.pendingTour && AR.pendingTour.code){ pend='<div class="al al-ok" style="font-size:12px;margin-bottom:10px;">🏆 Tournoi en attente — code <strong>'+AR.pendingTour.code+'</strong></div>'; } }catch(e){}
     var body=pend+
       '<div style="font-size:12px;color:var(--sub);margin-bottom:12px;">Vous serez prévenu ici dès qu’un adversaire rejoint un duel ou un tournoi.</div>'+
-      (typeof raPushButtonHTML==='function'?raPushButtonHTML():'')+/* MODIFIÉ PUSH : bouton activer notifications */
-      '<div id="ra-online-box" style="margin-bottom:12px;"></div>'+/* MODIFIÉ PRÉSENCE : liste des joueurs en ligne */
       '<div style="display:flex;flex-direction:column;gap:8px;">'+
         '<button class="btn btn-sm" onclick="closeModal();ST(\'arena\')">⚔️ Aller à l’Arène</button>'+
         '<button class="btn-out btn-sm" onclick="closeModal();ST(\'feedback\')">💡 Donner mon avis</button>'+
         '<button class="btn-out btn-sm" onclick="closeModal();ST(\'dashboard\')">🎯 Objectifs du jour</button>'+
       '</div>';
     showModal('Notifications',body);
-    try{ if(typeof raOnlineLoad==='function') raOnlineLoad(); }catch(e){}/* MODIFIÉ PRÉSENCE */
   }catch(e){ try{ ST('arena'); }catch(_){} }
 };
 </script>
@@ -8429,1022 +8649,5 @@ window.raOpenNotif=function(){
 }
 </style>
 
-<!-- MODIFIÉ : enregistrement du service worker (PWA installable, réinjecté 21/06) -->
-<script>
-if('serviceWorker' in navigator){
-  window.addEventListener('load',function(){
-    navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn('SW non enregistré',e);});
-  });
-}
-</script>
-
-<!-- MODIFIÉ PUSH+PRÉSENCE : notifications push Web (Option B) + présence en ligne (défier / débattre) -->
-<script id="ra-push-presence-js">
-(function(){
-  /* ───────── Outils ───────── */
-  function loggedIn(){ return (typeof U!=='undefined' && U && U.token); }
-  function authHdr(){ return loggedIn() ? {'Authorization':'Bearer '+U.token} : {}; }
-  function jsonHdr(){ return Object.assign({'Content-Type':'application/json'}, authHdr()); }
-  function urlB64ToUint8(base64){
-    var pad='='.repeat((4-base64.length%4)%4);
-    var b64=(base64+pad).replace(/-/g,'+').replace(/_/g,'/');
-    var raw=atob(b64); var arr=new Uint8Array(raw.length);
-    for(var i=0;i<raw.length;i++){ arr[i]=raw.charCodeAt(i); }
-    return arr;
-  }
-  function flag(cc){
-    if(!cc||cc.length!==2) return '🌍';
-    try{ return String.fromCodePoint.apply(null, cc.toUpperCase().split('').map(function(c){return 127397+c.charCodeAt(0);})); }
-    catch(e){ return '🌍'; }
-  }
-  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-  function toast(msg){ try{ if(typeof raToast==='function'){ raToast(msg); return; } }catch(e){} try{ if(typeof showModal==='function'){ showModal('Notifications','<div class="al al-ok" style="font-size:13px;">'+msg+'</div><button class="btn btn-sm" style="margin-top:10px;" onclick="closeModal()">OK</button>'); } }catch(e){} }
-
-  /* ───────── PUSH WEB ───────── */
-  var _vapid=null;
-  function getVapidKey(){
-    if(_vapid!==null) return Promise.resolve(_vapid);
-    return fetch('/push/vapid-public-key').then(function(r){return r.json();}).then(function(d){
-      _vapid=(d && (d.key||(d.data&&d.data.key)))||''; return _vapid;
-    }).catch(function(){ _vapid=''; return ''; });
-  }
-  function pushSupported(){
-    return ('serviceWorker' in navigator) && ('PushManager' in window) && (typeof Notification!=='undefined');
-  }
-  // Abonne l'appareil et envoie l'abonnement au serveur. silent=true → n'émet pas de toast.
-  window.raPushSubscribe=function(silent){
-    if(!pushSupported()||!loggedIn()) return Promise.resolve(false);
-    return getVapidKey().then(function(key){
-      if(!key){ if(!silent) toast('Les notifications push ne sont pas encore activées côté serveur.'); return false; }
-      return navigator.serviceWorker.ready.then(function(reg){
-        return reg.pushManager.getSubscription().then(function(sub){
-          if(sub) return sub;
-          return reg.pushManager.subscribe({ userVisibleOnly:true, applicationServerKey: urlB64ToUint8(key) });
-        });
-      }).then(function(sub){
-        return fetch('/push/subscribe',{ method:'POST', headers: jsonHdr(), body: JSON.stringify({subscription: sub}) })
-          .then(function(){ if(!silent) toast('🔔 Notifications activées ! Vous serez prévenu même app fermée.'); return true; });
-      });
-    }).catch(function(e){ console.warn('push subscribe',e); if(!silent) toast('Activation impossible sur cet appareil pour le moment.'); return false; });
-  };
-  // Geste utilisateur : demande la permission puis abonne (requis sur iPhone installé)
-  window.raEnablePush=function(){
-    if(!pushSupported()){ toast('Votre navigateur ne gère pas les notifications push. Sur iPhone : ajoutez l’app à l’écran d’accueil.'); return; }
-    if(Notification.permission==='granted'){ raPushSubscribe(false); return; }
-    if(Notification.permission==='denied'){ toast('Notifications bloquées. Réautorisez-les dans les réglages de votre navigateur.'); return; }
-    Notification.requestPermission().then(function(p){
-      if(p==='granted'){ raPushSubscribe(false); }
-      else { toast('Activez les notifications pour ne rater aucun défi.'); }
-      try{ if(typeof closeModal==='function'){} }catch(e){}
-    });
-  };
-  // Bouton affiché dans le panneau Notifications, selon l'état de permission
-  window.raPushButtonHTML=function(){
-    if(!pushSupported()) return '<div class="al al-info" style="font-size:11px;margin-bottom:12px;">📱 Pour les notifications même app fermée, installez l’app sur votre écran d’accueil.</div>';
-    var p=(typeof Notification!=='undefined')?Notification.permission:'default';
-    if(p==='granted') return '<div class="al al-ok" style="font-size:12px;margin-bottom:12px;">🔔 Notifications activées — vous êtes prévenu même app fermée.</div>';
-    if(p==='denied') return '<div class="al al-info" style="font-size:11px;margin-bottom:12px;">🔕 Notifications bloquées. Réautorisez-les dans les réglages du navigateur pour être averti des défis.</div>';
-    return '<button class="btn btn-sm" style="width:100%;margin-bottom:12px;" onclick="raEnablePush()">🔔 Activer les notifications (défis, tournois)</button>';
-  };
-
-  /* ───────── PRÉSENCE EN LIGNE ───────── */
-  var hbTimer=null;
-  function ping(){ if(!loggedIn()) return; fetch('/presence/ping',{method:'POST',headers:jsonHdr(),body:'{}'}).catch(function(){}); }
-  function startHeartbeat(){
-    if(hbTimer||!loggedIn()) return;
-    ping();
-    hbTimer=setInterval(ping, 45000);
-    document.addEventListener('visibilitychange',function(){ if(!document.hidden) ping(); });
-  }
-  window.raPresencePing=ping;
-  // Charge et affiche les joueurs en ligne dans le conteneur #ra-online-box
-  window.raOnlineLoad=function(){
-    var box=document.getElementById('ra-online-box'); if(!box||!loggedIn()) return;
-    box.innerHTML='<div style="font-size:12px;color:var(--sub);">Chargement des joueurs en ligne…</div>';
-    fetch('/presence/online',{headers:authHdr()}).then(function(r){return r.json();}).then(function(d){
-      var list=(d && (d.online||(d.data&&d.data.online)))||[];
-      if(!list.length){ box.innerHTML='<div class="al al-info" style="font-size:12px;">Personne d’autre en ligne à l’instant. Lancez un duel, les autres seront notifiés !</div>'; return; }
-      var html='<div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:6px;">🟢 En ligne maintenant ('+list.length+')</div>';
-      html+=list.map(function(u){
-        var nm=esc(u.name||'Joueur'); var fl=flag(u.country||'');
-        return '<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);">'+
-          '<span style="width:8px;height:8px;border-radius:50%;background:#22c55e;flex-shrink:0;box-shadow:0 0 6px #22c55e;"></span>'+
-          '<span style="flex:1;font-size:13px;color:white;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+fl+' '+nm+'</span>'+
-          '<button class="btn btn-sm" style="flex-shrink:0;padding:5px 9px;font-size:12px;" onclick="raOnlineChallenge('+u.id+')">⚔️</button>'+
-          '<button class="btn-out btn-sm" style="flex-shrink:0;padding:5px 9px;font-size:12px;" onclick="closeModal();ST(\'debats\')">💬</button>'+
-          '</div>';
-      }).join('');
-      window._raOnline=list;
-      box.innerHTML=html;
-    }).catch(function(){ box.innerHTML='<div style="font-size:12px;color:var(--sub);">Liste indisponible.</div>'; });
-  };
-  window.raOnlineChallenge=function(id){
-    var u=(window._raOnline||[]).filter(function(x){return x.id===id;})[0];
-    if(u && typeof arChallengePlayer==='function'){ try{ if(typeof closeModal==='function') closeModal(); }catch(e){} arChallengePlayer(u.id, u.name||''); }
-  };
-
-  /* ───────── Démarrage ───────── */
-  function boot(){
-    if(!loggedIn()){ setTimeout(boot, 4000); return; } // attend la restauration de session
-    startHeartbeat();
-    // Ré-abonnement push silencieux si la permission est déjà accordée
-    try{ if(typeof Notification!=='undefined' && Notification.permission==='granted'){ raPushSubscribe(true); } }catch(e){}
-  }
-  if(document.readyState==='complete'||document.readyState==='interactive'){ setTimeout(boot, 1500); }
-  else { window.addEventListener('load', function(){ setTimeout(boot, 1500); }); }
-})();
-</script>
-<!-- ════════ REGUL ARENA · MODE SPRINT/BLITZ (front) — MODIFIÉ ════════ -->
-<script id="ra-sprint-js">
-/* ════════════════════════════════════════════════════════════════
-   MODE SPRINT / BLITZ — front (AJOUT 100% additif // MODIFIÉ)
-   Phase 1 du brainstorm "nouveaux modes". Solo contre-la-montre.
-   Vitesse mesurée CÔTÉ SERVEUR (routes /sprint/* de index.js) :
-   le chrono affiché ici est purement cosmétique, le score fait foi serveur.
-   Réutilise : classement (user_scores via /sprint answer), paliers,
-   certificat (arBuildCertPDF + POST /certificates), charte navy/gold.
-================================================================ */
-(function(){
-  var SP = window.SPRINT = {
-    view:'home',      // 'home' | 'game' | 'result'
-    code:'', format:'pro', zone:'mixte',
-    total:0, idx:0, q:null, answered:false,
-    score:0, correct:0, totalMs:0,
-    budgetMs:20000, timerId:null, deadline:0,
-    result:null, board:[], myBest:null, boardFmt:'pro', loading:false
-  };
-
-  var FMT = {
-    eclair:   { n:7,  ic:'⚡', label:'Éclair',   desc:'7 questions',  col:'#60a5fa' },
-    pro:      { n:15, ic:'🎯', label:'Pro',      desc:'15 questions', col:'#C9991A' },
-    marathon: { n:21, ic:'🏆', label:'Marathon', desc:'21 questions', col:'#a78bfa' }
-  };
-  var ZONES = [
-    { id:'mixte', label:'🌍 Mixte' },
-    { id:'uemoa', label:'🏛️ UEMOA' },
-    { id:'cemac', label:'🌍 CEMAC' }
-  ];
-
-  function spLogged(){ return (typeof U!=='undefined' && U && U.token); }
-  function spHdr(){ return {'Content-Type':'application/json','Authorization':'Bearer '+((typeof U!=='undefined'&&U&&U.token)||'')}; }
-  function spEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-  function spFmtTime(ms){ var t=Math.round((Number(ms)||0)/1000); var m=Math.floor(t/60), s=t%60; return m>0?(m+'min '+(s<10?'0':'')+s+'s'):(s+'s'); }
-  function spRating(pct){
-    if(pct>=90) return {t:'👑 Maître de l\'Arène', c:'#F5C453'};
-    if(pct>=80) return {t:'⭐ Expert',            c:'#a78bfa'};
-    if(pct>=60) return {t:'🔷 Confirmé',          c:'#60a5fa'};
-    return            {t:'📙 Initié',            c:'#9fb4d8'};
-  }
-
-  // Pool figé tiré dans QR/QB/QC/QN selon la zone, dédoublonné + Fisher-Yates.
-  function spPool(zone){
-    var uemoa=[], cemac=[];
-    try{ uemoa = [].concat((typeof QR!=='undefined'?QR:[]), (typeof QB!=='undefined'?QB:[]), (window.QN_U||[])); }catch(e){ uemoa=[]; }
-    try{ cemac = [].concat((typeof QC!=='undefined'?QC:[]), (window.QN_C||[])); }catch(e){ cemac=[]; }
-    var base = zone==='uemoa'?uemoa : zone==='cemac'?cemac : [].concat(uemoa,cemac);
-    var seen={}, out=[];
-    base.forEach(function(q){
-      if(q && typeof q.q==='string' && Array.isArray(q.choices) && q.choices.length>=2 &&
-         typeof q.answer==='number' && q.answer>=0 && q.answer<q.choices.length && !seen[q.q]){
-        seen[q.q]=1; out.push(q);
-      }
-    });
-    for(var i=out.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=out[i]; out[i]=out[j]; out[j]=t; }
-    return out;
-  }
-
-  /* ───────── RENDU ───────── */
-  window.rSprintRoot=function(){
-    if(SP.view==='game')   return spRenderGame();
-    if(SP.view==='result') return spRenderResult();
-    return spRenderHome();
-  };
-
-  function spRenderHome(){
-    if(!spLogged()){
-      return '<div class="card" style="text-align:center;padding:26px;">'+
-        '<div style="font-size:34px;margin-bottom:8px;">⚡</div>'+
-        '<div style="font-weight:800;color:white;font-size:16px;margin-bottom:6px;">Sprint / Blitz</div>'+
-        '<div style="font-size:13px;color:var(--sub);margin-bottom:14px;line-height:1.6;">Connectez-vous pour lancer un sprint chronométré et apparaître au classement.</div>'+
-        '<button class="btn" onclick="ST(\'settings\')">Se connecter</button></div>';
-    }
-    var fmtCards = Object.keys(FMT).map(function(k){
-      var f=FMT[k], on=(SP.format===k);
-      return '<div class="ch" onclick="sprintSetFormat(\''+k+'\')" style="cursor:pointer;text-align:center;border-radius:14px;padding:16px 10px;'+
-        'background:'+(on?('linear-gradient(135deg,'+f.col+'33,'+f.col+'0d)'):'rgba(255,255,255,.04)')+';'+
-        'border:1px solid '+(on?f.col:'rgba(110,150,210,.35)')+';">'+
-        '<div style="font-size:26px;line-height:1;">'+f.ic+'</div>'+
-        '<div style="font-weight:800;color:white;font-size:14px;margin:8px 0 2px;">'+f.label+'</div>'+
-        '<div style="font-size:11px;color:var(--sub);">'+f.desc+'</div></div>';
-    }).join('');
-    var zoneChips = ZONES.map(function(z){
-      var on=(SP.zone===z.id);
-      return '<button class="ar-tab'+(on?' ac':'')+'" style="font-size:12px;padding:7px 12px;" onclick="sprintSetZone(\''+z.id+'\')">'+z.label+'</button>';
-    }).join('');
-    return '<div style="display:flex;flex-direction:column;gap:14px;">'+
-      '<div class="al al-info" style="font-size:12.5px;line-height:1.6;">'+
-        '⚡ <strong>Sprint contre-la-montre.</strong> Questions chronométrées, tous thèmes. '+
-        'La <strong>vitesse est mesurée côté serveur</strong> (équitable) : bonne réponse = 100 pts + bonus de rapidité. '+
-        'Votre classement global progresse d\'1 point par bonne réponse.</div>'+
-      '<div style="font-weight:800;color:white;font-size:14px;">1 · Choisissez un format</div>'+
-      '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">'+fmtCards+'</div>'+
-      '<div style="font-weight:800;color:white;font-size:14px;margin-top:2px;">2 · Choisissez une zone</div>'+
-      '<div style="display:flex;gap:7px;flex-wrap:wrap;">'+zoneChips+'</div>'+
-      '<button class="btn" style="width:100%;padding:15px;font-size:15px;margin-top:4px;" '+(SP.loading?'disabled':'')+' onclick="sprintStart()">'+
-        (SP.loading?'⏳ Préparation…':('🚀 Lancer le Sprint '+FMT[SP.format].ic+' '+FMT[SP.format].label))+'</button>'+
-      '<div style="font-weight:800;color:white;font-size:14px;margin-top:6px;">🏅 Classement Sprint</div>'+
-      '<div class="card" style="padding:14px;"><div id="sp-board">'+
-        '<div style="font-size:12px;color:var(--sub);text-align:center;padding:10px;">Chargement…</div></div></div>'+
-    '</div>';
-  }
-
-  function spRenderGame(){
-    var q=SP.q;
-    if(!q) return '<div class="card" style="text-align:center;padding:24px;color:var(--sub);">Chargement de la question…</div>';
-    var f=FMT[SP.format];
-    var opts=q.choices.map(function(c,i){
-      return '<button id="sp-opt-'+i+'" class="btn-out" style="display:block;width:100%;text-align:left;margin-bottom:9px;padding:13px 14px;font-size:13.5px;line-height:1.45;white-space:normal;" onclick="sprintPick('+i+')">'+
-        '<strong style="color:var(--cyan);margin-right:7px;">'+String.fromCharCode(65+i)+'.</strong>'+spEsc(c)+'</button>';
-    }).join('');
-    return '<div style="display:flex;flex-direction:column;gap:12px;">'+
-      '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">'+
-        '<div style="font-weight:800;color:white;font-size:14px;">'+f.ic+' Sprint '+f.label+'</div>'+
-        '<div style="font-size:12px;color:var(--sub);">Question <strong style="color:white;">'+(SP.idx+1)+'</strong> / '+SP.total+'</div>'+
-        '<div id="sp-score" style="font-size:12px;color:#4ade80;font-weight:800;">'+SP.score+' pts</div>'+
-      '</div>'+
-      '<div style="height:8px;border-radius:5px;background:rgba(255,255,255,.08);overflow:hidden;">'+
-        '<div id="sp-timerbar" style="height:100%;width:100%;background:linear-gradient(90deg,#4ade80,#C9991A);transition:width .25s linear;"></div></div>'+
-      '<div style="display:flex;align-items:center;justify-content:space-between;">'+
-        '<div style="font-size:11px;color:var(--sub);">⏱ <span id="sp-timernum">'+Math.round(SP.budgetMs/1000)+'</span> s</div>'+
-        '<button class="btn-out btn-sm" style="font-size:11px;padding:5px 10px;" onclick="sprintQuit()">Quitter</button>'+
-      '</div>'+
-      '<div class="card" style="padding:16px;">'+
-        '<div style="font-size:15px;color:white;font-weight:700;line-height:1.5;margin-bottom:14px;">'+spEsc(q.q)+'</div>'+
-        opts+
-        '<div id="sp-feedback" style="margin-top:6px;"></div>'+
-      '</div>'+
-    '</div>';
-  }
-
-  function spRenderResult(){
-    var r=SP.result||{}; var tot=r.total||SP.total||1;
-    var correct=r.correct_count!=null?r.correct_count:SP.correct;
-    var pct=Math.round(correct/tot*100);
-    var rating=spRating(pct);
-    var f=FMT[SP.format];
-    var canCert=(pct>=80);
-    var cert = canCert
-      ? '<button class="btn" style="width:100%;padding:13px;font-size:14px;margin-top:4px;" onclick="sprintCert()">🏆 Générer mon certificat</button>'
-      : '<div class="al al-warn" style="font-size:12px;">Atteignez 80% pour débloquer le certificat (vous êtes à '+pct+'%).</div>';
-    var best=SP.myBest;
-    var bestLine = best ? ('<div style="font-size:12px;color:var(--sub);margin-top:6px;">⭐ Votre record '+f.label+' : <strong style="color:var(--cyan);">'+best.score+' pts</strong> · '+spFmtTime(best.total_ms)+'</div>') : '';
-    return '<div style="display:flex;flex-direction:column;gap:14px;">'+
-      '<div class="card" style="text-align:center;padding:22px;background:linear-gradient(135deg,rgba(201,153,26,.14),rgba(201,153,26,.03));">'+
-        '<div style="font-size:34px;margin-bottom:4px;">'+f.ic+'</div>'+
-        '<div style="font-weight:800;color:white;font-size:17px;">Sprint '+f.label+' terminé !</div>'+
-        '<div style="color:'+rating.c+';font-weight:800;font-size:14px;margin:6px 0;">'+rating.t+'</div>'+
-        '<div style="font-size:40px;font-weight:900;color:#4ade80;line-height:1.1;">'+(r.my_score!=null?r.my_score:SP.score)+'<span style="font-size:15px;color:var(--sub);font-weight:700;"> pts vitesse</span></div>'+
-        '<div style="display:flex;justify-content:center;gap:18px;margin-top:12px;flex-wrap:wrap;">'+
-          '<div><div style="font-size:20px;font-weight:800;color:white;">'+correct+'/'+tot+'</div><div style="font-size:10px;color:var(--sub);">bonnes réponses</div></div>'+
-          '<div><div style="font-size:20px;font-weight:800;color:white;">'+pct+'%</div><div style="font-size:10px;color:var(--sub);">précision</div></div>'+
-          '<div><div style="font-size:20px;font-weight:800;color:white;">'+spFmtTime(r.total_ms!=null?r.total_ms:SP.totalMs)+'</div><div style="font-size:10px;color:var(--sub);">temps total</div></div>'+
-        '</div>'+ bestLine +
-      '</div>'+
-      cert+
-      '<div style="display:flex;gap:9px;">'+
-        '<button class="btn" style="flex:1;padding:12px;" onclick="sprintStart()">🔄 Rejouer</button>'+
-        '<button class="btn-out" style="flex:1;padding:12px;" onclick="sprintHome()">↩︎ Formats</button>'+
-      '</div>'+
-      '<button class="btn-out" style="width:100%;padding:11px;font-size:13px;" onclick="ST(\'leaderboard\')">📊 Voir le classement global</button>'+
-      '<div style="font-weight:800;color:white;font-size:14px;">🏅 Classement Sprint '+f.label+'</div>'+
-      '<div class="card" style="padding:14px;"><div id="sp-board"><div style="font-size:12px;color:var(--sub);text-align:center;padding:10px;">Chargement…</div></div></div>'+
-    '</div>';
-  }
-
-  /* ───────── APRÈS RENDU (timer + classement) ───────── */
-  window.sprintAfterRender=function(){
-    if(SP.view==='home'){ SP.boardFmt=SP.format; spLoadBoard(); }
-    else if(SP.view==='result'){ SP.boardFmt=SP.format; spLoadBoard(); }
-    else if(SP.view==='game' && SP.q && !SP.answered){ spStartTimer(); }
-  };
-
-  /* ───────── ACTIONS UI ───────── */
-  window.sprintSetFormat=function(k){ if(FMT[k]){ SP.format=k; render(); } };
-  window.sprintSetZone=function(z){ SP.zone=z; render(); };
-  window.sprintHome=function(){ spStopTimer(); SP.view='home'; SP.q=null; render(); };
-  window.sprintQuit=function(){ spStopTimer(); SP.view='home'; SP.q=null; SP.code=''; render(); };
-
-  window.sprintStart=function(){
-    if(SP.loading) return;
-    if(!spLogged()){ ST('settings'); return; }
-    var n=FMT[SP.format].n;
-    var pool=spPool(SP.zone);
-    if(pool.length<n){ alert('Pas assez de questions dans cette zone pour ce format ('+pool.length+'/'+n+'). Choisissez une autre zone ou un format plus court.'); return; }
-    var picked=pool.slice(0,n).map(function(q){ return { q:q.q, choices:q.choices, correct:q.answer, source:q.source||'' }; });
-    SP.loading=true; render();
-    fetch('/sprint/start',{method:'POST',headers:spHdr(),body:JSON.stringify({format:SP.format,zone:SP.zone,questions:picked})})
-      .then(function(r){return r.json();})
-      .then(function(d){
-        SP.loading=false;
-        if(!d || !d.code){ alert((d&&d.error)||'Démarrage impossible.'); render(); return; }
-        SP.code=d.code; SP.total=d.total; SP.budgetMs=d.budget_ms||20000;
-        SP.idx=0; SP.score=0; SP.correct=0; SP.totalMs=0; SP.q=null; SP.answered=false; SP.result=null;
-        SP.view='game';
-        spLoadQuestion(0);
-      })
-      .catch(function(){ SP.loading=false; alert('Erreur réseau au démarrage.'); render(); });
-  };
-
-  function spLoadQuestion(idx){
-    spStopTimer();
-    fetch('/sprint/'+SP.code+'/question/'+idx,{headers:spHdr()})
-      .then(function(r){return r.json();})
-      .then(function(d){
-        if(!d || !d.question){ alert((d&&d.error)||'Question indisponible.'); sprintQuit(); return; }
-        SP.idx=idx; SP.q=d.question; SP.total=d.total||SP.total; SP.budgetMs=d.budget_ms||SP.budgetMs;
-        SP.answered=false;
-        render(); // sprintAfterRender démarre le chrono
-      })
-      .catch(function(){ alert('Erreur réseau (question).'); sprintQuit(); });
-  }
-
-  window.sprintPick=function(i){
-    if(SP.answered) return;
-    SP.answered=true; spStopTimer();
-    var q=SP.q;
-    // désactive les boutons immédiatement
-    if(q){ for(var k=0;k<q.choices.length;k++){ var b=ge('sp-opt-'+k); if(b) b.disabled=true; } }
-    fetch('/sprint/'+SP.code+'/answer',{method:'POST',headers:spHdr(),body:JSON.stringify({q_index:SP.idx,choice_index:i})})
-      .then(function(r){return r.json();})
-      .then(function(d){
-        if(!d || d.error){ alert((d&&d.error)||'Réponse refusée.'); return; }
-        SP.score=d.my_score; SP.correct=d.correct_count; SP.totalMs=d.total_ms;
-        var ci=d.correct_index;
-        var chosen=ge('sp-opt-'+i), good=ge('sp-opt-'+ci);
-        if(good) good.classList.add('right');
-        if(!d.correct && chosen && i>=0) chosen.classList.add('wrong');
-        var sc=ge('sp-score'); if(sc) sc.textContent=SP.score+' pts';
-        var fb=ge('sp-feedback');
-        if(fb){
-          fb.innerHTML='<div class="al '+(d.correct?'al-ok':'al-err')+'" style="font-size:12.5px;margin-top:8px;">'+
-            (d.correct?('✅ Bonne réponse ! <strong>+'+d.points_earned+' pts</strong> ('+(Math.round((d.elapsed_ms||0)/100)/10)+'s)')
-                      : ('❌ '+(i<0?'Temps écoulé':'Mauvaise réponse')+' — bonne réponse : <strong>'+String.fromCharCode(65+ci)+'</strong>'))+
-            (SP.q&&SP.q.source?('<div style="font-size:10.5px;color:var(--sub);margin-top:5px;">📚 '+spEsc(SP.q.source)+'</div>'):'')+
-          '</div>';
-        }
-        setTimeout(function(){
-          if(d.finished){ spFinish(d); }
-          else { spLoadQuestion(SP.idx+1); }
-        }, 1250);
-      })
-      .catch(function(){ alert('Erreur réseau (réponse).'); });
-  };
-
-  function spFinish(d){
-    spStopTimer();
-    SP.result=d; SP.view='result';
-    render();
-  }
-
-  /* ───────── CHRONO LOCAL (cosmétique) ───────── */
-  function spStartTimer(){
-    spStopTimer();
-    SP.deadline=Date.now()+SP.budgetMs;
-    SP.timerId=setInterval(spTick,200);
-    spTick();
-  }
-  function spStopTimer(){ if(SP.timerId){ clearInterval(SP.timerId); SP.timerId=null; } }
-  function spTick(){
-    if(TAB!=='arena' || AR.tab!=='sprint' || SP.view!=='game'){ spStopTimer(); return; }
-    var left=Math.max(0, SP.deadline-Date.now());
-    var bar=ge('sp-timerbar'), num=ge('sp-timernum');
-    if(bar) bar.style.width=(left/SP.budgetMs*100)+'%';
-    if(num) num.textContent=Math.ceil(left/1000);
-    if(left<=0){ spStopTimer(); if(!SP.answered) sprintPick(-1); }
-  }
-
-  /* ───────── CERTIFICAT (réutilise arBuildCertPDF + /certificates) ───────── */
-  window.sprintCert=function(){
-    var r=SP.result||{}; var tot=r.total||SP.total||1; var correct=r.correct_count!=null?r.correct_count:SP.correct;
-    var pct=Math.round(correct/tot*100); if(pct<80) return;
-    var f=FMT[SP.format];
-    var zoneLbl=SP.zone==='uemoa'?'UEMOA':SP.zone==='cemac'?'CEMAC':'UEMOA & CEMAC';
-    var theme='Sprint '+f.label+' — Zone '+zoneLbl;
-    var name=(typeof U!=='undefined'&&U&&U.name)||'Apprenant';
-    var resultLine='Sprint '+f.label+' : '+correct+'/'+tot+' ('+pct+'%) · '+(r.my_score!=null?r.my_score:SP.score)+' pts vitesse · '+spFmtTime(r.total_ms!=null?r.total_ms:SP.totalMs);
-    fetch('/certificates',{method:'POST',headers:spHdr(),body:JSON.stringify({theme:theme,zone:(SP.zone==='cemac'?'CEMAC':'UEMOA'),score:correct,total:tot})})
-      .then(function(r2){return r2.json();}).catch(function(){return {};})
-      .then(function(c){
-        var cid=(c&&c.certificate_id)||('RA-'+Date.now().toString(36).toUpperCase());
-        var date=(c&&c.date)||new Date().toISOString();
-        if(typeof arBuildCertPDF==='function'){
-          arBuildCertPDF({certificate_id:cid,name:name,theme:theme,zone:(SP.zone==='cemac'?'CEMAC':'UEMOA'),resultLine:resultLine,score:correct,total:tot,date:date});
-        }
-      });
-  };
-
-  /* ───────── CLASSEMENT SPRINT ───────── */
-  function spLoadBoard(){
-    var box=ge('sp-board'); if(!box) return;
-    fetch('/sprint/leaderboard?format='+encodeURIComponent(SP.boardFmt||SP.format),{headers:spHdr()})
-      .then(function(r){return r.json();})
-      .then(function(d){
-        SP.myBest=(d&&d.my_best)||null;
-        var rows=(d&&d.leaderboard)||[];
-        var bx=ge('sp-board'); if(!bx) return;
-        if(!rows.length){ bx.innerHTML='<div style="font-size:12px;color:var(--sub);text-align:center;padding:8px;">Aucun sprint classé pour ce format. Soyez le premier ⚡</div>'; return; }
-        var med=['🥇','🥈','🥉'];
-        bx.innerHTML=rows.map(function(r,i){
-          var nm=spEsc(r.name||'Joueur');
-          var rank=i<3?med[i]:('#'+(i+1));
-          return '<div style="display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--border);">'+
-            '<span style="width:26px;text-align:center;font-weight:800;color:var(--cyan);font-size:13px;flex-shrink:0;">'+rank+'</span>'+
-            '<span style="flex:1;font-size:13px;color:white;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+nm+'</span>'+
-            '<span style="font-size:11px;color:var(--sub);flex-shrink:0;">'+r.correct_count+'/'+r.num_questions+'</span>'+
-            '<span style="font-size:13px;font-weight:800;color:#4ade80;flex-shrink:0;min-width:54px;text-align:right;">'+r.score+' pts</span>'+
-          '</div>';
-        }).join('');
-      })
-      .catch(function(){ var bx=ge('sp-board'); if(bx) bx.innerHTML='<div style="font-size:12px;color:var(--sub);text-align:center;padding:8px;">Classement indisponible.</div>'; });
-  }
-})();
-</script>
-<!-- ════════ REGUL ARENA · MODE ROI DE LA MANCHE (front) — MODIFIÉ ════════ -->
-<script id="ra-kotm-js">
-/* ════════════════════════════════════════════════════════════════
-   MODE ROI DE LA MANCHE — King of the Hill 1v1 (AJOUT 100% additif // MODIFIÉ)
-   Backend déjà livré/en prod (index.js, routes /kotm/*). Contrat figé :
-     POST /kotm {pack_id,num_questions,timer_sec,target_user_id}
-     GET  /kotm/lobby
-     GET  /kotm/:code · POST /kotm/:code/join · POST /kotm/:code/start
-     GET  /kotm/:code/question/:index
-     POST /kotm/:code/answer {q_index,choice_index}
-       -> {correct,stole,defended,points_earned,speed_bonus,defend_bonus,
-           king_id,king_streak,cur_index,finished,game}
-     GET  /kotm/:code/state (poll ~1s) -> {game,status,cur_index,king_id,
-           king_streak,q_remaining_ms,i_answered_current}
-   Règle : 1v1, premier à répondre juste rafle/garde le trône ; tenir = bonus
-   de défense croissant ; vainqueur = meilleur score après N questions.
-   Réutilise : polling + timer ancré Date.now() du Duel, UI/charte du Sprint,
-   sons/fx (snd_/fx_), helpers (arPackQ/arPoolSize/arPackLabel/arChatEsc/arAvatar).
-   NB : les bonnes réponses sont validées CÔTÉ SERVEUR (choice_index) ; le chrono
-   affiché est resynchronisé sur q_remaining_ms à chaque poll (sync équitable).
-================================================================ */
-(function(){
-  var K = window.KOTM = {
-    view:'home',          // 'home' | 'wait' | 'game' | 'result'
-    code:'', pack:'rfe-uemoa', nq:10, timer:20,
-    isCreator:false, loading:false,
-    game:null, status:'', curIdx:-1, qIndex:-1, total:10,
-    kingId:null, kingStreak:0,
-    q:null, answered:false, loadingQ:false,
-    myId:'', _picked:null, _startSent:false, _waitSig:'', _finPlayed:false,
-    pollId:null, timerId:null, deadline:0, budgetMs:20000, lastFb:null
-  };
-
-  var PACKS = [
-    { id:'rfe-uemoa', label:'🏛️ RFE UEMOA' },
-    { id:'bale-umoa', label:'⚖️ Bâle II/III' },
-    { id:'cemac',     label:'🌍 CEMAC' },
-    { id:'qn',        label:'📚 Thématiques' },
-    { id:'inter',     label:'🔀 Mix (tous packs)' }
-  ];
-
-  function kLogged(){ return (typeof U!=='undefined' && U && U.token); }
-  function kHdr(){ return {'Content-Type':'application/json','Authorization':'Bearer '+((typeof U!=='undefined'&&U&&U.token)||'')}; }
-  function kEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-  function kPackLabel(p){ try{ if(typeof arPackLabel==='function') return arPackLabel(p); }catch(e){} for(var i=0;i<PACKS.length;i++){ if(PACKS[i].id===p) return PACKS[i].label; } return p||'Général'; }
-  function kPoolSize(p){ try{ return (typeof arPoolSize==='function')?arPoolSize(p):10; }catch(e){ return 10; } }
-
-  // Questions tirées localement (déterministe via arPackQ) et envoyées au serveur
-  // qui les fige (pickQuestions). Si le backend a sa propre source, ces champs
-  // sont simplement ignorés — aucun effet de bord (Express ignore les clés inconnues).
-  function kPick(pack, n, seed){
-    var qs=[]; try{ qs = (typeof arPackQ==='function')?arPackQ(pack, n, seed):[]; }catch(e){ qs=[]; }
-    return qs.map(function(q){ return { q:q.q, choices:q.choices, answer:q.answer, correct:q.answer, source:q.source||q.reference||'' }; });
-  }
-
-  /* ── lecture défensive de la structure du jeu (scores/joueurs/créateur-joiner) ── */
-  function kPlayers(g){
-    if(!g) return [];
-    var arr = (Array.isArray(g.scores)&&g.scores.length)?g.scores : (Array.isArray(g.players)&&g.players.length)?g.players : null;
-    if(arr){ return arr.map(function(s){ return { id:String(s.user_id!=null?s.user_id:(s.id!=null?s.id:'')), name:s.name||s.username||'Joueur', score:Number(s.score!=null?s.score:(s.points!=null?s.points:0))||0 }; }); }
-    var out=[];
-    if(g.creator_id!=null) out.push({ id:String(g.creator_id), name:(g.creator&&g.creator.name)||g.creator_name||'Créateur', score:Number(g.creator_score||0)||0 });
-    if(g.joiner_id!=null)  out.push({ id:String(g.joiner_id),  name:(g.joiner&&g.joiner.name)||g.joiner_name||'Adversaire', score:Number(g.joiner_score||0)||0 });
-    return out;
-  }
-  function kMyId(g){
-    if(K.myId) return K.myId;
-    if(g){
-      if(K.isCreator && g.creator_id!=null){ K.myId=String(g.creator_id); }
-      else if(!K.isCreator && g.joiner_id!=null){ K.myId=String(g.joiner_id); }
-    }
-    return K.myId||'';
-  }
-  function kSides(){
-    var ps=kPlayers(K.game), mid=kMyId(K.game), me=null, opp=null;
-    if(mid){ ps.forEach(function(p){ if(p.id===mid) me=p; else if(!opp) opp=p; }); }
-    if(!me)  me  = ps[0] || { id:'', name:((typeof U!=='undefined'&&U&&U.name)||'Vous'), score:0 };
-    if(!opp) opp = (ps[0]&&ps[0]!==me?ps[0]:ps[1]) || { id:'', name:'Adversaire', score:0 };
-    return { me:me, opp:opp };
-  }
-  function kKingName(){
-    if(K.kingId==null) return null;
-    var ps=kPlayers(K.game); for(var i=0;i<ps.length;i++){ if(ps[i].id===String(K.kingId)) return ps[i].name; }
-    return null;
-  }
-
-  /* ───────── RENDU ───────── */
-  window.rKotmRoot=function(){
-    if(K.view==='wait')   return kRenderWait();
-    if(K.view==='game')   return kRenderGame();
-    if(K.view==='result') return kRenderResult();
-    return kRenderHome();
-  };
-
-  function kRenderHome(){
-    if(!kLogged()){
-      return '<div class="card" style="text-align:center;padding:26px;">'+
-        '<div style="font-size:34px;margin-bottom:8px;">👑</div>'+
-        '<div style="font-weight:800;color:white;font-size:16px;margin-bottom:6px;">Roi de la Manche</div>'+
-        '<div style="font-size:13px;color:var(--sub);margin-bottom:14px;line-height:1.6;">Connectez-vous pour affronter un adversaire en 1v1 et conquérir le trône.</div>'+
-        '<button class="btn" onclick="ST(\'settings\')">Se connecter</button></div>';
-    }
-    var packOpts = PACKS.map(function(p){ var n=kPoolSize(p.id); return '<option value="'+p.id+'"'+(K.pack===p.id?' selected':'')+'>'+p.label+' ('+n+'Q)</option>'; }).join('');
-    return '<div style="display:flex;flex-direction:column;gap:14px;">'+
-      '<div class="al al-info" style="font-size:12.5px;line-height:1.6;">'+
-        '👑 <strong>Roi de la Manche (1v1).</strong> Le <strong>premier à répondre juste</strong> rafle la question et s\'assoit sur le trône. '+
-        'Le tenir rapporte un <strong>bonus de défense croissant</strong> (effet boule de neige). Voler le trône remet à zéro la série adverse. '+
-        'Après '+K.nq+' questions, le meilleur score est sacré. Vitesse mesurée côté serveur (équitable).</div>'+
-      '<div class="card" style="padding:16px;display:flex;flex-direction:column;gap:12px;">'+
-        '<div style="font-weight:800;color:white;font-size:14px;">⚙️ Réglages du trône</div>'+
-        '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Pack de questions</label>'+
-          '<select id="k-pack" class="inp" onchange="kotmSetPack(this.value)">'+packOpts+'</select></div>'+
-        '<div style="display:flex;gap:8px;">'+
-          '<div style="flex:1;"><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Questions</label>'+
-            '<select id="k-nq" class="inp" onchange="kotmSetNq(this.value)">'+
-              [5,10,15,20].map(function(v){return '<option value="'+v+'"'+(K.nq===v?' selected':'')+'>'+v+'Q</option>';}).join('')+'</select></div>'+
-          '<div style="flex:1;"><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Temps / question</label>'+
-            '<select id="k-ts" class="inp" onchange="kotmSetTimer(this.value)">'+
-              [15,20,30,45].map(function(v){return '<option value="'+v+'"'+(K.timer===v?' selected':'')+'>'+v+'s</option>';}).join('')+'</select></div>'+
-        '</div>'+
-        '<button class="btn" style="width:100%;padding:14px;font-size:15px;" '+(K.loading?'disabled':'')+' onclick="kotmCreate()">'+(K.loading?'⏳ Création…':'👑 Créer le trône & inviter')+'</button>'+
-      '</div>'+
-      '<div class="card" style="padding:16px;display:flex;flex-direction:column;gap:10px;">'+
-        '<div style="font-weight:800;color:white;font-size:14px;">🔑 Rejoindre par code</div>'+
-        '<div style="display:flex;gap:8px;">'+
-          '<input id="k-join-code" type="text" maxlength="8" placeholder="CODE" class="inp" style="flex:1;text-transform:uppercase;letter-spacing:2px;font-weight:800;" onkeydown="if(event.key===\'Enter\'){kotmJoinCode();}">'+
-          '<button class="btn btn-sm" style="flex-shrink:0;padding:0 16px;" onclick="kotmJoinCode()">Rejoindre</button>'+
-        '</div>'+
-      '</div>'+
-      '<div style="font-weight:800;color:white;font-size:14px;">🔥 Trônes ouverts</div>'+
-      '<div class="card" style="padding:14px;"><div id="k-lobby">'+
-        '<div style="font-size:12px;color:var(--sub);text-align:center;padding:10px;">Chargement…</div></div></div>'+
-    '</div>';
-  }
-
-  function kRenderWait(){
-    var sides=kSides();
-    var oppKnown = !!(kPlayers(K.game).length>=2 || (K.game&&K.game.joiner_id!=null));
-    var sub = K.isCreator
-      ? (oppKnown ? '⚔️ Adversaire trouvé — lancement du trône…' : 'En attente d\'un adversaire…')
-      : (K.status==='active' ? 'Lancement…' : 'En attente du lancement par l\'hôte…');
-    return '<div style="max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:14px;">'+
-      '<div class="card" style="text-align:center;padding:26px;background:linear-gradient(135deg,rgba(245,196,83,.12),rgba(201,153,26,.02));">'+
-        '<div class="pls" style="font-size:42px;margin-bottom:8px;">👑</div>'+
-        '<h3 style="color:white;font-size:18px;margin-bottom:4px;">Trône prêt</h3>'+
-        '<div style="font-size:12px;color:var(--sub);margin-bottom:12px;">'+kPackLabel(K.pack)+' · '+K.total+'Q · ⏱ '+K.timer+'s</div>'+
-        '<div style="display:inline-block;background:rgba(0,0,0,.25);border:1px dashed rgba(245,196,83,.5);border-radius:12px;padding:10px 22px;margin-bottom:12px;">'+
-          '<div style="font-size:10px;color:var(--sub);letter-spacing:1px;">CODE DU TRÔNE</div>'+
-          '<div style="font-size:26px;font-weight:900;color:#F5C453;letter-spacing:4px;">'+kEsc(K.code)+'</div>'+
-        '</div>'+
-        '<div id="k-wait-sub" style="font-size:13px;color:#aac4e8;margin-bottom:14px;">'+sub+'</div>'+
-        (K.isCreator ? '<button class="btn btn-sm" onclick="arShareWA(\''+K.code+'\',\'duel\')">📱 Inviter via WhatsApp</button>' : '')+
-      '</div>'+
-      '<button class="btn-out btn-sm" style="width:100%;" onclick="kotmQuit()">← Quitter</button>'+
-    '</div>';
-  }
-
-  function kThroneHeader(){
-    var sides=kSides(), mid=kMyId(K.game);
-    var kingName=kKingName();
-    var meKing  = (K.kingId!=null && sides.me.id && String(K.kingId)===sides.me.id);
-    var oppKing = (K.kingId!=null && sides.opp.id && String(K.kingId)===sides.opp.id);
-    var throne = (kingName!=null)
-      ? '<span style="color:#F5C453;">👑 '+kEsc(kingName)+'</span>'+(K.kingStreak>0?' <span style="font-size:11px;color:#fbbf24;">🛡️ défense ×'+K.kingStreak+'</span>':'')
-      : '<span style="color:var(--sub);">Trône vacant — à conquérir !</span>';
-    return '<div style="position:sticky;top:0;z-index:5;background:rgba(8,22,18,.97);backdrop-filter:blur(4px);padding:8px 0;display:flex;flex-direction:column;gap:9px;">'+
-      '<div id="k-throne" style="text-align:center;font-size:13.5px;font-weight:800;padding:6px 8px;border-radius:10px;background:rgba(245,196,83,.07);border:1px solid rgba(245,196,83,.3);">'+throne+'</div>'+
-      '<div class="vs-wrap">'+
-        '<div class="vs-panel" style="border-color:rgba(201,153,26,.3);">'+
-          '<div class="vs-score" id="k-sc-me" style="color:#4ade80;">'+sides.me.score+'</div>'+
-          '<div class="vs-name"><span id="k-crown-me">'+(meKing?'👑 ':'')+'</span>Vous</div>'+
-        '</div>'+
-        '<div class="vs-sep">VS</div>'+
-        '<div class="vs-panel" style="border-color:rgba(239,68,68,.3);">'+
-          '<div class="vs-score" id="k-sc-opp" style="color:#f87171;">'+sides.opp.score+'</div>'+
-          '<div class="vs-name"><span id="k-crown-opp">'+(oppKing?'👑 ':'')+'</span><span id="k-name-opp">'+kEsc(sides.opp.name||'Adversaire')+'</span></div>'+
-        '</div>'+
-      '</div>'+
-      '<div class="tmr-bar"><div class="tmr-fill" id="k-timerbar" style="width:100%;"></div></div>'+
-      '<div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--sub);">'+
-        '<span>Q '+(K.qIndex+1)+' / '+K.total+'</span>'+
-        '<span id="k-timernum" style="color:var(--cyan);">⏱ '+Math.ceil(K.budgetMs/1000)+'s</span>'+
-      '</div>'+
-    '</div>';
-  }
-
-  function kRenderGame(){
-    var q=K.q;
-    if(!q){
-      return '<div style="display:flex;flex-direction:column;gap:12px;">'+kThroneHeader()+
-        '<div class="card" style="text-align:center;padding:24px;color:var(--sub);">'+
-          '<span class="spin">⏳</span> Chargement de la manche…'+
-        '</div>'+
-        '<button class="btn-out btn-sm" style="align-self:flex-start;" onclick="kotmQuit()">← Abandonner</button></div>';
-    }
-    var opts=(q.choices||[]).map(function(c,i){
-      return '<button class="opt" id="k-opt-'+i+'" onclick="kotmPick('+i+')">'+
-        '<span style="font-weight:700;color:var(--sub);margin-right:8px;">'+String.fromCharCode(65+i)+'.</span>'+kEsc(c)+'</button>';
-    }).join('');
-    return '<div class="ar-game" style="max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:11px;">'+
-      kThroneHeader()+
-      (q.cat?'<span class="badge" style="align-self:flex-start;">'+kEsc(q.cat)+'</span>':'')+
-      '<div class="card" style="padding:18px;"><p style="font-size:15px;font-weight:600;color:white;line-height:1.6;">'+kEsc(q.q)+'</p></div>'+
-      '<div id="k-choices">'+opts+'</div>'+
-      '<div id="k-foot"></div>'+
-      '<button class="btn-out btn-sm" style="align-self:flex-start;" onclick="kotmQuit()">← Abandonner</button>'+
-    '</div>';
-  }
-
-  function kRenderResult(){
-    var sides=kSides();
-    var mine=sides.me.score, opp=sides.opp.score;
-    var win = mine>opp, tie = mine===opp;
-    if(!K._finPlayed){ K._finPlayed=true; setTimeout(function(){ try{ if(win){ if(typeof sndWin==='function')sndWin(); if(typeof fxFireworks==='function')fxFireworks(); if(typeof fxFlash==='function')fxFlash('👑 TRÔNE CONQUIS !','#F5C453'); } else if(tie){ if(typeof fxFlash==='function')fxFlash('Égalité ⚔️','#C9991A'); } else { if(typeof sndLose==='function')sndLose(); if(typeof fxFlash==='function')fxFlash('Bien battu 💪','#C9991A'); } }catch(e){} }, 200); }
-    var icon = win?'👑':tie?'🤝':'💪';
-    var title= win?'Vous êtes le Roi de la Manche !':tie?'Égalité parfaite !':'Belle bataille !';
-    return '<div style="max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:14px;">'+
-      '<div class="card" style="text-align:center;padding:28px;background:linear-gradient(135deg,rgba(245,196,83,.14),rgba(201,153,26,.03));">'+
-        '<div style="font-size:48px;margin-bottom:8px;">'+icon+'</div>'+
-        '<h3 style="color:white;font-size:19px;margin-bottom:4px;">'+title+'</h3>'+
-        '<p style="color:var(--sub);font-size:12px;margin-bottom:16px;">Roi de la Manche · '+kEsc(K.code)+'</p>'+
-        '<div class="vs-wrap" style="margin-bottom:0;">'+
-          '<div class="vs-panel" style="border-color:rgba(201,153,26,.4);"><div class="vs-score" style="color:#4ade80;">'+mine+'</div><div class="vs-name">Vous</div></div>'+
-          '<div class="vs-sep">VS</div>'+
-          '<div class="vs-panel" style="border-color:rgba(239,68,68,.4);"><div class="vs-score" style="color:#f87171;">'+opp+'</div><div class="vs-name">'+kEsc(sides.opp.name||'Adversaire')+'</div></div>'+
-        '</div>'+
-      '</div>'+
-      '<div style="display:flex;gap:9px;">'+
-        '<button class="btn" style="flex:1;padding:13px;" onclick="kotmHome()">👑 Nouveau trône</button>'+
-        '<button class="btn-out" style="flex:1;padding:13px;" onclick="ST(\'leaderboard\')">📊 Classement</button>'+
-      '</div>'+
-      '<button class="btn-out btn-sm" style="width:100%;" onclick="kotmQuit()">← Retour à l\'Arène</button>'+
-    '</div>';
-  }
-
-  /* ───────── APRÈS RENDU ───────── */
-  window.kotmAfterRender=function(){
-    if(K.view==='home'){ kStopPoll(); kStopTimer(); kLoadLobby(); }
-    else if(K.view==='wait'){ kStartPoll(); }
-    else if(K.view==='game'){ kStartPoll(); if(K.q && !K.answered) kStartTimer(); }
-    else { kStopPoll(); kStopTimer(); }
-  };
-
-  /* ───────── RÉGLAGES ───────── */
-  window.kotmSetPack =function(v){ K.pack=v; };
-  window.kotmSetNq   =function(v){ K.nq=parseInt(v,10)||10; };
-  window.kotmSetTimer=function(v){ K.timer=parseInt(v,10)||20; };
-
-  /* ───────── LOBBY ───────── */
-  function kLoadLobby(){
-    var box=ge('k-lobby'); if(!box) return;
-    fetch('/kotm/lobby',{headers:kHdr()})
-      .then(function(r){return r.json();})
-      .then(function(d){
-        var bx=ge('k-lobby'); if(!bx) return;
-        var rows = (d&&(d.open||d.games||d.lobby||d.rooms)) || (Array.isArray(d)?d:[]);
-        rows = (rows||[]).filter(function(x){ return x && x.code && (x.status===undefined||x.status==='waiting'||x.status==='lobby'||x.status==='open'); });
-        if(!rows.length){ bx.innerHTML='<div style="font-size:12px;color:var(--sub);text-align:center;padding:8px;">Aucun trône ouvert. Créez le vôtre 👑</div>'; return; }
-        bx.innerHTML=rows.map(function(x){
-          var nm=x.creator_name||(x.creator&&x.creator.name)||'Joueur';
-          var av=(typeof arAvatar==='function')?arAvatar(nm):'';
-          return '<div class="card" style="display:flex;align-items:center;gap:10px;padding:12px;margin-bottom:8px;border:1px solid rgba(245,196,83,.25);background:rgba(245,196,83,.04);">'+
-            av+
-            '<div style="min-width:0;flex:1;">'+
-              '<div style="font-weight:700;color:white;font-size:13px;">'+kEsc(nm)+(x.country?' <span style="font-size:10px;color:var(--sub);">('+kEsc(x.country)+')</span>':'')+'</div>'+
-              '<div style="font-size:11px;margin-top:3px;display:flex;gap:5px;flex-wrap:wrap;align-items:center;">'+
-                '<span style="background:rgba(245,196,83,.18);color:#F5C453;padding:1px 7px;border-radius:4px;font-weight:600;">'+kEsc(kPackLabel(x.pack_id))+'</span>'+
-                '<span style="color:var(--sub);">'+((x.num_questions||10))+'Q</span>'+
-                '<span style="color:var(--sub);">⏱ '+((x.timer_sec||20))+'s</span>'+
-              '</div>'+
-            '</div>'+
-            '<button class="btn btn-sm" style="flex-shrink:0;" onclick="kotmJoinLobby(\''+kEsc(x.code)+'\')">👑 Affronter</button>'+
-          '</div>';
-        }).join('')+
-        '<button class="btn-out btn-sm" style="width:100%;margin-top:4px;font-size:11px;" onclick="kotmRefreshLobby()">🔄 Actualiser</button>';
-      })
-      .catch(function(){ var bx=ge('k-lobby'); if(bx) bx.innerHTML='<div style="font-size:12px;color:var(--sub);text-align:center;padding:8px;">Trônes ouverts indisponibles.</div>'; });
-  }
-  window.kotmRefreshLobby=function(){ kLoadLobby(); };
-
-  /* ───────── CRÉATION / ENTRÉE ───────── */
-  function kResetMatch(){
-    K.game=null; K.status=''; K.curIdx=-1; K.qIndex=-1; K.kingId=null; K.kingStreak=0;
-    K.q=null; K.answered=false; K.loadingQ=false; K.myId=''; K._startSent=false;
-    K._waitSig=''; K._finPlayed=false; K.lastFb=null;
-    kStopTimer();
-  }
-
-  window.kotmCreate=function(){
-    if(K.loading) return;
-    if(!kLogged()){ ST('settings'); return; }
-    var pool=kPoolSize(K.pack);
-    var nq=Math.max(1, Math.min(K.nq, pool));
-    if(pool<1){ alert('Pas de questions disponibles pour ce pack.'); return; }
-    K.loading=true; render();
-    var picked=kPick(K.pack, nq, 'K'+Date.now()+Math.random());
-    K._picked=picked;
-    fetch('/kotm',{method:'POST',headers:kHdr(),body:JSON.stringify({pack_id:K.pack,num_questions:nq,timer_sec:K.timer,questions:picked})})
-      .then(function(r){return r.json();})
-      .then(function(d){
-        K.loading=false;
-        var code=d&&(d.code||(d.game&&d.game.code));
-        if(!code){ alert((d&&d.error)||'Création impossible.'); render(); return; }
-        kResetMatch();
-        K.code=code; K.isCreator=true; K.total=nq; K.game=d.game||null; K.status=(d.game&&d.game.status)||'waiting';
-        K.view='wait'; render();
-      })
-      .catch(function(){ K.loading=false; alert('Erreur réseau (création).'); render(); });
-  };
-
-  window.kotmJoinCode=function(){
-    var el=ge('k-join-code'); var code=(el&&el.value||'').trim().toUpperCase();
-    if(!code){ if(el) el.focus(); return; }
-    kDoJoin(code);
-  };
-  window.kotmJoinLobby=function(code){ kDoJoin((code||'').trim().toUpperCase()); };
-
-  function kDoJoin(code){
-    if(!code) return;
-    if(!kLogged()){ ST('settings'); return; }
-    fetch('/kotm/'+code+'/join',{method:'POST',headers:kHdr(),body:JSON.stringify({})})
-      .then(function(r){return r.json();})
-      .then(function(d){
-        if(d && d.error && !d.game && d.success===false){ throw new Error(d.error); }
-        kResetMatch();
-        K.code=code; K.isCreator=false;
-        K.game=d.game||null; K.status=(d.game&&d.game.status)||'waiting';
-        K.pack=(d.game&&d.game.pack_id)||K.pack;
-        K.total=(d.game&&d.game.num_questions)||K.nq;
-        K.timer=(d.game&&d.game.timer_sec)||K.timer;
-        K.view='wait'; render();
-      })
-      .catch(function(e){ showModal('Oups','<div class="al al-err" style="font-size:13px;">'+kEsc(e.message||'Impossible de rejoindre ce trône.')+'</div><button class="btn btn-sm" onclick="closeModal()" style="margin-top:10px;">OK</button>'); });
-  }
-
-  // Lancement par l'hôte une fois l'adversaire présent (pickQuestions fige les Q serveur)
-  function kHostStart(){
-    fetch('/kotm/'+K.code+'/start',{method:'POST',headers:kHdr(),body:JSON.stringify({questions:K._picked||undefined})})
-      .then(function(r){return r.json();})
-      .then(function(d){ if(d&&d.game) K.game=d.game; if(d&&d.status) K.status=d.status; })
-      .catch(function(){ K._startSent=false; }); // ré-essai au prochain poll si échec
-  }
-
-  /* ───────── POLLING (heartbeat /state) ───────── */
-  function kStartPoll(){ if(K.pollId) return; K.pollId=setInterval(kPollTick, 1100); kPollTick(); }
-  function kStopPoll(){ if(K.pollId){ clearInterval(K.pollId); K.pollId=null; } }
-
-  function kPollTick(){
-    if(typeof TAB!=='undefined' && (TAB!=='arena' || AR.tab!=='kotm') ){ kStopPoll(); return; }
-    if(!K.code || (K.view!=='wait' && K.view!=='game')){ kStopPoll(); return; }
-    fetch('/kotm/'+K.code+'/state',{headers:kHdr()})
-      .then(function(r){return r.json();})
-      .then(function(d){
-        if(!d) return;
-        if(d.game) K.game=d.game;
-        if(d.status) K.status=d.status; else if(K.game&&K.game.status) K.status=K.game.status;
-        if(d.king_id!=null) K.kingId=String(d.king_id); else if(K.game&&K.game.king_id!=null) K.kingId=String(K.game.king_id);
-        if(typeof d.king_streak==='number') K.kingStreak=d.king_streak; else if(K.game&&typeof K.game.king_streak==='number') K.kingStreak=K.game.king_streak;
-        var srvCur = (typeof d.cur_index==='number')?d.cur_index : (K.game&&typeof K.game.cur_index==='number'?K.game.cur_index:K.curIdx);
-        K.curIdx = srvCur;
-        if(K.game&&K.game.num_questions) K.total=K.game.num_questions;
-        kMyId(K.game);
-
-        if(K.status==='finished'){ kFinish(); return; }
-
-        // Hôte : lance dès qu'un adversaire a rejoint
-        if(K.isCreator && !K._startSent && K.status!=='active'){
-          var hasOpp = (K.game&&K.game.joiner_id!=null) || kPlayers(K.game).length>=2;
-          if(hasOpp){ K._startSent=true; kHostStart(); }
-        }
-
-        if(K.status==='active'){
-          if(K.view==='wait'){ K.view='game'; render(); } // afterRender (re)lance poll/timer ; question chargée ci-dessous
-          // chargement / avancée de manche pilotée par cur_index serveur
-          if(typeof srvCur==='number' && srvCur>=0 && srvCur!==K.qIndex && !K.loadingQ){
-            kLoadQuestion(srvCur);
-          } else {
-            kSyncThrone(d);
-            // resync chrono sur l'horloge serveur (équitable, anti-dérive) tant que je n'ai pas répondu
-            if(!K.answered && typeof d.q_remaining_ms==='number' && d.q_remaining_ms>=0 && srvCur===K.qIndex){
-              K.deadline = Date.now() + d.q_remaining_ms;
-            }
-          }
-        } else {
-          // En salle d'attente : re-render si l'état a changé (présence adversaire, etc.)
-          var sig = K.status+'|'+kPlayers(K.game).length+'|'+((K.game&&K.game.joiner_id)||'');
-          if(sig!==K._waitSig){ K._waitSig=sig; if(K.view==='wait') render(); }
-        }
-      })
-      .catch(function(){});
-  }
-
-  // Maj DOM du bandeau trône + scores SANS re-render (préserve l'état des boutons en cours de manche)
-  function kSyncThrone(d){
-    var sides=kSides();
-    var me=ge('k-sc-me'), op=ge('k-sc-opp'); if(me) me.textContent=sides.me.score; if(op) op.textContent=sides.opp.score;
-    var nm=ge('k-name-opp'); if(nm && sides.opp.name) nm.textContent=sides.opp.name;
-    var kn=kKingName();
-    var th=ge('k-throne');
-    if(th){
-      th.innerHTML = (kn!=null)
-        ? ('<span style="color:#F5C453;">👑 '+kEsc(kn)+'</span>'+(K.kingStreak>0?' <span style="font-size:11px;color:#fbbf24;">🛡️ défense ×'+K.kingStreak+'</span>':''))
-        : '<span style="color:var(--sub);">Trône vacant — à conquérir !</span>';
-    }
-    var cMe=ge('k-crown-me'), cOp=ge('k-crown-opp');
-    if(cMe) cMe.textContent=(K.kingId!=null && sides.me.id && String(K.kingId)===sides.me.id)?'👑 ':'';
-    if(cOp) cOp.textContent=(K.kingId!=null && sides.opp.id && String(K.kingId)===sides.opp.id)?'👑 ':'';
-  }
-
-  /* ───────── CHARGEMENT D'UNE MANCHE ───────── */
-  function kLoadQuestion(idx){
-    K.loadingQ=true; kStopTimer();
-    fetch('/kotm/'+K.code+'/question/'+idx,{headers:kHdr()})
-      .then(function(r){return r.json();})
-      .then(function(d){
-        K.loadingQ=false;
-        var q=d&&(d.question||d.q||(d.choices?d:null));
-        if(!q || !q.choices){ // question indisponible : on retentera au prochain poll
-          K.q=null; render(); return;
-        }
-        K.qIndex=idx; K.q=q; K.answered=false; K.lastFb=null;
-        if(d.total) K.total=d.total; if(K.game&&K.game.num_questions) K.total=K.game.num_questions;
-        var budget = (typeof d.budget_ms==='number'?d.budget_ms : (typeof d.timer_sec==='number'?d.timer_sec*1000 : (typeof q.timer_sec==='number'?q.timer_sec*1000 : K.timer*1000)));
-        K.budgetMs = budget||K.timer*1000;
-        render(); // kotmAfterRender démarre le chrono
-      })
-      .catch(function(){ K.loadingQ=false; K.q=null; render(); });
-  }
-
-  /* ───────── RÉPONSE ───────── */
-  window.kotmPick=function(i){
-    if(K.answered || !K.q) return;
-    K.answered=true; kStopTimer();
-    var q=K.q;
-    for(var k2=0;k2<(q.choices||[]).length;k2++){ var b=ge('k-opt-'+k2); if(b) b.disabled=true; }
-    var foot=ge('k-foot'); if(foot) foot.innerHTML='<div class="al al-info" style="font-size:12px;"><span class="spin">⏳</span> Validation…</div>';
-    fetch('/kotm/'+K.code+'/answer',{method:'POST',headers:kHdr(),body:JSON.stringify({q_index:K.qIndex,choice_index:i})})
-      .then(function(r){return r.json();})
-      .then(function(d){
-        if(!d || d.error){ if(foot) foot.innerHTML='<div class="al al-err" style="font-size:12px;">'+kEsc((d&&d.error)||'Réponse refusée.')+'</div>'; return; }
-        if(d.game) K.game=d.game;
-        if(d.king_id!=null) K.kingId=String(d.king_id);
-        if(typeof d.king_streak==='number') K.kingStreak=d.king_streak;
-        // surlignage : index correct si fourni, sinon depuis la question locale
-        var ci = (typeof d.correct_index==='number')?d.correct_index : (typeof q.answer==='number'?q.answer : (typeof q.correct==='number'?q.correct:null));
-        var chosen=ge('k-opt-'+i); if(ci!=null){ var good=ge('k-opt-'+ci); if(good) good.classList.add('right'); }
-        if(!d.correct && chosen && i>=0) chosen.classList.add('wrong');
-        kSyncThrone({});
-        // sons / fx
-        try{
-          if(d.correct){ if(d.stole){ if(typeof sndWin==='function')sndWin(); if(typeof fxFlash==='function')fxFlash('👑 Trône volé !','#F5C453'); } else { if(typeof sndCorrect==='function')sndCorrect(); if(typeof fxBravo==='function')fxBravo(); } }
-          else { if(typeof sndWrong==='function')sndWrong(); }
-        }catch(e){}
-        var pts = (d.points_earned!=null?d.points_earned:0);
-        var bonusBits=[]; if(d.speed_bonus) bonusBits.push('vitesse +'+d.speed_bonus); if(d.defend_bonus) bonusBits.push('défense +'+d.defend_bonus);
-        var bonusTxt = bonusBits.length?(' <span style="font-size:11px;color:var(--sub);">('+bonusBits.join(' · ')+')</span>'):'';
-        var head;
-        if(d.correct && d.stole)      head='👑 <strong>Vous RAFLEZ le trône !</strong> +'+pts;
-        else if(d.correct && d.defended) head='🛡️ <strong>Trône défendu !</strong> +'+pts+' <span style="font-size:11px;color:#fbbf24;">(série ×'+(K.kingStreak||1)+')</span>';
-        else if(d.correct)            head='✅ <strong>Bonne réponse !</strong> +'+pts;
-        else                          head='❌ '+(i<0?'Temps écoulé':'Raté')+' — '+(d.finished?'manche terminée':'en attente de l\'adversaire…');
-        var cls=d.correct?'al-ok':'al-err';
-        if(foot){
-          foot.innerHTML='<div class="al '+cls+'" style="font-size:12.5px;">'+head+bonusTxt+'</div>'+
-            (q.source?('<div style="font-size:11px;color:#aac4e8;background:rgba(201,153,26,.07);border:1px solid rgba(201,153,26,.4);border-radius:9px;padding:8px 10px;margin-top:8px;">📚 '+kEsc(q.source)+'</div>'):'')+
-            (!d.finished && (typeof d.cur_index!=='number' || d.cur_index===K.qIndex)?'<div style="font-size:11px;color:var(--sub);margin-top:8px;text-align:center;">⏳ Manche en cours… le premier juste l\'emporte.</div>':'');
-        }
-        // avancée : si le serveur a fait progresser cur_index, charger la manche suivante
-        if(d.finished){ setTimeout(kFinish, 1100); return; }
-        if(typeof d.cur_index==='number' && d.cur_index>K.qIndex){
-          setTimeout(function(){ if(K.status!=='finished') kLoadQuestion(d.cur_index); }, 1150);
-        }
-        // sinon : j'attends que l'adversaire réponde → le poll détectera l'avancée de cur_index
-      })
-      .catch(function(){ if(foot) foot.innerHTML='<div class="al al-err" style="font-size:12px;">Erreur réseau (réponse).</div>'; });
-  };
-
-  /* ───────── CHRONO LOCAL (resynchronisé sur le serveur) ───────── */
-  function kStartTimer(){
-    kStopTimer();
-    K.deadline = Date.now() + (K.budgetMs||K.timer*1000);
-    K.timerId = setInterval(kTimerTick, 250);
-    kTimerTick();
-  }
-  function kStopTimer(){ if(K.timerId){ clearInterval(K.timerId); K.timerId=null; } }
-  function kTimerTick(){
-    if(typeof TAB!=='undefined' && (TAB!=='arena' || AR.tab!=='kotm' || K.view!=='game')){ kStopTimer(); return; }
-    var budget=K.budgetMs||K.timer*1000;
-    var left=Math.max(0, K.deadline-Date.now());
-    var bar=ge('k-timerbar'), num=ge('k-timernum');
-    if(bar){ bar.style.width=(left/budget*100)+'%'; bar.style.background = left<=5000?'#ef4444' : left<=10000?'#fbbf24' : ''; }
-    if(num){ var s=Math.ceil(left/1000); num.textContent='⏱ '+s+'s'; num.style.color = left<=5000?'#f87171' : left<=10000?'#fbbf24' : 'var(--cyan)'; }
-    if(left<=0){
-      kStopTimer();
-      if(!K.answered){
-        // temps écoulé : verrouillage local. Le serveur résout la manche en lazy
-        // (manche neutre si double-échec/timeout) ; le poll /state chargera la suite.
-        K.answered=true;
-        var q=K.q; if(q){ for(var j=0;j<(q.choices||[]).length;j++){ var b=ge('k-opt-'+j); if(b) b.disabled=true; } }
-        var foot=ge('k-foot'); if(foot) foot.innerHTML='<div class="al al-warn" style="font-size:12px;">⏱ Temps écoulé — résolution de la manche…</div>';
-        try{ if(typeof sndWrong==='function') sndWrong(); }catch(e){}
-      }
-    }
-  }
-
-  /* ───────── FIN ───────── */
-  function kFinish(){
-    kStopPoll(); kStopTimer();
-    if(K.view!=='result'){ K.view='result'; render(); }
-  }
-
-  /* ───────── NAVIGATION ───────── */
-  window.kotmHome=function(){ kStopPoll(); kStopTimer(); kResetMatch(); K.code=''; K.view='home'; render(); };
-  window.kotmQuit=function(){ kStopPoll(); kStopTimer(); kResetMatch(); K.code=''; K.view='home'; render(); };
-})();
-</script>
-<!-- MODIFIÉ : bloc SEO crawlable, REPLIÉ pour un visuel épuré (contenu lu par Google même fermé) -->
-<details id="ra-seo-features" style="max-width:860px;margin:24px auto 40px;padding:0 16px;font-family:'Space Grotesk',sans-serif">
-  <summary style="cursor:pointer;list-style:none;padding:14px 18px;background:#112240;border:1px solid rgba(245,196,83,0.35);border-radius:12px;color:#F5C453;font-weight:600;font-size:15px">ℹ️ À propos de REGUL ARENA — modes de jeu &amp; contenus</summary>
-  <div style="background:#0d1b33;border:1px solid rgba(35,53,84,0.6);border-top:none;border-radius:0 0 12px 12px;padding:18px;color:#8892B0;line-height:1.65;font-size:14px">
-    <h2 style="color:#F8F9FA;font-size:18px;margin-bottom:8px">REGUL ARENA — La plateforme de gamification réglementaire UEMOA &amp; CEMAC</h2>
-    <p>REGUL ARENA forme les professionnels de la banque et de la finance aux réglementations UEMOA et CEMAC à travers le jeu : plus de 670 questions issues de textes officiels (BCEAO, COBAC, Bâle III, RFE, LBC/FT, Finance islamique), réparties en 44 thèmes.</p>
-    <h3 style="color:#F8F9FA;font-size:15px;margin:14px 0 6px">Modes de jeu</h3>
-    <ul style="padding-left:18px">
-      <li><strong>Quiz Solo</strong> — entraînement libre par thème et par métier.</li>
-      <li><strong>Duels 1v1</strong> — affrontements en temps réel avec anti-triche.</li>
-      <li><strong>Tournois</strong> — brackets à élimination.</li>
-      <li><strong>Sprint / Blitz</strong> — défis chronométrés (formats éclair, pro, marathon).</li>
-      <li><strong>Roi de la Manche</strong> — duel King of the Hill, le gagnant garde sa place.</li>
-    </ul>
-    <h3 style="color:#F8F9FA;font-size:15px;margin:14px 0 6px">Apprendre &amp; réviser</h3>
-    <ul style="padding-left:18px">
-      <li><strong>Bibliothèque réglementaire</strong> — pyramide des textes UEMOA et CEMAC.</li>
-      <li><strong>Fiches de révision</strong> par thème réglementaire.</li>
-      <li><strong>7 métiers bancaires</strong> — quiz « Réglementation sourcée » adapté à chaque métier.</li>
-      <li><strong>Auto-évaluation UEMOA &amp; CEMAC</strong> — cas pratiques, calculs prudentiels, audits, examens blancs.</li>
-      <li><strong>Certificats</strong> et <strong>classement</strong> communautaire.</li>
-    </ul>
-  </div>
-</details>
-<!-- MODIFIÉ : données structurées schema.org -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  "name": "REGUL ARENA",
-  "url": "https://www.regularena.com",
-  "applicationCategory": "EducationalApplication",
-  "operatingSystem": "Web",
-  "description": "Plateforme de gamification de la réglementation bancaire pour les professionnels de la finance en zones UEMOA (BCEAO) et CEMAC (BEAC/COBAC). 673 questions réparties sur 44 thèmes. Quiz, duels temps réel, tournois, sprint, mode Roi de la Manche, bibliothèque réglementaire, fiches de révision et parcours par métier.",
-  "inLanguage": "fr",
-  "featureList": [
-    "673 questions réglementaires",
-    "44 thèmes",
-    "Zones UEMOA (BCEAO) et CEMAC (BEAC/COBAC)",
-    "Quiz solo par thème et par métier",
-    "Duels 1v1 en temps réel",
-    "Tournois à élimination",
-    "Sprint / Blitz chronométré",
-    "Roi de la Manche (King of the Hill)",
-    "Bibliothèque réglementaire UEMOA et CEMAC",
-    "Fiches de révision",
-    "Quiz par métier bancaire",
-    "Auto-évaluation et examens blancs",
-    "Certificats et classement"
-  ],
-  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "XOF" },
-  "publisher": {
-    "@type": "Organization",
-    "name": "REGUL ARENA",
-    "url": "https://www.regularena.com",
-    "email": "contact@regularena.com",
-    "areaServed": ["UEMOA", "CEMAC"],
-    "founder": { "@type": "Person", "name": "Abdou NDAO" }
-  }
-}
-</script>
 </body>
 </html>
