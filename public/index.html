@@ -209,8 +209,8 @@ h2,h3{animation:raReveal .45s ease both;}
 .metiers-hero-sub{font-size:14px;color:rgba(255,255,255,.65);max-width:480px;margin:0 auto;line-height:1.6;}
 .metiers-grid-section{padding:36px 16px;max-width:900px;margin:0 auto;}
 .metiers-section-label{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:#002B5C;font-weight:700;margin-bottom:20px;padding-bottom:8px;border-bottom:2px solid #C9991A;display:inline-block;}
-.metiers-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:32px;}
-.metier-card{background:#fff;border-radius:12px;padding:20px 14px;text-align:center;cursor:pointer;transition:all .2s ease;border:2px solid transparent;box-shadow:0 2px 8px rgba(0,43,92,.07);position:relative;}
+.metiers-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:32px;grid-auto-rows:1fr;/* MODIFIÉ C4 : hauteur de rangée uniforme */}
+.metier-card{background:#fff;border-radius:12px;padding:20px 14px;text-align:center;cursor:pointer;transition:all .2s ease;border:2px solid transparent;box-shadow:0 2px 8px rgba(0,43,92,.07);position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;/* MODIFIÉ C4 : centrage vertical pour cartes à hauteur égale */}
 .metier-card:hover{border-color:#C9991A;transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,43,92,.13);}
 .metier-card.active-metier{border-color:#002B5C;background:#002B5C;}
 .metier-card.active-metier .metier-card-title,.metier-card.active-metier .metier-card-sub{color:#fff;}
@@ -7016,6 +7016,12 @@ window.addEventListener('load', function(){
 .ra-deb-q:hover{box-shadow:0 4px 14px rgba(0,0,0,.35);transform:translateY(-1px);border-left-color:var(--green)}
 .ra-deb-q-title{font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--text);margin:0 0 6px}
 .ra-deb-meta{font-size:.85rem;color:var(--sub)}
+/* MODIFIÉ C4 : puces de statut colorées pour les débats (palette stricte : --green #00B4D8, --cyan/doré #F5C453, --sub #8892B0) */
+.ra-deb-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.ra-deb-chip{display:inline-flex;align-items:center;gap:4px;font-size:.78rem;font-weight:600;line-height:1;padding:5px 10px;border-radius:20px;background:rgba(136,146,176,.14);color:var(--sub);border:1px solid transparent}
+.ra-deb-chip-contrib{background:rgba(0,180,216,.15);color:var(--green);border-color:rgba(0,180,216,.35)}
+.ra-deb-chip-pts{background:rgba(245,196,83,.15);color:var(--cyan);border-color:rgba(245,196,83,.38)}
+.ra-deb-chip-date{background:rgba(136,146,176,.13);color:var(--sub);border-color:rgba(136,146,176,.28)}
 .ra-deb-badge{display:inline-block;background:var(--cyan);color:#0A192F;font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:20px;margin-left:6px}
 .ra-deb-badge-status{background:var(--green);color:#0A192F}
 .ra-deb-answer{background:rgba(10,25,47,.55);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px}
@@ -7062,9 +7068,11 @@ var RA_DEBATS = (function () {
       box.innerHTML=rows.map(function(q){
         return '<div class="ra-deb-q" onclick="RA_DEBATS.open('+q.id+')">'+
           '<div class="ra-deb-q-title">'+esc(q.title)+'</div>'+
-          '<div class="ra-deb-meta">'+q.answer_count+' contribution(s)'+
-          (q.points_reward?' · jusqu\'à '+q.points_reward+' pts':'')+
-          (q.end_date?' · clôture '+fmt(q.end_date):'')+'</div></div>';
+          '<div class="ra-deb-chips">'+
+            '<span class="ra-deb-chip ra-deb-chip-contrib">💬 '+q.answer_count+' contribution'+(q.answer_count>1?'s':'')+'</span>'+
+            (q.points_reward?'<span class="ra-deb-chip ra-deb-chip-pts">🏅 jusqu\'à '+q.points_reward+' pts</span>':'')+
+            (q.end_date?'<span class="ra-deb-chip ra-deb-chip-date">⏳ clôture '+fmt(q.end_date)+'</span>':'')+
+          '</div></div>';
       }).join('');
     }).catch(function(e){ box.innerHTML='<div class="ra-deb-empty">'+esc(e.message)+'</div>'; });
   }
