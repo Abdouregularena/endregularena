@@ -1397,6 +1397,11 @@ app.post('/tournament/create', requireAuth, (req, res) => { // TOURNOI AJOUT
   if (!['uemoa','cemac','inter','country'].includes(zone)) return err(res, 400, 'Zone invalide'); // TOURNOI AJOUT
   const mp = Number(max_players); // TOURNOI AJOUT
   if (![4,8,16,32].includes(mp)) return err(res, 400, 'max_players doit être 4, 8, 16 ou 32'); // MODIFIÉ
+  // PERMISSION (REGUL ARENA) : jusqu'à 4 joueurs = ouvert à tous ; au-delà = réservé aux organisateurs (admin ou jury). // GATING-CAPACITE
+  const _creatorRole = (req.user && req.user.role) || 'user'; // GATING-CAPACITE
+  if (mp > 4 && _creatorRole !== 'admin' && _creatorRole !== 'jury') { // GATING-CAPACITE
+    return err(res, 403, 'Les tournois de plus de 4 joueurs sont réservés aux organisateurs. Vous pouvez créer un tournoi de 4 joueurs.'); // GATING-CAPACITE
+  } // GATING-CAPACITE
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id); // TOURNOI AJOUT
   if (!user) return err(res, 401, 'Session expirée, reconnecte-toi'); // MODIFIÉ — anti-crash user undefined
   if (!_peutRejoindre(user.country, user.country, zone)) { // TOURNOI AJOUT
