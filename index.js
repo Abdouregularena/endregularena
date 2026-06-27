@@ -2360,17 +2360,54 @@ app.get('/org/dashboard', requireAuth, (req, res) => {
     'WHERE om.org_id = ? GROUP BY u.id ORDER BY games DESC, score_sum DESC'
   ).all(orgId);
 
+  // certificats par membre (table certificates)
+  const certRows = db.prepare(
+    'SELECT c.user_id AS uid, COUNT(*) AS n FROM certificates c ' +
+    'JOIN org_members om ON om.user_id = c.user_id ' +
+    'WHERE om.org_id = ? GROUP BY c.user_id'
+  ).all(orgId);
+  const certBy = {}; certRows.forEach(function(r){ certBy[r.uid] = r.n; });
+
+  function palier(pts){ return pts>=600?'Maître':pts>=250?'Expert':pts>=100?'Confirmé':'Initié'; }
+  const NOW = Date.now();
+  function dormant(last){ if(!last) return true; var t=Date.parse(String(last).replace(' ','T')); return isNaN(t)?false:(NOW-t)>21*864e5; }
+
   const members = rows.map(function(m){
     const acc = m.total_sum > 0 ? Math.round((m.score_sum / m.total_sum) * 100) : 0;
     return { id:m.id, name:m.name, email:m.email, country:m.country, role:m.role,
-             joined_at:m.joined_at, games:m.games, accuracy:acc, last_played:m.last_played };
+             joined_at:m.joined_at, games:m.games, accuracy:acc, score_sum:m.score_sum,
+             palier: palier(m.score_sum), certs: certBy[m.id] || 0,
+             dormant: m.games>0 ? dormant(m.last_played) : false, last_played:m.last_played };
   });
+
+  const active = members.filter(function(m){ return m.games > 0; });
+  const paliers = { 'Initié':0, 'Confirmé':0, 'Expert':0, 'Maître':0 };
+  active.forEach(function(m){ paliers[m.palier]++; });
+  const accSum = active.reduce(function(a,m){ return a + m.accuracy; }, 0);
   const totals = {
     members: members.length,
-    active:  members.filter(function(m){ return m.games > 0; }).length,
+    active:  active.length,
     games:   members.reduce(function(a,m){ return a + m.games; }, 0),
+    certified: members.filter(function(m){ return m.certs > 0; }).length,
+    certificates: members.reduce(function(a,m){ return a + m.certs; }, 0),
+    activation_rate: members.length ? Math.round(active.length / members.length * 100) : 0,
+    certification_rate: members.length ? Math.round(members.filter(function(m){return m.certs>0;}).length / members.length * 100) : 0,
+    avg_accuracy: active.length ? Math.round(accSum / active.length) : 0,
+    paliers: paliers,
   };
-  return ok(res, { org: { id: org.id, name: org.name, created_at: org.created_at, join_code: org.join_code || null }, totals, members });
+
+  // Matrice de compétence par domaine (pack_id) sur les membres de l'org
+  const domains = db.prepare(
+    'SELECT s.pack_id AS pack, COUNT(*) AS attempts, ' +
+    'COALESCE(SUM(s.score),0) AS sc, COALESCE(SUM(s.total),0) AS tt ' +
+    'FROM user_scores s JOIN org_members om ON om.user_id = s.user_id ' +
+    "WHERE om.org_id = ? AND s.pack_id IS NOT NULL AND s.pack_id <> 'coumba' " +
+    'GROUP BY s.pack_id ORDER BY attempts DESC'
+  ).all(orgId).map(function(d){
+    return { pack: d.pack, attempts: d.attempts, accuracy: d.tt>0 ? Math.round(d.sc/d.tt*100) : 0 };
+  });
+
+  return ok(res, { org: { id: org.id, name: org.name, created_at: org.created_at, join_code: org.join_code || null }, totals, members, domains });
 });
 
 /* Helper — génère un code collectif lisible unique : SLUG + 4 hex (ex. UCAO-7F3A) */
