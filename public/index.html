@@ -697,7 +697,7 @@ h2,h3{animation:raReveal .45s ease both;}
       <div class="card"><div style="font-size:28px;margin-bottom:10px;">📚</div><div style="font-weight:700;color:white;margin-bottom:4px;font-size:14px;">Quiz &amp; Examens</div><div id="h-qc" style="font-size:12px;color:var(--sub);margin-bottom:8px;"></div><span class="badge" id="h-badge-u">UEMOA disponible</span> <span class="badge" id="h-badge-c">CEMAC disponible</span></div>
       <div class="card"><div style="font-size:28px;margin-bottom:10px;">⚔️</div><div style="font-weight:700;color:white;margin-bottom:4px;font-size:14px;">Duels &amp; Tournois en direct</div><div style="font-size:12px;color:var(--sub);margin-bottom:8px;">Affrontez d'autres pros en temps réel, avec chat entre joueurs</div><span class="badge">En ligne</span></div>
       <div class="card"><div style="font-size:28px;margin-bottom:10px;">💬</div><div style="font-weight:700;color:white;margin-bottom:4px;font-size:14px;">Communauté</div><div style="font-size:12px;color:var(--sub);margin-bottom:8px;">Salons de discussion par zone : UEMOA, CEMAC, général</div><span class="badge">En ligne</span></div>
-      <div class="card"><div style="font-size:28px;margin-bottom:10px;">📡</div><div style="font-weight:700;color:white;margin-bottom:4px;font-size:14px;">Spectateur &amp; Live</div><div style="font-size:12px;color:var(--sub);margin-bottom:8px;">Suivez les duels et tournois en direct, sur la plateforme</div><span style="display:inline-block;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:700;background:rgba(251,191,36,.14);color:#fbbf24;border:1px solid rgba(251,191,36,.4);">En bêta</span></div>
+      <div class="card"><div style="font-size:28px;margin-bottom:10px;">📡</div><div style="font-weight:700;color:white;margin-bottom:4px;font-size:14px;">Spectateur &amp; Live</div><div style="font-size:12px;color:var(--sub);margin-bottom:8px;">Suivez les duels et tournois en direct, sur la plateforme</div><span style="display:inline-block;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:700;background:rgba(74,222,128,.14);color:#4ade80;border:1px solid rgba(74,222,128,.4);">● Disponible</span></div>
     </div>
   </div>
   <!-- MODIFIÉ : ancienne bande h-stats déplacée sous le hero -->
@@ -6285,15 +6285,26 @@ function rKotmWatch(){
 function arWatchBackLabel(){ return (AR.kWatch && AR.kWatch.hub) ? '← Retour aux directs' : '← Retour au bracket'; }
 function arOpenLive(){ AR.tab='direct'; AR.liveList=null; render(); arLiveFetch(); }
 function arLiveFetch(){
-  fetch('/live/now',{headers:arAuthHdr()}).then(function(r){return r.json();}).then(function(d){
-    AR.liveList = (d&&d.success) ? {duels:d.duels||[],kotm:d.kotm||[]} : {duels:[],kotm:[]};
+  var H={headers:arAuthHdr()};
+  Promise.all([
+    fetch('/live/now',H).then(function(r){return r.json();}).catch(function(){return{};}),
+    fetch('/lobby/duels',H).then(function(r){return r.json();}).catch(function(){return{};}),
+    fetch('/kotm/lobby',H).then(function(r){return r.json();}).catch(function(){return{};})
+  ]).then(function(res){
+    var live=res[0]||{}, ld=res[1]||{}, lk=res[2]||{};
+    AR.liveList={
+      duels: (live.success?live.duels:[])||[],
+      kotm: (live.success?live.kotm:[])||[],
+      waitingDuels: (ld.success?ld.open:[])||[],
+      waitingKotm: (lk.success?lk.games:[])||[]
+    };
     if(AR.tab==='direct' && !AR.dWatch && !AR.kWatch) render();
-  }).catch(function(){ AR.liveList={duels:[],kotm:[]}; if(AR.tab==='direct') render(); });
+  });
 }
 function rLiveHub(){
   var L=AR.liveList;
   var head='<div style="display:flex;justify-content:space-between;align-items:center;">'+
-    '<div style="font-size:12px;color:var(--sub);">🔴 Matchs en cours — suivez vos pairs en spectateur</div>'+
+    '<div style="font-size:12px;color:var(--sub);">🔴 Rejoignez une partie ou suivez vos pairs en direct</div>'+
     '<button class="btn-out btn-sm" onclick="arLiveFetch()">↻ Actualiser</button></div>';
   if(!L){ return '<div style="display:flex;flex-direction:column;gap:12px;">'+head+'<div class="card" style="text-align:center;padding:24px;"><div class="spin" style="font-size:28px;">⏳</div><div style="font-size:13px;color:var(--sub);margin-top:8px;">Chargement des directs…</div></div></div>'; }
   var duels=L.duels||[], kotm=L.kotm||[];
@@ -6308,7 +6319,26 @@ function rLiveHub(){
       '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;"><div style="font-size:13px;font-weight:700;color:#fff;">👑 '+pN(it.creator_name)+' <span style="color:var(--sub);font-weight:400;">vs</span> '+pN(it.joiner_name)+'</div><span style="font-size:10px;font-weight:800;color:#f87171;">● LIVE</span></div>'+
       '<div style="font-size:11px;color:var(--sub);margin-top:3px;">Question '+((it.cur_index||0)+1)+' / '+(it.num_questions||'?')+((it.king_streak||0)>1?' · 🔥 série '+it.king_streak:'')+' · 👁️ Regarder</div></button>';
   }).join('') : '<div class="card" style="text-align:center;padding:16px;font-size:12px;color:var(--sub);">Aucune manche en cours pour l\'instant.</div>';
+  // ── À REJOINDRE : parties en attente d'adversaire ──
+  var wDuels=L.waitingDuels||[], wKotm=L.waitingKotm||[];
+  var wHtml='';
+  if(wDuels.length || wKotm.length){
+    var wd = wDuels.map(function(it){
+      return '<div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px;border:1px solid rgba(74,222,128,.22);background:rgba(74,222,128,.04);">'+
+        '<div style="min-width:0;flex:1;"><div style="font-size:13px;font-weight:700;color:#fff;">⚔️ '+pN(it.creator_name)+(it.country?' <span style="font-size:10px;color:var(--sub);font-weight:400;">('+arChatEsc(it.country)+')</span>':'')+'</div>'+
+        '<div style="font-size:11px;color:var(--sub);margin-top:2px;">'+arChatEsc(arPackLabel(it.pack_id))+' · '+(it.num_questions||10)+'Q · ⏱ '+(it.timer_sec||30)+'s</div></div>'+
+        '<button class="btn btn-sm" style="flex-shrink:0;" onclick="arQuickJoin(\'duel\',\''+it.code+'\')">Rejoindre</button></div>';
+    }).join('');
+    var wk = wKotm.map(function(it){
+      return '<div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px;border:1px solid rgba(201,153,26,.28);background:rgba(201,153,26,.04);">'+
+        '<div style="min-width:0;flex:1;"><div style="font-size:13px;font-weight:700;color:#fff;">👑 '+pN(it.creator_name)+(it.country?' <span style="font-size:10px;color:var(--sub);font-weight:400;">('+arChatEsc(it.country)+')</span>':'')+'</div>'+
+        '<div style="font-size:11px;color:var(--sub);margin-top:2px;">Roi de la Manche · '+(it.num_questions||12)+'Q · ⏱ '+(it.timer_sec||20)+'s</div></div>'+
+        '<button class="btn btn-sm" style="flex-shrink:0;" onclick="arQuickJoinKotm(\''+it.code+'\')">Rejoindre</button></div>';
+    }).join('');
+    wHtml = '<div><div style="font-size:12px;font-weight:800;color:#4ade80;margin-bottom:8px;">🟢 À rejoindre — en attente d\'adversaire</div><div style="display:flex;flex-direction:column;gap:8px;">'+wd+wk+'</div></div>';
+  }
   return '<div style="display:flex;flex-direction:column;gap:14px;">'+head+
+    wHtml +
     '<div><div style="font-size:12px;font-weight:800;color:#60a5fa;margin-bottom:8px;">⚔️ Duels 1v1 en direct</div><div style="display:flex;flex-direction:column;gap:8px;">'+dHtml+'</div></div>'+
     '<div><div style="font-size:12px;font-weight:800;color:#E8B520;margin-bottom:8px;">👑 Roi de la Manche en direct</div><div style="display:flex;flex-direction:column;gap:8px;">'+kHtml+'</div></div>'+
   '</div>';
