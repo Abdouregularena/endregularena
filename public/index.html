@@ -3477,8 +3477,15 @@ function arWaitOpponent(){
       '</div>'+
     '</div>'+
     arMatchSheet()+ // MODIFIÉ : feuille de match visible dès la fin de VOS questions (sans attendre l'adversaire)
+    '<button class="btn" style="width:100%;padding:13px;" onclick="arForceResult()">✅ Voir le résultat maintenant</button>'+ // MODIFIÉ : sortie de secours si l'adversaire a fini mais l'état reste bloqué
     '<button class="btn-out btn-sm" style="width:100%;" onclick="arQuit()">← Quitter</button>'+
   '</div>';
+}
+function arForceResult(){ // MODIFIÉ — force l'affichage du résultat si l'état reste bloqué en "attente"
+  if(AR.duelObj) AR.duelObj.status='finished';
+  if(AR.timerId){ clearInterval(AR.timerId); AR.timerId=null; }
+  if(AR.pollId){ clearInterval(AR.pollId); AR.pollId=null; }
+  render();
 }
 
 function rARDuelResult(){
@@ -3546,7 +3553,7 @@ function arDoRematch(pack,nq,ts){ // MODIFIE : relance le MEME duel (code inchan
     AR.packId  = pack;
     AR.timerMax= (d.duel&&d.duel.timer_sec)||ts; AR.timerVal=AR.timerMax;
     AR.q       = arPackQ(pack, nq, arQSeed());
-    AR.sc=0; AR.oppSc=0; AR.idx=0; AR.ans=false; AR.resultPlayed=false;
+    AR.sc=0; AR.oppSc=0; AR.idx=0; AR.ans=false; AR.resultPlayed=false; AR.iFinished=false; // MODIFIÉ : reset iFinished
     AR.duelObj = d.duel||AR.duelObj;
     closeModal();
     if(!AR.pollId) arStartPollDuel();
@@ -5646,7 +5653,7 @@ function arStartPollDuel(){
         AR.round=d.duel.round; AR.packId=d.duel.pack_id||AR.packId;
         AR.timerMax=d.duel.timer_sec||AR.timerMax; AR.timerVal=AR.timerMax;
         AR.q=arPackQ(AR.packId,(d.duel.num_questions)||AR.q.length||10,arQSeed());
-        AR.sc=0; AR.oppSc=0; AR.idx=0; AR.ans=false; AR.resultPlayed=false; AR._autoStarted=false; // MODIFIÉ : ré-arme l'auto-start pour la revanche
+        AR.sc=0; AR.oppSc=0; AR.idx=0; AR.ans=false; AR.resultPlayed=false; AR.iFinished=false; AR._autoStarted=false; // MODIFIÉ : ré-arme l'auto-start + reset iFinished pour la revanche
         if(AR.timerId){clearInterval(AR.timerId);AR.timerId=null;}
         if(d.duel.status==='active'){ sndStart(); arStartTimer(); }
         render();
@@ -5675,6 +5682,21 @@ function arStartPollDuel(){
       // MODIFIÉ — lancement AUTO par le créateur dès qu'un adversaire rejoint (corrige : bouton invisible / rôle perdu)
       if(d.duel.status==='joined' && AR.isCreator && !AR._autoStarted){ AR._autoStarted=true; arStartDuel(); }
       if(prev==='joined'  && d.duel.status==='active')  { AR.idx=0; AR.ans=false; sndStart(); arStartTimer(); render(); } // duel lancé
+      // MODIFIÉ — filet de sécurité : si le serveur ne bascule pas en 'finished'
+      // alors que les 2 joueurs ont terminé, on le déduit côté client (sinon "En attente" permanent).
+      if(d.duel.status!=='finished' && AR.iFinished){
+        var _nq = d.duel.num_questions || (AR.q&&AR.q.length) || 0;
+        var _oppDone = false;
+        if(d.duel.both_finished || d.duel.finished_count>=2) _oppDone = true;
+        if(Array.isArray(d.duel.scores) && _nq){
+          var _opp = d.duel.scores.filter(function(s){ return String(s.user_id)!==String(AR.myUserId); })[0];
+          if(_opp){
+            var _ac = (_opp.answered!=null?_opp.answered:(_opp.answers_count!=null?_opp.answers_count:(_opp.a_count!=null?_opp.a_count:(_opp.cur_index!=null?_opp.cur_index:(_opp.count!=null?_opp.count:null)))));
+            if(_ac!=null && _ac>=_nq) _oppDone = true;
+          }
+        }
+        if(_oppDone){ d.duel.status='finished'; if(AR.duelObj) AR.duelObj.status='finished'; }
+      }
       // MODIFIÉ — stoppe poll APRÈS render (avant = poll mort => En attente permanent si adversaire finit après moi)
       if(d.duel.status==='finished'){
         if(AR.timerId){clearInterval(AR.timerId);AR.timerId=null;}
@@ -5806,6 +5828,7 @@ function arChoose(i){
 function arNext(){
   AR.idx++; AR.ans=false;
   if(AR.idx>=AR.q.length){
+    AR.iFinished=true; // MODIFIÉ — j'ai répondu à toutes mes questions
     // MODIFIÉ — j'ai fini : render écran attente + s'assurer que le poll tourne encore
     render(); // → arWaitOpponent
     if(!AR.pollId) arStartPollDuel(); // MODIFIÉ — relance le poll s'il s'était arrêté
