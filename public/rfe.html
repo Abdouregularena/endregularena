@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Regul Arena — Réforme RFE BCEAO · Démo</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#002B5C;--gold:#C9991A;--cream:#F5F3EE;--ink:#1c2330;--ok:#1f8a4c;--ko:#c0392b;--line:#e3ddd0}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--cream);color:var(--ink);line-height:1.5}
+.wrap{max-width:780px;margin:0 auto;padding:0 16px 96px}
+h1,h2,h3,.serif{font-family:'Playfair Display',serif}
+header{background:var(--navy);color:#fff;padding:18px 16px;position:sticky;top:0;z-index:50;box-shadow:0 2px 14px rgba(0,0,0,.18)}
+.hd{max-width:780px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.logo{width:42px;height:42px;border-radius:10px;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:800;font-size:20px;flex-shrink:0}
+.hd h1{font-size:18px;line-height:1.15}
+.hd small{display:block;color:#bcd0e8;font-weight:500;font-size:11px;letter-spacing:.4px;text-transform:uppercase}
+.demo-flag{background:var(--gold);color:var(--navy);font-size:12px;font-weight:700;text-align:center;padding:7px 12px}
+.valid-note{background:#fff;border:1px dashed var(--gold);border-radius:10px;padding:10px 14px;margin:16px 0;font-size:12.5px;color:#6b5e3f}
+.valid-note b{color:var(--navy)}
+nav.tabs{display:flex;gap:6px;overflow-x:auto;padding:14px 0 4px;position:sticky;top:78px;background:var(--cream);z-index:40}
+nav.tabs button{flex:0 0 auto;border:1px solid var(--line);background:#fff;color:var(--navy);font-weight:600;font-size:13px;padding:9px 14px;border-radius:999px;cursor:pointer;transition:.15s;white-space:nowrap}
+nav.tabs button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.intro{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-top:6px}
+.intro h2{color:var(--navy);font-size:21px;margin-bottom:8px}
+.intro p{font-size:14.5px;color:#445;margin-bottom:10px}
+.pill-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.pill{background:var(--cream);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:12px;font-weight:600;color:var(--navy)}
+.txtsrc{font-size:11.5px;color:#8a8475;margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
+.panel{display:none}.panel.on{display:block;animation:fade .25s}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* FLASH */
+.fc-stage{perspective:1400px;margin:16px 0}
+.card{position:relative;width:100%;min-height:230px;cursor:pointer;transform-style:preserve-3d;transition:transform .55s}
+.card.flip{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;border-radius:16px;padding:26px 22px;display:flex;flex-direction:column;justify-content:center;box-shadow:0 8px 24px rgba(0,43,92,.12)}
+.front{background:#fff;border:1px solid var(--line)}
+.back{background:var(--navy);color:#fff;transform:rotateY(180deg)}
+.face .tag{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;margin-bottom:12px;color:var(--gold)}
+.face .q{font-family:'Playfair Display',serif;font-size:20px;line-height:1.3}
+.back .a{font-size:15px;line-height:1.55}
+.flip-hint{text-align:center;font-size:11.5px;color:#999;margin-top:10px}
+.fc-nav{display:flex;align-items:center;justify-content:space-between;margin-top:14px}
+.fc-nav button{background:var(--navy);color:#fff;border:none;border-radius:10px;padding:11px 18px;font-weight:600;font-size:14px;cursor:pointer}
+.fc-nav button:disabled{opacity:.35}
+.fc-count{font-weight:700;color:var(--navy);font-size:14px}
+/* FICHE */
+.fiche{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;margin-top:16px}
+.fiche h3{color:var(--navy);font-size:19px;margin:18px 0 10px}.fiche h3:first-child{margin-top:0}
+.keynum{display:flex;gap:12px;align-items:flex-start;background:var(--cream);border-radius:12px;padding:14px;margin-bottom:10px;border-left:4px solid var(--gold)}
+.keynum .n{font-family:'Playfair Display',serif;font-weight:800;color:var(--navy);font-size:26px;line-height:1;min-width:82px}
+.keynum .d{font-size:13.5px;color:#445}.keynum .d b{color:var(--navy)}
+.mnemo{background:var(--navy);color:#fff;border-radius:12px;padding:18px;margin:14px 0;text-align:center}
+.mnemo .big{font-family:'Playfair Display',serif;font-size:30px;letter-spacing:4px;color:var(--gold);font-weight:800}
+.mnemo .leg{font-size:13px;margin-top:8px;color:#d6e2f0}
+.steps{counter-reset:s;margin-top:6px}
+.steps li{list-style:none;position:relative;padding:8px 0 8px 38px;font-size:13.5px;border-bottom:1px solid var(--line)}
+.steps li:before{counter-increment:s;content:counter(s);position:absolute;left:0;top:6px;width:26px;height:26px;background:var(--gold);color:var(--navy);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+/* QUIZ */
+.quiz-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:16px;flex-wrap:wrap}
+.shuffle-btn{background:var(--gold);color:var(--navy);border:none;border-radius:10px;padding:10px 14px;font-weight:700;font-size:13px;cursor:pointer}
+.shuffle-note{font-size:12px;color:#6b5e3f;background:#fff;border:1px dashed var(--gold);border-radius:8px;padding:7px 11px;margin:10px 0;flex:1;min-width:240px}
+.qcard{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:14px}
+.qtype{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--gold);background:var(--navy);padding:4px 10px;border-radius:999px;margin-bottom:12px}
+.qtext{font-family:'Playfair Display',serif;font-size:17px;color:var(--navy);margin-bottom:14px;line-height:1.35}
+.opt{display:block;width:100%;text-align:left;background:var(--cream);border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:8px;font-size:14px;font-family:'IBM Plex Sans';cursor:pointer;transition:.12s;color:var(--ink)}
+.opt:hover{border-color:var(--navy)}
+.opt.good{background:#e7f5ec;border-color:var(--ok);color:#10532e;font-weight:600}
+.opt.bad{background:#fbeae8;border-color:var(--ko);color:#8a241a}
+.opt:disabled{cursor:default}
+.gap-in{border:none;border-bottom:2px solid var(--gold);background:transparent;font-size:15px;font-weight:600;color:var(--navy);width:130px;text-align:center;padding:2px}
+.gap-in:focus{outline:none}
+.btn{background:var(--navy);color:#fff;border:none;border-radius:10px;padding:11px 18px;font-weight:600;font-size:14px;cursor:pointer;margin-top:6px}
+.explain{margin-top:12px;font-size:13px;padding:11px 13px;border-radius:10px;display:none}
+.explain.show{display:block}
+.explain.r{background:#e7f5ec;color:#10532e;border-left:3px solid var(--ok)}
+.explain.w{background:#fbeae8;color:#8a241a;border-left:3px solid var(--ko)}
+.case .scenario{font-size:14px;color:#445;background:var(--cream);border-radius:10px;padding:13px;margin-bottom:12px}
+.reveal{display:none;margin-top:10px;font-size:13.5px;background:#fff;border:1px solid var(--ok);border-radius:10px;padding:14px;line-height:1.55}
+.reveal.show{display:block}.reveal b{color:var(--navy)}
+/* DUEL */
+.concept{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-top:16px}
+.concept h3{color:var(--navy);font-size:19px;margin-bottom:8px}
+.concept p{font-size:14px;color:#445;margin-bottom:8px}
+.duel-board{display:flex;align-items:stretch;gap:10px;margin:14px 0}
+.player{flex:1;background:var(--cream);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center}
+.player.you{border-color:var(--gold);border-width:2px}
+.player .nm{font-weight:700;color:var(--navy);font-size:14px}
+.player .sc{font-family:'Playfair Display',serif;font-size:34px;font-weight:800;color:var(--gold);line-height:1.1}
+.vs{display:flex;align-items:center;font-family:'Playfair Display',serif;font-weight:800;color:var(--navy);font-size:18px}
+.timer{height:8px;background:var(--line);border-radius:999px;overflow:hidden;margin:10px 0}
+.timer i{display:block;height:100%;background:var(--gold);width:100%;transition:width 1s linear}
+.duel-q{font-family:'Playfair Display',serif;font-size:16px;color:var(--navy);margin:6px 0 10px;min-height:24px}
+.duel-feed{font-size:13px;text-align:center;min-height:20px;margin-top:8px;font-weight:600}
+/* BRACKET */
+.bracket{display:flex;gap:14px;overflow-x:auto;padding:14px 0;margin-top:12px}
+.round{display:flex;flex-direction:column;justify-content:space-around;gap:10px;min-width:150px}
+.round-t{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gold);text-align:center;margin-bottom:4px}
+.match{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.team{display:flex;justify-content:space-between;padding:8px 11px;font-size:12.5px;border-bottom:1px solid var(--line)}
+.team:last-child{border-bottom:none}
+.team.win{background:#eef6f0;font-weight:700;color:#10532e}
+.team .pt{color:var(--gold);font-weight:700}
+.champ{background:var(--navy);color:#fff;border-radius:10px;padding:14px;text-align:center}
+.champ .lab{font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--gold)}
+.champ .nm{font-family:'Playfair Display',serif;font-size:17px;font-weight:800;margin-top:4px}
+/* RH */
+.kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:16px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px}
+.kpi .v{font-family:'Playfair Display',serif;font-size:30px;font-weight:800;color:var(--navy);line-height:1}
+.kpi .l{font-size:12px;color:#778;margin-top:4px}
+.kpi .v small{font-size:16px;color:var(--gold)}
+.kirk{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-top:14px}
+.kirk h3{color:var(--navy);font-size:18px;margin-bottom:4px}
+.kirk>p{font-size:12.5px;color:#778;margin-bottom:14px}
+.level{margin-bottom:14px}
+.level .lh{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px}
+.level .lh b{color:var(--navy)}.level .lh span{color:var(--gold);font-weight:700}
+.bar{height:12px;background:var(--cream);border-radius:999px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--navy),var(--gold));border-radius:999px}
+.lvl-desc{font-size:12px;color:#889;margin-top:4px}
+.tbl{width:100%;border-collapse:collapse;margin-top:14px;font-size:13px;background:#fff;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+.tbl th{background:var(--navy);color:#fff;padding:10px;text-align:left;font-size:12px}
+.tbl td{padding:10px;border-bottom:1px solid var(--line)}
+.tbl tr:last-child td{border-bottom:none}
+.badge{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700}
+.b-hi{background:#e7f5ec;color:#10532e}.b-mid{background:#fff4e0;color:#9a6b00}.b-lo{background:#fbeae8;color:#8a241a}
+/* RAPPORT */
+.report{margin-top:16px}
+.rep-hero{background:var(--navy);color:#fff;border-radius:14px;padding:20px}
+.rep-hero .src{font-size:11px;color:var(--gold);font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.rep-hero h3{font-size:20px;margin:6px 0 8px}
+.rep-hero p{font-size:13.5px;color:#cdd9e8;line-height:1.55}
+.fact{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px;margin-top:10px;display:flex;gap:14px;align-items:flex-start}
+.fact .ic{font-size:22px;line-height:1}
+.fact .ft{font-size:13.5px;color:#445}.fact .ft b{color:var(--navy)}
+.fact .pg{display:block;font-size:11px;color:#9a9483;margin-top:4px;font-weight:600}
+.quote-box{background:var(--cream);border-left:4px solid var(--gold);border-radius:0 10px 10px 0;padding:14px 16px;margin-top:12px;font-size:13.5px;color:#5a5240;font-style:italic}
+.score{position:fixed;bottom:0;left:0;right:0;background:var(--navy);color:#fff;padding:12px 16px;z-index:60;box-shadow:0 -3px 14px rgba(0,0,0,.2)}
+.score .s{max-width:780px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between}
+.score b{color:var(--gold);font-size:18px;font-family:'Playfair Display',serif}
+.score button{background:var(--gold);color:var(--navy);border:none;border-radius:8px;padding:8px 14px;font-weight:700;font-size:13px;cursor:pointer}
+.foot{text-align:center;font-size:11px;color:#9a9483;margin-top:22px}
+@media(max-width:560px){.kpi-grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header><div class="hd"><div class="logo">RA</div><h1>Regul Arena <small>Réforme RFE BCEAO · 2024–2026</small></h1></div></header>
+<div class="demo-flag">DÉMO — Formation digitale · Relations Financières Extérieures (UEMOA)</div>
+
+<div class="wrap">
+  <nav class="tabs">
+    <button class="on" data-tab="intro">Accueil</button>
+    <button data-tab="flash">🃏 Flash cards</button>
+    <button data-tab="fiche">📌 Fiche mnémo</button>
+    <button data-tab="quiz">✅ Quiz</button>
+    <button data-tab="duel">⚔️ Duel &amp; Tournoi</button>
+    <button data-tab="rh">📊 Tableau RH</button>
+    <button data-tab="report">🏛️ Rapport CB</button>
+  </nav>
+
+  <!-- INTRO -->
+  <section class="panel on" id="intro">
+    <div class="intro">
+      <h2>Maîtriser la réforme des Relations Financières Extérieures</h2>
+      <p>Une formation en présentiel se mesure en heures. Une plateforme se mesure en <b>permanence</b>. Ce module reprend les <b>4 textes-clés</b> de la réforme RFE et les rend <b>accessibles 24/7, auto-évaluables et mesurables</b> — autant de fois que nécessaire, sur mobile.</p>
+      <div class="pill-row">
+        <span class="pill">Permanence</span><span class="pill">Accessibilité 24/7</span>
+        <span class="pill">Auto-évaluation</span><span class="pill">Pilotage RH</span><span class="pill">Duel &amp; Tournoi</span>
+      </div>
+      <div class="txtsrc">
+        <b>Textes couverts :</b><br>
+        1 · Règlement N°06/2024/CM/UEMOA (20 déc. 2024) — abroge le Règl. 09/2010<br>
+        2 · Note N°013-04-2026 (17 avr. 2026) — paiements extérieurs des résidents étrangers<br>
+        3 · Instruction N°14/07/2025/RFE — import/export matériel de billets en devises<br>
+        4 · Instruction N°03/07/2025/RFE — domiciliation &amp; apurement des exportations
+      </div>
+    </div>
+    <div class="valid-note">📚 <b>Contenu 100% sourcé</b> des textes officiels : Règlement N°06/2024/CM/UEMOA, Notes &amp; Instructions BCEAO 2025-2026, et Rapport Annuel 2024 de la Commission Bancaire de l'UMOA.</div>
+  </section>
+
+  <!-- FLASH -->
+  <section class="panel" id="flash">
+    <div class="fc-stage"><div class="card" id="card" onclick="this.classList.toggle('flip')">
+      <div class="face front"><span class="tag">Question</span><div class="q" id="fcQ"></div></div>
+      <div class="face back"><span class="tag">Réponse</span><div class="a" id="fcA"></div></div>
+    </div><div class="flip-hint">Touchez la carte pour la retourner</div></div>
+    <div class="fc-nav"><button id="fcPrev" onclick="fcMove(-1)">‹ Préc.</button>
+      <span class="fc-count"><span id="fcN">1</span> / <span id="fcTot"></span></span>
+      <button id="fcNext" onclick="fcMove(1)">Suiv. ›</button></div>
+  </section>
+
+  <!-- FICHE -->
+  <section class="panel" id="fiche">
+    <div class="fiche">
+      <h3>Les 4 chiffres-clés de l'export</h3>
+      <div class="mnemo"><div class="big">20 · 120 · 80 · 10</div><div class="leg">« Je domicilie à 20, j'exige à 120, je rapatrie 80, j'archive 10 »</div></div>
+      <div class="keynum"><span class="n">20 M</span><span class="d"><b>FCFA</b> — seuil au-delà duquel l'export de biens/services doit être <b>domicilié</b>.</span></div>
+      <div class="keynum"><span class="n">120 j</span><span class="d">délai max de <b>date d'exigibilité</b> du paiement après l'expédition.</span></div>
+      <div class="keynum"><span class="n">80 %</span><span class="d">part <b>minimale</b> des recettes rapatriée/cédée via les correspondants BCEAO.</span></div>
+      <div class="keynum"><span class="n">10 ans</span><span class="d">durée de <b>conservation</b> du dossier de domiciliation.</span></div>
+      <div class="keynum"><span class="n">1 mois</span><span class="d">délai d'encaissement &amp; rapatriement à compter de l'exigibilité.</span></div>
+      <h3>Le réflexe « colis devises »</h3>
+      <div class="keynum"><span class="n">100 000</span><span class="d"><b>FCFA / colis</b> — valeur de déclaration douane &amp; transporteur pour l'import/export matériel de billets en devises (Instr. 14/2025).</span></div>
+      <h3>Statut de résident étranger — règle « CDI ou 1 an »</h3>
+      <p style="font-size:13.5px;color:#445">Un étranger devient <b>résident UEMOA</b> s'il y exerce une activité durable. Salarié : résident dès lors que le contrat est <b>à durée indéterminée</b> ou <b>≥ 1 an</b>. Transferts plafonnés aux <b>revenus nets justifiés</b>.</p>
+      <h3>La chaîne de domiciliation export</h3>
+      <ol class="steps">
+        <li>Ouverture du dossier + n° d'ordre (<b>EX-B</b> biens / <b>EX-S</b> services)</li>
+        <li>Engagement de change signé (4 exemplaires) + contrat commercial certifié</li>
+        <li>Attestation d'exportation présentée au Bureau des Douanes</li>
+        <li>Encaissement &amp; rapatriement (≥ 80 %) sous 1 mois après exigibilité</li>
+        <li>Mention « <b>apuré</b> » + archivage 10 ans</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section class="panel" id="quiz">
+    <div class="quiz-head">
+      <span class="shuffle-note">🔀 <b>Anti-mémorisation :</b> la position des réponses change à chaque session. Le collaborateur doit reconnaître <b>le contenu</b> de la bonne réponse, pas sa place.</span>
+      <button class="shuffle-btn" onclick="resetQuiz()">🔀 Mélanger</button>
+    </div>
+    <div id="quizBox"></div>
+  </section>
+
+  <!-- DUEL & TOURNOI -->
+  <section class="panel" id="duel">
+    <div class="concept">
+      <h3>⚔️ Duel — 1 contre 1</h3>
+      <p>Deux collaborateurs s'affrontent sur les mêmes questions, au chrono. La compétition ancre l'apprentissage mieux que la lecture passive. Essayez face à <b>Regul Bot</b> :</p>
+      <div class="duel-board">
+        <div class="player you"><div class="nm">Vous</div><div class="sc" id="duYou">0</div></div>
+        <div class="vs">VS</div>
+        <div class="player"><div class="nm">Regul Bot</div><div class="sc" id="duBot">0</div></div>
+      </div>
+      <div class="timer"><i id="duTimer"></i></div>
+      <div class="duel-q" id="duQ">Prêt ? Lancez le duel éclair (3 questions).</div>
+      <div id="duOpts"></div>
+      <div class="duel-feed" id="duFeed"></div>
+      <button class="btn" id="duStart" onclick="duelStart()">Lancer le duel</button>
+    </div>
+
+    <div class="concept">
+      <h3>🏆 Tournoi — élimination directe</h3>
+      <p>Mode événementiel : agences ou équipes en bracket. Exemple d'un tournoi inter-agences (données illustratives).</p>
+      <div class="bracket">
+        <div class="round"><div class="round-t">Quarts</div>
+          <div class="match"><div class="team win">Agence Plateau <span class="pt">8</span></div><div class="team">Agence Pikine <span class="pt">5</span></div></div>
+          <div class="match"><div class="team">Agence Thiès <span class="pt">6</span></div><div class="team win">Agence Touba <span class="pt">7</span></div></div>
+          <div class="match"><div class="team win">Agence Saint-Louis <span class="pt">9</span></div><div class="team">Agence Kaolack <span class="pt">4</span></div></div>
+          <div class="match"><div class="team">Agence Ziguinchor <span class="pt">6</span></div><div class="team win">Agence Rufisque <span class="pt">8</span></div></div>
+        </div>
+        <div class="round"><div class="round-t">Demi-finales</div>
+          <div class="match"><div class="team win">Agence Plateau <span class="pt">9</span></div><div class="team">Agence Touba <span class="pt">7</span></div></div>
+          <div class="match"><div class="team">Agence Saint-Louis <span class="pt">6</span></div><div class="team win">Agence Rufisque <span class="pt">8</span></div></div>
+        </div>
+        <div class="round"><div class="round-t">Finale</div>
+          <div class="match"><div class="team win">Agence Plateau <span class="pt">10</span></div><div class="team">Agence Rufisque <span class="pt">8</span></div></div>
+        </div>
+        <div class="round"><div class="round-t">Vainqueur</div>
+          <div class="champ"><div class="lab">🏆 Champion</div><div class="nm">Agence Plateau</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TABLEAU RH -->
+  <section class="panel" id="rh">
+    <div class="valid-note" style="border-color:#bcd0e8;color:#456">📊 <b>Données illustratives</b> — alimentées en réel par les sessions des collaborateurs. Aperçu du pilotage offert aux RH / Conformité.</div>
+    <div class="kpi-grid">
+      <div class="kpi"><div class="v">128</div><div class="l">Collaborateurs inscrits</div></div>
+      <div class="kpi"><div class="v">87<small>%</small></div><div class="l">Taux de complétion</div></div>
+      <div class="kpi"><div class="v">14,2<small>/20</small></div><div class="l">Score moyen au quiz</div></div>
+      <div class="kpi"><div class="v">9</div><div class="l">Agences couvertes</div></div>
+    </div>
+    <div class="kirk">
+      <h3>Impact mesuré — modèle de Kirkpatrick</h3>
+      <p>Les 4 niveaux d'évaluation d'une formation, suivis en continu par la plateforme.</p>
+      <div class="level"><div class="lh"><b>N1 · Réaction</b><span>92%</span></div><div class="bar"><i style="width:92%"></i></div><div class="lvl-desc">Satisfaction des collaborateurs vis-à-vis du module</div></div>
+      <div class="level"><div class="lh"><b>N2 · Apprentissage</b><span>71%</span></div><div class="bar"><i style="width:71%"></i></div><div class="lvl-desc">Progression des scores entre 1ère et dernière session</div></div>
+      <div class="level"><div class="lh"><b>N3 · Comportement</b><span>64%</span></div><div class="bar"><i style="width:64%"></i></div><div class="lvl-desc">Application terrain (cas pratiques réussis, conformité gestes)</div></div>
+      <div class="level"><div class="lh"><b>N4 · Résultats</b><span>—</span></div><div class="bar"><i style="width:30%"></i></div><div class="lvl-desc">Réduction des erreurs de traitement RFE (à corréler aux indicateurs métier)</div></div>
+    </div>
+    <table class="tbl">
+      <tr><th>Agence</th><th>Complétion</th><th>Score moy.</th><th>Maîtrise</th></tr>
+      <tr><td>Plateau</td><td>96%</td><td>16,1</td><td><span class="badge b-hi">Élevée</span></td></tr>
+      <tr><td>Saint-Louis</td><td>91%</td><td>15,0</td><td><span class="badge b-hi">Élevée</span></td></tr>
+      <tr><td>Touba</td><td>84%</td><td>13,8</td><td><span class="badge b-mid">Moyenne</span></td></tr>
+      <tr><td>Thiès</td><td>78%</td><td>12,9</td><td><span class="badge b-mid">Moyenne</span></td></tr>
+      <tr><td>Ziguinchor</td><td>62%</td><td>11,2</td><td><span class="badge b-lo">À renforcer</span></td></tr>
+    </table>
+  </section>
+
+  <!-- RAPPORT CB -->
+  <section class="panel" id="report">
+    <div class="report">
+      <div class="rep-hero">
+        <span class="src">Source officielle</span>
+        <h3>Rapport Annuel 2024 — Commission Bancaire de l'UMOA</h3>
+        <p>La réforme RFE n'est pas un texte isolé : le superviseur lui-même en fait une <b>priorité de supervision 2024–2026</b>. Se former dessus n'est pas optionnel.</p>
+      </div>
+      <div class="fact"><span class="ic">🏦</span><div class="ft"><b>160 établissements de crédit agréés</b> dans l'UMOA au 31 décembre 2024, dont <b>135 banques</b> — l'ensemble des assujettis concernés par la réforme.<span class="pg">Rapport CB 2024, p. 24</span></div></div>
+      <div class="fact"><span class="ic">📜</span><div class="ft">Le <b>Règlement N°06/2024/CM/UEMOA</b> relatif aux RFE figure parmi les <b>nouveaux textes adoptés / entrés en vigueur en 2024</b>.<span class="pg">Rapport CB 2024, p. 63</span></div></div>
+      <div class="fact"><span class="ic">⚖️</span><div class="ft">Le Règlement RFE est intégré au <b>cadre réglementaire régissant l'activité des assujettis</b> soumis au contrôle de la Commission Bancaire.<span class="pg">Rapport CB 2024, p. 62</span></div></div>
+      <div class="fact"><span class="ic">🛂</span><div class="ft">L'<b>Instruction n°231/07/2024</b> fixe le seuil de <b>déclaration des transports physiques internationaux d'espèces</b> — renforcement du contrôle des flux transfrontaliers.<span class="pg">Rapport CB 2024, p. 63</span></div></div>
+      <div class="quote-box">Le Président de la Commission Bancaire indique que l'institution veillera à l'implémentation des nouvelles dispositions réglementaires, <b>en particulier en matière de relations financières extérieures et de LBC/FT/FP</b>. <span style="font-style:normal;font-size:11px;color:#9a9483;display:block;margin-top:4px">— Mot du Président, Rapport CB 2024, p. 12 (paraphrase)</span></div>
+      <div class="valid-note">📌 Chiffres extraits du <b>Rapport Annuel 2024 de la Commission Bancaire de l'UMOA</b> (n° de page indiqués).</div>
+    </div>
+  </section>
+
+  <div class="foot">Regul Arena — Démo · sources : textes officiels BCEAO + Rapport CB UMOA 2024 · www.regularena.com</div>
+</div>
+
+<div class="score"><div class="s"><span>Score quiz : <b id="scoreVal">0</b> / <span id="scoreMax">0</span></span><button onclick="resetQuiz()">↻ Recommencer</button></div></div>
+
+<script>
+/* NAV */
+document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav.tabs button').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  b.classList.add('on');document.getElementById(b.dataset.tab).classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+/* FLASH */
+const FC=[
+ ["Quel texte régit aujourd'hui les RFE dans l'UEMOA ?","Le Règlement N°06/2024/CM/UEMOA du 20 décembre 2024, qui abroge et remplace le Règlement 09/2010."],
+ ["Qu'est-ce qu'un intermédiaire agréé ?","Une banque installée dans l'UEMOA, agréée par le Ministre des Finances après avis conforme de la BCEAO, pour les opérations financières avec l'étranger."],
+ ["Comment définit-on un résident ?","Une personne dont le centre d'intérêt économique prédominant se situe dans un État membre de l'UEMOA."],
+ ["À partir de quel montant une exportation doit-elle être domiciliée ?","Lorsque le montant excède 20 millions FCFA (Instruction 03/07/2025/RFE, art. 3)."],
+ ["Délai de rapatriement des recettes d'exportation ?","Sous 1 mois max à compter de la date d'exigibilité, elle-même fixée à 120 jours max après l'expédition."],
+ ["Part minimale rapatriée via les correspondants BCEAO ?","Au moins 80 % du montant global encaissé."],
+ ["Durée de conservation d'un dossier de domiciliation ?","10 ans."],
+ ["Valeur de déclaration douanière par colis de billets en devises ?","100 000 FCFA par colis (Instruction 14/07/2025/RFE, art. 3)."],
+ ["Un étranger peut-il devenir résident UEMOA ?","Oui : activité durable. Salarié = résident si CDI ou CDD ≥ 1 an (Note 013-04-2026)."],
+ ["Plafond des transferts d'un résident étranger ?","Le cumul ne peut excéder les revenus nets perçus et dûment justifiés."],
+ ["Financement minimum à l'étranger d'un investissement à l'étranger ?","75 % au moins, par emprunt ou mobilisation de ressources à l'étranger (art. 12-13)."],
+ ["Que signifient EX-B et EX-S ?","EX-B = exportation de biens · EX-S = exportation de services (n° d'ordre de domiciliation)."]
+];
+let fc=0;document.getElementById('fcTot').textContent=FC.length;
+function fcRender(){const c=document.getElementById('card');c.classList.remove('flip');
+  setTimeout(()=>{document.getElementById('fcQ').textContent=FC[fc][0];document.getElementById('fcA').textContent=FC[fc][1];},c.classList.contains('flip')?200:0);
+  document.getElementById('fcN').textContent=fc+1;
+  document.getElementById('fcPrev').disabled=fc===0;document.getElementById('fcNext').disabled=fc===FC.length-1;}
+function fcMove(d){fc=Math.max(0,Math.min(FC.length-1,fc+d));fcRender();}fcRender();
+
+/* QUIZ (réponses randomisées) */
+const Q=[
+ {type:"QCM",q:"À partir de quel montant une exportation de biens/services est-elle soumise à domiciliation ?",
+  opts:["5 millions FCFA","10 millions FCFA","20 millions FCFA","50 millions FCFA"],good:2,
+  exp:"Seuil fixé par l'Instruction 03/07/2025/RFE (art. 3) : le montant doit <b>excéder 20 millions FCFA</b>."},
+ {type:"QCM",q:"Quel texte abroge le Règlement 09/2010 sur les RFE ?",
+  opts:["L'Instruction 03/2011","Le Règlement 06/2024/CM/UEMOA","La Note 013-04-2026","L'Instruction 14/2025"],good:1,
+  exp:"Le <b>Règlement 06/2024/CM/UEMOA</b> du 20 déc. 2024 abroge le Règlement 09/2010 (art. 35)."},
+ {type:"QCM",q:"Quelle part minimale des recettes d'export doit être rapatriée via les correspondants BCEAO ?",
+  opts:["50 %","75 %","80 %","100 %"],good:2,
+  exp:"Au <b>moins 80 %</b> du montant global encaissé (Instruction 03/07/2025, art. 7)."},
+ {type:"VF",q:"Un CDD de 8 mois suffit pour conférer la qualité de résident UEMOA à un salarié étranger.",
+  good:false,exp:"<b>Faux.</b> Il faut un <b>CDI ou un CDD ≥ 1 an</b> (Note 013-04-2026, §1)."},
+ {type:"VF",q:"Les dossiers de domiciliation des exportations se conservent pendant 10 ans.",
+  good:true,exp:"<b>Vrai.</b> Conservation de <b>10 ans</b>, à disposition des autorités de contrôle (art. 8)."},
+ {type:"VF",q:"La déclaration par colis de billets en devises se fait à hauteur de 1 000 000 FCFA.",
+  good:false,exp:"<b>Faux.</b> La valeur de déclaration est de <b>100 000 FCFA par colis</b> (Instruction 14/2025, art. 3)."},
+ {type:"GAP",q:"« L'encaissement et le rapatriement des recettes d'exportation sont effectués dans un délai maximum de ___ à compter de la date d'exigibilité. »",
+  answers:["un mois","1 mois","une mois"],exp:"Réponse : <b>un mois</b> (Instruction 03/07/2025, art. 7)."},
+ {type:"GAP",q:"« La date d'exigibilité doit être fixée dans un délai maximum de ___ jours suivant la date d'expédition des biens. »",
+  answers:["120","cent vingt","cent-vingt"],exp:"Réponse : <b>120</b> jours (Instruction 03/07/2025, art. 7)."},
+ {type:"CASE",q:"Cas pratique — Domiciliation",
+  scenario:"Un client exportateur réalise une vente de marchandises de <b>35 millions FCFA</b> vers le Maroc. Doit-il domicilier l'opération ? Que vérifiez-vous au guichet ?",
+  reveal:"<b>Oui, domiciliation obligatoire</b> : 35 M > seuil de 20 M FCFA.<br>Démarche : ouvrir le dossier + n° d'ordre <b>EX-B</b> ; engagement de change signé (4 ex.) ; copie certifiée du <b>contrat commercial</b> ; <b>attestation d'exportation</b> pour les Douanes ; suivre le rapatriement (<b>≥ 80 %</b>) sous <b>1 mois</b> après exigibilité (≤ <b>120 j</b> après expédition) ; mention <b>« apuré »</b> + archivage <b>10 ans</b>."},
+ {type:"CASE",q:"Cas pratique — Résident étranger",
+  scenario:"Un cadre expatrié en <b>CDI</b> souhaite transférer son <b>épargne salariale</b> vers son compte à l'étranger. Quelles conditions appliquez-vous ?",
+  reveal:"Statut de <b>résident</b> confirmé (CDI). Transfert d'épargne soumis à l'<b>autorisation préalable</b> de la Structure chargée des Finances Extérieures.<br>Conditions : épargne constituée sur <b>6 mois minimum</b> ; demande d'autorisation de change + lettre (période / montants) ; justificatifs de revenus ; montant plafonné aux <b>revenus nets justifiés</b>. Autorisation délivrée sous <b>5 jours ouvrés</b>."}
+];
+let score=0,answered={};
+document.getElementById('scoreMax').textContent=Q.filter(x=>x.type!=='CASE').length;
+function buildQuiz(){
+  const box=document.getElementById('quizBox');box.innerHTML='';
+  Q.forEach((item,i)=>{
+    const c=document.createElement('div');c.className='qcard'+(item.type==='CASE'?' case':'');
+    let h='<span class="qtype">'+({QCM:'Choix multiple',VF:'Vrai / Faux',GAP:'Texte à trou',CASE:'Cas pratique'})[item.type]+'</span>';
+    h+='<div class="qtext">'+item.q+'</div>';
+    if(item.type==='QCM'){
+      // randomisation : on mélange les options en conservant le flag "bonne réponse"
+      const arr=item.opts.map((o,j)=>({txt:o,ok:j===item.good}));shuffle(arr);
+      arr.forEach(o=>h+='<button class="opt" data-i="'+i+'" data-ok="'+(o.ok?1:0)+'">'+o.txt+'</button>');
+    }else if(item.type==='VF'){
+      const arr=[{txt:'VRAI',ok:item.good===true},{txt:'FAUX',ok:item.good===false}];shuffle(arr);
+      arr.forEach(o=>h+='<button class="opt" data-i="'+i+'" data-ok="'+(o.ok?1:0)+'">'+o.txt+'</button>');
+    }else if(item.type==='GAP'){
+      h='<span class="qtype">Texte à trou</span><div class="qtext" style="margin-bottom:12px">Complétez :</div>'+
+        '<div style="font-size:15px;line-height:1.8;color:#445">'+item.q.replace('___','<input class="gap-in" id="gap'+i+'" placeholder="...">')+'</div>'+
+        '<button class="btn" data-gap="'+i+'">Vérifier</button>';
+    }else{
+      h+='<div class="scenario">'+item.scenario+'</div><button class="btn" data-case="'+i+'">Voir la correction</button><div class="reveal" id="rev'+i+'">'+item.reveal+'</div>';
+    }
+    h+='<div class="explain" id="exp'+i+'"></div>';c.innerHTML=h;box.appendChild(c);
+  });
+  document.querySelectorAll('#quizBox .opt').forEach(b=>b.onclick=()=>pick(b));
+  document.querySelectorAll('#quizBox [data-gap]').forEach(b=>b.onclick=()=>checkGap(+b.dataset.gap));
+  document.querySelectorAll('#quizBox [data-case]').forEach(b=>b.onclick=()=>{document.getElementById('rev'+b.dataset.case).classList.add('show');b.style.display='none';});
+}
+function pick(btn){
+  const i=+btn.dataset.i;if(answered[i])return;answered[i]=1;
+  const card=btn.closest('.qcard');const opts=card.querySelectorAll('.opt');
+  opts.forEach(o=>{o.disabled=true;if(o.dataset.ok==='1')o.classList.add('good');});
+  const ok=btn.dataset.ok==='1';if(!ok)btn.classList.add('bad');
+  const e=document.getElementById('exp'+i);e.className='explain show '+(ok?'r':'w');
+  e.innerHTML=(ok?'✅ Correct. ':'❌ Incorrect. ')+Q[i].exp;
+  if(ok){score++;document.getElementById('scoreVal').textContent=score;}
+}
+function checkGap(i){
+  if(answered[i])return;const inp=document.getElementById('gap'+i);
+  const val=inp.value.trim().toLowerCase().replace(/\s+/g,' ');
+  const ok=Q[i].answers.some(a=>a.toLowerCase().trim()===val);
+  answered[i]=1;inp.disabled=true;inp.style.borderColor=ok?'var(--ok)':'var(--ko)';
+  const e=document.getElementById('exp'+i);e.className='explain show '+(ok?'r':'w');
+  e.innerHTML=(ok?'✅ Correct. ':'❌ Pas tout à fait. ')+Q[i].exp;
+  if(ok){score++;document.getElementById('scoreVal').textContent=score;}
+}
+function resetQuiz(){score=0;answered={};document.getElementById('scoreVal').textContent=0;buildQuiz();}
+buildQuiz();
+
+/* DUEL simulé */
+const DUEL=[
+ {q:"Seuil de domiciliation des exportations ?",opts:["20 M FCFA","5 M FCFA","100 M FCFA"],good:0},
+ {q:"Part minimale rapatriée via correspondants BCEAO ?",opts:["50 %","80 %","100 %"],good:1},
+ {q:"Déclaration par colis de billets en devises ?",opts:["1 000 000 FCFA","10 000 FCFA","100 000 FCFA"],good:2}
+];
+let dIdx=0,dYou=0,dBot=0,dT=null,dLock=false;
+function duelStart(){
+  dIdx=0;dYou=0;dBot=0;document.getElementById('duYou').textContent=0;document.getElementById('duBot').textContent=0;
+  document.getElementById('duStart').style.display='none';document.getElementById('duFeed').textContent='';duelQ();
+}
+function duelQ(){
+  if(dIdx>=DUEL.length){duelEnd();return;}
+  dLock=false;const it=DUEL[dIdx];
+  document.getElementById('duQ').textContent='Q'+(dIdx+1)+'. '+it.q;
+  const box=document.getElementById('duOpts');box.innerHTML='';
+  const arr=it.opts.map((o,j)=>({txt:o,ok:j===it.good}));shuffle(arr);
+  arr.forEach(o=>{const b=document.createElement('button');b.className='opt';b.textContent=o.txt;
+    b.onclick=()=>duelAnswer(o.ok,box);box.appendChild(b);});
+  // timer 8s
+  let w=100;const bar=document.getElementById('duTimer');bar.style.width='100%';
+  // bot répond entre 2,5 et 6 s, 70% juste
+  const botDelay=2500+Math.random()*3500;const botRight=Math.random()<0.7;
+  clearInterval(dT);const start=Date.now();
+  dT=setInterval(()=>{
+    const el=Date.now()-start;bar.style.width=Math.max(0,100-el/80)+'%';
+    if(el>=botDelay && !dLock){if(botRight){dBot++;document.getElementById('duBot').textContent=dBot;
+        document.getElementById('duFeed').textContent='🤖 Regul Bot a répondu juste !';}else{
+        document.getElementById('duFeed').textContent='🤖 Regul Bot s\'est trompé.';}
+      dLock=true;clearInterval(dT);setTimeout(()=>{dIdx++;duelQ();},1200);}
+    if(el>=8000){clearInterval(dT);if(!dLock){dLock=true;document.getElementById('duFeed').textContent='⏱️ Temps écoulé.';setTimeout(()=>{dIdx++;duelQ();},1000);}}
+  },100);
+}
+function duelAnswer(ok,box){
+  if(dLock)return;dLock=true;clearInterval(dT);
+  box.querySelectorAll('.opt').forEach(b=>b.disabled=true);
+  if(ok){dYou++;document.getElementById('duYou').textContent=dYou;document.getElementById('duFeed').textContent='✅ Bonne réponse !';}
+  else document.getElementById('duFeed').textContent='❌ Mauvaise réponse.';
+  setTimeout(()=>{dIdx++;duelQ();},1100);
+}
+function duelEnd(){
+  document.getElementById('duOpts').innerHTML='';document.getElementById('duTimer').style.width='0%';
+  const r=dYou>dBot?'🏆 Vous gagnez le duel !':dYou<dBot?'🤖 Regul Bot l\'emporte.':'🤝 Égalité !';
+  document.getElementById('duQ').textContent=r+' ('+dYou+' – '+dBot+')';
+  document.getElementById('duFeed').textContent='';
+  const s=document.getElementById('duStart');s.style.display='inline-block';s.textContent='Rejouer';
+}
+</script>
+</body>
+</html>
