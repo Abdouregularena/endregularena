@@ -2491,10 +2491,38 @@ function rOrgDashboard(){
        '<h2 style="font-size:22px;color:white;">🏛️ '+arChatEsc(d.org.name)+'</h2>'+
        '<button class="btn btn-sm" onclick="arLoadOrgDash()">↻ Actualiser</button></div>';
   h += '<div class="g4">'+
-    [['👥','Membres',t.members],['✅','Actifs',t.active],['🎮','Parties',t.games],['🆔','Org',d.org.id]].map(function(s){
+    [['👥','Membres',t.members],['🚀','Taux d\'activation',(t.activation_rate||0)+'%'],
+     ['🎯','Précision moy.',(t.avg_accuracy||0)+'%'],['🎓','Taux de certif.',(t.certification_rate||0)+'%']].map(function(s){
       return '<div class="card" style="text-align:center;padding:14px 10px;"><div style="font-size:22px;">'+s[0]+'</div>'+
       '<div style="font-size:11px;color:var(--sub);">'+s[1]+'</div><div style="font-size:20px;font-weight:900;color:white;">'+s[2]+'</div></div>';
     }).join('')+'</div>';
+  // Répartition par palier
+  var pl = t.paliers || {};
+  var palCfg = [['📙','Initié','#9aa5b3'],['🔷','Confirmé','#38bdf8'],['⭐','Expert','#E8B520'],['👑','Maître','#C9991A']];
+  h += '<div class="card"><div style="font-weight:800;color:white;font-size:14px;margin-bottom:10px;">Répartition par palier</div>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;">'+
+    palCfg.map(function(p){ return '<div style="flex:1;min-width:74px;text-align:center;background:rgba(0,0,0,.2);border-radius:10px;padding:10px 6px;">'+
+      '<div style="font-size:18px;">'+p[0]+'</div><div style="font-size:20px;font-weight:900;color:'+p[2]+';">'+(pl[p[1]]||0)+'</div>'+
+      '<div style="font-size:10px;color:var(--sub);">'+p[1]+'</div></div>'; }).join('')+'</div>'+
+    '<div style="font-size:10px;color:var(--sub);margin-top:8px;">Sur '+t.active+' collaborateur(s) actif(s) · '+t.certificates+' certificat(s) obtenu(s)</div></div>';
+  // Matrice de réussite par domaine
+  var DOMLAB = { QR:'RFE / Réglementation des changes', QB:'Bibliothèque réglementaire', QC:'Réglementation CEMAC',
+    QN:'Textes & circulaires', sprint:'Sprint / Blitz', kotm:'Roi de la Manche', general:'Général', coumba:'Démo' };
+  var doms = (d.domains||[]).filter(function(x){ return x.attempts>0; });
+  if(doms.length){
+    h += '<div class="card"><div style="font-weight:800;color:white;font-size:14px;margin-bottom:4px;">Réussite par domaine</div>'+
+      '<div style="font-size:11px;color:var(--sub);margin-bottom:10px;">Matrice de compétence de l\'équipe — repère les domaines à renforcer.</div>';
+    h += doms.slice(0,10).map(function(x){
+      var lab = DOMLAB[x.pack] || x.pack;
+      var col = x.accuracy>=70?'#22c55e':(x.accuracy>=50?'#E8B520':'#ef4444');
+      return '<div style="margin-bottom:9px;">'+
+        '<div style="display:flex;justify-content:space-between;font-size:11.5px;color:white;margin-bottom:3px;">'+
+        '<span>'+arChatEsc(lab)+' <span style="color:var(--sub);">('+x.attempts+')</span></span>'+
+        '<span style="color:'+col+';font-weight:800;">'+x.accuracy+'%</span></div>'+
+        '<div style="height:7px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;">'+
+        '<div style="height:100%;width:'+x.accuracy+'%;background:'+col+';"></div></div></div>';
+    }).join('')+'</div>';
+  }
   var jc = (d.org && d.org.join_code) ? d.org.join_code : '';
   h += '<div class="card" style="background:linear-gradient(135deg,rgba(201,153,26,.14),rgba(201,153,26,.03));border:1px solid rgba(201,153,26,.4);">'+
     '<div style="font-weight:800;color:white;font-size:14px;margin-bottom:6px;">🔑 Code d\'invitation collectif</div>'+
@@ -2520,15 +2548,21 @@ function rOrgDashboard(){
   else {
     h += '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;">'+
       '<thead><tr style="color:var(--sub);text-align:left;">'+
-      '<th style="padding:6px 8px;">Membre</th><th style="padding:6px 8px;">Parties</th><th style="padding:6px 8px;">Précision</th><th style="padding:6px 8px;">Dernière activité</th></tr></thead><tbody>';
+      '<th style="padding:6px 8px;">Membre</th><th style="padding:6px 8px;">Palier</th><th style="padding:6px 8px;">Parties</th><th style="padding:6px 8px;">Précision</th><th style="padding:6px 8px;">Certifs</th><th style="padding:6px 8px;">Activité</th></tr></thead><tbody>';
+    var PALEMO = { 'Initié':'📙','Confirmé':'🔷','Expert':'⭐','Maître':'👑' };
     h += d.members.map(function(m){
       var last = m.last_played ? String(m.last_played).slice(0,10) : '—';
       var nm = arChatEsc(m.name||m.email||('#'+m.id)) + (m.role==='admin'?' <span style="color:#C9991A;">★</span>':'');
+      var actif = !m.games ? '<span style="color:var(--sub);">— jamais</span>'
+        : (m.dormant ? '<span style="color:#E8B520;">⏸ en veille</span><div style="color:var(--sub);font-size:10px;">'+last+'</div>'
+                     : '<span style="color:#22c55e;">● actif</span><div style="color:var(--sub);font-size:10px;">'+last+'</div>');
       return '<tr style="border-top:1px solid rgba(255,255,255,.06);">'+
         '<td style="padding:8px;color:white;">'+nm+'<div style="color:var(--sub);font-size:10px;">'+arChatEsc(m.email||'')+'</div></td>'+
+        '<td style="padding:8px;color:white;white-space:nowrap;">'+(m.games?(PALEMO[m.palier]||'')+' '+m.palier:'—')+'</td>'+
         '<td style="padding:8px;color:white;">'+m.games+'</td>'+
         '<td style="padding:8px;color:'+(m.accuracy>=70?'#22c55e':(m.games?'#E8B520':'var(--sub)'))+';">'+(m.games?m.accuracy+'%':'—')+'</td>'+
-        '<td style="padding:8px;color:var(--sub);">'+last+'</td></tr>';
+        '<td style="padding:8px;color:'+(m.certs?'#C9991A':'var(--sub)')+';font-weight:'+(m.certs?'800':'400')+';">'+(m.certs||'—')+'</td>'+
+        '<td style="padding:8px;white-space:nowrap;">'+actif+'</td></tr>';
     }).join('');
     h += '</tbody></table></div>';
   }
