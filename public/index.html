@@ -3143,14 +3143,45 @@ function rBD(){
   '<h2 style="font-size:17px;color:white;margin-bottom:4px;">'+d.titre+'</h2>'+
   '<p style="font-size:12px;color:var(--sub);">'+d.sous_titre+'</p></div>'+
   '<div class="tabs">'+
-  [['fiches','📋 Fiches'],['glossaire','📖 Glossaire'],['sources','🔗 Sources']].map(function(t){
+  [['fiches','📋 Fiches'],['flash','🃏 Flash cards'],['mnemo','🧠 Mnémo'],['glossaire','📖 Glossaire'],['sources','🔗 Sources']].map(function(t){ // MODIFIÉ : + onglets Flash cards & Mnémo
     return '<button class="tab'+(BT===t[0]?' ac':'')+'" onclick="sBT(\''+t[0]+'\')">'+t[1]+'</button>';
   }).join('')+'</div>'+
   '<div id="bc">'+rBT()+'</div></div>';
 }
 function sBT(t){BT=t; ge('bc').innerHTML=rBT();}
+function raFlip(el){ // MODIFIÉ : retourne une flash card (recto/verso)
+  var r=el.querySelector('.ra-fc-r'), v=el.querySelector('.ra-fc-v');
+  if(!r||!v) return;
+  var hidden=(v.style.display==='none'||v.style.display==='');
+  v.style.display=hidden?'block':'none';
+  r.style.display=hidden?'none':'block';
+}
 function rBT(){
   var d=BA;
+  if(BT==='flash'){ // MODIFIÉ : onglet Flash cards (utilise d.flash_cards déjà présent dans les packs)
+    var fcs=(d.flash_cards||[]);
+    if(!fcs.length) return '<div class="card" style="text-align:center;color:var(--sub);font-size:13px;padding:18px;">Aucune flash card disponible pour ce pack.</div>';
+    return '<p style="font-size:12px;color:var(--sub);margin-bottom:10px;">👆 Touchez une carte pour révéler la réponse · '+fcs.length+' cartes</p>'+
+    fcs.map(function(fc){
+      return '<div class="card ch" onclick="raFlip(this)" style="margin-bottom:9px;cursor:pointer;min-height:84px;display:flex;flex-direction:column;justify-content:center;">'+
+      '<div style="font-size:10px;color:var(--cyan);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">'+(fc.categorie||'Flash card')+'</div>'+
+      '<div class="ra-fc-r" style="font-weight:700;color:white;font-size:13.5px;line-height:1.5;">'+fc.recto+'</div>'+
+      '<div class="ra-fc-v" style="display:none;color:#9fe6c4;font-size:13.5px;line-height:1.55;">'+fc.verso+
+      (fc.source?'<div style="font-size:10px;color:#8aa3d4;margin-top:7px;">📚 '+fc.source+'</div>':'')+'</div></div>';
+    }).join('');
+  }
+  if(BT==='mnemo'){ // MODIFIÉ : onglet Mnémo (utilise d.mnemotechniques déjà présent dans les packs)
+    var mns=(d.mnemotechniques||[]);
+    if(!mns.length) return '<div class="card" style="text-align:center;color:var(--sub);font-size:13px;padding:18px;">Aucun moyen mnémotechnique pour ce pack.</div>';
+    return mns.map(function(m){
+      return '<div class="card" style="margin-bottom:9px;">'+
+      '<div style="font-weight:700;color:white;font-size:13px;margin-bottom:6px;">'+m.concept+'</div>'+
+      '<div class="al al-ok" style="margin:0 0 8px;"><strong>🧠 ASTUCE :</strong> '+m.moyen+'</div>'+
+      (m.explication?'<p style="font-size:12px;color:#aac4e8;line-height:1.5;margin-bottom:6px;">'+m.explication+'</p>':'')+
+      (m.exemple?'<div class="al al-info" style="margin:0;"><strong>EX :</strong> '+m.exemple+'</div>':'')+
+      (m.source?'<div style="font-size:10px;color:#8aa3d4;margin-top:6px;">📚 '+m.source+'</div>':'')+'</div>';
+    }).join('');
+  }
   if(BT==='fiches') return d.fiches_revision.map(function(f,i){
     return '<div class="card ch" style="padding:13px;display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;" onclick="openF('+i+')">'+
     '<div style="display:flex;gap:10px;align-items:center;">'+
