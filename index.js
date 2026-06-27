@@ -182,6 +182,8 @@ db.exec(`
  'ALTER TABLE duels ADD COLUMN started_at TEXT',
  // BUG2 FIX — index de question partagé entre les deux clients : avance dès qu'un joueur répond correctement
  'ALTER TABLE duels ADD COLUMN current_q_index INTEGER NOT NULL DEFAULT 0',
+ // MODIFIÉ — visibilité dans le Direct public (0 = visible, 1 = masqué par un joueur)
+ 'ALTER TABLE duels ADD COLUMN hidden_live INTEGER NOT NULL DEFAULT 0',
 ].forEach(sql => { try { db.exec(sql); } catch(_) {} });
 // ORG — code collectif réutilisable d'invitation (écoles/institutions)
 try { db.exec('ALTER TABLE organisations ADD COLUMN join_code TEXT'); } catch(_) {}
@@ -3017,6 +3019,7 @@ db.exec(`
   );
 `);
 try { db.exec('CREATE INDEX IF NOT EXISTS idx_kotm_status ON kotm_games (status, created_at DESC)'); } catch(_){}
+try { db.exec('ALTER TABLE kotm_games ADD COLUMN hidden_live INTEGER NOT NULL DEFAULT 0'); } catch(_){} // MODIFIÉ : visibilité Direct
 
 const KOTM_WIN_PTS     = 100; // prise / maintien du trône (bonne réponse en 1er)
 const KOTM_DEFEND_STEP = 30;  // bonus de défense par question déjà tenue (boule de neige)
@@ -3320,7 +3323,7 @@ app.get('/live/now', requireAuth, (req, res) => {
        FROM duels d
        JOIN users c ON c.id = d.creator_id
        LEFT JOIN users j ON j.id = d.joiner_id
-       WHERE d.status = 'active'
+       WHERE d.status = 'active' AND (d.hidden_live IS NULL OR d.hidden_live = 0)
        ORDER BY d.id DESC LIMIT 30`
     ).all();
   } catch (_) {}
@@ -3332,11 +3335,30 @@ app.get('/live/now', requireAuth, (req, res) => {
        FROM kotm_games g
        JOIN users c ON c.id = g.creator_id
        LEFT JOIN users j ON j.id = g.joiner_id
-       WHERE g.status = 'active'
+       WHERE g.status = 'active' AND (g.hidden_live IS NULL OR g.hidden_live = 0)
        ORDER BY g.created_at DESC LIMIT 30`
     ).all();
   } catch (_) {}
   return ok(res, { duels, kotm });
+});
+
+/* MODIFIÉ — VISIBILITÉ DIRECT : un participant peut masquer/afficher sa partie
+   de la liste publique des directs (droit à la confidentialité). */
+app.post('/duels/:code/live-visibility', requireAuth, (req, res) => {
+  const d = db.prepare('SELECT id, creator_id, joiner_id FROM duels WHERE code = ?').get(req.params.code);
+  if (!d) return err(res, 404, 'Duel introuvable');
+  if (req.user.id !== d.creator_id && req.user.id !== d.joiner_id) return err(res, 403, 'Accès refusé');
+  const hidden = (req.body && req.body.hidden) ? 1 : 0;
+  try { db.prepare('UPDATE duels SET hidden_live = ? WHERE id = ?').run(hidden, d.id); } catch (_) {}
+  return ok(res, { hidden });
+});
+app.post('/kotm/:code/live-visibility', requireAuth, (req, res) => {
+  const g = db.prepare('SELECT id, creator_id, joiner_id FROM kotm_games WHERE code = ?').get(req.params.code);
+  if (!g) return err(res, 404, 'Manche introuvable');
+  if (req.user.id !== g.creator_id && req.user.id !== g.joiner_id) return err(res, 403, 'Accès refusé');
+  const hidden = (req.body && req.body.hidden) ? 1 : 0;
+  try { db.prepare('UPDATE kotm_games SET hidden_live = ? WHERE id = ?').run(hidden, g.id); } catch (_) {}
+  return ok(res, { hidden });
 });
 
 app.use('/api/debats', require('./debats')(db, requireAuth));
