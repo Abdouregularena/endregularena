@@ -3307,6 +3307,38 @@ app.get('/kotm/:code/watch', requireAuth, (req, res) => {
 /* ════════════════ FIN MODE ROI DE LA MANCHE ════════════════ */
 
 
+/* MODIFIÉ — DIRECT : liste des duels et manches KOTM actuellement EN COURS,
+   pour le mode spectateur. Lecture seule, tout utilisateur authentifié.
+   Les questions ne sont PAS exposées ici (anti-triche) ; seul l'état public l'est. */
+app.get('/live/now', requireAuth, (req, res) => {
+  let duels = [], kotm = [];
+  try {
+    duels = db.prepare(
+      `SELECT d.code, d.pack_id, d.num_questions, d.current_q_index,
+              c.name AS creator_name, c.country AS creator_country,
+              j.name AS joiner_name, j.country AS joiner_country
+       FROM duels d
+       JOIN users c ON c.id = d.creator_id
+       LEFT JOIN users j ON j.id = d.joiner_id
+       WHERE d.status = 'active'
+       ORDER BY d.id DESC LIMIT 30`
+    ).all();
+  } catch (_) {}
+  try {
+    kotm = db.prepare(
+      `SELECT g.code, g.num_questions, g.cur_index, g.king_streak,
+              c.name AS creator_name, c.country AS creator_country,
+              j.name AS joiner_name, j.country AS joiner_country
+       FROM kotm_games g
+       JOIN users c ON c.id = g.creator_id
+       LEFT JOIN users j ON j.id = g.joiner_id
+       WHERE g.status = 'active'
+       ORDER BY g.created_at DESC LIMIT 30`
+    ).all();
+  } catch (_) {}
+  return ok(res, { duels, kotm });
+});
+
 app.use('/api/debats', require('./debats')(db, requireAuth));
 
 app.use(express.static(path.join(__dirname, 'public')));
