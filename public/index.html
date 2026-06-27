@@ -3357,6 +3357,7 @@ function rARWaiting(){
       '<button class="btn" style="width:100%;padding:14px;font-size:14px;" onclick="arStartDuel()">⚔️ Lancer le duel (si le démarrage auto tarde)</button>' : '')+
     (isCreator && st==='waiting' ?
       '<button class="btn-out btn-sm" style="width:100%;border-color:rgba(201,153,26,.5);color:#C9991A;" onclick="arLeaveWaiting()">📴 Sortir — notif à votre retour</button>' : '')+
+    arLiveVisBlock('duel', code)+
     '<button class="btn-out btn-sm" style="width:100%;" onclick="arQuit()">← Abandonner</button>'+
   '</div>';
 }
@@ -3671,19 +3672,23 @@ function rLB(){
   setTimeout(function(){ lbLoad('all'); }, 40);
   return '<div style="display:flex;flex-direction:column;gap:14px;">'+
   '<h2 style="font-size:22px;color:white;">Classement</h2>'+
-  '<div class="card" style="padding:14px 18px;">'+
-    '<div style="display:flex;align-items:center;gap:7px;margin-bottom:8px;"><span>📈</span><span style="font-weight:700;color:white;font-size:13px;">Votre progression</span></div>'+
-    '<div class="pb"><div class="pf" style="width:'+Math.min(100,(U.lvl||1)*10)+'%"></div></div>'+
-    '<div style="font-size:11px;color:var(--sub);margin-top:5px;">Niveau '+(U.lvl||1)+' · joue des quiz et des duels pour grimper.</div>'+
-  '</div>'+
-  lbStatsCard()+
   '<div style="display:flex;gap:6px;flex-wrap:wrap;">'+
     '<button class="vtab ac" id="lb-t-all" onclick="lbLoad(\'all\')">🌍 Tous</button>'+
     '<button class="vtab" id="lb-t-uemoa" onclick="lbLoad(\'uemoa\')">UEMOA</button>'+
     '<button class="vtab" id="lb-t-cemac" onclick="lbLoad(\'cemac\')">CEMAC</button>'+
   '</div>'+
+  '<div id="lb-podium"></div>'+ // MODIFIÉ : podium déplacé tout en haut
   '<div id="lb-goal"></div>'+
   '<div class="card" id="lb-list" style="overflow:hidden;"><div class="al al-info" style="font-size:12px;">Chargement du classement…</div></div>'+
+  /* MODIFIÉ : progression + statistiques déplacées sous le classement (style tableau de bord) */
+  '<div class="g2">'+
+    '<div class="card" style="padding:14px 18px;">'+
+      '<div style="display:flex;align-items:center;gap:7px;margin-bottom:8px;"><span>📈</span><span style="font-weight:700;color:white;font-size:13px;">Votre progression</span></div>'+
+      '<div class="pb"><div class="pf" style="width:'+Math.min(100,(U.lvl||1)*10)+'%"></div></div>'+
+      '<div style="font-size:11px;color:var(--sub);margin-top:5px;">Niveau '+(U.lvl||1)+' · joue des quiz et des duels pour grimper.</div>'+
+    '</div>'+
+    lbStatsCard()+
+  '</div>'+
   '</div>';
 }
 function lbLoad(zone){
@@ -3700,7 +3705,7 @@ function lbLoad(zone){
     if(typeof U!=='undefined' && U && U.name){ var __un=String(U.name).trim().toLowerCase();
       for(var __mi=0; __mi<list.length; __mi++){ if(String(list[__mi].name||'').trim().toLowerCase()===__un){ myRank=__mi+1; break; } } }
     var goalBox=ge('lb-goal');
-    if(!list.length){ if(goalBox) goalBox.innerHTML=''; box.innerHTML='<div class="al al-info" style="font-size:12px;">Le classement se construit au fil des quiz. Soyez le premier à marquer des points !</div>'; return; }
+    if(!list.length){ if(goalBox) goalBox.innerHTML=''; var __pb0=ge('lb-podium'); if(__pb0) __pb0.innerHTML=''; box.innerHTML='<div class="al al-info" style="font-size:12px;">Le classement se construit au fil des quiz. Soyez le premier à marquer des points !</div>'; return; }
     // MODIFIÉ : 🎯 prochain objectif
     if(goalBox){
       var gh='';
@@ -3777,7 +3782,8 @@ function lbLoad(zone){
         '<button onclick="raLbCert('+myRank+',\''+zLbl+'\','+myPts+')" style="width:100%;padding:13px;background:linear-gradient(135deg,#C9991A,#a87d12);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(201,153,26,.35);">📥 Télécharger mon certificat de classement</button>'+
       '</div>';
     }
-    box.innerHTML=certHTML+podHTML+rowsHTML;
+    box.innerHTML=rowsHTML || '<div class="al al-info" style="font-size:12px;">Aucun autre joueur pour l\'instant.</div>'; // MODIFIÉ : rangs 4+
+    var podBox=ge('lb-podium'); if(podBox) podBox.innerHTML=certHTML+podHTML; // MODIFIÉ : podium tout en haut
   }).catch(function(){ box.innerHTML='<div class="al al-warn" style="font-size:12px;">Classement momentanément indisponible.</div>'; });
 }
 window.raLbCert=function(rank,zoneLbl,pts){ // MODIFIÉ : certificat de classement (Top 3) réutilisant arBuildCertPDF
@@ -4780,6 +4786,7 @@ function rARKotmWaiting(){
       '<button class="btn" style="width:100%;padding:14px;font-size:14px;" onclick="arKotmStart()">👑 Lancer la manche</button>' : '')+
     (isCreator && !oppJoined && st==='waiting' ?
       '<button class="btn-out btn-sm" style="width:100%;border-color:rgba(201,153,26,.5);color:#C9991A;" onclick="arLeaveKotm()">🔔 Sortir — notif à l\'arrivée d\'un adversaire</button>' : '')+ // ROI-POULES
+    arLiveVisBlock('kotm', code)+
     '<button class="btn-out btn-sm" style="width:100%;" onclick="arQuit()">← Abandonner</button>'+
   '</div>';
 }
@@ -6300,6 +6307,24 @@ function arLiveFetch(){
     };
     if(AR.tab==='direct' && !AR.dWatch && !AR.kWatch) render();
   });
+}
+/* ── Visibilité Direct : un joueur peut masquer/afficher sa partie du public ── */ // MODIFIÉ
+function arLiveVisBlock(type, code){
+  var hid = AR.duelObj && AR.duelObj.hidden_live ? 1 : 0;
+  return '<div class="card" style="padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;">'+
+    '<div style="min-width:0;"><div style="font-size:12px;font-weight:700;color:#fff;">📺 Diffusion en Direct</div>'+
+    '<div style="font-size:10px;color:var(--sub);">'+(hid?'Masquée — invisible du public.':'Visible — suivable en spectateur.')+'</div></div>'+
+    '<button class="btn-out btn-sm" style="flex-shrink:0;" onclick="arToggleLiveVis(\''+type+'\',\''+code+'\')">'+(hid?'👁️ Rendre visible':'🔒 Masquer')+'</button>'+
+  '</div>';
+}
+function arToggleLiveVis(type, code){
+  var cur = AR.duelObj && AR.duelObj.hidden_live ? 1 : 0;
+  var url = type==='kotm' ? '/kotm/'+code+'/live-visibility' : '/duels/'+code+'/live-visibility';
+  fetch(url,{method:'POST',headers:Object.assign({'Content-Type':'application/json'},arAuthHdr()),body:JSON.stringify({hidden:!cur})})
+  .then(function(r){return r.json();}).then(function(d){
+    if(d&&d.success && AR.duelObj){ AR.duelObj.hidden_live = d.hidden; }
+    render();
+  }).catch(function(){});
 }
 function rLiveHub(){
   var L=AR.liveList;
