@@ -1,0 +1,101 @@
+<!-- ════════ REGUL ARENA · CITATION DU JOUR (accueil) — MODIFIÉ ════════ -->
+<style id="ra-cite-css">
+#ra-cite{max-width:1100px;margin:0 auto 26px;padding:0 18px}
+#ra-cite .rc-box{position:relative;display:flex;align-items:center;gap:14px;min-height:74px;
+  padding:16px 20px 16px 18px;border-radius:14px;overflow:hidden;
+  background:linear-gradient(135deg,#002B5C 0%,#001a3a 70%);
+  border:1px solid rgba(201,153,26,.42);
+  box-shadow:0 6px 22px rgba(0,0,0,.25);font-family:'IBM Plex Sans',system-ui,sans-serif}
+#ra-cite .rc-box::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;
+  background:linear-gradient(180deg,#E8B520,#C9991A)}
+#ra-cite .rc-ic{flex:0 0 auto;font-size:30px;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3))}
+#ra-cite .rc-main{flex:1 1 auto;min-width:0}
+#ra-cite .rc-tag{display:inline-block;font-size:9.5px;font-weight:800;letter-spacing:1.4px;
+  text-transform:uppercase;color:#C9991A;margin-bottom:5px}
+#ra-cite .rc-txt{color:#F8F9FA;font-size:14.5px;line-height:1.45;transition:opacity .5s ease}
+#ra-cite .rc-txt.rc-fade{opacity:0}
+#ra-cite .rc-auth{display:block;margin-top:5px;font-size:11.5px;font-style:italic;color:rgba(245,196,83,.85)}
+#ra-cite .rc-dots{position:absolute;right:14px;bottom:10px;display:flex;gap:5px}
+#ra-cite .rc-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.22);transition:background .3s,width .3s}
+#ra-cite .rc-dot.on{background:#C9991A;width:16px}
+@media(max-width:520px){#ra-cite .rc-ic{font-size:24px}#ra-cite .rc-txt{font-size:13.5px}#ra-cite .rc-dots{display:none}}
+@media(prefers-reduced-motion:reduce){#ra-cite .rc-txt{transition:none}}
+</style>
+<script id="ra-cite-js">
+(function(){
+  // ===== MODIFIÉ — Éditez cette liste pour gérer les phrases d'accroche =====
+  // { t:"phrase", a:"auteur (optionnel)" }
+  var RA_CITES = [
+    { t:"Si vous pensez que la conformité coûte cher, essayez la non-conformité !", a:"Gén. Paul McNulty" },
+    { t:"La confiance se gagne en gouttes et se perd en litres.", a:"Adage du risque" },
+    { t:"La conformité n'est pas un frein au business : c'est sa ceinture de sécurité." },
+    { t:"Connaître son client (KYC), c'est protéger sa banque avant de protéger son compte." },
+    { t:"Une déclaration de soupçon vaut mieux qu'un regret tardif." },
+    { t:"Le blanchiment se combat en amont : à l'entrée en relation, pas à la sortie." },
+    { t:"PPE détectée à temps = sanction évitée." },
+    { t:"L'approche par les risques : concentrer ses forces là où le danger est réel." },
+    { t:"Vos données clients sont un trésor — et les trésors se gardent sous clé." },
+    { t:"Le secret professionnel n'est pas une option, c'est une obligation légale." },
+    { t:"FATCA, CRS : aujourd'hui, aucun compte n'échappe à la transparence fiscale." },
+    { t:"Former ses équipes, c'est bâtir la première ligne de défense." },
+    { t:"La réputation met des années à se construire et un scandale à s'effondrer." },
+    { t:"Vigilance simplifiée ou renforcée : le bon niveau pour le bon risque." },
+    { t:"Conformité forte = clients fidèles, régulateur rassuré, banque protégée." }
+  ];
+  // =========================================================================
+  if(!Array.isArray(RA_CITES) || !RA_CITES.length) return;
+  if(document.getElementById('ra-cite')) return;
+  function el(t,c){ var e=document.createElement(t); if(c) e.className=c; return e; }
+  // Mélange (Fisher-Yates) pour varier l'ordre à chaque visite
+  var L=RA_CITES.slice();
+  for(var i=L.length-1;i>0;i--){ var j=(Math.random()*(i+1))|0; var tmp=L[i]; L[i]=L[j]; L[j]=tmp; }
+  var idx=0, txtEl, authEl, dots=[], timer=null;
+  function renderDots(host){
+    var wrap=el('div','rc-dots');
+    var n=Math.min(L.length,6);
+    for(var k=0;k<n;k++){ var d=el('span','rc-dot'); dots.push(d); wrap.appendChild(d); }
+    host.appendChild(wrap);
+  }
+  function paint(){
+    var c=L[idx];
+    txtEl.textContent='« '+c.t+' »';            // textContent = anti-XSS
+    authEl.textContent=c.a?('— '+c.a):'';
+    authEl.style.display=c.a?'block':'none';
+    for(var k=0;k<dots.length;k++){ dots[k].classList.toggle('on', k===(idx%dots.length)); }
+  }
+  function next(){
+    txtEl.classList.add('rc-fade'); authEl.classList.add('rc-fade');
+    setTimeout(function(){
+      idx=(idx+1)%L.length; paint();
+      txtEl.classList.remove('rc-fade'); authEl.classList.remove('rc-fade');
+    }, 500);
+  }
+  function build(){
+    var sec=el('section'); sec.id='ra-cite';
+    var box=el('div','rc-box');
+    var ic=el('div','rc-ic'); ic.textContent='💡';
+    var main=el('div','rc-main');
+    var tag=el('div','rc-tag'); tag.textContent='Esprit Conformité';
+    txtEl=el('div','rc-txt');
+    authEl=el('span','rc-auth');
+    main.appendChild(tag); main.appendChild(txtEl); main.appendChild(authEl);
+    box.appendChild(ic); box.appendChild(main);
+    renderDots(box);
+    sec.appendChild(box);
+    // MODIFIÉ — insertion sous le hero d'accueil (avant la bande de stats #h-stats), sinon en tête de #home-wrap
+    var anchor=document.getElementById('h-stats');
+    if(anchor && anchor.parentNode && anchor.parentNode.parentNode){
+      var wrap=anchor.parentNode;                 // le div conteneur de #h-stats
+      wrap.parentNode.insertBefore(sec, wrap);
+    } else {
+      var hw=document.getElementById('home-wrap');
+      if(hw) hw.insertBefore(sec, hw.firstChild); else return;
+    }
+    paint();
+    timer=setInterval(next, 6000);                // rotation toutes les 6 s
+    box.addEventListener('click', function(){ if(timer){ clearInterval(timer);} next(); timer=setInterval(next,6000); });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',build); else build();
+})();
+</script>
+<!-- ════════ FIN CITATION DU JOUR ════════ -->
