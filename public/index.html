@@ -10153,19 +10153,20 @@ window.raOpenNotif=function(){
 #ra-flash .raf-tag{flex:0 0 auto;display:flex;align-items:center;gap:6px;height:100%;padding:0 22px 0 14px;
   background:linear-gradient(90deg,#C9991A,var(--cyan,#F5C453));color:var(--bg,#0A192F);font-weight:800;
   font-size:13px;letter-spacing:1px;white-space:nowrap;clip-path:polygon(0 0,100% 0,calc(100% - 14px) 100%,0 100%);
-  transition:opacity .3s ease} /* MODIFIÉ : transition pour le changement de libellé par phase */
-#ra-flash .raf-tag.raf-tag-cite{background:linear-gradient(90deg,#C9991A,#E8B520)} /* MODIFIÉ : nuance phase citation */
+  transition:opacity .25s ease} /* MODIFIÉ : fondu du libellé synchronisé avec le contenu */
+#ra-flash .raf-tag.raf-tag-cite{background:linear-gradient(90deg,#C9991A,#E8B520)}
 #ra-flash .raf-vp{position:relative;flex:1 1 auto;overflow:hidden;height:100%}
 #ra-flash .raf-track{display:flex;align-items:center;height:100%;width:max-content;white-space:nowrap;
-  animation:raf-scroll linear infinite;will-change:transform}
+  animation:raf-scroll linear infinite;will-change:transform;
+  transition:opacity .25s ease} /* MODIFIÉ : fondu du contenu pendant la bascule de phase */
 #ra-flash:hover .raf-track,#ra-flash.raf-pause .raf-track{animation-play-state:paused}
 #ra-flash .raf-item{display:inline-flex;align-items:center;gap:8px;padding:0 24px;color:var(--text,#F8F9FA);font-size:14px}
 #ra-flash .raf-item.raf-go{cursor:pointer}
 #ra-flash .raf-item.raf-go:hover{color:#fff}
 #ra-flash .raf-date{color:var(--cyan,#F5C453);font-weight:700;font-size:11px;letter-spacing:.5px;
   border:1px solid rgba(245,196,83,.5);border-radius:10px;padding:2px 8px}
-#ra-flash .raf-date.raf-cite{color:#C9991A;border-color:rgba(201,153,26,.6)} /* MODIFIÉ : puce dorée citations */
-#ra-flash .raf-item.raf-q .raf-txt{font-style:italic} /* MODIFIÉ : citations en italique */
+#ra-flash .raf-date.raf-cite{color:#C9991A;border-color:rgba(201,153,26,.6)}
+#ra-flash .raf-item.raf-q .raf-txt{font-style:italic}
 #ra-flash .raf-sep{color:var(--cyan,#F5C453);font-size:9px}
 @keyframes raf-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 @media (prefers-reduced-motion:reduce){#ra-flash .raf-track{animation:none}}
@@ -10184,7 +10185,6 @@ window.raOpenNotif=function(){
     { date:'🎯 DÉFI',                  txt:"Testez vos connaissances sur ces nouvelles directives dans le module Quiz : Réglementation 2026.", tab:'quiz' }
   ];
   // ===== MODIFIÉ — PHASE 2 : CITATIONS / phrases d'accroche =====
-  // { t:"phrase", a:"auteur (optionnel)" } — éditez librement cette liste.
   var RA_CITES = [
     { t:"Si vous pensez que la conformité coûte cher, essayez la non-conformité !", a:"Gén. Paul McNulty" },
     { t:"La confiance se gagne en gouttes et se perd en litres.", a:"Adage du risque" },
@@ -10202,7 +10202,6 @@ window.raOpenNotif=function(){
     { t:"Vigilance simplifiée ou renforcée : le bon niveau pour le bon risque." },
     { t:"Conformité forte = clients fidèles, régulateur rassuré, banque protégée." }
   ];
-  // MODIFIÉ — items « citation » prêts pour la bande (puce dorée « LE SAVIEZ-VOUS »)
   var CITE_ITEMS = RA_CITES.map(function(c){
     return { date:'💡 LE SAVIEZ-VOUS', txt:'« '+c.t+' »'+(c.a?(' — '+c.a):''), cite:true };
   });
@@ -10210,15 +10209,15 @@ window.raOpenNotif=function(){
   if(!Array.isArray(RA_FLASH) || !RA_FLASH.length) return;
   if(document.getElementById('ra-flash')) return;
 
-  var LABELS=['⚡ FLASH INFO','💡 CITATION DU JOUR']; // MODIFIÉ : libellé par phase
-  var phase=0;            // 0 = actus, 1 = citations
-  var scorers=[];         // top scoreurs (chargés en asynchrone), affichés en phase actus
+  var LABELS=['⚡ FLASH INFO','💡 CITATION DU JOUR'];
+  var phase=0, scorers=[], swapping=false; // MODIFIÉ : swapping = garde anti-double-bascule
   var tagEl=null, trackEl=null, barEl=null;
-  var reduceMotion = (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var reduceMotion=(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
   function el(t,c){ var e=document.createElement(t); if(c) e.className=c; return e; }
 
   function makeItem(f){
+    if(f && f._scorer) return makeScorer(f.rank, f.name, f.cc, f.pts); // MODIFIÉ : scoreur
     var it=el('span','raf-item');
     if(f.cite) it.classList.add('raf-q');
     if(f.date){ var d=el('span','raf-date'+(f.cite?' raf-cite':'')); d.textContent=f.date; it.appendChild(d); } // textContent = anti-XSS
@@ -10229,36 +10228,45 @@ window.raOpenNotif=function(){
     return it;
   }
 
-  // MODIFIÉ — items de la phase courante : phase 0 = scoreurs + actus ; phase 1 = citations
-  function phaseItems(){
-    return phase===0 ? scorers.concat(RA_FLASH) : CITE_ITEMS;
-  }
+  function phaseItems(){ return phase===0 ? scorers.concat(RA_FLASH) : CITE_ITEMS; }
 
-  // MODIFIÉ — (re)remplit la piste avec la phase courante (doublée = boucle fluide) + ajuste vitesse
-  function fillTrack(){
-    if(!trackEl) return;
-    var items=phaseItems();
+  function setDuration(){
+    var w=trackEl.scrollWidth/2;
+    trackEl.style.animationDuration=Math.max(20,Math.round(w/70))+'s'; // vitesse constante ~70 px/s
+  }
+  // MODIFIÉ — redémarre l'animation proprement à 0 (évite le « saut » à la bascule)
+  function restartAnim(){
+    trackEl.style.animation='none';
+    void trackEl.offsetWidth; // force un reflow
+    trackEl.style.animation='';
+  }
+  // MODIFIÉ — (re)remplit la piste avec la phase courante (doublée = boucle fluide)
+  function renderPhase(){
     trackEl.innerHTML='';
+    var items=phaseItems();
     items.forEach(function(f){ trackEl.appendChild(makeItem(f)); });
     items.forEach(function(f){ trackEl.appendChild(makeItem(f)); });
-    requestAnimationFrame(function(){
-      var w=trackEl.scrollWidth/2;
-      trackEl.style.animationDuration=Math.max(20,Math.round(w/70))+'s'; // vitesse constante ~70 px/s
-    });
+    requestAnimationFrame(function(){ setDuration(); restartAnim(); });
   }
 
-  // MODIFIÉ — bascule de phase : change le libellé ET le contenu, en cohérence
+  // MODIFIÉ — bascule de phase SYNCHRONISÉE : fondu → on change libellé + contenu ensemble → fondu retour
   function swapPhase(){
-    phase=(phase+1)%2;
-    if(tagEl){
-      tagEl.style.opacity='0';
-      setTimeout(function(){
+    if(swapping) return; swapping=true;
+    if(tagEl) tagEl.style.opacity='0';
+    trackEl.style.opacity='0';
+    setTimeout(function(){
+      phase=(phase+1)%2;
+      if(tagEl){
         tagEl.textContent=LABELS[phase];
         tagEl.classList.toggle('raf-tag-cite', phase===1);
-        tagEl.style.opacity='1';
-      }, 300);
-    }
-    fillTrack();
+      }
+      renderPhase();
+      requestAnimationFrame(function(){
+        if(tagEl) tagEl.style.opacity='1';
+        trackEl.style.opacity='1';
+        swapping=false;
+      });
+    }, 260); // = durée du fondu (CSS .25s), tout change pendant que c'est invisible
   }
 
   function build(){
@@ -10270,12 +10278,11 @@ window.raOpenNotif=function(){
     if(ct && ct.parentNode){ ct.parentNode.insertBefore(barEl, ct); }
     else { var m=document.getElementById('main')||document.body; m.insertBefore(barEl, m.firstChild); }
 
-    fillTrack(); // phase 0 (actus) au démarrage
+    renderPhase(); // phase 0 (actus) au démarrage
 
-    // MODIFIÉ — alternance : à chaque cycle complet de défilement, on change de phase.
-    // animationiteration se met en pause avec le survol/toucher → cohérence respectée.
+    // Bascule à chaque cycle complet de défilement (se met en pause au survol/toucher → cohérence préservée)
     trackEl.addEventListener('animationiteration', swapPhase);
-    if(reduceMotion){ setInterval(swapPhase, 9000); } // fallback sans animation (accessibilité)
+    if(reduceMotion){ setInterval(swapPhase, 9000); } // fallback accessibilité (pas d'animation)
 
     barEl.addEventListener('touchstart',function(){ barEl.classList.add('raf-pause'); },{passive:true});
     barEl.addEventListener('touchend',function(){ setTimeout(function(){ barEl.classList.remove('raf-pause'); },1500); },{passive:true});
@@ -10284,7 +10291,7 @@ window.raOpenNotif=function(){
     setTimeout(addTopScorers, 4000);
   }
 
-  /* ════ MODIFIÉ — TOP SCOREURS (alimentent la phase actus) ════ */
+  /* ════ TOP SCOREURS (alimentent la phase actus) ════ */
   var RAF_UEMOA={SN:1,CI:1,ML:1,BF:1,BJ:1,NE:1,TG:1,GW:1};
   var RAF_CEMAC={CM:1,CG:1,GA:1,GQ:1,CF:1,TD:1};
   function rafZone(cc){ cc=String(cc||'').toUpperCase(); return RAF_UEMOA[cc]?'UEMOA':RAF_CEMAC[cc]?'CEMAC':''; }
@@ -10313,10 +10320,7 @@ window.raOpenNotif=function(){
     it.addEventListener('click',function(){ if(typeof ST==='function') ST('arena'); });
     return it;
   }
-  // MODIFIÉ — version « scoreur » sous forme de descripteur d'item (intégrable à la phase actus)
-  function scorerItem(rank,name,cc,pts){
-    return { _scorer:true, rank:rank, name:name, cc:cc, pts:pts };
-  }
+  function scorerItem(rank,name,cc,pts){ return { _scorer:true, rank:rank, name:name, cc:cc, pts:pts }; }
   function addTopScorers(){
     if(!barEl) return;
     var hdr=(typeof U!=='undefined'&&U&&U.token)?{'Authorization':'Bearer '+U.token}:{};
@@ -10325,17 +10329,10 @@ window.raOpenNotif=function(){
       var HIDE=['kaiser ndao','abdou ndao'];
       list=list.filter(function(p){ return HIDE.indexOf(String((p&&p.name)||'').trim().toLowerCase())===-1; });
       if(!list.length) return;
+      // MODIFIÉ — on met juste à jour la liste ; elle apparaît au prochain cycle « actus » (pas de saut en plein défilement)
       scorers=list.slice(0,3).map(function(p,k){ return scorerItem(k+1, p.name||'?', p.country||'', p.total_score||0); });
-      if(phase===0) fillTrack(); // rafraîchit la phase actus en cours si besoin (au prochain cycle sinon)
     }).catch(function(){});
   }
-
-  // MODIFIÉ — makeItem gère aussi les descripteurs de scoreurs
-  var _origMakeItem = makeItem;
-  makeItem = function(f){
-    if(f && f._scorer) return makeScorer(f.rank, f.name, f.cc, f.pts);
-    return _origMakeItem(f);
-  };
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',build); else build();
 })();
