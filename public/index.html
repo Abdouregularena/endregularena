@@ -10230,15 +10230,14 @@ window.raOpenNotif=function(){
 
   function phaseItems(){ return phase===0 ? scorers.concat(RA_FLASH) : CITE_ITEMS; }
 
-  function setDuration(){
-    var w=trackEl.scrollWidth/2;
-    trackEl.style.animationDuration=Math.max(20,Math.round(w/70))+'s'; // vitesse constante ~70 px/s
-  }
-  // MODIFIÉ — redémarre l'animation proprement à 0 (évite le « saut » à la bascule)
-  function restartAnim(){
-    trackEl.style.animation='none';
-    void trackEl.offsetWidth; // force un reflow
-    trackEl.style.animation='';
+  // MODIFIÉ — applique l'animation avec une durée EXPLICITE (corrige la régression : bande figée).
+  // On pose le raccourci complet « raf-scroll <durée>s linear infinite » d'un seul coup,
+  // sinon remettre style.animation='' efface la durée et le défilement tombe à 0 s.
+  function applyAnim(restart){
+    if(reduceMotion){ trackEl.style.animation='none'; return; }
+    var dur=Math.max(20, Math.round((trackEl.scrollWidth/2)/70)); // vitesse constante ~70 px/s
+    if(restart){ trackEl.style.animation='none'; void trackEl.offsetWidth; } // reflow = redémarre à 0
+    trackEl.style.animation='raf-scroll '+dur+'s linear infinite';
   }
   // MODIFIÉ — (re)remplit la piste avec la phase courante (doublée = boucle fluide)
   function renderPhase(){
@@ -10246,7 +10245,7 @@ window.raOpenNotif=function(){
     var items=phaseItems();
     items.forEach(function(f){ trackEl.appendChild(makeItem(f)); });
     items.forEach(function(f){ trackEl.appendChild(makeItem(f)); });
-    requestAnimationFrame(function(){ setDuration(); restartAnim(); });
+    requestAnimationFrame(function(){ applyAnim(true); });
   }
 
   // MODIFIÉ — bascule de phase SYNCHRONISÉE : fondu → on change libellé + contenu ensemble → fondu retour
