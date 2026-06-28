@@ -1,0 +1,154 @@
+<!-- ════════ REGUL ARENA · FLASH INFO + CITATIONS (Lot A) — MODIFIÉ ════════ -->
+<style id="ra-flash-css">
+#ra-flash{position:relative;display:flex;align-items:center;height:44px;overflow:hidden;z-index:6;
+  background:linear-gradient(90deg,rgba(8,26,51,.98),rgba(17,34,64,.96));
+  border-top:1px solid rgba(245,196,83,.45);border-bottom:1px solid rgba(245,196,83,.45);
+  font-family:'IBM Plex Sans',system-ui,sans-serif}
+#ra-flash .raf-tag{flex:0 0 auto;display:flex;align-items:center;gap:6px;height:100%;padding:0 22px 0 14px;
+  background:linear-gradient(90deg,#C9991A,var(--cyan,#F5C453));color:var(--bg,#0A192F);font-weight:800;
+  font-size:13px;letter-spacing:1px;white-space:nowrap;clip-path:polygon(0 0,100% 0,calc(100% - 14px) 100%,0 100%);
+  transition:opacity .35s ease} /* MODIFIÉ : transition pour l'alternance du libellé */
+#ra-flash .raf-vp{position:relative;flex:1 1 auto;overflow:hidden;height:100%}
+#ra-flash .raf-track{display:flex;align-items:center;height:100%;width:max-content;white-space:nowrap;
+  animation:raf-scroll linear infinite;will-change:transform}
+#ra-flash:hover .raf-track,#ra-flash.raf-pause .raf-track{animation-play-state:paused}
+#ra-flash .raf-item{display:inline-flex;align-items:center;gap:8px;padding:0 24px;color:var(--text,#F8F9FA);font-size:14px}
+#ra-flash .raf-item.raf-go{cursor:pointer}
+#ra-flash .raf-item.raf-go:hover{color:#fff}
+#ra-flash .raf-date{color:var(--cyan,#F5C453);font-weight:700;font-size:11px;letter-spacing:.5px;
+  border:1px solid rgba(245,196,83,.5);border-radius:10px;padding:2px 8px}
+#ra-flash .raf-date.raf-cite{color:#C9991A;border-color:rgba(201,153,26,.6)} /* MODIFIÉ : puce dorée pour les citations */
+#ra-flash .raf-item.raf-q .raf-txt{font-style:italic} /* MODIFIÉ : citations en italique */
+#ra-flash .raf-sep{color:var(--cyan,#F5C453);font-size:9px}
+@keyframes raf-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){#ra-flash .raf-track{animation:none}}
+</style>
+<script id="ra-flash-js">
+(function(){
+  // ===== MODIFIÉ — ACTUALITÉS réglementaires (à jour au 26 juin 2026) =====
+  var RA_FLASH = [
+    { date:'UEMOA · BCEAO',            txt:"Taux directeur maintenu à 3,00 % et taux de prêt marginal à 5,00 % (Comité de Politique Monétaire du 10 juin 2026).", tab:'quiz' },
+    { date:'CEMAC · COBAC',            txt:"Refonte des règles de liquidité des établissements de microfinance (EMF) en préparation pour endiguer les défaillances récurrentes du secteur.", tab:'quiz' },
+    { date:'UEMOA · PI-SPI',           txt:"La BCEAO repousse officiellement les échéances de connexion au paiement instantané pour les banques, EME et établissements de paiement.", tab:'quiz' },
+    { date:'UEMOA · Marché financier', txt:"Levées souveraines réussies sur l'UMOA en juin 2026 : le Sénégal lève 107 milliards FCFA, le Mali 55 milliards FCFA.", tab:'quiz' },
+    { date:'UEMOA · Burkina Faso',     txt:"Nouvelle instruction : domiciliation obligatoire des comptes des organisations religieuses auprès de la Banque du Trésor.", tab:'quiz' },
+    { date:'CEMAC · Contentieux',      txt:"Bras de fer juridique COBAC / CDEC du Cameroun sur la qualification des consignations en opérations de banque.", tab:'quiz' },
+    { date:'CEMAC · BEAC',             txt:"Stabilité du franc CFA confirmée : seuls 2 billets sur 100 000 sont contrefaits (laboratoire BEAC, données à fin avril 2026).", tab:'quiz' },
+    { date:'🎯 DÉFI',                  txt:"Testez vos connaissances sur ces nouvelles directives dans le module Quiz : Réglementation 2026.", tab:'quiz' }
+  ];
+  // ===== MODIFIÉ — CITATIONS / phrases d'accroche (défilent dans la même bande) =====
+  // { t:"phrase", a:"auteur (optionnel)" } — éditez librement cette liste.
+  var RA_CITES = [
+    { t:"Si vous pensez que la conformité coûte cher, essayez la non-conformité !", a:"Gén. Paul McNulty" },
+    { t:"La confiance se gagne en gouttes et se perd en litres.", a:"Adage du risque" },
+    { t:"La conformité n'est pas un frein au business : c'est sa ceinture de sécurité." },
+    { t:"Connaître son client (KYC), c'est protéger sa banque avant de protéger son compte." },
+    { t:"Une déclaration de soupçon vaut mieux qu'un regret tardif." },
+    { t:"Le blanchiment se combat en amont : à l'entrée en relation, pas à la sortie." },
+    { t:"PPE détectée à temps = sanction évitée." },
+    { t:"L'approche par les risques : concentrer ses forces là où le danger est réel." },
+    { t:"Vos données clients sont un trésor — et les trésors se gardent sous clé." },
+    { t:"Le secret professionnel n'est pas une option, c'est une obligation légale." },
+    { t:"FATCA, CRS : aujourd'hui, aucun compte n'échappe à la transparence fiscale." },
+    { t:"Former ses équipes, c'est bâtir la première ligne de défense." },
+    { t:"La réputation met des années à se construire et un scandale à s'effondrer." },
+    { t:"Vigilance simplifiée ou renforcée : le bon niveau pour le bon risque." },
+    { t:"Conformité forte = clients fidèles, régulateur rassuré, banque protégée." }
+  ];
+  // MODIFIÉ — transforme chaque citation en item de la bande (puce dorée « LE SAVIEZ-VOUS »)
+  RA_CITES.forEach(function(c){
+    RA_FLASH.push({ date:'💡 LE SAVIEZ-VOUS', txt:'« '+c.t+' »'+(c.a?(' — '+c.a):''), cite:true });
+  });
+  // =================================================================
+  if(!Array.isArray(RA_FLASH) || !RA_FLASH.length) return;
+  if(document.getElementById('ra-flash')) return;
+  var tagEl=null; // MODIFIÉ : référence au libellé de gauche (pour l'alternance)
+  function el(t,c){ var e=document.createElement(t); if(c) e.className=c; return e; }
+  function makeItem(f){
+    var it=el('span','raf-item');
+    if(f.cite) it.classList.add('raf-q'); // MODIFIÉ : style citation
+    if(f.date){ var d=el('span','raf-date'+(f.cite?' raf-cite':'')); d.textContent=f.date; it.appendChild(d); } // textContent = anti-XSS
+    var t=el('span','raf-txt'); t.textContent=f.txt||''; it.appendChild(t);
+    var s=el('span','raf-sep'); s.textContent='◆'; it.appendChild(s);
+    if(f.tab){ it.classList.add('raf-go'); it.addEventListener('click',function(){ if(typeof ST==='function') ST(f.tab); }); }
+    else if(f.url){ it.classList.add('raf-go'); it.addEventListener('click',function(){ window.open(f.url,'_blank','noopener'); }); }
+    return it;
+  }
+  function build(){
+    var bar=el('div'); bar.id='ra-flash';
+    var tag=el('div','raf-tag'); tag.textContent='⚡ FLASH INFO'; tagEl=tag;
+    var vp=el('div','raf-vp'); var track=el('div','raf-track');
+    RA_FLASH.forEach(function(f){ track.appendChild(makeItem(f)); });
+    RA_FLASH.forEach(function(f){ track.appendChild(makeItem(f)); }); // 2e passe = boucle fluide
+    vp.appendChild(track); bar.appendChild(tag); bar.appendChild(vp);
+    var ct=document.getElementById('ct');
+    if(ct && ct.parentNode){ ct.parentNode.insertBefore(bar, ct); }
+    else { var m=document.getElementById('main')||document.body; m.insertBefore(bar, m.firstChild); }
+    requestAnimationFrame(function(){ var w=track.scrollWidth/2; track.style.animationDuration=Math.max(20,Math.round(w/70))+'s'; });
+    bar.addEventListener('touchstart',function(){ bar.classList.add('raf-pause'); },{passive:true});
+    bar.addEventListener('touchend',function(){ setTimeout(function(){ bar.classList.remove('raf-pause'); },1500); },{passive:true});
+    startTagCycle();                 // MODIFIÉ : alterne le libellé FLASH INFO / CITATION DU JOUR
+    addTopScorers();
+    setTimeout(addTopScorers, 4000);
+  }
+  /* ════ MODIFIÉ — alternance du libellé de gauche ════ */
+  function startTagCycle(){
+    var labels=['⚡ FLASH INFO','💡 CITATION DU JOUR']; var k=0;
+    setInterval(function(){
+      if(!tagEl) return;
+      tagEl.style.opacity='0';
+      setTimeout(function(){ k=(k+1)%labels.length; tagEl.textContent=labels[k]; tagEl.style.opacity='1'; }, 350);
+    }, 7000);
+  }
+  /* ════ MODIFIÉ — TOP SCOREURS dans le Flash Info (nom + drapeau + zone) ════ */
+  var RAF_UEMOA={SN:1,CI:1,ML:1,BF:1,BJ:1,NE:1,TG:1,GW:1};
+  var RAF_CEMAC={CM:1,CG:1,GA:1,GQ:1,CF:1,TD:1};
+  function rafZone(cc){ cc=String(cc||'').toUpperCase(); return RAF_UEMOA[cc]?'UEMOA':RAF_CEMAC[cc]?'CEMAC':''; }
+  function rafFlagNode(cc){
+    cc=String(cc||'').toLowerCase();
+    if(/^[a-z]{2}$/.test(cc)){
+      var img=el('img');
+      img.src='https://flagcdn.com/20x15/'+cc+'.png';
+      img.srcset='https://flagcdn.com/40x30/'+cc+'.png 2x';
+      img.width=20; img.height=15; img.alt=cc.toUpperCase(); img.loading='lazy';
+      img.style.cssText='border-radius:2px;vertical-align:middle;margin:0 1px;box-shadow:0 0 0 1px rgba(255,255,255,.2);';
+      img.onerror=function(){ var s=document.createElement('span'); s.textContent='🌍'; if(img.parentNode){ img.parentNode.replaceChild(s,img); } };
+      return img;
+    }
+    var sp=el('span'); sp.textContent='🌍'; return sp;
+  }
+  function makeScorer(rank,name,cc,pts){
+    var it=el('span','raf-item raf-go');
+    var d=el('span','raf-date'); d.textContent=(['🥇','🥈','🥉'][rank-1]||('#'+rank))+' MAÎTRE DE L\'ARÈNE'; it.appendChild(d);
+    it.appendChild(document.createTextNode(' '));
+    it.appendChild(rafFlagNode(cc));
+    var z=rafZone(cc);
+    var t=el('span'); t.textContent=' '+(name||'?')+(z?(' · '+z):'')+' — '+(pts||0)+' pts';
+    it.appendChild(t);
+    var s=el('span','raf-sep'); s.textContent='◆'; it.appendChild(s);
+    it.addEventListener('click',function(){ if(typeof ST==='function') ST('arena'); });
+    return it;
+  }
+  function addTopScorers(){
+    var bar=document.getElementById('ra-flash'); if(!bar) return;
+    var track=bar.querySelector('.raf-track'); if(!track) return;
+    var hdr=(typeof U!=='undefined'&&U&&U.token)?{'Authorization':'Bearer '+U.token}:{};
+    fetch('/leaderboard',{headers:hdr}).then(function(r){return r.json();}).then(function(d){
+      var list=(d&&d.leaderboard)||[];
+      var HIDE=['kaiser ndao','abdou ndao'];
+      list=list.filter(function(p){ return HIDE.indexOf(String((p&&p.name)||'').trim().toLowerCase())===-1; });
+      if(!list.length) return;
+      var top=list.slice(0,3);
+      track.innerHTML='';
+      function pass(){
+        top.forEach(function(p,k){ track.appendChild(makeScorer(k+1, p.name||'?', p.country||'', p.total_score||0)); });
+        RA_FLASH.forEach(function(f){ track.appendChild(makeItem(f)); });
+      }
+      pass(); pass();
+      requestAnimationFrame(function(){ var w=track.scrollWidth/2; track.style.animationDuration=Math.max(20,Math.round(w/70))+'s'; });
+    }).catch(function(){});
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',build); else build();
+})();
+</script>
+<!-- ════════ FIN FLASH INFO + CITATIONS ════════ -->
