@@ -10144,7 +10144,7 @@ window.raOpenNotif=function(){
 })();
 </script>
 
-<!-- ════════ REGUL ARENA · FLASH INFO (Lot A statique) — MODIFIÉ ════════ -->
+<!-- ════════ REGUL ARENA · FLASH INFO + CITATIONS (Lot A) — MODIFIÉ ════════ -->
 <style id="ra-flash-css">
 #ra-flash{position:relative;display:flex;align-items:center;height:44px;overflow:hidden;z-index:6;
   background:linear-gradient(90deg,rgba(8,26,51,.98),rgba(17,34,64,.96));
@@ -10152,7 +10152,9 @@ window.raOpenNotif=function(){
   font-family:'IBM Plex Sans',system-ui,sans-serif}
 #ra-flash .raf-tag{flex:0 0 auto;display:flex;align-items:center;gap:6px;height:100%;padding:0 22px 0 14px;
   background:linear-gradient(90deg,#C9991A,var(--cyan,#F5C453));color:var(--bg,#0A192F);font-weight:800;
-  font-size:13px;letter-spacing:1px;white-space:nowrap;clip-path:polygon(0 0,100% 0,calc(100% - 14px) 100%,0 100%)}
+  font-size:13px;letter-spacing:1px;white-space:nowrap;clip-path:polygon(0 0,100% 0,calc(100% - 14px) 100%,0 100%);
+  transition:opacity .3s ease} /* MODIFIÉ : transition pour le changement de libellé par phase */
+#ra-flash .raf-tag.raf-tag-cite{background:linear-gradient(90deg,#C9991A,#E8B520)} /* MODIFIÉ : nuance phase citation */
 #ra-flash .raf-vp{position:relative;flex:1 1 auto;overflow:hidden;height:100%}
 #ra-flash .raf-track{display:flex;align-items:center;height:100%;width:max-content;white-space:nowrap;
   animation:raf-scroll linear infinite;will-change:transform}
@@ -10162,15 +10164,15 @@ window.raOpenNotif=function(){
 #ra-flash .raf-item.raf-go:hover{color:#fff}
 #ra-flash .raf-date{color:var(--cyan,#F5C453);font-weight:700;font-size:11px;letter-spacing:.5px;
   border:1px solid rgba(245,196,83,.5);border-radius:10px;padding:2px 8px}
+#ra-flash .raf-date.raf-cite{color:#C9991A;border-color:rgba(201,153,26,.6)} /* MODIFIÉ : puce dorée citations */
+#ra-flash .raf-item.raf-q .raf-txt{font-style:italic} /* MODIFIÉ : citations en italique */
 #ra-flash .raf-sep{color:var(--cyan,#F5C453);font-size:9px}
 @keyframes raf-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 @media (prefers-reduced-motion:reduce){#ra-flash .raf-track{animation:none}}
 </style>
 <script id="ra-flash-js">
 (function(){
-  // ===== MODIFIÉ — Éditez cette liste pour gérer le Flash Info =====
-  // Chaque actu : { date, txt, tab? }  (tab : ouvre un onglet via ST('id'))
-  // MODIFIÉ — actualités réglementaires UEMOA / CEMAC (à jour au 26 juin 2026). Format : [Zone] : [Titre].
+  // ===== MODIFIÉ — PHASE 1 : ACTUALITÉS réglementaires (à jour au 26 juin 2026) =====
   var RA_FLASH = [
     { date:'UEMOA · BCEAO',            txt:"Taux directeur maintenu à 3,00 % et taux de prêt marginal à 5,00 % (Comité de Politique Monétaire du 10 juin 2026).", tab:'quiz' },
     { date:'CEMAC · COBAC',            txt:"Refonte des règles de liquidité des établissements de microfinance (EMF) en préparation pour endiguer les défaillances récurrentes du secteur.", tab:'quiz' },
@@ -10181,42 +10183,112 @@ window.raOpenNotif=function(){
     { date:'CEMAC · BEAC',             txt:"Stabilité du franc CFA confirmée : seuls 2 billets sur 100 000 sont contrefaits (laboratoire BEAC, données à fin avril 2026).", tab:'quiz' },
     { date:'🎯 DÉFI',                  txt:"Testez vos connaissances sur ces nouvelles directives dans le module Quiz : Réglementation 2026.", tab:'quiz' }
   ];
+  // ===== MODIFIÉ — PHASE 2 : CITATIONS / phrases d'accroche =====
+  // { t:"phrase", a:"auteur (optionnel)" } — éditez librement cette liste.
+  var RA_CITES = [
+    { t:"Si vous pensez que la conformité coûte cher, essayez la non-conformité !", a:"Gén. Paul McNulty" },
+    { t:"La confiance se gagne en gouttes et se perd en litres.", a:"Adage du risque" },
+    { t:"La conformité n'est pas un frein au business : c'est sa ceinture de sécurité." },
+    { t:"Connaître son client (KYC), c'est protéger sa banque avant de protéger son compte." },
+    { t:"Une déclaration de soupçon vaut mieux qu'un regret tardif." },
+    { t:"Le blanchiment se combat en amont : à l'entrée en relation, pas à la sortie." },
+    { t:"PPE détectée à temps = sanction évitée." },
+    { t:"L'approche par les risques : concentrer ses forces là où le danger est réel." },
+    { t:"Vos données clients sont un trésor — et les trésors se gardent sous clé." },
+    { t:"Le secret professionnel n'est pas une option, c'est une obligation légale." },
+    { t:"FATCA, CRS : aujourd'hui, aucun compte n'échappe à la transparence fiscale." },
+    { t:"Former ses équipes, c'est bâtir la première ligne de défense." },
+    { t:"La réputation met des années à se construire et un scandale à s'effondrer." },
+    { t:"Vigilance simplifiée ou renforcée : le bon niveau pour le bon risque." },
+    { t:"Conformité forte = clients fidèles, régulateur rassuré, banque protégée." }
+  ];
+  // MODIFIÉ — items « citation » prêts pour la bande (puce dorée « LE SAVIEZ-VOUS »)
+  var CITE_ITEMS = RA_CITES.map(function(c){
+    return { date:'💡 LE SAVIEZ-VOUS', txt:'« '+c.t+' »'+(c.a?(' — '+c.a):''), cite:true };
+  });
   // =================================================================
   if(!Array.isArray(RA_FLASH) || !RA_FLASH.length) return;
   if(document.getElementById('ra-flash')) return;
+
+  var LABELS=['⚡ FLASH INFO','💡 CITATION DU JOUR']; // MODIFIÉ : libellé par phase
+  var phase=0;            // 0 = actus, 1 = citations
+  var scorers=[];         // top scoreurs (chargés en asynchrone), affichés en phase actus
+  var tagEl=null, trackEl=null, barEl=null;
+  var reduceMotion = (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
   function el(t,c){ var e=document.createElement(t); if(c) e.className=c; return e; }
+
   function makeItem(f){
     var it=el('span','raf-item');
-    if(f.date){ var d=el('span','raf-date'); d.textContent=f.date; it.appendChild(d); } // textContent = anti-XSS
-    var t=el('span'); t.textContent=f.txt||''; it.appendChild(t);
+    if(f.cite) it.classList.add('raf-q');
+    if(f.date){ var d=el('span','raf-date'+(f.cite?' raf-cite':'')); d.textContent=f.date; it.appendChild(d); } // textContent = anti-XSS
+    var t=el('span','raf-txt'); t.textContent=f.txt||''; it.appendChild(t);
     var s=el('span','raf-sep'); s.textContent='◆'; it.appendChild(s);
     if(f.tab){ it.classList.add('raf-go'); it.addEventListener('click',function(){ if(typeof ST==='function') ST(f.tab); }); }
     else if(f.url){ it.classList.add('raf-go'); it.addEventListener('click',function(){ window.open(f.url,'_blank','noopener'); }); }
     return it;
   }
-  function build(){
-    var bar=el('div'); bar.id='ra-flash';
-    var tag=el('div','raf-tag'); tag.textContent='⚡ FLASH INFO';
-    var vp=el('div','raf-vp'); var track=el('div','raf-track');
-    RA_FLASH.forEach(function(f){ track.appendChild(makeItem(f)); });
-    RA_FLASH.forEach(function(f){ track.appendChild(makeItem(f)); }); // 2e passe = boucle fluide
-    vp.appendChild(track); bar.appendChild(tag); bar.appendChild(vp);
-    // MODIFIÉ — insertion entre #topbar et #ct (sinon en haut de #main, sinon body)
-    var ct=document.getElementById('ct');
-    if(ct && ct.parentNode){ ct.parentNode.insertBefore(bar, ct); }
-    else { var m=document.getElementById('main')||document.body; m.insertBefore(bar, m.firstChild); }
-    requestAnimationFrame(function(){ var w=track.scrollWidth/2; track.style.animationDuration=Math.max(20,Math.round(w/70))+'s'; });
-    bar.addEventListener('touchstart',function(){ bar.classList.add('raf-pause'); },{passive:true});
-    bar.addEventListener('touchend',function(){ setTimeout(function(){ bar.classList.remove('raf-pause'); },1500); },{passive:true});
-    addTopScorers();                 // MODIFIÉ : injecte les Maîtres de l'Arène (top scoreurs)
-    setTimeout(addTopScorers, 4000); // MODIFIÉ : nouvelle tentative si le token de session arrive plus tard
+
+  // MODIFIÉ — items de la phase courante : phase 0 = scoreurs + actus ; phase 1 = citations
+  function phaseItems(){
+    return phase===0 ? scorers.concat(RA_FLASH) : CITE_ITEMS;
   }
-  /* ════ MODIFIÉ — TOP SCOREURS dans le Flash Info (nom + drapeau + zone) ════ */
+
+  // MODIFIÉ — (re)remplit la piste avec la phase courante (doublée = boucle fluide) + ajuste vitesse
+  function fillTrack(){
+    if(!trackEl) return;
+    var items=phaseItems();
+    trackEl.innerHTML='';
+    items.forEach(function(f){ trackEl.appendChild(makeItem(f)); });
+    items.forEach(function(f){ trackEl.appendChild(makeItem(f)); });
+    requestAnimationFrame(function(){
+      var w=trackEl.scrollWidth/2;
+      trackEl.style.animationDuration=Math.max(20,Math.round(w/70))+'s'; // vitesse constante ~70 px/s
+    });
+  }
+
+  // MODIFIÉ — bascule de phase : change le libellé ET le contenu, en cohérence
+  function swapPhase(){
+    phase=(phase+1)%2;
+    if(tagEl){
+      tagEl.style.opacity='0';
+      setTimeout(function(){
+        tagEl.textContent=LABELS[phase];
+        tagEl.classList.toggle('raf-tag-cite', phase===1);
+        tagEl.style.opacity='1';
+      }, 300);
+    }
+    fillTrack();
+  }
+
+  function build(){
+    barEl=el('div'); barEl.id='ra-flash';
+    tagEl=el('div','raf-tag'); tagEl.textContent=LABELS[phase];
+    var vp=el('div','raf-vp'); trackEl=el('div','raf-track');
+    vp.appendChild(trackEl); barEl.appendChild(tagEl); barEl.appendChild(vp);
+    var ct=document.getElementById('ct');
+    if(ct && ct.parentNode){ ct.parentNode.insertBefore(barEl, ct); }
+    else { var m=document.getElementById('main')||document.body; m.insertBefore(barEl, m.firstChild); }
+
+    fillTrack(); // phase 0 (actus) au démarrage
+
+    // MODIFIÉ — alternance : à chaque cycle complet de défilement, on change de phase.
+    // animationiteration se met en pause avec le survol/toucher → cohérence respectée.
+    trackEl.addEventListener('animationiteration', swapPhase);
+    if(reduceMotion){ setInterval(swapPhase, 9000); } // fallback sans animation (accessibilité)
+
+    barEl.addEventListener('touchstart',function(){ barEl.classList.add('raf-pause'); },{passive:true});
+    barEl.addEventListener('touchend',function(){ setTimeout(function(){ barEl.classList.remove('raf-pause'); },1500); },{passive:true});
+
+    addTopScorers();
+    setTimeout(addTopScorers, 4000);
+  }
+
+  /* ════ MODIFIÉ — TOP SCOREURS (alimentent la phase actus) ════ */
   var RAF_UEMOA={SN:1,CI:1,ML:1,BF:1,BJ:1,NE:1,TG:1,GW:1};
   var RAF_CEMAC={CM:1,CG:1,GA:1,GQ:1,CF:1,TD:1};
-  function rafFlag(cc){ cc=String(cc||'').toUpperCase(); if(!/^[A-Z]{2}$/.test(cc)) return '🌍'; try{ return String.fromCodePoint(0x1F1E6+cc.charCodeAt(0)-65, 0x1F1E6+cc.charCodeAt(1)-65); }catch(e){ return '🌍'; } }
   function rafZone(cc){ cc=String(cc||'').toUpperCase(); return RAF_UEMOA[cc]?'UEMOA':RAF_CEMAC[cc]?'CEMAC':''; }
-  function rafFlagNode(cc){ // MODIFIÉ : vrai drapeau image (flagcdn) — les emojis drapeaux ne s'affichent pas sur de nombreux appareils (on ne voyait que « SN », « CI »…)
+  function rafFlagNode(cc){
     cc=String(cc||'').toLowerCase();
     if(/^[a-z]{2}$/.test(cc)){
       var img=el('img');
@@ -10229,41 +10301,46 @@ window.raOpenNotif=function(){
     }
     var sp=el('span'); sp.textContent='🌍'; return sp;
   }
-  function makeScorer(rank,name,cc,pts){ // MODIFIÉ : drapeau image au lieu d'emoji
+  function makeScorer(rank,name,cc,pts){
     var it=el('span','raf-item raf-go');
     var d=el('span','raf-date'); d.textContent=(['🥇','🥈','🥉'][rank-1]||('#'+rank))+' MAÎTRE DE L\'ARÈNE'; it.appendChild(d);
     it.appendChild(document.createTextNode(' '));
     it.appendChild(rafFlagNode(cc));
     var z=rafZone(cc);
-    var t=el('span'); t.textContent=' '+(name||'?')+(z?(' · '+z):'')+' — '+(pts||0)+' pts'; // textContent = anti-XSS
+    var t=el('span'); t.textContent=' '+(name||'?')+(z?(' · '+z):'')+' — '+(pts||0)+' pts';
     it.appendChild(t);
     var s=el('span','raf-sep'); s.textContent='◆'; it.appendChild(s);
     it.addEventListener('click',function(){ if(typeof ST==='function') ST('arena'); });
     return it;
   }
+  // MODIFIÉ — version « scoreur » sous forme de descripteur d'item (intégrable à la phase actus)
+  function scorerItem(rank,name,cc,pts){
+    return { _scorer:true, rank:rank, name:name, cc:cc, pts:pts };
+  }
   function addTopScorers(){
-    var bar=document.getElementById('ra-flash'); if(!bar) return;
-    var track=bar.querySelector('.raf-track'); if(!track) return;
+    if(!barEl) return;
     var hdr=(typeof U!=='undefined'&&U&&U.token)?{'Authorization':'Bearer '+U.token}:{};
     fetch('/leaderboard',{headers:hdr}).then(function(r){return r.json();}).then(function(d){
       var list=(d&&d.leaderboard)||[];
-      var HIDE=['kaiser ndao','abdou ndao']; // MODIFIÉ : masque les comptes admin/test (cohérent avec le classement)
+      var HIDE=['kaiser ndao','abdou ndao'];
       list=list.filter(function(p){ return HIDE.indexOf(String((p&&p.name)||'').trim().toLowerCase())===-1; });
       if(!list.length) return;
-      var top=list.slice(0,3);
-      track.innerHTML=''; // reconstruit : Maîtres de l'Arène d'abord, puis les actus, le tout doublé pour la boucle
-      function pass(){
-        top.forEach(function(p,k){ track.appendChild(makeScorer(k+1, p.name||'?', p.country||'', p.total_score||0)); });
-        RA_FLASH.forEach(function(f){ track.appendChild(makeItem(f)); });
-      }
-      pass(); pass();
-      requestAnimationFrame(function(){ var w=track.scrollWidth/2; track.style.animationDuration=Math.max(20,Math.round(w/70))+'s'; });
+      scorers=list.slice(0,3).map(function(p,k){ return scorerItem(k+1, p.name||'?', p.country||'', p.total_score||0); });
+      if(phase===0) fillTrack(); // rafraîchit la phase actus en cours si besoin (au prochain cycle sinon)
     }).catch(function(){});
   }
+
+  // MODIFIÉ — makeItem gère aussi les descripteurs de scoreurs
+  var _origMakeItem = makeItem;
+  makeItem = function(f){
+    if(f && f._scorer) return makeScorer(f.rank, f.name, f.cc, f.pts);
+    return _origMakeItem(f);
+  };
+
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',build); else build();
 })();
 </script>
-<!-- ════════ FIN FLASH INFO ════════ -->
+<!-- ════════ FIN FLASH INFO + CITATIONS ════════ -->
 
 <!-- ════════ REGUL ARENA · CARROUSEL D'ACCUEIL (guide de démarrage) — MODIFIÉ ════════ -->
 <style id="ra-onb-css">
