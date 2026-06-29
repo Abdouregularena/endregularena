@@ -11063,6 +11063,173 @@ window.raOpenNotif=function(){
   }catch(e){ try{ console.warn('lotKPIKRIKCI:', e); }catch(_){} }
 })();
 
+(function lotMultiMetiers(){ // MODIFIÉ : rattachement multi-métiers + table TEXTES_PAR_METIER (100% additif)
+  try{
+    if(typeof window==='undefined') return;
+
+    /* ── 1. TABLE EXPLICITE DES TEXTES PAR MÉTIER ──
+       _socle = textes transversaux (s'appliquent aux 7 métiers).
+       Chaque métier = textes spécifiques. Champ "also" = autres métiers concernés (à cheval). */
+    var SCOPE = {UEMOA:'#002B5C', CEMAC:'#1F6F54', ICC:'#6A3FB5', Transversal:'#C9991A', Marché:'#0F3D6E'};
+    window.RA_TEXTES_PAR_METIER = {
+      _socle:[
+        {ref:"Loi uniforme bancaire UMOA", name:"Réglementation bancaire (agréments, dirigeants, sanctions)", scope:"UEMOA"},
+        {ref:"Circ. 01-2017/CB/C", name:"Gouvernance des établissements de crédit", scope:"UEMOA"},
+        {ref:"Circ. 03-2017/CB/C", name:"Contrôle interne (3 lignes de défense)", scope:"UEMOA"},
+        {ref:"Circ. 04-2017/CB/C", name:"Gestion des risques (appétence, KRI, risque op.)", scope:"UEMOA"},
+        {ref:"Circ. 05-2017/CB/C", name:"Conformité aux normes en vigueur", scope:"UEMOA"},
+        {ref:"Loi uniforme LBC/FT/P (mars 2023)", name:"Anti-blanchiment / financement du terrorisme + CENTIF", scope:"UEMOA"},
+        {ref:"Décision 357-11-2016 (PCB Révisé)", name:"Plan Comptable Bancaire + Instr. 023/035-11-2016, 003-05-2017", scope:"UEMOA"}
+      ],
+      "trade-finance":[
+        {ref:"Règlement 06/2024/CM/UEMOA", name:"Relations Financières Extérieures (abroge 09/2010)", scope:"UEMOA"},
+        {ref:"Note BCEAO 013-04-2026", name:"Statut des ressortissants étrangers résidents", scope:"UEMOA"},
+        {ref:"Instr. RFE 08/07/2025", name:"Sous-délégation de reprise de devises", scope:"UEMOA"},
+        {ref:"Instr. RFE 11/07/2025", name:"Appel public à l'épargne des non-résidents", scope:"UEMOA", also:["corporate"]},
+        {ref:"Annexes RFE", name:"Domiciliation des importations / exportations", scope:"UEMOA"},
+        {ref:"RUU 600 (UCP)", name:"Crédits documentaires — règles ICC", scope:"ICC", also:["back-office"]},
+        {ref:"URDG 758", name:"Garanties sur demande — règles ICC", scope:"ICC", also:["back-office"]},
+        {ref:"Incoterms", name:"Termes commerciaux internationaux — ICC", scope:"ICC"},
+        {ref:"Règlement 02/18/CEMAC/UMAC/CM", name:"Réglementation des changes CEMAC + 01/02 extractives", scope:"CEMAC"}
+      ],
+      "compliance":[
+        {ref:"Décision 003/28-03-2024/CM/UMOA", name:"Seuils d'identification, espèces, immobilier", scope:"UEMOA"},
+        {ref:"Instr. 233/07/2024", name:"Plafond de paiement en espèces (5 M FCFA)", scope:"UEMOA", also:["trade-finance"]},
+        {ref:"Régime de sanctions CB-UMOA", name:"Sanctions disciplinaires & pécuniaires", scope:"UEMOA", also:["corporate"]},
+        {ref:"Règlement 01/CEMAC/UMAC/CM (11/04/2016)", name:"Prévention du blanchiment en Afrique centrale", scope:"CEMAC"},
+        {ref:"COBAC R-2023/01", name:"Diligences LBC/FT des assujettis", scope:"CEMAC"},
+        {ref:"GABAC", name:"Coordination régionale anti-blanchiment CEMAC", scope:"CEMAC"}
+      ],
+      "risques":[
+        {ref:"Décision 013/2016 + Annexe — Pilier 2", name:"ICAAP / SREP (Titre XI)", scope:"UEMOA", also:["alm"]},
+        {ref:"Décision 013/2016 + Annexe — Titre V", name:"Risque opérationnel (7 catégories, collecte des pertes, KRI)", scope:"UEMOA"},
+        {ref:"Pack KPI / KRI / KCI", name:"Pilotage des risques (ancré Art. 30 Circ. 04-2017)", scope:"UEMOA"},
+        {ref:"Circ. 04-2017 — Titres IV à VIII", name:"Risques crédit / marché / liquidité / taux", scope:"UEMOA", also:["alm"]}
+      ],
+      "corporate":[
+        {ref:"Décision 014/2016/CM/UMOA", name:"Supervision sur base consolidée (groupes, holdings)", scope:"UEMOA", also:["alm"]},
+        {ref:"Avis BCEAO 001-01-2024", name:"Capital social minimum des banques (10 → 20 Mds)", scope:"UEMOA"},
+        {ref:"Statuts BCEAO / Traité UMOA", name:"Cadre institutionnel de l'Union", scope:"UEMOA"},
+        {ref:"AMF-UMOA / BRVM / CREPMF", name:"Appel public à l'épargne, marché financier régional", scope:"Marché"},
+        {ref:"Finance islamique", name:"Titre V loi uniforme 2023 + instructions BCEAO", scope:"UEMOA"},
+        {ref:"COBAC R-2025/02", name:"Capital minimum CEMAC (25 Mds) + Règl. 01/24 agrément unique", scope:"CEMAC"}
+      ],
+      "back-office":[
+        {ref:"Avis BCEAO 002-03-2026 (CRAEF)", name:"Reporting automatisé des états financiers", scope:"UEMOA"},
+        {ref:"Instr. 035-11-2016", name:"États financiers individuels & consolidés", scope:"UEMOA"},
+        {ref:"Instr. 003-05-2017", name:"Reporting périodique PCB UMOA", scope:"UEMOA"},
+        {ref:"Instr. 005-08-2017 (FODEP)", name:"Déclaration prudentielle (30/04 & 31/10)", scope:"UEMOA", also:["alm"]},
+        {ref:"SWIFT MT", name:"MT103 / MT202 / MT700-767 / MT940-950", scope:"ICC", also:["trade-finance"]},
+        {ref:"Comptes de correspondance", name:"Nostro / Vostro / Loro, rapprochements & suspens", scope:"Marché"},
+        {ref:"STAR / SICA / GIM-UEMOA", name:"RTGS, compensation, monétique — ISO 20022", scope:"Marché"},
+        {ref:"Instr. 001-01-2024 (PI-SPI)", name:"Services de paiement, cantonnement des fonds", scope:"UEMOA", also:["detail"]},
+        {ref:"SYGMA / SYSTAC / GIMACPAY", name:"Systèmes de paiement CEMAC", scope:"CEMAC"}
+      ],
+      "alm":[
+        {ref:"Décision 013/2016 + Annexe", name:"Fonds propres CET1/AT1/T2, ratios 5-6-8, coussins, levier 3 %", scope:"UEMOA", also:["risques"]},
+        {ref:"Décision 013/2016 — Titre VII", name:"Division des risques / grands risques (10-25-800)", scope:"UEMOA", also:["corporate"]},
+        {ref:"Instr. 009-09-2017", name:"Ratios de liquidité LCR / NSFR (≥ 100 %)", scope:"UEMOA"},
+        {ref:"Avis 004-04-2016", name:"Ratios cibles de fonds propres", scope:"UEMOA"},
+        {ref:"UMOA-Titres / Marché monétaire", name:"Refinancement BCEAO, réserves obligatoires", scope:"Marché"},
+        {ref:"Circ. 04-2017 — Titres VI à VIII", name:"Risque de marché, liquidité, taux (IRRBB)", scope:"UEMOA", also:["risques"]}
+      ],
+      "detail":[
+        {ref:"Loi-cadre PARMEC (2007)", name:"SFD — mutuelles d'épargne et de crédit", scope:"UEMOA"},
+        {ref:"Instr. BCEAO 001-04-2010", name:"Plan Comptable des SFD (PC-SFD)", scope:"UEMOA"},
+        {ref:"Instr. 001-01-2024 (PI-SPI)", name:"Comptes de paiement, EME, monnaie électronique", scope:"UEMOA", also:["back-office"]},
+        {ref:"Protection du consommateur bancaire", name:"Transparence, réclamations, conditions de banque", scope:"UEMOA"},
+        {ref:"Règl. 01/17 + COBAC R-2017/04", name:"Microfinance CEMAC + gouvernance EMF", scope:"CEMAC"},
+        {ref:"Règl. 01/20 + COBAC R-2020/06", name:"Protection conso & réclamations CEMAC", scope:"CEMAC"}
+      ]
+    };
+
+    window.RA_textesOf = function(mid){
+      var T = window.RA_TEXTES_PAR_METIER || {};
+      return { socle:(T._socle||[]), spec:(T[mid]||[]) };
+    };
+
+    /* ── 2. CLASSIFIER MULTI-MÉTIERS (le mono-métier existant reste la clé primaire) ── */
+    window.RA_metiersOf = function(q){
+      var out = [];
+      try{ var p = window.RA_metierOf ? window.RA_metierOf(q) : null; if(p) out.push(p); }catch(e){}
+      function add(m){ if(out.indexOf(m)===-1) out.push(m); }
+      var t = ((q.cat||'')+' '+(q.q||'')+' '+(q.source||q.ref||'')).toLowerCase();
+      if(/contr[ôo]le interne|trois lignes|3 lignes|lignes de (d[ée]fense|ma[îi]trise)|gouvernance des risques|\bkri\b|\bkci\b|\bkpi\b|app[ée]tence|app[ée]tit (pour le|au) risque|cartographie des risques/.test(t)){ add('risques'); add('compliance'); }
+      if(/lbc|centif|blanchiment|vigilance|soup[çc]on|gel des avoirs|\bppe\b|conformit|sanction/.test(t)){ add('compliance'); }
+      if(/prudentiel|fonds propres|\bcet1\b|\bat1\b|\bt2\b|ratio|b[âa]le|solvabilit|levier|grands risques|\bapr\b|\bfodep\b/.test(t)){ add('alm'); add('risques'); }
+      if(/liquidit|\blcr\b|\bnsfr\b|taux d.?int[ée]r[êe]t|irrbb|risque de march|portefeuille de n[ée]gociation/.test(t)){ add('alm'); add('risques'); }
+      if(/swift|\bmt7\d\d\b|cr[ée]dit documentaire|cr[ée]doc|garantie|stand-?by|\bruu\b|\burdg\b|incoterm/.test(t)){ add('trade-finance'); add('back-office'); }
+      if(/nostro|vostro|loro|rapprochement|correspond/.test(t)){ add('back-office'); }
+      if(/craef|[ée]tats financiers|reporting|arr[êe]t[ée]|\bpcb\b|tafire|hors-?bilan|transmi/.test(t)){ add('back-office'); }
+      if(/rfe|relations financi|\bchange\b|transfert|r[ée]sident|finances ext|rapatriement|devise|domiciliation|importation|exportation/.test(t)){ add('trade-finance'); }
+      if(/capital social|loi bancaire|agr[ée]ment|statuts bceao|\bamf\b|brvm|crepmf|finance islamique|supervision consolid|holding|compagnie financi/.test(t)){ add('corporate'); }
+      if(/\bsfd\b|microfinance|parmec|monnaie [ée]lect|mobile money|\beme\b|pi-?spi|paiement instantan|service.?de paiement|cantonnement|agr[ée]gat/.test(t)){ add('detail'); }
+      if(/gouvernance|comit[ée] d.?audit|comit[ée] des risques|conseil d.?administration|organe d[ée]lib[ée]rant/.test(t)){ add('corporate'); add('risques'); }
+      if(/paiement|sica|star-?uemoa|gim-?uemoa|sygma|systac|gimacpay|mon[ée]tique/.test(t)){ add('back-office'); }
+      return out.length ? out : ['corporate'];
+    };
+
+    /* ── 3. ENRICHISSEMENT ADDITIF de RA_QSRC (back-fill PI-SPI/KPI + cross-métiers) ── */
+    if(!window.RA_QSRC) window.RA_QSRC = {};
+    function feed(list){
+      (list||[]).forEach(function(q){
+        if(!q || !Array.isArray(q.choices) || typeof q.answer!=='number') return;
+        window.RA_metiersOf(q).forEach(function(m){
+          var arr = (window.RA_QSRC[m] = window.RA_QSRC[m] || []);
+          if(arr.indexOf(q) === -1) arr.push(q);   // dédoublonnage par référence : zéro doublon
+        });
+      });
+    }
+    feed(window.QN_U);
+    feed(window.RA_BO_DATA);
+
+    /* ── 4. UI : bouton "TEXTES RÉGLEMENTAIRES" par métier (additif, ne touche pas l'onglet existant) ── */
+    var SLABEL = window.RA_MET_LABEL || {};
+    window.RA_showTextes = function(mid){
+      var d = window.RA_textesOf(mid);
+      function badge(s){ var c=SCOPE[s]||'#555'; return '<span style="font-size:9px;font-weight:700;letter-spacing:.5px;color:#fff;background:'+c+';padding:2px 7px;border-radius:20px;white-space:nowrap;">'+s+'</span>'; }
+      function row(x){
+        var also='';
+        if(x.also && x.also.length){ also='<div style="font-size:10px;color:#9a7b12;margin-top:3px;">↔ aussi : '+x.also.map(function(m){return (SLABEL[m]||m);}).join(' · ')+'</div>'; }
+        return '<div style="background:#fff;border:1px solid #e0ddd7;border-radius:10px;padding:10px 12px;margin-bottom:8px;">'+
+          '<div style="display:flex;gap:8px;align-items:flex-start;justify-content:space-between;">'+
+          '<div style="font-weight:800;color:#002B5C;font-size:12.5px;line-height:1.3;">'+x.ref+'</div>'+badge(x.scope)+'</div>'+
+          '<div style="font-size:11.5px;color:#555;margin-top:3px;line-height:1.4;">'+x.name+'</div>'+also+'</div>';
+      }
+      var n=(window.RA_QSRC&&window.RA_QSRC[mid])?window.RA_QSRC[mid].length:0;
+      var body='<div style="max-height:65vh;overflow-y:auto;padding:2px;">'+
+        '<div style="font-size:11px;color:#888;margin-bottom:12px;">'+(SLABEL[mid]||mid)+' · '+d.spec.length+' textes spécifiques + '+d.socle.length+' transversaux · '+n+' QCM sourcés disponibles</div>'+
+        '<div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#C9991A;text-transform:uppercase;margin-bottom:8px;">Textes spécifiques</div>'+
+        d.spec.map(row).join('')+
+        '<div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#C9991A;text-transform:uppercase;margin:14px 0 8px;">Socle transversal (7 métiers)</div>'+
+        d.socle.map(row).join('')+
+        '<div style="text-align:center;margin-top:14px;"><button class="btn btn-sm" onclick="closeModal();(window.lancerQuizSrc&&lancerQuizSrc(\''+mid+'\'))">📚 Tester ces textes ('+n+' QCM)</button></div>'+
+      '</div>';
+      try{ showModal('📜 Textes — '+(SLABEL[mid]||mid), body); }
+      catch(e){ try{ alert(d.spec.map(function(x){return x.ref;}).join('\n')); }catch(_){} }
+    };
+
+    window.RA_injectTextesBtn = function(id){
+      try{
+        var box=document.querySelector('#metier-'+id+' [id$="quiz-accueil"] .metier-actions');
+        if(!box || box.querySelector('.ra-textes-btn')) return;
+        var d=window.RA_textesOf(id); var tot=d.spec.length+d.socle.length;
+        if(!tot) return;
+        var b=document.createElement('button');
+        b.className='metier-action-btn ra-textes-btn';
+        b.setAttribute('onclick',"RA_showTextes('"+id+"')");
+        b.innerHTML='<span class="action-icon">📜</span><span class="action-label">TEXTES RÉGLEMENTAIRES</span><span class="action-sub">'+d.spec.length+' spécifiques + '+d.socle.length+' transversaux</span>';
+        box.appendChild(b);
+      }catch(e){}
+    };
+
+    if(typeof window.ouvrirMetier==='function'){
+      var _ouv = window.ouvrirMetier;
+      window.ouvrirMetier = function(id){ var r=_ouv.apply(this,arguments); try{ window.RA_injectTextesBtn(id); }catch(e){} return r; };
+    }
+  }catch(e){ try{ console.warn('lotMultiMetiers:', e); }catch(_){} }
+})();
+
 </script>
 
 </body>
