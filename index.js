@@ -2719,7 +2719,7 @@ app.post('/org/join-code', requireAuth, (req, res) => {
     if (String(e.message).includes('UNIQUE')) return err(res, 409, 'Vous êtes déjà membre de cet établissement.');
     throw e;
   }
-  return ok(res, { message: 'Vous avez rejoint ' + org.name + ' avec succès !', org_name: org.name });
+  return ok(res, { message: 'Vous avez rejoint ' + org.name + ' avec succès !', org_name: org.name, org_id: org.id }); /* MODIFIÉ — ajout org_id pour déclarer l'agence juste après */
 });
 
 /* ================================================================
