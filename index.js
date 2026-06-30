@@ -217,6 +217,7 @@ try { db.exec('CREATE INDEX IF NOT EXISTS idx_tp_tid_score ON tournament_partici
 ].forEach(sql => { try { db.exec(sql); } catch(_) {} }); // TOURNOI AJOUT
 try { db.exec('CREATE INDEX IF NOT EXISTS idx_tournaments_org ON tournaments (org_id, status)'); } catch(_) {} // ORG-TOURNOI AJOUT
 try { db.exec("ALTER TABLE org_members ADD COLUMN agence TEXT NOT NULL DEFAULT ''"); } catch(_) {} // ORG-AGENCE AJOUT
+try { db.exec('ALTER TABLE organisations ADD COLUMN validated INTEGER NOT NULL DEFAULT 0'); } catch(_) {} // ORG-VALIDATION AJOUT
 
 // TOURNOI AJOUT — nouvelles tables module tournoi
 db.exec(`
@@ -2673,7 +2674,7 @@ app.get('/org/dashboard', requireAuth, (req, res) => {
     return { pack: d.pack, attempts: d.attempts, accuracy: d.tt>0 ? Math.round(d.sc/d.tt*100) : 0 };
   });
 
-  return ok(res, { org: { id: org.id, name: org.name, created_at: org.created_at, join_code: org.join_code || null }, totals, members, domains, by_agence: byAgence }); /* MODIFIÉ — ajout by_agence */
+  return ok(res, { org: { id: org.id, name: org.name, created_at: org.created_at, join_code: org.join_code || null, validated: !!org.validated }, totals, members, domains, by_agence: byAgence }); /* MODIFIÉ — ajout by_agence + validated */
 });
 
 /* Helper — génère un code collectif lisible unique : SLUG + 4 hex (ex. UCAO-7F3A) */
@@ -2697,6 +2698,7 @@ app.post('/org/code', requireAuth, (req, res) => {
   const org = db.prepare('SELECT * FROM organisations WHERE id = ?').get(orgId);
   if (!org) return err(res, 404, 'Organisation introuvable');
   if (org.admin_user_id !== req.user.id) return err(res, 403, "Accès réservé à l'administrateur de l'établissement");
+  if (!org.validated) return err(res, 403, "Établissement en attente de validation. Contactez l'administrateur REGUL ARENA pour activer votre code collectif."); // ORG-VALIDATION AJOUT
   let code = org.join_code;
   if (!code || (req.body && req.body.regenerate)) {
     code = _orgGenJoinCode(org.name);
@@ -2704,6 +2706,18 @@ app.post('/org/code', requireAuth, (req, res) => {
   }
   return ok(res, { code });
 });
+
+/* POST /org/validate — réservé à un compte role='admin' (plateforme). Active le code collectif d'un établissement.
+   curl -X POST /org/validate -H 'Authorization: Bearer JWT' -d '{"org_id":1}'
+*/
+app.post('/org/validate', requireAuth, (req, res) => { // ORG-VALIDATION AJOUT
+  if ((req.user.role||'user') !== 'admin') return err(res, 403, 'Réservé aux administrateurs REGUL ARENA'); // ORG-VALIDATION AJOUT
+  const orgId = Number((req.body && req.body.org_id) || 0); // ORG-VALIDATION AJOUT
+  if (!orgId) return err(res, 400, 'org_id requis'); // ORG-VALIDATION AJOUT
+  const info = db.prepare('UPDATE organisations SET validated = 1 WHERE id = ?').run(orgId); // ORG-VALIDATION AJOUT
+  if (!info.changes) return err(res, 404, 'Organisation introuvable'); // ORG-VALIDATION AJOUT
+  return ok(res, { validated: true }); // ORG-VALIDATION AJOUT
+}); // ORG-VALIDATION AJOUT
 
 /* GET /org/code-info?code=XXX — public. Valide un code collectif (pour l'écran « Rejoindre »).
    curl '/org/code-info?code=UCAO-7F3A'
