@@ -849,15 +849,17 @@ app.get('/leaderboard/banks', (req, res) => {
     const { zone, profile } = req.query;
     const UEMOA = ['SN','CI','BF','ML','BJ','NE','TG','GW'];
     const CEMAC  = ['CM','GA','CG','CF','GQ','TD'];
-    const conditions = ['u.email_verified = 1', "TRIM(u.etablissement) != ''"];
+    // La banque a pu être saisie dans 'etablissement' OU (anciens comptes / formulaire) dans 'profile'.
+    // On prend 'etablissement' s'il est rempli, sinon 'profile' quand ce n'est pas un simple rôle.
+    const BANK_EXPR = `TRIM(CASE WHEN TRIM(u.etablissement) <> '' THEN u.etablissement WHEN LOWER(TRIM(u.profile)) NOT IN ('professionnel','etudiant','étudiant','') THEN u.profile ELSE '' END)`;
+    const conditions = ['u.email_verified = 1', `${BANK_EXPR} <> ''`];
     const params = [];
     if (zone === 'uemoa') { conditions.push(`u.country IN (${UEMOA.map(()=>'?').join(',')})`); params.push(...UEMOA); }
     else if (zone === 'cemac') { conditions.push(`u.country IN (${CEMAC.map(()=>'?').join(',')})`); params.push(...CEMAC); }
-    if (profile === 'professionnel' || profile === 'etudiant') { conditions.push('u.profile = ?'); params.push(profile); }
 
     const rows = db.prepare(`
-      SELECT TRIM(u.etablissement)            AS bank,
-             LOWER(TRIM(u.etablissement))     AS bank_key,
+      SELECT ${BANK_EXPR}                      AS bank,
+             LOWER(${BANK_EXPR})               AS bank_key,
              COUNT(DISTINCT u.id)             AS members,
              COUNT(s.id)                      AS games,
              COALESCE(SUM(s.score), 0)        AS total_score
@@ -880,12 +882,17 @@ app.get('/leaderboard/banks', (req, res) => {
     if (tok) {
       try {
         const p = jwt.verify(tok, JWT_SECRET);
-        const me = db.prepare('SELECT etablissement FROM users WHERE id = ?').get(p.id);
-        if (me && me.etablissement && me.etablissement.trim()) {
-          myBank = me.etablissement.trim();
-          const key = myBank.toLowerCase();
-          const idx = rows.findIndex(r => r.bank_key === key);
-          if (idx !== -1) myRank = idx + 1;
+        const me = db.prepare('SELECT etablissement, profile FROM users WHERE id = ?').get(p.id);
+        if (me) {
+          const roles = ['professionnel','etudiant','étudiant',''];
+          let b = (me.etablissement || '').trim();
+          if (!b) { const pr = (me.profile || '').trim(); if (roles.indexOf(pr.toLowerCase()) === -1) b = pr; }
+          if (b) {
+            myBank = b;
+            const key = b.toLowerCase();
+            const idx = rows.findIndex(r => r.bank_key === key);
+            if (idx !== -1) myRank = idx + 1;
+          }
         }
       } catch (_) {}
     }
@@ -905,17 +912,18 @@ app.get('/leaderboard/banks/members', (req, res) => {
     const bankRaw = (req.query.bank || '').trim();
     if (!bankRaw) return err(res, 400, 'Paramètre bank requis');
     const bankKey = bankRaw.toLowerCase();
-    const { zone, profile } = req.query;
+    const { zone } = req.query;
     const UEMOA = ['SN','CI','BF','ML','BJ','NE','TG','GW'];
     const CEMAC  = ['CM','GA','CG','CF','GQ','TD'];
-    const conditions = ['u.email_verified = 1', 'LOWER(TRIM(u.etablissement)) = ?'];
+    // Même logique que /leaderboard/banks : la banque vient de 'etablissement' ou, à défaut, de 'profile'.
+    const BANK_EXPR = `TRIM(CASE WHEN TRIM(u.etablissement) <> '' THEN u.etablissement WHEN LOWER(TRIM(u.profile)) NOT IN ('professionnel','etudiant','étudiant','') THEN u.profile ELSE '' END)`;
+    const conditions = ['u.email_verified = 1', `LOWER(${BANK_EXPR}) = ?`];
     const params = [bankKey];
     if (zone === 'uemoa') { conditions.push(`u.country IN (${UEMOA.map(()=>'?').join(',')})`); params.push(...UEMOA); }
     else if (zone === 'cemac') { conditions.push(`u.country IN (${CEMAC.map(()=>'?').join(',')})`); params.push(...CEMAC); }
-    if (profile === 'professionnel' || profile === 'etudiant') { conditions.push('u.profile = ?'); params.push(profile); }
 
     const rows = db.prepare(`
-      SELECT u.id, u.name, u.country, u.profile,
+      SELECT u.id, u.name, u.country, u.profile, ${BANK_EXPR} AS bank,
              COUNT(s.id)                AS games,
              COALESCE(SUM(s.score), 0)  AS total_score
       FROM users u
@@ -927,10 +935,8 @@ app.get('/leaderboard/banks/members', (req, res) => {
       LIMIT 100
     `).all(...params);
 
-    // Nom d'affichage : on garde la casse réelle saisie par un membre
-    const bankName = rows.length
-      ? (db.prepare('SELECT TRIM(etablissement) AS b FROM users WHERE id = ?').get(rows[0].id).b || bankRaw)
-      : bankRaw;
+    // Nom d'affichage : on garde la casse réelle telle que saisie par un membre
+    const bankName = rows.length ? (rows[0].bank || bankRaw) : bankRaw;
     const totalScore = rows.reduce((a, r) => a + (r.total_score || 0), 0);
 
     let myId = null;
