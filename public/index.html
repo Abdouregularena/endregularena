@@ -7522,7 +7522,68 @@ function rAE(){   // MODIFIÉ
       '</div>';
     }).join('')+'</div>';
   }
-  return '<div style="max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:16px;">'+head+zoneBtns+grid+'</div>';
+  var mr = (typeof aeTextesPanel==='function') ? aeTextesPanel() : '';   // MODIFIÉ : expose le multi-rattachement (textes ↔ métiers) dans l'auto-éval par zone
+  return '<div style="max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:16px;">'+head+zoneBtns+grid+mr+'</div>';
+}
+
+/* ─── MULTI-RATTACHEMENT exposé dans l'AUTO-ÉVALUATION PAR ZONE (100% additif) ─── */
+/* Réutilise window.RA_TEXTES_PAR_METIER (défini par lotMultiMetiers) : un même texte
+   réglementaire peut être rattaché à plusieurs métiers. On l'expose ici, filtré par zone. */
+var AEMR = false;   // MODIFIÉ : panneau replié par défaut
+function aeToggleMR(){ AEMR = !AEMR; try{ render(); }catch(e){} }   // MODIFIÉ
+var AE_SCOPE_COLOR = {UEMOA:'#002B5C', CEMAC:'#1F6F54', ICC:'#6A3FB5', Transversal:'#C9991A', 'Marché':'#0F3D6E'};   // MODIFIÉ
+var AE_ZONE_SCOPES = { uemoa:['UEMOA','ICC','Transversal','Marché'], cemac:['CEMAC','ICC','Transversal','Marché'] };  // scopes transverses visibles dans les 2 zones
+function aeBuildTexteIndex(){   // MODIFIÉ : index inverse texte → métiers rattachés
+  var T = window.RA_TEXTES_PAR_METIER || {};
+  var mets = Object.keys(T).filter(function(k){ return k!=='_socle'; });
+  var map = {}, order = [];
+  function push(x, mid, isSocle){
+    var k = x.ref + '|' + x.scope;
+    if(!map[k]){ map[k] = {ref:x.ref, name:x.name, scope:x.scope, mets:[], socle:false}; order.push(k); }
+    if(isSocle){ map[k].socle = true; }
+    else if(mid && map[k].mets.indexOf(mid)===-1){ map[k].mets.push(mid); }
+  }
+  (T._socle||[]).forEach(function(x){ push(x, null, true); });
+  mets.forEach(function(mid){
+    (T[mid]||[]).forEach(function(x){
+      push(x, mid, false);
+      (x.also||[]).forEach(function(m){ push(x, m, false); });   // rattachements « à cheval »
+    });
+  });
+  return order.map(function(k){ return map[k]; });
+}
+function aeTextesByZone(zone){
+  var scopes = AE_ZONE_SCOPES[zone] || AE_ZONE_SCOPES.uemoa;
+  return aeBuildTexteIndex().filter(function(t){ return scopes.indexOf(t.scope)!==-1; });
+}
+function aeTextesPanel(){   // MODIFIÉ : rendu du panneau (repliable)
+  var zone = (typeof AEZONE!=='undefined') ? AEZONE : 'uemoa';
+  var SL = window.RA_MET_LABEL || {};
+  var list;
+  try{ list = aeTextesByZone(zone); }catch(e){ return ''; }
+  if(!list || !list.length) return '';
+  var zlabel = (zone==='cemac') ? 'CEMAC' : 'UEMOA';
+  var head = '<div class="card ch" onclick="aeToggleMR()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;">'+
+    '<div><div style="font-weight:700;color:#fff;font-size:14px;">📜 Textes rattachés à la zone '+zlabel+'</div>'+
+    '<div style="font-size:11.5px;color:var(--sub);margin-top:2px;">'+list.length+' textes — un même texte peut être rattaché à plusieurs métiers (multi-rattachement)</div></div>'+
+    '<span class="badge">'+(AEMR?'▲ masquer':'▼ afficher')+'</span></div>';
+  if(!AEMR) return head;
+  function sBadge(s){ var c=AE_SCOPE_COLOR[s]||'#555'; return '<span style="font-size:9px;font-weight:700;letter-spacing:.5px;color:#fff;background:'+c+';padding:2px 7px;border-radius:20px;white-space:nowrap;">'+s+'</span>'; }
+  function mBadge(m){ return '<span style="font-size:9.5px;color:#0a213e;background:#e7ecf3;border:1px solid #cdd8e6;padding:2px 7px;border-radius:20px;white-space:nowrap;">'+(SL[m]||m)+'</span>'; }
+  function row(t){
+    var rattach;
+    if(t.socle){
+      rattach = '<div style="font-size:10px;color:#9a7b12;font-weight:600;">↔ socle transversal — 7 métiers</div>';
+    } else {
+      var multi = (t.mets.length>1) ? '<div style="font-size:10px;color:#9a7b12;margin-bottom:4px;font-weight:600;">↔ multi-rattachement — '+t.mets.length+' métiers</div>' : '';
+      rattach = multi + '<div style="display:flex;gap:5px;flex-wrap:wrap;">'+t.mets.map(mBadge).join('')+'</div>';
+    }
+    return '<div style="background:#fff;border:1px solid #e0ddd7;border-radius:10px;padding:10px 12px;margin-bottom:8px;">'+
+      '<div style="display:flex;gap:8px;align-items:flex-start;justify-content:space-between;">'+
+      '<div style="font-weight:800;color:#002B5C;font-size:12.5px;line-height:1.3;">'+t.ref+'</div>'+sBadge(t.scope)+'</div>'+
+      '<div style="font-size:11.5px;color:#555;margin:3px 0 6px;line-height:1.4;">'+t.name+'</div>'+rattach+'</div>';
+  }
+  return head + '<div class="card" style="max-height:60vh;overflow-y:auto;">'+list.map(row).join('')+'</div>';
 }
 
 /* Ouvre / quitte un format */
