@@ -35,7 +35,7 @@
           '<div style="min-width:0;">'+
             '<div style="font-weight:800;color:#E8B520;font-size:13px;margin-bottom:3px;">Tableau de bord RH par établissement</div>'+
             '<div style="font-size:11px;color:var(--sub);line-height:1.5;">Chaque banque dispose d\'un tableau de bord confidentiel — forces &amp; faiblesses par thème (niveau Kirkpatrick 2) et progression des équipes — réservé à son dirigeant.</div>'+
-            '<button class="btn btn-sm" style="margin-top:9px;" onclick="TAB=\'org\';render();">🏛️ Activer l\'Espace Établissement</button>'+
+            '<button class="btn btn-sm" style="margin-top:9px;" onclick="ST(\'org\')">🏛️ Activer l\'Espace Établissement</button>'+
           '</div>'+
         '</div></div>';
       if(!list.length){
