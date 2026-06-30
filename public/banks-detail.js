@@ -29,12 +29,13 @@
       var myRank=(d&&d.my_rank)||null;
       var myBankKey=(d&&d.my_bank)?String(d.my_bank).trim().toLowerCase()
         :((typeof U!=='undefined'&&U&&U.etablissement)?String(U.etablissement).trim().toLowerCase():null);
-      var RA_TEASER='<div class="card" style="padding:14px 16px;margin-bottom:12px;border:1px solid rgba(232,181,32,.4);background:linear-gradient(135deg,rgba(232,181,32,.10),rgba(0,180,216,.05));">'+ // MODIFIÉ : teaser B2B (zéro donnée RH)
+      var RA_TEASER='<div class="card" style="padding:14px 16px;margin-bottom:12px;border:1px solid rgba(232,181,32,.4);background:linear-gradient(135deg,rgba(232,181,32,.10),rgba(0,180,216,.05));">'+ // MODIFIÉ : teaser orienté bénéfice + réassurance consentement
         '<div style="display:flex;align-items:flex-start;gap:10px;">'+
-          '<div style="font-size:22px;line-height:1;">🔒</div>'+
+          '<div style="font-size:22px;line-height:1;">🎓</div>'+
           '<div style="min-width:0;">'+
-            '<div style="font-weight:800;color:#E8B520;font-size:13px;margin-bottom:3px;">Tableau de bord RH par établissement</div>'+
-            '<div style="font-size:11px;color:var(--sub);line-height:1.5;">Chaque banque dispose d\'un tableau de bord confidentiel — forces &amp; faiblesses par thème (niveau Kirkpatrick 2) et progression des équipes — réservé à son dirigeant.</div>'+
+            '<div style="font-weight:800;color:#E8B520;font-size:13px;margin-bottom:3px;">Faites grandir vos talents</div>'+
+            '<div style="font-size:11px;color:var(--sub);line-height:1.5;">Les établissements abonnés repèrent les <strong>forces &amp; faiblesses par thème</strong> de leurs équipes pour cibler les formations et valoriser les talents — pas pour sanctionner.</div>'+
+            '<div style="font-size:10px;color:#8aa3d4;line-height:1.45;margin-top:6px;background:rgba(0,180,216,.07);border:1px solid rgba(0,180,216,.25);border-radius:8px;padding:7px 9px;">🔒 Vos scores ne sont partagés avec un établissement que si <strong>vous le rejoignez via son code</strong>. Sinon, vous restez anonyme dans tout tableau de bord.</div>'+
             '<button class="btn btn-sm" style="margin-top:9px;" onclick="ST(\'org\')">🏛️ Activer l\'Espace Établissement</button>'+
           '</div>'+
         '</div></div>';
