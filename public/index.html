@@ -2434,6 +2434,17 @@ function raBNsync(){
 ════════════════════════════════════════════════ */
 var ORG = { id:null, name:'', loading:false, data:null, err:'' };
 
+/* MODIFIÉ — point d'entrée intelligent : redirige vers le dashboard si l'établissement existe déjà */
+function arGoOrgSpace(){
+  ST('org'); /* affichage immédiat de l'écran création le temps de vérifier */
+  fetch('/org/mine', { headers: arAuthHdr() })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(d && d.org && d.org.id){ arOpenOrgDashboard(d.org.id, d.org.name); }
+    })
+    .catch(function(){});
+}
+
 function rOrgCreate(){
   return '<div style="max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:14px;">'+
     '<button class="btn-out btn-sm" style="align-self:flex-start;" onclick="ST(\'leaderboard\')">← Retour au classement</button>'+ // MODIFIÉ : bouton retour
@@ -3453,7 +3464,7 @@ function rARTournoisHome(){
     '</button>'+
   '</div>'+
   /* MODIFIÉ — 5e carte : tournoi privé établissement (géré depuis Espace établissement) */
-  '<button class="card ch" style="width:100%;padding:18px;text-align:left;cursor:pointer;display:flex;align-items:center;gap:14px;border:1px solid rgba(56,189,248,.3);background:rgba(56,189,248,.06);" onclick="ST(\'org\')">'+
+  '<button class="card ch" style="width:100%;padding:18px;text-align:left;cursor:pointer;display:flex;align-items:center;gap:14px;border:1px solid rgba(56,189,248,.3);background:rgba(56,189,248,.06);" onclick="arGoOrgSpace()">'+
     '<div style="font-size:30px;">🏢</div>'+
     '<div style="flex:1;">'+
       '<div style="font-weight:800;color:white;font-size:14px;margin-bottom:2px;">Tournoi établissement</div>'+
@@ -4096,7 +4107,7 @@ function rST(){
   '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">'+
   '<div><div style="font-weight:800;color:white;font-size:14px;">🏛️ Espace établissement</div>'+
   '<div style="font-size:11px;color:var(--sub);margin-top:2px;">Créez votre établissement (ISM, COFEB, CESAG…) et suivez vos étudiants.</div></div>'+
-  '<button class="btn btn-sm" onclick="ST(\'org\')">Ouvrir →</button></div>'+
+  '<button class="btn btn-sm" onclick="arGoOrgSpace()">Ouvrir →</button></div>'+
   '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:12px;border-top:1px solid rgba(255,255,255,.08);padding-top:12px;">'+
   '<div><div style="font-weight:800;color:white;font-size:14px;">🤝 Rejoindre un établissement</div>'+
   '<div style="font-size:11px;color:var(--sub);margin-top:2px;">Vous avez reçu un code d\'invitation ? Saisissez-le ici.</div></div>'+
