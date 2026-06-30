@@ -3911,7 +3911,7 @@ function lbLoad(zone){
         '<span style="font-weight:900;font-size:15px;color:#8aa3d4;width:26px;flex-shrink:0;text-align:center;">'+r+'</span>'+
         '<div class="av" style="width:32px;height:32px;font-size:12px;flex-shrink:0;">'+arChatEsc((p.name||'?').charAt(0))+'</div>'+
         '<div style="min-width:0;"><div style="font-weight:600;color:white;font-size:13px;">'+arChatEsc(p.name||'')+(me?' (Vous)':'')+' '+raTierPill(p.total_score||0)+'</div>'+
-        '<div style="font-size:10px;color:#8aa3d4;">'+[lbCountryLabel(p.country), (p.etablissement?arChatEsc(p.etablissement):lbProfileLabel(p.profile))].filter(Boolean).join(' · ')+'</div></div></div>'+
+        '<div style="font-size:10px;color:#8aa3d4;">'+[lbCountryLabel(p.country), lbProfileLabel(p.profile)].filter(Boolean).join(' · ')+'</div></div></div>'+ // MODIFIÉ : établissement masqué (anti-recoupement RH/CDP)
         '<div style="text-align:right;flex-shrink:0;white-space:nowrap;"><div style="font-weight:700;color:#4ade80;font-size:13px;">'+(p.total_score||0)+' pts</div><div style="font-size:10px;color:var(--sub);">'+(p.games||0)+' partie'+(((p.games||0)>1)?'s':'')+'</div></div></div>';
     }).join('');
     // MODIFIÉ : certificat de classement pour le Top 3
