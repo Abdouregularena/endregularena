@@ -2480,6 +2480,59 @@ function arLoadOrgDash(){
       if(TAB==='orgdash') render();
     })
     .catch(function(){ ORG.loading=false; ORG.err='Erreur réseau.'; if(TAB==='orgdash') render(); });
+  arLoadOrgTours(); /* MODIFIÉ — charge aussi les tournois établissement */
+}
+
+/* MODIFIÉ — charge la liste des tournois privés de l'établissement */
+var ORG_TOURS = { loading:false, list:[] };
+function arLoadOrgTours(){
+  if(!ORG.id) return;
+  ORG_TOURS.loading = true;
+  fetch('/org/tournament/list?org_id='+encodeURIComponent(ORG.id), { headers: arAuthHdr() })
+    .then(function(r){ return r.json(); })
+    .then(function(d){ ORG_TOURS.loading=false; ORG_TOURS.list = (d && d.tournaments) || []; if(TAB==='orgdash') render(); })
+    .catch(function(){ ORG_TOURS.loading=false; });
+}
+
+/* MODIFIÉ — modale de création d'un tournoi privé établissement */
+function arModalCreateOrgTour(){
+  showModal('🏢 Tournoi établissement',
+    '<div style="display:flex;flex-direction:column;gap:13px;">'+
+    '<div class="al al-info" style="font-size:12px;">Réservé aux membres de '+arChatEsc(ORG.name||'votre établissement')+'. Non visible dans l\'Arène publique.</div>'+
+    '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Nom du tournoi *</label>'+
+    '<input type="text" id="org-tname" class="inp" placeholder="ex: Coupe Conformité Trade Finance 2026"/></div>'+
+    '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Thème / métier</label>'+
+    '<select id="org-tpack" class="inp"><optgroup label="Packs généraux"><option value="rfe-uemoa">🏛️ RFE UEMOA</option><option value="bale-umoa">⚖️ Bâle II/III</option><option value="mix">🔀 Mix</option><option value="cemac">🌍 CEMAC (BEAC/COBAC)</option><option value="qn">📚 Thématiques approfondies</option></optgroup><optgroup label="🎯 Thèmes Atelier">'+arThemeOptions()+'</optgroup><optgroup label="Thèmes précis">'+arCatOptions()+'</optgroup></select></div>'+
+    '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Participants max</label>'+
+    '<select id="org-tmax" class="inp"><option value="4">4</option><option value="8">8</option><option value="16" selected>16</option><option value="32">32</option><option value="64">64</option></select></div>'+
+    '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Début</label>'+
+    '<input type="datetime-local" id="org-tstart" class="inp"/></div>'+
+    '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Fin</label>'+
+    '<input type="datetime-local" id="org-tend" class="inp"/></div>'+
+    '<div id="org-tour-msg"></div>'+
+    '<button class="btn" style="width:100%;padding:13px;" onclick="arDoCreateOrgTour()">🏢 Créer le tournoi établissement →</button>'+
+    '<button class="btn-out btn-sm" style="width:100%;" onclick="closeModal()">Annuler</button>'+
+    '</div>'
+  );
+}
+function arDoCreateOrgTour(){
+  var name = (ge('org-tname').value||'').trim();
+  var pack = ge('org-tpack').value;
+  var maxp = parseInt(ge('org-tmax').value)||16;
+  var start= ge('org-tstart').value||'';
+  var end  = ge('org-tend').value||'';
+  var msg  = ge('org-tour-msg');
+  if(!name){ if(msg) msg.innerHTML='<div class="al al-warn">⚠️ Donnez un nom au tournoi</div>'; return; }
+  if(msg) msg.innerHTML='<div class="al al-info"><span class="spin">⏳</span> Création…</div>';
+  fetch('/org/tournament/create',{method:'POST',headers:arAuthHdr(),
+    body:JSON.stringify({org_id:ORG.id,name:name,pack_id:pack,max_players:maxp,start_date:start,end_date:end})})
+  .then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d};});})
+  .then(function(res){
+    if(!res.ok){ if(msg) msg.innerHTML='<div class="al al-err">❌ '+arChatEsc((res.d&&res.d.error)||'Erreur')+'</div>'; return; }
+    closeModal();
+    arLoadOrgTours();
+  })
+  .catch(function(){ if(msg) msg.innerHTML='<div class="al al-err">❌ Erreur réseau</div>'; });
 }
 
 function rOrgDashboard(){
@@ -2490,7 +2543,30 @@ function rOrgDashboard(){
   var h = '<div style="max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:14px;">';
   h += '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">'+
        '<h2 style="font-size:22px;color:white;">🏛️ '+arChatEsc(d.org.name)+'</h2>'+
-       '<button class="btn btn-sm" onclick="arLoadOrgDash()">↻ Actualiser</button></div>';
+       '<div style="display:flex;gap:8px;"><button class="btn btn-sm" style="background:rgba(251,191,36,.15);border-color:#fbbf24;color:#fbbf24;" onclick="arModalCreateOrgTour()">🏢 Tournoi établissement</button>'+
+       '<button class="btn btn-sm" onclick="arLoadOrgDash()">↻ Actualiser</button></div></div>';
+  /* MODIFIÉ — liste des tournois privés de l'établissement */
+  h += '<div class="card"><div style="font-weight:800;color:white;font-size:14px;margin-bottom:10px;">🏆 Tournois établissement</div>'+
+    (ORG_TOURS.loading ? '<div style="font-size:12px;color:var(--sub);">⏳ Chargement…</div>' :
+     !ORG_TOURS.list.length ? '<div style="font-size:12px;color:var(--sub);">Aucun tournoi privé pour le moment.</div>' :
+     ORG_TOURS.list.map(function(t){
+       return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:12px;">'+
+         '<div><strong style="color:white;">'+arChatEsc(t.name)+'</strong> <span style="color:var(--sub);">— '+(t.nb||0)+'/'+t.max_players+' · '+arChatEsc(t.status)+'</span></div>'+
+         '<span style="font-family:monospace;color:var(--cyan);">'+t.code+'</span></div>';
+     }).join('')) +
+  '</div>';
+  /* MODIFIÉ — stats par agence / unité */
+  if(d.by_agence && d.by_agence.length){
+    h += '<div class="card"><div style="font-weight:800;color:white;font-size:14px;margin-bottom:4px;">🏢 Stats par agence / unité</div>'+
+      '<div style="font-size:11px;color:var(--sub);margin-bottom:10px;">Basé sur l\'agence déclarée par chaque collaborateur.</div>'+
+      d.by_agence.map(function(a){
+        var col = a.accuracy>=70?'#22c55e':(a.accuracy>=50?'#E8B520':'#ef4444');
+        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:12px;">'+
+          '<div><strong style="color:white;">'+arChatEsc(a.agence)+'</strong> <span style="color:var(--sub);">— '+a.active+'/'+a.members+' actifs · '+a.games+' parties</span></div>'+
+          '<span style="font-weight:800;color:'+col+';">'+a.accuracy+'%</span></div>';
+      }).join('')+
+    '</div>';
+  }
   h += '<div class="g4">'+
     [['👥','Membres',t.members],['🚀','Taux d\'activation',(t.activation_rate||0)+'%'],
      ['🎯','Précision moy.',(t.avg_accuracy||0)+'%'],['🎓','Taux de certif.',(t.certification_rate||0)+'%']].map(function(s){
@@ -2633,10 +2709,26 @@ function arJoinByCode(){
    .then(function(res){
      var m=ge('org-join-msg');
      if(!res.ok){ if(m) m.innerHTML='<span style="color:#E8B520;">'+arChatEsc((res.d&&res.d.error)||'Erreur.')+'</span>'; return; }
-     if(m) m.innerHTML='<span style="color:#22c55e;">'+arChatEsc(res.d.message||'Rejoint !')+'</span>';
+     /* MODIFIÉ — propose de déclarer l'agence/unité juste après avoir rejoint */
+     if(m) m.innerHTML='<span style="color:#22c55e;">'+arChatEsc(res.d.message||'Rejoint !')+'</span>'+
+       '<div style="margin-top:12px;">'+
+         '<label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Votre agence / unité (optionnel)</label>'+
+         '<input id="org-join-agence" class="inp" placeholder="ex: Agence Almadies, Direction Trade Finance…" style="margin-bottom:8px;"/>'+
+         '<button class="btn btn-sm" onclick="arSetJoinAgence('+res.d.org_id+')">Valider mon agence</button>'+
+       '</div>';
      inp.value='';
    })
    .catch(function(){ var m=ge('org-join-msg'); if(m) m.innerHTML='<span style="color:#E8B520;">Erreur réseau.</span>'; });
+}
+
+/* MODIFIÉ — enregistre l'agence/unité déclarée par le membre */
+function arSetJoinAgence(orgId){
+  var inp=ge('org-join-agence');
+  if(!inp) return;
+  fetch('/org/agence/set',{method:'POST',headers:arAuthHdr(),body:JSON.stringify({org_id:orgId,agence:inp.value.trim()})})
+   .then(function(r){return r.json();})
+   .then(function(){ inp.disabled=true; inp.nextElementSibling&&(inp.nextElementSibling.textContent='✅ Enregistré'); var b=inp.parentElement.querySelector('button'); if(b){ b.textContent='✅ Enregistré'; b.disabled=true; } })
+   .catch(function(){});
 }
 
 function render(){
@@ -3360,6 +3452,15 @@ function rARTournoisHome(){
       '<span style="display:inline-block;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:700;background:rgba(201,153,26,.16);color:var(--cyan);border:1px solid rgba(201,153,26,.4);">Créer →</span>'+
     '</button>'+
   '</div>'+
+  /* MODIFIÉ — 5e carte : tournoi privé établissement (géré depuis Espace établissement) */
+  '<button class="card ch" style="width:100%;padding:18px;text-align:left;cursor:pointer;display:flex;align-items:center;gap:14px;border:1px solid rgba(56,189,248,.3);background:rgba(56,189,248,.06);" onclick="ST(\'org\')">'+
+    '<div style="font-size:30px;">🏢</div>'+
+    '<div style="flex:1;">'+
+      '<div style="font-weight:800;color:white;font-size:14px;margin-bottom:2px;">Tournoi établissement</div>'+
+      '<div style="font-size:11px;color:var(--sub);">Réservé aux collaborateurs de votre banque — thème, dates et participants programmables. Géré depuis Espace établissement.</div>'+
+    '</div>'+
+    '<span style="font-size:18px;color:var(--cyan);">→</span>'+
+  '</button>'+
   '<div class="al al-info" style="font-size:12px;">🏛️ <strong>Tournois UEMOA &amp; CEMAC :</strong> Créez un tournoi privé ou institutionnel (zone UEMOA, CEMAC ou inter-zones), invitez jusqu\'à 32 participants et suivez le classement en direct.</div>'+
   /* MODIFIÉ : fil des tournois ouverts à rejoindre */
   '<div class="card">'+
