@@ -112,6 +112,19 @@
     fetch(url,{headers:hdr}).then(function(r){return r.json();}).then(function(d){
       var body=ge('lb-bank-body'); if(!body) return;
       var members=(d&&d.members)||[], myId=(d&&d.my_id)||null, tot=(d&&d.total_score)||0;
+      if(d && d.restricted){ // MODIFIÉ : détail nominatif réservé à l'admin / établissement
+        var cnt=(d&&d.count)||0, t2=(d&&d.total_score)||0;
+        body.innerHTML=
+          '<div class="card" style="padding:12px 16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">'+
+            '<div style="font-size:12px;color:var(--sub);">👥 '+cnt+' membre'+(cnt>1?'s':'')+' classé'+(cnt>1?'s':'')+'</div>'+
+            '<div style="font-weight:800;color:#4ade80;font-size:14px;">'+t2+' pts</div></div>'+
+          '<div class="card" style="padding:18px 16px;text-align:center;border:1px solid rgba(232,181,32,.4);background:rgba(232,181,32,.05);">'+
+            '<div style="font-size:30px;margin-bottom:8px;">🔒</div>'+
+            '<div style="font-weight:800;color:#E8B520;font-size:14px;margin-bottom:6px;">Détail réservé à l\'établissement</div>'+
+            '<div style="font-size:12px;color:var(--sub);line-height:1.55;">Le classement nominatif du personnel et l\'analyse <strong>Forces &amp; faiblesses</strong> par thème sont confidentiels (données RH).<br><br>Dirigeants : activez votre <strong>Espace Établissement</strong> pour suivre la montée en compétence de vos équipes.</div>'+
+          '</div>';
+        return;
+      }
       if(!members.length){ body.innerHTML='<div class="al al-info" style="font-size:12px;">Aucun membre classé pour cette banque dans cette zone.</div>'; return; }
       var head='<div class="card" style="padding:12px 16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">'+
         '<div style="font-size:12px;color:var(--sub);">👥 '+members.length+' membre'+(members.length>1?'s':'')+' classé'+(members.length>1?'s':'')+'</div>'+
