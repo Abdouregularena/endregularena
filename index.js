@@ -210,7 +210,13 @@ try { db.exec('CREATE INDEX IF NOT EXISTS idx_tp_tid_score ON tournament_partici
  'ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT "user"',
  // PRÉSENCE — dernière activité de l'utilisateur (heartbeat frontend)
  'ALTER TABLE users ADD COLUMN last_seen TEXT',
+ // ORG-TOURNOI AJOUT — tournois privés programmés par un établissement partenaire
+ 'ALTER TABLE tournaments ADD COLUMN org_id INTEGER',
+ 'ALTER TABLE tournaments ADD COLUMN end_date TEXT NOT NULL DEFAULT \'\'',
+ 'ALTER TABLE tournaments ADD COLUMN visibility TEXT NOT NULL DEFAULT \'public\'',
 ].forEach(sql => { try { db.exec(sql); } catch(_) {} }); // TOURNOI AJOUT
+try { db.exec('CREATE INDEX IF NOT EXISTS idx_tournaments_org ON tournaments (org_id, status)'); } catch(_) {} // ORG-TOURNOI AJOUT
+try { db.exec("ALTER TABLE org_members ADD COLUMN agence TEXT NOT NULL DEFAULT ''"); } catch(_) {} // ORG-AGENCE AJOUT
 
 // TOURNOI AJOUT — nouvelles tables module tournoi
 db.exec(`
@@ -1598,6 +1604,46 @@ app.post('/tournament/create', requireAuth, (req, res) => { // TOURNOI AJOUT
   return ok(res, { code, id: result.lastInsertRowid }); // TOURNOI AJOUT
 }); // TOURNOI AJOUT
 
+/* POST /org/tournament/create — JWT requis, admin de l'org.
+   Tournoi privé programmé, réservé aux membres de l'établissement.
+   curl -X POST /org/tournament/create -H 'Authorization: Bearer JWT' -d '{"org_id":1,"name":"Coupe Conformité","pack_id":"lbcft","max_players":16,"start_date":"2026-07-10T09:00","end_date":"2026-07-17T18:00"}'
+*/
+app.post('/org/tournament/create', requireAuth, (req, res) => { // ORG-TOURNOI AJOUT
+  const { org_id, name, pack_id, max_players, start_date, end_date, match_mode } = req.body || {}; // ORG-TOURNOI AJOUT
+  const orgId = Number(org_id); // ORG-TOURNOI AJOUT
+  if (!orgId || !name) return err(res, 400, 'org_id et name requis'); // ORG-TOURNOI AJOUT
+  const membre = db.prepare("SELECT role FROM org_members WHERE org_id = ? AND user_id = ?").get(orgId, req.user.id); // ORG-TOURNOI AJOUT
+  if (!membre || membre.role !== 'admin') return err(res, 403, "Réservé à l'admin de l'établissement"); // ORG-TOURNOI AJOUT
+  const mp = Number(max_players); // ORG-TOURNOI AJOUT
+  if (![4,8,16,32,64].includes(mp)) return err(res, 400, 'max_players doit être 4, 8, 16, 32 ou 64'); // ORG-TOURNOI AJOUT
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id); // ORG-TOURNOI AJOUT
+  let code; // ORG-TOURNOI AJOUT
+  for (let i = 0; i < 10; i++) { // ORG-TOURNOI AJOUT
+    const rand = crypto.randomBytes(2).toString('hex').toUpperCase(); // ORG-TOURNOI AJOUT
+    code = 'O-' + rand; // ORG-TOURNOI AJOUT
+    if (!db.prepare('SELECT id FROM tournaments WHERE code = ?').get(code)) break; // ORG-TOURNOI AJOUT
+  } // ORG-TOURNOI AJOUT
+  const result = db.prepare( // ORG-TOURNOI AJOUT
+    'INSERT INTO tournaments (code, creator_id, name, pack_id, max_players, status, country, zone, start_date, end_date, match_mode, org_id, visibility) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)' // ORG-TOURNOI AJOUT
+  ).run(code, req.user.id, name.trim().slice(0,80), pack_id || 'general', mp, 'waiting', user.country || '', 'inter', start_date || '', end_date || '', (match_mode === 'kotm' ? 'kotm' : 'duel'), orgId, 'org'); // ORG-TOURNOI AJOUT
+  db.prepare('INSERT INTO tournament_participants (tournament_id, user_id) VALUES (?,?)').run(result.lastInsertRowid, req.user.id); // ORG-TOURNOI AJOUT
+  const membres = db.prepare('SELECT user_id FROM org_members WHERE org_id = ? AND user_id != ?').all(orgId, req.user.id); // ORG-TOURNOI AJOUT
+  const insertNotif = db.prepare('INSERT INTO notifications (user_id, type, message) VALUES (?,?,?)'); // ORG-TOURNOI AJOUT
+  membres.forEach(m => insertNotif.run(m.user_id, 'org_tournament_created', '🏆 Nouveau tournoi établissement « ' + name.trim() + ' » ! Code : ' + code)); // ORG-TOURNOI AJOUT
+  return ok(res, { code, id: result.lastInsertRowid }); // ORG-TOURNOI AJOUT
+}); // ORG-TOURNOI AJOUT
+
+/* GET /org/tournament/list?org_id=xxx — JWT requis, membre de l'org. */
+app.get('/org/tournament/list', requireAuth, (req, res) => { // ORG-TOURNOI AJOUT
+  const orgId = Number(req.query.org_id); // ORG-TOURNOI AJOUT
+  if (!orgId) return err(res, 400, 'org_id requis'); // ORG-TOURNOI AJOUT
+  const membre = db.prepare('SELECT id FROM org_members WHERE org_id = ? AND user_id = ?').get(orgId, req.user.id); // ORG-TOURNOI AJOUT
+  if (!membre) return err(res, 403, "Vous n'êtes pas membre de cet établissement"); // ORG-TOURNOI AJOUT
+  const list = db.prepare( // ORG-TOURNOI AJOUT
+    'SELECT t.*, u.name AS creator_name, (SELECT COUNT(*) FROM tournament_participants tp WHERE tp.tournament_id = t.id) AS nb FROM tournaments t JOIN users u ON u.id = t.creator_id WHERE t.org_id = ? ORDER BY t.created_at DESC LIMIT 50' // ORG-TOURNOI AJOUT
+  ).all(orgId); // ORG-TOURNOI AJOUT
+  return ok(res, { tournaments: list }); // ORG-TOURNOI AJOUT
+}); // ORG-TOURNOI AJOUT
 /* POST /tournament/join */
 app.post('/tournament/join', requireAuth, (req, res) => { // TOURNOI AJOUT
   const { code } = req.body || {}; // TOURNOI AJOUT
@@ -1605,6 +1651,10 @@ app.post('/tournament/join', requireAuth, (req, res) => { // TOURNOI AJOUT
   const t = db.prepare('SELECT * FROM tournaments WHERE code = ?').get(code.trim().toUpperCase()); // TOURNOI AJOUT
   if (!t) return err(res, 404, 'Tournoi introuvable'); // TOURNOI AJOUT
   if (!['waiting','qualif'].includes(t.status)) return err(res, 400, 'Inscriptions fermées pour ce tournoi'); // TOURNOI AJOUT
+  if (t.visibility === 'org') { // ORG-TOURNOI AJOUT
+    const membre = db.prepare('SELECT id FROM org_members WHERE org_id = ? AND user_id = ?').get(t.org_id, req.user.id); // ORG-TOURNOI AJOUT
+    if (!membre) return err(res, 403, 'Tournoi réservé aux membres de cet établissement'); // ORG-TOURNOI AJOUT
+  } // ORG-TOURNOI AJOUT
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id); // TOURNOI AJOUT
   if (!_peutRejoindre(user.country, t.country, t.zone)) { // TOURNOI AJOUT
     const z = t.zone === 'country' ? ('pays ' + t.country) : ('zone ' + t.zone.toUpperCase()); // TOURNOI AJOUT
@@ -1627,7 +1677,7 @@ app.get('/tournament/list', requireAuth, (req, res) => { // TOURNOI AJOUT
   if (!user) return err(res, 401, 'Session expirée, reconnecte-toi'); // MODIFIÉ — anti-crash user undefined
   const uZone = _zoneOf(user.country); // TOURNOI AJOUT
   // SECURITE FIX : utiliser des paramètres SQLite au lieu de l'interpolation de chaîne (anti-injection SQL)
-  const BASE_OPEN_SQL = `SELECT t.*, u.name AS creator_name, (SELECT COUNT(*) FROM tournament_participants tp WHERE tp.tournament_id = t.id) AS nb FROM tournaments t JOIN users u ON u.id = t.creator_id WHERE t.status IN ('waiting','qualif','elim') AND (t.start_date = '' OR datetime(t.start_date) IS NULL OR datetime(t.start_date) >= datetime('now','-1 day'))`; // SECURITE FIX // MODIFIÉ — exclut les tournois programmés expirés
+  const BASE_OPEN_SQL = `SELECT t.*, u.name AS creator_name, (SELECT COUNT(*) FROM tournament_participants tp WHERE tp.tournament_id = t.id) AS nb FROM tournaments t JOIN users u ON u.id = t.creator_id WHERE t.status IN ('waiting','qualif','elim') AND t.visibility != 'org' AND (t.start_date = '' OR datetime(t.start_date) IS NULL OR datetime(t.start_date) >= datetime('now','-1 day'))`; // SECURITE FIX // MODIFIÉ — exclut les tournois programmés expirés // MODIFIÉ — exclut les tournois privés établissement
   const open = uZone // SECURITE FIX
     ? db.prepare(BASE_OPEN_SQL + ` AND (t.zone = ? OR t.zone = 'inter') ORDER BY t.created_at DESC LIMIT 30`).all(uZone) // SECURITE FIX
     : db.prepare(BASE_OPEN_SQL + ` ORDER BY t.created_at DESC LIMIT 30`).all(); // SECURITE FIX
@@ -2512,6 +2562,19 @@ app.post('/org/create', requireAuth, (req, res) => {
   return ok(res, { org: { id: orgId, name } });
 });
 
+/* POST /org/agence/set — JWT requis, membre déclare son agence/unité.
+   curl -X POST /org/agence/set -d '{"org_id":1,"agence":"Agence Almadies"}'
+*/
+app.post('/org/agence/set', requireAuth, (req, res) => { // ORG-AGENCE AJOUT
+  const orgId = Number((req.body || {}).org_id); // ORG-AGENCE AJOUT
+  const agence = String((req.body || {}).agence || '').trim().slice(0, 80); // ORG-AGENCE AJOUT
+  if (!orgId) return err(res, 400, 'org_id requis'); // ORG-AGENCE AJOUT
+  const membre = db.prepare('SELECT id FROM org_members WHERE org_id = ? AND user_id = ?').get(orgId, req.user.id); // ORG-AGENCE AJOUT
+  if (!membre) return err(res, 403, "Vous n'êtes pas membre de cet établissement"); // ORG-AGENCE AJOUT
+  db.prepare('UPDATE org_members SET agence = ? WHERE org_id = ? AND user_id = ?').run(agence, orgId, req.user.id); // ORG-AGENCE AJOUT
+  return ok(res, { agence }); // ORG-AGENCE AJOUT
+}); // ORG-AGENCE AJOUT
+
 /* GET /org/dashboard?org_id=xxx — JWT requis (admin de l'org).
    Membres + stats agrégées (parties, précision, dernière activité).
    curl -H 'Authorization: Bearer JWT' '/org/dashboard?org_id=1'
@@ -2524,7 +2587,7 @@ app.get('/org/dashboard', requireAuth, (req, res) => {
   if (org.admin_user_id !== req.user.id) return err(res, 403, "Accès réservé à l'administrateur de l'établissement");
 
   const rows = db.prepare(
-    'SELECT u.id, u.name, u.email, u.country, om.role, om.joined_at, ' +
+    'SELECT u.id, u.name, u.email, u.country, om.role, om.joined_at, om.agence, ' /* MODIFIÉ — ajout agence */ +
     'COUNT(s.id) AS games, COALESCE(SUM(s.score),0) AS score_sum, ' +
     'COALESCE(SUM(s.total),0) AS total_sum, MAX(s.played_at) AS last_played ' +
     'FROM org_members om JOIN users u ON u.id = om.user_id ' +
@@ -2547,10 +2610,30 @@ app.get('/org/dashboard', requireAuth, (req, res) => {
   const members = rows.map(function(m){
     const acc = m.total_sum > 0 ? Math.round((m.score_sum / m.total_sum) * 100) : 0;
     return { id:m.id, name:m.name, email:m.email, country:m.country, role:m.role,
-             joined_at:m.joined_at, games:m.games, accuracy:acc, score_sum:m.score_sum,
+             joined_at:m.joined_at, agence: m.agence || '', games:m.games, accuracy:acc, score_sum:m.score_sum, /* MODIFIÉ — ajout agence */
              palier: palier(m.score_sum), certs: certBy[m.id] || 0,
              dormant: m.games>0 ? dormant(m.last_played) : false, last_played:m.last_played };
   });
+
+  // ORG-AGENCE AJOUT — agrégat stats par agence/unité (membres sans agence déclarée groupés sous "Non renseigné")
+  const byAgenceMap = {};
+  members.forEach(function(m){
+    const key = m.agence || 'Non renseigné';
+    if (!byAgenceMap[key]) byAgenceMap[key] = { agence: key, members: 0, active: 0, games: 0, score_sum: 0, total_sum: 0 };
+    const b = byAgenceMap[key];
+    b.members++;
+    if (m.games > 0) b.active++;
+    b.games += m.games;
+  });
+  rows.forEach(function(m){
+    const key = m.agence || 'Non renseigné';
+    byAgenceMap[key].score_sum = (byAgenceMap[key].score_sum || 0) + m.score_sum;
+    byAgenceMap[key].total_sum = (byAgenceMap[key].total_sum || 0) + m.total_sum;
+  });
+  const byAgence = Object.values(byAgenceMap).map(function(b){
+    return { agence: b.agence, members: b.members, active: b.active, games: b.games,
+             accuracy: b.total_sum > 0 ? Math.round(b.score_sum / b.total_sum * 100) : 0 };
+  }).sort(function(a,b){ return b.games - a.games; });
 
   const active = members.filter(function(m){ return m.games > 0; });
   const paliers = { 'Initié':0, 'Confirmé':0, 'Expert':0, 'Maître':0 };
@@ -2579,7 +2662,7 @@ app.get('/org/dashboard', requireAuth, (req, res) => {
     return { pack: d.pack, attempts: d.attempts, accuracy: d.tt>0 ? Math.round(d.sc/d.tt*100) : 0 };
   });
 
-  return ok(res, { org: { id: org.id, name: org.name, created_at: org.created_at, join_code: org.join_code || null }, totals, members, domains });
+  return ok(res, { org: { id: org.id, name: org.name, created_at: org.created_at, join_code: org.join_code || null }, totals, members, domains, by_agence: byAgence }); /* MODIFIÉ — ajout by_agence */
 });
 
 /* Helper — génère un code collectif lisible unique : SLUG + 4 hex (ex. UCAO-7F3A) */
