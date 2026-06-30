@@ -939,10 +939,16 @@ app.get('/leaderboard/banks/members', (req, res) => {
     const bankName = rows.length ? (rows[0].bank || bankRaw) : bankRaw;
     const totalScore = rows.reduce((a, r) => a + (r.total_score || 0), 0);
 
-    let myId = null;
+    let myId = null, viewer = null; // MODIFIÉ
     const hdr = req.headers['authorization'] || '';
     const tok = hdr.startsWith('Bearer ') ? hdr.slice(7) : null;
-    if (tok) { try { myId = jwt.verify(tok, JWT_SECRET).id; } catch (_) {} }
+    if (tok) { try { const p = jwt.verify(tok, JWT_SECRET); myId = p.id; viewer = db.prepare('SELECT id, email FROM users WHERE id = ?').get(p.id); } catch (_) {} } // MODIFIÉ
+
+    // CONFIDENTIALITÉ (CDP) : le détail NOMINATIF du personnel d'un établissement // MODIFIÉ
+    // n'est ouvert qu'à l'admin REGUL ARENA. Les autres ne reçoivent que l'agrégat (aucun nom). // MODIFIÉ
+    if (!viewer || !isAdmin(viewer)) { // MODIFIÉ
+      return ok(res, { bank: bankName, restricted: true, count: rows.length, total_score: totalScore }); // MODIFIÉ
+    } // MODIFIÉ
 
     return ok(res, { bank: bankName, members: rows, count: rows.length, total_score: totalScore, my_id: myId });
   } catch (e) {
@@ -959,6 +965,12 @@ app.get('/leaderboard/banks/themes', (req, res) => {
   try {
     const bankRaw = (req.query.bank || '').trim();
     if (!bankRaw) return err(res, 400, 'Paramètre bank requis');
+    // CONFIDENTIALITÉ (CDP) : analyse NOMINATIVE par thème réservée à l'admin REGUL ARENA. // MODIFIÉ
+    let viewer = null; // MODIFIÉ
+    const hdrT = req.headers['authorization'] || ''; // MODIFIÉ
+    const tokT = hdrT.startsWith('Bearer ') ? hdrT.slice(7) : null; // MODIFIÉ
+    if (tokT) { try { viewer = db.prepare('SELECT id, email FROM users WHERE id = ?').get(jwt.verify(tokT, JWT_SECRET).id); } catch (_) {} } // MODIFIÉ
+    if (!viewer || !isAdmin(viewer)) { return ok(res, { bank: bankRaw, restricted: true, themes: [], count: 0 }); } // MODIFIÉ
     const bankKey = bankRaw.toLowerCase();
     const { zone } = req.query;
     const UEMOA = ['SN','CI','BF','ML','BJ','NE','TG','GW'];
