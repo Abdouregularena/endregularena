@@ -29,8 +29,17 @@
       var myRank=(d&&d.my_rank)||null;
       var myBankKey=(d&&d.my_bank)?String(d.my_bank).trim().toLowerCase()
         :((typeof U!=='undefined'&&U&&U.etablissement)?String(U.etablissement).trim().toLowerCase():null);
+      var RA_TEASER='<div class="card" style="padding:14px 16px;margin-bottom:12px;border:1px solid rgba(232,181,32,.4);background:linear-gradient(135deg,rgba(232,181,32,.10),rgba(0,180,216,.05));">'+ // MODIFIÉ : teaser B2B (zéro donnée RH)
+        '<div style="display:flex;align-items:flex-start;gap:10px;">'+
+          '<div style="font-size:22px;line-height:1;">🔒</div>'+
+          '<div style="min-width:0;">'+
+            '<div style="font-weight:800;color:#E8B520;font-size:13px;margin-bottom:3px;">Tableau de bord RH par établissement</div>'+
+            '<div style="font-size:11px;color:var(--sub);line-height:1.5;">Chaque banque dispose d\'un tableau de bord confidentiel — forces &amp; faiblesses par thème (niveau Kirkpatrick 2) et progression des équipes — réservé à son dirigeant.</div>'+
+            '<button class="btn btn-sm" style="margin-top:9px;" onclick="TAB=\'org\';render();">🏛️ Activer l\'Espace Établissement</button>'+
+          '</div>'+
+        '</div></div>';
       if(!list.length){
-        box.innerHTML='<div class="al al-info" style="font-size:12px;">Aucune banque classée pour l\'instant. Renseignez votre établissement et jouez un quiz pour lancer le classement collectif ! 🏦</div>';
+        box.innerHTML=RA_TEASER+'<div class="al al-info" style="font-size:12px;">Aucune banque classée pour l\'instant. Renseignez votre établissement et jouez un quiz pour lancer le classement collectif ! 🏦</div>';
         return;
       }
       // 🏆 podium top 3 (cliquable)  // MODIFIÉ : data-bank + cursor
@@ -86,7 +95,7 @@
           '<div style="font-size:10px;color:#8aa3d4;">👥 '+(p.members||0)+' membre'+(((p.members||0)>1)?'s':'')+' · ⌀ '+(p.avg_score||0)+' pts/membre</div></div></div>'+
           '<div style="text-align:right;flex-shrink:0;white-space:nowrap;display:flex;align-items:center;gap:8px;"><div><div style="font-weight:700;color:#4ade80;font-size:13px;">'+(p.total_score||0)+' pts</div><div style="font-size:10px;color:var(--sub);">'+(p.games||0)+' partie'+(((p.games||0)>1)?'s':'')+'</div></div><span style="color:#8aa3d4;font-size:18px;">›</span></div></div>';
       }).join('');
-      box.innerHTML=rowsHTML || '<div class="al al-info" style="font-size:12px;">Aucune autre banque pour l\'instant.</div>';
+      box.innerHTML=RA_TEASER+(rowsHTML || '<div class="al al-info" style="font-size:12px;">Aucune autre banque pour l\'instant.</div>'); // MODIFIÉ : teaser en tête
       box.onclick=function(e){ var el=e.target.closest&&e.target.closest('[data-bank]'); if(el) lbOpenBank(el.getAttribute('data-bank')); }; // MODIFIÉ
     }).catch(function(){ box.innerHTML='<div class="al al-warn" style="font-size:12px;">Classement des banques momentanément indisponible.</div>'; });
   };
