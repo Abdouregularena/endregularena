@@ -950,6 +950,51 @@ app.get('/leaderboard/banks/members', (req, res) => {
   }
 });
 
+/* ── TABLEAU DE BORD D'UNE BANQUE : forces / faiblesses par thème ──── // MODIFIÉ (task B)
+   Niveau Kirkpatrick 2 (apprentissage) : taux de réussite (score/total)
+   agrégé par pack_id pour les membres d'une même banque. Même logique de
+   rattachement (etablissement OU profile) et de filtre zone que ci-dessus.
+*/
+app.get('/leaderboard/banks/themes', (req, res) => {
+  try {
+    const bankRaw = (req.query.bank || '').trim();
+    if (!bankRaw) return err(res, 400, 'Paramètre bank requis');
+    const bankKey = bankRaw.toLowerCase();
+    const { zone } = req.query;
+    const UEMOA = ['SN','CI','BF','ML','BJ','NE','TG','GW'];
+    const CEMAC  = ['CM','GA','CG','CF','GQ','TD'];
+    const BANK_EXPR = `TRIM(CASE WHEN TRIM(u.etablissement) <> '' THEN u.etablissement WHEN LOWER(TRIM(u.profile)) NOT IN ('professionnel','etudiant','étudiant','') THEN u.profile ELSE '' END)`;
+    const conditions = ['u.email_verified = 1', `LOWER(${BANK_EXPR}) = ?`];
+    const params = [bankKey];
+    if (zone === 'uemoa') { conditions.push(`u.country IN (${UEMOA.map(()=>'?').join(',')})`); params.push(...UEMOA); }
+    else if (zone === 'cemac') { conditions.push(`u.country IN (${CEMAC.map(()=>'?').join(',')})`); params.push(...CEMAC); }
+
+    const rows = db.prepare(`
+      SELECT s.pack_id                 AS pack_id,
+             COUNT(s.id)               AS parties,
+             COUNT(DISTINCT s.user_id) AS joueurs,
+             COALESCE(SUM(s.score), 0) AS sc,
+             COALESCE(SUM(s.total), 0) AS tt
+      FROM users u
+      JOIN user_scores s ON s.user_id = u.id
+      WHERE ${conditions.join(' AND ')}
+      GROUP BY s.pack_id
+      HAVING tt >= 5
+      ORDER BY (1.0 * sc / tt) DESC, parties DESC
+    `).all(...params);
+
+    const themes = rows.map(r => ({
+      pack_id: r.pack_id,
+      parties: r.parties,
+      joueurs: r.joueurs,
+      taux: r.tt ? Math.round(100 * r.sc / r.tt) : 0
+    }));
+    return ok(res, { bank: bankRaw, themes, count: themes.length });
+  } catch (e) {
+    return err(res, 500, 'Erreur serveur (thèmes banque)');
+  }
+});
+
 /* ── NOTIFICATIONS ──────────────────────────────────────────────── */
 app.get('/notifications', requireAuth, (req, res) => {
   const rows = db.prepare(
