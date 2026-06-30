@@ -135,12 +135,13 @@
 
   // ----- tableau de bord forces / faiblesses par thème -----  // MODIFIÉ (task B)
   function packLabel(id){
-    id=String(id||'');
-    if(/^sprint-/.test(id)) return '⚡ Sprint '+id.replace('sprint-','');
+    id=String(id||'').trim();
     if(id==='kotm') return '👑 Roi de la Manche';
     if(id==='coumba') return '🎯 Coumba';
     if(id==='duel') return '⚔️ Duel';
-    return id.replace(/[-_]/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();});
+    if(/^sprint-/.test(id)) return '⚡ Sprint '+id.replace('sprint-','');
+    if(/[ A-Z]/.test(id)) return id; // MODIFIÉ : déjà un libellé lisible → ne pas recasser (accents)
+    return id.replace(/[-_]/g,' ').replace(/^./,function(c){return c.toUpperCase();}); // slug technique pur
   }
   window.lbBankThemes = function (bankName) {
     var box=ge('lb-bank-themes'); if(!box) return;
@@ -151,8 +152,10 @@
     fetch(url,{headers:hdr}).then(function(r){return r.json();}).then(function(d){
       var th=(d&&d.themes)||[];
       if(!th.length){ box.innerHTML='<div class="al al-info" style="font-size:12px;">Pas encore assez de parties pour mesurer les forces et faiblesses (min. 5 réponses par thème).</div>'; return; }
-      var forces=th.slice(0,3);
-      var faibles=th.slice().reverse().slice(0,3).filter(function(t){ return forces.indexOf(t)===-1; });
+      // MODIFIÉ : forts = ≥70 % · à renforcer = <70 % uniquement (th déjà trié desc)
+      var SEUIL=70;
+      var forces=th.filter(function(t){ return t.taux>=SEUIL; }).slice(0,3);
+      var faibles=th.filter(function(t){ return t.taux<SEUIL; }).slice(-3).reverse();
       function bar(t){
         var col=t.taux>=70?'#4ade80':(t.taux>=50?'#E8B520':'#f87171');
         return '<div style="margin-bottom:9px;">'+
@@ -164,11 +167,14 @@
       }
       var html='<div class="card" style="padding:14px 16px;">'+
         '<div style="font-size:13px;font-weight:800;color:white;margin-bottom:3px;">📊 Forces &amp; faiblesses</div>'+
-        '<div style="font-size:10px;color:#8aa3d4;margin-bottom:10px;">Taux de réussite par thème · apprentissage (Kirkpatrick N2)</div>'+
-        '<div style="font-size:11px;font-weight:800;color:#4ade80;margin:2px 0 6px;">💪 Points forts</div>'+
-        forces.map(bar).join('');
+        '<div style="font-size:10px;color:#8aa3d4;margin-bottom:10px;">Taux de réussite par thème · apprentissage (Kirkpatrick N2)</div>';
+      if(forces.length){
+        html+='<div style="font-size:11px;font-weight:800;color:#4ade80;margin:2px 0 6px;">💪 Points forts</div>'+forces.map(bar).join('');
+      }
       if(faibles.length){
-        html+='<div style="font-size:11px;font-weight:800;color:#f87171;margin:10px 0 6px;">🎯 À renforcer</div>'+faibles.map(bar).join('');
+        html+='<div style="font-size:11px;font-weight:800;color:#f87171;margin:'+(forces.length?'10':'2')+'px 0 6px;">🎯 À renforcer</div>'+faibles.map(bar).join('');
+      } else if(forces.length){
+        html+='<div style="font-size:11px;color:#8aa3d4;margin-top:8px;">✅ Niveau solide sur tous les thèmes mesurés (≥ 70 %).</div>';
       }
       html+='</div>';
       box.innerHTML=html;
