@@ -125,8 +125,54 @@
           '<div style="font-size:10px;color:#8aa3d4;">'+(m.games||0)+' partie'+(((m.games||0)>1)?'s':'')+'</div></div></div>'+
           '<div style="font-weight:700;color:#4ade80;font-size:13px;flex-shrink:0;">'+(m.total_score||0)+' pts</div></div>';
       }).join('');
-      body.innerHTML=head+'<div class="card" style="overflow:hidden;">'+rows+'</div>';
+      body.innerHTML=head
+        +'<div id="lb-bank-themes" style="margin-bottom:12px;"></div>' // MODIFIÉ (task B)
+        +'<div style="font-size:11px;font-weight:800;color:#8aa3d4;text-transform:uppercase;letter-spacing:.4px;margin:4px 2px 8px;">Membres</div>'
+        +'<div class="card" style="overflow:hidden;">'+rows+'</div>';
+      lbBankThemes(bankName); // MODIFIÉ (task B)
     }).catch(function(){ var body=ge('lb-bank-body'); if(body) body.innerHTML='<div class="al al-warn" style="font-size:12px;">Membres momentanément indisponibles.</div>'; });
+  };
+
+  // ----- tableau de bord forces / faiblesses par thème -----  // MODIFIÉ (task B)
+  function packLabel(id){
+    id=String(id||'');
+    if(/^sprint-/.test(id)) return '⚡ Sprint '+id.replace('sprint-','');
+    if(id==='kotm') return '👑 Roi de la Manche';
+    if(id==='coumba') return '🎯 Coumba';
+    if(id==='duel') return '⚔️ Duel';
+    return id.replace(/[-_]/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();});
+  }
+  window.lbBankThemes = function (bankName) {
+    var box=ge('lb-bank-themes'); if(!box) return;
+    var zone=(typeof lbZone!=='undefined'&&lbZone)?lbZone:'all';
+    var url='/leaderboard/banks/themes?bank='+encodeURIComponent(bankName)+(zone&&zone!=='all'?('&zone='+zone):'');
+    var hdr=(typeof U!=='undefined'&&U&&U.token)?{'Authorization':'Bearer '+U.token}:{};
+    box.innerHTML='<div class="al al-info" style="font-size:12px;">Analyse des thèmes…</div>';
+    fetch(url,{headers:hdr}).then(function(r){return r.json();}).then(function(d){
+      var th=(d&&d.themes)||[];
+      if(!th.length){ box.innerHTML='<div class="al al-info" style="font-size:12px;">Pas encore assez de parties pour mesurer les forces et faiblesses (min. 5 réponses par thème).</div>'; return; }
+      var forces=th.slice(0,3);
+      var faibles=th.slice().reverse().slice(0,3).filter(function(t){ return forces.indexOf(t)===-1; });
+      function bar(t){
+        var col=t.taux>=70?'#4ade80':(t.taux>=50?'#E8B520':'#f87171');
+        return '<div style="margin-bottom:9px;">'+
+          '<div style="display:flex;justify-content:space-between;gap:8px;font-size:12px;color:white;margin-bottom:3px;">'+
+            '<span style="min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+arChatEsc(packLabel(t.pack_id))+'</span>'+
+            '<span style="font-weight:800;color:'+col+';flex-shrink:0;">'+t.taux+'%</span></div>'+
+          '<div style="height:7px;border-radius:5px;background:rgba(255,255,255,.08);overflow:hidden;"><div style="height:100%;width:'+t.taux+'%;background:'+col+';"></div></div>'+
+          '<div style="font-size:9px;color:#8aa3d4;margin-top:2px;">'+t.parties+' partie'+(t.parties>1?'s':'')+' · '+t.joueurs+' joueur'+(t.joueurs>1?'s':'')+'</div></div>';
+      }
+      var html='<div class="card" style="padding:14px 16px;">'+
+        '<div style="font-size:13px;font-weight:800;color:white;margin-bottom:3px;">📊 Forces &amp; faiblesses</div>'+
+        '<div style="font-size:10px;color:#8aa3d4;margin-bottom:10px;">Taux de réussite par thème · apprentissage (Kirkpatrick N2)</div>'+
+        '<div style="font-size:11px;font-weight:800;color:#4ade80;margin:2px 0 6px;">💪 Points forts</div>'+
+        forces.map(bar).join('');
+      if(faibles.length){
+        html+='<div style="font-size:11px;font-weight:800;color:#f87171;margin:10px 0 6px;">🎯 À renforcer</div>'+faibles.map(bar).join('');
+      }
+      html+='</div>';
+      box.innerHTML=html;
+    }).catch(function(){ box.innerHTML='<div class="al al-warn" style="font-size:12px;">Analyse des thèmes indisponible.</div>'; });
   };
 
   window.lbCloseBank = function () {
