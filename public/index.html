@@ -3677,7 +3677,7 @@ function rACH_render(){
 // MODIFIÉ : drapeaux SVG (les emoji-drapeaux ne s'affichent pas sur Windows)
 function lbFlag(c){ var ids={SN:'sn',CI:'ci',ML:'ml',BF:'bf',BJ:'bj',NE:'ne',TG:'tg',GW:'gw',CM:'cm',CG:'cg',GA:'ga',GQ:'gq',CF:'cf',TD:'td',HT:'ht'}; var id=ids[c]; return id?'<svg class="flag" style="width:18px;height:12px;vertical-align:middle;border-radius:2px;margin-right:5px;box-shadow:0 0 0 1px rgba(0,0,0,.2);"><use href="#fl-'+id+'"/></svg>':''; }
 function lbCountryLabel(c){ var names={SN:'Sénégal',CI:"Côte d'Ivoire",ML:'Mali',BF:'Burkina Faso',BJ:'Bénin',NE:'Niger',TG:'Togo',GW:'Guinée-Bissau',CM:'Cameroun',CG:'Congo',GA:'Gabon',GQ:'Guinée éq.',CF:'Centrafrique',TD:'Tchad',HT:'Haïti'}; var n=names[c]; return n?(lbFlag(c)+n):arChatEsc(c||''); }
-function lbProfileLabel(p){ return p==='etudiant'?'🎓 Étudiant':p==='professionnel'?'💼 Professionnel':(p?arChatEsc(p):''); }
+function lbProfileLabel(p){ return p==='etudiant'?'🎓 Étudiant':p==='professionnel'?'💼 Professionnel':(p?'💼 Professionnel':''); } // MODIFIÉ : tout établissement non reconnu masqué (anti-recoupement RH/CDP)
 // MODIFIÉ : statistiques locales du joueur (thèmes, parties, vitesse) pour l'écran Classement
 function lbLocalStats(){
   var a=(typeof scLoad==='function')?scLoad():[];
