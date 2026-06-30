@@ -2612,10 +2612,13 @@ function rOrgDashboard(){
     }).join('')+'</div>';
   }
   var jc = (d.org && d.org.join_code) ? d.org.join_code : '';
+  var isValidated = !!(d.org && d.org.validated); /* MODIFIÉ — gating admin */
   h += '<div class="card" style="background:linear-gradient(135deg,rgba(201,153,26,.14),rgba(201,153,26,.03));border:1px solid rgba(201,153,26,.4);">'+
     '<div style="font-weight:800;color:white;font-size:14px;margin-bottom:6px;">🔑 Code d\'invitation collectif</div>'+
     '<div style="font-size:11px;color:var(--sub);margin-bottom:10px;">Partagez ce code à toute une promo ou une équipe. Chacun s\'inscrit, puis le saisit dans « Rejoindre un établissement » pour être rattaché automatiquement.</div>';
-  if(jc){
+  if(!isValidated){
+    h += '<div class="al al-warn" style="font-size:12px;">🔒 Établissement en attente de validation. Contactez l\'administrateur REGUL ARENA pour activer votre code collectif et vos tournois établissement.</div>';
+  } else if(jc){
     h += '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'+
       '<div style="font-family:monospace;font-size:20px;font-weight:900;letter-spacing:2px;color:#E8B520;background:rgba(0,0,0,.3);padding:8px 14px;border-radius:8px;">'+arChatEsc(jc)+'</div>'+
       '<button class="btn btn-sm" onclick="arOrgCopyCode(\''+arChatEsc(jc)+'\')">Copier</button>'+
