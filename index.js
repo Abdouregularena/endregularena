@@ -2546,6 +2546,17 @@ app.get('/org/members', requireAuth, (req, res) => {
   return ok(res, { org: { id: org.id, name: org.name }, members });
 });
 
+/* GET /org/mine — JWT requis. Retourne l'établissement (admin ou membre) auquel l'utilisateur appartient déjà, s'il existe.
+   curl -H 'Authorization: Bearer JWT' '/org/mine'
+*/
+app.get('/org/mine', requireAuth, (req, res) => { // ORG-MINE AJOUT
+  const row = db.prepare( // ORG-MINE AJOUT
+    'SELECT o.id, o.name, om.role FROM org_members om JOIN organisations o ON o.id = om.org_id WHERE om.user_id = ? ORDER BY (om.role = \'admin\') DESC LIMIT 1' // ORG-MINE AJOUT
+  ).get(req.user.id); // ORG-MINE AJOUT
+  if (!row) return ok(res, { org: null }); // ORG-MINE AJOUT
+  return ok(res, { org: { id: row.id, name: row.name, role: row.role } }); // ORG-MINE AJOUT
+}); // ORG-MINE AJOUT
+
 /* POST /org/create — JWT requis. Le créateur devient admin de l'établissement.
    curl -X POST /org/create -H 'Authorization: Bearer JWT' -H 'Content-Type: application/json' -d '{"name":"ISM Dakar"}'
 */
