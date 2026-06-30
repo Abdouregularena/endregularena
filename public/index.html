@@ -5258,6 +5258,7 @@ function rARKotmResult(){
       '</div>'+
     '</div>'+
     sheet+
+    '<button class="btn-out btn-sm" style="width:100%;border-color:rgba(74,222,128,.5);color:#4ade80;" onclick="arKotmShareWin()">📱 Partager le résultat</button>'+ // MODIFIÉ : partage viral du résultat KOTM
     (AR.kTour
       ? '<button class="btn" style="width:100%;padding:14px;" onclick="arTourSettleReturn()">↩️ Valider le résultat & retour au tournoi</button>'
       : '<div class="g2">'+
@@ -5265,6 +5266,23 @@ function rARKotmResult(){
           '<button class="btn-out" style="width:100%;padding:13px;" onclick="arQuit()">👑 Nouvelle manche</button>'+
         '</div>')+
   '</div>';
+}
+
+/* ── Partage du résultat (croissance virale via le canal n°1 : WhatsApp / partage natif) ── */ // MODIFIÉ
+function arKotmShareWin(){
+  var g=AR.duelObj||{};
+  var meId=arKotmMyId(), oppId=String(AR.isCreator?(g.joiner_id||''):(g.creator_id||''));
+  var meSc=arKotmScoreOf(meId), opSc=arKotmScoreOf(oppId);
+  var my=(meSc.score||0), op=(opSc.score||0), opp=arKotmOppName();
+  var head = my>op ? '👑 Je suis sacré *Roi de la Manche* sur REGULARENA PRO !'
+           : my===op ? '🤝 Égalité épique au *Roi de la Manche* sur REGULARENA PRO !'
+           : '🥈 Belle bataille au *Roi de la Manche* sur REGULARENA PRO !';
+  var msg = head+'\n\nScore : *'+my+'* — '+op+' face à '+opp+
+            '\nDuel 1v1 de réglementation bancaire UEMOA/CEMAC.\n\nMontez sur le ring 👉 https://www.regularena.com';
+  try{
+    if(navigator.share){ navigator.share({text:msg}).catch(function(){ window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank'); }); }
+    else { window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank'); }
+  }catch(e){ window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank'); }
 }
 
 /* ── Revanche : nouvelle manche ciblant le même adversaire (mêmes réglages) ── */
