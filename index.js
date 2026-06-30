@@ -819,7 +819,7 @@ app.get('/leaderboard', (req, res) => {
   else if (zone === 'cemac') { conditions.push(`u.country IN (${CEMAC.map(()=>'?').join(',')})`); params.push(...CEMAC); }
   if (profile === 'professionnel' || profile === 'etudiant') { conditions.push('u.profile = ?'); params.push(profile); }
   const rows = db.prepare(`
-    SELECT u.id, u.name, u.country, u.etablissement, u.profile,
+    SELECT u.id, u.name, u.country, u.profile,
            COUNT(s.id) AS games,
            COALESCE(SUM(s.score), 0) AS total_score
     FROM users u
@@ -867,7 +867,7 @@ app.get('/leaderboard/banks', (req, res) => {
       LEFT JOIN user_scores s ON s.user_id = u.id
       WHERE ${conditions.join(' AND ')}
       GROUP BY bank_key
-      HAVING total_score > 0
+      HAVING total_score > 0 AND members >= 3
       ORDER BY total_score DESC, members ASC
       LIMIT 50
     `).all(...params);
