@@ -2581,8 +2581,23 @@ function arDoCreateOrgTour(){
   .then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d};});})
   .then(function(res){
     if(!res.ok){ if(msg) msg.innerHTML='<div class="al al-err">❌ '+arChatEsc((res.d&&res.d.error)||'Erreur')+'</div>'; return; }
-    closeModal();
-    arLoadOrgTours();
+    arLoadOrgTours(); // MODIFIÉ : recharge la liste en fond, sans fermer la modale
+    // MODIFIÉ : on cherche le code dans les formes de réponse possibles, on l'affiche direct
+    var d = res.d||{};
+    var code = d.code || (d.tournament && d.tournament.code) || (d.data && d.data.code) || '';
+    var box = ge('mbody');
+    if(code && box){
+      box.innerHTML =
+        '<div class="al al-info" style="text-align:center;">'+
+          '<div style="font-size:13px;color:#aac4e8;margin-bottom:8px;">✅ Tournoi établissement créé — code à partager avec vos collaborateurs :</div>'+
+          '<div style="font-family:monospace;font-size:22px;font-weight:800;color:#E8B520;letter-spacing:2px;margin-bottom:10px;">'+arChatEsc(code)+'</div>'+
+          '<button class="btn btn-sm" onclick="arOrgCopyCode(\''+arChatEsc(code)+'\')">📋 Copier le code</button>'+
+        '</div>'+
+        '<button class="btn-out btn-sm" style="width:100%;margin-top:12px;" onclick="closeModal()">Fermer</button>';
+    } else {
+      // MODIFIÉ : pas de code dans la réponse — on prévient au lieu de fermer silencieusement
+      if(msg) msg.innerHTML='<div class="al al-info">✅ Tournoi créé. Retrouvez son code dans la liste « 🏆 Tournois établissement » sur le tableau de bord.</div>';
+    }
   })
   .catch(function(){ if(msg) msg.innerHTML='<div class="al al-err">❌ Erreur réseau</div>'; });
 }
@@ -2597,6 +2612,13 @@ function rOrgDashboard(){
        '<h2 style="font-size:22px;color:white;">🏛️ '+arChatEsc(d.org.name)+'</h2>'+
        '<div style="display:flex;gap:8px;"><button class="btn btn-sm" style="background:rgba(251,191,36,.15);border-color:#fbbf24;color:#fbbf24;" onclick="arModalCreateOrgTour()">🏢 Tournoi établissement</button>'+
        '<button class="btn btn-sm" onclick="arLoadOrgDash()">↻ Actualiser</button></div></div>';
+  /* MODIFIÉ — bandeau + bouton de validation, visible uniquement pour un compte admin RegulArena */
+  if(U.role==='admin' && !d.org.validated){
+    h += '<div class="al al-warn" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">'+
+      '<span>🔒 Établissement non validé — le code d\'invitation collectif reste bloqué pour ses membres.</span>'+
+      '<button class="btn btn-sm" id="org-validate-btn" onclick="arOrgValidateNow('+Number(d.org.id)+')">✅ Valider maintenant</button>'+
+    '</div>';
+  }
   /* MODIFIÉ — liste des tournois privés de l'établissement */
   h += '<div class="card"><div style="font-weight:800;color:white;font-size:14px;margin-bottom:10px;">🏆 Tournois établissement</div>'+
     (ORG_TOURS.loading ? '<div style="font-size:12px;color:var(--sub);">⏳ Chargement…</div>' :
@@ -2717,6 +2739,19 @@ function arOrgInvite(){
       inp.value='';
     })
     .catch(function(){ var m=ge('org-inv-msg'); if(m) m.innerHTML='<span style="color:#E8B520;">Erreur réseau.</span>'; });
+}
+
+/* MODIFIÉ — validation d'un établissement par un compte admin RegulArena */
+function arOrgValidateNow(orgId){
+  var b = ge('org-validate-btn'); if(b){ b.disabled=true; b.textContent='⏳…'; }
+  fetch('/org/validate',{method:'POST',headers:arAuthHdr(),body:JSON.stringify({org_id:orgId})})
+   .then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d};});})
+   .then(function(res){
+     if(!res.ok){ if(b){ b.disabled=false; b.textContent='✅ Valider maintenant'; } alert((res.d&&res.d.error)||'Erreur de validation.'); return; }
+     if(ORG.data && ORG.data.org) ORG.data.org.validated = true;
+     if(TAB==='orgdash') render();
+   })
+   .catch(function(){ if(b){ b.disabled=false; b.textContent='✅ Valider maintenant'; } alert('Erreur réseau.'); });
 }
 
 function arOrgGenCode(regen){
