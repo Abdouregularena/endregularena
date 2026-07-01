@@ -29,7 +29,17 @@
       var myRank=(d&&d.my_rank)||null;
       var myBankKey=(d&&d.my_bank)?String(d.my_bank).trim().toLowerCase()
         :((typeof U!=='undefined'&&U&&U.etablissement)?String(U.etablissement).trim().toLowerCase():null);
-      var RA_TEASER=''; // MODIFIÉ — bannière retirée à la demande d'Abdou
+      var RA_TEASER='<div class="card" style="padding:14px 16px;margin-bottom:12px;border:1px solid rgba(232,181,32,.4);background:linear-gradient(135deg,rgba(232,181,32,.10),rgba(0,180,216,.05));">'+ // MODIFIÉ — teaser reformulé (Objectif/Approche/Confidentialité)
+        '<div style="display:flex;align-items:flex-start;gap:10px;">'+
+          '<div style="font-size:22px;line-height:1;">🎓</div>'+
+          '<div style="min-width:0;">'+
+            '<div style="font-weight:800;color:#E8B520;font-size:13px;margin-bottom:6px;">Faites grandir vos talents</div>'+
+            '<div style="font-size:11px;color:var(--sub);line-height:1.55;margin-bottom:5px;"><strong style="color:white;">Objectif :</strong> les établissements abonnés peuvent identifier les <strong>forces et faiblesses par thème</strong> de leurs équipes afin de cibler les formations et de valoriser les talents.</div>'+
+            '<div style="font-size:11px;color:var(--sub);line-height:1.55;margin-bottom:5px;"><strong style="color:white;">Approche :</strong> cette démarche est explicitement présentée comme un outil de développement, et non pour sanctionner.</div>'+
+            '<div style="font-size:10px;color:#8aa3d4;line-height:1.45;background:rgba(0,180,216,.07);border:1px solid rgba(0,180,216,.25);border-radius:8px;padding:7px 9px;"><strong>🔒 Confidentialité :</strong> les scores restent anonymes dans les tableaux de bord et ne sont partagés avec un établissement que si l\'utilisateur choisit d\'y adhérer en utilisant un code spécifique.</div>'+
+            '<button class="btn btn-sm" style="margin-top:9px;" onclick="ST(\'org\')">🏛️ Activer l\'Espace Établissement</button>'+
+          '</div>'+
+        '</div></div>';
       if(!list.length){
         box.innerHTML=RA_TEASER+'<div class="al al-info" style="font-size:12px;">Aucune banque classée pour l\'instant. Renseignez votre établissement et jouez un quiz pour lancer le classement collectif ! 🏦</div>';
         return;
