@@ -3850,8 +3850,7 @@ function rLB(){
   '</div>'+
   '<div id="lb-podium"></div>'+ // MODIFIÉ : podium déplacé tout en haut
   '<div id="lb-goal"></div>'+
-  '<div class="card" id="lb-list" style="overflow:hidden;"><div class="al al-info" style="font-size:12px;">Chargement du classement…</div></div>'+
-  /* MODIFIÉ : progression + statistiques déplacées sous le classement (style tableau de bord) */
+  /* MODIFIÉ : progression + statistiques remontées juste après le podium (visibles sans scroller) */
   '<div class="g2">'+
     '<div class="card" style="padding:14px 18px;">'+
       '<div style="display:flex;align-items:center;gap:7px;margin-bottom:8px;"><span>📈</span><span style="font-weight:700;color:white;font-size:13px;">Votre progression</span></div>'+
@@ -3860,6 +3859,7 @@ function rLB(){
     '</div>'+
     lbStatsCard()+
   '</div>'+
+  '<div class="card" id="lb-list" style="overflow:hidden;"><div class="al al-info" style="font-size:12px;">Chargement du classement…</div></div>'+
   '</div>';
 }
 /* AJOUT : état + bascule du classement (Joueurs / Banques) */
@@ -4020,18 +4020,26 @@ function lbLoad(zone){
           '</div>';
         }).join('')+'</div></div>';
     }
-    // MODIFIÉ : liste rang 4+ (ou tout si <3 joueurs), lignes animées + ligne perso qui pulse
+    // MODIFIÉ : liste rang 4+ (ou tout si <3 joueurs), lignes animées + ligne perso qui pulse — DÉPLIABLE
     var startI=pod.length>=3?3:0;
-    var rowsHTML=list.slice(startI).map(function(p,k){
-      var i=startI+k, r=i+1, me=(myRank&&r===myRank);
-      return '<div class="lb-row'+(me?' me':'')+'" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;border-bottom:1px solid rgba(10,33,62,.6);background:'+(me?'rgba(201,153,26,.08)':'transparent')+';animation-delay:'+(Math.min(k,12)*0.04)+'s;">'+
+    function lbRowHTML(p,i){
+      var r=i+1, me=(myRank&&r===myRank);
+      return '<div class="lb-row'+(me?' me':'')+'" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;border-bottom:1px solid rgba(10,33,62,.6);background:'+(me?'rgba(201,153,26,.08)':'transparent')+';">'+
         '<div style="display:flex;align-items:center;gap:11px;min-width:0;flex:1;">'+
         '<span style="font-weight:900;font-size:15px;color:#8aa3d4;width:26px;flex-shrink:0;text-align:center;">'+r+'</span>'+
         '<div class="av" style="width:32px;height:32px;font-size:12px;flex-shrink:0;">'+arChatEsc((p.name||'?').charAt(0))+'</div>'+
         '<div style="min-width:0;"><div style="font-weight:600;color:white;font-size:13px;">'+arChatEsc(p.name||'')+(me?' (Vous)':'')+' '+raTierPill(p.total_score||0)+'</div>'+
-        '<div style="font-size:10px;color:#8aa3d4;">'+[lbCountryLabel(p.country), lbProfileLabel(p.profile)].filter(Boolean).join(' · ')+'</div></div></div>'+ // MODIFIÉ : établissement masqué (anti-recoupement RH/CDP)
+        '<div style="font-size:10px;color:#8aa3d4;">'+[lbCountryLabel(p.country), lbProfileLabel(p.profile)].filter(Boolean).join(' · ')+'</div></div></div>'+
         '<div style="text-align:right;flex-shrink:0;white-space:nowrap;"><div style="font-weight:700;color:#4ade80;font-size:13px;">'+(p.total_score||0)+' pts</div><div style="font-size:10px;color:var(--sub);">'+(p.games||0)+' partie'+(((p.games||0)>1)?'s':'')+'</div></div></div>';
-    }).join('');
+    }
+    var restAll=list.slice(startI);
+    var VIS=5; // MODIFIÉ : nb de lignes visibles avant dépliage
+    var visRows=restAll.slice(0,VIS).map(function(p,k){ return lbRowHTML(p,startI+k); }).join('');
+    var moreArr=restAll.slice(VIS);
+    var moreRows=moreArr.map(function(p,k){ return lbRowHTML(p,startI+VIS+k); }).join('');
+    var moreLabel='Voir tout le classement ('+list.length+' joueurs) ▼';
+    var moreToggle=moreArr.length?('<button id="lb-more-btn" class="btn btn-sm" data-more="'+moreLabel+'" style="width:100%;padding:12px;border-radius:0;background:rgba(0,180,216,.08);color:var(--cyan);font-weight:700;font-size:12px;" onclick="lbToggleMore()">'+moreLabel+'</button>'):'';
+    var rowsHTML=visRows+'<div id="lb-list-more" style="display:none;">'+moreRows+'</div>'+moreToggle;
     // MODIFIÉ : certificat de classement pour le Top 3
     var zLbl=(zone==='uemoa')?'UEMOA':(zone==='cemac')?'CEMAC':'Tous';
     var certHTML='';
@@ -4045,6 +4053,12 @@ function lbLoad(zone){
     box.innerHTML=rowsHTML || '<div class="al al-info" style="font-size:12px;">Aucun autre joueur pour l\'instant.</div>'; // MODIFIÉ : rangs 4+
     var podBox=ge('lb-podium'); if(podBox) podBox.innerHTML=certHTML+podHTML; // MODIFIÉ : podium tout en haut
   }).catch(function(){ box.innerHTML='<div class="al al-warn" style="font-size:12px;">Classement momentanément indisponible.</div>'; });
+}
+function lbToggleMore(){ // MODIFIÉ : déplie/replie la liste classement rang 4+
+  var m=ge('lb-list-more'), btn=ge('lb-more-btn'); if(!m||!btn) return;
+  var willShow=(m.style.display==='none');
+  m.style.display=willShow?'block':'none';
+  btn.textContent=willShow?'▲ Réduire le classement':btn.getAttribute('data-more');
 }
 window.raLbCert=function(rank,zoneLbl,pts){ // MODIFIÉ : certificat de classement (Top 3) réutilisant arBuildCertPDF
   try{
