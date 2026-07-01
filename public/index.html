@@ -3452,6 +3452,15 @@ function rARTournoisHome(){
       '<div style="font-size:11px;color:var(--sub);">Code reçu par votre organisateur</div>'+
     '</button>'+
   '</div>'+
+  /* MODIFIÉ — repositionné en 3e carte : tournoi privé établissement (géré depuis Espace établissement) */
+  '<button class="card ch" style="width:100%;padding:18px;text-align:left;cursor:pointer;display:flex;align-items:center;gap:14px;border:1px solid rgba(56,189,248,.3);background:rgba(56,189,248,.06);" onclick="arGoOrgSpace()">'+
+    '<div style="font-size:30px;">🏢</div>'+
+    '<div style="flex:1;">'+
+      '<div style="font-weight:800;color:white;font-size:14px;margin-bottom:2px;">Tournoi établissement</div>'+
+      '<div style="font-size:11px;color:var(--sub);">Réservé aux collaborateurs de votre banque — thème, dates et participants programmables. Géré depuis Espace établissement.</div>'+
+    '</div>'+
+    '<span style="font-size:18px;color:var(--cyan);">→</span>'+
+  '</button>'+
   '<div class="g2">'+
     '<button class="card ch" style="padding:18px;text-align:center;cursor:pointer;border:1px solid rgba(201,153,26,.3);background:rgba(201,153,26,.05);" onclick="arModalCreateTour(\'inter\')">'+ // MODIFIÉ : actif
       '<div style="font-size:30px;margin-bottom:8px;">🌍</div>'+
@@ -3466,15 +3475,6 @@ function rARTournoisHome(){
       '<span style="display:inline-block;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:700;background:rgba(201,153,26,.16);color:var(--cyan);border:1px solid rgba(201,153,26,.4);">Créer →</span>'+
     '</button>'+
   '</div>'+
-  /* MODIFIÉ — 5e carte : tournoi privé établissement (géré depuis Espace établissement) */
-  '<button class="card ch" style="width:100%;padding:18px;text-align:left;cursor:pointer;display:flex;align-items:center;gap:14px;border:1px solid rgba(56,189,248,.3);background:rgba(56,189,248,.06);" onclick="arGoOrgSpace()">'+
-    '<div style="font-size:30px;">🏢</div>'+
-    '<div style="flex:1;">'+
-      '<div style="font-weight:800;color:white;font-size:14px;margin-bottom:2px;">Tournoi établissement</div>'+
-      '<div style="font-size:11px;color:var(--sub);">Réservé aux collaborateurs de votre banque — thème, dates et participants programmables. Géré depuis Espace établissement.</div>'+
-    '</div>'+
-    '<span style="font-size:18px;color:var(--cyan);">→</span>'+
-  '</button>'+
   '<div class="al al-info" style="font-size:12px;">🏛️ <strong>Tournois UEMOA &amp; CEMAC :</strong> Créez un tournoi privé ou institutionnel (zone UEMOA, CEMAC ou inter-zones), invitez jusqu\'à 32 participants et suivez le classement en direct.</div>'+
   /* MODIFIÉ : fil des tournois ouverts à rejoindre */
   '<div class="card">'+
