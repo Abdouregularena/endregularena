@@ -2565,13 +2565,14 @@ app.post('/org/create', requireAuth, (req, res) => {
   const name = ((req.body && req.body.name) || '').trim();
   if (name.length < 2)   return err(res, 400, "Nom d'établissement requis (2 caractères min).");
   if (name.length > 120) return err(res, 400, 'Nom trop long (120 caractères max).');
-  const info  = db.prepare('INSERT INTO organisations (name, admin_user_id) VALUES (?, ?)').run(name, req.user.id);
+  const autoValidated = (req.user.role||'user') === 'admin' ? 1 : 0; // MODIFIÉ : un compte admin RegulArena valide directement son propre établissement
+  const info  = db.prepare('INSERT INTO organisations (name, admin_user_id, validated) VALUES (?, ?, ?)').run(name, req.user.id, autoValidated); // MODIFIÉ : validated ajouté à l'insert
   const orgId = info.lastInsertRowid;
   // l'admin devient aussi membre (rôle admin) pour figurer dans les stats
   try {
     db.prepare("INSERT INTO org_members (org_id, user_id, role) VALUES (?, ?, 'admin')").run(orgId, req.user.id);
   } catch(e) { if (!String(e.message).includes('UNIQUE')) throw e; }
-  return ok(res, { org: { id: orgId, name } });
+  return ok(res, { org: { id: orgId, name, validated: !!autoValidated } }); // MODIFIÉ : renvoie le statut validé
 });
 
 /* POST /org/agence/set — JWT requis, membre déclare son agence/unité.
