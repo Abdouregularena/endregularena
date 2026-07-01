@@ -3810,7 +3810,8 @@ function lbLocalStats(){
 }
 function lbStatsCard(){
   var s=lbLocalStats();
-  if(!s) return '<div class="card" style="padding:14px 18px;"><div style="font-size:13px;font-weight:700;color:white;margin-bottom:4px;">📊 Vos statistiques</div><div style="font-size:12px;color:var(--sub);">Jouez un premier quiz pour voir vos thèmes, parties et vitesse apparaître ici.</div></div>';
+  var _adminNote='<div style="font-size:10px;color:#8aa3d4;line-height:1.45;margin-top:10px;background:rgba(0,180,216,.07);border:1px solid rgba(0,180,216,.25);border-radius:8px;padding:7px 9px;">📩 <strong style="color:white;">Envie d\'aller plus loin ?</strong> Détail de votre parcours, points forts, points faibles, conseils personnalisés — contactez l\'administrateur REGUL ARENA.</div>'; // MODIFIÉ — canal indirect vers l'admin établissement
+  if(!s) return '<div class="card" style="padding:14px 18px;"><div style="font-size:13px;font-weight:700;color:white;margin-bottom:4px;">📊 Vos statistiques</div><div style="font-size:12px;color:var(--sub);">Jouez un premier quiz pour voir vos thèmes, parties et vitesse apparaître ici.</div>'+_adminNote+'</div>';
   function cell(v,l){ return '<div style="flex:1;min-width:70px;text-align:center;"><div class="lb-stat-val" style="font-size:20px;font-weight:900;color:#E8B520;">'+v+'</div><div style="font-size:10px;color:var(--sub);">'+l+'</div></div>'; }
   return '<div class="card" style="padding:14px 18px;">'+
     '<div style="font-size:13px;font-weight:700;color:white;margin-bottom:10px;">📊 Vos statistiques</div>'+
@@ -3818,6 +3819,7 @@ function lbStatsCard(){
       cell(s.themes,'thèmes joués')+cell(s.parties,'parties')+cell(s.best+'%','meilleur score')+cell((s.avgSpd?s.avgSpd+'s':'—'),'vitesse moy.')+
     '</div>'+
     (s.top?'<div style="font-size:11px;color:var(--sub);margin-top:10px;border-top:1px solid rgba(10,33,62,.6);padding-top:8px;">Thème favori : <strong style="color:#aac4e8;">'+arChatEsc(s.top)+'</strong> · '+s.topN+' partie'+(s.topN>1?'s':'')+'</div>':'')+
+    _adminNote+
   '</div>';
 }
 function raTier(pts){ // MODIFIÉ : palier d'expertise selon points cumulés (charte bleu/or)
