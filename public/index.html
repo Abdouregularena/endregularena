@@ -2546,6 +2546,33 @@ function arLoadOrgTours(){
     .catch(function(){ ORG_TOURS.loading=false; });
 }
 
+/* MODIFIÉ — génère les cases à cocher multi-thèmes pour la création de tournoi établissement */
+function arOrgPackCheckboxes(){
+  function row(val,label){
+    return '<label style="display:flex;align-items:center;gap:8px;padding:6px 4px;font-size:13px;color:#dbe6f5;cursor:pointer;">'+
+      '<input type="checkbox" class="org-tpack-cb" value="'+arEscAttr(val)+'"/> '+label+'</label>';
+  }
+  var out = '<div style="font-size:10px;font-weight:700;color:#7d93b8;text-transform:uppercase;margin:4px 0 2px;">Packs généraux</div>';
+  out += row('rfe-uemoa','🏛️ RFE UEMOA');
+  out += row('bale-umoa','⚖️ Bâle II/III');
+  out += row('mix','🔀 Mix');
+  out += row('cemac','🌍 CEMAC (BEAC/COBAC)');
+  out += row('qn','📚 Thématiques approfondies');
+  var thm='';
+  for(var k in ARENA_THEMES){ if(!ARENA_THEMES.hasOwnProperty(k)) continue;
+    var n=arThemePool(k).length; if(n<5) continue;
+    thm += row('thm:'+k, arChatEsc(ARENA_THEMES[k].l)+' ('+n+')');
+  }
+  if(thm) out += '<div style="font-size:10px;font-weight:700;color:#7d93b8;text-transform:uppercase;margin:10px 0 2px;">🎯 Thèmes atelier</div>'+thm;
+  var all=[].concat(QR,QB,QC,QN), cats=[], seen={};
+  all.forEach(function(q){ if(q.cat && !seen[q.cat]){ seen[q.cat]=1; cats.push(q.cat); } });
+  if(cats.length){
+    var catRows='';
+    cats.forEach(function(c){ var n=all.filter(function(q){return q.cat===c;}).length; catRows += row('cat:'+c, '📂 '+arChatEsc(c)+' ('+n+')'); });
+    out += '<div style="font-size:10px;font-weight:700;color:#7d93b8;text-transform:uppercase;margin:10px 0 2px;">Thèmes précis</div>'+catRows;
+  }
+  return out;
+}
 /* MODIFIÉ — modale de création d'un tournoi privé établissement */
 function arModalCreateOrgTour(){
   showModal('🏢 Tournoi établissement',
@@ -2553,8 +2580,10 @@ function arModalCreateOrgTour(){
     '<div class="al al-info" style="font-size:12px;">Réservé aux membres de '+arChatEsc(ORG.name||'votre établissement')+'. Non visible dans l\'Arène publique.</div>'+
     '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Nom du tournoi *</label>'+
     '<input type="text" id="org-tname" class="inp" placeholder="ex: Coupe Conformité Trade Finance 2026"/></div>'+
-    '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Thème / métier</label>'+
-    '<select id="org-tpack" class="inp"><optgroup label="Packs généraux"><option value="rfe-uemoa">🏛️ RFE UEMOA</option><option value="bale-umoa">⚖️ Bâle II/III</option><option value="mix">🔀 Mix</option><option value="cemac">🌍 CEMAC (BEAC/COBAC)</option><option value="qn">📚 Thématiques approfondies</option></optgroup><optgroup label="🎯 Thèmes Atelier">'+arThemeOptions()+'</optgroup><optgroup label="Thèmes précis">'+arCatOptions()+'</optgroup></select></div>'+
+    '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Thème(s) / métier — cochez-en plusieurs pour un tournoi mixte</label>'+
+    '<div id="org-tpack-box" style="max-height:220px;overflow-y:auto;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:8px;display:flex;flex-direction:column;gap:2px;">'+
+      arOrgPackCheckboxes()+
+    '</div></div>'+
     '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Participants max</label>'+
     '<select id="org-tmax" class="inp"><option value="4">4</option><option value="8">8</option><option value="16" selected>16</option><option value="32">32</option><option value="64">64</option></select></div>'+
     '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Début</label>'+
@@ -2569,12 +2598,14 @@ function arModalCreateOrgTour(){
 }
 function arDoCreateOrgTour(){
   var name = (ge('org-tname').value||'').trim();
-  var pack = ge('org-tpack').value;
+  var packEls = document.querySelectorAll('.org-tpack-cb:checked'); // MODIFIÉ — multi-thèmes
+  var pack = Array.prototype.map.call(packEls, function(el){ return el.value; }).join(',');
   var maxp = parseInt(ge('org-tmax').value)||16;
   var start= ge('org-tstart').value||'';
   var end  = ge('org-tend').value||'';
   var msg  = ge('org-tour-msg');
   if(!name){ if(msg) msg.innerHTML='<div class="al al-warn">⚠️ Donnez un nom au tournoi</div>'; return; }
+  if(!pack){ if(msg) msg.innerHTML='<div class="al al-warn">⚠️ Cochez au moins un thème</div>'; return; } // MODIFIÉ
   if(msg) msg.innerHTML='<div class="al al-info"><span class="spin">⏳</span> Création…</div>';
   fetch('/org/tournament/create',{method:'POST',headers:arAuthHdr(),
     body:JSON.stringify({org_id:ORG.id,name:name,pack_id:pack,max_players:maxp,start_date:start,end_date:end})})
