@@ -3169,8 +3169,11 @@ function rQE(){
   var q=QZ.q[QZ.idx], tot=QZ.q.length, pct=Math.round((QZ.idx+1)/tot*100);
   QZ.qStart=Date.now(); // MODIFIÉ : chrono départ question (bonus rapidité)
   c.innerHTML='<div style="max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:13px;">'+
-  '<div style="display:flex;justify-content:space-between;align-items:center;">'+
+  '<div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">'+
+  '<span style="display:flex;gap:6px;">'+
   '<button class="btn-out btn-sm" onclick="exitQ()">← Quitter</button>'+
+  '<button class="btn-out btn-sm" onclick="if(typeof raLexOpen===\'function\')raLexOpen()" title="Lexique">📖</button>'+
+  '</span>'+
   '<span style="color:var(--cyan);font-weight:700;font-size:13px;">'+(QZ.idx+1)+' / '+tot+'</span>'+
   '<span style="color:var(--green);font-weight:700;font-size:13px;">✓ '+QZ.sc+'</span></div>'+
   '<div class="pb"><div class="pf" style="width:'+pct+'%"></div></div>'+
@@ -3437,7 +3440,10 @@ function openB(ds){BA=ds==='BR'?BR:BB;BT='fiches';BF=null;render();}
 function rBD(){
   var d=BA;
   return '<div style="max-width:750px;margin:0 auto;display:flex;flex-direction:column;gap:13px;">'+
-  '<button class="btn-out btn-sm" onclick="BA=null;render()" style="align-self:flex-start;">← Retour</button>'+
+  '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">'+
+  '<button class="btn-out btn-sm" onclick="BA=null;render()">← Retour</button>'+
+  '<button class="btn-out btn-sm" onclick="if(typeof raLexOpen===\'function\')raLexOpen()" title="Lexique">📖 Lexique</button>'+
+  '</div>'+
   '<div class="card" style="background:linear-gradient(135deg,'+d.couleur+'22,rgba(10,33,62,.8));">'+
   '<div style="font-size:28px;margin-bottom:6px;">'+d.icone+'</div>'+
   '<h2 style="font-size:17px;color:white;margin-bottom:4px;">'+d.titre+'</h2>'+
@@ -12081,6 +12087,75 @@ const CF_Q=[
 })();
 
 
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     LOT ADDITIF — Lexique intégré (Formation & Quiz)
+     Retour utilisateur (Seyda Lahi, 3 juillet 2026) : consulter une
+     définition sans quitter le parcours de Quiz/Formation. Fusionne
+     les glossaires de tous les packs Bibliothèque (BR, BB, BCB, BP,
+     KC, CF) en un lexique unique, cherchable, ouvert en modale.
+     100% additif : n'altère aucune fonction existante.
+     ═══════════════════════════════════════════════════════════════ -->
+<script id="ra-lexique-integre">
+(function(){
+  try{
+    function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+
+    // 1) Fusion des glossaires de tous les packs Bibliothèque disponibles
+    var SRC=[
+      ['BR', (typeof BR!=='undefined'&&BR)?BR:null],
+      ['BB', (typeof BB!=='undefined'&&BB)?BB:null],
+      ['BCB',(typeof window!=='undefined'&&window.BCB)?window.BCB:null],
+      ['BP', (typeof window!=='undefined'&&window.BP)?window.BP:null],
+      ['KC', (typeof window!=='undefined'&&window.KC)?window.KC:null],
+      ['CF', (typeof CF!=='undefined'&&CF)?CF:null]
+    ];
+    var seen={}, ALL=[];
+    SRC.forEach(function(pair){
+      var pack=pair[1]; if(!pack||!Array.isArray(pack.glossaire)) return;
+      pack.glossaire.forEach(function(g){
+        var key=String(g.terme||'').trim().toLowerCase(); if(!key||seen[key]) return;
+        seen[key]=true;
+        ALL.push({ terme:g.terme, definition:g.definition, source:g.source, icone:pack.icone||'📖', pack:pack.titre||pair[0] });
+      });
+    });
+    ALL.sort(function(a,b){ return String(a.terme).localeCompare(String(b.terme),'fr'); });
+    window.RA_LEXIQUE_ALL = ALL;
+
+    // 2) Rendu de la liste filtrée
+    function renderList(filter){
+      var f=(filter||'').trim().toLowerCase();
+      var rows=ALL.filter(function(g){
+        return !f || String(g.terme).toLowerCase().indexOf(f)>=0 || String(g.definition).toLowerCase().indexOf(f)>=0;
+      }).slice(0,80); // MODIFIÉ : plafond d'affichage pour rester fluide
+      if(!rows.length) return '<div class="al al-info" style="font-size:12px;">Aucun terme trouvé. Essayez un autre mot-clé.</div>';
+      return rows.map(function(g){
+        return '<div class="card" style="padding:12px 14px;margin-bottom:8px;">'+
+          '<div style="font-weight:800;color:var(--cyan);font-size:13px;margin-bottom:4px;">'+g.icone+' '+esc(g.terme)+'</div>'+
+          '<div style="font-size:12.5px;color:#e5e9f0;line-height:1.5;margin-bottom:6px;">'+esc(g.definition)+'</div>'+
+          '<div style="font-size:10.5px;color:var(--sub);">📎 '+esc(g.source||'')+' · '+esc(g.pack||'')+'</div>'+
+        '</div>';
+      }).join('');
+    }
+
+    // 3) Ouverture de la modale (réutilise showModal, déjà présent dans l'app)
+    window.raLexOpen = function(){
+      if(typeof showModal!=='function') return;
+      var html='<div style="display:flex;flex-direction:column;gap:10px;max-height:70vh;">'+
+        '<input type="search" inputmode="search" placeholder="🔎 Chercher un terme (ex : CET1, résident, PPE…)" '+
+        'oninput="raLexFilter(this.value)" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.16);background:rgba(0,0,0,.25);color:#fff;font-size:13px;" autofocus>'+
+        '<div id="ra-lex-results" style="overflow-y:auto;max-height:56vh;">'+renderList('')+'</div>'+
+        '<div style="font-size:10.5px;color:var(--sub);text-align:center;">'+ALL.length+' termes — issus de tous les packs Bibliothèque</div>'+
+      '</div>';
+      showModal('📖 Lexique', html);
+    };
+    window.raLexFilter = function(v){
+      var box=document.getElementById('ra-lex-results');
+      if(box) box.innerHTML=renderList(v);
+    };
+  }catch(e){ try{ console.warn('lotLexiqueIntegre:', e); }catch(_){} }
+})();
 </script>
   <script src="banks-detail.js"></script>
   <script src="players-detail.js"></script>
