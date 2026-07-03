@@ -8945,7 +8945,7 @@ window.addEventListener('load', function(){
 
   function pref(){ try{ return localStorage.getItem('ra_music'); }catch(e){ return null; } } // MODIFIÉ
   function setPref(v){ try{ localStorage.setItem('ra_music', v); }catch(e){} }               // MODIFIÉ
-  var ON = pref() !== '0';                                      // MODIFIÉ : activé par défaut, sauf refus mémorisé
+  var ON = pref() === '1';                                      // MODIFIÉ : désactivée par défaut (retour utilisateur : boucle jugée gênante/agaçante) — activable via le bouton 🎵, choix mémorisé
   var started = false;
 
   function onHome(){                                            // MODIFIÉ : seulement accueil / tableau de bord
