@@ -2952,6 +2952,46 @@ app.get('/admin/top-scorers', requireAdmin, (req, res) => {
   }
 });
 
+// MODIFIÉ — AJOUT : GET /admin/roster — tableau RH complet (TOUS les utilisateurs,
+// sans limite artificielle et sans filtre "points > 0", contrairement à /admin/top-scorers).
+// Pagination optionnelle : ?limit=5000&offset=0 (limit plafonné à 5000 par appel).
+app.get('/admin/roster', requireAdmin, (req, res) => {
+  try {
+    const limit  = Math.min(parseInt(req.query.limit, 10)  || 5000, 5000);
+    const offset = Math.max(parseInt(req.query.offset, 10) || 0, 0);
+    const rows = db.prepare(`
+      SELECT u.id, u.name, u.email, u.profile, u.country, u.etablissement,
+             u.role, u.email_verified, u.created_at, u.last_seen,
+             COUNT(DISTINCT s.id) AS parties,
+             COALESCE(SUM(s.score),0) AS points,
+             (SELECT COUNT(*) FROM certificates c WHERE c.user_id = u.id) AS certificats,
+             (SELECT COUNT(*) FROM duels d WHERE d.creator_id = u.id OR d.joiner_id = u.id) AS duels_total
+      FROM users u
+      LEFT JOIN user_scores s ON s.user_id = u.id
+      GROUP BY u.id
+      ORDER BY u.created_at DESC
+      LIMIT ? OFFSET ?
+    `).all(limit, offset);
+    const total = db.prepare(`SELECT COUNT(*) n FROM users`).get().n;
+    const roster = rows.map(r => {
+      const p = raPalier(r.points);
+      return {
+        id: r.id, name: r.name, email: r.email, profile: r.profile, country: r.country,
+        etablissement: r.etablissement, role: r.role, email_verified: r.email_verified,
+        created_at: r.created_at, last_seen: r.last_seen,
+        parties: r.parties, points: r.points,
+        palier: p.label, palier_icon: p.icon, palier_key: p.key,
+        certificats: r.certificats, a_certificat: r.certificats > 0,
+        duels_total: r.duels_total, actif: r.parties > 0,
+      };
+    });
+    res.json({ total, count: roster.length, limit, offset, roster, genere_le: new Date().toISOString() });
+  } catch (e) {
+    console.error('[admin/roster]', e);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
 // MODIFIÉ — AJOUT : page HTML admin lisible sur mobile (coquille publique, données via token).
 // Coller le JWT admin une fois ; il est conservé en local et envoyé en en-tête Authorization.
 app.get('/admin/board', (req, res) => {
