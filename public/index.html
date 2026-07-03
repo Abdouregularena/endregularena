@@ -3677,8 +3677,9 @@ function rARWaiting(){
     ? (isCreator ? '⏳ En attente que votre adversaire rejoigne…' : '✅ Duel rejoint ! Le duel démarrera automatiquement dès que le créateur sera prêt…')
     : '✅ Adversaire trouvé ! Le duel va commencer…';
   var oppName = d && d.joiner ? d.joiner.name : (d && d.creator ? d.creator.name : '…');
-  if(isCreator && d && d.joiner) oppName = d.joiner.name;
-  else if(!isCreator && d && d.creator) oppName = d.creator.name;
+  var oppOnline; // MODIFIÉ : statut de présence de l'adversaire (undefined si l'API ne le fournit pas encore)
+  if(isCreator && d && d.joiner){ oppName = d.joiner.name; oppOnline = d.joiner.online; }
+  else if(!isCreator && d && d.creator){ oppName = d.creator.name; oppOnline = d.creator.online; }
   return '<div style="display:flex;flex-direction:column;gap:14px;max-width:500px;margin:0 auto;">'+
     '<div class="code-box">'+
       '<span class="code-big">'+code+'</span>'+
@@ -3691,7 +3692,7 @@ function rARWaiting(){
     '<div class="card" style="text-align:center;">'+
       '<div class="pls" style="font-size:28px;margin-bottom:8px;">⚡</div>'+
       '<div style="font-size:13px;color:var(--sub);margin-bottom:6px;">'+waMsg+'</div>'+
-      (st==='joined'&&d&&d.joiner ? '<div style="font-weight:700;color:#4ade80;font-size:14px;">'+arChatEsc(oppName)+' a rejoint !</div>' : '')+
+      (st==='joined'&&d&&d.joiner ? '<div style="font-weight:700;color:#4ade80;font-size:14px;">'+arChatEsc(oppName)+' a rejoint ! '+raOnlineLabel(oppOnline)+'</div>' : '')+
     '</div>'+
     (isCreator && st==='joined' ?
       '<button class="btn" style="width:100%;padding:14px;font-size:14px;" onclick="arStartDuel()">⚔️ Lancer le duel (si le démarrage auto tarde)</button>' : '')+
@@ -3893,7 +3894,7 @@ function rARTourDetail(){
         var bg = i===0?'linear-gradient(135deg,#fbbf24,#f97316)':i===1?'linear-gradient(135deg,#aac4e8,#a8d5b5)':i===2?'linear-gradient(135deg,#cd7c32,#a55a1b)':'linear-gradient(135deg,#E8B520,#C9991A)';
         return '<div class="ptcp-row">'+
           '<div class="ptcp-av" style="background:'+bg+';">'+(i+1)+'</div>'+
-          '<div style="flex:1;"><div style="font-size:13px;font-weight:600;color:white;">'+arChatEsc(p.name)+'</div><div style="font-size:11px;color:var(--sub);">'+arChatEsc(p.country||'')+' · '+arChatEsc(p.etablissement||'')+'</div></div>'+
+          '<div style="flex:1;"><div style="font-size:13px;font-weight:600;color:white;">'+raOnlineDot(p.online)+arChatEsc(p.name)+'</div><div style="font-size:11px;color:var(--sub);">'+arChatEsc(p.country||'')+' · '+arChatEsc(p.etablissement||'')+'</div></div>'+
           '<div style="font-weight:700;color:var(--cyan);font-size:14px;">'+score+'pts</div>'+
         '</div>';
       }).join('')+
@@ -4195,7 +4196,7 @@ function lbLoad(zone){
             (isKing?'<div class="ra-crown" aria-hidden="true">👑</div>':'')+
             '<div style="font-size:20px;">'+['🥇','🥈','🥉'][idx]+'</div>'+
             '<div class="av'+(isKing?' ra-king-av':'')+'" style="width:'+(isKing?44:38)+'px;height:'+(isKing?44:38)+'px;font-size:'+(isKing?16:14)+'px;margin:2px auto 5px;'+((meP&&!isKing)?'box-shadow:0 0 0 2px #E8B520;':'')+'">'+arChatEsc((p.name||'?').charAt(0))+'</div>'+
-            '<div style="font-size:11px;font-weight:700;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+arChatEsc(p.name||'')+(meP?' (Vous)':'')+'</div>'+
+            '<div style="font-size:11px;font-weight:700;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+raOnlineDot(p.online)+arChatEsc(p.name||'')+(meP?' (Vous)':'')+'</div>'+
             '<div style="font-size:10px;color:#4ade80;font-weight:700;">'+(p.total_score||0)+' pts</div>'+
             (isKing?'<div class="ra-belt" aria-hidden="true">🏆 CHAMPION</div>':'')+
             '<div style="margin-top:3px;">'+raTierPill(p.total_score||0)+'</div>'+
@@ -4211,7 +4212,7 @@ function lbLoad(zone){
         '<div style="display:flex;align-items:center;gap:11px;min-width:0;flex:1;">'+
         '<span style="font-weight:900;font-size:15px;color:#8aa3d4;width:26px;flex-shrink:0;text-align:center;">'+r+'</span>'+
         '<div class="av" style="width:32px;height:32px;font-size:12px;flex-shrink:0;">'+arChatEsc((p.name||'?').charAt(0))+'</div>'+
-        '<div style="min-width:0;"><div style="font-weight:600;color:white;font-size:13px;">'+arChatEsc(p.name||'')+(me?' (Vous)':'')+' '+raTierPill(p.total_score||0)+'</div>'+
+        '<div style="min-width:0;"><div style="font-weight:600;color:white;font-size:13px;">'+raOnlineDot(p.online)+arChatEsc(p.name||'')+(me?' (Vous)':'')+' '+raTierPill(p.total_score||0)+'</div>'+
         '<div style="font-size:10px;color:#8aa3d4;">'+[lbCountryLabel(p.country), lbProfileLabel(p.profile)].filter(Boolean).join(' · ')+'</div></div></div>'+
         '<div style="text-align:right;flex-shrink:0;white-space:nowrap;"><div style="font-weight:700;color:#4ade80;font-size:13px;">'+(p.total_score||0)+' pts</div><div style="font-size:10px;color:var(--sub);">'+(p.games||0)+' partie'+(((p.games||0)>1)?'s':'')+'</div></div></div>';
     }
@@ -5817,6 +5818,33 @@ function arwUnwatch(code){
   ARW.items=ARW.items.filter(function(it){ return it.code!==code; });
   if(!ARW.items.length && ARW.timer){ clearInterval(ARW.timer); ARW.timer=null; }
 }
+/* ===== MODIFIÉ — Présence en ligne : ping de battement + badge 🟢 =====
+   Contrat backend attendu (à ajouter côté serveur si absent) :
+   - POST /presence/ping (auth JWT) → met à jour users.last_seen = now(), renvoie {success:true}
+   - Les réponses /leaderboard, /duels/:code/live et /tournament/:code exposent
+     un champ booléen "online" par utilisateur (ex: last_seen dans les 90 dernières secondes).
+   Tant que ces champs "online" ne sont pas renvoyés par l'API, les badges restent
+   simplement invisibles (aucune casse, dégradation silencieuse). */
+var RA_PRESENCE = { timer:null };
+function raPresencePing(){
+  if(!window.U || !U.token) return;
+  if(document.hidden) return;
+  fetch('/presence/ping',{method:'POST',headers:{'Authorization':'Bearer '+U.token}}).catch(function(){});
+}
+function raPresenceStart(){
+  if(RA_PRESENCE.timer) return;
+  raPresencePing();
+  RA_PRESENCE.timer=setInterval(raPresencePing, 45000);
+}
+document.addEventListener('visibilitychange', function(){ if(!document.hidden) raPresencePing(); });
+if(document.readyState!=='loading') raPresenceStart(); else document.addEventListener('DOMContentLoaded', raPresenceStart);
+function raOnlineDot(online){
+  return online ? '<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#4ade80;box-shadow:0 0 4px #4ade80;margin-right:4px;vertical-align:middle;" title="En ligne"></span>' : '';
+}
+function raOnlineLabel(online){
+  return online===true ? '<span style="font-size:10px;color:#4ade80;font-weight:700;">'+raOnlineDot(true)+'En ligne</span>'
+       : online===false ? '<span style="font-size:10px;color:var(--sub);">⚪ Hors ligne</span>' : '';
+}
 function arwTick(){
   if(!window.U||!U.token||!ARW.items.length){ if(ARW.timer){clearInterval(ARW.timer);ARW.timer=null;} return; }
   ARW.items.slice().forEach(function(it){
@@ -5852,6 +5880,15 @@ function arwTick(){
         if(it.last!==null && n>it.last){
           arwPush('\uD83D\uDD14 Nouveau participant', n+' inscrit(s) dans votre tournoi '+it.code+'. Revenez lancer les qualifications.');
         }
+        // MODIFIÉ — présence : notifie quand un participant déjà inscrit se (re)connecte
+        var onlineNow={};
+        (d.participants||[]).forEach(function(p){ if(p&&p.online&&p.name) onlineNow[p.name]=true; });
+        if(it.onlineSet){
+          Object.keys(onlineNow).forEach(function(nm){
+            if(!it.onlineSet[nm]){ arwPush('\uD83D\uDFE2 Participant en ligne', nm+' est en ligne dans votre tournoi '+it.code+'.'); }
+          });
+        }
+        it.onlineSet=onlineNow;
         var stt=(d.tournament&&d.tournament.status)||'';
         if(stt && stt!=='waiting'){ arwUnwatch(it.code); }
         it.last=n;
@@ -10790,14 +10827,17 @@ window.raOpenNotif=function(){
 </style>
 <script id="ra-flash-js">
 (function(){
-  // ===== MODIFIÉ — PHASE 1 : ACTUALITÉS réglementaires (à jour au 26 juin 2026) =====
+  // ===== MODIFIÉ — PHASE 1 : ACTUALITÉS réglementaires (à jour au 2 juillet 2026) =====
   var RA_FLASH = [
+    { date:'UEMOA · BCEAO',            txt:"152ᵉ session du Comité de sanctions (2 juillet 2026) : 3 banques togolaise, nigérienne et malienne écopent de 300 millions FCFA chacune ; ZEYNA (Niger) et SOBCA (Burkina Faso) voient leur agrément retiré et sont mises en liquidation.", tab:'quiz' },
     { date:'UEMOA · BCEAO',            txt:"Taux directeur maintenu à 3,00 % et taux de prêt marginal à 5,00 % (Comité de Politique Monétaire du 10 juin 2026).", tab:'quiz' },
-    { date:'CEMAC · COBAC',            txt:"Refonte des règles de liquidité des établissements de microfinance (EMF) en préparation pour endiguer les défaillances récurrentes du secteur.", tab:'quiz' },
+    { date:'UEMOA · Fintech',          txt:"Délai de régularisation des fintech de paiement sans agrément spécifique prolongé jusqu'au 31 août 2026 (capital minimum requis : 10 à 100 millions FCFA selon le service) ; banques et IMF déjà régulées non concernées.", tab:'quiz' },
+    { date:'UEMOA · BSIC',             txt:"Première opération de titrisation bancaire de l'UEMOA : souscription d'un FCTC visé par l'AMF-UMOA ouverte du 15 juin au 14 juillet 2026, en test pour BSIC Togo, Bénin et Sénégal — BSIC Sénégal afficherait un ratio de solvabilité de 10,02 %, sous le seuil réglementaire de 11,5 %.", tab:'quiz' },
     { date:'UEMOA · PI-SPI',           txt:"La BCEAO repousse officiellement les échéances de connexion au paiement instantané pour les banques, EME et établissements de paiement.", tab:'quiz' },
-    { date:'UEMOA · Marché financier', txt:"Levées souveraines réussies sur l'UMOA en juin 2026 : le Sénégal lève 107 milliards FCFA, le Mali 55 milliards FCFA.", tab:'quiz' },
     { date:'UEMOA · Burkina Faso',     txt:"Nouvelle instruction : domiciliation obligatoire des comptes des organisations religieuses auprès de la Banque du Trésor.", tab:'quiz' },
-    { date:'CEMAC · Contentieux',      txt:"Bras de fer juridique COBAC / CDEC du Cameroun sur la qualification des consignations en opérations de banque.", tab:'quiz' },
+    { date:'CEMAC · COBAC',            txt:"Réunion de Libreville (22-24 juin 2026) : 8 projets de règlements examinés pour moderniser le cadre prudentiel — services de paiement, service bancaire minimum garanti, microfinance, fichage des mauvais payeurs et comptes inactifs/avoirs en déshérence.", tab:'quiz' },
+    { date:'CEMAC · Contentieux',      txt:"La Caisse des Dépôts et Consignations du Cameroun refuse, par lettre du 15 juin 2026, de participer aux consultations COBAC sur deux projets de règlement, contestant sa soumission à la supervision bancaire ; le litige est porté devant la Cour de justice CEMAC.", tab:'quiz' },
+    { date:'CEMAC · Capital minimum',  txt:"Confirmation du calendrier de relèvement du capital minimum des banques CEMAC à 25 milliards FCFA (contre 10 milliards), période transitoire 2026-2028 ; celui des établissements financiers passe à 4 milliards FCFA (contre 1 milliard).", tab:'quiz' },
     { date:'CEMAC · BEAC',             txt:"Stabilité du franc CFA confirmée : seuls 2 billets sur 100 000 sont contrefaits (laboratoire BEAC, données à fin avril 2026).", tab:'quiz' },
     { date:'CEMAC · BEAC',             txt:"Le Comité de Politique Monétaire baisse ses taux directeurs (séance du 29 juin 2026) : TIAO à 4,50 %, prêt marginal à 5,75 %, réserves obligatoires allégées à 6,5 % (vue) et 4 % (terme).", tab:'quiz' },
     { date:'🎯 DÉFI',                  txt:"Testez vos connaissances sur ces nouvelles directives dans le module Quiz : Réglementation 2026.", tab:'quiz' }
