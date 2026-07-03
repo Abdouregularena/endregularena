@@ -1014,6 +1014,49 @@ app.get('/leaderboard/banks/themes', (req, res) => {
   }
 });
 
+/* ── TABLEAU DE BORD D'UN JOUEUR : forces / faiblesses par thème ──── // MODIFIÉ (détail joueur)
+   Même logique que /leaderboard/banks/themes (Kirkpatrick N2, seuil 5 réponses
+   par thème) mais pour UN utilisateur. CONFIDENTIALITÉ (CDP) : réservé au
+   joueur lui-même ou à l'admin REGUL ARENA — jamais visible pour un tiers.
+*/
+app.get('/leaderboard/player/themes', (req, res) => {
+  try {
+    const userId = parseInt(req.query.user_id, 10);
+    if (!userId) return err(res, 400, 'Paramètre user_id requis');
+
+    let viewer = null;
+    const hdrT = req.headers['authorization'] || '';
+    const tokT = hdrT.startsWith('Bearer ') ? hdrT.slice(7) : null;
+    if (tokT) { try { viewer = db.prepare('SELECT id, email FROM users WHERE id = ?').get(jwt.verify(tokT, JWT_SECRET).id); } catch (_) {} }
+    const estAdmin = viewer && isAdmin(viewer);
+    const estSoiMeme = viewer && viewer.id === userId;
+    if (!viewer || (!estAdmin && !estSoiMeme)) {
+      return ok(res, { user_id: userId, restricted: true, themes: [], count: 0 });
+    }
+
+    const rows = db.prepare(`
+      SELECT pack_id                    AS pack_id,
+             COUNT(id)                  AS parties,
+             COALESCE(SUM(score), 0)    AS sc,
+             COALESCE(SUM(total), 0)    AS tt
+      FROM user_scores
+      WHERE user_id = ?
+      GROUP BY pack_id
+      HAVING tt >= 5
+      ORDER BY (1.0 * sc / tt) DESC, parties DESC
+    `).all(userId);
+
+    const themes = rows.map(r => ({
+      pack_id: r.pack_id,
+      parties: r.parties,
+      taux: r.tt ? Math.round(100 * r.sc / r.tt) : 0
+    }));
+    return ok(res, { user_id: userId, themes, count: themes.length });
+  } catch (e) {
+    return err(res, 500, 'Erreur serveur (thèmes joueur)');
+  }
+});
+
 /* ── NOTIFICATIONS ──────────────────────────────────────────────── */
 app.get('/notifications', requireAuth, (req, res) => {
   const rows = db.prepare(
