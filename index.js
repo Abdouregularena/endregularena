@@ -826,7 +826,7 @@ app.get('/leaderboard', (req, res) => {
   else if (zone === 'cemac') { conditions.push(`u.country IN (${CEMAC.map(()=>'?').join(',')})`); params.push(...CEMAC); }
   if (profile === 'professionnel' || profile === 'etudiant') { conditions.push('u.profile = ?'); params.push(profile); }
   const rows = db.prepare(`
-    SELECT u.id, u.name, u.country, u.profile,
+    SELECT u.id, u.name, u.country, u.profile, u.last_seen,
            COUNT(s.id) AS games,
            COALESCE(SUM(s.score), 0) AS total_score
     FROM users u
@@ -837,6 +837,8 @@ app.get('/leaderboard', (req, res) => {
     ORDER BY total_score DESC
     LIMIT 50
   `).all(...params);
+  // MODIFIÉ — présence : expose "online" (bool) au lieu du last_seen brut
+  rows.forEach(r => { r.online = _isOnlineTs(r.last_seen); delete r.last_seen; });
   let myRank = null;
   const hdr = req.headers['authorization'] || '';
   const tok = hdr.startsWith('Bearer ') ? hdr.slice(7) : null;
@@ -1112,6 +1114,12 @@ app.post('/push/unsubscribe', requireAuth, (req, res) => {
 const PRESENCE_WINDOW_S = 120;
 // PRÉSENCE — noms masqués (comptes admin / tests), alignés avec le frontend
 const PRESENCE_HIDDEN = ['abdou ndao', 'kaiser ndao'];
+// PRÉSENCE — MODIFIÉ : helper partagé — calcule le statut "en ligne" à partir d'un last_seen SQLite
+function _isOnlineTs(last_seen) {
+  if (!last_seen) return false;
+  const ageSec = (Date.now() - new Date(last_seen.replace(' ', 'T') + 'Z').getTime()) / 1000;
+  return ageSec >= 0 && ageSec < PRESENCE_WINDOW_S;
+}
 
 // PRÉSENCE — heartbeat : met à jour last_seen. Si l'utilisateur revient après une absence,
 // pousse « 🟢 X est en ligne » aux autres joueurs actuellement connectés (sans spam).
@@ -1173,8 +1181,11 @@ app.get('/presence/online', requireAuth, (req, res) => {
 function _duelFull(code, revealQuestions = false) {
   const duel = db.prepare('SELECT * FROM duels WHERE code = ?').get(code);
   if (!duel) return null;
-  const creator = db.prepare('SELECT id, name, country FROM users WHERE id = ?').get(duel.creator_id);
-  const joiner  = duel.joiner_id ? db.prepare('SELECT id, name, country FROM users WHERE id = ?').get(duel.joiner_id) : null;
+  const creator = db.prepare('SELECT id, name, country, last_seen FROM users WHERE id = ?').get(duel.creator_id);
+  const joiner  = duel.joiner_id ? db.prepare('SELECT id, name, country, last_seen FROM users WHERE id = ?').get(duel.joiner_id) : null;
+  // MODIFIÉ — présence : expose "online" (bool) au lieu du last_seen brut
+  if (creator) { creator.online = _isOnlineTs(creator.last_seen); delete creator.last_seen; }
+  if (joiner)  { joiner.online  = _isOnlineTs(joiner.last_seen);  delete joiner.last_seen; }
   const scores  = db.prepare('SELECT user_id, score, questions_answered, finished FROM duel_scores WHERE duel_id = ?').all(duel.id);
   // MODIFIÉ — expose questions_json (avec bonnes réponses) UNIQUEMENT quand le duel est terminé (feuille de match)
   const reveal = revealQuestions || duel.status === 'finished';
@@ -1606,12 +1617,15 @@ function _tFull(code) { // TOURNOI AJOUT
   const t = db.prepare('SELECT * FROM tournaments WHERE code = ?').get(code); // TOURNOI AJOUT
   if (!t) return null; // TOURNOI AJOUT
   const participants = db.prepare( // TOURNOI AJOUT
-    'SELECT tp.*, u.name, u.country, u.etablissement FROM tournament_participants tp JOIN users u ON u.id = tp.user_id WHERE tp.tournament_id = ? ORDER BY tp.score DESC, COALESCE(tp.rank,9999) ASC' // TOURNOI AJOUT
+    'SELECT tp.*, u.name, u.country, u.etablissement, u.last_seen FROM tournament_participants tp JOIN users u ON u.id = tp.user_id WHERE tp.tournament_id = ? ORDER BY tp.score DESC, COALESCE(tp.rank,9999) ASC' // TOURNOI AJOUT
   ).all(t.id); // TOURNOI AJOUT
+  // MODIFIÉ — présence : expose "online" (bool) au lieu du last_seen brut
+  participants.forEach(p => { p.online = _isOnlineTs(p.last_seen); delete p.last_seen; });
   const matches = db.prepare( // TOURNOI AJOUT
     'SELECT tm.*, u1.name AS p1_name, u1.country AS p1_country, u2.name AS p2_name, u2.country AS p2_country, uw.name AS winner_name FROM tournament_matches tm LEFT JOIN users u1 ON u1.id = tm.player1_id LEFT JOIN users u2 ON u2.id = tm.player2_id LEFT JOIN users uw ON uw.id = tm.winner_id WHERE tm.tournament_id = ? ORDER BY tm.round, tm.id' // TOURNOI AJOUT
   ).all(t.id); // TOURNOI AJOUT
-  const creator = db.prepare('SELECT id, name, country FROM users WHERE id = ?').get(t.creator_id); // TOURNOI AJOUT
+  const creator = db.prepare('SELECT id, name, country, last_seen FROM users WHERE id = ?').get(t.creator_id); // TOURNOI AJOUT
+  if (creator) { creator.online = _isOnlineTs(creator.last_seen); delete creator.last_seen; } // MODIFIÉ
   return { ...t, participants, matches, creator }; // TOURNOI AJOUT
 } // TOURNOI AJOUT
 
