@@ -520,17 +520,18 @@ app.post('/auth/login', limiterStrict, async (req, res) => {
     return ok(res, { message: 'Si cet email est inscrit, vous recevrez un lien de connexion.' });
   }
 
-  // MODIFIÉ — connexion instantanée par mot de passe si le compte en a défini un.
-  // Aucun email, aucun clic : accès immédiat comme demandé.
-  if (user.password_hash) {
-    if (password && verifyPassword(String(password), user.password_hash)) {
+  // MODIFIÉ — connexion instantanée par mot de passe si le compte en a défini un ET qu'un
+  // mot de passe a été saisi. Si le champ est laissé vide (l'utilisateur préfère le lien
+  // magique), on ne bloque pas : on part sur l'envoi du lien, même si un mot de passe existe.
+  if (password) {
+    if (user.password_hash && verifyPassword(String(password), user.password_hash)) {
       return ok(res, { message: 'Connexion réussie', jwt: signJWT(user), user: publicUser(user) });
     }
-    // Compte protégé par mot de passe : on ne bascule pas silencieusement sur le lien
-    // magique, sinon un mot de passe faux/oublié semblerait fonctionner quand même.
-    return err(res, 401, 'Mot de passe incorrect.');
+    // Un mot de passe a été saisi mais il est faux (ou le compte n'en a pas) : on le dit clairement,
+    // pas de bascule silencieuse sur le lien magique qui masquerait l'erreur de saisie.
+    return err(res, 401, user.password_hash ? 'Mot de passe incorrect.' : "Ce compte n'a pas de mot de passe défini — laissez le champ vide pour recevoir un lien de connexion.");
   }
-  // Compte sans mot de passe défini (ancien compte, ou choix de l'utilisateur) : lien magique.
+  // Champ mot de passe vide : lien magique (comportement historique, toujours disponible en secours).
 
   const token = genToken();
   db.prepare('INSERT INTO login_tokens (email, token, expires_at) VALUES (?, ?, ?)')
