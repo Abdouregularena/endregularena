@@ -3744,7 +3744,10 @@ function escEmail(str) {
 }
 
 function publicUser(u) {
-  return { id: u.id, name: u.name, email: u.email, profile: u.profile, country: u.country, etablissement: u.etablissement, role: u.role || 'user' };
+  // MODIFIÉ — le rôle renvoyé au frontend doit refléter le statut admin RÉEL (colonne role
+  // OU présence dans ADMIN_EMAILS), sinon l'onglet Administration reste invisible pour un
+  // compte ajouté seulement dans ADMIN_EMAILS (cas de Kaiser Ndao).
+  return { id: u.id, name: u.name, email: u.email, profile: u.profile, country: u.country, etablissement: u.etablissement, role: isAdmin(u) ? 'admin' : (u.role || 'user') };
 }
 
 
