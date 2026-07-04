@@ -59,7 +59,6 @@ db.exec(`
     country       TEXT    NOT NULL DEFAULT '',
     etablissement TEXT    NOT NULL DEFAULT '',
     email_verified INTEGER NOT NULL DEFAULT 0,
-    password_hash TEXT    NOT NULL DEFAULT '',
     created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
   );
 
@@ -218,7 +217,6 @@ try { db.exec('CREATE INDEX IF NOT EXISTS idx_tp_tid_score ON tournament_partici
 ].forEach(sql => { try { db.exec(sql); } catch(_) {} }); // TOURNOI AJOUT
 try { db.exec('CREATE INDEX IF NOT EXISTS idx_tournaments_org ON tournaments (org_id, status)'); } catch(_) {} // ORG-TOURNOI AJOUT
 try { db.exec("ALTER TABLE org_members ADD COLUMN agence TEXT NOT NULL DEFAULT ''"); } catch(_) {} // ORG-AGENCE AJOUT
-try { db.exec('ALTER TABLE organisations ADD COLUMN validated INTEGER NOT NULL DEFAULT 0'); } catch(_) {} // ORG-VALIDATION AJOUT
 
 // TOURNOI AJOUT — nouvelles tables module tournoi
 db.exec(`
@@ -253,18 +251,6 @@ db.exec(`
 
 // MODIFIÉ — récupération des inscrits non vérifiés (idempotent : sans effet une fois tous à 1)
 db.prepare("UPDATE users SET email_verified = 1 WHERE email_verified = 0").run();
-
-// MODIFIÉ — migration additive : ajoute password_hash sur les bases déjà existantes (Railway)
-// sans casser les comptes déjà créés (colonne absente sur les anciens déploiements).
-try {
-  const cols = db.prepare("PRAGMA table_info(users)").all().map(c => c.name);
-  if (!cols.includes('password_hash')) {
-    db.exec("ALTER TABLE users ADD COLUMN password_hash TEXT NOT NULL DEFAULT ''");
-    console.log('[MIGRATION] Colonne password_hash ajoutée à la table users.');
-  }
-} catch (e) {
-  console.error('[MIGRATION] Erreur ajout password_hash (non bloquant):', e.message);
-}
 
 /* ── NOTIFICATIONS HELPER ──────────────────────────────────────────── */
 function notifyAllExcept(excludeUserId, type, message) {
@@ -319,24 +305,6 @@ function pushAllExcept(excludeUserId, payload) {
 }
 
 /* â”€â”€ HELPERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-// MODIFIÉ — hash de mot de passe (scrypt, natif Node, aucune dépendance à installer)
-function hashPassword(password) {
-  const salt = crypto.randomBytes(16).toString('hex');
-  const hash = crypto.scryptSync(password, salt, 64).toString('hex');
-  return `${salt}:${hash}`;
-}
-function verifyPassword(password, stored) {
-  if (!stored || !password) return false;
-  const [salt, hash] = stored.split(':');
-  if (!salt || !hash) return false;
-  try {
-    const hashBuffer = Buffer.from(hash, 'hex');
-    const testHash    = crypto.scryptSync(password, salt, 64);
-    if (hashBuffer.length !== testHash.length) return false;
-    return crypto.timingSafeEqual(hashBuffer, testHash);
-  } catch (_) { return false; }
-}
-
 function genToken(bytes = 32) {
   return crypto.randomBytes(bytes).toString('hex');
 }
@@ -351,9 +319,10 @@ function signJWT(user) {
   return jwt.sign(
     { id: user.id, email: user.email, name: user.name, profile: user.profile,
       country: user.country, // MODIFIÉ — country embarqué dans le JWT (session restaurée garde le pays)
+      etablissement: user.etablissement || '', // AJOUT (task C) — nécessaire pour reconnaître la banque côté frontend sans appel réseau supplémentaire
       role: user.role || 'user', is_verified: user.email_verified === 1 },
     JWT_SECRET,
-    { expiresIn: '60d' } // MODIFIÉ — 7j → 60j : réduit drastiquement la fréquence des reconnexions par email
+    { expiresIn: '7d' }
   );
 }
 
@@ -432,7 +401,7 @@ function requireAuth(req, res, next) {
    &#8594; cr&#233;e ou retrouve l'utilisateur, envoie email de confirmation
 */
 app.post('/auth/register', limiterStrict, async (req, res) => {
-  const { name, email, password, profile, country, etablissement = '', invite_code, cgu_accepted } = req.body || {};
+  const { name, email, profile, country, etablissement = '', invite_code, cgu_accepted } = req.body || {};
 
   // FEATURE 2 — CGU obligatoires
   if (cgu_accepted !== true) return err(res, 400, 'Vous devez accepter les CGU.');
@@ -440,10 +409,6 @@ app.post('/auth/register', limiterStrict, async (req, res) => {
   if (!name || !email) return err(res, 400, 'Nom et email requis');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return err(res, 400, 'Email invalide');
   if (name.length < 2 || name.length > 80) return err(res, 400, 'Nom invalide');
-  // MODIFIÉ — mot de passe optionnel à l'inscription, mais validé s'il est fourni
-  if (password !== undefined && password !== '' && String(password).length < 6) {
-    return err(res, 400, 'Le mot de passe doit contenir au moins 6 caractères.');
-  }
 
   const cleanName  = name.trim();
   const cleanEmail = email.trim().toLowerCase();
@@ -461,24 +426,26 @@ app.post('/auth/register', limiterStrict, async (req, res) => {
     req._invitation = inv;
   }
 
-  // MODIFIÉ — SÉCURITÉ : un email déjà inscrit ne doit plus renvoyer de JWT ici.
-  // Avant cette correction, resoumettre ce formulaire avec l'email de quelqu'un d'autre
-  // suffisait à obtenir un JWT valide pour son compte, sans mot de passe ni vérification.
-  // Désormais /auth/register ne fait QUE créer un nouveau compte ; un email déjà utilisé
-  // doit passer par /auth/login (mot de passe ou lien magique).
-  const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(cleanEmail);
-  if (existing) {
-    return err(res, 409, 'Un compte existe déjà avec cet email. Utilisez la connexion.');
+  // Upsert user
+  let user = db.prepare('SELECT * FROM users WHERE email = ?').get(cleanEmail);
+
+  if (!user) {
+    const result = db.prepare(
+      "INSERT INTO users (name, email, profile, country, etablissement, cgu_accepted_at, email_verified) VALUES (?, ?, ?, ?, ?, datetime('now'), 1)" // MODIFIÉ — auto-vérifié à l'inscription
+    ).run(cleanName, cleanEmail, profile || 'professionnel', country || '', etablissement);
+    user = db.prepare('SELECT * FROM users WHERE id = ?').get(result.lastInsertRowid);
+  } else {
+    db.prepare("UPDATE users SET cgu_accepted_at = datetime('now') WHERE id = ?").run(user.id);
   }
 
-  const passwordHash = (password && String(password).length >= 6) ? hashPassword(String(password)) : '';
+  // G&#233;n&#233;rer token de confirmation
+  const token = genToken();
+  db.prepare(
+    'INSERT INTO confirm_tokens (user_id, token, expires_at) VALUES (?, ?, ?)'
+  ).run(user.id, token, expiresAt(TOKEN_TTL_H));
 
-  const result = db.prepare(
-    "INSERT INTO users (name, email, profile, country, etablissement, cgu_accepted_at, email_verified, password_hash) VALUES (?, ?, ?, ?, ?, datetime('now'), 1, ?)" // MODIFIÉ — auto-vérifié + mot de passe optionnel dès l'inscription
-  ).run(cleanName, cleanEmail, profile || 'professionnel', country || '', etablissement, passwordHash);
-  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(result.lastInsertRowid);
-
-  // Envoyer un email de bienvenue (informatif — n'est plus requis pour accéder à la plateforme)
+  // Envoyer email via Resend
+  const confirmUrl = `${BASE_URL}/auth/verify?token=${token}`;
   try {
     const sendResult = await resend.emails.send({
       from: `REGUL ARENA <${FROM_EMAIL}>`,
@@ -497,7 +464,7 @@ app.post('/auth/register', limiterStrict, async (req, res) => {
     db.prepare('UPDATE invitations SET used = 1 WHERE id = ?').run(req._invitation.id);
   }
 
-  return ok(res, { message: 'Inscription réussie', jwt: signJWT(user), user: publicUser(user) }); // MODIFIÉ — JWT immédiat pour les NOUVEAUX comptes uniquement
+  return ok(res, { message: 'Inscription réussie', jwt: signJWT(user), user: publicUser(user) }); // MODIFIÉ — JWT immédiat, plus de blocage email
 });
 
 
@@ -508,7 +475,7 @@ app.post('/auth/register', limiterStrict, async (req, res) => {
    curl -X POST /auth/login -d '{"email":"user@banque.sn"}'
 */
 app.post('/auth/login', limiterStrict, async (req, res) => {
-  const { email, password } = req.body || {};
+  const { email } = req.body || {};
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
     return err(res, 400, 'Email invalide');
   }
@@ -519,19 +486,6 @@ app.post('/auth/login', limiterStrict, async (req, res) => {
   if (!user) {
     return ok(res, { message: 'Si cet email est inscrit, vous recevrez un lien de connexion.' });
   }
-
-  // MODIFIÉ — connexion instantanée par mot de passe si le compte en a défini un ET qu'un
-  // mot de passe a été saisi. Si le champ est laissé vide (l'utilisateur préfère le lien
-  // magique), on ne bloque pas : on part sur l'envoi du lien, même si un mot de passe existe.
-  if (password) {
-    if (user.password_hash && verifyPassword(String(password), user.password_hash)) {
-      return ok(res, { message: 'Connexion réussie', jwt: signJWT(user), user: publicUser(user) });
-    }
-    // Un mot de passe a été saisi mais il est faux (ou le compte n'en a pas) : on le dit clairement,
-    // pas de bascule silencieuse sur le lien magique qui masquerait l'erreur de saisie.
-    return err(res, 401, user.password_hash ? 'Mot de passe incorrect.' : "Ce compte n'a pas de mot de passe défini — laissez le champ vide pour recevoir un lien de connexion.");
-  }
-  // Champ mot de passe vide : lien magique (comportement historique, toujours disponible en secours).
 
   const token = genToken();
   db.prepare('INSERT INTO login_tokens (email, token, expires_at) VALUES (?, ?, ?)')
@@ -769,30 +723,7 @@ text-decoration:none;border:0;cursor:pointer;font-size:16px;padding:14px 26px;bo
 app.get('/auth/me', requireAuth, (req, res) => {
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id);
   if (!user) return err(res, 404, 'Compte introuvable');
-  return ok(res, { user: { ...publicUser(user), is_verified: user.email_verified === 1, has_password: !!user.password_hash } }); // MODIFIÉ — has_password pour afficher/masquer le bouton "définir un mot de passe"
-});
-
-/* POST /auth/set-password   Header : Authorization: Bearer <jwt>   Body : { password, current_password? }
-   MODIFIÉ — permet aux comptes existants (créés avant l'ajout du mot de passe) d'en définir un,
-   pour ne plus jamais dépendre du lien magique par email. Si un mot de passe existe déjà,
-   l'ancien est requis pour le changer (protection contre un JWT volé sur session longue durée).
-*/
-app.post('/auth/set-password', requireAuth, limiterStrict, (req, res) => {
-  const { password, current_password } = req.body || {};
-  if (!password || String(password).length < 6) {
-    return err(res, 400, 'Le mot de passe doit contenir au moins 6 caractères.');
-  }
-  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id);
-  if (!user) return err(res, 404, 'Compte introuvable');
-
-  if (user.password_hash) {
-    if (!current_password || !verifyPassword(String(current_password), user.password_hash)) {
-      return err(res, 401, 'Mot de passe actuel incorrect.');
-    }
-  }
-
-  db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(hashPassword(String(password)), user.id);
-  return ok(res, { message: 'Mot de passe défini. Vous pouvez désormais vous connecter directement.' });
+  return ok(res, { user: { ...publicUser(user), is_verified: user.email_verified === 1 } });
 });
 
 
@@ -895,7 +826,7 @@ app.get('/leaderboard', (req, res) => {
   else if (zone === 'cemac') { conditions.push(`u.country IN (${CEMAC.map(()=>'?').join(',')})`); params.push(...CEMAC); }
   if (profile === 'professionnel' || profile === 'etudiant') { conditions.push('u.profile = ?'); params.push(profile); }
   const rows = db.prepare(`
-    SELECT u.id, u.name, u.country, u.profile, u.last_seen,
+    SELECT u.id, u.name, u.country, u.profile,
            COUNT(s.id) AS games,
            COALESCE(SUM(s.score), 0) AS total_score
     FROM users u
@@ -906,8 +837,6 @@ app.get('/leaderboard', (req, res) => {
     ORDER BY total_score DESC
     LIMIT 50
   `).all(...params);
-  // MODIFIÉ — présence : expose "online" (bool) au lieu du last_seen brut
-  rows.forEach(r => { r.online = _isOnlineTs(r.last_seen); delete r.last_seen; });
   let myRank = null;
   const hdr = req.headers['authorization'] || '';
   const tok = hdr.startsWith('Bearer ') ? hdr.slice(7) : null;
@@ -1020,7 +949,7 @@ app.get('/leaderboard/banks/members', (req, res) => {
     let myId = null, viewer = null; // MODIFIÉ
     const hdr = req.headers['authorization'] || '';
     const tok = hdr.startsWith('Bearer ') ? hdr.slice(7) : null;
-    if (tok) { try { const p = jwt.verify(tok, JWT_SECRET); myId = p.id; viewer = db.prepare('SELECT id, email FROM users WHERE id = ?').get(p.id); } catch (_) {} } // MODIFIÉ
+    if (tok) { try { const p = jwt.verify(tok, JWT_SECRET); myId = p.id; viewer = db.prepare('SELECT id, email, role FROM users WHERE id = ?').get(p.id); } catch (_) {} } // MODIFIÉ
 
     // CONFIDENTIALITÉ (CDP) : le détail NOMINATIF du personnel d'un établissement // MODIFIÉ
     // n'est ouvert qu'à l'admin REGUL ARENA. Les autres ne reçoivent que l'agrégat (aucun nom). // MODIFIÉ
@@ -1047,7 +976,7 @@ app.get('/leaderboard/banks/themes', (req, res) => {
     let viewer = null; // MODIFIÉ
     const hdrT = req.headers['authorization'] || ''; // MODIFIÉ
     const tokT = hdrT.startsWith('Bearer ') ? hdrT.slice(7) : null; // MODIFIÉ
-    if (tokT) { try { viewer = db.prepare('SELECT id, email FROM users WHERE id = ?').get(jwt.verify(tokT, JWT_SECRET).id); } catch (_) {} } // MODIFIÉ
+    if (tokT) { try { viewer = db.prepare('SELECT id, email, role FROM users WHERE id = ?').get(jwt.verify(tokT, JWT_SECRET).id); } catch (_) {} } // MODIFIÉ
     if (!viewer || !isAdmin(viewer)) { return ok(res, { bank: bankRaw, restricted: true, themes: [], count: 0 }); } // MODIFIÉ
     const bankKey = bankRaw.toLowerCase();
     const { zone } = req.query;
@@ -1082,49 +1011,6 @@ app.get('/leaderboard/banks/themes', (req, res) => {
     return ok(res, { bank: bankRaw, themes, count: themes.length });
   } catch (e) {
     return err(res, 500, 'Erreur serveur (thèmes banque)');
-  }
-});
-
-/* ── TABLEAU DE BORD D'UN JOUEUR : forces / faiblesses par thème ──── // MODIFIÉ (détail joueur)
-   Même logique que /leaderboard/banks/themes (Kirkpatrick N2, seuil 5 réponses
-   par thème) mais pour UN utilisateur. CONFIDENTIALITÉ (CDP) : réservé au
-   joueur lui-même ou à l'admin REGUL ARENA — jamais visible pour un tiers.
-*/
-app.get('/leaderboard/player/themes', (req, res) => {
-  try {
-    const userId = parseInt(req.query.user_id, 10);
-    if (!userId) return err(res, 400, 'Paramètre user_id requis');
-
-    let viewer = null;
-    const hdrT = req.headers['authorization'] || '';
-    const tokT = hdrT.startsWith('Bearer ') ? hdrT.slice(7) : null;
-    if (tokT) { try { viewer = db.prepare('SELECT id, email FROM users WHERE id = ?').get(jwt.verify(tokT, JWT_SECRET).id); } catch (_) {} }
-    const estAdmin = viewer && isAdmin(viewer);
-    const estSoiMeme = viewer && viewer.id === userId;
-    if (!viewer || (!estAdmin && !estSoiMeme)) {
-      return ok(res, { user_id: userId, restricted: true, themes: [], count: 0 });
-    }
-
-    const rows = db.prepare(`
-      SELECT pack_id                    AS pack_id,
-             COUNT(id)                  AS parties,
-             COALESCE(SUM(score), 0)    AS sc,
-             COALESCE(SUM(total), 0)    AS tt
-      FROM user_scores
-      WHERE user_id = ?
-      GROUP BY pack_id
-      HAVING tt >= 5
-      ORDER BY (1.0 * sc / tt) DESC, parties DESC
-    `).all(userId);
-
-    const themes = rows.map(r => ({
-      pack_id: r.pack_id,
-      parties: r.parties,
-      taux: r.tt ? Math.round(100 * r.sc / r.tt) : 0
-    }));
-    return ok(res, { user_id: userId, themes, count: themes.length });
-  } catch (e) {
-    return err(res, 500, 'Erreur serveur (thèmes joueur)');
   }
 });
 
@@ -1183,12 +1069,6 @@ app.post('/push/unsubscribe', requireAuth, (req, res) => {
 const PRESENCE_WINDOW_S = 120;
 // PRÉSENCE — noms masqués (comptes admin / tests), alignés avec le frontend
 const PRESENCE_HIDDEN = ['abdou ndao', 'kaiser ndao'];
-// PRÉSENCE — MODIFIÉ : helper partagé — calcule le statut "en ligne" à partir d'un last_seen SQLite
-function _isOnlineTs(last_seen) {
-  if (!last_seen) return false;
-  const ageSec = (Date.now() - new Date(last_seen.replace(' ', 'T') + 'Z').getTime()) / 1000;
-  return ageSec >= 0 && ageSec < PRESENCE_WINDOW_S;
-}
 
 // PRÉSENCE — heartbeat : met à jour last_seen. Si l'utilisateur revient après une absence,
 // pousse « 🟢 X est en ligne » aux autres joueurs actuellement connectés (sans spam).
@@ -1250,11 +1130,8 @@ app.get('/presence/online', requireAuth, (req, res) => {
 function _duelFull(code, revealQuestions = false) {
   const duel = db.prepare('SELECT * FROM duels WHERE code = ?').get(code);
   if (!duel) return null;
-  const creator = db.prepare('SELECT id, name, country, last_seen FROM users WHERE id = ?').get(duel.creator_id);
-  const joiner  = duel.joiner_id ? db.prepare('SELECT id, name, country, last_seen FROM users WHERE id = ?').get(duel.joiner_id) : null;
-  // MODIFIÉ — présence : expose "online" (bool) au lieu du last_seen brut
-  if (creator) { creator.online = _isOnlineTs(creator.last_seen); delete creator.last_seen; }
-  if (joiner)  { joiner.online  = _isOnlineTs(joiner.last_seen);  delete joiner.last_seen; }
+  const creator = db.prepare('SELECT id, name, country FROM users WHERE id = ?').get(duel.creator_id);
+  const joiner  = duel.joiner_id ? db.prepare('SELECT id, name, country FROM users WHERE id = ?').get(duel.joiner_id) : null;
   const scores  = db.prepare('SELECT user_id, score, questions_answered, finished FROM duel_scores WHERE duel_id = ?').all(duel.id);
   // MODIFIÉ — expose questions_json (avec bonnes réponses) UNIQUEMENT quand le duel est terminé (feuille de match)
   const reveal = revealQuestions || duel.status === 'finished';
@@ -1686,15 +1563,12 @@ function _tFull(code) { // TOURNOI AJOUT
   const t = db.prepare('SELECT * FROM tournaments WHERE code = ?').get(code); // TOURNOI AJOUT
   if (!t) return null; // TOURNOI AJOUT
   const participants = db.prepare( // TOURNOI AJOUT
-    'SELECT tp.*, u.name, u.country, u.etablissement, u.last_seen FROM tournament_participants tp JOIN users u ON u.id = tp.user_id WHERE tp.tournament_id = ? ORDER BY tp.score DESC, COALESCE(tp.rank,9999) ASC' // TOURNOI AJOUT
+    'SELECT tp.*, u.name, u.country, u.etablissement FROM tournament_participants tp JOIN users u ON u.id = tp.user_id WHERE tp.tournament_id = ? ORDER BY tp.score DESC, COALESCE(tp.rank,9999) ASC' // TOURNOI AJOUT
   ).all(t.id); // TOURNOI AJOUT
-  // MODIFIÉ — présence : expose "online" (bool) au lieu du last_seen brut
-  participants.forEach(p => { p.online = _isOnlineTs(p.last_seen); delete p.last_seen; });
   const matches = db.prepare( // TOURNOI AJOUT
     'SELECT tm.*, u1.name AS p1_name, u1.country AS p1_country, u2.name AS p2_name, u2.country AS p2_country, uw.name AS winner_name FROM tournament_matches tm LEFT JOIN users u1 ON u1.id = tm.player1_id LEFT JOIN users u2 ON u2.id = tm.player2_id LEFT JOIN users uw ON uw.id = tm.winner_id WHERE tm.tournament_id = ? ORDER BY tm.round, tm.id' // TOURNOI AJOUT
   ).all(t.id); // TOURNOI AJOUT
-  const creator = db.prepare('SELECT id, name, country, last_seen FROM users WHERE id = ?').get(t.creator_id); // TOURNOI AJOUT
-  if (creator) { creator.online = _isOnlineTs(creator.last_seen); delete creator.last_seen; } // MODIFIÉ
+  const creator = db.prepare('SELECT id, name, country FROM users WHERE id = ?').get(t.creator_id); // TOURNOI AJOUT
   return { ...t, participants, matches, creator }; // TOURNOI AJOUT
 } // TOURNOI AJOUT
 
@@ -2480,6 +2354,11 @@ app.get('/sw.js', (req, res) => {
 ================================================================ */
 
 function isAdmin(user) {
+  // MODIFIÉ — un seul et même statut admin, vérifié de deux façons complémentaires :
+  // 1) la colonne users.role = 'admin' (source de vérité, gérée via /admin/promote)
+  // 2) la liste ADMIN_EMAILS (filet de sécurité si un JWT ne porte pas encore le rôle)
+  if (!user) return false;
+  if ((user.role || '').toLowerCase() === 'admin') return true;
   const list = (process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
   return list.includes((user.email || '').toLowerCase());
 }
@@ -2673,17 +2552,6 @@ app.get('/org/members', requireAuth, (req, res) => {
   return ok(res, { org: { id: org.id, name: org.name }, members });
 });
 
-/* GET /org/mine — JWT requis. Retourne l'établissement (admin ou membre) auquel l'utilisateur appartient déjà, s'il existe.
-   curl -H 'Authorization: Bearer JWT' '/org/mine'
-*/
-app.get('/org/mine', requireAuth, (req, res) => { // ORG-MINE AJOUT
-  const row = db.prepare( // ORG-MINE AJOUT
-    'SELECT o.id, o.name, om.role FROM org_members om JOIN organisations o ON o.id = om.org_id WHERE om.user_id = ? ORDER BY (om.role = \'admin\') DESC LIMIT 1' // ORG-MINE AJOUT
-  ).get(req.user.id); // ORG-MINE AJOUT
-  if (!row) return ok(res, { org: null }); // ORG-MINE AJOUT
-  return ok(res, { org: { id: row.id, name: row.name, role: row.role } }); // ORG-MINE AJOUT
-}); // ORG-MINE AJOUT
-
 /* POST /org/create — JWT requis. Le créateur devient admin de l'établissement.
    curl -X POST /org/create -H 'Authorization: Bearer JWT' -H 'Content-Type: application/json' -d '{"name":"ISM Dakar"}'
 */
@@ -2691,14 +2559,13 @@ app.post('/org/create', requireAuth, (req, res) => {
   const name = ((req.body && req.body.name) || '').trim();
   if (name.length < 2)   return err(res, 400, "Nom d'établissement requis (2 caractères min).");
   if (name.length > 120) return err(res, 400, 'Nom trop long (120 caractères max).');
-  const autoValidated = (req.user.role||'user') === 'admin' ? 1 : 0; // MODIFIÉ : un compte admin RegulArena valide directement son propre établissement
-  const info  = db.prepare('INSERT INTO organisations (name, admin_user_id, validated) VALUES (?, ?, ?)').run(name, req.user.id, autoValidated); // MODIFIÉ : validated ajouté à l'insert
+  const info  = db.prepare('INSERT INTO organisations (name, admin_user_id) VALUES (?, ?)').run(name, req.user.id);
   const orgId = info.lastInsertRowid;
   // l'admin devient aussi membre (rôle admin) pour figurer dans les stats
   try {
     db.prepare("INSERT INTO org_members (org_id, user_id, role) VALUES (?, ?, 'admin')").run(orgId, req.user.id);
   } catch(e) { if (!String(e.message).includes('UNIQUE')) throw e; }
-  return ok(res, { org: { id: orgId, name, validated: !!autoValidated } }); // MODIFIÉ : renvoie le statut validé
+  return ok(res, { org: { id: orgId, name } });
 });
 
 /* POST /org/agence/set — JWT requis, membre déclare son agence/unité.
@@ -2801,7 +2668,7 @@ app.get('/org/dashboard', requireAuth, (req, res) => {
     return { pack: d.pack, attempts: d.attempts, accuracy: d.tt>0 ? Math.round(d.sc/d.tt*100) : 0 };
   });
 
-  return ok(res, { org: { id: org.id, name: org.name, created_at: org.created_at, join_code: org.join_code || null, validated: !!org.validated }, totals, members, domains, by_agence: byAgence }); /* MODIFIÉ — ajout by_agence + validated */
+  return ok(res, { org: { id: org.id, name: org.name, created_at: org.created_at, join_code: org.join_code || null }, totals, members, domains, by_agence: byAgence }); /* MODIFIÉ — ajout by_agence */
 });
 
 /* Helper — génère un code collectif lisible unique : SLUG + 4 hex (ex. UCAO-7F3A) */
@@ -2825,7 +2692,6 @@ app.post('/org/code', requireAuth, (req, res) => {
   const org = db.prepare('SELECT * FROM organisations WHERE id = ?').get(orgId);
   if (!org) return err(res, 404, 'Organisation introuvable');
   if (org.admin_user_id !== req.user.id) return err(res, 403, "Accès réservé à l'administrateur de l'établissement");
-  if (!org.validated) return err(res, 403, "Établissement en attente de validation. Contactez l'administrateur REGUL ARENA pour activer votre code collectif."); // ORG-VALIDATION AJOUT
   let code = org.join_code;
   if (!code || (req.body && req.body.regenerate)) {
     code = _orgGenJoinCode(org.name);
@@ -2833,18 +2699,6 @@ app.post('/org/code', requireAuth, (req, res) => {
   }
   return ok(res, { code });
 });
-
-/* POST /org/validate — réservé à un compte role='admin' (plateforme). Active le code collectif d'un établissement.
-   curl -X POST /org/validate -H 'Authorization: Bearer JWT' -d '{"org_id":1}'
-*/
-app.post('/org/validate', requireAuth, (req, res) => { // ORG-VALIDATION AJOUT
-  if ((req.user.role||'user') !== 'admin') return err(res, 403, 'Réservé aux administrateurs REGUL ARENA'); // ORG-VALIDATION AJOUT
-  const orgId = Number((req.body && req.body.org_id) || 0); // ORG-VALIDATION AJOUT
-  if (!orgId) return err(res, 400, 'org_id requis'); // ORG-VALIDATION AJOUT
-  const info = db.prepare('UPDATE organisations SET validated = 1 WHERE id = ?').run(orgId); // ORG-VALIDATION AJOUT
-  if (!info.changes) return err(res, 404, 'Organisation introuvable'); // ORG-VALIDATION AJOUT
-  return ok(res, { validated: true }); // ORG-VALIDATION AJOUT
-}); // ORG-VALIDATION AJOUT
 
 /* GET /org/code-info?code=XXX — public. Valide un code collectif (pour l'écran « Rejoindre »).
    curl '/org/code-info?code=UCAO-7F3A'
@@ -2910,7 +2764,18 @@ app.get('/admin/stats', requireAdmin, (req, res) => {
 });
 
 // MODIFIÉ — route /setup-admin-x7k2 supprimée (sécurité : accès non authentifié → promotion admin possible par n'importe qui)
-// Pour promouvoir un admin : UPDATE users SET role='admin' WHERE email='abdou.ndao@regularena.com' via Railway DB console
+// AJOUT — POST /admin/promote : permet à un admin déjà en poste de promouvoir un autre
+// utilisateur, sans passer par une console SQL. Le compte ciblé doit déjà exister
+// (avoir un compte Regul Arena). Utilisation (depuis le mobile, via le panneau /admin/board
+// ou un simple appel fetch) : coller le JWT admin, POST { "email": "kaiser@..." }
+app.post('/admin/promote', requireAdmin, (req, res) => {
+  const email = (req.body && req.body.email || '').trim().toLowerCase();
+  if (!email) return err(res, 400, 'Email requis');
+  const target = db.prepare('SELECT id, email, role FROM users WHERE LOWER(email) = ?').get(email);
+  if (!target) return err(res, 404, "Aucun compte Regul Arena n'existe avec cet email. La personne doit d'abord s'inscrire.");
+  db.prepare("UPDATE users SET role = 'admin' WHERE id = ?").run(target.id);
+  return ok(res, { message: `${target.email} est maintenant administrateur.`, id: target.id });
+});
 
 // GET /admin/users — liste des 200 derniers inscrits
 app.get('/admin/users', requireAdmin, (req, res) => {
@@ -3074,46 +2939,6 @@ app.get('/admin/top-scorers', requireAdmin, (req, res) => {
     res.json({ total: top.length, avec_certificat: avecCertif, repartition, top_scoreurs: top, genere_le: new Date().toISOString() });
   } catch (e) {
     console.error('[admin/top-scorers]', e);
-    res.status(500).json({ error: 'Erreur serveur' });
-  }
-});
-
-// MODIFIÉ — AJOUT : GET /admin/roster — tableau RH complet (TOUS les utilisateurs,
-// sans limite artificielle et sans filtre "points > 0", contrairement à /admin/top-scorers).
-// Pagination optionnelle : ?limit=5000&offset=0 (limit plafonné à 5000 par appel).
-app.get('/admin/roster', requireAdmin, (req, res) => {
-  try {
-    const limit  = Math.min(parseInt(req.query.limit, 10)  || 5000, 5000);
-    const offset = Math.max(parseInt(req.query.offset, 10) || 0, 0);
-    const rows = db.prepare(`
-      SELECT u.id, u.name, u.email, u.profile, u.country, u.etablissement,
-             u.role, u.email_verified, u.created_at, u.last_seen,
-             COUNT(DISTINCT s.id) AS parties,
-             COALESCE(SUM(s.score),0) AS points,
-             (SELECT COUNT(*) FROM certificates c WHERE c.user_id = u.id) AS certificats,
-             (SELECT COUNT(*) FROM duels d WHERE d.creator_id = u.id OR d.joiner_id = u.id) AS duels_total
-      FROM users u
-      LEFT JOIN user_scores s ON s.user_id = u.id
-      GROUP BY u.id
-      ORDER BY u.created_at DESC
-      LIMIT ? OFFSET ?
-    `).all(limit, offset);
-    const total = db.prepare(`SELECT COUNT(*) n FROM users`).get().n;
-    const roster = rows.map(r => {
-      const p = raPalier(r.points);
-      return {
-        id: r.id, name: r.name, email: r.email, profile: r.profile, country: r.country,
-        etablissement: r.etablissement, role: r.role, email_verified: r.email_verified,
-        created_at: r.created_at, last_seen: r.last_seen,
-        parties: r.parties, points: r.points,
-        palier: p.label, palier_icon: p.icon, palier_key: p.key,
-        certificats: r.certificats, a_certificat: r.certificats > 0,
-        duels_total: r.duels_total, actif: r.parties > 0,
-      };
-    });
-    res.json({ total, count: roster.length, limit, offset, roster, genere_le: new Date().toISOString() });
-  } catch (e) {
-    console.error('[admin/roster]', e);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 });
@@ -3883,8 +3708,6 @@ function emailWelcomeHTML(name, url) {
     <div style="text-align:center;margin-bottom:32px">
       <a href="${url}" style="display:inline-block;background-color:#C9991A;background-image:linear-gradient(135deg,#C9991A,#E8B520);color:#03050A;font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;text-decoration:none;padding:16px 40px;border-radius:2px">Acc&#233;der &#224; la plateforme &#8594;</a>
     </div>
-    <!-- MODIFIÉ — rappel du mode de connexion rapide, aligné avec le nouveau parcours sans email -->
-    <p style="color:#7A8499;font-size:13px;line-height:1.6;margin:0 0 20px">Astuce&#160;: d&#233;finis un mot de passe dans <em>Menu &#8594; Mon compte</em> pour te reconnecter instantan&#233;ment la prochaine fois, sans passer par ta boîte mail.</p>
     <p style="color:#4a5568;font-size:12px;line-height:1.6;margin:0">Si tu n'es pas &#224; l'origine de cette inscription, ignore simplement cet email.</p>
   </td></tr>
   <tr><td style="border-top:1px solid rgba(255,255,255,.06);padding:20px 40px;text-align:center">
