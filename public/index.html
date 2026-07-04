@@ -933,6 +933,7 @@ h2,h3{animation:raReveal .45s ease both;}
             </div>
             <div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Email *</label><input type="email" id="r-email" placeholder="prenom.nom@gmail.com" class="inp" autocomplete="email"/></div>
             <div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Institution / Organisation *</label><input type="text" id="r-inst" placeholder="ex: Ecobank CI, BCEAO, BRS..." class="inp"/></div>
+            <div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Mot de passe <span style="color:#8aa3d4;font-weight:400;">(facultatif — recommandé)</span></label><input type="password" id="r-pwd" placeholder="6 caractères minimum" class="inp" autocomplete="new-password"/><div style="font-size:10px;color:#8aa3d4;margin-top:4px;">Pour vous reconnecter instantanément la prochaine fois, sans email.</div></div><!-- MODIFIÉ -->
             <div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Pays *</label>
               <select id="r-pays" class="inp">
                 <option value="">-- Sélectionnez --</option>
@@ -976,7 +977,7 @@ h2,h3{animation:raReveal .45s ease both;}
         <!-- Étape 2 : confirmation envoyée -->
         <div id="reg-confirm-wrap" style="display:none;text-align:center;padding:10px 0;">
           <div style="font-size:56px;margin-bottom:16px;">📧</div>
-          <h2 style="font-family:Syne,sans-serif;font-size:22px;color:white;margin-bottom:10px;">Vérifiez votre email !</h2>
+          <h2 style="font-family:Syne,sans-serif;font-size:22px;color:white;margin-bottom:10px;">Presque prêt !</h2><!-- MODIFIÉ -->
           <p id="reg-confirm-msg" style="font-size:14px;color:#aac4e8;line-height:1.6;margin-bottom:20px;"></p>
           <div class="al al-info">Cliquez sur le lien dans l'email pour activer votre compte. Pensez à vérifier vos spams.</div>
           <button class="btn-out" style="margin-top:10px;width:100%;border-color:rgba(0,180,216,.45);color:var(--cyan);" onclick="raOnbOpen()">📖 Revoir le guide de démarrage</button>
@@ -1000,7 +1001,7 @@ h2,h3{animation:raReveal .45s ease both;}
             <div style="width:44px;height:44px;background:linear-gradient(135deg,#E8B520,#C9991A);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:20px;">🌐</div>
             <div><div style="font-family:Syne,sans-serif;font-size:19px;font-weight:900;color:white;">REGULARENA</div><div style="font-size:11px;font-weight:700;color:var(--cyan);">PRO UEMOA</div></div>
           </div>
-          <div style="font-size:12px;color:var(--sub);">Connexion par lien magique — sans mot de passe</div>
+          <div style="font-size:12px;color:var(--sub);">Connexion instantanée par mot de passe, ou lien magique sans mot de passe</div><!-- MODIFIÉ -->
         </div>
         <div id="login-msg"></div>
         <!-- Étape 1 : saisie email -->
@@ -1008,8 +1009,10 @@ h2,h3{animation:raReveal .45s ease both;}
           <div style="display:flex;flex-direction:column;gap:13px;">
             <div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Email</label>
             <input type="email" id="l-email" placeholder="prenom.nom@gmail.com" class="inp" autocomplete="email"/></div>
+            <div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Mot de passe <span style="color:#8aa3d4;font-weight:400;">(si vous en avez défini un)</span></label>
+            <input type="password" id="l-pwd" placeholder="Laissez vide pour recevoir un lien" class="inp" autocomplete="current-password"/></div><!-- MODIFIÉ -->
             <button class="btn" style="width:100%;padding:13px;font-size:14px;" id="login-btn" onclick="doLogin()">
-              Recevoir mon lien de connexion ✉️
+              Se connecter →
             </button>
           </div>
           <div style="text-align:center;margin-top:14px;font-size:12px;color:var(--sub);">
@@ -2119,6 +2122,7 @@ function apiCall(method, path, body){
             message: data.message || data.msg || '',
             error:   data.error   || data.message || '',
             token:   data.token   || (data.data && data.data.token) || '',
+            jwt:     data.jwt     || (data.data && data.data.jwt)   || '', // MODIFIÉ — CORRECTIF : le backend renvoie "jwt", pas "token" ; sans ce champ, l'accès instantané ne se déclenchait jamais.
             user:    data.user    || (data.data && data.data.user)  || null,
             code:    data.code    || '',
             _raw:    data,
@@ -2164,12 +2168,14 @@ function doRegister(){
   var email  = ge('r-email').value.trim();
   var inst   = ge('r-inst').value.trim();
   var pays   = ge('r-pays').value;
+  var pwd    = ge('r-pwd') ? ge('r-pwd').value : ''; // MODIFIÉ — mot de passe optionnel
   var msgEl  = ge('reg-msg');
 
   if(!prenom||!nom){ setMsg(msgEl,'⚠️ Prénom et nom requis.','warn'); return; }
   if(!email||!email.includes('@')){ setMsg(msgEl,'⚠️ Email valide requis.','warn'); return; }
   if(!inst){ setMsg(msgEl,'⚠️ Institution requise.','warn'); return; }
   if(!pays){ setMsg(msgEl,'⚠️ Veuillez sélectionner votre pays.','warn'); return; }
+  if(pwd && pwd.length<6){ setMsg(msgEl,'⚠️ Le mot de passe doit contenir au moins 6 caractères (ou laissez le champ vide).','warn'); return; } // MODIFIÉ
   if(!ge('r-consent')||!ge('r-consent').checked){ setMsg(msgEl,'⚠️ Veuillez accepter la politique de confidentialité et les CGU.','warn'); return; } // MODIFIÉ
 
   setMsg(msgEl,'','');
@@ -2178,12 +2184,15 @@ function doRegister(){
   var name = prenom+' '+nom;
   REG_EMAIL = email.toLowerCase();
 
-  apiCall('POST','/register',{name:name, email:email, profile:inst, country:pays, cgu_accepted:true})
+  var payload = {name:name, email:email, profile:inst, country:pays, cgu_accepted:true};
+  if(pwd) payload.password = pwd; // MODIFIÉ
+
+  apiCall('POST','/register',payload)
     .then(function(data){
       setBtnLoading('reg-btn', false, 'Créer mon compte →');
-      // MODIFIÉ : ACCÈS IMMÉDIAT — si le backend renvoie un JWT, on connecte directement (plus besoin d'ouvrir l'email/spam)
+      // MODIFIÉ : ACCÈS IMMÉDIAT — corrigé : apiCall expose maintenant data.jwt correctement
       var _jwtNew = data.jwt || data.token;
-      if((data.success || data.ok) && _jwtNew){
+      if(data.success && _jwtNew){
         try{
           var _p = JSON.parse(atob(_jwtNew.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
           U.token = _jwtNew;
@@ -2191,19 +2200,21 @@ function doRegister(){
           U.profile = _p.profile || inst; U.country = _p.country || pays;
           U.role = _p.role || 'user';
           saveSession(); initDash();
-          return; // l'email de confirmation part quand même côté serveur (vérif. ultérieure facultative)
+          return;
         }catch(e){ /* décodage KO → on retombe sur l'écran email ci-dessous */ }
       }
-      if(data.success || data.ok){
+      if(data.success){
         // Afficher écran de confirmation
         ge('reg-confirm-msg').textContent = data.message || ('Un email de confirmation a été envoyé à '+REG_EMAIL);
         ge('reg-form-wrap').style.display = 'none';
         ge('reg-confirm-wrap').style.display = 'block';
       } else {
-        if(data.code === 'ALREADY_REGISTERED'){
+        // MODIFIÉ — le backend renvoie désormais 409 + message explicite pour un email déjà inscrit
+        var msg = data.error || data.message || 'Erreur inconnue';
+        if(/existe déjà|already/i.test(msg)){
           setMsg(msgEl,'✅ Compte existant. <a href="#" onclick="SP(\'login-wrap\');return false;" style="color:var(--cyan);">Connectez-vous ici →</a>','info');
         } else {
-          setMsg(msgEl,'❌ '+(data.error||data.message||'Erreur inconnue'),'err');
+          setMsg(msgEl,'❌ '+msg,'err');
         }
       }
     })
@@ -2236,24 +2247,44 @@ function doResend(){
 ════════════════════════════════════════════════ */
 function doLogin(){
   var email = ge('l-email').value.trim();
+  var pwd   = ge('l-pwd') ? ge('l-pwd').value : ''; // MODIFIÉ — mot de passe optionnel
   var msgEl = ge('login-msg');
   if(!email||!email.includes('@')){ setMsg(msgEl,'⚠️ Email valide requis.','warn'); return; }
   setMsg(msgEl,'','');
-  setBtnLoading('login-btn', true, 'Recevoir mon lien de connexion ✉️');
+  var loadingLabel = pwd ? 'Connexion…' : 'Recevoir mon lien de connexion ✉️';
+  setBtnLoading('login-btn', true, loadingLabel);
 
-  apiCall('POST','/login',{email:email})
+  var payload = {email:email};
+  if(pwd) payload.password = pwd; // MODIFIÉ
+
+  apiCall('POST','/login',payload)
     .then(function(data){
-      setBtnLoading('login-btn', false, 'Recevoir mon lien de connexion ✉️');
-      if(data.success || data.ok){
+      setBtnLoading('login-btn', false, 'Se connecter →');
+      // MODIFIÉ — connexion instantanée si un mot de passe correct a été fourni
+      var _jwtLogin = data.jwt || data.token;
+      if(data.success && _jwtLogin){
+        try{
+          var _p = JSON.parse(atob(_jwtLogin.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+          U.token = _jwtLogin;
+          U.name = _p.name || ''; U.email = _p.email || email.toLowerCase();
+          U.profile = _p.profile || ''; U.country = _p.country || '';
+          U.role = _p.role || 'user';
+          saveSession(); initDash();
+          return;
+        }catch(e){ /* décodage KO → on retombe sur les branches ci-dessous */ }
+      }
+      if(data.success){
+        // Pas de mot de passe fourni (ou compte sans mot de passe) → lien magique envoyé
         ge('login-sent-msg').textContent = data.message || 'Lien de connexion envoyé à '+email+'.';
         ge('login-form-wrap').style.display = 'none';
         ge('login-sent-wrap').style.display = 'block';
       } else {
+        // MODIFIÉ — mot de passe incorrect (401) : message clair, pas de bascule silencieuse
         setMsg(msgEl,'❌ '+(data.error||data.message||'Erreur inconnue'),'err');
       }
     })
     .catch(function(){
-      setBtnLoading('login-btn', false, 'Recevoir mon lien de connexion ✉️');
+      setBtnLoading('login-btn', false, 'Se connecter →');
       setMsg(msgEl,'❌ Erreur réseau. Vérifiez votre connexion.','err');
     });
 }
@@ -4334,6 +4365,14 @@ function rST(){
   '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Pays</label>'+
   '<select id="st-pays" class="inp">'+pays.map(function(p){return '<option value="'+p[0]+'"'+(U.country===p[0]?' selected':'')+'>'+p[1]+'</option>';}).join('')+'</select></div>'+
   '<button class="btn" style="padding:13px;font-size:14px;" onclick="saveST()">💾 Enregistrer</button>'+
+  '</div></div>'+
+  '<div class="card">'+ // MODIFIÉ — carte Sécurité : définir/changer le mot de passe de connexion instantanée
+  '<div style="font-weight:700;color:white;font-size:14px;margin-bottom:4px;">🔐 Sécurité — Mot de passe</div>'+
+  '<div style="font-size:12px;color:var(--sub);margin-bottom:14px;">Définissez un mot de passe pour vous reconnecter instantanément, sans passer par votre boîte mail. Si vous en avez déjà un, indiquez l\'ancien pour le changer.</div>'+
+  '<div style="display:flex;flex-direction:column;gap:12px;">'+
+  '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Mot de passe actuel <span style="color:#8aa3d4;font-weight:400;">(laisser vide si première définition)</span></label><input type="password" id="st-pwd-old" class="inp" autocomplete="current-password"/></div>'+
+  '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Nouveau mot de passe</label><input type="password" id="st-pwd-new" placeholder="6 caractères minimum" class="inp" autocomplete="new-password"/></div>'+
+  '<button class="btn-out" style="padding:13px;font-size:14px;" onclick="saveSTPwd()">🔐 Enregistrer le mot de passe</button>'+
   '</div></div>'+
   '<div class="card">'+
   '<div style="font-weight:700;color:white;font-size:14px;margin-bottom:12px;">Statistiques</div>'+
@@ -7098,6 +7137,28 @@ function saveST(){
   ge('t-role').textContent = U.profile||'Pro UEMOA';
   showModal('Succès','<div class="al al-ok">✅ Profil mis à jour !</div><div style="text-align:center;margin-top:12px;"><button class="btn btn-sm" onclick="closeModal()">OK</button></div>');
   render();
+}
+
+// MODIFIÉ — définit ou change le mot de passe de connexion instantanée (POST /auth/set-password)
+function saveSTPwd(){
+  var oldPwd = ge('st-pwd-old') ? ge('st-pwd-old').value : '';
+  var newPwd = ge('st-pwd-new') ? ge('st-pwd-new').value : '';
+  if(!newPwd || newPwd.length<6){ showModal('Erreur','<div class="al al-warn">⚠️ Le nouveau mot de passe doit contenir au moins 6 caractères.</div><div style="text-align:center;margin-top:12px;"><button class="btn btn-sm" onclick="closeModal()">OK</button></div>'); return; }
+  var payload = {password:newPwd};
+  if(oldPwd) payload.current_password = oldPwd;
+  apiCall('POST','/set-password',payload)
+    .then(function(data){
+      if(data.success){
+        if(ge('st-pwd-old')) ge('st-pwd-old').value='';
+        if(ge('st-pwd-new')) ge('st-pwd-new').value='';
+        showModal('Succès','<div class="al al-ok">✅ '+(data.message||'Mot de passe enregistré.')+'</div><div style="text-align:center;margin-top:12px;"><button class="btn btn-sm" onclick="closeModal()">OK</button></div>');
+      } else {
+        showModal('Erreur','<div class="al al-err">❌ '+(data.error||data.message||'Erreur inconnue')+'</div><div style="text-align:center;margin-top:12px;"><button class="btn btn-sm" onclick="closeModal()">OK</button></div>');
+      }
+    })
+    .catch(function(){
+      showModal('Erreur','<div class="al al-err">❌ Erreur réseau. Vérifiez votre connexion.</div><div style="text-align:center;margin-top:12px;"><button class="btn btn-sm" onclick="closeModal()">OK</button></div>');
+    });
 }
 
 /* ════════════════════════════════════════════════
@@ -11044,10 +11105,10 @@ window.raOpenNotif=function(){
     { ic:'🌐👑', tag:'BIENVENUE', title:'Bienvenue dans REGUL ARENA',
       body:"La plateforme <b>gamifiée</b> de formation à la réglementation bancaire <b>UEMOA &amp; CEMAC</b>. Apprenez, défiez vos pairs et décrochez vos certificats." },
     { ic:'✍️', tag:'ÉTAPE 1 · INSCRIPTION', title:'Créez votre compte',
-      body:"Renseignez votre <b>prénom</b>, <b>nom</b>, <b>e-mail personnel</b>, votre <b>institution</b> et votre <b>pays</b>, puis validez. C'est gratuit et sans mot de passe." }, // MODIFIÉ : professionnel → personnel
-    { ic:'📧', tag:'ÉTAPE 2 · CONFIRMATION', title:'Confirmez votre e-mail',
-      body:"Un e-mail d'activation vous est envoyé. <b>Ouvrez votre boîte de réception</b> et cliquez sur le lien pour activer votre compte.",
-      note:"📁 <b>Rien reçu&nbsp;?</b> Vérifiez le dossier <b style='color:#F5C453'>SPAM / Courriers indésirables</b> — c'est souvent là qu'il se trouve. Astuce&nbsp;: ajoutez l'expéditeur à vos contacts pour ne plus le manquer." },
+      body:"Renseignez votre <b>prénom</b>, <b>nom</b>, <b>e-mail personnel</b>, votre <b>institution</b> et votre <b>pays</b>. L'accès est <b>immédiat</b> — pas besoin d'ouvrir votre boîte mail." }, // MODIFIÉ : accès instantané, plus de blocage email
+    { ic:'🔐', tag:'ÉTAPE 2 · MOT DE PASSE', title:'Définissez un mot de passe (recommandé)',
+      body:"À l'inscription ou plus tard dans <b>Menu → Paramètres</b>, définissez un mot de passe pour vous reconnecter <b>instantanément</b> la prochaine fois, sans email à vérifier.",
+      note:"💡 Sans mot de passe, vous pouvez toujours vous connecter via un <b>lien magique</b> envoyé par e-mail — pensez alors à vérifier vos <b style='color:#F5C453'>spams</b>." }, // MODIFIÉ : email = option de secours, plus une étape obligatoire
     { ic:'🏠', tag:'ÉCRAN · ACCUEIL', title:'Votre tableau de bord',
       body:"Suivez votre <b>progression</b>, vos points et vos badges, et gardez un œil sur l'actualité réglementaire en direct avec le <b>Flash&nbsp;Info</b>." },
     { ic:'▶️', tag:'ÉCRAN · JOUER', title:'Les modules de quiz',
