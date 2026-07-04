@@ -2399,6 +2399,22 @@ function initDash(){
   ge('t-role').textContent = U.profile || 'Pro UEMOA';
   SP('dash-wrap');
   TAB = 'dashboard'; buildNav(); render();
+  lbRefreshMe(); // MODIFIÉ — rafraîchit U.role/etablissement depuis le serveur (sans ça, une promotion admin exige une reconnexion manuelle)
+}
+/* AJOUT — synchronise U avec la base (rôle, établissement) sans attendre une reconnexion.
+   Corrige le cas où un compte est promu admin après sa connexion : sans ceci, l'onglet
+   Administration reste invisible tant que l'utilisateur ne se déconnecte pas/reconnecte pas. */
+function lbRefreshMe(){
+  if(!U || !U.token) return;
+  fetch(API+'/auth/me',{headers:{'Authorization':'Bearer '+U.token}}).then(function(r){return r.json();}).then(function(d){
+    var u=d&&d.user; if(!u) return;
+    var roleChanged = (u.role||'user') !== U.role;
+    U.role = u.role || 'user';
+    U.profile = u.profile || U.profile;
+    U.etablissement = u.etablissement || U.etablissement;
+    saveSession();
+    if(roleChanged) buildNav(); // ré-affiche/masque immédiatement l'onglet Administration si le rôle a changé
+  }).catch(function(){});
 }
 
 function doLogout(){
