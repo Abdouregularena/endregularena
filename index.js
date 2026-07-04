@@ -59,6 +59,7 @@ db.exec(`
     country       TEXT    NOT NULL DEFAULT '',
     etablissement TEXT    NOT NULL DEFAULT '',
     email_verified INTEGER NOT NULL DEFAULT 0,
+    password_hash TEXT    NOT NULL DEFAULT '',
     created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
   );
 
@@ -253,6 +254,18 @@ db.exec(`
 // MODIFIÉ — récupération des inscrits non vérifiés (idempotent : sans effet une fois tous à 1)
 db.prepare("UPDATE users SET email_verified = 1 WHERE email_verified = 0").run();
 
+// MODIFIÉ — migration additive : ajoute password_hash sur les bases déjà existantes (Railway)
+// sans casser les comptes déjà créés (colonne absente sur les anciens déploiements).
+try {
+  const cols = db.prepare("PRAGMA table_info(users)").all().map(c => c.name);
+  if (!cols.includes('password_hash')) {
+    db.exec("ALTER TABLE users ADD COLUMN password_hash TEXT NOT NULL DEFAULT ''");
+    console.log('[MIGRATION] Colonne password_hash ajoutée à la table users.');
+  }
+} catch (e) {
+  console.error('[MIGRATION] Erreur ajout password_hash (non bloquant):', e.message);
+}
+
 /* ── NOTIFICATIONS HELPER ──────────────────────────────────────────── */
 function notifyAllExcept(excludeUserId, type, message) {
   const users = db.prepare('SELECT id FROM users WHERE email_verified = 1 AND id != ? ORDER BY RANDOM() LIMIT 50').all(excludeUserId);
@@ -306,6 +319,24 @@ function pushAllExcept(excludeUserId, payload) {
 }
 
 /* â”€â”€ HELPERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+// MODIFIÉ — hash de mot de passe (scrypt, natif Node, aucune dépendance à installer)
+function hashPassword(password) {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.scryptSync(password, salt, 64).toString('hex');
+  return `${salt}:${hash}`;
+}
+function verifyPassword(password, stored) {
+  if (!stored || !password) return false;
+  const [salt, hash] = stored.split(':');
+  if (!salt || !hash) return false;
+  try {
+    const hashBuffer = Buffer.from(hash, 'hex');
+    const testHash    = crypto.scryptSync(password, salt, 64);
+    if (hashBuffer.length !== testHash.length) return false;
+    return crypto.timingSafeEqual(hashBuffer, testHash);
+  } catch (_) { return false; }
+}
+
 function genToken(bytes = 32) {
   return crypto.randomBytes(bytes).toString('hex');
 }
@@ -322,7 +353,7 @@ function signJWT(user) {
       country: user.country, // MODIFIÉ — country embarqué dans le JWT (session restaurée garde le pays)
       role: user.role || 'user', is_verified: user.email_verified === 1 },
     JWT_SECRET,
-    { expiresIn: '7d' }
+    { expiresIn: '60d' } // MODIFIÉ — 7j → 60j : réduit drastiquement la fréquence des reconnexions par email
   );
 }
 
@@ -401,7 +432,7 @@ function requireAuth(req, res, next) {
    &#8594; cr&#233;e ou retrouve l'utilisateur, envoie email de confirmation
 */
 app.post('/auth/register', limiterStrict, async (req, res) => {
-  const { name, email, profile, country, etablissement = '', invite_code, cgu_accepted } = req.body || {};
+  const { name, email, password, profile, country, etablissement = '', invite_code, cgu_accepted } = req.body || {};
 
   // FEATURE 2 — CGU obligatoires
   if (cgu_accepted !== true) return err(res, 400, 'Vous devez accepter les CGU.');
@@ -409,6 +440,10 @@ app.post('/auth/register', limiterStrict, async (req, res) => {
   if (!name || !email) return err(res, 400, 'Nom et email requis');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return err(res, 400, 'Email invalide');
   if (name.length < 2 || name.length > 80) return err(res, 400, 'Nom invalide');
+  // MODIFIÉ — mot de passe optionnel à l'inscription, mais validé s'il est fourni
+  if (password !== undefined && password !== '' && String(password).length < 6) {
+    return err(res, 400, 'Le mot de passe doit contenir au moins 6 caractères.');
+  }
 
   const cleanName  = name.trim();
   const cleanEmail = email.trim().toLowerCase();
@@ -426,26 +461,24 @@ app.post('/auth/register', limiterStrict, async (req, res) => {
     req._invitation = inv;
   }
 
-  // Upsert user
-  let user = db.prepare('SELECT * FROM users WHERE email = ?').get(cleanEmail);
-
-  if (!user) {
-    const result = db.prepare(
-      "INSERT INTO users (name, email, profile, country, etablissement, cgu_accepted_at, email_verified) VALUES (?, ?, ?, ?, ?, datetime('now'), 1)" // MODIFIÉ — auto-vérifié à l'inscription
-    ).run(cleanName, cleanEmail, profile || 'professionnel', country || '', etablissement);
-    user = db.prepare('SELECT * FROM users WHERE id = ?').get(result.lastInsertRowid);
-  } else {
-    db.prepare("UPDATE users SET cgu_accepted_at = datetime('now') WHERE id = ?").run(user.id);
+  // MODIFIÉ — SÉCURITÉ : un email déjà inscrit ne doit plus renvoyer de JWT ici.
+  // Avant cette correction, resoumettre ce formulaire avec l'email de quelqu'un d'autre
+  // suffisait à obtenir un JWT valide pour son compte, sans mot de passe ni vérification.
+  // Désormais /auth/register ne fait QUE créer un nouveau compte ; un email déjà utilisé
+  // doit passer par /auth/login (mot de passe ou lien magique).
+  const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(cleanEmail);
+  if (existing) {
+    return err(res, 409, 'Un compte existe déjà avec cet email. Utilisez la connexion.');
   }
 
-  // G&#233;n&#233;rer token de confirmation
-  const token = genToken();
-  db.prepare(
-    'INSERT INTO confirm_tokens (user_id, token, expires_at) VALUES (?, ?, ?)'
-  ).run(user.id, token, expiresAt(TOKEN_TTL_H));
+  const passwordHash = (password && String(password).length >= 6) ? hashPassword(String(password)) : '';
 
-  // Envoyer email via Resend
-  const confirmUrl = `${BASE_URL}/auth/verify?token=${token}`;
+  const result = db.prepare(
+    "INSERT INTO users (name, email, profile, country, etablissement, cgu_accepted_at, email_verified, password_hash) VALUES (?, ?, ?, ?, ?, datetime('now'), 1, ?)" // MODIFIÉ — auto-vérifié + mot de passe optionnel dès l'inscription
+  ).run(cleanName, cleanEmail, profile || 'professionnel', country || '', etablissement, passwordHash);
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(result.lastInsertRowid);
+
+  // Envoyer un email de bienvenue (informatif — n'est plus requis pour accéder à la plateforme)
   try {
     const sendResult = await resend.emails.send({
       from: `REGUL ARENA <${FROM_EMAIL}>`,
@@ -464,7 +497,7 @@ app.post('/auth/register', limiterStrict, async (req, res) => {
     db.prepare('UPDATE invitations SET used = 1 WHERE id = ?').run(req._invitation.id);
   }
 
-  return ok(res, { message: 'Inscription réussie', jwt: signJWT(user), user: publicUser(user) }); // MODIFIÉ — JWT immédiat, plus de blocage email
+  return ok(res, { message: 'Inscription réussie', jwt: signJWT(user), user: publicUser(user) }); // MODIFIÉ — JWT immédiat pour les NOUVEAUX comptes uniquement
 });
 
 
@@ -475,7 +508,7 @@ app.post('/auth/register', limiterStrict, async (req, res) => {
    curl -X POST /auth/login -d '{"email":"user@banque.sn"}'
 */
 app.post('/auth/login', limiterStrict, async (req, res) => {
-  const { email } = req.body || {};
+  const { email, password } = req.body || {};
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
     return err(res, 400, 'Email invalide');
   }
@@ -486,6 +519,18 @@ app.post('/auth/login', limiterStrict, async (req, res) => {
   if (!user) {
     return ok(res, { message: 'Si cet email est inscrit, vous recevrez un lien de connexion.' });
   }
+
+  // MODIFIÉ — connexion instantanée par mot de passe si le compte en a défini un.
+  // Aucun email, aucun clic : accès immédiat comme demandé.
+  if (user.password_hash) {
+    if (password && verifyPassword(String(password), user.password_hash)) {
+      return ok(res, { message: 'Connexion réussie', jwt: signJWT(user), user: publicUser(user) });
+    }
+    // Compte protégé par mot de passe : on ne bascule pas silencieusement sur le lien
+    // magique, sinon un mot de passe faux/oublié semblerait fonctionner quand même.
+    return err(res, 401, 'Mot de passe incorrect.');
+  }
+  // Compte sans mot de passe défini (ancien compte, ou choix de l'utilisateur) : lien magique.
 
   const token = genToken();
   db.prepare('INSERT INTO login_tokens (email, token, expires_at) VALUES (?, ?, ?)')
@@ -723,7 +768,30 @@ text-decoration:none;border:0;cursor:pointer;font-size:16px;padding:14px 26px;bo
 app.get('/auth/me', requireAuth, (req, res) => {
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id);
   if (!user) return err(res, 404, 'Compte introuvable');
-  return ok(res, { user: { ...publicUser(user), is_verified: user.email_verified === 1 } });
+  return ok(res, { user: { ...publicUser(user), is_verified: user.email_verified === 1, has_password: !!user.password_hash } }); // MODIFIÉ — has_password pour afficher/masquer le bouton "définir un mot de passe"
+});
+
+/* POST /auth/set-password   Header : Authorization: Bearer <jwt>   Body : { password, current_password? }
+   MODIFIÉ — permet aux comptes existants (créés avant l'ajout du mot de passe) d'en définir un,
+   pour ne plus jamais dépendre du lien magique par email. Si un mot de passe existe déjà,
+   l'ancien est requis pour le changer (protection contre un JWT volé sur session longue durée).
+*/
+app.post('/auth/set-password', requireAuth, limiterStrict, (req, res) => {
+  const { password, current_password } = req.body || {};
+  if (!password || String(password).length < 6) {
+    return err(res, 400, 'Le mot de passe doit contenir au moins 6 caractères.');
+  }
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id);
+  if (!user) return err(res, 404, 'Compte introuvable');
+
+  if (user.password_hash) {
+    if (!current_password || !verifyPassword(String(current_password), user.password_hash)) {
+      return err(res, 401, 'Mot de passe actuel incorrect.');
+    }
+  }
+
+  db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(hashPassword(String(password)), user.id);
+  return ok(res, { message: 'Mot de passe défini. Vous pouvez désormais vous connecter directement.' });
 });
 
 
@@ -3814,6 +3882,8 @@ function emailWelcomeHTML(name, url) {
     <div style="text-align:center;margin-bottom:32px">
       <a href="${url}" style="display:inline-block;background-color:#C9991A;background-image:linear-gradient(135deg,#C9991A,#E8B520);color:#03050A;font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;text-decoration:none;padding:16px 40px;border-radius:2px">Acc&#233;der &#224; la plateforme &#8594;</a>
     </div>
+    <!-- MODIFIÉ — rappel du mode de connexion rapide, aligné avec le nouveau parcours sans email -->
+    <p style="color:#7A8499;font-size:13px;line-height:1.6;margin:0 0 20px">Astuce&#160;: d&#233;finis un mot de passe dans <em>Menu &#8594; Mon compte</em> pour te reconnecter instantan&#233;ment la prochaine fois, sans passer par ta boîte mail.</p>
     <p style="color:#4a5568;font-size:12px;line-height:1.6;margin:0">Si tu n'es pas &#224; l'origine de cette inscription, ignore simplement cet email.</p>
   </td></tr>
   <tr><td style="border-top:1px solid rgba(255,255,255,.06);padding:20px 40px;text-align:center">
