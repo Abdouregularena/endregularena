@@ -3722,7 +3722,7 @@ function escEmail(str) {
 }
 
 function publicUser(u) {
-  return { id: u.id, name: u.name, email: u.email, profile: u.profile, country: u.country, etablissement: u.etablissement };
+  return { id: u.id, name: u.name, email: u.email, profile: u.profile, country: u.country, etablissement: u.etablissement, role: u.role || 'user' };
 }
 
 
