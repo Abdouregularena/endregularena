@@ -326,14 +326,17 @@ function signJWT(user) {
   );
 }
 
-/* Middleware admin — vérifie JWT + claim role === 'admin' dans le token */
+/* Middleware admin — vérifie JWT + rôle EN DIRECT en base (et non plus le seul claim figé
+   dans le token). Sans ça, une promotion via /admin/promote restait invisible tant que
+   la personne ne se déconnectait pas/reconnectait pas manuellement. */
 function requireAdmin(req, res, next) {
   const auth = req.headers.authorization;
   if (!auth?.startsWith('Bearer ')) return res.status(401).json({ error: 'Token manquant' });
   try {
     const decoded = jwt.verify(auth.slice(7), JWT_SECRET);
-    if (decoded.role !== 'admin') return res.status(403).json({ error: 'Accès refusé' });
-    req.user = decoded;
+    const liveUser = db.prepare('SELECT id, email, role FROM users WHERE id = ?').get(decoded.id);
+    if (!liveUser || !isAdmin(liveUser)) return res.status(403).json({ error: 'Accès refusé' });
+    req.user = { ...decoded, role: liveUser.role || 'user' }; // MODIFIÉ — rôle toujours à jour
     next();
   } catch { res.status(401).json({ error: 'Token invalide' }); }
 }
@@ -2985,6 +2988,12 @@ th,td{padding:9px 8px;text-align:left;border-bottom:1px solid #eee}th{background
     <h2>📜 Certificats délivrés</h2>
     <table id="ct"><thead><tr><th>Bénéficiaire</th><th>Thème</th><th>Zone</th><th>Date</th></tr></thead><tbody></tbody></table>
     <p class="muted" style="margin-top:18px"><button class="reload" id="reload">↻ Rafraîchir</button></p>
+    <h2>⭐ Promouvoir un administrateur</h2>
+    <div class="tokbox">
+      <input id="promEmail" type="email" placeholder="email@exemple.com" autocomplete="off">
+      <button id="promBtn">Promouvoir</button>
+    </div>
+    <div id="promMsg" class="muted">La personne doit déjà avoir un compte Regul Arena (inscrite au moins une fois).</div>
   </div>
 </div>
 <script>
@@ -3039,6 +3048,19 @@ document.getElementById('go').onclick=function(){
   load();
 };
 document.getElementById('reload').onclick=load;
+document.getElementById('promBtn').onclick=async function(){
+  var email=document.getElementById('promEmail').value.trim();
+  var pm=document.getElementById('promMsg');
+  if(!email){pm.textContent='Entrez un email.';pm.className='err';return;}
+  if(!tok()){pm.textContent='Collez d\\'abord votre token admin tout en haut.';pm.className='err';return;}
+  pm.textContent='Promotion en cours…';pm.className='muted';
+  try{
+    var r=await fetch('/admin/promote',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+tok()},body:JSON.stringify({email:email})});
+    var d=await r.json();
+    if(r.ok && d.message){ pm.textContent='✅ '+d.message; pm.className='muted'; document.getElementById('promEmail').value=''; }
+    else { pm.textContent='❌ '+(d.error||'Erreur'); pm.className='err'; }
+  }catch(e){ pm.textContent='❌ Erreur réseau.'; pm.className='err'; }
+};
 if(tok())load();
 </script>
 </body></html>`);
