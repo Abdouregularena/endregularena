@@ -2946,6 +2946,54 @@ app.get('/admin/top-scorers', requireAdmin, (req, res) => {
   }
 });
 
+// MODIFIÉ — AJOUT : GET /admin/roster — tableau RH complet (tous les utilisateurs,
+// actifs ou non) avec points/parties/duels/certificats/statut de présence.
+// Consommé par le frontend (admLoadRoster / admRenderRoster côté public/index.html).
+app.get('/admin/roster', requireAdmin, (req, res) => {
+  try {
+    const limit = Math.min(5000, Math.max(1, Number(req.query.limit) || 500));
+    const rows = db.prepare(`
+      SELECT u.id, u.name, u.email, u.profile, u.country, u.etablissement,
+             u.email_verified, u.role, u.created_at, u.last_seen,
+             (SELECT COUNT(*) FROM user_scores s WHERE s.user_id = u.id) AS parties,
+             (SELECT COALESCE(SUM(s2.score),0) FROM user_scores s2 WHERE s2.user_id = u.id) AS points,
+             (SELECT COUNT(*) FROM duels d WHERE d.creator_id = u.id OR d.joiner_id = u.id) AS duels_total,
+             (SELECT COUNT(*) FROM certificates c WHERE c.user_id = u.id) AS certificats
+      FROM users u
+      ORDER BY u.created_at DESC
+      LIMIT ?
+    `).all(limit);
+
+    const total = db.prepare('SELECT COUNT(*) AS n FROM users').get().n;
+
+    const roster = rows.map(r => {
+      const p = raPalier(r.points);
+      let actif = false;
+      if (r.last_seen) {
+        try {
+          const ageSec = (Date.now() - new Date(String(r.last_seen).replace(' ', 'T') + 'Z').getTime()) / 1000;
+          actif = ageSec >= 0 && ageSec < PRESENCE_WINDOW_S;
+        } catch (_) {}
+      }
+      return {
+        id: r.id, name: r.name, email: r.email, profile: r.profile,
+        country: r.country, etablissement: r.etablissement,
+        email_verified: r.email_verified, role: r.role,
+        created_at: r.created_at, last_seen: r.last_seen,
+        parties: r.parties, points: r.points, duels_total: r.duels_total,
+        certificats: r.certificats, a_certificat: r.certificats > 0,
+        palier: p.label, palier_icon: p.icon, palier_key: p.key,
+        actif,
+      };
+    });
+
+    return res.json({ success: true, roster, total });
+  } catch (e) {
+    console.error('[admin/roster]', e);
+    return res.status(500).json({ success: false, error: 'Erreur serveur (roster)' });
+  }
+});
+
 // MODIFIÉ — AJOUT : page HTML admin lisible sur mobile (coquille publique, données via token).
 // Coller le JWT admin une fois ; il est conservé en local et envoyé en en-tête Authorization.
 app.get('/admin/board', (req, res) => {
