@@ -1054,7 +1054,7 @@ h2,h3{animation:raReveal .45s ease both;}
   <div id="sb">
     <div style="padding:16px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;">
       <div style="width:32px;height:32px;background:linear-gradient(135deg,#E8B520,#C9991A);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;">🌐</div>
-      <div><div style="font-family:Syne,sans-serif;font-weight:900;color:white;font-size:12px;line-height:1;">REGULARENA</div><div style="font-size:9px;font-weight:700;color:var(--cyan);">BETA</div></div>
+      <div><div style="font-family:Syne,sans-serif;font-weight:900;color:white;font-size:12px;line-height:1;">REGULARENA</div><div style="font-size:9px;font-weight:700;color:var(--cyan);">PRO</div></div>
     </div>
     <nav id="sb-nav" style="flex:1;padding:8px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;"></nav>
     <div style="padding:8px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:2px;">
@@ -1072,7 +1072,7 @@ h2,h3{animation:raReveal .45s ease both;}
     <div id="topbar">
       <div style="display:flex;align-items:center;gap:10px;min-width:0;">
         <button onclick="toggleSb()" style="background:transparent;border:none;cursor:pointer;color:var(--sub);font-size:22px;line-height:1;min-width:44px;min-height:44px;touch-action:manipulation;border-radius:8px;">☰</button>
-        <div class="tb-brand"><span class="tb-name">REGUL ARENA</span><span class="tb-beta">BETA</span></div>
+        <div class="tb-brand"><span class="tb-name">REGUL ARENA</span><span class="tb-beta">PRO</span></div>
       </div>
       <div style="display:flex;align-items:center;gap:12px;position:relative;">
         <button onclick="raOpenNotif()" title="Notifications" style="background:transparent;border:none;cursor:pointer;font-size:18px;position:relative;min-width:40px;min-height:40px;touch-action:manipulation;"><span id="ra-bell">🔔</span><span class="pls" style="position:absolute;top:6px;right:6px;width:6px;height:6px;background:#22c55e;border-radius:50%;display:block;"></span></button><!-- MODIFIÉ : cloche cliquable + anim -->
@@ -1989,7 +1989,7 @@ var SESSION_KEY = 'rpa_session'; // MODIFIÉ
 function saveSession(){ // MODIFIÉ : enregistre le jeton + infos après une connexion réussie
   try{
     localStorage.setItem(SESSION_KEY, JSON.stringify({
-      token:U.token, name:U.name, email:U.email, profile:U.profile, country:U.country, role:U.role, ts:Date.now()
+      token:U.token, name:U.name, email:U.email, profile:U.profile, country:U.country, etablissement:U.etablissement, role:U.role, ts:Date.now()
     }));
   }catch(e){}
 }
@@ -2015,7 +2015,7 @@ function restoreSession(){ // MODIFIÉ : recharge la session si le jeton existe 
     var exp = jwtExp(s.token);
     if(exp && exp < Date.now()){ clearSession(); return false; } // jeton expiré → on repasse par le lien
     U.token=s.token; U.name=s.name||''; U.email=s.email||'';
-    U.profile=s.profile||''; U.country=s.country||'';
+    U.profile=s.profile||''; U.country=s.country||''; U.etablissement=s.etablissement||'';
     U.role = s.role || jwtRole(s.token) || 'user'; // MODIFIÉ : rôle restauré (depuis la session ou le jeton)
     return true;
   }catch(e){ clearSession(); return false; }
@@ -2185,7 +2185,7 @@ function doRegister(){
   var name = prenom+' '+nom;
   REG_EMAIL = email.toLowerCase();
 
-  var payload = {name:name, email:email, profile:inst, country:pays, cgu_accepted:true};
+  var payload = {name:name, email:email, profile:'professionnel', etablissement:inst, country:pays, cgu_accepted:true}; // MODIFIÉ (task C) — 'inst' est le nom de la banque : il doit aller dans etablissement, pas dans profile
   if(pwd) payload.password = pwd; // MODIFIÉ
 
   apiCall('POST','/register',payload)
@@ -2198,7 +2198,7 @@ function doRegister(){
           var _p = JSON.parse(atob(_jwtNew.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
           U.token = _jwtNew;
           U.name = _p.name || name; U.email = _p.email || REG_EMAIL;
-          U.profile = _p.profile || inst; U.country = _p.country || pays;
+          U.profile = _p.profile || inst; U.country = _p.country || pays; U.etablissement = _p.etablissement || inst; // MODIFIÉ (task C)
           U.role = _p.role || 'user';
           saveSession(); initDash();
           return;
@@ -2268,7 +2268,7 @@ function doLogin(){
           var _p = JSON.parse(atob(_jwtLogin.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
           U.token = _jwtLogin;
           U.name = _p.name || ''; U.email = _p.email || email.toLowerCase();
-          U.profile = _p.profile || ''; U.country = _p.country || '';
+          U.profile = _p.profile || ''; U.country = _p.country || ''; U.etablissement = _p.etablissement || ''; // MODIFIÉ (task C)
           U.role = _p.role || 'user';
           saveSession(); initDash();
           return;
@@ -2336,6 +2336,7 @@ function checkURLToken(){
       U.email   = payload.email   || '';
       U.profile = payload.profile || '';
       U.country = payload.country || '';
+      U.etablissement = payload.etablissement || ''; // MODIFIÉ (task C)
       U.role    = payload.role    || 'user'; // MODIFIÉ : rôle issu du JWT
       saveSession(); // MODIFIÉ : mémorise la session pour la reconnexion automatique
       window.history.replaceState({}, '', window.location.pathname);
@@ -2367,6 +2368,7 @@ function checkURLToken(){
         U.email   = usr.email   || '';
         U.profile = usr.profile || '';
         U.country = usr.country || '';
+        U.etablissement = usr.etablissement || ''; // MODIFIÉ (task C)
         U.role    = usr.role || jwtRole(tok) || 'user'; // MODIFIÉ : rôle (objet user ou JWT)
         saveSession(); // MODIFIÉ : mémorise la session pour la reconnexion automatique
         window.history.replaceState({}, '', window.location.pathname);
@@ -4125,7 +4127,7 @@ function lbLoadBanks(zone){
       var order=[1,0,2], hh=[80,62,50];
       podHTML='<div class="ra-podium-wrap"><div class="ra-podium-row" style="display:flex;align-items:flex-end;justify-content:center;gap:8px;padding:26px 6px 4px;position:relative;z-index:1;">'+
         order.map(function(idx){ var p=pod[idx]; if(!p) return ''; var rr=idx+1; var mine=(myBankKey&&p.bank_key===myBankKey); var isKing=(idx===0);
-          return '<div class="lb-podium-item'+(isKing?' ra-king':'')+'" style="flex:1;max-width:112px;text-align:center;animation-delay:'+(idx*0.1)+'s;">'+
+          return '<div class="lb-podium-item'+(isKing?' ra-king':'')+'" style="flex:1;max-width:112px;text-align:center;animation-delay:'+(idx*0.1)+'s;cursor:pointer;" onclick="lbOpenBankDetail('+idx+')">'+
             (isKing?'<div class="ra-crown" aria-hidden="true">👑</div>':'')+
             '<div style="font-size:20px;">'+['🥇','🥈','🥉'][idx]+'</div>'+
             '<div class="av'+(isKing?' ra-king-av':'')+'" style="width:'+(isKing?46:40)+'px;height:'+(isKing?46:40)+'px;font-size:'+(isKing?14:12)+'px;font-weight:800;margin:2px auto 5px;'+(mine?'box-shadow:0 0 0 2px #E8B520;':'')+'">'+arChatEsc(lbBankInitials(p.bank))+'</div>'+
@@ -4162,7 +4164,7 @@ function lbLoadBanks(zone){
     var startI=pod.length>=3?3:0;
     var rowsHTML=list.slice(startI).map(function(p,k){
       var i=startI+k, r=i+1, mine=(myBankKey&&p.bank_key===myBankKey);
-      return '<div class="lb-row'+(mine?' me':'')+'" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;border-bottom:1px solid rgba(10,33,62,.6);background:'+(mine?'rgba(201,153,26,.08)':'transparent')+';animation-delay:'+(Math.min(k,12)*0.04)+'s;">'+
+      return '<div class="lb-row'+(mine?' me':'')+'" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;border-bottom:1px solid rgba(10,33,62,.6);background:'+(mine?'rgba(201,153,26,.08)':'transparent')+';animation-delay:'+(Math.min(k,12)*0.04)+'s;cursor:pointer;" onclick="lbOpenBankDetail('+i+')">'+
         '<div style="display:flex;align-items:center;gap:11px;min-width:0;flex:1;">'+
         '<span style="font-weight:900;font-size:15px;color:#8aa3d4;width:26px;flex-shrink:0;text-align:center;">'+r+'</span>'+
         '<div class="av" style="width:34px;height:34px;font-size:12px;font-weight:800;flex-shrink:0;">'+arChatEsc(lbBankInitials(p.bank))+'</div>'+
@@ -4172,6 +4174,72 @@ function lbLoadBanks(zone){
     }).join('');
     box.innerHTML=rowsHTML || '<div class="al al-info" style="font-size:12px;">Aucune autre banque pour l\'instant.</div>';
   }).catch(function(){ box.innerHTML='<div class="al al-warn" style="font-size:12px;">Classement des banques momentanément indisponible.</div>'; });
+}
+/* AJOUT (task A + B) — détail d'une banque au clic : membres + mini dashboard par thème */
+var LB_PACK_TITLES={
+  'rfe-uemoa':'🌍 Relations Financières Extérieures UEMOA',
+  'umoa-bale':'⚖️ Dispositif Prudentiel UMOA (Bâle II/III)',
+  'pispi-uemoa':'💳 Services de paiement (PI-SPI)',
+  'kpi-kri-kci':'📊 Pilotage des risques (KPI·KRI·KCI)',
+  'conformite-lbcft':'🕵️ Conformité & LBC/FT/FP'
+};
+function lbPackTitle(pid){
+  if(!pid) return 'Thème';
+  if(LB_PACK_TITLES[pid]) return LB_PACK_TITLES[pid];
+  return String(pid).replace(/[-_]/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();});
+}
+function lbOpenBankDetail(idx){
+  var bank=lbBanksData[idx]; if(!bank) return;
+  var bankName=bank.bank||'';
+  showModal('🏦 '+bankName, '<div class="al al-info" style="font-size:12px;">Chargement…</div>');
+  var hdr=(typeof U!=='undefined'&&U&&U.token)?{'Authorization':'Bearer '+U.token}:{};
+  Promise.all([
+    fetch('/leaderboard/banks/members?bank='+encodeURIComponent(bankName),{headers:hdr}).then(function(r){return r.json();}).catch(function(){return null;}),
+    fetch('/leaderboard/banks/themes?bank='+encodeURIComponent(bankName),{headers:hdr}).then(function(r){return r.json();}).catch(function(){return null;})
+  ]).then(function(res){
+    var mem=res[0], th=res[1];
+    var html='<div style="display:flex;flex-direction:column;gap:14px;">';
+    // Résumé collectif (toujours visible, même sans droits admin)
+    html+='<div class="g2">'+
+      '<div class="card" style="padding:10px 12px;text-align:center;"><div style="font-size:18px;font-weight:900;color:#4ade80;">'+(bank.total_score||0)+'</div><div style="font-size:10px;color:var(--sub);">points cumulés</div></div>'+
+      '<div class="card" style="padding:10px 12px;text-align:center;"><div style="font-size:18px;font-weight:900;color:white;">'+(bank.members||0)+'</div><div style="font-size:10px;color:var(--sub);">membre'+(((bank.members||0)>1)?'s':'')+' actifs</div></div>'+
+    '</div>';
+    // Membres nominatifs — réservé admin REGUL ARENA (confidentialité CDP)
+    html+='<div><div style="font-weight:800;color:white;font-size:13px;margin-bottom:8px;">👥 Membres</div>';
+    if(mem && !mem.restricted && Array.isArray(mem.members) && mem.members.length){
+      html+='<div style="display:flex;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto;">'+
+        mem.members.slice(0,50).map(function(m){
+          return '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:rgba(255,255,255,.03);border-radius:8px;font-size:12px;">'+
+            '<span style="color:white;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:65%;">'+arChatEsc(m.name||'—')+'</span>'+
+            '<span style="color:#4ade80;font-weight:700;">'+(m.total_score||0)+' pts</span></div>';
+        }).join('')+'</div>';
+    } else {
+      html+='<div class="al al-info" style="font-size:11px;">Le détail nominatif des membres est réservé à l\'équipe REGUL ARENA (confidentialité des données personnelles). Seul l\'agrégat de la banque est visible publiquement.</div>';
+    }
+    html+='</div>';
+    // Mini dashboard par thème — même restriction
+    html+='<div><div style="font-weight:800;color:white;font-size:13px;margin-bottom:8px;">📊 Forces / faiblesses par thème</div>';
+    if(th && !th.restricted && Array.isArray(th.themes) && th.themes.length){
+      html+='<div style="display:flex;flex-direction:column;gap:7px;">'+
+        th.themes.map(function(t){
+          var pct=Math.max(0,Math.min(100,t.taux||0));
+          var barColor=pct>=70?'#4ade80':(pct>=45?'#E8B520':'#ef4444');
+          return '<div style="font-size:11px;">'+
+            '<div style="display:flex;justify-content:space-between;color:white;margin-bottom:3px;"><span>'+arChatEsc(lbPackTitle(t.pack_id))+'</span><span style="font-weight:700;color:'+barColor+';">'+pct+'%</span></div>'+
+            '<div class="pb"><div class="pf" style="width:'+pct+'%;background:'+barColor+';"></div></div>'+
+            '<div style="color:var(--sub);font-size:9px;margin-top:2px;">'+(t.parties||0)+' partie'+(((t.parties||0)>1)?'s':'')+' · '+(t.joueurs||0)+' joueur'+(((t.joueurs||0)>1)?'s':'')+'</div>'+
+          '</div>';
+        }).join('')+'</div>';
+    } else if(th && th.restricted){
+      html+='<div class="al al-info" style="font-size:11px;">Ce dashboard détaillé (taux de réussite par thème réglementaire) est réservé à l\'équipe REGUL ARENA. Contactez-nous pour un accès institutionnel dédié à votre banque.</div>';
+    } else {
+      html+='<div class="al al-info" style="font-size:11px;">Pas encore assez de données par thème pour cette banque.</div>';
+    }
+    html+='</div></div>';
+    ge('mbody').innerHTML=html;
+  }).catch(function(){
+    ge('mbody').innerHTML='<div class="al al-warn" style="font-size:12px;">Détail momentanément indisponible.</div>';
+  });
 }
 function lbLoad(zone){
   ['all','uemoa','cemac'].forEach(function(z){ var b=ge('lb-t-'+z); if(b) b.className='vtab'+(z===zone?' ac':''); });
@@ -9153,7 +9221,7 @@ window.addEventListener('load', function(){
     { title: "🏆 Certificat vérifiable", body: "Obtiens un certificat PDF avec QR code de vérification en ligne." },
     { title: "📚 Quiz par métier", body: "Choisissez votre métier (Trade Finance, Conformité, Audit…) et entraînez-vous de façon ciblée." },// MODIFIÉ : vouvoiement
     { title: "🎯 Tournois", body: "Crée ou rejoins un tournoi avec un code d'invitation." },
-    { title: "🌍 BETA · UEMOA & CEMAC", body: "Plateforme en version BETA, ouverte dans plusieurs pays de la zone." },
+    { title: "🌍 UEMOA & CEMAC", body: "Plateforme active dans plusieurs pays de la zone, gratuite pour tous les professionnels." },
     { title: "🆓 Accès gratuit", body: "L'inscription et tous les quiz sont entièrement gratuits." }
   ];
   function triggerPush(){
@@ -12220,7 +12288,7 @@ const CF_Q=[
   }catch(e){ try{ console.warn('lotLexiqueIntegre:', e); }catch(_){} }
 })();
 </script>
-  <script src="banks-detail.js"></script>
+  <!-- MODIFIÉ (task A/B) — banks-detail.js retiré : la logique est maintenant intégrée directement ci-dessus (lbOpenBankDetail), ce fichier séparé n'existait pas -->
   <script src="players-detail.js"></script>
 
 </body>
