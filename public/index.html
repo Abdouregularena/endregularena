@@ -1838,8 +1838,6 @@ var CW = {zone:null, layout:null, inputs:{}, checked:false, score:0};
 var WS = {zone:null, layout:null, sel:null, foundWords:{}, foundCells:{}, allFound:false, msg:''};
 // MODIFIÉ — État Charade réglementaire (indices progressifs + chrono, réutilise CW_BANK)
 var CZ = {zone:null, list:[], idx:0, timerMax:30, timerVal:30, timerId:null, qStart:0, score:0, revealed:0, answered:false, timedOut:false, input:'', lastPts:0};
-var CLC = {drawn:[], target:null, timerMax:45, timerVal:45, timerId:null, qStart:0, input:'', msg:'', answered:false, timedOut:false, lastPts:0, result:null, diff:null, score:0}; // MODIFIÉ : Chiffres et Lettres
-var CLL = {zone:null, letters:[], target:null, targetClue:'', timerMax:45, timerVal:45, timerId:null, qStart:0, input:'', msg:'', answered:false, timedOut:false, foundExact:false, lastPts:0, score:0}; // MODIFIÉ : Chiffres et Lettres
 var CW_BANK = {
   U:[
     {word:'BCEAO', clue:"Banque centrale de l'UMOA"},
@@ -3846,10 +3844,23 @@ function czNextWord(){
   render();
   czStartTimer();
 }
+// MODIFIÉ — Bascule Charade : fusion CW_BANK + CLL_BANK (dédoublonnée par mot), zéro contenu inventé,
+// uniquement du contenu déjà validé et réutilisé ailleurs sur la plateforme (même logique que Chiffres et Lettres).
+function czBuildBank(zone){
+  var a = (zone==='CEMAC' ? CW_BANK.C : CW_BANK.U) || [];
+  var b = (zone==='CEMAC' ? CLL_BANK.C : CLL_BANK.U) || [];
+  var seen = {}, out = [];
+  a.concat(b).forEach(function(w){
+    if(seen[w.word]) return;
+    seen[w.word] = true;
+    out.push(w);
+  });
+  return out;
+}
 function czStart(zone){
   apiCall('POST','/wg/play',{format:'charade'}).then(function(resp){
     if(!resp || !resp._raw || !resp._raw.allowed){ wgPaywallModal(resp&&resp.error); return; }
-    var bank = (zone==='CEMAC' ? CW_BANK.C : CW_BANK.U).slice();
+    var bank = czBuildBank(zone);
     bank.sort(function(){ return Math.random()-0.5; });
     var n = Math.min(6, bank.length);
     CZ.zone = zone;
@@ -3931,12 +3942,68 @@ function rARCharadeGame(){
   return h;
 }
 
-/* MODIFIÉ : ─── Chiffres et Lettres (solo) — "Le compte est bon" + "Le mot le plus juste" (réutilise CW_BANK) ─── */
-var CLC = {drawn:[], target:null, timerMax:45, timerVal:45, timerId:null, qStart:0, input:'', msg:'', answered:false, timedOut:false, lastPts:0, result:null, diff:null, score:0};
+/* MODIFIÉ : ─── Chiffres et Lettres (solo) — ancré sur les textes réglementaires en vigueur ───
+   Chiffres : puise directement dans QN_U/QN_C (la banque de questions déjà validée, sources citées)
+   les questions dont la bonne réponse est un seuil/délai/taux chiffré ; le joueur doit retrouver
+   le nombre exact. Lettres : banque dédiée de sigles/termes réels (BCEAO, PARMEC, CENTIF, COBAC…)
+   avec définitions tirées des mêmes textes. Aucun contenu inventé : uniquement du contenu déjà
+   présent et validé dans QN, ou repris à l'identique de CW_BANK. */
+var CLC = {zone:null, list:[], idx:0, timerMax:30, timerVal:30, timerId:null, qStart:0, input:'', msg:'', answered:false, timedOut:false, wasCorrect:false, lastPts:0, score:0};
 var CLL = {zone:null, letters:[], target:null, targetClue:'', timerMax:45, timerVal:45, timerId:null, qStart:0, input:'', msg:'', answered:false, timedOut:false, foundExact:false, lastPts:0, score:0};
 
-/* ── Le compte est bon ── */
-function clcSmallDeck(){ var d=[]; for(var i=1;i<=10;i++){ d.push(i); d.push(i); } return d; }
+/* ── Chiffres réglementaires : extraction depuis QN_U/QN_C ── */
+var CLL_BANK = {
+  U:[
+    {word:'BCEAO', clue:"Banque centrale de l'UMOA"},
+    {word:'PARMEC', clue:"Loi-cadre régissant les systèmes financiers décentralisés (SFD) de l'UEMOA"},
+    {word:'CENTIF', clue:"Cellule nationale de traitement des informations financières (déclarations LBC/FT)"},
+    {word:'CRAEF', clue:"Plateforme BCEAO de collecte automatisée des états financiers des établissements de crédit"},
+    {word:'AGREMENT', clue:"Autorisation préalable requise pour exercer une activité bancaire"},
+    {word:'CONFORMITE', clue:"Fonction chargée de veiller au respect des règles internes et externes"},
+    {word:'GOUVERNANCE', clue:"Ensemble des règles d'organisation et de contrôle interne d'une banque"},
+    {word:'BLANCHIMENT', clue:"Opération visant à dissimuler l'origine illicite de fonds"},
+    {word:'PLAFOND', clue:"Limite maximale fixée pour une opération ou un poste"}
+  ],
+  C:[
+    {word:'COBAC', clue:"Organe de supervision bancaire de la zone CEMAC"},
+    {word:'BEAC', clue:"Banque centrale des États de l'Afrique Centrale"},
+    {word:'GABAC', clue:"Groupe d'action contre le blanchiment en Afrique Centrale"},
+    {word:'ANIF', clue:"Agence Nationale d'Investigation Financière"},
+    {word:'TIAO', clue:"Taux d'Intérêt des Appels d'Offres, fixé par le Comité de Politique Monétaire"},
+    {word:'COSUMAF', clue:"Régulateur du marché financier de l'Afrique Centrale"},
+    {word:'MICROFINANCE', clue:"Établissement de petite taille finançant particuliers et TPE"},
+    {word:'SANCTION', clue:"Mesure disciplinaire prononcée par l'autorité de supervision"}
+  ]
+};
+var CLC_UNIT_RE = /^\s*([\d][\d\s.,]*)\s*(M\s*FCFA|FCFA|%|millions?(?:\s*FCFA)?|milliards?(?:\s*FCFA)?|jours?(?:\s*(?:ouvrés|calendaires))?|mois|ans?)\b/i;
+function clcParseNumber(str){
+  if(!str) return null;
+  var m = CLC_UNIT_RE.exec(str);
+  if(!m) return null;
+  var raw = m[1].replace(/[\s.,]/g,'');
+  var num = parseInt(raw,10);
+  if(!isFinite(num)) return null;
+  return {num:num, unit:m[2].trim()};
+}
+function clcBuildBank(zone){
+  var pool = (zone==='CEMAC' ? (window.QN_C||[]) : (window.QN_U||[]));
+  var out = [];
+  pool.forEach(function(item){
+    if(!item || !item.choices || typeof item.answer!=='number') return;
+    var correct = item.choices[item.answer];
+    var parsed = clcParseNumber(correct);
+    if(!parsed) return;
+    if((item.q||'').length > 220) return;
+    var ambiguous = item.choices.some(function(c,i){
+      if(i===item.answer) return false;
+      var p2 = clcParseNumber(c);
+      return p2 && p2.num===parsed.num;
+    });
+    if(ambiguous) return;
+    out.push({q:item.q, num:parsed.num, unit:parsed.unit, source:item.source||''});
+  });
+  return out;
+}
 function clcStopTimer(){ if(CLC.timerId){ clearInterval(CLC.timerId); CLC.timerId=null; } }
 function clcTick(){
   var rem = CLC.timerMax - Math.floor((Date.now()-CLC.qStart)/1000);
@@ -3948,92 +4015,86 @@ function clcTick(){
   if(rem<=0){ clcStopTimer(); clcTimeup(); }
 }
 function clcStartTimer(){ clcStopTimer(); CLC.qStart=Date.now(); clcTick(); CLC.timerId=setInterval(clcTick,250); }
-function clcTimeup(){ CLC.answered=true; CLC.timedOut=true; render(); }
-function clcInputSet(val){ CLC.input = val; }
-function clcAppend(sym){ CLC.input += sym; var inp=ge('clc-input'); if(inp){ inp.value=CLC.input; inp.focus(); } }
-function clcClear(){ CLC.input=''; var inp=ge('clc-input'); if(inp) inp.value=''; render(); }
-function clcExtractNumbers(expr){ var m = expr.match(/\d+/g)||[]; return m.map(Number); }
-function clcCheckMultiset(nums, available){
-  var avail = available.slice();
-  for(var i=0;i<nums.length;i++){
-    var idx = avail.indexOf(nums[i]);
-    if(idx===-1) return false;
-    avail.splice(idx,1);
-  }
-  return true;
+function clcNextItem(){
+  CLC.input=''; CLC.msg=''; CLC.answered=false; CLC.timedOut=false; CLC.lastPts=0;
+  render();
+  clcStartTimer();
 }
-function clcEvaluate(expr){
-  try{
-    var val = Function('"use strict";return ('+expr+')')();
-    if(typeof val !== 'number' || !isFinite(val)) return null;
-    return val;
-  }catch(e){ return null; }
-}
-function clcStart(){
+function clcStart(zone){
   apiCall('POST','/wg/play',{format:'chiffreslettres'}).then(function(resp){
     if(!resp || !resp._raw || !resp._raw.allowed){ wgPaywallModal(resp&&resp.error); return; }
-    var LARGE=[25,50,75,100].sort(function(){return Math.random()-0.5;});
-    var nLarge = Math.floor(Math.random()*3);
-    var large = LARGE.slice(0,nLarge);
-    var small = clcSmallDeck().sort(function(){return Math.random()-0.5;}).slice(0,6-nLarge);
-    var drawn = large.concat(small).sort(function(){return Math.random()-0.5;});
-    CLC.drawn = drawn;
-    CLC.target = 100 + Math.floor(Math.random()*900);
-    CLC.input=''; CLC.msg=''; CLC.answered=false; CLC.timedOut=false; CLC.lastPts=0; CLC.result=null; CLC.diff=null;
-    clcStartTimer();
-    render();
+    var bank = clcBuildBank(zone);
+    if(!bank.length){ CLC.zone=zone; CLC.list=[]; CLC.idx=0; render(); return; }
+    bank.sort(function(){ return Math.random()-0.5; });
+    var n = Math.min(6, bank.length);
+    CLC.zone=zone; CLC.list=bank.slice(0,n); CLC.idx=0; CLC.score=0;
+    clcNextItem();
   });
 }
+function clcInputSet(val){ CLC.input = val; }
 function clcSubmit(){
   if(CLC.answered) return;
-  var expr = (CLC.input||'').trim();
-  if(!expr){ CLC.msg='Entrez un calcul.'; render(); return; }
-  if(!/^[0-9+\-*/() ]+$/.test(expr)){ CLC.msg='❌ Utilisez uniquement les chiffres tirés et + − × ÷ ( ).'; render(); return; }
-  var nums = clcExtractNumbers(expr);
-  if(!nums.length || !clcCheckMultiset(nums, CLC.drawn)){ CLC.msg='❌ Vous ne pouvez utiliser que les nombres tirés, chacun une seule fois.'; render(); return; }
-  var val = clcEvaluate(expr);
-  if(val===null || Math.floor(val)!==val){ CLC.msg='❌ Calcul invalide (le résultat doit être un nombre entier).'; render(); return; }
+  var it = CLC.list[CLC.idx];
+  var digits = (CLC.input||'').replace(/[^\d]/g,'');
+  if(!digits){ CLC.msg='Entrez un nombre.'; render(); return; }
   clcStopTimer();
-  CLC.result = val;
-  CLC.diff = Math.abs(val - CLC.target);
-  CLC.lastPts = CLC.diff===0 ? 10 : CLC.diff<=5 ? 6 : CLC.diff<=10 ? 3 : 0;
-  CLC.score += CLC.lastPts;
   CLC.answered = true;
+  CLC.wasCorrect = (parseInt(digits,10) === it.num);
+  CLC.lastPts = CLC.wasCorrect ? 2 : 0;
+  CLC.score += CLC.lastPts;
   render();
 }
-function clcExit(){ clcStopTimer(); CLC.target=null; CLC.drawn=[]; CLC.input=''; CLC.msg=''; CLC.answered=false; render(); }
+function clcTimeup(){ CLC.answered=true; CLC.timedOut=true; CLC.wasCorrect=false; CLC.lastPts=0; render(); }
+function clcAdvance(){
+  CLC.idx++;
+  if(CLC.idx >= CLC.list.length){ clcStopTimer(); render(); return; }
+  clcNextItem();
+}
+function clcExit(){ clcStopTimer(); CLC.zone=null; CLC.list=[]; CLC.idx=0; CLC.score=0; CLC.input=''; CLC.msg=''; CLC.answered=false; render(); }
 function rARCLChiffresGame(){
+  if(!CLC.list.length){
+    return '<div style="display:flex;flex-direction:column;gap:14px;">'+
+      '<div class="al al-warn" style="text-align:center;">Aucune question chiffrée exploitable trouvée pour cette zone pour le moment.</div>'+
+      '<button class="btn-out" style="width:100%;padding:12px;" onclick="clcExit()">← Retour</button>'+
+    '</div>';
+  }
+  if(CLC.idx >= CLC.list.length){
+    var max = CLC.list.length*2;
+    return '<div style="display:flex;flex-direction:column;gap:14px;">'+
+      '<div style="font-weight:800;color:white;font-size:14px;">🔢 Chiffres réglementaires — Zone '+CLC.zone+'</div>'+
+      '<div class="al al-info" style="text-align:center;font-weight:700;">🏁 Terminé ! Score : '+CLC.score+' / '+max+'</div>'+
+      '<button class="btn" style="width:100%;padding:13px;" onclick="clcStart(CLC.zone)">🔄 Nouvelle manche</button>'+
+      '<button class="btn-out" style="width:100%;padding:12px;" onclick="clcExit()">← Changer de zone</button>'+
+    '</div>';
+  }
+  var it = CLC.list[CLC.idx];
   var h = '<div style="display:flex;flex-direction:column;gap:14px;">'+
     '<div style="display:flex;justify-content:space-between;align-items:center;">'+
-      '<div style="font-weight:800;color:white;font-size:14px;">🔢 Le compte est bon</div>'+
-      '<div style="font-size:12px;color:var(--sub);">Score cumulé '+CLC.score+'</div>'+
+      '<div style="font-weight:800;color:white;font-size:14px;">🔢 Chiffres réglementaires — Zone '+CLC.zone+'</div>'+
+      '<div style="font-size:12px;color:var(--sub);">Question '+(CLC.idx+1)+'/'+CLC.list.length+' · Score '+CLC.score+'</div>'+
     '</div>'+
     '<div class="tmr-bar" style="height:6px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;"><div id="clc-tmr-fill" style="height:100%;width:100%;background:var(--cyan);transition:width .2s linear;"></div></div>'+
     '<div style="display:flex;justify-content:flex-end;"><span id="clc-tmr-txt" style="font-size:12px;font-weight:700;color:var(--cyan);">⏱ '+CLC.timerVal+'s</span></div>'+
-    '<div style="text-align:center;font-size:30px;font-weight:800;color:#E8B520;">🎯 '+CLC.target+'</div>'+
-    '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">'+
-      CLC.drawn.map(function(n){ return '<span style="background:rgba(255,255,255,.08);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-weight:700;color:white;">'+n+'</span>'; }).join('')+
-    '</div>';
+    '<div style="font-size:14px;color:white;line-height:1.5;">'+it.q+'</div>'+
+    '<div style="font-size:12px;color:var(--sub);">Répondez en '+it.unit+'</div>';
   if(!CLC.answered){
-    h += '<input id="clc-input" class="inp" placeholder="Ex : (100-25)*4+7" autocomplete="off" oninput="clcInputSet(this.value)" onkeydown="if(event.key===\'Enter\')clcSubmit();" value="'+CLC.input+'"/>'+
-      '<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">'+
-        ['+','-','×','÷','(',')'].map(function(s){ var v=(s==='×'?'*':s==='÷'?'/':s); return '<button class="btn-out btn-sm" onclick="clcAppend(\''+v+'\')">'+s+'</button>'; }).join('')+
-        '<button class="btn-out btn-sm" onclick="clcClear()">⌫ Effacer</button>'+
-      '</div>'+
+    h += '<input id="clc-input" class="inp" inputmode="numeric" placeholder="Votre réponse (chiffres uniquement)…" autocomplete="off" oninput="clcInputSet(this.value)" onkeydown="if(event.key===\'Enter\')clcSubmit();" value="'+CLC.input+'"/>'+
       (CLC.msg?'<div style="font-size:12px;color:#f87171;text-align:center;">'+CLC.msg+'</div>':'')+
-      '<button class="btn" style="width:100%;padding:13px;" onclick="clcSubmit()">Valider mon calcul</button>';
+      '<button class="btn" style="width:100%;padding:13px;" onclick="clcSubmit()">Valider</button>';
   } else {
-    h += '<div class="al '+(CLC.timedOut?'al-warn':(CLC.diff===0?'al-info':'al-warn'))+'" style="text-align:center;font-weight:700;">'+
-      (CLC.timedOut ? '⏱ Temps écoulé !' : (CLC.result+' obtenu (écart de '+CLC.diff+') — +'+CLC.lastPts+' pt'))+
+    h += '<div class="al '+(CLC.wasCorrect?'al-info':'al-warn')+'" style="text-align:center;font-weight:700;">'+
+      (CLC.timedOut ? '⏱ Temps écoulé — ' : (CLC.wasCorrect ? '✅ Exact (+'+CLC.lastPts+' pt) — ' : '❌ Pas tout à fait — '))+
+      'réponse : '+it.num+' '+it.unit+
     '</div>'+
-    '<button class="btn" style="width:100%;padding:13px;" onclick="clcStart()">🔄 Nouvelle manche</button>';
+    (it.source?'<div style="font-size:11px;color:var(--sub);text-align:center;">Source : '+it.source+'</div>':'')+
+    '<button class="btn" style="width:100%;padding:13px;" onclick="clcAdvance()">'+(CLC.idx+1>=CLC.list.length?'Voir le score final':'Question suivante →')+'</button>';
   }
-  h += '<button class="btn-out" style="width:100%;padding:12px;" onclick="clcExit()">← Retour</button>';
+  h += '<button class="btn-out" style="width:100%;padding:12px;" onclick="clcExit()">← Changer de zone</button>';
   h += '</div>';
   return h;
 }
 
-/* ── Le mot le plus juste ── */
+/* ── Lettres réglementaires ── */
 function cllPickFiller(n){
   var POOL = 'AAAAEEEEEIIIOOOUUBCCDDFGGHJKLLMNNPPQRSSTTVWXYZ';
   var out=[];
@@ -4064,8 +4125,7 @@ function cllMultisetOk(word){
 function cllStart(zone){
   apiCall('POST','/wg/play',{format:'chiffreslettres'}).then(function(resp){
     if(!resp || !resp._raw || !resp._raw.allowed){ wgPaywallModal(resp&&resp.error); return; }
-    var bank = (zone==='CEMAC' ? CW_BANK.C : CW_BANK.U).filter(function(w){ var W=cwNormalize(w.word); return W.length>=5 && W.length<=9; });
-    if(!bank.length) bank = (zone==='CEMAC' ? CW_BANK.C : CW_BANK.U);
+    var bank = (zone==='CEMAC' ? CLL_BANK.C : CLL_BANK.U);
     var pick = bank[Math.floor(Math.random()*bank.length)];
     var W = cwNormalize(pick.word);
     var total = Math.max(10, W.length+2);
@@ -4094,7 +4154,7 @@ function cllExit(){ cllStopTimer(); CLL.zone=null; CLL.letters=[]; CLL.target=nu
 function rARCLLettresGame(){
   var h = '<div style="display:flex;flex-direction:column;gap:14px;">'+
     '<div style="display:flex;justify-content:space-between;align-items:center;">'+
-      '<div style="font-weight:800;color:white;font-size:14px;">🔤 Le mot le plus juste — Zone '+CLL.zone+'</div>'+
+      '<div style="font-weight:800;color:white;font-size:14px;">🔤 Lettres réglementaires — Zone '+CLL.zone+'</div>'+
       '<div style="font-size:12px;color:var(--sub);">Score cumulé '+CLL.score+'</div>'+
     '</div>'+
     '<div class="tmr-bar" style="height:6px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;"><div id="cll-tmr-fill" style="height:100%;width:100%;background:var(--cyan);transition:width .2s linear;"></div></div>'+
@@ -4120,13 +4180,14 @@ function rARCLLettresGame(){
 
 /* ── Accueil combiné ── */
 function rARCLHome(){
-  if(CLC.target) return rARCLChiffresGame();
-  if(CLL.target) return rARCLLettresGame();
+  if(CLC.zone) return rARCLChiffresGame();
+  if(CLL.zone) return rARCLLettresGame();
   return '<div style="display:flex;flex-direction:column;gap:12px;">'+
-    '<div class="al al-info" style="font-size:12px;">🔢🔤 <strong>Chiffres et Lettres :</strong> deux épreuves solo inspirées du jeu culte. « Le compte est bon » : approchez le nombre cible avec 6 nombres tirés. « Le mot le plus juste » : formez un terme réglementaire avec les lettres tirées.</div>'+
-    '<div style="font-weight:700;color:white;font-size:13px;">🔢 Le compte est bon</div>'+
-    '<button class="btn" style="width:100%;padding:13px;" onclick="clcStart()">🎲 Nouvelle manche</button>'+
-    '<div style="font-weight:700;color:white;font-size:13px;margin-top:6px;">🔤 Le mot le plus juste</div>'+
+    '<div class="al al-info" style="font-size:12px;">🔢🔤 <strong>Chiffres et Lettres réglementaire :</strong> deux épreuves solo bâties sur les textes en vigueur (mêmes sources que vos packs de quiz). « Chiffres » : retrouvez le seuil, délai ou taux exact cité par un texte réel. « Lettres » : formez le sigle ou terme réglementaire caché dans les lettres tirées.</div>'+
+    '<div style="font-weight:700;color:white;font-size:13px;">🔢 Chiffres réglementaires</div>'+
+    '<button class="btn" style="width:100%;padding:14px;" onclick="clcStart(\'UEMOA\')">🇸🇳 Zone UEMOA</button>'+
+    '<button class="btn" style="width:100%;padding:14px;" onclick="clcStart(\'CEMAC\')">🌍 Zone CEMAC</button>'+
+    '<div style="font-weight:700;color:white;font-size:13px;margin-top:6px;">🔤 Lettres réglementaires</div>'+
     '<button class="btn" style="width:100%;padding:14px;" onclick="cllStart(\'UEMOA\')">🇸🇳 Zone UEMOA</button>'+
     '<button class="btn" style="width:100%;padding:14px;" onclick="cllStart(\'CEMAC\')">🌍 Zone CEMAC</button>'+
   '</div>';
