@@ -1838,6 +1838,8 @@ var CW = {zone:null, layout:null, inputs:{}, checked:false, score:0};
 var WS = {zone:null, layout:null, sel:null, foundWords:{}, foundCells:{}, allFound:false, msg:''};
 // MODIFIÉ — État Charade réglementaire (indices progressifs + chrono, réutilise CW_BANK)
 var CZ = {zone:null, list:[], idx:0, timerMax:30, timerVal:30, timerId:null, qStart:0, score:0, revealed:0, answered:false, timedOut:false, input:'', lastPts:0};
+var CLC = {drawn:[], target:null, timerMax:45, timerVal:45, timerId:null, qStart:0, input:'', msg:'', answered:false, timedOut:false, lastPts:0, result:null, diff:null, score:0}; // MODIFIÉ : Chiffres et Lettres
+var CLL = {zone:null, letters:[], target:null, targetClue:'', timerMax:45, timerVal:45, timerId:null, qStart:0, input:'', msg:'', answered:false, timedOut:false, foundExact:false, lastPts:0, score:0}; // MODIFIÉ : Chiffres et Lettres
 var CW_BANK = {
   U:[
     {word:'BCEAO', clue:"Banque centrale de l'UMOA"},
@@ -2811,7 +2813,7 @@ function render(){
   if(QZ.q.length>0){ rQE(); return; }
   if(BF!==null&&BA){ c.innerHTML=rFD(); return; }
   if(BA){ c.innerHTML=rBD(); return; }
-  if(TAB==='autoeval'&&AEF){ c.innerHTML=rAEF(); return; } // MODIFIÉ : affiche le format d'auto-éval sélectionné
+  if(TAB==='autoeval'&&AEF){ c.innerHTML=rAEF(); if(AEF==='vrai_faux_chrono'){ try{ aeVfcAfterRender(); }catch(e){} } return; } // MODIFIÉ : affiche le format d'auto-éval sélectionné + démarre le chrono
   var pages={dashboard:rDB,quiz:rQP,biblio:rBP,arena:rAR,achievements:rACH,leaderboard:rLB,academy:rAC,settings:rST,autoeval:rAE,admin:rADMIN,about:rABOUT,communaute:rSALON,feedback:rFEEDBACK,debats:rDEBATS,debatsadm:rDEBATSADM,metiers:rMETIERS,org:rOrgCreate,orgdash:rOrgDashboard,orgjoin:rOrgJoin}; // MODIFIÉ : ajout métiers + feedback + espace établissement (org/orgdash/orgjoin)
   c.innerHTML=(pages[TAB]||rDB)();
   if(TAB==='quiz'){ try{ raQuizFx(); }catch(e){} try{ qApplyFilter(); }catch(e){} } // MODIFIÉ : compteur animé + recherche/filtres réappliqués
@@ -3440,11 +3442,12 @@ function rAR(){
     '<button class="ar-tab'+(AR.tab==='crossword'?' ac':'')+'" onclick="AR.tab=\'crossword\';render()">🧩 Mots croisés</button>'+ // MODIFIÉ : nouvel onglet solo
     '<button class="ar-tab'+(AR.tab==='wordsearch'?' ac':'')+'" onclick="AR.tab=\'wordsearch\';render()">🔎 Mots mêlés</button>'+ // MODIFIÉ : nouvel onglet solo
     '<button class="ar-tab'+(AR.tab==='charade'?' ac':'')+'" onclick="AR.tab=\'charade\';render()">🎭 Charade chrono</button>'+ // MODIFIÉ : nouvel onglet solo
+    '<button class="ar-tab'+(AR.tab==='chiffreslettres'?' ac':'')+'" onclick="AR.tab=\'chiffreslettres\';render()">🔢🔤 Chiffres et Lettres</button>'+ // MODIFIÉ : nouvel onglet solo
   '</div>';
   return '<div style="display:flex;flex-direction:column;gap:14px;">'+
     '<h2 style="font-size:22px;color:white;">L\'Arène – Défis Professionnels</h2>'+
     tabs +
-    (AR.tab==='duels' ? rARDuelsHome() : AR.tab==='kotm' ? rARKotmHome() : AR.tab==='direct' ? rLiveHub() : AR.tab==='crossword' ? rARCrosswordHome() : AR.tab==='wordsearch' ? rARWordsearchHome() : AR.tab==='charade' ? rARCharadeHome() : rARTournoisHome()) + // MODIFIÉ : onglet crossword + wordsearch + charade
+    (AR.tab==='duels' ? rARDuelsHome() : AR.tab==='kotm' ? rARKotmHome() : AR.tab==='direct' ? rLiveHub() : AR.tab==='crossword' ? rARCrosswordHome() : AR.tab==='wordsearch' ? rARWordsearchHome() : AR.tab==='charade' ? rARCharadeHome() : AR.tab==='chiffreslettres' ? rARCLHome() : rARTournoisHome()) + // MODIFIÉ : onglet crossword + wordsearch + charade + chiffreslettres
   '</div>';
 }
 
@@ -3926,6 +3929,207 @@ function rARCharadeGame(){
   h += '<button class="btn-out" style="width:100%;padding:12px;" onclick="czExit()">← Changer de zone</button>';
   h += '</div>';
   return h;
+}
+
+/* MODIFIÉ : ─── Chiffres et Lettres (solo) — "Le compte est bon" + "Le mot le plus juste" (réutilise CW_BANK) ─── */
+var CLC = {drawn:[], target:null, timerMax:45, timerVal:45, timerId:null, qStart:0, input:'', msg:'', answered:false, timedOut:false, lastPts:0, result:null, diff:null, score:0};
+var CLL = {zone:null, letters:[], target:null, targetClue:'', timerMax:45, timerVal:45, timerId:null, qStart:0, input:'', msg:'', answered:false, timedOut:false, foundExact:false, lastPts:0, score:0};
+
+/* ── Le compte est bon ── */
+function clcSmallDeck(){ var d=[]; for(var i=1;i<=10;i++){ d.push(i); d.push(i); } return d; }
+function clcStopTimer(){ if(CLC.timerId){ clearInterval(CLC.timerId); CLC.timerId=null; } }
+function clcTick(){
+  var rem = CLC.timerMax - Math.floor((Date.now()-CLC.qStart)/1000);
+  if(rem<0) rem=0;
+  CLC.timerVal = rem;
+  var tf=ge('clc-tmr-fill'), tt=ge('clc-tmr-txt');
+  if(tf){ var p=Math.max(0,Math.round(rem/CLC.timerMax*100)); tf.style.width=p+'%'; tf.style.background=rem<=5?'#ef4444':rem<=10?'#fbbf24':''; }
+  if(tt){ tt.textContent='⏱ '+rem+'s'; tt.style.color=rem<=5?'#f87171':rem<=10?'#fbbf24':'var(--cyan)'; }
+  if(rem<=0){ clcStopTimer(); clcTimeup(); }
+}
+function clcStartTimer(){ clcStopTimer(); CLC.qStart=Date.now(); clcTick(); CLC.timerId=setInterval(clcTick,250); }
+function clcTimeup(){ CLC.answered=true; CLC.timedOut=true; render(); }
+function clcInputSet(val){ CLC.input = val; }
+function clcAppend(sym){ CLC.input += sym; var inp=ge('clc-input'); if(inp){ inp.value=CLC.input; inp.focus(); } }
+function clcClear(){ CLC.input=''; var inp=ge('clc-input'); if(inp) inp.value=''; render(); }
+function clcExtractNumbers(expr){ var m = expr.match(/\d+/g)||[]; return m.map(Number); }
+function clcCheckMultiset(nums, available){
+  var avail = available.slice();
+  for(var i=0;i<nums.length;i++){
+    var idx = avail.indexOf(nums[i]);
+    if(idx===-1) return false;
+    avail.splice(idx,1);
+  }
+  return true;
+}
+function clcEvaluate(expr){
+  try{
+    var val = Function('"use strict";return ('+expr+')')();
+    if(typeof val !== 'number' || !isFinite(val)) return null;
+    return val;
+  }catch(e){ return null; }
+}
+function clcStart(){
+  apiCall('POST','/wg/play',{format:'chiffreslettres'}).then(function(resp){
+    if(!resp || !resp._raw || !resp._raw.allowed){ wgPaywallModal(resp&&resp.error); return; }
+    var LARGE=[25,50,75,100].sort(function(){return Math.random()-0.5;});
+    var nLarge = Math.floor(Math.random()*3);
+    var large = LARGE.slice(0,nLarge);
+    var small = clcSmallDeck().sort(function(){return Math.random()-0.5;}).slice(0,6-nLarge);
+    var drawn = large.concat(small).sort(function(){return Math.random()-0.5;});
+    CLC.drawn = drawn;
+    CLC.target = 100 + Math.floor(Math.random()*900);
+    CLC.input=''; CLC.msg=''; CLC.answered=false; CLC.timedOut=false; CLC.lastPts=0; CLC.result=null; CLC.diff=null;
+    clcStartTimer();
+    render();
+  });
+}
+function clcSubmit(){
+  if(CLC.answered) return;
+  var expr = (CLC.input||'').trim();
+  if(!expr){ CLC.msg='Entrez un calcul.'; render(); return; }
+  if(!/^[0-9+\-*/() ]+$/.test(expr)){ CLC.msg='❌ Utilisez uniquement les chiffres tirés et + − × ÷ ( ).'; render(); return; }
+  var nums = clcExtractNumbers(expr);
+  if(!nums.length || !clcCheckMultiset(nums, CLC.drawn)){ CLC.msg='❌ Vous ne pouvez utiliser que les nombres tirés, chacun une seule fois.'; render(); return; }
+  var val = clcEvaluate(expr);
+  if(val===null || Math.floor(val)!==val){ CLC.msg='❌ Calcul invalide (le résultat doit être un nombre entier).'; render(); return; }
+  clcStopTimer();
+  CLC.result = val;
+  CLC.diff = Math.abs(val - CLC.target);
+  CLC.lastPts = CLC.diff===0 ? 10 : CLC.diff<=5 ? 6 : CLC.diff<=10 ? 3 : 0;
+  CLC.score += CLC.lastPts;
+  CLC.answered = true;
+  render();
+}
+function clcExit(){ clcStopTimer(); CLC.target=null; CLC.drawn=[]; CLC.input=''; CLC.msg=''; CLC.answered=false; render(); }
+function rARCLChiffresGame(){
+  var h = '<div style="display:flex;flex-direction:column;gap:14px;">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;">'+
+      '<div style="font-weight:800;color:white;font-size:14px;">🔢 Le compte est bon</div>'+
+      '<div style="font-size:12px;color:var(--sub);">Score cumulé '+CLC.score+'</div>'+
+    '</div>'+
+    '<div class="tmr-bar" style="height:6px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;"><div id="clc-tmr-fill" style="height:100%;width:100%;background:var(--cyan);transition:width .2s linear;"></div></div>'+
+    '<div style="display:flex;justify-content:flex-end;"><span id="clc-tmr-txt" style="font-size:12px;font-weight:700;color:var(--cyan);">⏱ '+CLC.timerVal+'s</span></div>'+
+    '<div style="text-align:center;font-size:30px;font-weight:800;color:#E8B520;">🎯 '+CLC.target+'</div>'+
+    '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">'+
+      CLC.drawn.map(function(n){ return '<span style="background:rgba(255,255,255,.08);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-weight:700;color:white;">'+n+'</span>'; }).join('')+
+    '</div>';
+  if(!CLC.answered){
+    h += '<input id="clc-input" class="inp" placeholder="Ex : (100-25)*4+7" autocomplete="off" oninput="clcInputSet(this.value)" onkeydown="if(event.key===\'Enter\')clcSubmit();" value="'+CLC.input+'"/>'+
+      '<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">'+
+        ['+','-','×','÷','(',')'].map(function(s){ var v=(s==='×'?'*':s==='÷'?'/':s); return '<button class="btn-out btn-sm" onclick="clcAppend(\''+v+'\')">'+s+'</button>'; }).join('')+
+        '<button class="btn-out btn-sm" onclick="clcClear()">⌫ Effacer</button>'+
+      '</div>'+
+      (CLC.msg?'<div style="font-size:12px;color:#f87171;text-align:center;">'+CLC.msg+'</div>':'')+
+      '<button class="btn" style="width:100%;padding:13px;" onclick="clcSubmit()">Valider mon calcul</button>';
+  } else {
+    h += '<div class="al '+(CLC.timedOut?'al-warn':(CLC.diff===0?'al-info':'al-warn'))+'" style="text-align:center;font-weight:700;">'+
+      (CLC.timedOut ? '⏱ Temps écoulé !' : (CLC.result+' obtenu (écart de '+CLC.diff+') — +'+CLC.lastPts+' pt'))+
+    '</div>'+
+    '<button class="btn" style="width:100%;padding:13px;" onclick="clcStart()">🔄 Nouvelle manche</button>';
+  }
+  h += '<button class="btn-out" style="width:100%;padding:12px;" onclick="clcExit()">← Retour</button>';
+  h += '</div>';
+  return h;
+}
+
+/* ── Le mot le plus juste ── */
+function cllPickFiller(n){
+  var POOL = 'AAAAEEEEEIIIOOOUUBCCDDFGGHJKLLMNNPPQRSSTTVWXYZ';
+  var out=[];
+  for(var i=0;i<n;i++) out.push(POOL[Math.floor(Math.random()*POOL.length)]);
+  return out;
+}
+function cllStopTimer(){ if(CLL.timerId){ clearInterval(CLL.timerId); CLL.timerId=null; } }
+function cllTick(){
+  var rem = CLL.timerMax - Math.floor((Date.now()-CLL.qStart)/1000);
+  if(rem<0) rem=0;
+  CLL.timerVal = rem;
+  var tf=ge('cll-tmr-fill'), tt=ge('cll-tmr-txt');
+  if(tf){ var p=Math.max(0,Math.round(rem/CLL.timerMax*100)); tf.style.width=p+'%'; tf.style.background=rem<=5?'#ef4444':rem<=10?'#fbbf24':''; }
+  if(tt){ tt.textContent='⏱ '+rem+'s'; tt.style.color=rem<=5?'#f87171':rem<=10?'#fbbf24':'var(--cyan)'; }
+  if(rem<=0){ cllStopTimer(); cllTimeup(); }
+}
+function cllStartTimer(){ cllStopTimer(); CLL.qStart=Date.now(); cllTick(); CLL.timerId=setInterval(cllTick,250); }
+function cllTimeup(){ CLL.answered=true; CLL.timedOut=true; CLL.lastPts=0; render(); }
+function cllMultisetOk(word){
+  var avail = CLL.letters.slice();
+  for(var i=0;i<word.length;i++){
+    var idx = avail.indexOf(word[i]);
+    if(idx===-1) return false;
+    avail.splice(idx,1);
+  }
+  return true;
+}
+function cllStart(zone){
+  apiCall('POST','/wg/play',{format:'chiffreslettres'}).then(function(resp){
+    if(!resp || !resp._raw || !resp._raw.allowed){ wgPaywallModal(resp&&resp.error); return; }
+    var bank = (zone==='CEMAC' ? CW_BANK.C : CW_BANK.U).filter(function(w){ var W=cwNormalize(w.word); return W.length>=5 && W.length<=9; });
+    if(!bank.length) bank = (zone==='CEMAC' ? CW_BANK.C : CW_BANK.U);
+    var pick = bank[Math.floor(Math.random()*bank.length)];
+    var W = cwNormalize(pick.word);
+    var total = Math.max(10, W.length+2);
+    var filler = cllPickFiller(total - W.length);
+    var letters = W.split('').concat(filler);
+    letters.sort(function(){ return Math.random()-0.5; });
+    CLL.zone=zone; CLL.letters=letters; CLL.target=W; CLL.targetClue=pick.clue;
+    CLL.input=''; CLL.msg=''; CLL.answered=false; CLL.timedOut=false; CLL.lastPts=0; CLL.foundExact=false;
+    cllStartTimer();
+    render();
+  });
+}
+function cllSubmit(){
+  if(CLL.answered) return;
+  var w = cwNormalize(CLL.input||'');
+  if(!w){ CLL.msg='Entrez un mot.'; render(); return; }
+  if(!cllMultisetOk(w)){ CLL.msg='❌ Vous ne pouvez utiliser que les lettres tirées, chacune une seule fois.'; render(); return; }
+  cllStopTimer();
+  CLL.answered = true;
+  CLL.foundExact = (w===CLL.target);
+  CLL.lastPts = CLL.foundExact ? (10 + w.length) : w.length;
+  CLL.score += CLL.lastPts;
+  render();
+}
+function cllExit(){ cllStopTimer(); CLL.zone=null; CLL.letters=[]; CLL.target=null; CLL.input=''; CLL.msg=''; CLL.answered=false; render(); }
+function rARCLLettresGame(){
+  var h = '<div style="display:flex;flex-direction:column;gap:14px;">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;">'+
+      '<div style="font-weight:800;color:white;font-size:14px;">🔤 Le mot le plus juste — Zone '+CLL.zone+'</div>'+
+      '<div style="font-size:12px;color:var(--sub);">Score cumulé '+CLL.score+'</div>'+
+    '</div>'+
+    '<div class="tmr-bar" style="height:6px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;"><div id="cll-tmr-fill" style="height:100%;width:100%;background:var(--cyan);transition:width .2s linear;"></div></div>'+
+    '<div style="display:flex;justify-content:flex-end;"><span id="cll-tmr-txt" style="font-size:12px;font-weight:700;color:var(--cyan);">⏱ '+CLL.timerVal+'s</span></div>'+
+    '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">'+
+      CLL.letters.map(function(l){ return '<span style="background:rgba(255,255,255,.08);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-weight:800;font-size:16px;color:white;">'+l+'</span>'; }).join('')+
+    '</div>';
+  if(!CLL.answered){
+    h += '<input id="cll-input" class="inp" placeholder="Votre mot…" autocomplete="off" style="text-transform:uppercase;" oninput="CLL.input=this.value.toUpperCase()" onkeydown="if(event.key===\'Enter\')cllSubmit();" value="'+CLL.input+'"/>'+
+      (CLL.msg?'<div style="font-size:12px;color:#f87171;text-align:center;">'+CLL.msg+'</div>':'')+
+      '<button class="btn" style="width:100%;padding:13px;" onclick="cllSubmit()">Valider mon mot</button>';
+  } else {
+    var cllMsg = CLL.timedOut ? '⏱ Temps écoulé ! ' : (CLL.foundExact ? '🏆 Mot exact trouvé (+'+CLL.lastPts+' pt) ' : '✅ Mot valide (+'+CLL.lastPts+' pt) ');
+    h += '<div class="al '+(CLL.timedOut?'al-warn':'al-info')+'" style="text-align:center;font-weight:700;">'+
+      cllMsg+'Réponse possible : '+CLL.target+' — '+CLL.targetClue+
+    '</div>'+
+    '<button class="btn" style="width:100%;padding:13px;" onclick="cllStart(CLL.zone)">🔄 Nouvelle manche</button>';
+  }
+  h += '<button class="btn-out" style="width:100%;padding:12px;" onclick="cllExit()">← Changer de zone</button>';
+  h += '</div>';
+  return h;
+}
+
+/* ── Accueil combiné ── */
+function rARCLHome(){
+  if(CLC.target) return rARCLChiffresGame();
+  if(CLL.target) return rARCLLettresGame();
+  return '<div style="display:flex;flex-direction:column;gap:12px;">'+
+    '<div class="al al-info" style="font-size:12px;">🔢🔤 <strong>Chiffres et Lettres :</strong> deux épreuves solo inspirées du jeu culte. « Le compte est bon » : approchez le nombre cible avec 6 nombres tirés. « Le mot le plus juste » : formez un terme réglementaire avec les lettres tirées.</div>'+
+    '<div style="font-weight:700;color:white;font-size:13px;">🔢 Le compte est bon</div>'+
+    '<button class="btn" style="width:100%;padding:13px;" onclick="clcStart()">🎲 Nouvelle manche</button>'+
+    '<div style="font-weight:700;color:white;font-size:13px;margin-top:6px;">🔤 Le mot le plus juste</div>'+
+    '<button class="btn" style="width:100%;padding:14px;" onclick="cllStart(\'UEMOA\')">🇸🇳 Zone UEMOA</button>'+
+    '<button class="btn" style="width:100%;padding:14px;" onclick="cllStart(\'CEMAC\')">🌍 Zone CEMAC</button>'+
+  '</div>';
 }
 
 function arShowHelp(){
@@ -7583,7 +7787,8 @@ var AE_FORMATS = [             // MODIFIÉ
   {id:'texte_trous',      ic:'✏️', l:'Texte à trous',      d:'Complétez les dispositions réglementaires'},
   {id:'calcul_prudentiel',ic:'🧮', l:'Calcul prudentiel',  d:'Ratios CET1, solvabilité, levier, grands risques'},
   {id:'audit',            ic:'🔍', l:'Audit & conformité',  d:'Repérez les irrégularités dans un rapport'},
-  {id:'examen',           ic:'🎓', l:'Examen blanc',        d:'Épreuve mixte notée — seuil de réussite 60%'}
+  {id:'examen',           ic:'🎓', l:'Examen blanc',        d:'Épreuve mixte notée — seuil de réussite 60%'},
+  {id:'vrai_faux_chrono', ic:'⏱️', l:'Vrai/Faux Chrono',    d:'Contre-la-montre : 8s par affirmation, une à la fois'}   // MODIFIÉ
 ];
 
 /* ─── DONNÉES — 5 items par format ─── */            // MODIFIÉ
@@ -8097,6 +8302,10 @@ var AE_EXTRA_CEMAC = {   // MODIFIÉ
   }catch(e){}
 })();
 
+/* ─── VRAI/FAUX CHRONO : alias 100% additif — réutilise le contenu vrai_faux déjà fusionné (aucune duplication) ─── */
+AE_DATA.vrai_faux_chrono = AE_DATA.vrai_faux;                 // MODIFIÉ
+AE_DATA_CEMAC.vrai_faux_chrono = AE_DATA_CEMAC.vrai_faux;     // MODIFIÉ
+
 /* ════════════════════════════════════════════════════════════════
    LOT FINAL — Intégration additive du contenu de l'atelier
    Thèmes : IFRS 9 / ECL · Comités spécialisés · PPE · EME & Banque-Telco ·
@@ -8516,8 +8725,8 @@ function aeTextesPanel(){   // MODIFIÉ : rendu du panneau (repliable)
 }
 
 /* Ouvre / quitte un format */
-function aeOpen(fmt){ AEF=fmt; AES={ans:{},checked:false}; if(AEZONE==='cemac' && fmt==='examen'){ try{ AES.cemacExam=buildCemacExam(); }catch(e){} } TAB='autoeval'; buildNav(); render(); }  // MODIFIÉ
-function aeBack(){ AEF=null; AES={}; TAB='autoeval'; buildNav(); render(); }                          // MODIFIÉ
+function aeOpen(fmt){ try{ aeVfcStopTimer(); }catch(e){} AEF=fmt; AES={ans:{},checked:false}; if(AEZONE==='cemac' && fmt==='examen'){ try{ AES.cemacExam=buildCemacExam(); }catch(e){} } TAB='autoeval'; buildNav(); render(); }  // MODIFIÉ : stoppe un chrono en cours avant de changer de format
+function aeBack(){ try{ aeVfcStopTimer(); }catch(e){} AEF=null; AES={}; TAB='autoeval'; buildNav(); render(); }                          // MODIFIÉ : stoppe un chrono en cours en quittant
 
 /* En-tête commun d'un format */
 function aeHead(fmt){   // MODIFIÉ
@@ -8536,6 +8745,7 @@ function rAEF(){   // MODIFIÉ
     case 'calcul_prudentiel':return rAE_calc();
     case 'audit':            return rAE_audit();
     case 'examen':           return rAE_examen();
+    case 'vrai_faux_chrono': return rAE_vfChrono();   // MODIFIÉ
     default:                 return rAE();
   }
 }
@@ -8622,6 +8832,71 @@ function rAE_vf(){   // MODIFIÉ
 }
 function aePick(key,val){ if(AES.checked) return; AES.ans[key]=val; render(); }   // MODIFIÉ
 function aeCheckVF(){ AES.checked=true; render(); }                              // MODIFIÉ
+
+/* 2 bis) VRAI/FAUX CHRONO — 100% additif : une affirmation à la fois, 8s au chrono, réutilise aeData().vrai_faux_chrono */
+var VFC_DUR = 8;   // MODIFIÉ : secondes par affirmation
+function aeVfcInit(){   // MODIFIÉ
+  var list = aeData().vrai_faux_chrono.slice();
+  for(var i=list.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=list[i]; list[i]=list[j]; list[j]=t; }
+  AES.vfcList=list; AES.vfcIdx=0; AES.vfcScore=0; AES.vfcAnswered=false; AES.vfcSel=null; AES.vfcTimedOut=false; AES.vfcTimerId=null;
+}
+function aeVfcStopTimer(){ if(AES.vfcTimerId){ clearInterval(AES.vfcTimerId); AES.vfcTimerId=null; } }   // MODIFIÉ
+function aeVfcTick(){   // MODIFIÉ
+  var rem = VFC_DUR - Math.floor((Date.now()-AES.vfcQStart)/1000);
+  if(rem<0) rem=0;
+  var tf=ge('vfc-tmr-fill'), tt=ge('vfc-tmr-txt');
+  if(tf){ var p=Math.max(0,Math.round(rem/VFC_DUR*100)); tf.style.width=p+'%'; tf.style.background = rem<=3?'#ef4444':rem<=5?'#fbbf24':''; }
+  if(tt){ tt.textContent='⏱ '+rem+'s'; tt.style.color = rem<=3?'#f87171':rem<=5?'#fbbf24':'var(--cyan)'; }
+  if(rem<=0 && !AES.vfcAnswered){ aeVfcStopTimer(); AES.vfcAnswered=true; AES.vfcTimedOut=true; AES.vfcSel=null; render(); }
+}
+function aeVfcStartTimer(){ aeVfcStopTimer(); AES.vfcQStart=Date.now(); aeVfcTick(); AES.vfcTimerId=setInterval(aeVfcTick,250); }   // MODIFIÉ
+function aeVfcAfterRender(){ if(AES.vfcList && !AES.vfcAnswered && !AES.vfcTimerId && AES.vfcIdx<AES.vfcList.length){ aeVfcStartTimer(); } }   // MODIFIÉ
+function aeVfcPick(v){   // MODIFIÉ
+  if(AES.vfcAnswered) return;
+  aeVfcStopTimer();
+  AES.vfcAnswered=true; AES.vfcTimedOut=false; AES.vfcSel=v;
+  var it = AES.vfcList[AES.vfcIdx];
+  if(v===it.reponse) AES.vfcScore++;
+  render();
+}
+function aeVfcNext(){ AES.vfcIdx++; AES.vfcAnswered=false; AES.vfcSel=null; AES.vfcTimedOut=false; render(); }   // MODIFIÉ
+function rAE_vfChrono(){   // MODIFIÉ
+  if(!AES.vfcList) aeVfcInit();
+  var list=AES.vfcList, i=AES.vfcIdx;
+  if(i>=list.length){
+    return '<div style="max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:13px;">'+
+      aeHead('vrai_faux_chrono')+
+      '<div class="card" style="text-align:center;"><div style="font-size:32px;">⏱️</div>'+
+      '<h3 style="color:white;margin:8px 0;">Chrono terminé !</h3></div>'+
+      aeResultBar(AES.vfcScore, list.length, 'Vrai/Faux Chrono')+
+      '<button class="btn" style="width:100%;" onclick="aeOpen(\'vrai_faux_chrono\')">🔄 Rejouer</button>'+
+      '</div>';
+  }
+  var it=list[i], fb='';
+  if(AES.vfcAnswered){
+    var ok = !AES.vfcTimedOut && (AES.vfcSel===it.reponse);
+    fb = '<div class="al '+(ok?'al-ok':'al-err')+'" style="margin-top:10px;">'+
+      (AES.vfcTimedOut ? '⏱️ Temps écoulé — ' : (ok?'✅ ':'❌ '))+
+      'Réponse : <strong>'+(it.reponse?'VRAI':'FAUX')+'</strong> — '+it.justification+
+      '<div style="font-size:11px;color:#8aa3d4;margin-top:4px;">📚 '+it.ref+'</div></div>'+
+      '<button class="btn" style="width:100%;margin-top:10px;" onclick="aeVfcNext()">'+(i+1<list.length?'Suivant →':'Voir le score')+'</button>';
+  }
+  function b(v,lbl){
+    var active = AES.vfcSel===v;
+    var cls = active ? 'btn btn-sm' : 'btn-out btn-sm';
+    return '<button class="'+cls+'"'+(AES.vfcAnswered?' disabled':'')+' style="flex:1;" onclick="aeVfcPick('+v+')">'+lbl+'</button>';
+  }
+  return '<div style="max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:13px;">'+
+    aeHead('vrai_faux_chrono')+
+    '<div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--sub);">'+
+      '<span>Question '+(i+1)+'/'+list.length+'</span><span>Score : '+AES.vfcScore+'</span>'+
+      '<span id="vfc-tmr-txt" style="color:var(--cyan);font-weight:700;">⏱ '+VFC_DUR+'s</span>'+
+    '</div>'+
+    '<div class="tmr-bar"><div class="tmr-fill" id="vfc-tmr-fill" style="width:100%;"></div></div>'+
+    '<div class="card"><p style="font-size:15px;color:white;line-height:1.6;">'+it.affirmation+'</p>'+
+    '<div style="display:flex;gap:8px;margin-top:12px;">'+b(true,'Vrai')+b(false,'Faux')+'</div>'+fb+'</div>'+
+    '</div>';
+}
 
 /* 3) TEXTE À TROUS */
 function rAE_trous(){   // MODIFIÉ
