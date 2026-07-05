@@ -3575,7 +3575,7 @@ function wgPaywallModal(reason, meritProgress){
         '<div>Accès immédiat à nos '+totalQ+' questions sourcées et à l\'ensemble des fonctionnalités de duel.</div>'+
       '</div>'+
       '<button class="btn" style="width:100%;padding:13px;background:linear-gradient(135deg,var(--cyan),#D4AF37);color:#0A192F;font-weight:800;" onclick="closeModal();ST(\'quiz\')">🎯 Relever le défi (Gratuit)</button>'+
-      '<button class="btn" style="width:100%;padding:13px;background:transparent;border:1px solid var(--gold, #C9991A);color:var(--gold, #C9991A);" onclick="window.open(\''+wa+'\',\'_blank\')">S\'abonner pour un accès illimité</button>'+
+      '<a class="btn" href="'+wa+'" target="_blank" rel="noopener" style="width:100%;padding:13px;background:transparent;border:1px solid #C9991A;color:#C9991A;display:block;text-align:center;box-sizing:border-box;text-decoration:none;">S\'abonner pour un accès illimité</a>'+
     '</div>');
 }
 function cwStart(zone){
