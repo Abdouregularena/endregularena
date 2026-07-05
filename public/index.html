@@ -10536,7 +10536,14 @@ var QVF_TRADE_FINANCE=[
   {cat:"Financement",q:"Le préfinancement export est une avance accordée à l'exportateur AVANT expédition, sur la base d'une commande ferme ou d'un crédit documentaire reçu.",rep:true,expl:"Le préfinancement (ou avance sur commande export) permet à l'exportateur de financer sa production/préparation avant expédition. Il est sécurisé par la commande ferme ou le LC reçu d'une banque étrangère."},
   {cat:"RFE UEMOA",q:"En UEMOA, les paiements entre résidents peuvent être réalisés en devises étrangères sans restriction.",rep:false,expl:"Les paiements entre résidents UEMOA doivent se faire en monnaie locale (FCFA). L'utilisation de devises étrangères est réservée aux transactions avec des non-résidents, sauf dérogations spécifiques."},
   {cat:"Crédits Documentaires",q:"Une réserve (discrepancy) sur un jeu de documents ne peut être levée que par la banque émettrice, pas par le donneur d'ordre.",rep:false,expl:"Les réserves peuvent être levées par le DONNEUR D'ORDRE (acheteur/importateur) qui autorise la banque émettrice à honorer malgré les irrégularités. La banque émettrice peut aussi décider de lever les réserves elle-même."},
-  {cat:"Garanties bancaires",q:"Une contre-garantie est émise par la banque du donneur d'ordre en faveur de la banque garante locale, pour couvrir le risque de l'appel de garantie.",rep:true,expl:"Dans les schémas de garanties indirectes, la banque de l'acheteur émet une contre-garantie (counter-guarantee) en faveur de la banque locale du bénéficiaire, qui émet la garantie directe. Cela sécurise la banque garante."}
+  {cat:"Garanties bancaires",q:"Une contre-garantie est émise par la banque du donneur d'ordre en faveur de la banque garante locale, pour couvrir le risque de l'appel de garantie.",rep:true,expl:"Dans les schémas de garanties indirectes, la banque de l'acheteur émet une contre-garantie (counter-guarantee) en faveur de la banque locale du bénéficiaire, qui émet la garantie directe. Cela sécurise la banque garante."},
+  {cat:"SWIFT & Messages",q:"Le message ISO 20022 pacs.008 est l'équivalent direct du MT103 pour les virements clients transfrontaliers.",rep:true,expl:"CBPR+ a défini pacs.008 comme équivalent du MT103. La coexistence MT/MX pour les messages d'instruction de paiement a pris fin le 22 novembre 2025."},
+  {cat:"SWIFT & Messages",q:"Après le 14 novembre 2026, une adresse hybride (Ville + Pays structurés + 2 lignes libres) reste acceptée sur le réseau CBPR+.",rep:true,expl:"Le mandat SR2026 tolère l'adresse hybride comme format minimum ; seule l'adresse totalement non structurée est rejetée après cette date."},
+  {cat:"SWIFT & Messages",q:"Le MT101 multi-instructions pourra continuer à être envoyé sans limite après novembre 2026, sans migration vers pain.001.",rep:false,expl:"Après le 14 novembre 2026, les MT101 multi-instructions sont rejetés (NAK) ; la migration vers pain.001 (v9) est requise pour les institutions financières."},
+  {cat:"SWIFT & Messages",q:"Le MT940 (relevé de compte) est aujourd'hui traité par la catégorie MT 9xx, dédiée à la trésorerie et aux relevés.",rep:true,expl:"La catégorie 9xx regroupe la gestion de trésorerie : MT900/910 (avis débit/crédit) et MT940/942/950 (relevés)."},
+  {cat:"SWIFT & Messages",q:"SWIFT règle lui-même les fonds entre la banque émettrice et la banque notificatrice d'un crédit documentaire.",rep:false,expl:"SWIFT transporte uniquement l'instruction (ex. MT700) ; le règlement effectif des fonds passe par les comptes de correspondance (nostro/vostro) des banques."},
+  {cat:"SWIFT & Messages",q:"Le bloc 4 (Text Block) d'un message MT contient le corps du message, c'est-à-dire les champs comme :50K:, :59: ou :70:.",rep:true,expl:"Les blocs 1, 2, 3 et 5 forment l'enveloppe technique du message ; seul le bloc 4 porte l'information métier (les champs à tags)."},
+  {cat:"SWIFT & Messages",q:"Une adresse en texte libre (non structurée) offre la même qualité de filtrage sanctions/LBC-FT qu'une adresse structurée.",rep:false,expl:"Une adresse non structurée complique l'identification automatique du donneur d'ordre par les outils de criblage, d'où le mandat SR2026 imposant Ville et Pays en champs dédiés."}
 ];
 
 var qvfEtat={questions:[],idx:0,score:0,repondu:false};
@@ -10601,6 +10608,7 @@ function rMETIERS(){ // MODIFIÉ : rendu inline du module Métiers
   '<div class="metier-texte-item"><div><div class="metier-texte-ref">CCI 2020</div><div class="metier-texte-name">Incoterms® 2020 — Règles CCI pour l\'utilisation des termes commerciaux</div><div class="metier-texte-scope">11 termes · Transfert risque · Obligations transport/assurance</div></div><button class="metier-texte-btn">Bientôt</button></div>'+
   '<div class="metier-texte-item"><div><div class="metier-texte-ref">Règlement n° 06/2024/CM/UEMOA · 20 déc. 2024</div><div class="metier-texte-name">Relations Financières Extérieures (en vigueur 2026)</div><div class="metier-texte-scope">Domiciliation · Flux de devises · Obligation d\'apurement</div></div><button class="metier-texte-btn">Bientôt</button></div>'+ // MODIFIÉ : acte en vigueur 2026
   '<div class="metier-texte-item"><div><div class="metier-texte-ref">Instruction n° 13/2025/RFE · août 2025</div><div class="metier-texte-name">Documents exigés pour les opérations hors UEMOA</div><div class="metier-texte-scope">Liste documentaire · États non membres · Exécution</div></div><button class="metier-texte-btn">Bientôt</button></div>'+ // MODIFIÉ : acte en vigueur 2026
+  '<div class="metier-texte-item" onclick="lancerQuizTexte(\'SWIFT\')"><div><div class="metier-texte-ref">SWIFT CBPR+ · Mandat SR2026 (éch. 14 nov. 2026)</div><div class="metier-texte-name">Migration MT → MX (ISO 20022) &amp; adresses structurées</div><div class="metier-texte-scope">MT103/MT700/MT760 · pacs/pain/camt · Bibliothèque 📡 dédiée</div></div><button class="metier-texte-btn">Quiz ciblé</button></div>'+
   '</div></div>'+
   '<div class="metier-tab-content" id="tf-tab-quiz">'+
   '<div id="tf-quiz-accueil"><div class="metier-block"><div class="metier-block-title">Modes de jeu disponibles</div><div class="metier-actions">'+
@@ -13382,6 +13390,163 @@ const CF_Q=[
 
 </script>
 
+<script id="ra-lot-swift">
+/* ═══════════════════════════════════════════════════════════════════
+   LOT SW — SWIFT & Migration ISO 20022 (MT → MX)
+   Sources : SWIFT CBPR+ Usage Guidelines · swift.com/standards/iso-20022 ·
+   notes sectorielles J.P. Morgan / Citi / Kyriba sur la migration ISO 20022 (2026)
+   100% additif — calqué sur le pack CF/BP. Échéances à reconfirmer par
+   Amadou Sall avant mise en avant commerciale (calendrier Swift évolutif).
+   ═══════════════════════════════════════════════════════════════════ */
+(function lotSwiftBibliotheque(){
+  try{
+    var SW = {
+      "pack_id":"swift-iso20022",
+      "titre":"Pack SWIFT & Migration ISO 20022 (MT → MX)",
+      "sous_titre":"CBPR+ · Messages MT/MX · Adresses structurées SR2026",
+      "icone":"📡",
+      "couleur":"#0B4F6C",
+      "sources":[
+        "SWIFT — CBPR+ Usage Guidelines (MyStandards)",
+        "SWIFT — ISO 20022 Programme, swift.com/standards/iso-20022",
+        "Notes sectorielles J.P. Morgan / Citi / Kyriba — ISO 20022 Migration FAQs (2026)"
+      ],
+      "glossaire":[
+        {"terme":"SWIFT","definition":"Réseau mondial sécurisé de messagerie interbancaire. SWIFT ne règle pas les fonds lui-même ; il transporte les instructions entre banques.","source":"SWIFT — Présentation générale"},
+        {"terme":"BIC","definition":"Bank Identifier Code — code à 8 ou 11 caractères identifiant une banque sur le réseau SWIFT.","source":"SWIFT — Standards"},
+        {"terme":"MT (Message Type)","definition":"Standard historique de messagerie SWIFT, texte à balises, en usage depuis les années 1970.","source":"SWIFT — Standards MT"},
+        {"terme":"MX / ISO 20022","definition":"Nouveau standard de messagerie financière, en XML, structuré, qui remplace progressivement le MT.","source":"SWIFT — ISO 20022 Programme"},
+        {"terme":"CBPR+","definition":"Cross-Border Payments and Reporting Plus — corpus de règles définissant l'usage des messages ISO 20022 pour les paiements transfrontaliers sur le réseau SWIFT.","source":"SWIFT — CBPR+ Usage Guidelines"},
+        {"terme":"FINplus","definition":"Service store-and-forward de SWIFT dédié à l'échange des messages ISO 20022 (MX) en mode many-to-many.","source":"SWIFT — FINplus Service Description"},
+        {"terme":"pacs","definition":"Famille de messages ISO 20022 dédiée aux paiements de banque à banque (ex. pacs.008, pacs.009).","source":"ISO 20022 — Catégorie pacs"},
+        {"terme":"pain","definition":"Famille de messages ISO 20022 dédiée à l'initiation de paiement, notamment client → banque (ex. pain.001).","source":"ISO 20022 — Catégorie pain"},
+        {"terme":"camt","definition":"Famille de messages ISO 20022 dédiée à la gestion de trésorerie : relevés, notifications, avis (ex. camt.053, camt.054, camt.056).","source":"ISO 20022 — Catégorie camt"},
+        {"terme":"Adresse non structurée","definition":"Adresse en texte libre, sans champ distinct pour la ville ou le pays. Interdite en CBPR+ après le 14 novembre 2026.","source":"Mandat SWIFT SR2026"},
+        {"terme":"Adresse hybride","definition":"Format d'adresse où Ville et Pays sont obligatoirement en champs structurés, complétés d'au maximum 2 lignes libres.","source":"Mandat SWIFT SR2026"},
+        {"terme":"Adresse structurée","definition":"Format d'adresse où chaque élément (rue, numéro, ville, code postal, pays) dispose de son propre champ dédié.","source":"Mandat SWIFT SR2026"},
+        {"terme":"Coexistence (MT/MX)","definition":"Période durant laquelle les messages MT et MX ont circulé en parallèle sur le réseau SWIFT, achevée le 22 novembre 2025 pour les messages d'instruction de paiement.","source":"SWIFT — Fin de la période de coexistence"},
+        {"terme":"UETR","definition":"Identifiant unique de bout en bout (Unique End-to-end Transaction Reference) permettant de suivre un paiement tout au long de son parcours.","source":"SWIFT gpi"},
+        {"terme":"STP (Straight-Through Processing)","definition":"Traitement intégralement automatisé d'une transaction, sans intervention manuelle, rendu possible par des données structurées de bout en bout.","source":"Pratique bancaire — Trade & Payments"},
+        {"terme":"In-flow translation","definition":"Service de SWIFT qui convertit automatiquement un message MT reçu en son équivalent ISO 20022 pour le destinataire, moyennant facturation depuis 2026.","source":"SWIFT — Contingency & in-flow translation"}
+      ],
+      "fiches_revision":[
+        {"id":"sw01","ordre":1,"titre":"Qu'est-ce que SWIFT ?","icone":"📡","resume_court":"SWIFT est un réseau de messagerie sécurisé entre institutions financières — pas une chambre de règlement des fonds.","points_cles":["SWIFT transporte des instructions, il ne déplace pas l'argent lui-même.","Chaque banque est identifiée par un BIC (8 ou 11 caractères).","Deux familles de messages coexistent aujourd'hui : MT (historique) et MX/ISO 20022 (nouveau standard)."],"a_retenir":"SWIFT = messagerie, pas règlement. Ne pas confondre le réseau et le système de compensation.","exemple_concret":"Une banque de Dakar envoie un MT103 à sa banque correspondante à Paris : c'est une instruction, le règlement effectif des fonds se fait ensuite via les comptes nostro/vostro.","piege_frequent":"Croire que SWIFT est un système de paiement au même titre que Fedwire ou TARGET2.","source":"SWIFT — Présentation générale du réseau"},
+        {"id":"sw02","ordre":2,"titre":"Anatomie d'un message MT","icone":"🧱","resume_court":"Un message MT est découpé en 5 blocs, dont le bloc 4 contient le corps du message (les champs).","points_cles":["Bloc 1 : Basic Header (BIC expéditeur). Bloc 2 : Application Header (type de message, BIC destinataire). Bloc 3 : User Header (options, UETR).","Bloc 4 : Text Block — le corps du message, avec les champs à tags (ex. :20:, :32A:, :50K:, :59:, :70:).","Bloc 5 : Trailer — contrôles et authentification (MAC/CHK)."],"a_retenir":"Le bloc 4 est celui qui contient l'information métier ; les blocs 1-3-5 sont l'enveloppe technique.","exemple_concret":"Dans un MT103, le champ :32A: porte la date de valeur, la devise et le montant ; le champ :59: porte le bénéficiaire.","piege_frequent":"Confondre le numéro de bloc avec le numéro de champ (ex. bloc 4 ≠ champ 4).","source":"SWIFT — Standards MT, structure des messages"},
+        {"id":"sw03","ordre":3,"titre":"Les catégories MT (1xx à 9xx)","icone":"🗂️","resume_court":"Le premier chiffre du code MT indique la catégorie fonctionnelle du message.","points_cles":["1xx : paiements clientèle & chèques (MT101, MT103). 2xx : virements interbancaires (MT202, MT205).","3xx : marchés/trésorerie/FX (MT300, MT320). 4xx : encaissements (MT400, MT410). 5xx : titres (MT540...).","6xx : métaux précieux/syndications. 7xx : crédits documentaires & garanties (MT700, MT760). 9xx : trésorerie & relevés (MT900/910, MT940/942/950)."],"a_retenir":"Catégorie = quel métier de la banque parle : 1=client, 2=interbancaire, 3=marchés, 7=trade finance, 9=back-office.","exemple_concret":"Un Crédoc s'émet en MT700 (catégorie 7xx) ; un relevé de compte s'envoie en MT940 (catégorie 9xx).","piege_frequent":"Chercher un MT103 dans la catégorie 2xx : le MT103 est un paiement CLIENT (1xx), le MT202 est le virement de couverture interbancaire (2xx).","source":"SWIFT — Catégories de messages MT"},
+        {"id":"sw04","ordre":4,"titre":"Structuré vs non structuré","icone":"🏷️","resume_court":"Le même champ (ex. adresse du donneur d'ordre) peut être en texte libre (non structuré) ou en champs dédiés (structuré) — c'est tout l'enjeu du mandat SR2026.","points_cles":["Champ MT 50K : nom + adresse en texte libre (4 lignes non structurées) — une machine ne peut pas distinguer la rue de la ville du pays.","Champ MT 50F : version structurée, chaque ligne portant un code (nom, rue, ville/pays).","En MX (XML), l'adresse devient <PstlAdr> avec des balises dédiées : <TwnNm>, <Ctry>, <AdrLine>."],"a_retenir":"3 niveaux : non structurée (interdite après 14/11/2026) < hybride (Ville+Pays obligatoires + 2 lignes libres) < structurée (chaque élément a son champ).","exemple_concret":"« 12 Rue de la Paix, Dakar, Sénégal » en texte libre devient <TwnNm>Dakar</TwnNm><Ctry>SN</Ctry><AdrLine>12 Rue de la Paix</AdrLine> en structuré.","piege_frequent":"Croire que l'adresse hybride dispense de renseigner Ville et Pays : ce sont au contraire les 2 champs qui restent obligatoires.","source":"Mandat SWIFT SR2026 — Adresses hybrides/structurées"},
+        {"id":"sw05","ordre":5,"titre":"CBPR+ et le lancement de la migration MX","icone":"🚀","resume_court":"CBPR+ est le corpus de règles qui a organisé, depuis mars 2023, la coexistence puis la bascule des paiements transfrontaliers vers l'ISO 20022.","points_cles":["20 mars 2023 : lancement officiel de la coexistence MT/MX sur le réseau SWIFT via CBPR+.","CBPR+ couvre les messages pain (initiation), pacs (clearing/règlement) et camt (cash management).","Les messages CBPR+ s'échangent via FINplus, avec des services d'interopérabilité (in-flow translation, Transaction Manager)."],"a_retenir":"CBPR+ = les règles du jeu ISO 20022 pour les paiements transfrontaliers ; FINplus = le tuyau qui les transporte.","exemple_concret":"Une banque qui envoie un pacs.008 vers un correspondant resté en MT bénéficie de l'in-flow translation pour que ce dernier reçoive un MT103 équivalent.","piege_frequent":"Confondre CBPR+ (les règles) et FINplus (le service technique qui les fait circuler).","source":"SWIFT — CBPR+ Usage Guidelines, lancement mars 2023"},
+        {"id":"sw06","ordre":6,"titre":"Le calendrier des échéances (2025-2028)","icone":"📅","resume_court":"La migration MT→MX s'échelonne par vagues successives ; certaines échéances ont déjà bougé plusieurs fois et doivent être reconfirmées avant toute communication commerciale.","points_cles":["22 novembre 2025 : fin de la coexistence pour les messages d'instruction de paiement (MT103/MT202 → pacs.008/pacs.009).","14 novembre 2026 : fin des adresses non structurées ; fin du MT101 multi-instructions (→ pain.001) ; réception obligatoire de camt.110/camt.111.","Novembre 2027 : réception obligatoire des messages de relevés/notifications ISO (camt.052/053/054) ; bascule du Stop and Recall Process (SRP).","2027-2028 : retrait progressif des MT9xx, MT104/107/204 et des messages de frais MT190/191/290/291/990/991."],"a_retenir":"3 dates-pivots à mémoriser : 22/11/2025 (paiements) · 14/11/2026 (adresses + MT101) · nov. 2027 (relevés).","exemple_concret":"Une banque qui envoie encore un MT103 après le 22/11/2025 s'expose à une conversion automatique payante (in-flow translation) depuis le 1er janvier 2026.","piege_frequent":"Considérer ces dates comme définitives : le calendrier SWIFT a déjà été révisé plusieurs fois, notamment sur le reporting.","source":"SWIFT — Roadmap CBPR+ ISO 20022 ; notes J.P. Morgan/Citi/Kyriba 2026"},
+        {"id":"sw07","ordre":7,"titre":"Table de correspondance MT → MX","icone":"🔁","resume_court":"À chaque message MT courant correspond un équivalent ISO 20022 déjà défini par CBPR+.","points_cles":["MT103 (virement client) → pacs.008. MT202/MT202COV (virement interbancaire) → pacs.009.","MT101 (initiation de paiement) → pain.001. MT940/MT942 (relevé) → camt.053/camt.052.","MT900/MT910 (avis débit/crédit) → camt.054. MT192/MT292 (annulation) → camt.056. MT199 (exception) → camt.110/camt.111."],"a_retenir":"Retenir les 3 paires les plus fréquentes : MT103↔pacs.008, MT101↔pain.001, MT940↔camt.053.","exemple_concret":"Un correspondant qui reçoit un pacs.009 pour un virement de couverture sait qu'il s'agit de l'équivalent exact d'un MT202/MT202COV.","piege_frequent":"Confondre pacs.008 (client-to-client via banques) et pacs.009 (banque-à-banque pure).","source":"CBPR+ Usage Guidelines — Table de correspondance MT/MX"},
+        {"id":"sw08","ordre":8,"titre":"Pourquoi ça compte pour une banque UEMOA/CEMAC","icone":"🌍","resume_court":"La qualité des données structurées conditionne directement la conformité LBC/FT et la relation avec les correspondants bancaires.","points_cles":["Une adresse non structurée dégrade le filtrage sanctions/LBC-FT : un donneur d'ordre mal identifié peut bloquer un paiement chez le correspondant.","Les banques UEMOA/CEMAC dépendent de correspondants déjà engagés dans la migration MX : un message mal formé peut être rejeté (NAK) en aval.","Le STP (traitement 100% automatique) dépend de données structurées de bout en bout : moins d'erreurs, moins de coûts, moins de délais."],"a_retenir":"Migration MT→MX = enjeu de conformité ET de relation correspondant bancaire, pas seulement un sujet technique IT.","exemple_concret":"Un virement UEMOA vers l'Europe avec une adresse en texte libre peut être retardé ou rejeté par le correspondant européen déjà passé en MX.","piege_frequent":"Traiter la migration ISO 20022 comme un sujet purement informatique, sans impliquer conformité et trade finance.","source":"Synthèse sectorielle — impacts CBPR+ sur le correspondent banking"}
+      ],
+      "flash_cards":[
+        {"id":"swfc1","categorie":"Fondamentaux","recto":"SWIFT règle-t-il lui-même les fonds entre banques ?","verso":"NON — SWIFT est un réseau de messagerie sécurisé ; le règlement des fonds se fait via les comptes nostro/vostro des banques.","source":"SWIFT — Présentation générale"},
+        {"id":"swfc2","categorie":"Fondamentaux","recto":"Que signifie BIC ?","verso":"Bank Identifier Code — code à 8 ou 11 caractères identifiant une banque sur le réseau SWIFT.","source":"SWIFT — Standards"},
+        {"id":"swfc3","categorie":"Structure MT","recto":"Combien de blocs compose un message MT ?","verso":"5 blocs : Basic Header, Application Header, User Header, Text Block (corps), Trailer.","source":"SWIFT — Standards MT"},
+        {"id":"swfc4","categorie":"Structure MT","recto":"Quel bloc contient le corps du message (les champs) ?","verso":"Le Bloc 4 (Text Block).","source":"SWIFT — Standards MT"},
+        {"id":"swfc5","categorie":"Catégories MT","recto":"Quelle catégorie MT couvre les paiements clientèle ?","verso":"1xx (ex. MT101, MT103).","source":"SWIFT — Catégories de messages"},
+        {"id":"swfc6","categorie":"Catégories MT","recto":"Quelle catégorie MT couvre les crédits documentaires et garanties ?","verso":"7xx (ex. MT700, MT760).","source":"SWIFT — Catégories de messages"},
+        {"id":"swfc7","categorie":"Catégories MT","recto":"Quelle catégorie MT couvre la gestion de trésorerie et les relevés ?","verso":"9xx (ex. MT900/910, MT940/942/950).","source":"SWIFT — Catégories de messages"},
+        {"id":"swfc8","categorie":"Adresses SR2026","recto":"Que doit contenir au minimum une adresse hybride ?","verso":"Ville (TwnNm) et Pays (Ctry) en champs structurés, plus jusqu'à 2 lignes libres.","source":"Mandat SWIFT SR2026"},
+        {"id":"swfc9","categorie":"Adresses SR2026","recto":"Quand les adresses non structurées seront-elles rejetées en CBPR+ ?","verso":"À partir du 14 novembre 2026.","source":"Mandat SWIFT SR2026"},
+        {"id":"swfc10","categorie":"Migration MT→MX","recto":"Quel est l'équivalent MX du MT103 ?","verso":"pacs.008.","source":"CBPR+ Usage Guidelines"},
+        {"id":"swfc11","categorie":"Migration MT→MX","recto":"Quel est l'équivalent MX du MT202/MT202COV ?","verso":"pacs.009.","source":"CBPR+ Usage Guidelines"},
+        {"id":"swfc12","categorie":"Migration MT→MX","recto":"Quel est l'équivalent MX du MT101 ?","verso":"pain.001.","source":"CBPR+ Usage Guidelines"},
+        {"id":"swfc13","categorie":"Migration MT→MX","recto":"Quel est l'équivalent MX du MT940 ?","verso":"camt.053 (ou camt.052 pour le MT942).","source":"CBPR+ Usage Guidelines"},
+        {"id":"swfc14","categorie":"Migration MT→MX","recto":"Quel est l'équivalent MX du MT900/MT910 ?","verso":"camt.054.","source":"CBPR+ Usage Guidelines"},
+        {"id":"swfc15","categorie":"Échéances","recto":"Date de fin de la coexistence pour les messages d'instruction de paiement ?","verso":"22 novembre 2025.","source":"SWIFT — Fin de coexistence CBPR+"},
+        {"id":"swfc16","categorie":"Échéances","recto":"Date de fin des adresses non structurées et du MT101 multi-instructions ?","verso":"14 novembre 2026.","source":"Mandat SWIFT SR2026"},
+        {"id":"swfc17","categorie":"Échéances","recto":"Date de réception obligatoire des messages camt.052/053/054 ?","verso":"Novembre 2027.","source":"SWIFT — Roadmap CBPR+"},
+        {"id":"swfc18","categorie":"Services SWIFT","recto":"À quoi sert le service 'in-flow translation' ?","verso":"Il convertit automatiquement un MT reçu en équivalent ISO 20022 pour le destinataire (facturé depuis le 1er janvier 2026).","source":"SWIFT — Contingency & in-flow translation"},
+        {"id":"swfc19","categorie":"Services SWIFT","recto":"Qu'est-ce que FINplus ?","verso":"Le service store-and-forward de SWIFT dédié à l'échange des messages ISO 20022 (MX).","source":"SWIFT — FINplus Service Description"},
+        {"id":"swfc20","categorie":"Conformité","recto":"Pourquoi une adresse non structurée pose-t-elle un problème de conformité ?","verso":"Elle dégrade la qualité du filtrage sanctions/LBC-FT, le donneur d'ordre étant plus difficile à identifier précisément.","source":"Synthèse sectorielle — impacts CBPR+"}
+      ],
+      "mnemotechniques":[
+        {"id":"swmn1","concept":"Les 5 blocs d'un message MT","moyen":"« 1-2-3-4-5 = En-tête · App · User · TEXTE · Fin » — le bloc 4 est le seul qui contient le corps du message.","explication":"Les blocs 1, 2, 3 et 5 forment l'enveloppe technique ; seul le bloc 4 porte l'information métier.","exemple":"Chercher le champ :59: (bénéficiaire) ? Il est toujours dans le bloc 4.","source":"SWIFT — Standards MT"},
+        {"id":"swmn2","concept":"Les catégories MT à mémoriser","moyen":"« 1=Client · 2=Interbancaire · 3=Marchés · 7=Trade · 9=Back-office » — retenir les 4 catégories les plus fréquentes en UEMOA/CEMAC.","explication":"Le premier chiffre du code MT indique toujours le métier concerné.","exemple":"MT700 (7xx) = trade finance ; MT940 (9xx) = back-office/relevés.","source":"SWIFT — Catégories de messages"},
+        {"id":"swmn3","concept":"Les 3 niveaux d'adresse SR2026","moyen":"« NON < HYBRIDE < STRUCTURÉE » — du texte libre interdit au champ dédié pour chaque élément.","explication":"Hybride = Ville+Pays obligatoires + 2 lignes libres max ; Structurée = tout est dans un champ dédié.","exemple":"« Dakar, Sénégal » en <TwnNm>/<Ctry> = a minima hybride.","source":"Mandat SWIFT SR2026"},
+        {"id":"swmn4","concept":"3 dates-pivots de la migration","moyen":"« 25-26-27 » : nov. 2025 (paiements) · nov. 2026 (adresses + MT101) · nov. 2027 (relevés).","explication":"Chaque année marque une nouvelle vague de bascule vers l'ISO 20022.","exemple":"Après nov. 2026, un MT101 multi-instructions est rejeté (NAK).","source":"SWIFT — Roadmap CBPR+"},
+        {"id":"swmn5","concept":"3 paires MT↔MX les plus fréquentes","moyen":"« 103-008 · 101-001 · 940-053 » : virement client, initiation, relevé.","explication":"Ce sont les 3 correspondances les plus utiles à mémoriser en priorité.","exemple":"MT103→pacs.008 ; MT101→pain.001 ; MT940→camt.053.","source":"CBPR+ Usage Guidelines"},
+        {"id":"swmn6","concept":"CBPR+ vs FINplus","moyen":"« RÈGLES vs TUYAU » : CBPR+ définit les règles d'usage, FINplus est le service technique qui transporte les messages.","explication":"Ne pas confondre le corpus de règles et l'infrastructure qui les fait circuler.","exemple":"Un pacs.008 respecte les règles CBPR+ et circule via FINplus.","source":"SWIFT — CBPR+ / FINplus"},
+        {"id":"swmn7","concept":"Pourquoi la structuration compte pour la conformité","moyen":"« DONNÉE STRUCTURÉE = FILTRAGE FIABLE » — plus l'adresse est structurée, plus le filtrage sanctions/LBC-FT est précis.","explication":"Une adresse en texte libre complique l'identification automatique du donneur d'ordre par les outils de criblage.","exemple":"Un nom + ville + pays bien structurés réduisent les faux positifs et les rejets de paiement.","source":"Synthèse sectorielle — impacts CBPR+"},
+        {"id":"swmn8","concept":"SWIFT n'est pas un système de règlement","moyen":"« MESSAGE ≠ ARGENT » — SWIFT transporte l'instruction, les comptes nostro/vostro règlent les fonds.","explication":"Un message MT ou MX est une instruction ; l'argent circule ensuite via les correspondants bancaires.","exemple":"Un MT103 émis n'a pas encore réglé les fonds : le règlement effectif intervient via les comptes de correspondance.","source":"SWIFT — Présentation générale"}
+      ]
+    };
+    window.SW = SW;
+
+    /* Jeu de questions dédié (QCM), sur le même schéma que QN/BP_Q/CF_Q */
+    var SW_Q=[
+      {"cat":"SWIFT — Fondamentaux avancés","q":"Quel est le rôle exact de SWIFT sur le marché financier international ?","choices":["Réseau sécurisé de messagerie interbancaire","Chambre de compensation qui règle les fonds","Banque centrale internationale","Régulateur des changes"],"answer":0,"source":"SWIFT — Présentation générale"},
+      {"cat":"SWIFT — Fondamentaux avancés","q":"Que signifie CBPR+ ?","choices":["Cross-Border Payments and Reporting Plus","Central Bank Payment Rules Plus","Compliance-Based Payment Review Protocol","Cross-Bank Processing Regulation"],"answer":0,"source":"SWIFT — CBPR+ Usage Guidelines"},
+      {"cat":"SWIFT — Fondamentaux avancés","q":"Quel est le rôle de FINplus dans la migration ISO 20022 ?","choices":["Service store-and-forward dédié à l'échange des messages ISO 20022 (MX)","Outil de gestion des ressources humaines des banques","Plateforme de change manuel","Système de compensation des chèques"],"answer":0,"source":"SWIFT — FINplus Service Description"},
+      {"cat":"SWIFT — Fondamentaux avancés","q":"Qu'est-ce que l'UETR dans un message de paiement ?","choices":["Identifiant unique de bout en bout permettant de suivre un paiement","Code du pays du bénéficiaire","Taux de change appliqué à la transaction","Code du type de message MT"],"answer":0,"source":"SWIFT gpi"},
+      {"cat":"SWIFT — Fondamentaux avancés","q":"Quelle échéance concerne la réception obligatoire des messages camt (relevés) en remplacement des MT9xx ?","choices":["Novembre 2027","Novembre 2025","Janvier 2026","Aucune échéance n'est prévue"],"answer":0,"source":"SWIFT — Roadmap CBPR+"},
+      {"cat":"SWIFT — Fondamentaux avancés","q":"Le service « in-flow translation » de SWIFT sert à :","choices":["Convertir automatiquement un MT reçu en équivalent ISO 20022 pour le destinataire","Traduire les messages SWIFT dans une autre langue","Calculer les frais de change","Générer automatiquement les BIC des banques"],"answer":0,"source":"SWIFT — Contingency & in-flow translation"},
+      {"cat":"SWIFT — Fondamentaux avancés","q":"Qu'est-ce que le STP (Straight-Through Processing) ?","choices":["Traitement intégralement automatisé d'une transaction sans intervention manuelle","Un type de message MT dédié aux titres","Un format d'adresse SWIFT","Une norme de sécurité informatique"],"answer":0,"source":"Pratique bancaire — Trade & Payments"},
+      {"cat":"SWIFT — Fondamentaux avancés","q":"Quel est l'objectif principal de la structuration des adresses en ISO 20022 ?","choices":["Améliorer la qualité des données pour le filtrage sanctions/LBC-FT et le STP","Réduire la taille des messages SWIFT","Remplacer les BIC par des IBAN","Simplifier la traduction des messages en anglais"],"answer":0,"source":"Synthèse sectorielle — impacts CBPR+"}
+    ];
+    window.SW_Q = SW_Q;
+    if(typeof window.QN_U===undefined) window.QN_U=[];
+    if(!window.QN_U) window.QN_U=[];
+    if(!window.QN_C) window.QN_C=[];
+    Array.prototype.push.apply(window.QN_U, SW_Q);
+    Array.prototype.push.apply(window.QN_C, SW_Q);
+    if(typeof QN!=='undefined' && QN && QN.push){ Array.prototype.push.apply(QN, SW_Q); }
+
+    /* Thème dédié dans l'Arène */
+    if(typeof ARENA_THEMES!=='undefined' && ARENA_THEMES && !ARENA_THEMES.swift){
+      ARENA_THEMES.swift = {
+        l:'📡 SWIFT · Migration ISO 20022',
+        rx:/SWIFT|CBPR\+?|ISO ?20022|pacs\.\d|pain\.\d|camt\.\d|MT\d{3}|MX\b|FINplus|adresse (structur|hybride)/i
+      };
+    }
+
+    /* Ouverture du pack depuis la Bibliothèque (chaînage de openB) */
+    if(typeof window.openB==='function'){
+      var _origOpenB_SW = window.openB;
+      window.openB = function(ds){
+        if(ds==='SW'){
+          try{ BA=SW; }catch(e){} try{ window.BA=SW; }catch(e){}
+          try{ BT='fiches'; }catch(e){} try{ window.BT='fiches'; }catch(e){}
+          try{ BF=null; }catch(e){} try{ window.BF=null; }catch(e){}
+          render(); return;
+        }
+        return _origOpenB_SW.apply(this, arguments);
+      };
+    }
+
+    /* Carte du pack dans l'onglet "packs" de la Bibliothèque (chaînage de rBibMain) */
+    if(typeof window.rBibMain==='function'){
+      var _origRBibMain_SW = window.rBibMain;
+      window.rBibMain = function(){
+        var bibTab = (typeof _BPT==='undefined') ? 'packs' : _BPT;
+        if(bibTab!=='packs') return _origRBibMain_SW.apply(this, arguments);
+        var list = [['BR',BR,QR.length],['BB',BB,QB.length]];
+        if(typeof window.BCB!=='undefined') list.push(['BCB',window.BCB,(window.BCB_Q||[]).length]);
+        if(typeof window.BP!=='undefined')  list.push(['BP',window.BP,(window.BP_Q||[]).length]);
+        if(typeof window.KC!=='undefined')  list.push(['KC',window.KC,(window.KC_Q||[]).length]);
+        if(typeof CF!=='undefined')         list.push(['CF',CF,(window.CF_Q||[]).length]);
+        list.push(['SW',SW,SW_Q.length]);
+        return '<div style="display:flex;flex-direction:column;gap:10px;">'+list.map(function(x){
+          var ds=x[0], d=x[1], qs=x[2];
+          return '<div class="card ch" onclick="openB(\''+ds+'\')">'+
+          '<div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;">'+
+          '<div style="font-size:32px;flex-shrink:0;">'+d.icone+'</div>'+
+          '<div style="flex:1;min-width:180px;">'+
+          '<div style="font-weight:800;color:white;font-size:14px;margin-bottom:3px;">'+d.titre+'</div>'+
+          '<div style="font-size:11px;color:var(--sub);margin-bottom:8px;">'+d.sous_titre+'</div>'+
+          '<div style="display:flex;gap:6px;flex-wrap:wrap;">'+
+          '<span class="badge">'+d.fiches_revision.length+' fiches</span>'+
+          '<span class="badge">'+d.glossaire.length+' termes</span>'+
+          '<span class="badge">'+qs+' questions</span></div></div>'+
+          '<button class="btn btn-sm" onclick="event.stopPropagation();openB(\''+ds+'\')">Ouvrir →</button></div></div>';
+        }).join('')+'</div>';
+      };
+    }
+  }catch(e){ try{ console.warn('lotSwiftBibliotheque:', e); }catch(_){} }
+})();
+</script>
+
 <!-- ═══════════════════════════════════════════════════════════════
      LOT ADDITIF — Lexique intégré (Formation & Quiz)
      Retour utilisateur (Seyda Lahi, 3 juillet 2026) : consulter une
@@ -13402,7 +13567,8 @@ const CF_Q=[
       ['BCB',(typeof window!=='undefined'&&window.BCB)?window.BCB:null],
       ['BP', (typeof window!=='undefined'&&window.BP)?window.BP:null],
       ['KC', (typeof window!=='undefined'&&window.KC)?window.KC:null],
-      ['CF', (typeof CF!=='undefined'&&CF)?CF:null]
+      ['CF', (typeof CF!=='undefined'&&CF)?CF:null],
+      ['SW', (typeof window!=='undefined'&&window.SW)?window.SW:null]
     ];
     var seen={}, ALL=[];
     SRC.forEach(function(pair){
