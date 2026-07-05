@@ -3441,11 +3441,12 @@ function rAR(){
     '<button class="ar-tab'+(AR.tab==='wordsearch'?' ac':'')+'" onclick="AR.tab=\'wordsearch\';render()">🔎 Mots mêlés</button>'+ // MODIFIÉ : nouvel onglet solo
     '<button class="ar-tab'+(AR.tab==='charade'?' ac':'')+'" onclick="AR.tab=\'charade\';render()">🎭 Charade chrono</button>'+ // MODIFIÉ : nouvel onglet solo
     '<button class="ar-tab'+(AR.tab==='chiffreslettres'?' ac':'')+'" onclick="AR.tab=\'chiffreslettres\';render()">🔢🔤 Chiffres et Lettres</button>'+ // MODIFIÉ : nouvel onglet solo
+    '<button class="ar-tab'+(AR.tab==='vraifaux'?' ac':'')+'" onclick="AR.tab=\'vraifaux\';render()">✅❌ Vrai/Faux</button>'+ // MODIFIÉ : nouvel onglet Premium
   '</div>';
   return '<div style="display:flex;flex-direction:column;gap:14px;">'+
     '<h2 style="font-size:22px;color:white;">L\'Arène – Défis Professionnels</h2>'+
     tabs +
-    (AR.tab==='duels' ? rARDuelsHome() : AR.tab==='kotm' ? rARKotmHome() : AR.tab==='direct' ? rLiveHub() : AR.tab==='crossword' ? rARCrosswordHome() : AR.tab==='wordsearch' ? rARWordsearchHome() : AR.tab==='charade' ? rARCharadeHome() : AR.tab==='chiffreslettres' ? rARCLHome() : rARTournoisHome()) + // MODIFIÉ : onglet crossword + wordsearch + charade + chiffreslettres
+    (AR.tab==='duels' ? rARDuelsHome() : AR.tab==='kotm' ? rARKotmHome() : AR.tab==='direct' ? rLiveHub() : AR.tab==='crossword' ? rARCrosswordHome() : AR.tab==='wordsearch' ? rARWordsearchHome() : AR.tab==='charade' ? rARCharadeHome() : AR.tab==='chiffreslettres' ? rARCLHome() : AR.tab==='vraifaux' ? rARVraiFauxHome() : rARTournoisHome()) + // MODIFIÉ : onglet crossword + wordsearch + charade + chiffreslettres + vraifaux
   '</div>';
 }
 
@@ -4191,6 +4192,74 @@ function rARCLHome(){
     '<button class="btn" style="width:100%;padding:14px;" onclick="cllStart(\'UEMOA\')">🇸🇳 Zone UEMOA</button>'+
     '<button class="btn" style="width:100%;padding:14px;" onclick="cllStart(\'CEMAC\')">🌍 Zone CEMAC</button>'+
   '</div>';
+}
+
+/* MODIFIÉ : nouveau format Vrai/Faux réglementaire (Premium) — accès gratuit Top 3 zone / 10+ certificats */
+var VF = {zone:null, questions:[], idx:0, score:0, answered:false, userAnswer:null};
+var VF_BANK = { // À VALIDER PAR AMADOU SALL avant prod
+  U:[
+    {q:"Le capital social minimum d'une banque dans l'UEMOA est fixé par la Commission Bancaire.", a:false, source:"BCEAO fixe le capital minimum, pas la Commission Bancaire"},
+    {q:"Un établissement de microfinance doit obtenir un agrément avant tout démarrage d'activité.", a:true, source:"Loi portant réglementation des SFD"},
+    {q:"La déclaration de soupçon LBC/FT doit être adressée à la CENTIF.", a:true, source:"Loi uniforme LBC/FT UMOA 2023"},
+    {q:"Le ratio de solvabilité minimum exigé dans l'UEMOA est de 5%.", a:false, source:"Le ratio minimum est de 8% (dispositif Bâle)"},
+    {q:"Un virement transfrontalier au sein de l'UEMOA est dispensé de tout formulaire de change.", a:false, source:"Instruction RFE — formulaire de change requis"}
+  ],
+  C:[
+    {q:"La COBAC est l'organe de supervision bancaire de la zone CEMAC.", a:true, source:"Convention régissant la COBAC"},
+    {q:"Un commissaire aux comptes peut cumuler ce mandat avec la tenue des livres comptables de l'établissement.", a:false, source:"Instruction COBAC I-2004/01, art. 3"},
+    {q:"La désignation d'un administrateur nécessite un extrait de casier judiciaire de moins de 3 mois.", a:true, source:"Instruction COBAC I-2009/02, art. 1er"},
+    {q:"Le BEAC est la banque centrale commune des six États de la CEMAC.", a:true, source:"Statuts de la BEAC"},
+    {q:"Les établissements de la CEMAC ne sont pas soumis à des obligations LBC/FT spécifiques.", a:false, source:"Règlement COBAC LBC/FT 2024 / GABAC"}
+  ]
+};
+function vfStart(zone){
+  apiCall('POST','/wg/play',{format:'vraifaux'}).then(function(resp){
+    if(!resp || !resp._raw || !resp._raw.allowed){ wgPaywallModal(resp&&resp.error); return; }
+    var bank = (zone==='CEMAC'?VF_BANK.C:VF_BANK.U).slice();
+    bank.sort(function(){ return Math.random()-0.5; });
+    VF.zone=zone; VF.questions=bank; VF.idx=0; VF.score=0; VF.answered=false; VF.userAnswer=null;
+    render();
+  });
+}
+function vfAnswer(val){
+  if(VF.answered) return;
+  VF.answered = true; VF.userAnswer = val;
+  if(val === VF.questions[VF.idx].a) VF.score++;
+  render();
+}
+function vfNext(){ VF.idx++; VF.answered=false; VF.userAnswer=null; render(); }
+function vfExit(){ VF.zone=null; VF.questions=[]; VF.idx=0; VF.score=0; VF.answered=false; render(); }
+function rARVraiFauxHome(){
+  if(VF.zone) return rARVraiFauxGame();
+  return '<div style="display:flex;flex-direction:column;gap:12px;">'+
+    '<div class="al al-info" style="font-size:12px;">✅❌ <strong>Vrai/Faux réglementaire :</strong> affirmations à valider, format Premium.</div>'+
+    '<button class="btn" style="width:100%;padding:14px;" onclick="vfStart(\'UEMOA\')">🇸🇳 Zone UEMOA</button>'+
+    '<button class="btn" style="width:100%;padding:14px;" onclick="vfStart(\'CEMAC\')">🌍 Zone CEMAC</button>'+
+  '</div>';
+}
+function rARVraiFauxGame(){
+  if(VF.idx >= VF.questions.length){
+    return '<div style="display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center;">'+
+      '<div style="font-size:15px;font-weight:800;color:white;">Score final : '+VF.score+' / '+VF.questions.length+'</div>'+
+      '<button class="btn" style="width:100%;padding:13px;" onclick="vfExit()">↩ Retour</button>'+
+    '</div>';
+  }
+  var item = VF.questions[VF.idx];
+  var h = '<div style="display:flex;flex-direction:column;gap:14px;">'+
+    '<div style="font-weight:800;color:white;font-size:13px;">✅❌ Vrai/Faux — Zone '+VF.zone+' ('+(VF.idx+1)+'/'+VF.questions.length+')</div>'+
+    '<div class="card" style="padding:16px;font-size:14px;color:#dce8f7;line-height:1.5;">'+item.q+'</div>';
+  if(!VF.answered){
+    h += '<div style="display:flex;gap:10px;">'+
+      '<button class="btn" style="flex:1;padding:14px;background:linear-gradient(135deg,#16a34a,#15803d);" onclick="vfAnswer(true)">✅ Vrai</button>'+
+      '<button class="btn" style="flex:1;padding:14px;background:linear-gradient(135deg,#dc2626,#b91c1c);" onclick="vfAnswer(false)">❌ Faux</button>'+
+    '</div>';
+  } else {
+    var ok = VF.userAnswer === item.a;
+    h += '<div class="'+(ok?'al al-ok':'al al-warn')+'" style="font-size:13px;">'+(ok?'✔ Correct ! ':'✘ Incorrect. ')+'Réponse : '+(item.a?'Vrai':'Faux')+(item.source?' — '+item.source:'')+'</div>'+
+      '<button class="btn" style="width:100%;padding:13px;" onclick="vfNext()">'+(VF.idx+1<VF.questions.length?'Suivant →':'Voir le score')+'</button>';
+  }
+  h += '</div>';
+  return h;
 }
 
 function arShowHelp(){
