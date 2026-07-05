@@ -284,6 +284,15 @@ function wgIsUnlimited(user) {
 }
 
 // MODIFIÉ — AJOUT : déblocage gratuit Pack Premium par mérite (palier Expert/Maître ≥250pts, top 3 de la zone, ou 20+ certificats)
+// MODIFIÉ — AJOUT : progression mérite (score / certificats) à afficher côté client sur le paywall
+function wgMeritProgress(userId) {
+  try {
+    const score = db.prepare('SELECT COALESCE(SUM(score),0) AS n FROM user_scores WHERE user_id = ?').get(userId).n;
+    const certs = db.prepare('SELECT COUNT(*) AS n FROM certificates WHERE user_id = ?').get(userId).n;
+    return { score, neededScore: 250, certs, neededCerts: 20 };
+  } catch (e) { return { score: 0, neededScore: 250, certs: 0, neededCerts: 20 }; }
+}
+
 function wgMeritBypass(userId) {
   try {
     const u = db.prepare('SELECT country FROM users WHERE id = ?').get(userId);
@@ -406,8 +415,8 @@ function ok(res, data = {}) {
   return res.status(200).json({ success: true, ...data });
 }
 
-function err(res, status, message) {
-  return res.status(status).json({ success: false, error: message });
+function err(res, status, message, extra = {}) {
+  return res.status(status).json({ success: false, error: message, ...extra });
 }
 
 /* â”€â”€ MIDDLEWARE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
@@ -833,14 +842,14 @@ app.post('/auth/wg/play', requireAuth, (req, res) => {
 
   if (tier === 'standard') {
     if (row.plays_today >= 1) {
-      return err(res, 403, 'Limite quotidienne atteinte (1 partie/jour). Passez en formule Illimité pour rejouer sans limite.');
+      return err(res, 403, 'Limite quotidienne atteinte (1 partie/jour). Passez en formule Illimité pour rejouer sans limite.', { meritProgress: wgMeritProgress(req.user.id) });
     }
     db.prepare('UPDATE wg_access SET last_play_date = ?, plays_today = 1 WHERE user_id = ?').run(today, req.user.id);
     return ok(res, { allowed: true, tier: 'standard', playsToday: 1 });
   }
 
   if (freeTrialUsed[format]) {
-    return err(res, 403, "Essai gratuit déjà utilisé pour ce format. Abonnez-vous pour continuer à jouer.");
+    return err(res, 403, "Essai gratuit déjà utilisé pour ce format. Abonnez-vous pour continuer à jouer.", { meritProgress: wgMeritProgress(req.user.id) });
   }
   freeTrialUsed[format] = true;
   db.prepare('UPDATE wg_access SET free_trial_used = ? WHERE user_id = ?')
