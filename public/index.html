@@ -1832,6 +1832,30 @@ var QZ  = {q:[],idx:0,sc:0,ans:false,hist:[],done:false,pack:''};
 var QZONE = 'uemoa';
 var BA  = null, BT = 'fiches', BF = null;
 var REG_EMAIL = ''; // email en attente de confirmation
+/* MODIFIÉ : État Mots croisés (mode solo simplifié) */
+var CW = {zone:null, words:[], inputs:{}, checked:false, score:0};
+var CW_BANK = {
+  U:[
+    {word:'BCEAO', clue:"Banque centrale de l'UMOA"},
+    {word:'AGREMENT', clue:"Autorisation préalable requise pour exercer une activité bancaire"},
+    {word:'CONFORMITE', clue:"Fonction chargée de veiller au respect des règles internes et externes"},
+    {word:'GOUVERNANCE', clue:"Ensemble des règles d'organisation et de contrôle interne d'une banque"},
+    {word:'DEONTOLOGIE', clue:"Ensemble des règles éthiques encadrant la profession bancaire"},
+    {word:'PLAFOND', clue:"Limite maximale fixée pour une opération ou un poste"},
+    {word:'CAPITAL', clue:"Ressources propres minimales exigées pour obtenir l'agrément"},
+    {word:'BLANCHIMENT', clue:"Opération visant à dissimuler l'origine illicite de fonds"}
+  ],
+  C:[
+    {word:'COBAC', clue:"Organe de supervision bancaire de la zone CEMAC"},
+    {word:'BEAC', clue:"Banque centrale des États de l'Afrique Centrale"},
+    {word:'GABAC', clue:"Groupe d'action contre le blanchiment en Afrique Centrale"},
+    {word:'ANIF', clue:"Agence Nationale d'Investigation Financière"},
+    {word:'TIAO', clue:"Taux d'Intérêt des Appels d'Offres, fixé par le Comité de Politique Monétaire"},
+    {word:'COSUMAF', clue:"Régulateur du marché financier de l'Afrique Centrale"},
+    {word:'SANCTION', clue:"Mesure disciplinaire prononcée par l'autorité de supervision"},
+    {word:'MICROFINANCE', clue:"Établissement de petite taille finançant particuliers et TPE"}
+  ]
+};
 /* ─── État Arena ─── */
 var AR = {
   tab:'duels',        // sous-onglet actif : 'duels' | 'tournois'
@@ -3407,12 +3431,67 @@ function rAR(){
     '<button class="ar-tab'+(AR.tab==='kotm'?' ac':'')+'" onclick="AR.tab=\'kotm\';render()">👑 Roi de la Manche</button>'+
     '<button class="ar-tab'+(AR.tab==='tournois'?' ac':'')+'" onclick="AR.tab=\'tournois\';render()">🏆 Tournois</button>'+
     '<button class="ar-tab'+(AR.tab==='direct'?' ac':'')+'" onclick="arOpenLive()">📺 Direct</button>'+ // MODIFIÉ : mode spectateur
+    '<button class="ar-tab'+(AR.tab==='crossword'?' ac':'')+'" onclick="AR.tab=\'crossword\';render()">🧩 Mots croisés</button>'+ // MODIFIÉ : nouvel onglet solo
   '</div>';
   return '<div style="display:flex;flex-direction:column;gap:14px;">'+
     '<h2 style="font-size:22px;color:white;">L\'Arène – Défis Professionnels</h2>'+
     tabs +
-    (AR.tab==='duels' ? rARDuelsHome() : AR.tab==='kotm' ? rARKotmHome() : AR.tab==='direct' ? rLiveHub() : rARTournoisHome()) + // MODIFIÉ : onglet direct
+    (AR.tab==='duels' ? rARDuelsHome() : AR.tab==='kotm' ? rARKotmHome() : AR.tab==='direct' ? rLiveHub() : AR.tab==='crossword' ? rARCrosswordHome() : rARTournoisHome()) + // MODIFIÉ : onglet crossword
   '</div>';
+}
+
+/* MODIFIÉ : ─── Mots croisés — mode solo (mots isolés, sans intersections) ─── */
+function cwNormalize(s){
+  return (s||'').toString().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Z0-9]/g,'');
+}
+function cwStart(zone){
+  var bank = (zone==='CEMAC' ? CW_BANK.C : CW_BANK.U).slice();
+  bank.sort(function(){ return Math.random()-0.5; });
+  var n = Math.min(8, bank.length);
+  CW.zone = zone; CW.words = bank.slice(0,n); CW.inputs = {}; CW.checked = false; CW.score = 0;
+  render();
+}
+function cwSet(i,val){ CW.inputs[i] = val; }
+function cwCheck(){
+  var sc = 0;
+  CW.words.forEach(function(w,i){ if(cwNormalize(CW.inputs[i])===cwNormalize(w.word)) sc++; });
+  CW.score = sc; CW.checked = true;
+  render();
+}
+function cwExit(){ CW.zone=null; CW.words=[]; CW.inputs={}; CW.checked=false; render(); }
+function rARCrosswordHome(){
+  if(CW.zone) return rARCrosswordGame();
+  return '<div style="display:flex;flex-direction:column;gap:12px;">'+
+    '<div class="al al-info" style="font-size:12px;">🧩 <strong>Mots croisés réglementaires :</strong> devinez le terme à partir de l\'indice. Mode solo, détente cognitive — sans chrono.</div>'+
+    '<button class="btn" style="width:100%;padding:14px;" onclick="cwStart(\'UEMOA\')">🇸🇳 Zone UEMOA</button>'+
+    '<button class="btn" style="width:100%;padding:14px;" onclick="cwStart(\'CEMAC\')">🌍 Zone CEMAC</button>'+
+  '</div>';
+}
+function rARCrosswordGame(){
+  var h = '<div style="display:flex;flex-direction:column;gap:14px;">'+
+    '<div style="font-weight:800;color:white;font-size:14px;">🧩 Mots croisés — Zone '+CW.zone+'</div>'+
+    '<div style="display:flex;flex-direction:column;gap:10px;">';
+  CW.words.forEach(function(w,i){
+    var val = CW.inputs[i]||'';
+    var ok = CW.checked && cwNormalize(val)===cwNormalize(w.word);
+    var ko = CW.checked && !ok;
+    h += '<div style="background:var(--card);border:1px solid '+(ok?'#22c55e':ko?'#ef4444':'var(--border)')+';border-radius:9px;padding:10px 12px;">'+
+      '<div style="font-size:12px;color:var(--sub);margin-bottom:6px;"><strong style="color:var(--cyan);">'+(i+1)+'.</strong> '+w.clue+' <span style="opacity:.7;">('+w.word.length+' lettres)</span></div>'+
+      '<input type="text" style="width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:7px;padding:9px 10px;color:white;font-size:14px;text-transform:uppercase;'+(ok?'border-color:#22c55e;':ko?'border-color:#ef4444;':'')+'" '+
+        'value="'+val.replace(/"/g,'&quot;')+'" '+(CW.checked?'disabled':'')+' oninput="cwSet('+i+',this.value)" placeholder="Votre réponse">'+
+      (ko ? '<div style="font-size:11px;color:#ef4444;margin-top:4px;">Réponse : '+w.word+'</div>' : '')+
+    '</div>';
+  });
+  h += '</div>';
+  if(!CW.checked){
+    h += '<button class="btn" style="width:100%;padding:13px;" onclick="cwCheck()">Vérifier la grille</button>';
+  } else {
+    h += '<div class="al al-info" style="text-align:center;font-weight:700;">Score : '+CW.score+' / '+CW.words.length+'</div>'+
+      '<button class="btn" style="width:100%;padding:13px;" onclick="cwStart(CW.zone)">🔄 Nouvelle grille</button>';
+  }
+  h += '<button class="btn-out" style="width:100%;padding:12px;" onclick="cwExit()">← Changer de zone</button>';
+  h += '</div>';
+  return h;
 }
 
 function arShowHelp(){
