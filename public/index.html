@@ -3635,6 +3635,7 @@ function rARCrosswordGame(){
     h += '<button class="btn" style="width:100%;padding:13px;" onclick="cwCheckGrid()">Vérifier la grille</button>';
   } else {
     h += '<div class="al al-info" style="text-align:center;font-weight:700;">Score : '+CW.score+' / '+L.placed.length+' mots</div>'+
+      wgCertButton('Mots croisés réglementaire', CW.zone, CW.score, L.placed.length)+
       '<button class="btn" style="width:100%;padding:13px;" onclick="cwStart(CW.zone)">🔄 Nouvelle grille</button>';
   }
   h += '<button class="btn-out" style="width:100%;padding:12px;" onclick="cwExit()">← Changer de zone</button>';
@@ -3792,6 +3793,7 @@ function rARWordsearchGame(){
   h += '</div>';
   if(WS.allFound){
     h += '<div class="al al-info" style="text-align:center;font-weight:700;">🎉 Bravo ! Tous les mots trouvés ('+L.placed.length+'/'+L.placed.length+')</div>'+
+      wgCertButton('Mots mêlés réglementaire', WS.zone, L.placed.length, L.placed.length)+
       '<button class="btn" style="width:100%;padding:13px;" onclick="wsStart(WS.zone)">🔄 Nouvelle grille</button>';
   }
   h += '<button class="btn-out" style="width:100%;padding:12px;" onclick="wsExit()">← Changer de zone</button>';
@@ -3914,6 +3916,7 @@ function rARCharadeGame(){
     return '<div style="display:flex;flex-direction:column;gap:14px;">'+
       '<div style="font-weight:800;color:white;font-size:14px;">🎭 Charade — Zone '+CZ.zone+'</div>'+
       '<div class="al al-info" style="text-align:center;font-weight:700;">🏁 Terminé ! Score : '+CZ.score+' / '+max+'</div>'+
+      wgCertButton('Charade chrono réglementaire', CZ.zone, CZ.score, max)+
       '<button class="btn" style="width:100%;padding:13px;" onclick="czStart(CZ.zone)">🔄 Nouvelle manche</button>'+
       '<button class="btn-out" style="width:100%;padding:12px;" onclick="czExit()">← Changer de zone</button>'+
     '</div>';
@@ -4064,6 +4067,7 @@ function rARCLChiffresGame(){
     return '<div style="display:flex;flex-direction:column;gap:14px;">'+
       '<div style="font-weight:800;color:white;font-size:14px;">🔢 Chiffres réglementaires — Zone '+CLC.zone+'</div>'+
       '<div class="al al-info" style="text-align:center;font-weight:700;">🏁 Terminé ! Score : '+CLC.score+' / '+max+'</div>'+
+      wgCertButton('Chiffres et Lettres réglementaire', CLC.zone, CLC.score, max)+
       '<button class="btn" style="width:100%;padding:13px;" onclick="clcStart(CLC.zone)">🔄 Nouvelle manche</button>'+
       '<button class="btn-out" style="width:100%;padding:12px;" onclick="clcExit()">← Changer de zone</button>'+
     '</div>';
@@ -4172,6 +4176,7 @@ function rARCLLettresGame(){
     h += '<div class="al '+(CLL.timedOut?'al-warn':'al-info')+'" style="text-align:center;font-weight:700;">'+
       cllMsg+'Réponse possible : '+CLL.target+' — '+CLL.targetClue+
     '</div>'+
+    (CLL.foundExact ? wgCertButton('Chiffres et Lettres réglementaire', CLL.zone, 1, 1) : '')+
     '<button class="btn" style="width:100%;padding:13px;" onclick="cllStart(CLL.zone)">🔄 Nouvelle manche</button>';
   }
   h += '<button class="btn-out" style="width:100%;padding:12px;" onclick="cllExit()">← Changer de zone</button>';
@@ -4241,6 +4246,7 @@ function rARVraiFauxGame(){
   if(VF.idx >= VF.questions.length){
     return '<div style="display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center;">'+
       '<div style="font-size:15px;font-weight:800;color:white;">Score final : '+VF.score+' / '+VF.questions.length+'</div>'+
+      wgCertButton('Vrai/Faux réglementaire', VF.zone, VF.score, VF.questions.length)+
       '<button class="btn" style="width:100%;padding:13px;" onclick="vfExit()">↩ Retour</button>'+
     '</div>';
   }
@@ -5659,6 +5665,19 @@ function arGenQRDataURL(text){
       },150);
     }catch(e){ resolve(''); }
   });
+}
+/* MODIFIÉ : certificat générique pour les 5 jeux de lettres (crossword/wordsearch/charade/chiffreslettres/vraifaux) */
+function wgCertButton(theme, zone, score, total){
+  var pct = total ? Math.round(score/total*100) : 0;
+  if(pct < 80) return '<div class="al al-warn" style="font-size:12px;text-align:center;">Certificat à partir de 80% de réussite (actuellement '+pct+'%).</div>';
+  return '<button class="btn" style="width:100%;padding:13px;background:linear-gradient(135deg,#C9991A,#a87d12);color:#fff;font-weight:700;" onclick="wgIssueCert(\''+theme+'\',\''+zone+'\','+score+','+total+')">🏆 Obtenir mon certificat</button>';
+}
+function wgIssueCert(theme, zone, score, total){
+  var name=(U&&U.name)||'Apprenant';
+  var info={certificate_id:'RA-'+Date.now().toString(36).toUpperCase(),name:name,theme:theme,zone:zone,score:score,total:total,date:new Date().toISOString()};
+  arBuildCertPDF(info);
+  fetch('/certificates',{method:'POST',headers:arAuthHdr(),body:JSON.stringify({theme:theme,zone:zone,score:score,total:total})})
+  .then(function(r){return r.json();}).catch(function(){});
 }
 function arDownloadCert(){
   var tot=QZ.q.length, sc=QZ.sc, pct=tot?Math.round(sc/tot*100):0;
