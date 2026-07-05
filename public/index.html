@@ -3641,7 +3641,7 @@ function rARCrosswordHome(){
   if(CW.zone) return rARCrosswordGame();
   return '<div style="display:flex;flex-direction:column;gap:12px;">'+
     '<div class="al al-info" style="font-size:12px;">🧩 <strong>Mots croisés réglementaires :</strong> une vraie grille entrecroisée, générée à partir des termes de la zone. Mode solo, sans chrono.</div>'+
-    '<button class="btn" style="width:100%;padding:14px;" onclick="cwStart(\'UEMOA\')">🇸🇳 Zone UEMOA</button>'+
+    '<button class="btn" style="width:100%;padding:14px;" onclick="cwStart(\'UEMOA\')">⭐ Zone UEMOA</button>'+
     '<button class="btn" style="width:100%;padding:14px;" onclick="cwStart(\'CEMAC\')">🌍 Zone CEMAC</button>'+
   '</div>';
 }
@@ -3809,7 +3809,7 @@ function rARWordsearchHome(){
   if(WS.zone) return rARWordsearchGame();
   return '<div style="display:flex;flex-direction:column;gap:12px;">'+
     '<div class="al al-info" style="font-size:12px;">🔎 <strong>Mots mêlés réglementaires :</strong> repérez les termes cachés dans la grille (horizontal, vertical, diagonal, dans les deux sens). Touchez la première puis la dernière lettre du mot.</div>'+
-    '<button class="btn" style="width:100%;padding:14px;" onclick="wsStart(\'UEMOA\')">🇸🇳 Zone UEMOA</button>'+
+    '<button class="btn" style="width:100%;padding:14px;" onclick="wsStart(\'UEMOA\')">⭐ Zone UEMOA</button>'+
     '<button class="btn" style="width:100%;padding:14px;" onclick="wsStart(\'CEMAC\')">🌍 Zone CEMAC</button>'+
   '</div>';
 }
@@ -3954,7 +3954,7 @@ function rARCharadeHome(){
   if(CZ.zone) return rARCharadeGame();
   return '<div style="display:flex;flex-direction:column;gap:12px;">'+
     '<div class="al al-info" style="font-size:12px;">🎭 <strong>Charade réglementaire chrono :</strong> devinez le terme avant la fin du décompte. Moins vous prenez d\'indices, plus vous marquez de points (3 → 2 → 1).</div>'+
-    '<button class="btn" style="width:100%;padding:14px;" onclick="czStart(\'UEMOA\')">🇸🇳 Zone UEMOA</button>'+
+    '<button class="btn" style="width:100%;padding:14px;" onclick="czStart(\'UEMOA\')">⭐ Zone UEMOA</button>'+
     '<button class="btn" style="width:100%;padding:14px;" onclick="czStart(\'CEMAC\')">🌍 Zone CEMAC</button>'+
   '</div>';
 }
@@ -4239,10 +4239,10 @@ function rARCLHome(){
   return '<div style="display:flex;flex-direction:column;gap:12px;">'+
     '<div class="al al-info" style="font-size:12px;">🔢🔤 <strong>Chiffres et Lettres réglementaire :</strong> deux épreuves solo bâties sur les textes en vigueur (mêmes sources que vos packs de quiz). « Chiffres » : retrouvez le seuil, délai ou taux exact cité par un texte réel. « Lettres » : formez le sigle ou terme réglementaire caché dans les lettres tirées.</div>'+
     '<div style="font-weight:700;color:white;font-size:13px;">🔢 Chiffres réglementaires</div>'+
-    '<button class="btn" style="width:100%;padding:14px;" onclick="clcStart(\'UEMOA\')">🇸🇳 Zone UEMOA</button>'+
+    '<button class="btn" style="width:100%;padding:14px;" onclick="clcStart(\'UEMOA\')">⭐ Zone UEMOA</button>'+
     '<button class="btn" style="width:100%;padding:14px;" onclick="clcStart(\'CEMAC\')">🌍 Zone CEMAC</button>'+
     '<div style="font-weight:700;color:white;font-size:13px;margin-top:6px;">🔤 Lettres réglementaires</div>'+
-    '<button class="btn" style="width:100%;padding:14px;" onclick="cllStart(\'UEMOA\')">🇸🇳 Zone UEMOA</button>'+
+    '<button class="btn" style="width:100%;padding:14px;" onclick="cllStart(\'UEMOA\')">⭐ Zone UEMOA</button>'+
     '<button class="btn" style="width:100%;padding:14px;" onclick="cllStart(\'CEMAC\')">🌍 Zone CEMAC</button>'+
   '</div>';
 }
@@ -4286,7 +4286,7 @@ function rARVraiFauxHome(){
   if(VF.zone) return rARVraiFauxGame();
   return '<div style="display:flex;flex-direction:column;gap:12px;">'+
     '<div class="al al-info" style="font-size:12px;">✅❌ <strong>Vrai/Faux réglementaire :</strong> affirmations à valider, format Premium.</div>'+
-    '<button class="btn" style="width:100%;padding:14px;" onclick="vfStart(\'UEMOA\')">🇸🇳 Zone UEMOA</button>'+
+    '<button class="btn" style="width:100%;padding:14px;" onclick="vfStart(\'UEMOA\')">⭐ Zone UEMOA</button>'+
     '<button class="btn" style="width:100%;padding:14px;" onclick="vfStart(\'CEMAC\')">🌍 Zone CEMAC</button>'+
   '</div>';
 }
@@ -4375,7 +4375,7 @@ function rARQEHome(){
   if(QE.zone) return rARQEGame();
   return '<div style="display:flex;flex-direction:column;gap:12px;">'+
     '<div class="al al-info" style="font-size:12px;">🎯 <strong>QCM éclair :</strong> 10 questions, chrono serré (12s). Plus vous répondez vite, plus vous marquez de points (3 → 2 → 1).</div>'+
-    '<button class="btn" style="width:100%;padding:14px;" onclick="qeStart(\'UEMOA\')">🇸🇳 Zone UEMOA</button>'+
+    '<button class="btn" style="width:100%;padding:14px;" onclick="qeStart(\'UEMOA\')">⭐ Zone UEMOA</button>'+
     '<button class="btn" style="width:100%;padding:14px;" onclick="qeStart(\'CEMAC\')">🌍 Zone CEMAC</button>'+
   '</div>';
 }
@@ -11272,6 +11272,68 @@ var QVF_RISQUES_DATA=[
     if(typeof QN!=='undefined' && QN && QN.push){       // total master (arPackQ 'qn'/'inter', _allQ, examen)
       Array.prototype.push.apply(QN, QCM_U);
       Array.prototype.push.apply(QN, QCM_C);
+    }
+  }catch(e){}
+})();
+
+/* ── 1d) SWIFT & ISO 20022 (MT→MX) — ajouté aux 4 formats, disponible zones UEMOA + CEMAC (sujet universel, non spécifique à une zone) ── */
+(function lotSwiftMigration(){
+  try{
+    var QN_SWIFT = [
+      {cat:"SWIFT & ISO 20022",q:"Quel type de message SWIFT MT correspond à un virement client transfrontalier ?",
+       choices:["MT103","MT202","MT700","MT940"],answer:0,source:"Catégorie 1xx — Paiements clientèle"},
+      {cat:"SWIFT & ISO 20022",q:"Quel message ISO 20022 (MX) remplace le MT103 pour les virements clients transfrontaliers ?",
+       choices:["pacs.008","pain.001","camt.053","pacs.009"],answer:0,source:"CBPR+ — fin de coexistence 22 nov. 2025"},
+      {cat:"SWIFT & ISO 20022",q:"Que doit au minimum contenir une adresse « hybride » selon le mandat SWIFT CBPR+ ?",
+       choices:["Ville et Pays en champs structurés","Uniquement le code postal","Le nom complet en majuscules","Rien, elle reste entièrement libre"],answer:0,source:"Mandat SWIFT SR2026 — adresses hybrides"},
+      {cat:"SWIFT & ISO 20022",q:"À partir de quelle date les adresses non structurées seront-elles rejetées sur le réseau CBPR+ ?",
+       choices:["22 novembre 2025","14 novembre 2026","1er janvier 2027","14 novembre 2027"],answer:1,source:"Mandat SWIFT SR2026"},
+      {cat:"SWIFT & ISO 20022",q:"Quel équivalent MX correspond au MT101 (ordre d'initiation de paiement) ?",
+       choices:["pain.001","pacs.008","camt.054","pacs.004"],answer:0,source:"MT101 → pain.001, fin de coexistence 14 nov. 2026"},
+      {cat:"SWIFT & ISO 20022",q:"Quelle catégorie de messages MT (premier chiffre du code) couvre les crédits documentaires et garanties ?",
+       choices:["3xx","5xx","7xx","9xx"],answer:2,source:"Catégorie 7xx — Crédits documentaires & garanties"},
+      {cat:"SWIFT & ISO 20022",q:"Dans la structure d'un message MT, quel bloc contient le corps du message (les champs eux-mêmes) ?",
+       choices:["Bloc 1","Bloc 2","Bloc 3","Bloc 4"],answer:3,source:"Bloc 4 — Text Block"},
+      {cat:"SWIFT & ISO 20022",q:"Quel est l'équivalent ISO 20022 du relevé de compte MT940 ?",
+       choices:["camt.053","pacs.009","pain.008","camt.056"],answer:0,source:"MT940/942 → camt.053/052"}
+    ];
+    if(typeof window!=='undefined'){
+      if(!window.QN_U) window.QN_U = [];
+      if(!window.QN_C) window.QN_C = [];
+      Array.prototype.push.apply(window.QN_U, QN_SWIFT);   // QCM éclair + Chiffres et Lettres, zone UEMOA
+      Array.prototype.push.apply(window.QN_C, QN_SWIFT);   // idem zone CEMAC — sujet universel
+    }
+    if(typeof QN!=='undefined' && QN && QN.push){
+      Array.prototype.push.apply(QN, QN_SWIFT);
+    }
+
+    var VF_SWIFT = [
+      {q:"Le réseau SWIFT transporte lui-même les fonds d'une banque à une autre.",a:false,source:"SWIFT est un réseau de messagerie sécurisé ; il ne règle pas les fonds."},
+      {q:"Le message MT103 est aujourd'hui remplacé par le message ISO 20022 pacs.008 pour les virements clients transfrontaliers.",a:true,source:"Fin de coexistence MT/MX, 22 novembre 2025 (CBPR+)."},
+      {q:"Une adresse « hybride » en ISO 20022 dispense totalement de renseigner la ville et le pays.",a:false,source:"Ville et Pays restent obligatoires même en format hybride."},
+      {q:"Les MT101 multi-instructions continueront d'être acceptés sans limite après novembre 2026.",a:false,source:"Rejet des MT101 multi-instructions après le 14 novembre 2026 (migration vers pain.001)."},
+      {q:"La catégorie MT 9xx regroupe les messages de gestion de trésorerie et les relevés de compte.",a:true,source:"MT900/910 (avis débit/crédit), MT940/942/950 (relevés)."}
+    ];
+    if(typeof VF_BANK!=='undefined'){
+      VF_BANK.U = (VF_BANK.U||[]).concat(VF_SWIFT);
+      VF_BANK.C = (VF_BANK.C||[]).concat(VF_SWIFT);
+    }
+
+    var CW_SWIFT = [
+      {word:'SWIFT', clue:"Réseau mondial sécurisé de messagerie interbancaire — ce n'est pas un système de paiement"},
+      {word:'PACS', clue:"Famille de messages ISO 20022 pour les paiements de banque à banque (ex. pacs.008)"},
+      {word:'BIC', clue:"Code d'identification bancaire utilisé sur le réseau SWIFT"},
+      {word:'STRUCTUREE', clue:"Type d'adresse où chaque élément (rue, ville, pays) a son propre champ"},
+      {word:'HYBRIDE', clue:"Format d'adresse combinant champs obligatoires structurés et lignes libres limitées"},
+      {word:'COEXISTENCE', clue:"Période durant laquelle les messages MT et MX ont circulé en parallèle sur SWIFT"}
+    ];
+    if(typeof CW_BANK!=='undefined'){
+      CW_BANK.U = (CW_BANK.U||[]).concat(CW_SWIFT);   // Mots mêlés + Charade chrono, zone UEMOA
+      CW_BANK.C = (CW_BANK.C||[]).concat(CW_SWIFT);   // idem zone CEMAC
+    }
+    if(typeof CLL_BANK!=='undefined'){
+      CLL_BANK.U = (CLL_BANK.U||[]).concat(CW_SWIFT); // Match définitions, zone UEMOA
+      CLL_BANK.C = (CLL_BANK.C||[]).concat(CW_SWIFT); // idem zone CEMAC
     }
   }catch(e){}
 })();
