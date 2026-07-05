@@ -3442,11 +3442,14 @@ function rAR(){
     '<button class="ar-tab'+(AR.tab==='charade'?' ac':'')+'" onclick="AR.tab=\'charade\';render()">🎭 Charade chrono</button>'+ // MODIFIÉ : nouvel onglet solo
     '<button class="ar-tab'+(AR.tab==='chiffreslettres'?' ac':'')+'" onclick="AR.tab=\'chiffreslettres\';render()">🔢🔤 Chiffres et Lettres</button>'+ // MODIFIÉ : nouvel onglet solo
     '<button class="ar-tab'+(AR.tab==='vraifaux'?' ac':'')+'" onclick="AR.tab=\'vraifaux\';render()">✅❌ Vrai/Faux</button>'+ // MODIFIÉ : nouvel onglet Premium
+    '<button class="ar-tab'+(AR.tab==='qcmeclair'?' ac':'')+'" onclick="AR.tab=\'qcmeclair\';render()">🎯 QCM éclair</button>'+ // MODIFIÉ : trio rapide Premium
+    '<button class="ar-tab'+(AR.tab==='matchdef'?' ac':'')+'" onclick="AR.tab=\'matchdef\';render()">🔗 Match définitions</button>'+ // MODIFIÉ : trio rapide Premium
+    '<button class="ar-tab'+(AR.tab==='classement'?' ac':'')+'" onclick="AR.tab=\'classement\';render()">📶 Classement</button>'+ // MODIFIÉ : trio rapide Premium
   '</div>';
   return '<div style="display:flex;flex-direction:column;gap:14px;">'+
     '<h2 style="font-size:22px;color:white;">L\'Arène – Défis Professionnels</h2>'+
     tabs +
-    (AR.tab==='duels' ? rARDuelsHome() : AR.tab==='kotm' ? rARKotmHome() : AR.tab==='direct' ? rLiveHub() : AR.tab==='crossword' ? rARCrosswordHome() : AR.tab==='wordsearch' ? rARWordsearchHome() : AR.tab==='charade' ? rARCharadeHome() : AR.tab==='chiffreslettres' ? rARCLHome() : AR.tab==='vraifaux' ? rARVraiFauxHome() : rARTournoisHome()) + // MODIFIÉ : onglet crossword + wordsearch + charade + chiffreslettres + vraifaux
+    (AR.tab==='duels' ? rARDuelsHome() : AR.tab==='kotm' ? rARKotmHome() : AR.tab==='direct' ? rLiveHub() : AR.tab==='crossword' ? rARCrosswordHome() : AR.tab==='wordsearch' ? rARWordsearchHome() : AR.tab==='charade' ? rARCharadeHome() : AR.tab==='chiffreslettres' ? rARCLHome() : AR.tab==='vraifaux' ? rARVraiFauxHome() : AR.tab==='qcmeclair' ? rARQEHome() : AR.tab==='matchdef' ? rARMDHome() : AR.tab==='classement' ? rARCHHome() : rARTournoisHome()) + // MODIFIÉ : + trio rapide (qcmeclair/matchdef/classement)
   '</div>';
 }
 
@@ -4279,6 +4282,299 @@ function rARVraiFauxGame(){
     h += '<div class="'+(ok?'al al-ok':'al al-warn')+'" style="font-size:13px;">'+(ok?'✔ Correct ! ':'✘ Incorrect. ')+'Réponse : '+(item.a?'Vrai':'Faux')+(item.source?' — '+item.source:'')+'</div>'+
       '<button class="btn" style="width:100%;padding:13px;" onclick="vfNext()">'+(VF.idx+1<VF.questions.length?'Suivant →':'Voir le score')+'</button>';
   }
+  h += '</div>';
+  return h;
+}
+
+/* MODIFIÉ : trio rapide Premium — QCM éclair / Match définitions / Classement hiérarchique
+   Zéro contenu inventé : QCM éclair puise dans QN_U/QN_C (banque déjà validée), Match définitions
+   dans les glossaires BR/BB déjà validés, Classement hiérarchique reconstruit l'ordre de processus
+   déjà décrits dans les fiches de révision BR/BB existantes (à faire reconfirmer par Amadou Sall
+   avant mise en avant commerciale, par simple relecture — aucun nouveau seuil introduit). */
+
+/* ── QCM éclair ── */
+var QE = {zone:null, list:[], idx:0, score:0, timerMax:12, timerVal:12, timerId:null, qStart:0, answered:false, selected:null, timedOut:false, lastPts:0};
+function qeStopTimer(){ if(QE.timerId){ clearInterval(QE.timerId); QE.timerId=null; } }
+function qeTick(){
+  var rem = QE.timerMax - Math.floor((Date.now()-QE.qStart)/1000);
+  if(rem<0) rem=0;
+  QE.timerVal = rem;
+  var tf=ge('qe-tmr-fill'), tt=ge('qe-tmr-txt');
+  if(tf){ var p=Math.max(0,Math.round(rem/QE.timerMax*100)); tf.style.width=p+'%'; tf.style.background=rem<=3?'#ef4444':rem<=6?'#fbbf24':''; }
+  if(tt){ tt.textContent='⏱ '+rem+'s'; tt.style.color=rem<=3?'#f87171':rem<=6?'#fbbf24':'var(--cyan)'; }
+  if(rem<=0){ qeStopTimer(); qeTimeup(); }
+}
+function qeStartTimer(){ qeStopTimer(); QE.qStart=Date.now(); qeTick(); QE.timerId=setInterval(qeTick,250); }
+function qeBuildBank(zone){
+  var pool = (zone==='CEMAC' ? (window.QN_C||[]) : (window.QN_U||[])).filter(function(it){
+    return it && it.choices && it.choices.length>=2 && typeof it.answer==='number';
+  }).slice();
+  pool.sort(function(){ return Math.random()-0.5; });
+  return pool.slice(0, Math.min(10, pool.length));
+}
+function qeNext(){
+  QE.answered=false; QE.selected=null; QE.timedOut=false; QE.lastPts=0;
+  render();
+  qeStartTimer();
+}
+function qeStart(zone){
+  apiCall('POST','/wg/play',{format:'qcmeclair'}).then(function(resp){
+    if(!resp || !resp._raw || !resp._raw.allowed){ wgPaywallModal(resp&&resp.error, resp&&resp._raw&&resp._raw.meritProgress); return; }
+    QE.zone=zone; QE.list=qeBuildBank(zone); QE.idx=0; QE.score=0;
+    if(!QE.list.length){ QE.zone=null; render(); return; }
+    qeNext();
+  });
+}
+function qeAnswer(i){
+  if(QE.answered) return;
+  qeStopTimer();
+  QE.answered=true; QE.selected=i;
+  var ok = (i===QE.list[QE.idx].answer);
+  QE.lastPts = ok ? (QE.timerVal>=8?3:QE.timerVal>=4?2:1) : 0;
+  QE.score += QE.lastPts;
+  render();
+}
+function qeTimeup(){ QE.answered=true; QE.timedOut=true; QE.lastPts=0; render(); }
+function qeAdvance(){
+  QE.idx++;
+  if(QE.idx>=QE.list.length){ qeStopTimer(); render(); return; }
+  qeNext();
+}
+function qeExit(){ qeStopTimer(); QE.zone=null; QE.list=[]; QE.idx=0; QE.score=0; render(); }
+function rARQEHome(){
+  if(QE.zone) return rARQEGame();
+  return '<div style="display:flex;flex-direction:column;gap:12px;">'+
+    '<div class="al al-info" style="font-size:12px;">🎯 <strong>QCM éclair :</strong> 10 questions, chrono serré (12s). Plus vous répondez vite, plus vous marquez de points (3 → 2 → 1).</div>'+
+    '<button class="btn" style="width:100%;padding:14px;" onclick="qeStart(\'UEMOA\')">🇸🇳 Zone UEMOA</button>'+
+    '<button class="btn" style="width:100%;padding:14px;" onclick="qeStart(\'CEMAC\')">🌍 Zone CEMAC</button>'+
+  '</div>';
+}
+function rARQEGame(){
+  var max = QE.list.length*3;
+  if(QE.idx >= QE.list.length){
+    return '<div style="display:flex;flex-direction:column;gap:14px;">'+
+      '<div style="font-weight:800;color:white;font-size:14px;">🎯 QCM éclair — Zone '+QE.zone+'</div>'+
+      '<div class="al al-info" style="text-align:center;font-weight:700;">🏁 Terminé ! Score : '+QE.score+' / '+max+'</div>'+
+      wgCertButton('QCM éclair réglementaire', QE.zone, QE.score, max)+
+      '<button class="btn" style="width:100%;padding:13px;" onclick="qeStart(QE.zone)">🔄 Nouvelle manche</button>'+
+      '<button class="btn-out" style="width:100%;padding:12px;" onclick="qeExit()">← Changer de zone</button>'+
+    '</div>';
+  }
+  var item = QE.list[QE.idx];
+  var h = '<div style="display:flex;flex-direction:column;gap:14px;">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;">'+
+      '<div style="font-weight:800;color:white;font-size:14px;">🎯 QCM éclair — Zone '+QE.zone+'</div>'+
+      '<div style="font-size:12px;color:var(--sub);">Q'+(QE.idx+1)+'/'+QE.list.length+' · Score '+QE.score+'</div>'+
+    '</div>'+
+    '<div class="tmr-bar" style="height:6px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;"><div id="qe-tmr-fill" style="height:100%;width:100%;background:var(--cyan);transition:width .2s linear;"></div></div>'+
+    '<div style="display:flex;justify-content:flex-end;"><span id="qe-tmr-txt" style="font-size:12px;font-weight:700;color:var(--cyan);">⏱ '+QE.timerVal+'s</span></div>'+
+    '<div class="card" style="padding:16px;font-size:14px;color:#dce8f7;line-height:1.5;">'+item.q+'</div>';
+  if(!QE.answered){
+    h += '<div style="display:flex;flex-direction:column;gap:8px;">'+
+      item.choices.map(function(c,i){ return '<button class="btn-out" style="width:100%;padding:12px;text-align:left;" onclick="qeAnswer('+i+')">'+c+'</button>'; }).join('')+
+    '</div>';
+  } else {
+    var ok = QE.selected===item.answer;
+    h += '<div style="display:flex;flex-direction:column;gap:8px;">'+
+      item.choices.map(function(c,i){
+        var isCorrect=(i===item.answer), isPicked=(i===QE.selected);
+        var bg = isCorrect ? 'background:rgba(22,163,74,.18);border-color:#16a34a;' : (isPicked ? 'background:rgba(239,68,68,.18);border-color:#ef4444;' : '');
+        return '<div class="btn-out" style="width:100%;padding:12px;text-align:left;'+bg+'">'+c+(isCorrect?' ✔':'')+'</div>';
+      }).join('')+
+    '</div>'+
+    '<div class="'+(ok?'al al-ok':'al al-warn')+'" style="font-size:12px;">'+(QE.timedOut?'⏱ Temps écoulé. ':(ok?'✔ Correct (+'+QE.lastPts+' pt) ! ':'✘ Incorrect. '))+(item.source||item.ref?'Source : '+(item.source||item.ref):'')+'</div>'+
+    '<button class="btn" style="width:100%;padding:13px;" onclick="qeAdvance()">'+(QE.idx+1>=QE.list.length?'Voir le score final':'Question suivante →')+'</button>';
+  }
+  h += '<button class="btn-out" style="width:100%;padding:12px;" onclick="qeExit()">← Changer de zone</button>';
+  h += '</div>';
+  return h;
+}
+
+/* ── Match définitions ── */
+var MD = {pack:null, terms:[], defs:[], selectedTerm:null, matched:{}, mistakes:0, timerMax:75, timerVal:75, timerId:null, tStart:0, done:false};
+function mdStopTimer(){ if(MD.timerId){ clearInterval(MD.timerId); MD.timerId=null; } }
+function mdTick(){
+  var rem = MD.timerMax - Math.floor((Date.now()-MD.tStart)/1000);
+  if(rem<0) rem=0;
+  MD.timerVal=rem;
+  var tf=ge('md-tmr-fill'), tt=ge('md-tmr-txt');
+  if(tf){ var p=Math.max(0,Math.round(rem/MD.timerMax*100)); tf.style.width=p+'%'; tf.style.background=rem<=10?'#ef4444':rem<=25?'#fbbf24':''; }
+  if(tt){ tt.textContent='⏱ '+rem+'s'; tt.style.color=rem<=10?'#f87171':rem<=25?'#fbbf24':'var(--cyan)'; }
+  if(rem<=0){ mdStopTimer(); MD.done=true; render(); }
+}
+function mdStartTimer(){ mdStopTimer(); MD.tStart=Date.now(); mdTick(); MD.timerId=setInterval(mdTick,250); }
+function mdBuildRound(packKey){
+  var src = (packKey==='BB' ? BB.glossaire : BR.glossaire) || [];
+  var pool = src.slice();
+  pool.sort(function(){ return Math.random()-0.5; });
+  var n = Math.min(5, pool.length);
+  var picked = pool.slice(0,n).map(function(g,i){ return {id:'t'+i, terme:g.terme, definition:g.definition}; });
+  var terms = picked.slice(); terms.sort(function(){ return Math.random()-0.5; });
+  var defs = picked.slice(); defs.sort(function(){ return Math.random()-0.5; });
+  return {terms:terms, defs:defs};
+}
+function mdStart(packKey){
+  apiCall('POST','/wg/play',{format:'matchdef'}).then(function(resp){
+    if(!resp || !resp._raw || !resp._raw.allowed){ wgPaywallModal(resp&&resp.error, resp&&resp._raw&&resp._raw.meritProgress); return; }
+    var r = mdBuildRound(packKey);
+    if(!r.terms.length){ return; }
+    MD.pack=packKey; MD.terms=r.terms; MD.defs=r.defs; MD.selectedTerm=null; MD.matched={}; MD.mistakes=0; MD.done=false;
+    render(); mdStartTimer();
+  });
+}
+function mdPickTerm(id){
+  if(MD.done || MD.matched[id]) return;
+  MD.selectedTerm = (MD.selectedTerm===id) ? null : id;
+  render();
+}
+function mdPickDef(id){
+  if(MD.done || MD.matched[id] || !MD.selectedTerm) return;
+  if(MD.selectedTerm===id){
+    MD.matched[id]=true; MD.selectedTerm=null;
+    var allDone = MD.terms.every(function(t){ return MD.matched[t.id]; });
+    if(allDone){ mdStopTimer(); MD.done=true; }
+  } else {
+    MD.mistakes++; MD.selectedTerm=null;
+  }
+  render();
+}
+function mdExit(){ mdStopTimer(); MD.pack=null; MD.terms=[]; MD.defs=[]; MD.selectedTerm=null; MD.matched={}; MD.done=false; render(); }
+function rARMDHome(){
+  if(MD.pack) return rARMDGame();
+  return '<div style="display:flex;flex-direction:column;gap:12px;">'+
+    '<div class="al al-info" style="font-size:12px;">🔗 <strong>Match définitions :</strong> associez chaque terme à sa définition exacte avant la fin du chrono (75s).</div>'+
+    '<button class="btn" style="width:100%;padding:14px;" onclick="mdStart(\'BR\')">🌍 Glossaire RFE UEMOA</button>'+
+    '<button class="btn" style="width:100%;padding:14px;" onclick="mdStart(\'BB\')">⚖️ Glossaire Bâle/UMOA</button>'+
+  '</div>';
+}
+function rARMDGame(){
+  var totalMatched = Object.keys(MD.matched).length, total = MD.terms.length;
+  var h = '<div style="display:flex;flex-direction:column;gap:14px;">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;">'+
+      '<div style="font-weight:800;color:white;font-size:14px;">🔗 Match définitions</div>'+
+      '<div style="font-size:12px;color:var(--sub);">'+totalMatched+'/'+total+' · Erreurs '+MD.mistakes+'</div>'+
+    '</div>';
+  if(!MD.done){
+    h += '<div class="tmr-bar" style="height:6px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;"><div id="md-tmr-fill" style="height:100%;width:100%;background:var(--cyan);transition:width .2s linear;"></div></div>'+
+      '<div style="display:flex;justify-content:flex-end;"><span id="md-tmr-txt" style="font-size:12px;font-weight:700;color:var(--cyan);">⏱ '+MD.timerVal+'s</span></div>'+
+      '<div style="display:flex;gap:10px;">'+
+        '<div style="flex:1;display:flex;flex-direction:column;gap:6px;">'+
+          MD.terms.map(function(t){
+            var m=MD.matched[t.id], sel=(MD.selectedTerm===t.id);
+            return '<button class="btn-out" style="width:100%;padding:10px 8px;font-size:12px;text-align:left;'+(m?'opacity:.35;background:rgba(22,163,74,.18);border-color:#16a34a;':sel?'background:rgba(0,180,216,.18);border-color:var(--cyan);':'')+'" '+(m?'disabled':'')+' onclick="mdPickTerm(\''+t.id+'\')">'+t.terme+'</button>';
+          }).join('')+
+        '</div>'+
+        '<div style="flex:1;display:flex;flex-direction:column;gap:6px;">'+
+          MD.defs.map(function(d){
+            var m=MD.matched[d.id];
+            return '<button class="btn-out" style="width:100%;padding:10px 8px;font-size:11px;text-align:left;'+(m?'opacity:.35;background:rgba(22,163,74,.18);border-color:#16a34a;':'')+'" '+(m?'disabled':'')+' onclick="mdPickDef(\''+d.id+'\')">'+d.definition+'</button>';
+          }).join('')+
+        '</div>'+
+      '</div>';
+  } else {
+    h += '<div class="al al-info" style="text-align:center;font-weight:700;">🏁 Terminé ! '+totalMatched+'/'+total+' correspondances · '+MD.mistakes+' erreur(s)</div>'+
+      wgCertButton('Match définitions réglementaire', MD.pack, totalMatched, total)+
+      '<button class="btn" style="width:100%;padding:13px;" onclick="mdStart(MD.pack)">🔄 Nouvelle manche</button>';
+  }
+  h += '<button class="btn-out" style="width:100%;padding:12px;" onclick="mdExit()">← Changer de glossaire</button>';
+  h += '</div>';
+  return h;
+}
+
+/* ── Classement hiérarchique ──
+   Processus reconstruits à partir des fiches de révision déjà validées (BR/BB) — à faire
+   reconfirmer par Amadou Sall par simple relecture avant mise en avant commerciale. */
+var CH_BANK = [
+  {id:'cession', titre:'Cession de devises à l\'export (RFE UEMOA)', steps:[
+    'Expédition des marchandises par l\'exportateur',
+    'Exigibilité du paiement (max 120 jours après expédition)',
+    'Encaissement des devises par le résident',
+    'Cession des devises à un intermédiaire agréé (max 1 mois après exigibilité)',
+    'Compte rendu à la Direction des Finances Extérieures et à la BCEAO'
+  ]},
+  {id:'investEtranger', titre:'Investissement à l\'étranger par un résident UEMOA', steps:[
+    'Constitution du dossier (lettre selon modèle Annexe VII)',
+    'Autorisation préalable du Ministre chargé des Finances',
+    'Financement à 75% minimum par emprunts étrangers',
+    'Réalisation de l\'investissement',
+    'Déclaration de liquidation et rapatriement sous 1 mois si non réinvesti'
+  ]},
+  {id:'depart', titre:'Départ définitif d\'un étranger résident (Note BCEAO 2026)', steps:[
+    'Constitution du dossier d\'avoirs justifiés',
+    'Demande d\'autorisation à la Structure Finances Extérieures',
+    'Instruction de la demande par la Structure',
+    'Transfert intégral du solde des comptes FCFA'
+  ]},
+  {id:'fodep', titre:'Déclaration prudentielle FODEP (UMOA)', steps:[
+    'Arrêté des comptes (31/12 ou 30/06)',
+    'Élaboration du FODEP sur la plate-forme dédiée',
+    'Transmission à la BCEAO (30 avril ou 31 octobre)'
+  ]},
+  {id:'pilier', titre:'Cycle de surveillance prudentielle (Piliers Bâle UMOA)', steps:[
+    'Calcul des ratios minimums de fonds propres (Pilier 1)',
+    'Auto-évaluation ICAAP par l\'établissement (Pilier 2)',
+    'Évaluation SREP par la Commission Bancaire (Pilier 2)',
+    'Publication des informations — discipline de marché (Pilier 3)'
+  ]}
+];
+var CH = {procId:null, order:[], checked:false};
+function chShuffledOrder(n){
+  var o=[]; for(var i=0;i<n;i++) o.push(i);
+  do { o.sort(function(){ return Math.random()-0.5; }); } while(n>1 && o.every(function(v,i){ return v===i; }));
+  return o;
+}
+function chStart(id){
+  apiCall('POST','/wg/play',{format:'classement'}).then(function(resp){
+    if(!resp || !resp._raw || !resp._raw.allowed){ wgPaywallModal(resp&&resp.error, resp&&resp._raw&&resp._raw.meritProgress); return; }
+    var proc = CH_BANK.filter(function(p){ return p.id===id; })[0];
+    if(!proc) return;
+    CH.procId=id; CH.order=chShuffledOrder(proc.steps.length); CH.checked=false;
+    render();
+  });
+}
+function chMove(pos, dir){
+  if(CH.checked) return;
+  var np = pos+dir;
+  if(np<0 || np>=CH.order.length) return;
+  var tmp=CH.order[pos]; CH.order[pos]=CH.order[np]; CH.order[np]=tmp;
+  render();
+}
+function chValidate(){ CH.checked=true; render(); }
+function chExit(){ CH.procId=null; CH.order=[]; CH.checked=false; render(); }
+function rARCHHome(){
+  if(CH.procId) return rARCHGame();
+  return '<div style="display:flex;flex-direction:column;gap:12px;">'+
+    '<div class="al al-info" style="font-size:12px;">📶 <strong>Classement hiérarchique :</strong> remettez les étapes du processus dans le bon ordre.</div>'+
+    CH_BANK.map(function(p){ return '<button class="btn" style="width:100%;padding:13px;text-align:left;" onclick="chStart(\''+p.id+'\')">'+p.titre+'</button>'; }).join('')+
+  '</div>';
+}
+function rARCHGame(){
+  var proc = CH_BANK.filter(function(p){ return p.id===CH.procId; })[0];
+  var correctCount = CH.checked ? CH.order.filter(function(v,i){ return v===i; }).length : 0;
+  var h = '<div style="display:flex;flex-direction:column;gap:14px;">'+
+    '<div style="font-weight:800;color:white;font-size:14px;">📶 '+proc.titre+'</div>'+
+    '<div style="display:flex;flex-direction:column;gap:8px;">'+
+      CH.order.map(function(stepIdx, pos){
+        var isCorrectPos = CH.checked && (stepIdx===pos);
+        var bg = CH.checked ? (isCorrectPos?'background:rgba(22,163,74,.18);border-color:#16a34a;':'background:rgba(239,68,68,.18);border-color:#ef4444;') : '';
+        return '<div class="card" style="padding:10px 12px;display:flex;align-items:center;gap:10px;'+bg+'">'+
+          '<span style="font-weight:800;color:var(--cyan);min-width:20px;">'+(pos+1)+'.</span>'+
+          '<span style="flex:1;font-size:13px;color:#dce8f7;">'+proc.steps[stepIdx]+'</span>'+
+          (!CH.checked ? (
+            '<button class="btn-out btn-sm" style="padding:6px 10px;" onclick="chMove('+pos+',-1)" '+(pos===0?'disabled':'')+'>▲</button>'+
+            '<button class="btn-out btn-sm" style="padding:6px 10px;" onclick="chMove('+pos+',1)" '+(pos===CH.order.length-1?'disabled':'')+'>▼</button>'
+          ) : (isCorrectPos?'✔':'✘'))+
+        '</div>';
+      }).join('')+
+    '</div>';
+  if(!CH.checked){
+    h += '<button class="btn" style="width:100%;padding:13px;" onclick="chValidate()">Valider l\'ordre</button>';
+  } else {
+    h += '<div class="al '+(correctCount===CH.order.length?'al-ok':'al-warn')+'" style="text-align:center;font-weight:700;">Score : '+correctCount+' / '+CH.order.length+' bien placées</div>'+
+      wgCertButton('Classement hiérarchique réglementaire', proc.titre, correctCount, CH.order.length)+
+      '<button class="btn" style="width:100%;padding:13px;" onclick="chStart(CH.procId)">🔄 Nouvelle tentative</button>';
+  }
+  h += '<button class="btn-out" style="width:100%;padding:12px;" onclick="chExit()">← Changer de processus</button>';
   h += '</div>';
   return h;
 }
