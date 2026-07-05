@@ -3534,12 +3534,34 @@ function cwGenerateLayout(wordObjs){
   var numbers = cwNumberGrid(placed);
   return {placed:placed, gridMap:norm.gridMap, rows:norm.rows, cols:norm.cols, numbers:numbers, totalCells:Object.keys(norm.gridMap).length};
 }
+/* MODIFIÉ : paywall jeux de lettres — 1 essai gratuit/format à vie, puis abonnement (Standard 1/jour, Illimité sans limite) */
+var WG_CONTACT_WHATSAPP = '221000000000'; // MODIFIÉ — ⚠️ à remplacer par le vrai numéro WhatsApp Abdou
+function wgPaywallModal(reason){
+  var msg = reason || "Vous avez déjà utilisé votre essai gratuit pour ce format.";
+  var wa = 'https://wa.me/'+WG_CONTACT_WHATSAPP+'?text='+encodeURIComponent("Bonjour, je veux m'abonner aux jeux de lettres Regul Arena (Mots croisés / Mots mêlés).");
+  showModal('🔒 Abonnement requis',
+    '<div style="display:flex;flex-direction:column;gap:14px;font-size:13px;color:var(--sub);line-height:1.55;">'+
+      '<div class="al al-warn">'+msg+'</div>'+
+      '<div class="card" style="padding:14px;">'+
+        '<div style="font-weight:800;color:white;margin-bottom:4px;">Standard — 2 000 FCFA / mois</div>'+
+        '<div>1 grille par jour, au choix parmi les formats disponibles.</div>'+
+      '</div>'+
+      '<div class="card" style="padding:14px;border:1px solid rgba(201,153,26,.45);">'+
+        '<div style="font-weight:800;color:var(--cyan);margin-bottom:4px;">Illimité — 4 000 FCFA / mois</div>'+
+        '<div>Parties illimitées, tous formats, sans quota quotidien.</div>'+
+      '</div>'+
+      '<button class="btn" style="width:100%;padding:13px;" onclick="window.open(\''+wa+'\',\'_blank\')">📱 S\'abonner via WhatsApp</button>'+
+    '</div>');
+}
 function cwStart(zone){
-  var bank = (zone==='CEMAC' ? CW_BANK.C : CW_BANK.U).slice();
-  bank.sort(function(){ return Math.random()-0.5; });
-  var n = Math.min(8, bank.length);
-  CW.zone = zone; CW.layout = cwGenerateLayout(bank.slice(0,n)); CW.inputs = {}; CW.checked = false; CW.score = 0;
-  render();
+  apiCall('POST','/wg/play',{format:'crossword'}).then(function(resp){
+    if(!resp || !resp._raw || !resp._raw.allowed){ wgPaywallModal(resp&&resp.error); return; }
+    var bank = (zone==='CEMAC' ? CW_BANK.C : CW_BANK.U).slice();
+    bank.sort(function(){ return Math.random()-0.5; });
+    var n = Math.min(8, bank.length);
+    CW.zone = zone; CW.layout = cwGenerateLayout(bank.slice(0,n)); CW.inputs = {}; CW.checked = false; CW.score = 0;
+    render();
+  });
 }
 function cwCellSet(key,val){ CW.inputs[key] = (val||'').slice(-1).toUpperCase(); }
 function cwCheckGrid(){
