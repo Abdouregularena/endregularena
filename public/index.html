@@ -3549,16 +3549,22 @@ var WG_CONTACT_WHATSAPP = '221775156158'; // MODIFIÉ — numéro WhatsApp/Wave/
 function wgPaywallModal(reason){
   var msg = reason || "Vous avez déjà utilisé votre essai gratuit pour ce format.";
   var wa = 'https://wa.me/'+WG_CONTACT_WHATSAPP+'?text='+encodeURIComponent("Bonjour, je veux m'abonner aux jeux de lettres Regul Arena (Mots croisés / Mots mêlés).");
-  showModal('🔒 Abonnement requis',
+  showModal('🔒 Accès Premium requis', // MODIFIÉ : ajout du déblocage gratuit par mérite
     '<div style="display:flex;flex-direction:column;gap:14px;font-size:13px;color:var(--sub);line-height:1.55;">'+
       '<div class="al al-warn">'+msg+'</div>'+
+      '<div class="card" style="padding:14px;border:1px solid rgba(74,222,128,.35);">'+
+        '<div style="font-weight:800;color:#4ade80;margin-bottom:6px;">🏅 Débloqué gratuitement si vous êtes :</div>'+
+        '<div>⭐ Palier Expert ou Maître (250 pts et plus)</div>'+
+        '<div>🏆 Top 3 du classement de votre zone</div>'+
+        '<div>🎓 Détenteur de 20 certificats ou plus</div>'+
+      '</div>'+
       '<div class="card" style="padding:14px;">'+
         '<div style="font-weight:800;color:white;margin-bottom:4px;">Standard — 2 000 FCFA / mois</div>'+
         '<div>1 grille par jour, au choix parmi les formats disponibles.</div>'+
       '</div>'+
       '<div class="card" style="padding:14px;border:1px solid rgba(201,153,26,.45);">'+
         '<div style="font-weight:800;color:var(--cyan);margin-bottom:4px;">Illimité — 4 000 FCFA / mois</div>'+
-        '<div>Parties illimitées, tous formats, sans quota quotidien.</div>'+
+        '<div>Parties illimitées, tous formats, badges & certificats inclus.</div>'+
       '</div>'+
       '<button class="btn" style="width:100%;padding:13px;" onclick="window.open(\''+wa+'\',\'_blank\')">📱 S\'abonner via WhatsApp</button>'+
     '</div>');
