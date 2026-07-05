@@ -252,6 +252,32 @@ db.exec(`
 // MODIFIÉ — récupération des inscrits non vérifiés (idempotent : sans effet une fois tous à 1)
 db.prepare("UPDATE users SET email_verified = 1 WHERE email_verified = 0").run();
 
+// MODIFIÉ — Jeux de lettres (mots croisés / mots mêlés...) : essai gratuit unique + abonnement + quota quotidien
+db.exec(`
+  CREATE TABLE IF NOT EXISTS wg_access (
+    user_id         INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    tier            TEXT    NOT NULL DEFAULT 'free',   -- 'free' | 'standard' | 'illimite'
+    tier_expires_at TEXT,
+    free_trial_used TEXT    NOT NULL DEFAULT '{}',      -- JSON { crossword:true, wordsearch:true }
+    last_play_date  TEXT    NOT NULL DEFAULT '',        -- 'YYYY-MM-DD'
+    plays_today     INTEGER NOT NULL DEFAULT 0
+  );
+`);
+const WG_TODAY = () => new Date().toISOString().slice(0, 10);
+function wgGetRow(userId) {
+  let row = db.prepare('SELECT * FROM wg_access WHERE user_id = ?').get(userId);
+  if (!row) {
+    db.prepare('INSERT INTO wg_access (user_id) VALUES (?)').run(userId);
+    row = db.prepare('SELECT * FROM wg_access WHERE user_id = ?').get(userId);
+  }
+  return row;
+}
+function wgTierActive(row) {
+  if (row.tier === 'free') return 'free';
+  if (row.tier_expires_at && new Date(row.tier_expires_at).getTime() >= Date.now()) return row.tier;
+  return 'free'; // abonnement expiré → retombe en gratuit
+}
+
 /* ── NOTIFICATIONS HELPER ──────────────────────────────────────────── */
 function notifyAllExcept(excludeUserId, type, message) {
   const users = db.prepare('SELECT id FROM users WHERE email_verified = 1 AND id != ? ORDER BY RANDOM() LIMIT 50').all(excludeUserId);
@@ -727,6 +753,60 @@ app.get('/auth/me', requireAuth, (req, res) => {
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id);
   if (!user) return err(res, 404, 'Compte introuvable');
   return ok(res, { user: { ...publicUser(user), is_verified: user.email_verified === 1 } });
+});
+
+/* ================================================================
+   ROUTES JEUX DE LETTRES (mots croisés / mots mêlés...)
+   Règles : 1 essai gratuit par format (à vie), puis abonnement requis.
+   - standard  : 1 partie / jour, tous formats confondus
+   - illimite  : parties illimitées
+================================================================ */
+
+app.get('/auth/wg/access', requireAuth, (req, res) => {
+  const row = wgGetRow(req.user.id);
+  const today = WG_TODAY();
+  const playsToday = row.last_play_date === today ? row.plays_today : 0;
+  let freeTrialUsed = {};
+  try { freeTrialUsed = JSON.parse(row.free_trial_used || '{}'); } catch (_) {}
+  return ok(res, {
+    tier: wgTierActive(row),
+    tierExpiresAt: row.tier_expires_at || null,
+    freeTrialUsed,
+    playsToday
+  });
+});
+
+app.post('/auth/wg/play', requireAuth, (req, res) => {
+  const format = (req.body && req.body.format) || 'crossword';
+  const row = wgGetRow(req.user.id);
+  const today = WG_TODAY();
+  const tier = wgTierActive(row);
+  let freeTrialUsed = {};
+  try { freeTrialUsed = JSON.parse(row.free_trial_used || '{}'); } catch (_) {}
+
+  if (row.last_play_date !== today) { row.plays_today = 0; }
+
+  if (tier === 'illimite') {
+    db.prepare('UPDATE wg_access SET last_play_date = ?, plays_today = plays_today + 1 WHERE user_id = ?')
+      .run(today, req.user.id);
+    return ok(res, { allowed: true, tier: 'illimite' });
+  }
+
+  if (tier === 'standard') {
+    if (row.plays_today >= 1) {
+      return err(res, 403, 'Limite quotidienne atteinte (1 partie/jour). Passez en formule Illimité pour rejouer sans limite.');
+    }
+    db.prepare('UPDATE wg_access SET last_play_date = ?, plays_today = 1 WHERE user_id = ?').run(today, req.user.id);
+    return ok(res, { allowed: true, tier: 'standard', playsToday: 1 });
+  }
+
+  if (freeTrialUsed[format]) {
+    return err(res, 403, "Essai gratuit déjà utilisé pour ce format. Abonnez-vous pour continuer à jouer.");
+  }
+  freeTrialUsed[format] = true;
+  db.prepare('UPDATE wg_access SET free_trial_used = ? WHERE user_id = ?')
+    .run(JSON.stringify(freeTrialUsed), req.user.id);
+  return ok(res, { allowed: true, tier: 'free', freeTrialConsumed: format });
 });
 
 
@@ -2778,6 +2858,23 @@ app.post('/admin/promote', requireAdmin, (req, res) => {
   if (!target) return err(res, 404, "Aucun compte Regul Arena n'existe avec cet email. La personne doit d'abord s'inscrire.");
   db.prepare("UPDATE users SET role = 'admin' WHERE id = ?").run(target.id);
   return ok(res, { message: `${target.email} est maintenant administrateur.`, id: target.id });
+});
+
+/* POST /admin/wg/activate   Body : { email, tier: 'standard'|'illimite', days }
+   → activation manuelle après paiement WhatsApp (Wave/Orange Money) — même logique que les formations protégées
+*/
+app.post('/admin/wg/activate', requireAdmin, (req, res) => {
+  const email = (req.body && req.body.email || '').trim().toLowerCase();
+  const tier = (req.body && req.body.tier || '').trim();
+  const days = parseInt((req.body && req.body.days) || 30, 10);
+  if (!email) return err(res, 400, 'Email requis');
+  if (tier !== 'standard' && tier !== 'illimite') return err(res, 400, "tier doit être 'standard' ou 'illimite'");
+  const target = db.prepare('SELECT id, email FROM users WHERE LOWER(email) = ?').get(email);
+  if (!target) return err(res, 404, "Aucun compte Regul Arena n'existe avec cet email.");
+  wgGetRow(target.id); // s'assure que la ligne existe
+  const expires = new Date(Date.now() + days * 86400000).toISOString();
+  db.prepare('UPDATE wg_access SET tier = ?, tier_expires_at = ? WHERE user_id = ?').run(tier, expires, target.id);
+  return ok(res, { message: `Abonnement ${tier} activé pour ${target.email} jusqu'au ${expires.slice(0,10)}.` });
 });
 
 // GET /admin/users — liste des 200 derniers inscrits
