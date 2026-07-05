@@ -3546,32 +3546,41 @@ function cwGenerateLayout(wordObjs){
 }
 /* MODIFIÉ : paywall jeux de lettres — 1 essai gratuit/format à vie, puis abonnement (Standard 1/jour, Illimité sans limite) */
 var WG_CONTACT_WHATSAPP = '221775156158'; // MODIFIÉ — numéro WhatsApp/Wave/Orange Money Abdou
-function wgPaywallModal(reason){
+function wgPaywallModal(reason, meritProgress){
   var msg = reason || "Vous avez déjà utilisé votre essai gratuit pour ce format.";
   var wa = 'https://wa.me/'+WG_CONTACT_WHATSAPP+'?text='+encodeURIComponent("Bonjour, je veux m'abonner aux jeux de lettres Regul Arena (Mots croisés / Mots mêlés).");
-  showModal('🔒 Accès Premium requis', // MODIFIÉ : ajout du déblocage gratuit par mérite
+  var mp = meritProgress || {score:0,neededScore:250,certs:0,neededCerts:20};
+  var pct = Math.max(0, Math.min(100, Math.round((mp.score/mp.neededScore)*100)));
+  var totalQ = QR.length+QB.length+QC.length+QN.length; // MODIFIÉ : total dynamique, jamais figé
+  showModal('🔓 Accès Premium : déverrouillez votre potentiel', // MODIFIÉ : refonte mérite-first + barre de progression réelle
     '<div style="display:flex;flex-direction:column;gap:14px;font-size:13px;color:var(--sub);line-height:1.55;">'+
       '<div class="al al-warn">'+msg+'</div>'+
       '<div class="card" style="padding:14px;border:1px solid rgba(74,222,128,.35);">'+
-        '<div style="font-weight:800;color:#4ade80;margin-bottom:6px;">🏅 Débloqué gratuitement si vous êtes :</div>'+
-        '<div>⭐ Palier Expert ou Maître (250 pts et plus)</div>'+
-        '<div>🏆 Top 3 du classement de votre zone</div>'+
-        '<div>🎓 Détenteur de 20 certificats ou plus</div>'+
+        '<div style="font-weight:800;color:#4ade80;margin-bottom:6px;">🏅 Option 1 — Le Mérite (accès gratuit)</div>'+
+        '<div style="margin-bottom:10px;">Prouvez votre expertise : palier Expert (250 pts et plus), 20 certificats validés, ou Top 3 de votre zone (UEMOA/CEMAC).</div>'+
+        '<div style="display:flex;justify-content:space-between;font-size:11px;color:white;margin-bottom:4px;">'+
+          '<span>Votre progression</span><span>'+mp.score+' / '+mp.neededScore+' pts</span>'+
+        '</div>'+
+        '<div style="height:8px;border-radius:6px;background:rgba(255,255,255,.12);overflow:hidden;">'+
+          '<div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#4ade80,#22c55e);"></div>'+
+        '</div>'+
+        '<div style="font-size:11px;color:var(--sub);margin-top:4px;">🎓 '+mp.certs+' / '+mp.neededCerts+' certificats</div>'+
       '</div>'+
       '<div class="card" style="padding:14px;">'+
-        '<div style="font-weight:800;color:white;margin-bottom:4px;">Standard — 2 000 FCFA / mois</div>'+
+        '<div style="font-weight:800;color:white;margin-bottom:4px;">Option 2 — Standard (2 000 FCFA/mois)</div>'+
         '<div>1 grille par jour, au choix parmi les formats disponibles.</div>'+
       '</div>'+
       '<div class="card" style="padding:14px;border:1px solid rgba(201,153,26,.45);">'+
-        '<div style="font-weight:800;color:var(--cyan);margin-bottom:4px;">Illimité — 4 000 FCFA / mois</div>'+
-        '<div>Parties illimitées, tous formats, badges & certificats inclus.</div>'+
+        '<div style="font-weight:800;color:var(--cyan);margin-bottom:4px;">Illimité — 4 000 FCFA/mois</div>'+
+        '<div>Accès immédiat à nos '+totalQ+' questions sourcées et à l\'ensemble des fonctionnalités de duel.</div>'+
       '</div>'+
-      '<button class="btn" style="width:100%;padding:13px;" onclick="window.open(\''+wa+'\',\'_blank\')">📱 S\'abonner via WhatsApp</button>'+
+      '<button class="btn" style="width:100%;padding:13px;background:linear-gradient(135deg,var(--cyan),#D4AF37);color:#0A192F;font-weight:800;" onclick="closeModal();ST(\'quiz\')">🎯 Relever le défi (Gratuit)</button>'+
+      '<button class="btn" style="width:100%;padding:13px;background:transparent;border:1px solid var(--gold, #C9991A);color:var(--gold, #C9991A);" onclick="window.open(\''+wa+'\',\'_blank\')">S\'abonner pour un accès illimité</button>'+
     '</div>');
 }
 function cwStart(zone){
   apiCall('POST','/wg/play',{format:'crossword'}).then(function(resp){
-    if(!resp || !resp._raw || !resp._raw.allowed){ wgPaywallModal(resp&&resp.error); return; }
+    if(!resp || !resp._raw || !resp._raw.allowed){ wgPaywallModal(resp&&resp.error, resp&&resp._raw&&resp._raw.meritProgress); return; }
     var bank = (zone==='CEMAC' ? CW_BANK.C : CW_BANK.U).slice();
     bank.sort(function(){ return Math.random()-0.5; });
     var n = Math.min(8, bank.length);
@@ -3754,7 +3763,7 @@ function wsCellClick(r,c){
 }
 function wsStart(zone){
   apiCall('POST','/wg/play',{format:'wordsearch'}).then(function(resp){
-    if(!resp || !resp._raw || !resp._raw.allowed){ wgPaywallModal(resp&&resp.error); return; }
+    if(!resp || !resp._raw || !resp._raw.allowed){ wgPaywallModal(resp&&resp.error, resp&&resp._raw&&resp._raw.meritProgress); return; }
     var bank = (zone==='CEMAC' ? CW_BANK.C : CW_BANK.U).slice();
     bank.sort(function(){ return Math.random()-0.5; });
     var n = Math.min(8, bank.length);
@@ -3868,7 +3877,7 @@ function czBuildBank(zone){
 }
 function czStart(zone){
   apiCall('POST','/wg/play',{format:'charade'}).then(function(resp){
-    if(!resp || !resp._raw || !resp._raw.allowed){ wgPaywallModal(resp&&resp.error); return; }
+    if(!resp || !resp._raw || !resp._raw.allowed){ wgPaywallModal(resp&&resp.error, resp&&resp._raw&&resp._raw.meritProgress); return; }
     var bank = czBuildBank(zone);
     bank.sort(function(){ return Math.random()-0.5; });
     var n = Math.min(6, bank.length);
@@ -4032,7 +4041,7 @@ function clcNextItem(){
 }
 function clcStart(zone){
   apiCall('POST','/wg/play',{format:'chiffreslettres'}).then(function(resp){
-    if(!resp || !resp._raw || !resp._raw.allowed){ wgPaywallModal(resp&&resp.error); return; }
+    if(!resp || !resp._raw || !resp._raw.allowed){ wgPaywallModal(resp&&resp.error, resp&&resp._raw&&resp._raw.meritProgress); return; }
     var bank = clcBuildBank(zone);
     if(!bank.length){ CLC.zone=zone; CLC.list=[]; CLC.idx=0; render(); return; }
     bank.sort(function(){ return Math.random()-0.5; });
@@ -4135,7 +4144,7 @@ function cllMultisetOk(word){
 }
 function cllStart(zone){
   apiCall('POST','/wg/play',{format:'chiffreslettres'}).then(function(resp){
-    if(!resp || !resp._raw || !resp._raw.allowed){ wgPaywallModal(resp&&resp.error); return; }
+    if(!resp || !resp._raw || !resp._raw.allowed){ wgPaywallModal(resp&&resp.error, resp&&resp._raw&&resp._raw.meritProgress); return; }
     var bank = (zone==='CEMAC' ? CLL_BANK.C : CLL_BANK.U);
     var pick = bank[Math.floor(Math.random()*bank.length)];
     var W = cwNormalize(pick.word);
@@ -4225,7 +4234,7 @@ var VF_BANK = { // À VALIDER PAR AMADOU SALL avant prod
 };
 function vfStart(zone){
   apiCall('POST','/wg/play',{format:'vraifaux'}).then(function(resp){
-    if(!resp || !resp._raw || !resp._raw.allowed){ wgPaywallModal(resp&&resp.error); return; }
+    if(!resp || !resp._raw || !resp._raw.allowed){ wgPaywallModal(resp&&resp.error, resp&&resp._raw&&resp._raw.meritProgress); return; }
     var bank = (zone==='CEMAC'?VF_BANK.C:VF_BANK.U).slice();
     bank.sort(function(){ return Math.random()-0.5; });
     VF.zone=zone; VF.questions=bank; VF.idx=0; VF.score=0; VF.answered=false; VF.userAnswer=null;
