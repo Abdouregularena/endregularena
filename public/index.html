@@ -1834,6 +1834,8 @@ var BA  = null, BT = 'fiches', BF = null;
 var REG_EMAIL = ''; // email en attente de confirmation
 /* MODIFIÉ : État Mots croisés (mode solo simplifié) */
 var CW = {zone:null, layout:null, inputs:{}, checked:false, score:0};
+// MODIFIÉ — État Mots mêlés (partage CW_BANK, même paywall wg/access que les mots croisés)
+var WS = {zone:null, layout:null, sel:null, foundWords:{}, foundCells:{}, allFound:false, msg:''};
 var CW_BANK = {
   U:[
     {word:'BCEAO', clue:"Banque centrale de l'UMOA"},
@@ -3432,11 +3434,12 @@ function rAR(){
     '<button class="ar-tab'+(AR.tab==='tournois'?' ac':'')+'" onclick="AR.tab=\'tournois\';render()">🏆 Tournois</button>'+
     '<button class="ar-tab'+(AR.tab==='direct'?' ac':'')+'" onclick="arOpenLive()">📺 Direct</button>'+ // MODIFIÉ : mode spectateur
     '<button class="ar-tab'+(AR.tab==='crossword'?' ac':'')+'" onclick="AR.tab=\'crossword\';render()">🧩 Mots croisés</button>'+ // MODIFIÉ : nouvel onglet solo
+    '<button class="ar-tab'+(AR.tab==='wordsearch'?' ac':'')+'" onclick="AR.tab=\'wordsearch\';render()">🔎 Mots mêlés</button>'+ // MODIFIÉ : nouvel onglet solo
   '</div>';
   return '<div style="display:flex;flex-direction:column;gap:14px;">'+
     '<h2 style="font-size:22px;color:white;">L\'Arène – Défis Professionnels</h2>'+
     tabs +
-    (AR.tab==='duels' ? rARDuelsHome() : AR.tab==='kotm' ? rARKotmHome() : AR.tab==='direct' ? rLiveHub() : AR.tab==='crossword' ? rARCrosswordHome() : rARTournoisHome()) + // MODIFIÉ : onglet crossword
+    (AR.tab==='duels' ? rARDuelsHome() : AR.tab==='kotm' ? rARKotmHome() : AR.tab==='direct' ? rLiveHub() : AR.tab==='crossword' ? rARCrosswordHome() : AR.tab==='wordsearch' ? rARWordsearchHome() : rARTournoisHome()) + // MODIFIÉ : onglet crossword + wordsearch
   '</div>';
 }
 
@@ -3535,7 +3538,7 @@ function cwGenerateLayout(wordObjs){
   return {placed:placed, gridMap:norm.gridMap, rows:norm.rows, cols:norm.cols, numbers:numbers, totalCells:Object.keys(norm.gridMap).length};
 }
 /* MODIFIÉ : paywall jeux de lettres — 1 essai gratuit/format à vie, puis abonnement (Standard 1/jour, Illimité sans limite) */
-var WG_CONTACT_WHATSAPP = '221000000000'; // MODIFIÉ — ⚠️ à remplacer par le vrai numéro WhatsApp Abdou
+var WG_CONTACT_WHATSAPP = '221775156158'; // MODIFIÉ — numéro WhatsApp/Wave/Orange Money Abdou
 function wgPaywallModal(reason){
   var msg = reason || "Vous avez déjà utilisé votre essai gratuit pour ce format.";
   var wa = 'https://wa.me/'+WG_CONTACT_WHATSAPP+'?text='+encodeURIComponent("Bonjour, je veux m'abonner aux jeux de lettres Regul Arena (Mots croisés / Mots mêlés).");
@@ -3628,6 +3631,163 @@ function rARCrosswordGame(){
       '<button class="btn" style="width:100%;padding:13px;" onclick="cwStart(CW.zone)">🔄 Nouvelle grille</button>';
   }
   h += '<button class="btn-out" style="width:100%;padding:12px;" onclick="cwExit()">← Changer de zone</button>';
+  h += '</div>';
+  return h;
+}
+
+/* MODIFIÉ : ─── Mots mêlés — grille de lettres, mots cachés en 8 directions (réutilise CW_BANK) ─── */
+function wsForcePlace(grid, size, w){
+  // Repli garanti (aucune collision) : cherche une position horizontale libre, sinon ajoute une rangée dédiée
+  for(var r=0;r<grid.length;r++){
+    for(var c=0;c<=size-w.W.length;c++){
+      var conflict=false;
+      for(var i=0;i<w.W.length;i++){
+        var existing = grid[r][c+i];
+        if(existing!==null && existing!==w.W[i]){ conflict=true; break; }
+      }
+      if(!conflict){
+        var cells=[];
+        for(var i=0;i<w.W.length;i++){ grid[r][c+i]=w.W[i]; cells.push({r:r,c:c+i}); }
+        return {cells:cells, addedRow:false};
+      }
+    }
+  }
+  var newRow = new Array(size).fill(null);
+  for(var i=0;i<w.W.length;i++){ newRow[i]=w.W[i]; }
+  grid.push(newRow);
+  var cells=[]; for(var i=0;i<w.W.length;i++) cells.push({r:grid.length-1,c:i});
+  return {cells:cells, addedRow:true};
+}
+function wsGenerateGrid(wordObjs){
+  var DIRS = [[0,1],[0,-1],[1,0],[-1,0],[1,1],[1,-1],[-1,1],[-1,-1]];
+  var words = wordObjs.map(function(w){ return {word:w.word, W:cwNormalize(w.word)}; }).filter(function(w){ return w.W.length>1; });
+  words.sort(function(a,b){ return b.W.length-a.W.length; });
+  var longest = words.length ? words[0].W.length : 4;
+  var size = Math.max(13, longest+3);
+  var grid=[]; for(var r=0;r<size;r++){ grid.push(new Array(size).fill(null)); }
+  var placed=[];
+  words.forEach(function(w){
+    var cells=null;
+    for(var tries=0; tries<500 && !cells; tries++){
+      var dir = DIRS[Math.floor(Math.random()*DIRS.length)];
+      var minR = dir[0]<0 ? (w.W.length-1) : 0;
+      var maxR = dir[0]>0 ? (size-1-(w.W.length-1)) : (size-1);
+      var minC = dir[1]<0 ? (w.W.length-1) : 0;
+      var maxC = dir[1]>0 ? (size-1-(w.W.length-1)) : (size-1);
+      if(minR>maxR||minC>maxC) continue;
+      var row = minR + Math.floor(Math.random()*(maxR-minR+1));
+      var col = minC + Math.floor(Math.random()*(maxC-minC+1));
+      var tryCells=[], valid=true;
+      for(var i=0;i<w.W.length;i++){
+        var rr=row+dir[0]*i, cc=col+dir[1]*i;
+        var existing = grid[rr][cc];
+        if(existing!==null && existing!==w.W[i]){ valid=false; break; }
+        tryCells.push({r:rr,c:cc});
+      }
+      if(valid) cells=tryCells;
+    }
+    if(!cells){
+      var forced = wsForcePlace(grid, size, w);
+      cells = forced.cells;
+    } else {
+      cells.forEach(function(cell,i){ grid[cell.r][cell.c]=w.W[i]; });
+    }
+    placed.push({word:w.word, W:w.W, cells:cells});
+  });
+  var rows = grid.length, cols = size;
+  var ALPHA='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  for(var r=0;r<rows;r++){
+    for(var c=0;c<cols;c++){
+      if(grid[r][c]===null) grid[r][c] = ALPHA[Math.floor(Math.random()*ALPHA.length)];
+    }
+  }
+  return {grid:grid, rows:rows, cols:cols, placed:placed};
+}
+function wsKey(r,c){ return r+','+c; }
+function wsCellClick(r,c){
+  if(WS.allFound) return;
+  if(WS.foundCells[wsKey(r,c)]) return;
+  if(!WS.sel){ WS.sel = {r:r,c:c}; WS.msg=''; render(); return; }
+  var a=WS.sel, b={r:r,c:c};
+  WS.sel = null;
+  if(a.r===b.r && a.c===b.c){ render(); return; }
+  var dr=b.r-a.r, dc=b.c-a.c;
+  if(!(dr===0 || dc===0 || Math.abs(dr)===Math.abs(dc))){ WS.msg='❌ Sélection invalide : choisissez une ligne droite (horizontale, verticale ou diagonale).'; render(); return; }
+  var steps = Math.max(Math.abs(dr),Math.abs(dc));
+  var stepR = dr===0?0:(dr>0?1:-1), stepC = dc===0?0:(dc>0?1:-1);
+  var path=[];
+  for(var i=0;i<=steps;i++){ path.push({r:a.r+stepR*i, c:a.c+stepC*i}); }
+  var letters = path.map(function(cell){ return WS.layout.grid[cell.r][cell.c]; }).join('');
+  var lettersRev = letters.split('').reverse().join('');
+  var found=null;
+  for(var i=0;i<WS.layout.placed.length;i++){
+    var pw = WS.layout.placed[i];
+    if(WS.foundWords[pw.word]) continue;
+    if(pw.W!==letters && pw.W!==lettersRev) continue;
+    var set={}; pw.cells.forEach(function(c){ set[wsKey(c.r,c.c)]=true; });
+    var samePath = path.length===pw.cells.length && path.every(function(c){ return set[wsKey(c.r,c.c)]; });
+    if(samePath){ found=pw; break; }
+  }
+  if(found){
+    WS.foundWords[found.word]=true;
+    found.cells.forEach(function(c){ WS.foundCells[wsKey(c.r,c.c)]=true; });
+    WS.msg='';
+    if(Object.keys(WS.foundWords).length === WS.layout.placed.length) WS.allFound=true;
+  } else {
+    WS.msg='❌ Ce mot n\'est pas ici, réessayez.';
+  }
+  render();
+}
+function wsStart(zone){
+  apiCall('POST','/wg/play',{format:'wordsearch'}).then(function(resp){
+    if(!resp || !resp._raw || !resp._raw.allowed){ wgPaywallModal(resp&&resp.error); return; }
+    var bank = (zone==='CEMAC' ? CW_BANK.C : CW_BANK.U).slice();
+    bank.sort(function(){ return Math.random()-0.5; });
+    var n = Math.min(8, bank.length);
+    WS.zone = zone; WS.layout = wsGenerateGrid(bank.slice(0,n)); WS.sel=null; WS.foundWords={}; WS.foundCells={}; WS.allFound=false; WS.msg='';
+    render();
+  });
+}
+function wsExit(){ WS.zone=null; WS.layout=null; WS.sel=null; WS.foundWords={}; WS.foundCells={}; WS.allFound=false; WS.msg=''; render(); }
+function rARWordsearchHome(){
+  if(WS.zone) return rARWordsearchGame();
+  return '<div style="display:flex;flex-direction:column;gap:12px;">'+
+    '<div class="al al-info" style="font-size:12px;">🔎 <strong>Mots mêlés réglementaires :</strong> repérez les termes cachés dans la grille (horizontal, vertical, diagonal, dans les deux sens). Touchez la première puis la dernière lettre du mot.</div>'+
+    '<button class="btn" style="width:100%;padding:14px;" onclick="wsStart(\'UEMOA\')">🇸🇳 Zone UEMOA</button>'+
+    '<button class="btn" style="width:100%;padding:14px;" onclick="wsStart(\'CEMAC\')">🌍 Zone CEMAC</button>'+
+  '</div>';
+}
+function rARWordsearchGame(){
+  var L = WS.layout;
+  var cellPx = L.cols>16 ? 24 : 28;
+  var h = '<div style="display:flex;flex-direction:column;gap:14px;">'+
+    '<div style="font-weight:800;color:white;font-size:14px;">🔎 Mots mêlés — Zone '+WS.zone+'</div>'+
+    '<div style="overflow-x:auto;padding:6px 0;">'+
+      '<div style="display:inline-grid;grid-template-columns:repeat('+L.cols+','+cellPx+'px);grid-auto-rows:'+cellPx+'px;gap:1px;background:rgba(255,255,255,.03);padding:4px;border-radius:8px;">';
+  for(var r=0;r<L.rows;r++){
+    for(var c=0;c<L.cols;c++){
+      var key=wsKey(r,c);
+      var isSel = WS.sel && WS.sel.r===r && WS.sel.c===c;
+      var isFound = WS.foundCells[key];
+      var bg = isFound ? 'rgba(34,197,94,.28)' : isSel ? 'rgba(0,180,216,.35)' : 'rgba(255,255,255,.05)';
+      var bd = isFound ? '#22c55e' : isSel ? 'var(--cyan)' : 'var(--border)';
+      h += '<div onclick="wsCellClick('+r+','+c+')" style="display:flex;align-items:center;justify-content:center;background:'+bg+';border:1px solid '+bd+';border-radius:4px;color:white;font-size:'+(cellPx>26?'13px':'11px')+';font-weight:700;cursor:pointer;user-select:none;">'+L.grid[r][c]+'</div>';
+    }
+  }
+  h += '</div></div>';
+  if(WS.msg){ h += '<div class="al al-warn" style="font-size:12px;text-align:center;">'+WS.msg+'</div>'; }
+  h += '<div style="font-size:12px;color:var(--sub);">';
+  h += '<div style="font-weight:700;color:white;margin-bottom:6px;">📋 Mots à trouver</div>';
+  L.placed.forEach(function(pw){
+    var done = WS.foundWords[pw.word];
+    h += '<div style="margin-bottom:4px;'+(done?'text-decoration:line-through;color:#22c55e;':'')+'">'+(done?'✅ ':'▫️ ')+pw.word+'</div>';
+  });
+  h += '</div>';
+  if(WS.allFound){
+    h += '<div class="al al-info" style="text-align:center;font-weight:700;">🎉 Bravo ! Tous les mots trouvés ('+L.placed.length+'/'+L.placed.length+')</div>'+
+      '<button class="btn" style="width:100%;padding:13px;" onclick="wsStart(WS.zone)">🔄 Nouvelle grille</button>';
+  }
+  h += '<button class="btn-out" style="width:100%;padding:12px;" onclick="wsExit()">← Changer de zone</button>';
   h += '</div>';
   return h;
 }
