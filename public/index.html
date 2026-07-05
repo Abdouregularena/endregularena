@@ -1833,7 +1833,7 @@ var QZONE = 'uemoa';
 var BA  = null, BT = 'fiches', BF = null;
 var REG_EMAIL = ''; // email en attente de confirmation
 /* MODIFIÉ : État Mots croisés (mode solo simplifié) */
-var CW = {zone:null, words:[], inputs:{}, checked:false, score:0};
+var CW = {zone:null, layout:null, inputs:{}, checked:false, score:0};
 var CW_BANK = {
   U:[
     {word:'BCEAO', clue:"Banque centrale de l'UMOA"},
@@ -3440,53 +3440,169 @@ function rAR(){
   '</div>';
 }
 
-/* MODIFIÉ : ─── Mots croisés — mode solo (mots isolés, sans intersections) ─── */
+/* MODIFIÉ : ─── Mots croisés — vraie grille entrecroisée (génération auto par intersections) ─── */
 function cwNormalize(s){
   return (s||'').toString().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Z0-9]/g,'');
+}
+function cwTryPlace(gridMap, W, row, col, dir){
+  var cells = [];
+  for(var i=0;i<W.length;i++){
+    var r = dir==='H' ? row : row+i;
+    var c = dir==='H' ? col+i : col;
+    var key = r+','+c;
+    var existing = gridMap[key];
+    if(existing!==undefined && existing!==W[i]) return null;
+    cells.push({r:r,c:c,ch:W[i],existing:existing!==undefined});
+  }
+  var br = dir==='H' ? row : row-1, bc = dir==='H' ? col-1 : col;
+  var ar = dir==='H' ? row : row+W.length, ac = dir==='H' ? col+W.length : col;
+  if(gridMap[br+','+bc]!==undefined) return null;
+  if(gridMap[ar+','+ac]!==undefined) return null;
+  for(var i=0;i<cells.length;i++){
+    if(!cells[i].existing){
+      var r=cells[i].r, c=cells[i].c;
+      var n1 = dir==='H' ? (r-1)+','+c : r+','+(c-1);
+      var n2 = dir==='H' ? (r+1)+','+c : r+','+(c+1);
+      if(gridMap[n1]!==undefined) return null;
+      if(gridMap[n2]!==undefined) return null;
+    }
+  }
+  return cells;
+}
+function cwNormalizeLayout(placed, gridMap){
+  var minR=Infinity,minC=Infinity,maxR=-Infinity,maxC=-Infinity;
+  Object.keys(gridMap).forEach(function(k){
+    var p=k.split(','), r=parseInt(p[0],10), c=parseInt(p[1],10);
+    if(r<minR)minR=r; if(r>maxR)maxR=r; if(c<minC)minC=c; if(c>maxC)maxC=c;
+  });
+  var newGridMap={};
+  Object.keys(gridMap).forEach(function(k){
+    var p=k.split(','), r=parseInt(p[0],10)-minR, c=parseInt(p[1],10)-minC;
+    newGridMap[r+','+c]=gridMap[k];
+  });
+  placed.forEach(function(w){ w.row-=minR; w.col-=minC; });
+  return {gridMap:newGridMap, rows:maxR-minR+1, cols:maxC-minC+1};
+}
+function cwNumberGrid(placed){
+  var seen={}, startKeys=[];
+  placed.forEach(function(w){
+    var key=w.row+','+w.col;
+    if(!seen[key]){ seen[key]=true; startKeys.push({row:w.row,col:w.col,key:key}); }
+  });
+  startKeys.sort(function(a,b){ return (a.row-b.row)||(a.col-b.col); });
+  var numbers={};
+  startKeys.forEach(function(s,i){ numbers[s.key]=i+1; });
+  placed.forEach(function(w){ w.number=numbers[w.row+','+w.col]; });
+  return numbers;
+}
+function cwGenerateLayout(wordObjs){
+  var words = wordObjs.map(function(w){ return {word:w.word, clue:w.clue, W:cwNormalize(w.word)}; });
+  words.sort(function(a,b){ return b.W.length-a.W.length; });
+  var gridMap={}, placed=[];
+  var w0=words[0];
+  for(var i=0;i<w0.W.length;i++) gridMap['0,'+i]=w0.W[i];
+  placed.push({word:w0.word,clue:w0.clue,W:w0.W,row:0,col:0,dir:'H'});
+  for(var idx=1; idx<words.length; idx++){
+    var w=words[idx];
+    var found=false, bestCells=null,bestRow=0,bestCol=0,bestDir='H';
+    for(var pi=0; pi<placed.length && !found; pi++){
+      var pw=placed[pi];
+      for(var i=0;i<w.W.length && !found;i++){
+        for(var j=0;j<pw.W.length && !found;j++){
+          if(w.W[i]===pw.W[j]){
+            var dir = pw.dir==='H' ? 'V' : 'H';
+            var row,col;
+            if(dir==='V'){ row=pw.row-i; col=pw.col+j; } else { row=pw.row+j; col=pw.col-i; }
+            var cells = cwTryPlace(gridMap, w.W, row, col, dir);
+            if(cells){ bestCells=cells; bestRow=row; bestCol=col; bestDir=dir; found=true; }
+          }
+        }
+      }
+    }
+    if(found){
+      bestCells.forEach(function(cell){ gridMap[cell.r+','+cell.c]=cell.ch; });
+      placed.push({word:w.word,clue:w.clue,W:w.W,row:bestRow,col:bestCol,dir:bestDir});
+    } else {
+      var maxRow=-Infinity;
+      Object.keys(gridMap).forEach(function(k){ var r=parseInt(k.split(',')[0],10); if(r>maxRow)maxRow=r; });
+      var freeRow = (maxRow===-Infinity?0:maxRow+2);
+      for(var i=0;i<w.W.length;i++) gridMap[freeRow+','+i]=w.W[i];
+      placed.push({word:w.word,clue:w.clue,W:w.W,row:freeRow,col:0,dir:'H'});
+    }
+  }
+  var norm = cwNormalizeLayout(placed, gridMap);
+  var numbers = cwNumberGrid(placed);
+  return {placed:placed, gridMap:norm.gridMap, rows:norm.rows, cols:norm.cols, numbers:numbers, totalCells:Object.keys(norm.gridMap).length};
 }
 function cwStart(zone){
   var bank = (zone==='CEMAC' ? CW_BANK.C : CW_BANK.U).slice();
   bank.sort(function(){ return Math.random()-0.5; });
   var n = Math.min(8, bank.length);
-  CW.zone = zone; CW.words = bank.slice(0,n); CW.inputs = {}; CW.checked = false; CW.score = 0;
+  CW.zone = zone; CW.layout = cwGenerateLayout(bank.slice(0,n)); CW.inputs = {}; CW.checked = false; CW.score = 0;
   render();
 }
-function cwSet(i,val){ CW.inputs[i] = val; }
-function cwCheck(){
-  var sc = 0;
-  CW.words.forEach(function(w,i){ if(cwNormalize(CW.inputs[i])===cwNormalize(w.word)) sc++; });
-  CW.score = sc; CW.checked = true;
+function cwCellSet(key,val){ CW.inputs[key] = (val||'').slice(-1).toUpperCase(); }
+function cwCheckGrid(){
+  var wordsOk=0;
+  CW.layout.placed.forEach(function(w){
+    var ok=true;
+    for(var i=0;i<w.W.length;i++){
+      var r = w.dir==='H' ? w.row : w.row+i;
+      var c = w.dir==='H' ? w.col+i : w.col;
+      if(cwNormalize(CW.inputs[r+','+c])!==w.W[i]) ok=false;
+    }
+    if(ok) wordsOk++;
+  });
+  CW.score = wordsOk; CW.checked = true;
   render();
 }
-function cwExit(){ CW.zone=null; CW.words=[]; CW.inputs={}; CW.checked=false; render(); }
+function cwExit(){ CW.zone=null; CW.layout=null; CW.inputs={}; CW.checked=false; render(); }
 function rARCrosswordHome(){
   if(CW.zone) return rARCrosswordGame();
   return '<div style="display:flex;flex-direction:column;gap:12px;">'+
-    '<div class="al al-info" style="font-size:12px;">🧩 <strong>Mots croisés réglementaires :</strong> devinez le terme à partir de l\'indice. Mode solo, détente cognitive — sans chrono.</div>'+
+    '<div class="al al-info" style="font-size:12px;">🧩 <strong>Mots croisés réglementaires :</strong> une vraie grille entrecroisée, générée à partir des termes de la zone. Mode solo, sans chrono.</div>'+
     '<button class="btn" style="width:100%;padding:14px;" onclick="cwStart(\'UEMOA\')">🇸🇳 Zone UEMOA</button>'+
     '<button class="btn" style="width:100%;padding:14px;" onclick="cwStart(\'CEMAC\')">🌍 Zone CEMAC</button>'+
   '</div>';
 }
 function rARCrosswordGame(){
+  var L = CW.layout;
   var h = '<div style="display:flex;flex-direction:column;gap:14px;">'+
     '<div style="font-weight:800;color:white;font-size:14px;">🧩 Mots croisés — Zone '+CW.zone+'</div>'+
-    '<div style="display:flex;flex-direction:column;gap:10px;">';
-  CW.words.forEach(function(w,i){
-    var val = CW.inputs[i]||'';
-    var ok = CW.checked && cwNormalize(val)===cwNormalize(w.word);
-    var ko = CW.checked && !ok;
-    h += '<div style="background:var(--card);border:1px solid '+(ok?'#22c55e':ko?'#ef4444':'var(--border)')+';border-radius:9px;padding:10px 12px;">'+
-      '<div style="font-size:12px;color:var(--sub);margin-bottom:6px;"><strong style="color:var(--cyan);">'+(i+1)+'.</strong> '+w.clue+' <span style="opacity:.7;">('+w.word.length+' lettres)</span></div>'+
-      '<input type="text" style="width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:7px;padding:9px 10px;color:white;font-size:14px;text-transform:uppercase;'+(ok?'border-color:#22c55e;':ko?'border-color:#ef4444;':'')+'" '+
-        'value="'+val.replace(/"/g,'&quot;')+'" '+(CW.checked?'disabled':'')+' oninput="cwSet('+i+',this.value)" placeholder="Votre réponse">'+
-      (ko ? '<div style="font-size:11px;color:#ef4444;margin-top:4px;">Réponse : '+w.word+'</div>' : '')+
-    '</div>';
-  });
+    '<div style="overflow-x:auto;padding:6px 0;">'+
+      '<div style="display:inline-grid;grid-template-columns:repeat('+L.cols+',32px);grid-auto-rows:32px;gap:2px;background:rgba(255,255,255,.03);padding:4px;border-radius:8px;">';
+  for(var r=0;r<L.rows;r++){
+    for(var c=0;c<L.cols;c++){
+      var key=r+','+c, letter=L.gridMap[key];
+      if(letter===undefined){
+        h += '<div style="grid-row:'+(r+1)+';grid-column:'+(c+1)+';"></div>';
+      } else {
+        var num=L.numbers[key], typed=CW.inputs[key]||'';
+        var ok=CW.checked && cwNormalize(typed)===letter;
+        var ko=CW.checked && typed && !ok;
+        h += '<div style="grid-row:'+(r+1)+';grid-column:'+(c+1)+';position:relative;">'+
+          (num?'<span style="position:absolute;top:1px;left:2px;font-size:8px;color:var(--cyan);line-height:1;z-index:1;">'+num+'</span>':'')+
+          '<input maxlength="1" style="width:100%;height:100%;text-align:center;text-transform:uppercase;background:rgba(255,255,255,.08);border:1px solid '+(ok?'#22c55e':ko?'#ef4444':'var(--border)')+';border-radius:4px;color:white;font-size:13px;padding:0;" '+
+            'value="'+typed+'" '+(CW.checked?'disabled':'')+' oninput="cwCellSet(\''+key+'\',this.value)">'+
+        '</div>';
+      }
+    }
+  }
+  h += '</div></div>';
+  var across = L.placed.filter(function(w){return w.dir==='H';}).sort(function(a,b){return a.number-b.number;});
+  var down = L.placed.filter(function(w){return w.dir==='V';}).sort(function(a,b){return a.number-b.number;});
+  h += '<div style="font-size:12px;color:var(--sub);">';
+  h += '<div style="font-weight:700;color:white;margin-bottom:6px;">➡️ Horizontal</div>';
+  across.forEach(function(w){ h += '<div style="margin-bottom:4px;"><strong style="color:var(--cyan);">'+w.number+'.</strong> '+w.clue+' <span style="opacity:.7;">('+w.W.length+')</span></div>'; });
+  if(down.length){
+    h += '<div style="font-weight:700;color:white;margin:10px 0 6px;">⬇️ Vertical</div>';
+    down.forEach(function(w){ h += '<div style="margin-bottom:4px;"><strong style="color:var(--cyan);">'+w.number+'.</strong> '+w.clue+' <span style="opacity:.7;">('+w.W.length+')</span></div>'; });
+  }
   h += '</div>';
   if(!CW.checked){
-    h += '<button class="btn" style="width:100%;padding:13px;" onclick="cwCheck()">Vérifier la grille</button>';
+    h += '<button class="btn" style="width:100%;padding:13px;" onclick="cwCheckGrid()">Vérifier la grille</button>';
   } else {
-    h += '<div class="al al-info" style="text-align:center;font-weight:700;">Score : '+CW.score+' / '+CW.words.length+'</div>'+
+    h += '<div class="al al-info" style="text-align:center;font-weight:700;">Score : '+CW.score+' / '+L.placed.length+' mots</div>'+
       '<button class="btn" style="width:100%;padding:13px;" onclick="cwStart(CW.zone)">🔄 Nouvelle grille</button>';
   }
   h += '<button class="btn-out" style="width:100%;padding:12px;" onclick="cwExit()">← Changer de zone</button>';
