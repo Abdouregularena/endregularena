@@ -117,6 +117,19 @@ select.inp{cursor:pointer;}
 /* ─── Arena Duels & Tournois ─── */
 .ar-tab{padding:9px 16px;border-radius:8px;border:1px solid rgba(110,150,210,.5);background:transparent;color:var(--sub);cursor:pointer;font-size:13px;font-weight:700;min-height:44px;touch-action:manipulation;font-family:"Space Grotesk",sans-serif;transition:all .15s;}
 .ar-tab.ac{background:linear-gradient(to right,rgba(201,153,26,.15),rgba(201,153,26,.15));border-color:rgba(201,153,26,.4);color:var(--cyan);}
+/* MODIFIÉ : grille de sélection des modes en 2 packs (Gratuit / Premium) */
+.ar-packs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
+.ar-pack{display:flex;flex-direction:column;border-radius:12px;overflow:hidden;border:1px solid var(--border);}
+.ar-pack-hd{padding:10px 8px;font-size:11px;font-weight:900;letter-spacing:.5px;text-align:center;display:flex;align-items:center;justify-content:center;gap:5px;}
+.ar-pack-free{background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;}
+.ar-pack-premium{background:linear-gradient(135deg,#E8B520,#C9991A);color:#1a1200;}
+.ar-diamond{font-size:12px;}
+.ar-pack-grid{display:flex;flex-direction:column;gap:6px;padding:8px;background:rgba(255,255,255,.02);flex:1;}
+.ar-tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:12px 4px;min-height:64px;background:rgba(17,34,64,.55);border:1px solid var(--border);border-radius:9px;color:#E8B520;font-size:10.5px;font-weight:700;text-align:center;line-height:1.2;cursor:pointer;touch-action:manipulation;font-family:"Space Grotesk",sans-serif;transition:all .15s;}
+.ar-tile-ic{font-size:19px;}
+.ar-tile.ac{border-color:rgba(201,153,26,.6);background:linear-gradient(135deg,rgba(201,153,26,.18),rgba(201,153,26,.06));color:var(--cyan);}
+@media(min-width:520px){.ar-pack-grid{display:grid;grid-template-columns:1fr 1fr;}}
+
 .code-box{background:rgba(201,153,26,.07);border:2px solid rgba(201,153,26,.35);border-radius:12px;padding:18px;text-align:center;}
 .code-big{font-size:30px;font-weight:900;color:var(--cyan);letter-spacing:4px;font-family:monospace;display:block;margin-bottom:10px;}
 .vs-wrap{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
@@ -2816,6 +2829,7 @@ function render(){
   c.innerHTML=(pages[TAB]||rDB)();
   if(TAB==='quiz'){ try{ raQuizFx(); }catch(e){} try{ qApplyFilter(); }catch(e){} } // MODIFIÉ : compteur animé + recherche/filtres réappliqués
   if(TAB==='arena'){ try{ arArenaAfterRender(); }catch(e){} } // MODIFIÉ : charge les fils duels/tournois ouverts
+  var _rf=ge('ra-flash'); if(_rf){ _rf.style.display=(TAB==='arena')?'none':''; } // MODIFIÉ : masque le bandeau Flash Info sur l'écran Arène (sélection de mode épurée)
   if(TAB==='debats'){ try{ RA_DEBATS.loadList(); }catch(e){} } // MODIFIÉ : charge la liste des débats après affichage
   if(TAB==='debatsadm'){ try{ RA_DEBATS.adminLoad(); }catch(e){} } // MODIFIÉ : charge le panneau jury
   try{ raBNsync(); }catch(e){} // MODIFIÉ : surligne l'onglet actif de la barre basse
@@ -3432,22 +3446,38 @@ function rAR(){
     return rARKotmWaiting();
   }
   // Écran principal Arène
-  var tabs = '<div style="display:flex;gap:7px;margin-bottom:18px;flex-wrap:wrap;">'+
-    '<button class="ar-tab'+(AR.tab==='duels'?' ac':'')+'" onclick="AR.tab=\'duels\';render()">⚔️ Duels 1v1</button>'+
-    '<button class="ar-tab'+(AR.tab==='kotm'?' ac':'')+'" onclick="AR.tab=\'kotm\';render()">👑 Roi de la Manche</button>'+
-    '<button class="ar-tab'+(AR.tab==='tournois'?' ac':'')+'" onclick="AR.tab=\'tournois\';render()">🏆 Tournois</button>'+
-    '<button class="ar-tab'+(AR.tab==='direct'?' ac':'')+'" onclick="arOpenLive()">📺 Direct</button>'+ // MODIFIÉ : mode spectateur
-    '<button class="ar-tab'+(AR.tab==='crossword'?' ac':'')+'" onclick="AR.tab=\'crossword\';render()">🧩 Mots croisés</button>'+ // MODIFIÉ : nouvel onglet solo
-    '<button class="ar-tab'+(AR.tab==='wordsearch'?' ac':'')+'" onclick="AR.tab=\'wordsearch\';render()">🔎 Mots mêlés</button>'+ // MODIFIÉ : nouvel onglet solo
-    '<button class="ar-tab'+(AR.tab==='charade'?' ac':'')+'" onclick="AR.tab=\'charade\';render()">🎭 Charade chrono</button>'+ // MODIFIÉ : nouvel onglet solo
-    '<button class="ar-tab'+(AR.tab==='chiffreslettres'?' ac':'')+'" onclick="AR.tab=\'chiffreslettres\';render()">🔢🔤 Chiffres et Lettres</button>'+ // MODIFIÉ : nouvel onglet solo
-    '<button class="ar-tab'+(AR.tab==='vraifaux'?' ac':'')+'" onclick="AR.tab=\'vraifaux\';render()">✅❌ Vrai/Faux</button>'+ // MODIFIÉ : nouvel onglet Premium
-    '<button class="ar-tab'+(AR.tab==='qcmeclair'?' ac':'')+'" onclick="AR.tab=\'qcmeclair\';render()">🎯 QCM éclair</button>'+ // MODIFIÉ : trio rapide Premium
-    '<button class="ar-tab'+(AR.tab==='matchdef'?' ac':'')+'" onclick="AR.tab=\'matchdef\';render()">🔗 Match définitions</button>'+ // MODIFIÉ : trio rapide Premium
-    '<button class="ar-tab'+(AR.tab==='classement'?' ac':'')+'" onclick="AR.tab=\'classement\';render()">📶 Classement</button>'+ // MODIFIÉ : trio rapide Premium
+  // MODIFIÉ : grille de sélection en 2 packs (Gratuit / Premium) — remplace l'ancienne rangée d'onglets
+  function arTile(active, icon, label, onclickJs){
+    return '<button class="ar-tile'+(active?' ac':'')+'" onclick="'+onclickJs+'">'+
+      '<span class="ar-tile-ic">'+icon+'</span><span class="ar-tile-lb">'+label+'</span></button>';
+  }
+  var freeTiles =
+    arTile(AR.tab==='duels', '⚔️', 'Duels 1v1', "AR.tab='duels';render()") +
+    arTile(AR.tab==='tournois', '🏆', 'Tournois', "AR.tab='tournois';render()") +
+    arTile(AR.tab==='direct', '📺', 'Direct', "arOpenLive()") +
+    arTile(AR.tab==='kotm', '👑', 'Roi de la Manche', "AR.tab='kotm';render()");
+  var premiumTiles =
+    arTile(AR.tab==='crossword', '🧩', 'Mots croisés', "AR.tab='crossword';render()") +
+    arTile(AR.tab==='wordsearch', '🔎', 'Mots mêlés', "AR.tab='wordsearch';render()") +
+    arTile(AR.tab==='charade', '🎭', 'Charade chrono', "AR.tab='charade';render()") +
+    arTile(AR.tab==='chiffreslettres', '🔢🔤', 'Chiffres et Lettres', "AR.tab='chiffreslettres';render()") +
+    arTile(AR.tab==='vraifaux', '✅❌', 'Vrai/Faux', "AR.tab='vraifaux';render()") +
+    arTile(AR.tab==='qcmeclair', '🎯', 'QCM éclair', "AR.tab='qcmeclair';render()") +
+    arTile(AR.tab==='matchdef', '🔗', 'Match définitions', "AR.tab='matchdef';render()") +
+    arTile(AR.tab==='classement', '📶', 'Classement', "AR.tab='classement';render()");
+  var tabs = '<div class="ar-packs">'+
+    '<div class="ar-pack">'+
+      '<div class="ar-pack-hd ar-pack-free">PACK GRATUIT</div>'+
+      '<div class="ar-pack-grid">'+freeTiles+'</div>'+
+    '</div>'+
+    '<div class="ar-pack">'+
+      '<div class="ar-pack-hd ar-pack-premium">PACK PREMIUM <span class="ar-diamond">💎</span></div>'+
+      '<div class="ar-pack-grid">'+premiumTiles+'</div>'+
+    '</div>'+
   '</div>';
   return '<div style="display:flex;flex-direction:column;gap:14px;">'+
-    '<h2 style="font-size:22px;color:white;">L\'Arène – Défis Professionnels</h2>'+
+    '<h2 style="font-size:20px;color:white;margin-bottom:2px;">L\'Arène</h2>'+
+    '<div style="font-size:12px;color:var(--sub);margin-bottom:4px;">Choisissez votre mode</div>'+
     tabs +
     (AR.tab==='duels' ? rARDuelsHome() : AR.tab==='kotm' ? rARKotmHome() : AR.tab==='direct' ? rLiveHub() : AR.tab==='crossword' ? rARCrosswordHome() : AR.tab==='wordsearch' ? rARWordsearchHome() : AR.tab==='charade' ? rARCharadeHome() : AR.tab==='chiffreslettres' ? rARCLHome() : AR.tab==='vraifaux' ? rARVraiFauxHome() : AR.tab==='qcmeclair' ? rARQEHome() : AR.tab==='matchdef' ? rARMDHome() : AR.tab==='classement' ? rARCHHome() : rARTournoisHome()) + // MODIFIÉ : + trio rapide (qcmeclair/matchdef/classement)
   '</div>';
