@@ -1836,6 +1836,8 @@ var REG_EMAIL = ''; // email en attente de confirmation
 var CW = {zone:null, layout:null, inputs:{}, checked:false, score:0};
 // MODIFIÉ — État Mots mêlés (partage CW_BANK, même paywall wg/access que les mots croisés)
 var WS = {zone:null, layout:null, sel:null, foundWords:{}, foundCells:{}, allFound:false, msg:''};
+// MODIFIÉ — État Charade réglementaire (indices progressifs + chrono, réutilise CW_BANK)
+var CZ = {zone:null, list:[], idx:0, timerMax:30, timerVal:30, timerId:null, qStart:0, score:0, revealed:0, answered:false, timedOut:false, input:'', lastPts:0};
 var CW_BANK = {
   U:[
     {word:'BCEAO', clue:"Banque centrale de l'UMOA"},
@@ -3406,6 +3408,8 @@ function rFD(){
    ARÈNE
 ════════════════════════════════════════════════ */
 function rAR(){
+  // MODIFIÉ — sécurité : coupe le chrono Charade si on quitte cet onglet (quel que soit le chemin de navigation)
+  if(AR.tab!=='charade' && CZ.timerId){ clearInterval(CZ.timerId); CZ.timerId=null; }
   // ROI-POULES : diffusion de la finale en direct (spectateur) — prioritaire sur le reste
   if(AR.kWatch){ return rKotmWatch(); }
   if(AR.dWatch){ return rDuelWatch(); } // MODIFIÉ : spectateur duel en direct (lecture seule)
@@ -3435,11 +3439,12 @@ function rAR(){
     '<button class="ar-tab'+(AR.tab==='direct'?' ac':'')+'" onclick="arOpenLive()">📺 Direct</button>'+ // MODIFIÉ : mode spectateur
     '<button class="ar-tab'+(AR.tab==='crossword'?' ac':'')+'" onclick="AR.tab=\'crossword\';render()">🧩 Mots croisés</button>'+ // MODIFIÉ : nouvel onglet solo
     '<button class="ar-tab'+(AR.tab==='wordsearch'?' ac':'')+'" onclick="AR.tab=\'wordsearch\';render()">🔎 Mots mêlés</button>'+ // MODIFIÉ : nouvel onglet solo
+    '<button class="ar-tab'+(AR.tab==='charade'?' ac':'')+'" onclick="AR.tab=\'charade\';render()">🎭 Charade chrono</button>'+ // MODIFIÉ : nouvel onglet solo
   '</div>';
   return '<div style="display:flex;flex-direction:column;gap:14px;">'+
     '<h2 style="font-size:22px;color:white;">L\'Arène – Défis Professionnels</h2>'+
     tabs +
-    (AR.tab==='duels' ? rARDuelsHome() : AR.tab==='kotm' ? rARKotmHome() : AR.tab==='direct' ? rLiveHub() : AR.tab==='crossword' ? rARCrosswordHome() : AR.tab==='wordsearch' ? rARWordsearchHome() : rARTournoisHome()) + // MODIFIÉ : onglet crossword + wordsearch
+    (AR.tab==='duels' ? rARDuelsHome() : AR.tab==='kotm' ? rARKotmHome() : AR.tab==='direct' ? rLiveHub() : AR.tab==='crossword' ? rARCrosswordHome() : AR.tab==='wordsearch' ? rARWordsearchHome() : AR.tab==='charade' ? rARCharadeHome() : rARTournoisHome()) + // MODIFIÉ : onglet crossword + wordsearch + charade
   '</div>';
 }
 
@@ -3788,6 +3793,137 @@ function rARWordsearchGame(){
       '<button class="btn" style="width:100%;padding:13px;" onclick="wsStart(WS.zone)">🔄 Nouvelle grille</button>';
   }
   h += '<button class="btn-out" style="width:100%;padding:12px;" onclick="wsExit()">← Changer de zone</button>';
+  h += '</div>';
+  return h;
+}
+
+/* MODIFIÉ : ─── Charade réglementaire — indices progressifs + chrono (réutilise CW_BANK) ───
+   Choix de conception : les sigles bancaires (BCEAO, COBAC…) se prêtent mal à la charade
+   syllabique classique ("mon premier… mon second…"). Le format retenu est un compte à
+   rebours avec 3 niveaux d'indice (catégorie+longueur → 1re lettre → définition validée),
+   plus de points si trouvé tôt. Reste nommé "Charade" comme demandé par Abdou. */
+function czBlanks(W, revealed){
+  var out=[];
+  for(var i=0;i<W.length;i++){ out.push(revealed>=1 && i===0 ? W[i] : '_'); }
+  return out.join(' ');
+}
+function czStopTimer(){ if(CZ.timerId){ clearInterval(CZ.timerId); CZ.timerId=null; } }
+function czHintsHtml(){
+  var w = CZ.list[CZ.idx]; if(!w) return '';
+  var h = '<div style="font-size:12px;color:var(--sub);">Catégorie : réglementation bancaire '+CZ.zone+' — '+w.W.length+' lettres</div>';
+  if(CZ.revealed>=1) h += '<div style="font-size:12px;color:var(--cyan);margin-top:4px;">💡 Indice : commence par « '+w.W[0]+' »</div>';
+  if(CZ.revealed>=2) h += '<div style="font-size:12px;color:#fbbf24;margin-top:4px;">📖 Définition : '+w.clue+'</div>';
+  return h;
+}
+function czTick(){
+  var rem = CZ.timerMax - Math.floor((Date.now()-CZ.qStart)/1000);
+  if(rem<0) rem=0;
+  CZ.timerVal = rem;
+  var elapsed = CZ.timerMax - rem;
+  var changed=false;
+  if(elapsed>=15 && CZ.revealed<1){ CZ.revealed=1; changed=true; }
+  if(elapsed>=25 && CZ.revealed<2){ CZ.revealed=2; changed=true; }
+  var tf=ge('cz-tmr-fill'), tt=ge('cz-tmr-txt');
+  if(tf){ var p=Math.max(0,Math.round(rem/CZ.timerMax*100)); tf.style.width=p+'%'; tf.style.background=rem<=5?'#ef4444':rem<=10?'#fbbf24':''; }
+  if(tt){ tt.textContent='⏱ '+rem+'s'; tt.style.color=rem<=5?'#f87171':rem<=10?'#fbbf24':'var(--cyan)'; }
+  if(changed){
+    var bl=ge('cz-blanks'); if(bl) bl.textContent=czBlanks(CZ.list[CZ.idx].W, CZ.revealed);
+    var hi=ge('cz-hints'); if(hi) hi.innerHTML=czHintsHtml();
+  }
+  if(rem<=0){ czStopTimer(); czTimeup(); }
+}
+function czStartTimer(){
+  czStopTimer();
+  CZ.qStart = Date.now();
+  czTick();
+  CZ.timerId = setInterval(czTick, 250);
+}
+function czNextWord(){
+  CZ.revealed=0; CZ.answered=false; CZ.timedOut=false; CZ.input=''; CZ.lastPts=0;
+  render();
+  czStartTimer();
+}
+function czStart(zone){
+  apiCall('POST','/wg/play',{format:'charade'}).then(function(resp){
+    if(!resp || !resp._raw || !resp._raw.allowed){ wgPaywallModal(resp&&resp.error); return; }
+    var bank = (zone==='CEMAC' ? CW_BANK.C : CW_BANK.U).slice();
+    bank.sort(function(){ return Math.random()-0.5; });
+    var n = Math.min(6, bank.length);
+    CZ.zone = zone;
+    CZ.list = bank.slice(0,n).map(function(w){ return {word:w.word, clue:w.clue, W:cwNormalize(w.word)}; });
+    CZ.idx = 0; CZ.score = 0;
+    czNextWord();
+  });
+}
+function czInputSet(val){ CZ.input = (val||'').toUpperCase(); }
+function czSubmit(){
+  if(CZ.answered) return;
+  var w = CZ.list[CZ.idx];
+  if(cwNormalize(CZ.input) === w.W){
+    czStopTimer();
+    CZ.answered = true;
+    CZ.lastPts = CZ.revealed===0 ? 3 : CZ.revealed===1 ? 2 : 1;
+    CZ.score += CZ.lastPts;
+    render();
+  } else {
+    var m = ge('cz-msg'); if(m) m.textContent = '❌ Pas encore ça, réessayez.';
+    CZ.input = '';
+    var inp = ge('cz-input'); if(inp) inp.value='';
+  }
+}
+function czTimeup(){
+  CZ.answered = true; CZ.timedOut = true; CZ.lastPts = 0;
+  render();
+}
+function czAdvance(){
+  CZ.idx++;
+  if(CZ.idx >= CZ.list.length){ czStopTimer(); render(); return; }
+  czNextWord();
+}
+function czExit(){
+  czStopTimer();
+  CZ.zone=null; CZ.list=[]; CZ.idx=0; CZ.score=0; CZ.revealed=0; CZ.answered=false; CZ.timedOut=false; CZ.input='';
+  render();
+}
+function rARCharadeHome(){
+  if(CZ.zone) return rARCharadeGame();
+  return '<div style="display:flex;flex-direction:column;gap:12px;">'+
+    '<div class="al al-info" style="font-size:12px;">🎭 <strong>Charade réglementaire chrono :</strong> devinez le terme avant la fin du décompte. Moins vous prenez d\'indices, plus vous marquez de points (3 → 2 → 1).</div>'+
+    '<button class="btn" style="width:100%;padding:14px;" onclick="czStart(\'UEMOA\')">🇸🇳 Zone UEMOA</button>'+
+    '<button class="btn" style="width:100%;padding:14px;" onclick="czStart(\'CEMAC\')">🌍 Zone CEMAC</button>'+
+  '</div>';
+}
+function rARCharadeGame(){
+  if(CZ.idx >= CZ.list.length){
+    var max = CZ.list.length*3;
+    return '<div style="display:flex;flex-direction:column;gap:14px;">'+
+      '<div style="font-weight:800;color:white;font-size:14px;">🎭 Charade — Zone '+CZ.zone+'</div>'+
+      '<div class="al al-info" style="text-align:center;font-weight:700;">🏁 Terminé ! Score : '+CZ.score+' / '+max+'</div>'+
+      '<button class="btn" style="width:100%;padding:13px;" onclick="czStart(CZ.zone)">🔄 Nouvelle manche</button>'+
+      '<button class="btn-out" style="width:100%;padding:12px;" onclick="czExit()">← Changer de zone</button>'+
+    '</div>';
+  }
+  var w = CZ.list[CZ.idx];
+  var h = '<div style="display:flex;flex-direction:column;gap:14px;">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;">'+
+      '<div style="font-weight:800;color:white;font-size:14px;">🎭 Charade — Zone '+CZ.zone+'</div>'+
+      '<div style="font-size:12px;color:var(--sub);">Mot '+(CZ.idx+1)+'/'+CZ.list.length+' · Score '+CZ.score+'</div>'+
+    '</div>'+
+    '<div class="tmr-bar" style="height:6px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;"><div id="cz-tmr-fill" style="height:100%;width:100%;background:var(--cyan);transition:width .2s linear;"></div></div>'+
+    '<div style="display:flex;justify-content:flex-end;"><span id="cz-tmr-txt" style="font-size:12px;font-weight:700;color:var(--cyan);">⏱ '+CZ.timerVal+'s</span></div>'+
+    '<div id="cz-blanks" style="text-align:center;font-size:24px;font-weight:800;letter-spacing:4px;color:white;">'+czBlanks(w.W, CZ.revealed)+'</div>'+
+    '<div id="cz-hints">'+czHintsHtml()+'</div>';
+  if(!CZ.answered){
+    h += '<input id="cz-input" class="inp" placeholder="Votre réponse…" autocomplete="off" oninput="czInputSet(this.value)" onkeydown="if(event.key===\'Enter\')czSubmit();" value="'+CZ.input+'"/>'+
+      '<div id="cz-msg" style="font-size:12px;color:#f87171;text-align:center;min-height:16px;"></div>'+
+      '<button class="btn" style="width:100%;padding:13px;" onclick="czSubmit()">Valider</button>';
+  } else {
+    h += '<div class="al '+(CZ.timedOut?'al-warn':'al-info')+'" style="text-align:center;font-weight:700;">'+
+      (CZ.timedOut ? '⏱ Temps écoulé — la réponse était : ' : '✅ Bravo (+'+CZ.lastPts+' pt) — ')+w.word+
+    '</div>'+
+    '<button class="btn" style="width:100%;padding:13px;" onclick="czAdvance()">'+(CZ.idx+1>=CZ.list.length?'Voir le score final':'Mot suivant →')+'</button>';
+  }
+  h += '<button class="btn-out" style="width:100%;padding:12px;" onclick="czExit()">← Changer de zone</button>';
   h += '</div>';
   return h;
 }
