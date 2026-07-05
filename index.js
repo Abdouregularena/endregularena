@@ -277,6 +277,11 @@ function wgTierActive(row) {
   if (row.tier_expires_at && new Date(row.tier_expires_at).getTime() >= Date.now()) return row.tier;
   return 'free'; // abonnement expiré → retombe en gratuit
 }
+// MODIFIÉ — comptes de test : aucun verrouillage (essai gratuit / quota) sur les jeux solo, pour vérifier le nombre de parties existantes
+const WG_UNLIMITED_EMAILS = ['abdou200485@gmail.com', 'abdou.ndao@regularena.com'];
+function wgIsUnlimited(user) {
+  return !!user && WG_UNLIMITED_EMAILS.includes((user.email || '').toLowerCase());
+}
 
 /* ── NOTIFICATIONS HELPER ──────────────────────────────────────────── */
 function notifyAllExcept(excludeUserId, type, message) {
@@ -763,6 +768,7 @@ app.get('/auth/me', requireAuth, (req, res) => {
 ================================================================ */
 
 app.get('/auth/wg/access', requireAuth, (req, res) => {
+  if (wgIsUnlimited(req.user)) return ok(res, { tier: 'illimite', tierExpiresAt: null, freeTrialUsed: {}, playsToday: 0 }); // MODIFIÉ — comptes de test
   const row = wgGetRow(req.user.id);
   const today = WG_TODAY();
   const playsToday = row.last_play_date === today ? row.plays_today : 0;
@@ -778,6 +784,7 @@ app.get('/auth/wg/access', requireAuth, (req, res) => {
 
 app.post('/auth/wg/play', requireAuth, (req, res) => {
   const format = (req.body && req.body.format) || 'crossword';
+  if (wgIsUnlimited(req.user)) return ok(res, { allowed: true, tier: 'illimite' }); // MODIFIÉ — comptes de test, aucun verrouillage
   const row = wgGetRow(req.user.id);
   const today = WG_TODAY();
   const tier = wgTierActive(row);
