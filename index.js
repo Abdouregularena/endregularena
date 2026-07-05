@@ -283,6 +283,36 @@ function wgIsUnlimited(user) {
   return !!user && WG_UNLIMITED_EMAILS.includes((user.email || '').toLowerCase());
 }
 
+// MODIFIÉ — AJOUT : déblocage gratuit Pack Premium par mérite (palier Expert/Maître ≥250pts, top 3 de la zone, ou 20+ certificats)
+function wgMeritBypass(userId) {
+  try {
+    const u = db.prepare('SELECT country FROM users WHERE id = ?').get(userId);
+    if (!u) return false;
+
+    const totalScore = db.prepare('SELECT COALESCE(SUM(score),0) AS n FROM user_scores WHERE user_id = ?').get(userId).n;
+    if (totalScore >= 250) return true; // palier Expert/Maître
+
+    const certCount = db.prepare('SELECT COUNT(*) AS n FROM certificates WHERE user_id = ?').get(userId).n;
+    if (certCount >= 20) return true; // 20+ certificats générés
+
+    const UEMOA_ZONE = ['SN','CI','BF','ML','BJ','NE','TG','GW'];
+    const CEMAC_ZONE  = ['CM','GA','CG','CF','GQ','TD'];
+    let zonePays = null;
+    if (UEMOA_ZONE.includes(u.country)) zonePays = UEMOA_ZONE;
+    else if (CEMAC_ZONE.includes(u.country)) zonePays = CEMAC_ZONE;
+    if (zonePays) {
+      const top3 = db.prepare(`
+        SELECT s.user_id AS id, COALESCE(SUM(s.score),0) AS total_score
+        FROM user_scores s JOIN users u2 ON u2.id = s.user_id
+        WHERE u2.country IN (${zonePays.map(()=>'?').join(',')})
+        GROUP BY s.user_id ORDER BY total_score DESC LIMIT 3
+      `).all(...zonePays).map(r => r.id);
+      if (top3.includes(userId)) return true; // top 3 de la zone
+    }
+    return false;
+  } catch (e) { console.error('[wgMeritBypass]', e); return false; }
+}
+
 /* ── NOTIFICATIONS HELPER ──────────────────────────────────────────── */
 function notifyAllExcept(excludeUserId, type, message) {
   const users = db.prepare('SELECT id FROM users WHERE email_verified = 1 AND id != ? ORDER BY RANDOM() LIMIT 50').all(excludeUserId);
@@ -769,6 +799,7 @@ app.get('/auth/me', requireAuth, (req, res) => {
 
 app.get('/auth/wg/access', requireAuth, (req, res) => {
   if (wgIsUnlimited(req.user)) return ok(res, { tier: 'illimite', tierExpiresAt: null, freeTrialUsed: {}, playsToday: 0 }); // MODIFIÉ — comptes de test
+  if (wgMeritBypass(req.user.id)) return ok(res, { tier: 'merite', tierExpiresAt: null, freeTrialUsed: {}, playsToday: 0 }); // MODIFIÉ — déblocage gratuit par mérite
   const row = wgGetRow(req.user.id);
   const today = WG_TODAY();
   const playsToday = row.last_play_date === today ? row.plays_today : 0;
@@ -785,6 +816,7 @@ app.get('/auth/wg/access', requireAuth, (req, res) => {
 app.post('/auth/wg/play', requireAuth, (req, res) => {
   const format = (req.body && req.body.format) || 'crossword';
   if (wgIsUnlimited(req.user)) return ok(res, { allowed: true, tier: 'illimite' }); // MODIFIÉ — comptes de test, aucun verrouillage
+  if (wgMeritBypass(req.user.id)) return ok(res, { allowed: true, tier: 'merite' }); // MODIFIÉ — déblocage gratuit par mérite
   const row = wgGetRow(req.user.id);
   const today = WG_TODAY();
   const tier = wgTierActive(row);
