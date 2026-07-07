@@ -939,7 +939,13 @@ app.get('/scores/me', requireAuth, (req, res) => {
 // MODIFIÉ — Niveau 1 anti-plagiat : banques servies uniquement aux utilisateurs authentifiés
 app.get('/packs/bootstrap', requireAuth, limiterLoose, (req, res) => {
   const d = getData();
-  res.json({ QR: d.QR || [], QB: d.QB || [], QC: d.QC || [], QN: d.QN || [] });
+  // MODIFIÉ Phase 2 — sert aussi les packs additionnels déplacés depuis le HTML
+  res.json({
+    QR: d.QR || [], QB: d.QB || [], QC: d.QC || [], QN: d.QN || [],
+    QR_PLUS: d.QR_PLUS || [], QN_SWIFT: d.QN_SWIFT || [], BCB_Q: d.BCB_Q || [],
+    BP_Q: d.BP_Q || [], KC_Q: d.KC_Q || [], CF_Q: d.CF_Q || [], SW_Q: d.SW_Q || [],
+    LOT_FINAL_UEMOA: d.LOT_FINAL_UEMOA || {}, LOT_FINAL_CEMAC: d.LOT_FINAL_CEMAC || {}
+  });
 });
 
 app.delete('/scores/me', requireAuth, (req, res) => {

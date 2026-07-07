@@ -95,6 +95,19 @@ function pickQuestions(packId, n = 10) {
 
 loadPacks();
 
-function getData() { return DATA; } // MODIFIÉ — pour la route /packs/bootstrap
+function getData() {
+  // MODIFIÉ Phase 2 — ajoute les packs additionnels (QR_PLUS, QN_SWIFT, BCB_Q, BP_Q, KC_Q, CF_Q, SW_Q, LOT_FINAL_*)
+  return Object.assign({}, DATA, {
+    QR_PLUS: banks.QR_PLUS || [],
+    QN_SWIFT: banks.QN_SWIFT || [],
+    BCB_Q: banks.BCB_Q || [],
+    BP_Q: banks.BP_Q || [],
+    KC_Q: banks.KC_Q || [],
+    CF_Q: banks.CF_Q || [],
+    SW_Q: banks.SW_Q || [],
+    LOT_FINAL_UEMOA: banks.LOT_FINAL_UEMOA || {},
+    LOT_FINAL_CEMAC: banks.LOT_FINAL_CEMAC || {}
+  });
+} // MODIFIÉ — pour la route /packs/bootstrap
 
 module.exports = { pickQuestions, loadPacks, getData };
