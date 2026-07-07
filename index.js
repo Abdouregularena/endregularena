@@ -924,10 +924,20 @@ function genCode(prefix) {
 
 /* ── SCORES ─────────────────────────────────────────────────────── */
 app.post('/scores', requireAuth, (req, res) => {
-  const { pack_id, score, total } = req.body || {};
+  let { pack_id, score, total } = req.body || {};
   if (!pack_id || score == null || total == null) return err(res, 400, 'pack_id, score, total requis');
+
+  // MODIFIÉ — anti-triche scoring : entiers + bornage serveur
+  score = Math.floor(Number(score));
+  total = Math.floor(Number(total));
+  const MAX_TOTAL = 200; // MODIFIÉ
+  if (!Number.isInteger(score) || !Number.isInteger(total)) return err(res, 400, 'score/total invalides');
+  if (total < 1 || total > MAX_TOTAL)                        return err(res, 400, 'total hors limites');
+  if (score < 0 || score > total)                           return err(res, 400, 'score hors limites');
+  // FIN MODIFIÉ
+
   db.prepare('INSERT INTO user_scores (user_id, pack_id, score, total) VALUES (?, ?, ?, ?)')
-    .run(req.user.id, pack_id, Number(score), Number(total));
+    .run(req.user.id, pack_id, score, total);
   return ok(res, { message: 'Score enregistré' });
 });
 
