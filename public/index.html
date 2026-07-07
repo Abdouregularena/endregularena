@@ -52,6 +52,14 @@ h1,h2,h3{font-family:"Syne",sans-serif;}
 .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;}
 @media(max-width:860px){.g4{grid-template-columns:1fr 1fr;}.g3{grid-template-columns:1fr 1fr;}}
 @media(max-width:520px){.g4{grid-template-columns:1fr 1fr;}.g3,.g2{grid-template-columns:1fr;}}/* MODIFIÉ : cartes stats en 2×2 sur mobile (fini les blocs géants vides) */
+.ae-fmt-grid{grid-template-columns:repeat(3,1fr)!important;}
+.ae-fmt-grid .card{padding:12px;gap:4px!important;}
+.ae-fmt-grid .card>div:first-child{font-size:20px!important;}
+.ae-fmt-grid .card>div:nth-child(2){font-size:12.5px!important;}
+.ae-fmt-grid .card>div:nth-child(3){font-size:10.5px!important;line-height:1.3!important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+@media(max-width:860px){.ae-fmt-grid{grid-template-columns:repeat(2,1fr)!important;}}
+@media(max-width:520px){.ae-fmt-grid{grid-template-columns:repeat(2,1fr)!important;gap:8px;}.ae-fmt-grid .card{padding:10px;}.ae-fmt-grid .card>div:first-child{font-size:18px!important;}}
+/* MODIFIÉ : grille compacte dédiée aux formats d'auto-évaluation — visibles dès l'entrée sur l'écran, sans impact sur .g3 ailleurs */
 /* Progress */
 .pb{background:rgba(10,33,62,.9);border-radius:999px;height:8px;overflow:hidden;}
 .pf{height:100%;background:linear-gradient(to right,#E8B520,#C9991A);border-radius:999px;transition:width .4s;}
@@ -7974,7 +7982,7 @@ function rAE(){   // MODIFIÉ
     '<p style="color:var(--sub);font-size:13px;">'+headTxt+'</p></div>';
   var grid;
   if(AEZONE==='cemac'){
-    grid='<div class="g3">'+AE_FORMATS.map(function(f){     // MODIFIÉ : 6 formats CEMAC cliquables
+    grid='<div class="g3 ae-fmt-grid">'+AE_FORMATS.map(function(f){     // MODIFIÉ : 6 formats CEMAC cliquables + grille compacte
       var d=AE_DATA_CEMAC[f.id];
       var n=(f.id==='examen')?((d?d.questions.length:0)+AE_CEMAC_EXAM_EXTRA):(d?d.length:0);   // MODIFIÉ : examen = QCM dédiés + pool QC
       return '<div class="card ch" onclick="aeOpen(\''+f.id+'\')" style="display:flex;flex-direction:column;gap:6px;">'+
@@ -7985,7 +7993,7 @@ function rAE(){   // MODIFIÉ
       '</div>';
     }).join('')+'</div>';
   } else {
-    grid='<div class="g3">'+AE_FORMATS.map(function(f){
+    grid='<div class="g3 ae-fmt-grid">'+AE_FORMATS.map(function(f){
       var _fd = aeData()[f.id]; // MODIFIÉ Phase 2 : garde formats sans données (ex: vrai_faux_chrono absent de AE_DATA)
       var n = (f.id==='examen')
         ? ((aeData().examen && aeData().examen.questions) ? aeData().examen.questions.length : 0)
