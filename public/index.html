@@ -8389,6 +8389,15 @@ function rADMIN(){ // MODIFIÉ : coquille de la page (le contenu est chargé en 
     '<div id="adm-stats"><div class="al al-info">Chargement des statistiques…</div></div>'+
     '<div id="adm-users"></div>'+
     '<div id="adm-fraud"></div>'+ // MODIFIÉ : panneau détection de fraude
+    '<div class="card" style="margin-top:2px;">'+ // MODIFIÉ : outil d'inspection/correction ciblée
+      '<div style="font-weight:800;color:white;font-size:14px;margin-bottom:8px;">🔎 Inspecter &amp; corriger un joueur</div>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;">'+
+        '<input id="adm-audit-q" type="text" placeholder="Nom ou email du joueur…" style="flex:1;min-width:180px;padding:9px 11px;border-radius:10px;border:1px solid rgba(110,150,210,.3);background:rgba(10,20,40,.5);color:white;font-size:13px;" onkeydown="if(event.key===\'Enter\')admAuditSearch()">'+
+        '<button class="btn-out btn-sm" onclick="admAuditSearch()">Rechercher</button>'+
+      '</div>'+
+      '<div id="adm-audit-res" style="margin-top:10px;"></div>'+
+    '</div>'+
+    '<div id="adm-security"></div>'+ // MODIFIÉ : panneau alertes sécurité
     '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:6px;">'+ // MODIFIÉ : bloc RH ajouté
       '<h2 style="font-size:18px;color:white;">📋 Tableau RH complet (tous les utilisateurs)</h2>'+
       '<div style="display:flex;gap:8px;">'+
@@ -8414,7 +8423,96 @@ function admLoad(){ // MODIFIÉ : charge stats puis liste des inscrits
       else if(us){ us.innerHTML='<div class="al al-warn">Liste des inscrits indisponible ('+ru.status+').</div>'; }
     });
     admLoadFraud(); // MODIFIÉ : charge le panneau de détection de fraude
+    admLoadSecurity(); // MODIFIÉ : charge le panneau alertes sécurité
   }).catch(function(){ st.innerHTML='<div class="al al-err">Erreur réseau.</div>'; });
+}
+function admLoadSecurity(){ // MODIFIÉ : journal + alertes sécurité
+  var sx=ge('adm-security'); if(!sx) return;
+  sx.innerHTML='<div class="al al-info">Chargement du journal sécurité…</div>';
+  admFetch('/admin/security').then(function(r){
+    if(r.status===404){ sx.innerHTML='<div class="al al-warn">⚠️ Module sécurité non déployé (mettre à jour index.js).</div>'; return; }
+    if(r.status===403){ sx.innerHTML='<div class="al al-warn">⛔ Accès réservé aux administrateurs.</div>'; return; }
+    if(r.status!==200){ sx.innerHTML='<div class="al al-err">Erreur ('+r.status+') journal sécurité.</div>'; return; }
+    sx.innerHTML=admRenderSecurity(r.data||{});
+  }).catch(function(){ sx.innerHTML='<div class="al al-err">Erreur réseau (sécurité).</div>'; });
+}
+function admRenderSecurity(d){ // MODIFIÉ
+  d=d||{}; var ev=d.events||[];
+  var head='<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">'+
+    '<div style="font-weight:800;color:white;font-size:14px;">🛡️ Alertes sécurité</div>'+
+    '<div style="font-size:12px;color:var(--sub);"><span style="color:'+((d.high_24h||0)>0?'#ef4444':'var(--sub)')+';font-weight:800;">'+(d.high_24h||0)+' critiques</span> · '+(d.total_24h||0)+' événements / 24h</div>'+
+  '</div>';
+  if(!ev.length) return '<div class="card">'+head+'<div style="font-size:13px;color:#22c55e;font-weight:700;">✅ Aucun incident enregistré.</div></div>';
+  function sevBadge(s){ var c=s==='high'?'#ef4444':(s==='medium'?'#f59e0b':'#9aa7bd'); var t=s==='high'?'CRITIQUE':(s==='medium'?'moyen':'info'); return '<span style="color:'+c+';font-weight:800;font-size:11px;">'+t+'</span>'; }
+  var rows=ev.map(function(e){
+    return '<tr>'+
+      '<td style="padding:6px 8px;white-space:nowrap;">'+sevBadge(e.severity)+'</td>'+
+      '<td style="padding:6px 8px;color:white;">'+admEsc(e.type)+'<br><span style="color:var(--sub);font-size:11px;">'+admEsc(e.detail||'')+'</span></td>'+
+      '<td style="padding:6px 8px;color:var(--sub);font-size:11px;">'+admEsc(e.email||'—')+'<br>'+admEsc(e.ip||'')+'</td>'+
+      '<td style="padding:6px 8px;color:var(--sub);white-space:nowrap;font-size:11px;">'+admEsc(String(e.created_at||'').replace('T',' ').slice(0,16))+'</td>'+
+    '</tr>';
+  }).join('');
+  return '<div class="card" style="overflow-x:auto;border:1px solid rgba(245,158,11,.3);">'+head+
+    '<table style="width:100%;border-collapse:collapse;font-size:12px;color:var(--text);min-width:560px;">'+
+    '<thead><tr style="text-align:left;color:var(--sub);border-bottom:1px solid rgba(110,150,210,.3);">'+
+      '<th style="padding:6px 8px;">Gravité</th><th style="padding:6px 8px;">Événement</th><th style="padding:6px 8px;">Qui</th><th style="padding:6px 8px;">Quand</th>'+
+    '</tr></thead><tbody>'+rows+'</tbody></table>'+
+    '<div style="font-size:11px;color:var(--sub);margin-top:8px;">Les alertes critiques t\'envoient aussi un email automatique.</div>'+
+  '</div>';
+}
+function admAuditSearch(){ // MODIFIÉ : recherche + inspection d'un joueur ciblé
+  var el=ge('adm-audit-q'); var q=(el&&el.value||'').trim();
+  var box=ge('adm-audit-res'); if(!box) return;
+  if(!q){ box.innerHTML='<div class="al al-info">Entre un nom ou un email.</div>'; return; }
+  box.innerHTML='<div class="al al-info">Recherche…</div>';
+  admFetch('/admin/player-audit?q='+encodeURIComponent(q)).then(function(r){
+    if(r.status===404){ box.innerHTML='<div class="al al-warn">⚠️ Module non déployé (mettre à jour index.js côté serveur).</div>'; return; }
+    if(r.status===403){ box.innerHTML='<div class="al al-warn">⛔ Accès réservé aux administrateurs.</div>'; return; }
+    if(r.status!==200){ box.innerHTML='<div class="al al-err">Erreur ('+r.status+').</div>'; return; }
+    box.innerHTML=admRenderAudit(r.data||{});
+  }).catch(function(){ box.innerHTML='<div class="al al-err">Erreur réseau.</div>'; });
+}
+function admRenderAudit(d){ // MODIFIÉ
+  var res=d.results||[];
+  if(!res.length) return '<div class="al al-warn">Aucun joueur trouvé pour « '+admEsc(d.q||'')+' ».</div>';
+  return res.map(function(u){
+    var rows=(u.scores||[]).map(function(s){
+      return '<tr><td style="padding:5px 8px;color:var(--sub);">'+admEsc(s.pack_id||'')+'</td>'+
+        '<td style="padding:5px 8px;text-align:center;color:white;">'+(s.score||0)+'/'+(s.total||0)+'</td>'+
+        '<td style="padding:5px 8px;color:var(--sub);white-space:nowrap;">'+admEsc(String(s.played_at||'').replace('T',' ').slice(0,16))+'</td></tr>';
+    }).join('');
+    var table = rows ? '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:8px;min-width:340px;"><thead><tr style="color:var(--sub);text-align:left;border-bottom:1px solid rgba(110,150,210,.25);"><th style="padding:5px 8px;">Pack</th><th style="padding:5px 8px;text-align:center;">Score</th><th style="padding:5px 8px;">Date</th></tr></thead><tbody>'+rows+'</tbody></table></div>' : '<div style="font-size:12px;color:var(--sub);margin-top:6px;">Aucun score enregistré.</div>';
+    return '<div class="card" style="margin-bottom:10px;">'+
+      '<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center;">'+
+        '<div><div style="color:white;font-weight:700;">'+admEsc(u.name)+' <span style="color:var(--sub);">'+admEsc(u.country||'')+'</span></div><div style="font-size:11px;color:var(--sub);">'+admEsc(u.email||'')+'</div></div>'+
+        '<div style="text-align:right;"><div style="color:var(--cyan);font-weight:900;font-size:18px;">'+(u.points||0)+' pts</div><div style="font-size:11px;color:var(--sub);">'+(u.parties||0)+' parties</div></div>'+
+      '</div>'+
+      table+
+      '<div style="margin-top:10px;"><button class="btn-out btn-sm" style="font-size:12px;border-color:rgba(239,68,68,.5);color:#ef4444;" onclick="admResetPlayer('+u.id+',\''+encodeURIComponent(u.name||'')+'\','+(u.parties||0)+')">🗑️ Retirer TOUS les points de ce joueur</button></div>'+
+    '</div>';
+  }).join('');
+}
+function admResetPlayer(uid, encName, n){ // MODIFIÉ : retire tous les points d'un joueur
+  var name=''; try{ name=decodeURIComponent(encName||''); }catch(e){ name=encName||''; }
+  if(!confirm('🗑️ Retirer TOUS les points de '+name+' ?\n\n'+n+' partie(s) supprimées : le joueur repart de 0 au classement. Son compte est conservé. Action irréversible.')) return;
+  fetch('/admin/scores/reset', { method:'POST', headers:{'Content-Type':'application/json', Authorization:'Bearer '+(U.token||'')}, body:JSON.stringify({user_id:uid}) })
+    .then(function(r){ return r.json().catch(function(){ return {}; }); })
+    .then(function(d){
+      if(d && typeof d.deleted!=='undefined'){ alert('✅ '+d.deleted+' score(s) supprimé(s). '+name+' repart de 0.'); admAuditSearch(); admLoadFraud(); }
+      else { alert('❌ '+((d && d.error)||'Échec.')); }
+    })
+    .catch(function(){ alert('❌ Erreur réseau.'); });
+}
+function admPurgeFraud(uid, encName){ // MODIFIÉ : nettoyage ciblé des doublons d'un joueur
+  var name = ''; try { name = decodeURIComponent(encName||''); } catch(e){ name = encName||''; }
+  if(!confirm('🧹 Nettoyer les doublons de '+name+' ?\n\nSeules les soumissions en double sont supprimées. Ses scores légitimes sont conservés. Action irréversible.')) return;
+  fetch('/admin/fraud/purge', { method:'POST', headers:{'Content-Type':'application/json', Authorization:'Bearer '+(U.token||'')}, body:JSON.stringify({user_id:uid}) })
+    .then(function(r){ return r.json().catch(function(){ return {}; }); })
+    .then(function(d){
+      if(d && typeof d.deleted!=='undefined'){ alert('✅ '+d.deleted+' doublon(s) supprimé(s) pour '+name+'.'); admLoadFraud(); }
+      else { alert('❌ '+((d && d.error)||'Échec du nettoyage.')); }
+    })
+    .catch(function(){ alert('❌ Erreur réseau.'); });
 }
 function admLoadFraud(){ // MODIFIÉ : détection & identification des scores frauduleux (route GET /admin/fraud)
   var fx=ge('adm-fraud'); if(!fx) return;
@@ -8435,8 +8533,9 @@ function admRenderFraud(d){ // MODIFIÉ
   if(!liste.length) return '<div class="card">'+head+'<div style="font-size:13px;color:#22c55e;font-weight:700;">✅ Aucune fraude détectée.</div></div>';
   var rows=liste.map(function(f){
     var s=f.suspicion||0; var col = s>=15?'#ef4444':(s>=6?'#f59e0b':'#9aa7bd');
+    var btn = (f.doublons>0) ? '<div style="margin-top:6px;"><button class="btn-out btn-sm" style="font-size:11px;padding:4px 8px;" onclick="admPurgeFraud('+f.user_id+',\''+encodeURIComponent(f.name||'')+'\')">🧹 Nettoyer les doublons</button></div>' : ''; // MODIFIÉ
     return '<tr>'+
-      '<td style="padding:7px 8px;color:white;">'+admEsc(f.name)+' <span style="color:var(--sub);">'+admEsc(f.country||'')+'</span><br><span style="color:var(--sub);font-size:11px;">'+admEsc(f.email||'')+'</span></td>'+
+      '<td style="padding:7px 8px;color:white;">'+admEsc(f.name)+' <span style="color:var(--sub);">'+admEsc(f.country||'')+'</span><br><span style="color:var(--sub);font-size:11px;">'+admEsc(f.email||'')+'</span>'+btn+'</td>'+
       '<td style="padding:7px 8px;text-align:center;"><span style="font-weight:900;color:'+col+';">'+s+'</span></td>'+
       '<td style="padding:7px 8px;color:var(--sub);font-size:11px;">'+admEsc((f.motifs||[]).join(' · '))+'</td>'+
       '<td style="padding:7px 8px;text-align:center;color:white;">'+(f.parties||0)+'</td>'+
