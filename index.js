@@ -923,8 +923,26 @@ function genCode(prefix) {
 }
 
 /* ── SCORES ─────────────────────────────────────────────────────── */
-app.post('/scores', requireAuth, (req, res) => {
-  let { pack_id, score, total } = req.body || {};
+
+// MODIFIÉ — AJOUT anti-rejeu : table de jetons de score à usage unique
+db.exec(`CREATE TABLE IF NOT EXISTS score_nonces (
+  token      TEXT PRIMARY KEY,
+  user_id    INTEGER NOT NULL,
+  used       INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+)`);
+try { db.exec('CREATE INDEX IF NOT EXISTS idx_nonce_user ON score_nonces (user_id, created_at)'); } catch(_) {}
+
+// MODIFIÉ — AJOUT anti-rejeu : délivre un jeton à usage unique au démarrage d'un quiz
+app.get('/scores/nonce', requireAuth, limiterLoose, (req, res) => {
+  try { db.prepare("DELETE FROM score_nonces WHERE created_at < datetime('now','-1 day') OR used = 1").run(); } catch(_) {} // purge légère
+  const token = crypto.randomBytes(16).toString('hex');
+  db.prepare('INSERT INTO score_nonces (token, user_id) VALUES (?, ?)').run(token, req.user.id);
+  return ok(res, { nonce: token });
+});
+
+app.post('/scores', requireAuth, limiterLoose, (req, res) => { // MODIFIÉ — rate-limit ajouté
+  let { pack_id, score, total, nonce } = req.body || {}; // MODIFIÉ — nonce optionnel
   if (!pack_id || score == null || total == null) return err(res, 400, 'pack_id, score, total requis');
 
   // MODIFIÉ — anti-triche scoring : entiers + bornage serveur
@@ -935,6 +953,19 @@ app.post('/scores', requireAuth, (req, res) => {
   if (total < 1 || total > MAX_TOTAL)                        return err(res, 400, 'total hors limites');
   if (score < 0 || score > total)                           return err(res, 400, 'score hors limites');
   // FIN MODIFIÉ
+
+  // MODIFIÉ — AJOUT anti-rejeu 1 : jeton à usage unique si fourni (protection forte)
+  if (nonce) {
+    const n = db.prepare('SELECT used FROM score_nonces WHERE token = ? AND user_id = ?').get(String(nonce), req.user.id);
+    if (!n)     return err(res, 409, 'jeton invalide');
+    if (n.used) return err(res, 409, 'jeton déjà utilisé');
+    db.prepare('UPDATE score_nonces SET used = 1 WHERE token = ?').run(String(nonce));
+  }
+  // MODIFIÉ — AJOUT anti-rejeu 2 : anti-doublon rapide (même pack/score < 20s), actif même sans jeton
+  const dupe = db.prepare(
+    "SELECT 1 FROM user_scores WHERE user_id = ? AND pack_id = ? AND score = ? AND total = ? AND played_at >= datetime('now','-20 seconds') LIMIT 1"
+  ).get(req.user.id, pack_id, score, total);
+  if (dupe) return err(res, 429, 'soumission déjà enregistrée, patientez');
 
   db.prepare('INSERT INTO user_scores (user_id, pack_id, score, total) VALUES (?, ?, ?, ?)')
     .run(req.user.id, pack_id, score, total);
@@ -1641,24 +1672,36 @@ db.exec(`CREATE TABLE IF NOT EXISTS certificates (
   total      INTEGER,
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 )`);
+// MODIFIÉ — AJOUT sécurité certificats : colonne signature HMAC (anti-falsification)
+try { db.exec('ALTER TABLE certificates ADD COLUMN sig TEXT'); } catch(_) {}
+
+// MODIFIÉ — AJOUT : secret dédié (fallback JWT_SECRET) + signature déterministe d'un certificat
+const CERT_SECRET = process.env.CERT_SECRET || JWT_SECRET;
+function certSig(cid, userId, theme, zone) {
+  return crypto.createHmac('sha256', CERT_SECRET)
+    .update(String(cid) + '|' + String(userId) + '|' + String(theme) + '|' + String(zone))
+    .digest('hex').slice(0, 32);
+}
 
 const CERT_PASS = 0.8; // seuil de réussite : 80 %
 
-app.post('/certificates', requireAuth, (req, res) => {
+app.post('/certificates', requireAuth, limiterLoose, (req, res) => { // MODIFIÉ — rate-limit ajouté
   try { // MODIFIÉ : éviter crash serveur
   const { theme, zone, score, total } = req.body || {};
   const sc = Number(score), tt = Number(total);
   if (!theme || !tt || tt <= 0) return err(res, 400, 'theme et total requis');
   if (sc / tt < CERT_PASS) return err(res, 400, `Score insuffisant (minimum ${Math.round(CERT_PASS*100)}%)`);
   const cleanTheme = String(theme).slice(0, 160);
+  const cleanZone  = String(zone || '').slice(0, 40); // MODIFIÉ
   // Réutilise un certificat déjà émis pour le même utilisateur + thème (pas de doublon)
   const existing = db.prepare('SELECT cert_id, created_at FROM certificates WHERE user_id = ? AND theme = ? ORDER BY id DESC LIMIT 1').get(req.user.id, cleanTheme);
   if (existing) return ok(res, { certificate_id: existing.cert_id, date: (existing.created_at || '').slice(0, 10) });
-  const cid = 'RA-' + new Date().getFullYear() + '-' + crypto.randomBytes(4).toString('hex').toUpperCase();
+  const cid = 'RA-' + new Date().getFullYear() + '-' + crypto.randomBytes(8).toString('hex').toUpperCase(); // MODIFIÉ — entropie 4→8 octets
+  const sig = certSig(cid, req.user.id, cleanTheme, cleanZone); // MODIFIÉ — signature HMAC
   const u = db.prepare('SELECT name FROM users WHERE id = ?').get(req.user.id);
-  db.prepare('INSERT INTO certificates (cert_id, user_id, user_name, theme, zone, score, total) VALUES (?,?,?,?,?,?,?)')
-    .run(cid, req.user.id, (u && u.name) || '', cleanTheme, String(zone || '').slice(0, 40), sc, tt);
-  return ok(res, { certificate_id: cid, date: new Date().toISOString().slice(0, 10) });
+  db.prepare('INSERT INTO certificates (cert_id, user_id, user_name, theme, zone, score, total, sig) VALUES (?,?,?,?,?,?,?,?)') // MODIFIÉ — + sig
+    .run(cid, req.user.id, (u && u.name) || '', cleanTheme, cleanZone, sc, tt, sig);
+  return ok(res, { certificate_id: cid, signature: sig, date: new Date().toISOString().slice(0, 10) }); // MODIFIÉ — renvoie la signature
   } catch(e) { return err(res, 500, 'Erreur serveur certificat'); } // MODIFIÉ
 });
 
@@ -3876,14 +3919,24 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.get('/api', (req, res) => res.json({ status: 'ok', message: 'API REGUL ARENA en ligne' }));
 
 /* MODIFIÉ — Page publique de vérification d'un certificat (scan QR) */
-app.get('/verify/:id', (req, res) => {
+app.get('/verify/:id', limiterLoose, (req, res) => { // MODIFIÉ — rate-limit anti-énumération
   const esc = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const c = db.prepare('SELECT cert_id, user_name, theme, zone, created_at FROM certificates WHERE cert_id = ?').get(req.params.id);
+  const c = db.prepare('SELECT cert_id, user_id, user_name, theme, zone, created_at, sig FROM certificates WHERE cert_id = ?').get(req.params.id); // MODIFIÉ — + user_id, sig
   res.set('Content-Type', 'text/html; charset=utf-8');
+  // MODIFIÉ — AJOUT : contrôle d'intégrité HMAC
+  let sigLine = '';
+  if (c) {
+    const expected = certSig(c.cert_id, c.user_id, c.theme, c.zone || '');
+    const presented = req.query.sig ? String(req.query.sig) : c.sig;
+    if (presented && presented !== expected) {
+      return res.status(409).send('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Certificat altéré</title><body style="font-family:system-ui,-apple-system,sans-serif;background:#F5F3EE;color:#002B5C;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0;padding:24px;text-align:center"><div><div style="font-size:48px">⚠️</div><h1 style="color:#b91c1c;font-size:20px">Certificat altéré</h1><p style="color:#555">La signature ne correspond pas. Ce document a pu être falsifié.</p></div></body>');
+    }
+    if (c.sig && c.sig === expected) sigLine = '<div><strong>Signature :</strong> <span style="color:#16803c">vérifiée ✓</span></div>';
+  }
   if (!c) {
     return res.status(404).send('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Certificat introuvable</title><body style="font-family:system-ui,-apple-system,sans-serif;background:#F5F3EE;color:#002B5C;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0;padding:24px;text-align:center"><div><div style="font-size:48px">❌</div><h1 style="color:#b91c1c;font-size:20px">Certificat introuvable</h1><p style="color:#555">Aucun certificat ne correspond à cet identifiant.</p></div></body>');
   }
-  return res.send('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Certificat authentique — REGUL ARENA</title><body style="font-family:system-ui,-apple-system,sans-serif;background:#F5F3EE;color:#002B5C;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0;padding:24px"><div style="max-width:520px;width:100%;background:#fff;border:1px solid rgba(201,153,26,.4);border-radius:16px;padding:32px;box-shadow:0 8px 30px rgba(0,0,0,.08);text-align:center"><div style="font-size:13px;letter-spacing:2px;color:#C9991A;font-weight:700">REGUL ARENA</div><div style="font-size:48px;margin:8px 0">✅</div><h1 style="font-size:20px;margin:0 0 4px">Certificat authentique</h1><p style="color:#555;font-size:14px;margin:0 0 20px">Ce certificat a bien été délivré par REGUL ARENA.</p><div style="text-align:left;background:#F5F3EE;border-radius:10px;padding:16px;font-size:14px;line-height:1.9"><div><strong>Délivré à :</strong> ' + esc(c.user_name) + '</div><div><strong>Thème :</strong> ' + esc(c.theme) + '</div><div><strong>Zone :</strong> ' + esc(c.zone) + '</div><div><strong>Date :</strong> ' + esc((c.created_at||'').slice(0,10)) + '</div><div><strong>N° d\'authentification :</strong> ' + esc(c.cert_id) + '</div></div></div></body>');
+  return res.send('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Certificat authentique — REGUL ARENA</title><body style="font-family:system-ui,-apple-system,sans-serif;background:#F5F3EE;color:#002B5C;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0;padding:24px"><div style="max-width:520px;width:100%;background:#fff;border:1px solid rgba(201,153,26,.4);border-radius:16px;padding:32px;box-shadow:0 8px 30px rgba(0,0,0,.08);text-align:center"><div style="font-size:13px;letter-spacing:2px;color:#C9991A;font-weight:700">REGUL ARENA</div><div style="font-size:48px;margin:8px 0">✅</div><h1 style="font-size:20px;margin:0 0 4px">Certificat authentique</h1><p style="color:#555;font-size:14px;margin:0 0 20px">Ce certificat a bien été délivré par REGUL ARENA.</p><div style="text-align:left;background:#F5F3EE;border-radius:10px;padding:16px;font-size:14px;line-height:1.9"><div><strong>Délivré à :</strong> ' + esc(c.user_name) + '</div><div><strong>Thème :</strong> ' + esc(c.theme) + '</div><div><strong>Zone :</strong> ' + esc(c.zone) + '</div><div><strong>Date :</strong> ' + esc((c.created_at||'').slice(0,10)) + '</div><div><strong>N° d\'authentification :</strong> ' + esc(c.cert_id) + '</div>' + sigLine + '</div></div></body>'); // MODIFIÉ — + sigLine
 });
 // SPA catch-all : renvoie index.html pour les routes frontend uniquement.
 // Les chemins d'API sont déjà gérés par leurs handlers ; cette exclusion explicite
