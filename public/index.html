@@ -1880,7 +1880,7 @@ function arOrgPackCheckboxes(){
   }
   if(thm) out += '<div style="font-size:10px;font-weight:700;color:#7d93b8;text-transform:uppercase;margin:10px 0 2px;">🎯 Thèmes atelier</div>'+thm;
   var all=[].concat(QR,QB,QC,QN), cats=[], seen={};
-  all.forEach(function(q){ if(q.cat && !seen[q.cat]){ seen[q.cat]=1; cats.push(q.cat); } });
+  all.forEach(function(q){ if(q && q.cat && !seen[q.cat]){ seen[q.cat]=1; cats.push(q.cat); } }); // MODIFIÉ Phase 2 : garde q
   if(cats.length){
     var catRows='';
     cats.forEach(function(c){ var n=all.filter(function(q){return q.cat===c;}).length; catRows += row('cat:'+c, '📂 '+arChatEsc(c)+' ('+n+')'); });
@@ -2523,7 +2523,8 @@ function nextQ(){
 }
 function exitQ(){
   QZ={q:[],idx:0,sc:0,ans:false,hist:[],done:false,pack:''};
-  TAB='quiz'; buildNav(); render();
+  try{ raSanitizeBanks(); }catch(e){} // MODIFIÉ Phase 2
+  TAB='quiz'; try{ buildNav(); }catch(e){} render();
 }
 
 function rQR(){
@@ -4293,7 +4294,7 @@ function arRematchModal(){ // MODIFIE : revanche sur un autre theme (meme code, 
   var cur=AR.packId||'rfe-uemoa';
   function opt(v,l){ return '<option value="'+v+'"'+(v===cur?' selected':'')+'>'+l+'</option>'; }
   var packs='<optgroup label="Packs generaux">'+opt('rfe-uemoa','🏛️ RFE UEMOA ('+QR.length+')')+opt('bale-umoa','⚖️ Bale II/III ('+QB.length+')')+opt('mix','🔀 Mix RFE + Bale')+opt('cemac','🌍 CEMAC ('+QC.length+')')+'</optgroup>'+
-    '<optgroup label="Themes Atelier (defis cibles)">'+arThemeOptions()+'</optgroup>'+'<optgroup label="Themes precis">'+arCatOptions()+'</optgroup>';
+    '<optgroup label="Themes Atelier (defis cibles)">'+arSafeOpts(arThemeOptions)+'</optgroup>'+'<optgroup label="Themes precis">'+arSafeOpts(arCatOptions)+'</optgroup>';
   showModal('🔁 Revanche',
     '<div style="display:flex;flex-direction:column;gap:13px;">'+
     '<p style="font-size:12px;color:var(--sub);">Meme adversaire, meme code — l\'historique du chat est conserve.</p>'+
@@ -4946,7 +4947,7 @@ function rDefiJourCard(){
 function arThemePool(key){
   var t=ARENA_THEMES[key]; if(!t) return [];
   var all=[].concat(QR,QB,QC,QN);
-  return all.filter(function(q){ return t.rx.test((q.cat||'')+' '+(q.q||'')+' '+(q.source||'')); });
+  return all.filter(function(q){ return q && t.rx.test((q.cat||'')+' '+(q.q||'')+' '+(q.source||'')); }); // MODIFIÉ Phase 2 : garde q
 }
 function arThemeOptions(){
   var out='';
@@ -4969,8 +4970,8 @@ function arPoolSize(packId){
 function arEscAttr(x){ return String(x==null?'':x).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function arCatOptions(){
   var all=[].concat(QR,QB,QC,QN), cats=[], seen={}; // MODIFIÉ : QN inclus dans les thèmes de duel
-  all.forEach(function(q){ if(q.cat && !seen[q.cat]){ seen[q.cat]=1; cats.push(q.cat); } });
-  return cats.map(function(c){ var n=all.filter(function(q){return q.cat===c;}).length; var e=arEscAttr(c); return '<option value="cat:'+e+'">\uD83D\uDCC2 '+e+' ('+n+')</option>'; }).join('');
+  all.forEach(function(q){ if(q && q.cat && !seen[q.cat]){ seen[q.cat]=1; cats.push(q.cat); } }); // MODIFIÉ Phase 2 : garde q
+  return cats.map(function(c){ var n=all.filter(function(q){return q&&q.cat===c;}).length; var e=arEscAttr(c); return '<option value="cat:'+e+'">\uD83D\uDCC2 '+e+' ('+n+')</option>'; }).join('');
 }
 function arPackQ(packId, n, code){
   var src;
@@ -5233,7 +5234,14 @@ function arTmodeHint(){
 /* ════════════════════════════════════════════════
    ARENA — MODALS
 ════════════════════════════════════════════════ */
+/* MODIFIÉ Phase 2 — anti-plantage boutons Créer/Quitter : nettoie les entrées nulles injectées par les push runtime */
+function raSanitizeBanks(){
+  try{ [QR,QB,QC,QN].forEach(function(A){ if(Array.isArray(A)){ for(var i=A.length-1;i>=0;i--){ if(!A[i]||typeof A[i]!=='object'){ A.splice(i,1); } } } }); }catch(e){}
+}
+function arSafeOpts(fn){ try{ return (typeof fn==='function')?fn():''; }catch(e){ try{console.error('[arSafeOpts]',e);}catch(_){}; return ''; } }
+
 function arModalCreate(){
+  raSanitizeBanks(); // MODIFIÉ Phase 2
   showModal('⚔️ Créer un Duel',
     '<div style="display:flex;flex-direction:column;gap:13px;">'+
     '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Pack de questions</label>'+
@@ -5245,7 +5253,7 @@ function arModalCreate(){
       '<option value="cemac">🌍 CEMAC — BEAC/COBAC ('+QC.length+' questions)</option>'+
       '<option value="qn">📚 Thématiques approfondies ('+QN.length+' questions)</option>'+
       '</optgroup>'+
-      '<optgroup label="🎯 Thèmes Atelier (défis ciblés)">'+arThemeOptions()+'</optgroup>'+'<optgroup label="Thèmes précis">'+arCatOptions()+'</optgroup>'+
+      '<optgroup label="🎯 Thèmes Atelier (défis ciblés)">'+arSafeOpts(arThemeOptions)+'</optgroup>'+'<optgroup label="Thèmes précis">'+arSafeOpts(arCatOptions)+'</optgroup>'+
     '</select></div>'+
     '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Nombre de questions</label>'+
     '<select id="ar-nq" class="inp"><option value="5">5 questions</option><option value="10" selected>10 questions</option><option value="15">15 questions</option><option value="20">20 questions</option></select></div>'+
@@ -5273,6 +5281,7 @@ function arModalJoin(type){
 }
 
 function arModalCreateTour(format){ // MODIFIÉ : format 'classic' | 'intra' | 'inter'
+  raSanitizeBanks(); // MODIFIÉ Phase 2
   format = format||'classic';
   var titre = format==='inter' ? '🌍 Tournoi inter-pays' : format==='intra' ? '🏙️ Tournoi intra-pays' : '🏆 Créer un Tournoi';
   var note  = format==='inter'
@@ -5290,7 +5299,7 @@ function arModalCreateTour(format){ // MODIFIÉ : format 'classic' | 'intra' | '
     '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Zone géographique</label>'+
     '<select id="ar-tzone" class="inp"><option value="uemoa">🌍 UEMOA</option><option value="cemac">🌍 CEMAC</option><option value="inter">🌐 Inter (UEMOA + CEMAC)</option></select></div>'+
     '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Pack de questions</label>'+
-    '<select id="ar-tpack" class="inp"><optgroup label="Packs généraux"><option value="rfe-uemoa">🏛️ RFE UEMOA</option><option value="bale-umoa">⚖️ Bâle II/III</option><option value="mix">🔀 Mix</option><option value="cemac">🌍 CEMAC (BEAC/COBAC)</option><option value="qn">📚 Thématiques approfondies</option></optgroup><optgroup label="🎯 Thèmes Atelier (défis ciblés)">'+arThemeOptions()+'</optgroup><optgroup label="Thèmes précis">'+arCatOptions()+'</optgroup></select></div>'+
+    '<select id="ar-tpack" class="inp"><optgroup label="Packs généraux"><option value="rfe-uemoa">🏛️ RFE UEMOA</option><option value="bale-umoa">⚖️ Bâle II/III</option><option value="mix">🔀 Mix</option><option value="cemac">🌍 CEMAC (BEAC/COBAC)</option><option value="qn">📚 Thématiques approfondies</option></optgroup><optgroup label="🎯 Thèmes Atelier (défis ciblés)">'+arSafeOpts(arThemeOptions)+'</optgroup><optgroup label="Thèmes précis">'+arSafeOpts(arCatOptions)+'</optgroup></select></div>'+
     (format!=='classic' ? '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Mode de classement des '+(format==='inter'?'pays':'institutions')+'</label>'+
     '<select id="ar-tscoring" class="inp"><option value="total">Score total cumulé</option><option value="avg">Moyenne par participant (équitable)</option><option value="top3">Somme des 3 meilleurs</option></select></div>' : '')+
     '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Mode des matchs (phase finale)</label>'+ // ROI-POULES
@@ -5648,7 +5657,7 @@ function arModalCreateKotm(){
       '<option value="cemac">🌍 CEMAC — BEAC/COBAC ('+QC.length+' questions)</option>'+
       '<option value="qn">📚 Thématiques approfondies ('+QN.length+' questions)</option>'+
       '</optgroup>'+
-      '<optgroup label="🎯 Thèmes Atelier (défis ciblés)">'+arThemeOptions()+'</optgroup><optgroup label="Thèmes précis">'+arCatOptions()+'</optgroup>'+
+      '<optgroup label="🎯 Thèmes Atelier (défis ciblés)">'+arSafeOpts(arThemeOptions)+'</optgroup><optgroup label="Thèmes précis">'+arSafeOpts(arCatOptions)+'</optgroup>'+
     '</select></div>'+
     '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Nombre de questions</label>'+
     '<select id="ar-knq" class="inp"><option value="6">6 questions</option><option value="9">9 questions</option><option value="12" selected>12 questions</option><option value="15">15 questions</option><option value="21">21 questions</option></select></div>'+
@@ -6277,7 +6286,7 @@ function arChallengePlayer(tid,tname){
       '<option value="cemac">🌍 CEMAC — BEAC/COBAC ('+QC.length+'Q)</option>'+
       '<option value="qn">📚 Thématiques approfondies ('+QN.length+'Q)</option>'+
       '</optgroup>'+
-      '<optgroup label="🎯 Thèmes Atelier (défis ciblés)">'+arThemeOptions()+'</optgroup>'+'<optgroup label="Thèmes précis">'+arCatOptions()+'</optgroup>'+
+      '<optgroup label="🎯 Thèmes Atelier (défis ciblés)">'+arSafeOpts(arThemeOptions)+'</optgroup>'+'<optgroup label="Thèmes précis">'+arSafeOpts(arCatOptions)+'</optgroup>'+
     '</select></div>'+
     '<div style="display:flex;gap:8px;">'+
     '<div style="flex:1;"><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Questions</label>'+
@@ -9302,7 +9311,7 @@ window.addEventListener('load', function(){
   var _tk = ge('ticker-txt'); // MODIFIÉ
   if(_tk){ // MODIFIÉ
     var _pays = [['sn','Sénégal'],['ci',"Côte d'Ivoire"],['ml','Mali'],['bf','Burkina Faso'],['bj','Bénin'],['ne','Niger'],['tg','Togo'],['gw','Guinée-Bissau'],['cm','Cameroun'],['cg','Congo'],['ga','Gabon'],['gq','Guinée éq.'],['cf','Centrafrique'],['td','Tchad']]; // MODIFIÉ
-    var _nthm = (typeof arThemeOptions==='function') ? ((arThemeOptions().match(/<option/g)||[]).length) : 0; // MODIFIÉ : nb de packs thématiques (défis ciblés)
+    var _nthm = (typeof arThemeOptions==='function') ? ((arSafeOpts(arThemeOptions).match(/<option/g)||[]).length) : 0; // MODIFIÉ : nb de packs thématiques (défis ciblés)
     var _info = '<span style="font-size:13px;font-weight:700;color:var(--cyan);">📚 '+tot+' questions · '+nThemes+' thèmes · 2 zones : UEMOA (BCEAO) &amp; CEMAC (BEAC)'+(_nthm? ' · 🎯 '+_nthm+' packs de défis thématiques (Duel & Tournoi)' : '')+'</span>'; // MODIFIÉ
     var _chips = _pays.map(function(p){ return '<span class="flagchip"><svg class="flag"><use href="#fl-'+p[0]+'"/></svg>'+p[1]+'</span>'; }).join(''); // MODIFIÉ
     var _seg = _info + '<span class="ticker-sep">●</span>' + _chips; // MODIFIÉ
