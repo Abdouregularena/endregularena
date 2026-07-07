@@ -106,7 +106,9 @@ function getData() {
     CF_Q: banks.CF_Q || [],
     SW_Q: banks.SW_Q || [],
     LOT_FINAL_UEMOA: banks.LOT_FINAL_UEMOA || {},
-    LOT_FINAL_CEMAC: banks.LOT_FINAL_CEMAC || {}
+    LOT_FINAL_CEMAC: banks.LOT_FINAL_CEMAC || {},
+    AE_DATA: banks.AE_DATA || {},
+    AE_DATA_CEMAC: banks.AE_DATA_CEMAC || {}
   });
 } // MODIFIÉ — pour la route /packs/bootstrap
 

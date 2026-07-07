@@ -944,7 +944,8 @@ app.get('/packs/bootstrap', requireAuth, limiterLoose, (req, res) => {
     QR: d.QR || [], QB: d.QB || [], QC: d.QC || [], QN: d.QN || [],
     QR_PLUS: d.QR_PLUS || [], QN_SWIFT: d.QN_SWIFT || [], BCB_Q: d.BCB_Q || [],
     BP_Q: d.BP_Q || [], KC_Q: d.KC_Q || [], CF_Q: d.CF_Q || [], SW_Q: d.SW_Q || [],
-    LOT_FINAL_UEMOA: d.LOT_FINAL_UEMOA || {}, LOT_FINAL_CEMAC: d.LOT_FINAL_CEMAC || {}
+    LOT_FINAL_UEMOA: d.LOT_FINAL_UEMOA || {}, LOT_FINAL_CEMAC: d.LOT_FINAL_CEMAC || {},
+    AE_DATA: d.AE_DATA || {}, AE_DATA_CEMAC: d.AE_DATA_CEMAC || {}
   });
 });
 

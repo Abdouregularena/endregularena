@@ -998,4 +998,331 @@ const LOT_FINAL_CEMAC = {
   ]
 };
 
-module.exports = { QR, QB, QC, QN, QR_PLUS, QN_SWIFT, BCB_Q, BP_Q, KC_Q, CF_Q, SW_Q, LOT_FINAL_UEMOA, LOT_FINAL_CEMAC }; // MODIFIÉ Phase 2
+
+
+/* ===== MODIFIÉ Phase 2 — auto-évaluation déplacée depuis public/index.html ===== */
+const AE_DATA = {
+  /* 1) CAS PRATIQUES : {scenario, questions[], correction[] (ref article)} */
+  cas_pratique: [
+    {
+      scenario:"Un ressortissant étranger titulaire d'un CDI signé il y a 14 mois auprès d'une banque à Dakar demande à son employeur d'être payé une partie de son salaire en euros sur son compte ouvert à l'étranger, et le reste en FCFA.",
+      questions:["A-t-il la qualité de résident de l'Union ?","Le salaire peut-il être réglé en euros sur le compte étranger ?"],
+      correction:[
+        {a:"Oui. Un contrat à durée indéterminée (ou ≥ 1 an) confère la qualité de résident.",ref:"Note BCEAO n°013-04-2026 — § 1 (Appréciation de la qualité de résident)"},
+        {a:"Non. Tout paiement entre un résident étranger et un autre résident (dont les revenus du travail) doit être libellé en FCFA et versé sur un compte tenu auprès d'un intermédiaire agréé de l'Union.",ref:"Note BCEAO n°013-04-2026 — § 2 (Règlement des revenus du travail)"}
+      ]
+    },
+    {
+      scenario:"Un exportateur résident encaisse 80 000 EUR à l'étranger au titre d'une vente de marchandises, exigibles le 10 du mois. Il conserve les devises sur un compte personnel à l'étranger pendant 7 semaines.",
+      questions:["Quelle obligation pèse sur ces devises ?","Le délai est-il respecté ?"],
+      correction:[
+        {a:"Les revenus/produits en devises encaissés à l'étranger par un résident doivent être cédés à une banque intermédiaire agréée.",ref:"Règlement n°06/2024/CM/UEMOA — Art. 5 (Cession de devises)"},
+        {a:"Non. La cession doit intervenir dans un délai maximum d'un mois à compter de la date d'exigibilité ; 7 semaines (≈ 1,6 mois) constituent un dépassement.",ref:"Règlement n°06/2024/CM/UEMOA — Art. 5"}
+      ]
+    },
+    {
+      scenario:"Une PME résidente souhaite acquérir 60 % du capital d'une société située hors UEMOA pour 500 millions FCFA, financés entièrement sur fonds propres locaux.",
+      questions:["L'opération est-elle libre ?","La structure de financement est-elle conforme ?"],
+      correction:[
+        {a:"Non, elle est libre seulement après autorisation préalable du Ministre chargé des Finances (investissement direct à l'étranger : participation > 10 %).",ref:"Règlement n°06/2024/CM/UEMOA — Art. 12 (Opérations d'investissement)"},
+        {a:"Non conforme : l'investissement à l'étranger doit être financé à hauteur de 75 % au moins par des emprunts contractés à l'étranger.",ref:"Règlement n°06/2024/CM/UEMOA — Art. 12 (financement 75 %)"}
+      ]
+    },
+    {
+      scenario:"Une banque a des fonds propres effectifs (FPE) de 40 milliards FCFA. Elle porte sur le groupe « Alpha » (contreparties liées) une exposition totale de 11 milliards FCFA, bilan et hors-bilan confondus.",
+      questions:["L'exposition dépasse-t-elle une limite réglementaire ?","Y a-t-il une obligation déclarative ?"],
+      correction:[
+        {a:"Oui : 11/40 = 27,5 % des FPE, au-delà de la limite de 25 % sur un même bénéficiaire/groupe de contreparties liées.",ref:"Annexe Décision N°013/24/06/2016/CM/UMOA — Titre VII, Art. 56 (limite 25 % des FPE)"},
+        {a:"Oui : toute exposition ≥ 10 % des FPE est un « grand risque » à déclarer à la Commission Bancaire.",ref:"Annexe Décision N°013/2016 — Titre VII (seuil de déclaration 10 %)"}
+      ]
+    },
+    {
+      scenario:"Un salarié expatrié, résident depuis 3 ans, quitte définitivement l'UEMOA. Il demande le transfert à l'étranger du solde de son compte en FCFA (revenus salariaux dûment justifiés).",
+      questions:["Le transfert est-il possible ?","Quelle procédure et quels justificatifs ?"],
+      correction:[
+        {a:"Oui, sans limitation de montant, sous réserve que les avoirs soient justifiés et proviennent de revenus perçus dans l'Union ou de liquidation d'investissements.",ref:"Note BCEAO n°013-04-2026 — § 4 (Transfert du solde en cas de départ définitif)"},
+        {a:"Autorisation préalable de la Structure chargée des Finances Extérieures ; justificatifs de revenus (bulletins de salaire, attestations, documents fiscaux).",ref:"Note BCEAO n°013-04-2026 — § 4 et § 5 (Critères d'éligibilité)"}
+      ]
+    }
+  ],
+
+  /* 2) VRAI / FAUX : {affirmation, reponse(bool), justification (ref)} */
+  vrai_faux: [
+    {affirmation:"Le ratio minimum de fonds propres de base durs (CET1) exigé des établissements de crédit de l'UMOA est de 5 % des risques pondérés.",reponse:true,
+     justification:"Exact : le CET1 minimum est fixé à 5 % des risques pondérés.",ref:"Avis n°004-04-2016 BCEAO — Art. 24 ; Annexe Décision N°013/2016 — §103"},
+    {affirmation:"La limite maximale d'exposition sur un même bénéficiaire (ou groupe de contreparties liées) est de 40 % des fonds propres effectifs.",reponse:false,
+     justification:"Faux : la limite est de 25 % des FPE.",ref:"Annexe Décision N°013/2016 — Titre VII, Art. 56"},
+    {affirmation:"Un transfert vers l'étranger inférieur à 1 000 000 FCFA ne nécessite aucune pièce justificative au-delà de l'identification du demandeur et du bénéficiaire.",reponse:true,
+     justification:"Exact : en dessous de 1 000 000 FCFA aucune pièce justificative n'est requise (seuil relevé par le nouveau Règlement RFE, contre 500 000 FCFA sous l'ancien texte de 2010).",ref:"Règlement n°06/2024/CM/UEMOA — Art. 9 (dispense de pièces justificatives)"},
+    {affirmation:"Un voyageur peut exporter jusqu'à 1 kilogramme d'objets en or sans autorisation préalable.",reponse:false,
+     justification:"Faux : la dispense ne joue que dans la limite de 500 grammes.",ref:"Règlement n°06/2024/CM/UEMOA — Art. 20 (Importation et exportation d'or)"},
+    {affirmation:"Le coefficient appliqué au Produit Net Bancaire pour calculer l'exigence en fonds propres au titre du risque opérationnel est de 12 %.",reponse:false,
+     justification:"Faux : le coefficient est de 15 % (approche standard).",ref:"Annexe Décision N°013/2016 — Titre V (Risque opérationnel)"}
+  ],
+
+  /* 3) TEXTE À TROUS : {texte avec ___, reponses[]} */
+  texte_trous: [
+    {texte:"Le ratio minimum de fonds propres de base durs (CET1) est de ___ % des risques pondérés, celui de catégorie 1 (Tier 1) de ___ %, et celui des fonds propres effectifs (hors coussins) de ___ %.",
+     reponses:["5","6","8"],
+     ref:"Annexe Décision N°013/2016/CM/UMOA — §103 (exigences minimales)"},
+    {texte:"Le ratio de liquidité à court terme (LCR/RLCT) couvre les sorties nettes sur ___ jours et doit atteindre au minimum ___ % à pleine application.",
+     reponses:["30","100"],
+     ref:"Instruction n°009-09-2017 BCEAO ; Annexe Décision N°013/2016 — Titre XIII"},
+    {texte:"Le Plan Comptable Bancaire Révisé de l'UMOA est entré en vigueur le 1er janvier ___, instituant l'obligation d'établir des états financiers ___ en plus des états annuels.",
+     reponses:["2018","semestriels"],
+     ref:"Décision N°357-11-2016 instituant le PCB Révisé de l'UMOA — Art. 3"},
+    {texte:"Selon la Note BCEAO n°013-04-2026, un salarié étranger est résident dès lors qu'il dispose d'un contrat de travail à durée indéterminée ou d'une durée supérieure ou égale à ___ an(s) ; ses revenus du travail sont réglés exclusivement en ___.",
+     reponses:["1","FCFA"],
+     ref:"Note BCEAO n°013-04-2026 — § 1 et § 2"},
+    {texte:"Au titre de la division des risques, toute exposition d'au moins ___ % des FPE est un grand risque à déclarer ; la limite globale cumulée des grands risques est de ___ fois les fonds propres effectifs.",
+     reponses:["10","8"],
+     ref:"Annexe Décision N°013/2016 — Titre VII"}
+  ],
+
+  /* 4) CALCUL PRUDENTIEL : {enonce, donnees{}, etapes[], resultat, conforme(bool)} */
+  calcul_prudentiel: [
+    {enonce:"Vérifiez si le ratio CET1 de la banque respecte l'exigence minimale.",
+     donnees:{"Fonds propres de base durs (CET1)":"21 Mds FCFA","Actifs pondérés des risques (APR)":"380 Mds FCFA","Minimum CET1 requis":"5 %"},
+     etapes:["Ratio CET1 = CET1 / APR","= 21 / 380 = 5,53 %","Comparer à 5 % minimum"],
+     resultat:"Ratio CET1 = 5,53 % ≥ 5 % → exigence satisfaite.",conforme:true,
+     ref:"Annexe Décision N°013/2016 — §103 (CET1 ≥ 5 %)"},
+    {enonce:"La banque respecte-t-elle l'exigence de fonds propres effectifs incluant le coussin de conservation (cible 2022) ?",
+     donnees:{"Fonds propres effectifs (FPE)":"38 Mds FCFA","APR":"400 Mds FCFA","Exigence FPE + coussin conservation":"10,5 %"},
+     etapes:["Ratio de solvabilité = FPE / APR","= 38 / 400 = 9,5 %","Comparer à 8 % + 2,5 % = 10,5 %"],
+     resultat:"9,5 % < 10,5 % → exigence NON satisfaite (coussin de conservation non couvert : restrictions sur les distributions).",conforme:false,
+     ref:"Annexe Décision N°013/2016 — Titre III (FPE 8 % + coussin 2,5 %)"},
+    {enonce:"L'exposition sur le groupe « Beta » respecte-t-elle la limite individuelle de division des risques ?",
+     donnees:{"Exposition totale sur le groupe Beta":"9,5 Mds FCFA","Fonds propres effectifs (FPE)":"40 Mds FCFA","Limite sur un même bénéficiaire":"25 % des FPE"},
+     etapes:["Exposition / FPE = 9,5 / 40 = 23,75 %","Comparer à la limite de 25 %"],
+     resultat:"23,75 % ≤ 25 % → conforme (mais > 10 % : grand risque à déclarer).",conforme:true,
+     ref:"Annexe Décision N°013/2016 — Titre VII, Art. 56"},
+    {enonce:"Le ratio de levier de l'établissement respecte-t-il le minimum réglementaire ?",
+     donnees:{"Fonds propres de catégorie 1 (Tier 1)":"24 Mds FCFA","Exposition totale (bilan + hors-bilan)":"1 000 Mds FCFA","Minimum ratio de levier":"3 %"},
+     etapes:["Ratio de levier = Tier 1 / Exposition totale","= 24 / 1 000 = 2,4 %","Comparer à 3 %"],
+     resultat:"2,4 % < 3 % → ratio de levier NON respecté.",conforme:false,
+     ref:"Annexe Décision N°013/2016 — Titre VIII (levier ≥ 3 %)"},
+    {enonce:"Le cumul des grands risques respecte-t-il la limite globale ?",
+     donnees:{"Somme des grands risques (≥ 10 % FPE)":"300 Mds FCFA","Fonds propres effectifs (FPE)":"40 Mds FCFA","Limite globale":"8 × FPE"},
+     etapes:["Limite globale = 8 × 40 = 320 Mds FCFA","Comparer 300 Mds à 320 Mds"],
+     resultat:"300 ≤ 320 Mds → conforme (cumul des grands risques inférieur à 8× les FPE).",conforme:true,
+     ref:"Annexe Décision N°013/2016 — Titre VII (limite globale 8× FPE)"}
+  ],
+
+  /* 5) AUDIT : {rapport, irregularites[] (texte+ref)} */
+  audit: [
+    {rapport:"Rapport d'inspection — Banque X : le CET1 ressort à 4,2 % des APR ; une exposition unique représente 31 % des FPE ; le conseil d'administration ne comprend aucun administrateur indépendant et ne dispose pas de comité d'audit.",
+     irregularites:[
+       {t:"CET1 à 4,2 % : inférieur au minimum de 5 %.",ref:"Annexe Décision N°013/2016 — §103"},
+       {t:"Exposition de 31 % des FPE : dépasse la limite de 25 % sur un même bénéficiaire.",ref:"Annexe Décision N°013/2016 — Titre VII, Art. 56"},
+       {t:"Absence d'administrateurs indépendants : minimum de 2 requis.",ref:"Circulaire n°01-2017 CB-UMOA — Art. 18"},
+       {t:"Absence de comité d'audit : organe obligatoire.",ref:"Circulaire n°01-2017 CB-UMOA — Art. 24"}
+     ]},
+    {rapport:"Rapport — Intermédiaire agréé Y : des devises export encaissées le 5 janvier (exigibles le 5 janvier) n'ont été cédées que le 20 février ; un transfert de 450 000 FCFA a été refusé faute de justificatifs détaillés.",
+     irregularites:[
+       {t:"Cession des devises au-delà du délai d'un mois (5 janvier → 20 février).",ref:"Règlement n°06/2024/CM/UEMOA — Art. 5"},
+       {t:"Refus injustifié : sous 1 000 000 FCFA aucune pièce justificative n'est exigée (au-delà de l'identification).",ref:"Règlement n°06/2024/CM/UEMOA — Art. 9"}
+     ]},
+    {rapport:"Rapport — Dossier client résident étranger : transfert annuel demandé de 18 millions FCFA pour des revenus nets justifiés de 12 millions FCFA ; salaire partiellement réglé en espèces en devises.",
+     irregularites:[
+       {t:"Transfert (18 M) supérieur aux revenus nets justifiés (12 M) : le cumul ne peut excéder les revenus perçus.",ref:"Note BCEAO n°013-04-2026 — § 7 (Origine des revenus et plafond)"},
+       {t:"Revenus du travail réglés en devises : ils doivent l'être en FCFA via un intermédiaire agréé.",ref:"Note BCEAO n°013-04-2026 — § 2"}
+     ]},
+    {rapport:"Rapport — Banque Z : le ratio de levier est de 2,6 % ; les informations du Pilier 3 ne sont publiées qu'une fois par an ; le LCR a chuté à 88 % en fin de trimestre.",
+     irregularites:[
+       {t:"Ratio de levier 2,6 % : inférieur au minimum de 3 %.",ref:"Annexe Décision N°013/2016 — Titre VIII"},
+       {t:"Pilier 3 publié annuellement : périodicité minimale semestrielle.",ref:"Annexe Décision N°013/2016 — Titre XII"},
+       {t:"LCR à 88 % : inférieur au minimum de 100 %, exigé en permanence.",ref:"Instruction n°009-09-2017 BCEAO — Art. 5"}
+     ]},
+    {rapport:"Rapport — Compagnie financière W : aucun état financier semestriel produit au titre de 2018 ; la maison-mère n'a pas constitué de compagnie financière holding intermédiaire malgré la demande de la Commission Bancaire ; le périmètre de consolidation inclut une filiale d'assurance.",
+     irregularites:[
+       {t:"Absence d'états financiers semestriels : obligatoires depuis 2018.",ref:"Décision N°357-11-2016 (PCB Révisé) — Art. 3"},
+       {t:"Non-constitution de la holding intermédiaire requise par la Commission Bancaire.",ref:"Décision N°014/24/06/2016/CM/UMOA — Art. 5"},
+       {t:"Filiale d'assurance incluse dans le périmètre prudentiel : les assurances en sont explicitement exclues.",ref:"Décision N°014/2016 — Art. 4"}
+     ]}
+  ],
+
+  /* 6) EXAMEN BLANC : {questions[] mixtes (QCM), bareme, seuil:60} */
+  examen: {
+    seuil:60,
+    bareme:"20 points — 4 pts/question — réussite à 60 % (12/20)",
+    questions:[
+      {q:"Quel est le ratio minimum de fonds propres effectifs (hors coussins) ?",
+       choices:["6 %","8 %","10,5 %","12 %"],answer:1,
+       ref:"Annexe Décision N°013/2016 — §103"},
+      {q:"Dans quel délai maximum les devises encaissées à l'étranger par un résident doivent-elles être cédées ?",
+       choices:["7 jours","15 jours","1 mois à compter de l'exigibilité","3 mois"],answer:2,
+       ref:"Règlement n°06/2024/CM/UEMOA — Art. 5"},
+      {q:"À partir de quel statut un salarié étranger est-il considéré comme résident (Note 013-04-2026) ?",
+       choices:["6 mois de présence","CDI ou contrat ≥ 1 an","Mariage local","Inscription au registre du commerce"],answer:1,
+       ref:"Note BCEAO n°013-04-2026 — § 1"},
+      {q:"Quelle est la limite globale cumulée des grands risques ?",
+       choices:["4× les FPE","6× les FPE","8× les FPE","10× les FPE"],answer:2,
+       ref:"Annexe Décision N°013/2016 — Titre VII"},
+      {q:"Le Plan Comptable Bancaire Révisé de l'UMOA est entré en vigueur le :",
+       choices:["1er janvier 2016","1er janvier 2017","1er janvier 2018","1er janvier 2020"],answer:2,
+       ref:"Décision N°357-11-2016 — Art. 3"}
+    ]
+  }
+};
+const AE_DATA_CEMAC = {   // MODIFIÉ
+  /* 1) CAS PRATIQUES CEMAC */
+  cas_pratique: [
+    {
+      scenario:"Une banque agréée au Cameroun affiche au 31 mars 2026 des fonds propres de base de 12 milliards FCFA. Sa direction estime être en règle car elle dépassait l'ancien seuil.",
+      questions:["Respecte-t-elle le capital social minimum en vigueur ?","Quelles échéances doit-elle respecter ?"],
+      correction:[
+        {a:"Non. Depuis le 1er janvier 2026, le capital social minimum d'une banque CEMAC est de 25 milliards FCFA. 12 Mds sont insuffisants.",ref:"Règlement COBAC R-2025/02 du 10 décembre 2025 (capital minimum 25 Mds)"},
+        {a:"Elle devait soumettre un plan de relèvement à la COBAC au plus tard le 30 juin 2026 et se mettre en conformité au plus tard le 31 décembre 2026.",ref:"Règlement COBAC R-2025/02 — dispositions transitoires (plan 30/06/2026 · conformité 31/12/2026)"}
+      ]
+    },
+    {
+      scenario:"Une société extractive résidente de la CEMAC encaisse des recettes en devises à l'étranger et souhaite les conserver intégralement sur un compte hors zone.",
+      questions:["Existe-t-il une obligation de rapatriement ?","Cette obligation a-t-elle évolué récemment ?"],
+      correction:[
+        {a:"Oui. La réglementation des changes CEMAC impose le rapatriement des devises issues des activités des entreprises extractives, sous le contrôle de la BEAC.",ref:"Règlement n°02/18/CEMAC/UMAC/CM (réglementation des changes) + règlements entreprises extractives"},
+        {a:"Oui : la BEAC a annoncé le 27 avril 2026 un relèvement progressif du taux de rapatriement des devises des entreprises extractives.",ref:"Communiqué BEAC du 27 avril 2026"}
+      ]
+    },
+    {
+      scenario:"Un établissement assujetti CEMAC conserve les documents de vigilance clientèle (KYC) pendant 4 ans, puis les détruit. Un client présente par ailleurs un profil de Personne Politiquement Exposée (PPE).",
+      questions:["La durée de conservation est-elle conforme ?","Quelle diligence pour la PPE ?"],
+      correction:[
+        {a:"Non. Les documents de vigilance doivent être conservés au moins 10 ans.",ref:"Règlement COBAC R-2023/01 du 19/12/2023 — Art. 38 (conservation 10 ans)"},
+        {a:"Une identification et une surveillance renforcées s'imposent pour les PPE.",ref:"Lignes directrices COBAC (mars 2025) — diligences renforcées PPE, alignement GAFI"}
+      ]
+    },
+    {
+      scenario:"Un Établissement de Microfinance (EMF) de 2ème catégorie souhaite ouvrir une nouvelle agence et envisage d'ajouter le mot « banque » dans sa dénomination commerciale.",
+      questions:["L'ouverture de l'agence est-elle libre ?","Peut-il utiliser le mot « banque » ?"],
+      correction:[
+        {a:"Non. L'ouverture d'un guichet ou d'une agence par un EMF de 2ème catégorie nécessite l'autorisation de l'Autorité Monétaire, après avis de la COBAC.",ref:"Règlement microfinance CEMAC (n°01/02/CEMAC/UMAC/COBAC/CM) — Art. 40"},
+        {a:"Non. L'usage du mot « banque » dans la dénomination d'un EMF est interdit.",ref:"Règlement microfinance CEMAC — Art. 5 (interdiction du terme « banque »)"}
+      ]
+    },
+    {
+      scenario:"Lors d'une mission, l'inspection constate qu'une banque CEMAC affiche un ratio de couverture des risques de 9 % et détient des crypto-actifs pour compte propre.",
+      questions:["Le ratio de couverture est-il conforme ?","La détention de crypto-actifs est-elle autorisée ?"],
+      correction:[
+        {a:"Non. Le ratio minimum de couverture des risques exigé par la COBAC est de 10,5 %. 9 % est insuffisant.",ref:"Normes prudentielles COBAC — Rapport annuel COBAC 2024 (ratio 10,5 %)"},
+        {a:"Non. L'utilisation des crypto-actifs par les établissements assujettis est interdite dans la CEMAC.",ref:"Lettre circulaire COBAC — interdiction des crypto-actifs"}
+      ]
+    }
+  ],
+
+  /* 2) VRAI / FAUX CEMAC */
+  vrai_faux: [
+    {affirmation:"Depuis le 1er janvier 2026, le capital social minimum d'une banque dans la CEMAC est de 25 milliards FCFA.",reponse:true,
+     justification:"Exact : le seuil a été porté de 10 à 25 milliards FCFA.",ref:"Règlement COBAC R-2025/02 du 10 décembre 2025"},
+    {affirmation:"Le siège de la COBAC est situé à Yaoundé, dans les locaux de la BEAC.",reponse:false,
+     justification:"Faux : la COBAC siège à Libreville (le siège de la BEAC, lui, est à Yaoundé).",ref:"Convention COBAC 1990 — siège à Libreville"},
+    {affirmation:"Dans la CEMAC, SYGMA est le système de télécompensation des paiements de masse.",reponse:false,
+     justification:"Faux : SYGMA est le système de règlement brut en temps réel (gros montants) ; SYSTAC est la télécompensation.",ref:"BEAC — Systèmes de paiement CEMAC (SYGMA · SYSTAC)"},
+    {affirmation:"Le franc CFA de la zone BEAC porte le code ISO XAF.",reponse:true,
+     justification:"Exact : zone BEAC = XAF (la zone BCEAO utilise XOF).",ref:"BEAC — Billets et pièces (franc CFA XAF)"},
+    {affirmation:"Les établissements assujettis de la CEMAC peuvent librement utiliser des crypto-actifs pour compte propre.",reponse:false,
+     justification:"Faux : l'utilisation des crypto-actifs est interdite dans la CEMAC.",ref:"Lettre circulaire COBAC — interdiction des crypto-actifs"},
+    {affirmation:"La COSUMAF est l'autorité de régulation du marché financier de l'Afrique Centrale.",reponse:true,
+     justification:"Exact : la COSUMAF régule le marché financier de la CEMAC (équivalent de l'AMF-UMOA).",ref:"Règlement COSUMAF CEMAC"}
+  ],
+
+  /* 3) TEXTE À TROUS CEMAC */
+  texte_trous: [
+    {texte:"Depuis le 1er janvier ___, le capital social minimum d'une banque dans la CEMAC est de ___ milliards FCFA.",
+     reponses:["2026","25"],
+     ref:"Règlement COBAC R-2025/02 du 10 décembre 2025"},
+    {texte:"Le système de règlement brut en temps réel de la CEMAC s'appelle ___ ; le système de télécompensation s'appelle ___.",
+     reponses:["SYGMA","SYSTAC"],
+     ref:"BEAC — Réforme des systèmes de paiement CEMAC"},
+    {texte:"Le règlement COBAC R-2023/01 impose la conservation des documents de vigilance clientèle pendant ___ ans.",
+     reponses:["10"],
+     ref:"Règlement COBAC R-2023/01 — Art. 38"},
+    {texte:"La parité fixe est de 1 EUR = ___ FCFA, et la réglementation des changes de la CEMAC est régie par le Règlement n°___/CEMAC/UMAC/CM.",
+     reponses:["655,957","02/18"],
+     ref:"BEAC — Taux de change ; Règlement n°02/18/CEMAC/UMAC/CM"},
+    {texte:"La supervision des établissements de crédit de la CEMAC est assurée par la ___, dont le siège se trouve à ___.",
+     reponses:["COBAC","Libreville"],
+     ref:"Convention COBAC 1990"}
+  ],
+
+  /* 4) CALCUL PRUDENTIEL COBAC */
+  calcul_prudentiel: [
+    {enonce:"La banque respecte-t-elle le ratio minimum de couverture des risques exigé par la COBAC ?",
+     donnees:{"Fonds propres effectifs":"38 Mds FCFA","Actifs pondérés des risques (APR)":"380 Mds FCFA","Minimum COBAC requis":"10,5 %"},
+     etapes:["Ratio = FP / APR","= 38 / 380 = 10 %","Comparer à 10,5 %"],
+     resultat:"10 % < 10,5 % → exigence NON satisfaite.",conforme:false,
+     ref:"Normes prudentielles COBAC — Rapport annuel COBAC 2024 (10,5 %)"},
+    {enonce:"Cette nouvelle banque atteint-elle le capital social minimum en vigueur ?",
+     donnees:{"Capital social libéré":"18 Mds FCFA","Capital minimum requis (≥ 01/01/2026)":"25 Mds FCFA"},
+     etapes:["Comparer 18 Mds au minimum de 25 Mds","Déficit = 25 − 18 = 7 Mds"],
+     resultat:"18 < 25 Mds → NON conforme (déficit de 7 Mds à combler).",conforme:false,
+     ref:"Règlement COBAC R-2025/02 du 10 décembre 2025"},
+    {enonce:"Le ratio international de solvabilité (Cooke) de la banque est-il respecté ?",
+     donnees:{"Fonds propres":"20 Mds FCFA","APR":"200 Mds FCFA","Minimum (ratio Cooke)":"8 %"},
+     etapes:["Ratio = 20 / 200 = 10 %","Comparer à 8 %"],
+     resultat:"10 % ≥ 8 % → conforme au ratio international minimum.",conforme:true,
+     ref:"Règlements prudentiels COBAC — Ratio de solvabilité (8 %)"},
+    {enonce:"Cet EMF de 2ème catégorie atteint-il le capital social minimum exigé ?",
+     donnees:{"Capital social de l'EMF":"250 M FCFA","Capital minimum 2ème catégorie":"300 M FCFA"},
+     etapes:["Comparer 250 M au minimum de 300 M"],
+     resultat:"250 < 300 M → NON conforme.",conforme:false,
+     ref:"COBAC — relèvement progressif du capital EMF 2ème catégorie (2018-2021)"},
+    {enonce:"Le ratio de couverture des risques de cette banque est-il conforme à l'exigence COBAC ?",
+     donnees:{"Fonds propres effectifs":"44 Mds FCFA","APR":"400 Mds FCFA","Minimum COBAC requis":"10,5 %"},
+     etapes:["Ratio = 44 / 400 = 11 %","Comparer à 10,5 %"],
+     resultat:"11 % ≥ 10,5 % → conforme.",conforme:true,
+     ref:"Normes prudentielles COBAC — Rapport annuel COBAC 2024"}
+  ],
+
+  /* 5) AUDIT & CONFORMITÉ CEMAC */
+  audit: [
+    {rapport:"Rapport d'inspection — Banque A (CEMAC) : capital social 14 Mds FCFA ; ratio de couverture des risques 9 % ; aucun plan de relèvement du capital n'a été transmis à la COBAC au 30 juin 2026.",
+     irregularites:[
+       {t:"Capital de 14 Mds : inférieur au minimum de 25 Mds (≥ 01/01/2026).",ref:"Règlement COBAC R-2025/02"},
+       {t:"Ratio de couverture des risques 9 % : inférieur au minimum de 10,5 %.",ref:"Normes prudentielles COBAC — Rapport 2024"},
+       {t:"Absence de plan de relèvement au 30/06/2026 : échéance transitoire non respectée.",ref:"Règlement COBAC R-2025/02 — dispositions transitoires"}
+     ]},
+    {rapport:"Rapport — EMF B : se présente sous l'enseigne « Banque communautaire » ; collecte de l'épargne auprès du grand public alors qu'il est agréé en 1ère catégorie.",
+     irregularites:[
+       {t:"Usage du mot « banque » dans la dénomination d'un EMF : interdit.",ref:"Règlement microfinance CEMAC — Art. 5"},
+       {t:"Collecte d'épargne hors des membres pour un EMF de 1ère catégorie : la 1ère catégorie est limitée à la collecte et au crédit auprès de ses membres.",ref:"Règlement microfinance CEMAC — Art. 5 (1ère catégorie)"}
+     ]},
+    {rapport:"Rapport — Intermédiaire agréé C : détient des crypto-actifs pour compte propre ; conserve les documents de vigilance clientèle pendant 3 ans seulement.",
+     irregularites:[
+       {t:"Détention de crypto-actifs : interdite dans la CEMAC.",ref:"Lettre circulaire COBAC — crypto-actifs"},
+       {t:"Conservation des documents de vigilance 3 ans : inférieure au minimum de 10 ans.",ref:"Règlement COBAC R-2023/01 — Art. 38"}
+     ]},
+    {rapport:"Rapport — Société extractive D : devises encaissées à l'étranger non rapatriées ; absence de déclaration de soupçon malgré une opération atypique détectée.",
+     irregularites:[
+       {t:"Non-rapatriement des devises extractives : contraire à la réglementation des changes CEMAC.",ref:"Règlement n°02/18/CEMAC/UMAC/CM"},
+       {t:"Absence de déclaration de soupçon (DS) à l'ANIF malgré une opération atypique.",ref:"Règlement CEMAC LBC/FT — obligation de DS à l'ANIF"}
+     ]}
+  ],
+
+  /* 6) EXAMEN BLANC CEMAC */
+  examen: {
+    seuil:60,
+    bareme:"24 points — 4 pts/question — réussite à 60 % (≈ 15/24)",
+    questions:[
+      {q:"Quel est le capital social minimum d'une banque CEMAC depuis le 1er janvier 2026 ?",
+       choices:["10 milliards FCFA","15 milliards FCFA","20 milliards FCFA","25 milliards FCFA"],answer:3,
+       ref:"Règlement COBAC R-2025/02 du 10 décembre 2025"},
+      {q:"Quel texte régit la réglementation des changes dans la CEMAC ?",
+       choices:["Règlement n°02/18/CEMAC/UMAC/CM","Règlement n°09/2010/CM/UEMOA","Décision n°013/2016/CM/UMOA","Règlement n°06/2024/CM/UEMOA"],answer:0,
+       ref:"Règlement n°02/18/CEMAC/UMAC/CM"},
+      {q:"Quel est le système de règlement brut en temps réel (RTGS) de la CEMAC ?",
+       choices:["SYSTAC","SYGMA","GIMACPAY","STAR-UEMOA"],answer:1,
+       ref:"BEAC — Systèmes de paiement CEMAC"},
+      {q:"Pendant combien d'années les documents de vigilance LBC/FT doivent-ils être conservés (R-2023/01) ?",
+       choices:["3 ans","5 ans","7 ans","10 ans"],answer:3,
+       ref:"Règlement COBAC R-2023/01 — Art. 38"},
+      {q:"Où se situe le siège de la COBAC ?",
+       choices:["Yaoundé","Douala","Libreville","Brazzaville"],answer:2,
+       ref:"Convention COBAC 1990"},
+      {q:"Quel organe régule le marché financier de la CEMAC ?",
+       choices:["La COBAC","La BEAC","La COSUMAF","Le GABAC"],answer:2,
+       ref:"Règlement COSUMAF CEMAC"}
+    ]
+  }
+};
+
+module.exports = { QR, QB, QC, QN, QR_PLUS, QN_SWIFT, BCB_Q, BP_Q, KC_Q, CF_Q, SW_Q, LOT_FINAL_UEMOA, LOT_FINAL_CEMAC, AE_DATA, AE_DATA_CEMAC }; // MODIFIÉ Phase 2
