@@ -114,7 +114,8 @@ function getData() {
     SW: banks.SW || {}, // MODIFIÉ Phase 3
     BCB: banks.BCB || {}, // MODIFIÉ Phase 3 — pack biblio CB-UMOA
     BP: banks.BP || {}, // MODIFIÉ Phase 3 — pack biblio PI-SPI
-    KC: banks.KC || {} // MODIFIÉ Phase 3 — pack biblio KPI/KRI/KCI
+    KC: banks.KC || {}, // MODIFIÉ Phase 3 — pack biblio KPI/KRI/KCI
+    CF: banks.CF || {} // MODIFIÉ Phase 3 — pack biblio Conformité/LBC-FT
   });
 } // MODIFIÉ — pour la route /packs/bootstrap
 
