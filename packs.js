@@ -6,74 +6,25 @@
    démarrage. Le contenu pédagogique reste dans le HTML (mode solo),
    et le serveur valide les duels sur exactement les mêmes données.
 ================================================================ */
-const fs   = require('fs');
-const path = require('path');
-
-// MODIFIÉ — marqueurs en REGEX : tolère espaces, const/let/var (ex: "const QR = [")
-const SOURCES = {
-  QR: /(?:const|let|var)\s+QR\s*=\s*\[/,
-  QB: /(?:const|let|var)\s+QB\s*=\s*\[/,
-  QC: /(?:const|let|var)\s+QC\s*=\s*\[/,
-  QN: /(?:const|let|var)\s+QN\s*=\s*\[/, // MODIFIÉ — pack nouveaux textes BCEAO 2024-2026
-};
+// MODIFIÉ — source unique serveur : les banques viennent de banks.js (plus de scraping de index.html).
+// Corrige aussi le bug d'extraction QN (auparavant QN=0 côté serveur).
+const banks = require('./banks');
 
 const PACK_MAP = {
   'rfe-uemoa': ['QR'],
   'bale-umoa': ['QB'],
-  'umoa-bale': ['QB'],          // alias
+  'umoa-bale': ['QB'],
   'cemac':     ['QC'],
   'mix':       ['QR', 'QB', 'QC'],
   'general':   ['QR', 'QB', 'QC'],
-  'nouveaux-textes': ['QN'], // MODIFIÉ — pack nouveaux textes
+  'nouveaux-textes': ['QN'],
 };
 
-let DATA = { QR: [], QB: [], QC: [], QN: [] }; // MODIFIÉ
-
-// MODIFIÉ — extraction quote-aware : gère "  '  et `  (le HTML utilise des quotes simples)
-function extractArray(src, re) {
-  const m = re.exec(src);
-  if (!m) return null;
-  const arrStart = src.indexOf('[', m.index);
-  if (arrStart === -1) return null;
-  let depth = 0, quote = null, esc = false;
-  for (let i = arrStart; i < src.length; i++) {
-    const ch = src[i];
-    if (quote) {
-      if (esc) esc = false;
-      else if (ch === '\\') esc = true;
-      else if (ch === quote) quote = null;
-      continue;
-    }
-    if (ch === '"' || ch === "'" || ch === '`') { quote = ch; continue; }
-    if (ch === '[') depth++;
-    else if (ch === ']' && --depth === 0) return src.slice(arrStart, i + 1);
-  }
-  return null;
-}
+let DATA = { QR: [], QB: [], QC: [], QN: [] };
 
 function loadPacks() {
-  let html;
-  try {
-    html = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
-  } catch (e) {
-    console.error('[packs] index.html illisible :', e.message);
-    DATA = { QR: [], QB: [], QC: [], QN: [] }; // MODIFIÉ
-    return;
-  }
-  const out = { QR: [], QB: [], QC: [], QN: [] }; // MODIFIÉ
-  for (const key of Object.keys(SOURCES)) {
-    try {
-      const raw = extractArray(html, SOURCES[key]);
-      if (!raw) { console.warn(`[packs] marqueur ${key} introuvable dans index.html`); continue; }
-      // MODIFIÉ — new Function au lieu de JSON.parse : accepte quotes simples, clés non quotées, virgules finales
-      const arr = new Function('return (' + raw + ');')();
-      out[key] = Array.isArray(arr) ? arr : [];
-    } catch (e) {
-      console.error(`[packs] parse ${key} échoué : ${e.message}`);   // MODIFIÉ — isolation : un pack KO ne tue plus les autres
-    }
-  }
-  DATA = out;
-  console.log(`[packs] chargé : QR=${DATA.QR.length} QB=${DATA.QB.length} QC=${DATA.QC.length} QN=${DATA.QN.length}`); // MODIFIÉ
+  DATA = { QR: banks.QR||[], QB: banks.QB||[], QC: banks.QC||[], QN: banks.QN||[] };
+  console.log(`[packs] chargé (banks.js) : QR=${DATA.QR.length} QB=${DATA.QB.length} QC=${DATA.QC.length} QN=${DATA.QN.length}`);
 }
 
 // MODIFIÉ — copie exacte de ARENA_THEMES (public/index.html) : permet au serveur de reconnaître
@@ -144,4 +95,6 @@ function pickQuestions(packId, n = 10) {
 
 loadPacks();
 
-module.exports = { pickQuestions, loadPacks };
+function getData() { return DATA; } // MODIFIÉ — pour la route /packs/bootstrap
+
+module.exports = { pickQuestions, loadPacks, getData };

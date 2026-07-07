@@ -16,7 +16,7 @@ const Database     = require('better-sqlite3');
 const { Resend }   = require('resend');
 const crypto       = require('crypto');
 const path         = require('path');
-const { pickQuestions } = require('./packs'); // FIX anti-triche : source serveur pour les questions de duel
+const { pickQuestions, getData } = require('./packs'); // MODIFIÉ : getData pour /packs/bootstrap (anti-plagiat)
 // PUSH — module web-push chargé en mode garde : si non installé, le serveur démarre quand même (push simplement désactivées)
 let webpush = null;
 try { webpush = require('web-push'); } catch (_) { console.warn('[PUSH] module "web-push" non installé — npm install web-push pour activer les notifications push.'); }
@@ -934,6 +934,12 @@ app.post('/scores', requireAuth, (req, res) => {
 app.get('/scores/me', requireAuth, (req, res) => {
   const rows = db.prepare('SELECT * FROM user_scores WHERE user_id = ? ORDER BY played_at DESC LIMIT 100').all(req.user.id);
   return ok(res, { scores: rows });
+});
+
+// MODIFIÉ — Niveau 1 anti-plagiat : banques servies uniquement aux utilisateurs authentifiés
+app.get('/packs/bootstrap', requireAuth, limiterLoose, (req, res) => {
+  const d = getData();
+  res.json({ QR: d.QR || [], QB: d.QB || [], QC: d.QC || [], QN: d.QN || [] });
 });
 
 app.delete('/scores/me', requireAuth, (req, res) => {
