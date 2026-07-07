@@ -111,7 +111,9 @@ function getData() {
     AE_DATA_CEMAC: banks.AE_DATA_CEMAC || {},
     BR: banks.BR || {}, // MODIFIÉ Phase 3 — objets Bibliothèque migrés
     BB: banks.BB || {}, // MODIFIÉ Phase 3
-    SW: banks.SW || {}  // MODIFIÉ Phase 3
+    SW: banks.SW || {}, // MODIFIÉ Phase 3
+    BCB: banks.BCB || {}, // MODIFIÉ Phase 3 — pack biblio CB-UMOA
+    BP: banks.BP || {} // MODIFIÉ Phase 3 — pack biblio PI-SPI
   });
 } // MODIFIÉ — pour la route /packs/bootstrap
 
