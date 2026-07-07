@@ -1043,6 +1043,22 @@ const AE_DATA = {
         {a:"Oui, sans limitation de montant, sous réserve que les avoirs soient justifiés et proviennent de revenus perçus dans l'Union ou de liquidation d'investissements.",ref:"Note BCEAO n°013-04-2026 — § 4 (Transfert du solde en cas de départ définitif)"},
         {a:"Autorisation préalable de la Structure chargée des Finances Extérieures ; justificatifs de revenus (bulletins de salaire, attestations, documents fiscaux).",ref:"Note BCEAO n°013-04-2026 — § 4 et § 5 (Critères d'éligibilité)"}
       ]
+    },
+    {
+      scenario:"Un intermédiaire en opérations de banque conclut, avec un nouvel établissement de crédit, un mandat additionnel dans 20 jours ouvrés. Il n'a encore rien déclaré.",
+      questions:["Est-il en règle avec ses obligations déclaratives ?","Quelle démarche doit-il engager en urgence ?"],
+      correction:[
+        {a:"Non. Il doit informer le Ministre chargé des Finances, avec copie à la BCEAO, au moins 30 jours ouvrés avant la conclusion du nouveau mandat — 20 jours restants est insuffisant.",ref:"Avis BCEAO n°003-12-2023 — Art. 4 (Instruction 015-12-2010/RB)"},
+        {a:"Déposer sans délai la déclaration auprès de l'Agence Principale BCEAO de son État d'implantation et solliciter, si besoin, un report de la conclusion du mandat.",ref:"Avis BCEAO n°003-12-2023"}
+      ]
+    },
+    {
+      scenario:"Un agent conformité classe automatiquement « à risque faible » tout client dont le compte est domicilié dans les livres de sa propre institution, sans jamais analyser les autres facteurs de risque (produit, pays, comportement).",
+      questions:["Cette pratique respecte-t-elle l'approche par les risques ?","Que risque l'institution en cas de contrôle ?"],
+      correction:[
+        {a:"Non. La pondération des facteurs de risque ne doit pas être influencée de manière excessive par un seul facteur, ni empêcher de classer une relation comme présentant un risque élevé.",ref:"Instruction BCEAO n°003-03-2025 — Art. 26"},
+        {a:"Elle doit justifier auprès de la BCEAO, de la Commission Bancaire ou du Ministère des Finances que ses classifications sont adaptées et documentées ; à défaut, sanctions LBC/FT/FP.",ref:"Instruction BCEAO n°003-03-2025 — Art. 25 et 30"}
+      ]
     }
   ],
 
@@ -1057,7 +1073,13 @@ const AE_DATA = {
     {affirmation:"Un voyageur peut exporter jusqu'à 1 kilogramme d'objets en or sans autorisation préalable.",reponse:false,
      justification:"Faux : la dispense ne joue que dans la limite de 500 grammes.",ref:"Règlement n°06/2024/CM/UEMOA — Art. 20 (Importation et exportation d'or)"},
     {affirmation:"Le coefficient appliqué au Produit Net Bancaire pour calculer l'exigence en fonds propres au titre du risque opérationnel est de 12 %.",reponse:false,
-     justification:"Faux : le coefficient est de 15 % (approche standard).",ref:"Annexe Décision N°013/2016 — Titre V (Risque opérationnel)"}
+     justification:"Faux : le coefficient est de 15 % (approche standard).",ref:"Annexe Décision N°013/2016 — Titre V (Risque opérationnel)"},
+    {affirmation:"Un intermédiaire en opérations de banque peut conclure un nouveau mandat sans en informer préalablement le Ministre chargé des Finances, dès lors qu'une copie est envoyée à la BCEAO après signature.",reponse:false,
+     justification:"Faux : l'information doit être préalable, au moins 30 jours ouvrés avant la conclusion du mandat.",ref:"Avis BCEAO n°003-12-2023"},
+    {affirmation:"Depuis le 1er mai 2025, toute structure non agréée conformément à l'Instruction n°001-01-2024 doit cesser d'offrir des services de paiement dans l'UMOA.",reponse:true,
+     justification:"Exact, après prorogation de la période transitoire jusqu'au 31 janvier 2025.",ref:"Avis BCEAO n°004-03-2025"},
+    {affirmation:"Une institution financière peut alléger indéfiniment ses mesures de vigilance dès qu'un client est classé « risque faible », sans réévaluation ultérieure.",reponse:false,
+     justification:"Faux : la classification des risques doit être documentée, suivie et mise à jour en tant que de besoin.",ref:"Instruction BCEAO n°003-03-2025 — Art. 25"}
   ],
 
   /* 3) TEXTE À TROUS : {texte avec ___, reponses[]} */
@@ -1076,7 +1098,13 @@ const AE_DATA = {
      ref:"Note BCEAO n°013-04-2026 — § 1 et § 2"},
     {texte:"Au titre de la division des risques, toute exposition d'au moins ___ % des FPE est un grand risque à déclarer ; la limite globale cumulée des grands risques est de ___ fois les fonds propres effectifs.",
      reponses:["10","8"],
-     ref:"Annexe Décision N°013/2016 — Titre VII"}
+     ref:"Annexe Décision N°013/2016 — Titre VII"},
+    {texte:"L'intermédiaire en opérations de banque doit informer le Ministre chargé des Finances, avec copie à la BCEAO, au moins ___ jours ouvrés avant la conclusion d'un nouveau mandat.",
+     reponses:["30"],
+     ref:"Avis BCEAO n°003-12-2023"},
+    {texte:"À compter du ___, toute structure non agréée conformément à l'Instruction n°001-01-2024 doit cesser d'offrir des services de paiement dans l'UMOA.",
+     reponses:["1er mai 2025"],
+     ref:"Avis BCEAO n°004-03-2025"}
   ],
 
   /* 4) CALCUL PRUDENTIEL : {enonce, donnees{}, etapes[], resultat, conforme(bool)} */
@@ -1138,6 +1166,15 @@ const AE_DATA = {
        {t:"Absence d'états financiers semestriels : obligatoires depuis 2018.",ref:"Décision N°357-11-2016 (PCB Révisé) — Art. 3"},
        {t:"Non-constitution de la holding intermédiaire requise par la Commission Bancaire.",ref:"Décision N°014/24/06/2016/CM/UMOA — Art. 5"},
        {t:"Filiale d'assurance incluse dans le périmètre prudentiel : les assurances en sont explicitement exclues.",ref:"Décision N°014/2016 — Art. 4"}
+     ]},
+    {rapport:"Rapport — Intermédiaire en opérations de banque V : un nouveau mandat a été signé avec un établissement concurrent 15 jours ouvrés après une simple notification informelle au Ministère des Finances, sans respecter de délai d'attente.",
+     irregularites:[
+       {t:"Délai de préavis non respecté : la déclaration doit être faite au moins 30 jours ouvrés avant la conclusion du mandat.",ref:"Avis BCEAO n°003-12-2023"}
+     ]},
+    {rapport:"Rapport — Institution financière T : la classification des risques BC/FT/FP repose uniquement sur le critère « client résident », sans analyse du risque produit, pays ou comportement ; aucune documentation disponible pour justifier cette approche.",
+     irregularites:[
+       {t:"Pondération excessive d'un facteur unique, contraire à l'approche par les risques.",ref:"Instruction BCEAO n°003-03-2025 — Art. 26"},
+       {t:"Absence de documentation justifiant la classification retenue.",ref:"Instruction BCEAO n°003-03-2025 — Art. 25"}
      ]}
   ],
 
@@ -1162,7 +1199,31 @@ const AE_DATA = {
        choices:["1er janvier 2016","1er janvier 2017","1er janvier 2018","1er janvier 2020"],answer:2,
        ref:"Décision N°357-11-2016 — Art. 3"}
     ]
-  }
+  },
+
+  /* 7) PUZZLE JURIDIQUE : {texte avec ___, trous[] (bonnes réponses ordonnées), leurres[], ref} — MODIFIÉ nouveau format, 100% additif */
+  puzzle_juridique: [
+    {texte:"Le délai de traitement des demandes de transferts de résidents étrangers ne doit pas excéder ___ jours ouvrés. La période minimale de constitution de l'épargne pour un transfert de revenus salariaux est de ___ mois, et l'autorisation de transfert d'épargne est délivrée sous ___ jours ouvrés maximum.",
+     trous:["5","6","5"],
+     leurres:["10","3","30"],
+     ref:"Note BCEAO n°013-04-2026 — § 3"},
+    {texte:"Les agréés de change manuel identifient leurs clients dès que le montant excède ___ FCFA. Pour les négociants en métaux précieux, le seuil espèces est de ___ FCFA. Pour les transactions immobilières, le paiement en espèces est interdit au-delà de ___ FCFA.",
+     trous:["5 000 000","9 000 000","20 000 000"],
+     leurres:["1 000 000","2 000 000","10 000 000"],
+     ref:"Décision n°003/28-03-2024/CM/UMOA — Art. 2 à 4"},
+    {texte:"L'intermédiaire en opérations de banque doit informer le Ministre chargé des Finances, avec copie à la BCEAO, au moins ___ jours ouvrés avant la conclusion d'un nouveau mandat, sans devoir requérir une nouvelle ___.",
+     trous:["30","autorisation"],
+     leurres:["15","déclaration"],
+     ref:"Avis BCEAO n°003-12-2023"},
+    {texte:"L'Instruction n°001-01-2024 relative aux services de paiement a bénéficié d'une période transitoire prorogée jusqu'au ___. À compter du ___, toute structure non agréée doit cesser d'offrir des services de paiement dans l'UMOA.",
+     trous:["31 janvier 2025","1er mai 2025"],
+     leurres:["23 juillet 2024","31 décembre 2025"],
+     ref:"Avis BCEAO n°004-03-2025"},
+    {texte:"L'institution financière applique des mesures de vigilance ___ lorsque le risque de la relation d'affaires est classé élevé, et des mesures ___ lorsqu'il est classé faible.",
+     trous:["renforcées","allégées"],
+     leurres:["standard","suspendues"],
+     ref:"Instruction BCEAO n°003-03-2025 — Art. 27 et 28"}
+  ]
 };
 const AE_DATA_CEMAC = {   // MODIFIÉ
   /* 1) CAS PRATIQUES CEMAC */
