@@ -8298,6 +8298,7 @@ function aePzPreparePool(){   // MODIFIÉ : mélange réponses + leurres pour l'
   AES.pz.pool = aeShuffle(tags);
   AES.pz.placed = {};
   AES.pz.checked = false;
+  AES.pz.selectedTag = null;   // MODIFIÉ
 }
 function aePzStopTimer(){ if(AES.pz && AES.pz.timerId){ clearInterval(AES.pz.timerId); AES.pz.timerId=null; } }   // MODIFIÉ
 function aePzTick(){   // MODIFIÉ
@@ -8320,7 +8321,22 @@ function aePzDrop(ev,blankIdx){   // MODIFIÉ
   if(!tag) return;
   AES.pz.placed[blankIdx]=tag; render();
 }
-function aePzUnplace(blankIdx){ if(AES.pz.checked) return; delete AES.pz.placed[blankIdx]; render(); }   // MODIFIÉ : retirer une étiquette posée
+// MODIFIÉ : tap-to-place (fallback mobile — le drag HTML5 natif ne fonctionne pas sur navigateurs tactiles)
+function aePzSelectTag(tag){
+  if(AES.pz.checked) return;
+  var used = Object.keys(AES.pz.placed).some(function(k){ return AES.pz.placed[k]===tag; });
+  if(used) return;
+  AES.pz.selectedTag = (AES.pz.selectedTag===tag ? null : tag);
+  render();
+}
+function aePzPlaceInBlank(blankIdx){
+  if(AES.pz.checked) return;
+  if(!AES.pz.selectedTag) return;
+  AES.pz.placed[blankIdx] = AES.pz.selectedTag;
+  AES.pz.selectedTag = null;
+  render();
+}
+function aePzUnplace(blankIdx){ if(AES.pz.checked) return; delete AES.pz.placed[blankIdx]; render(); }   // MODIFIÉ : retirer une étiquette posée (tap sur le trou rempli)
 function aePzCheck(){ if(!AES.pz) return; aePzStopTimer(); AES.pz.checked=true;
   var it=AES.pz.list[AES.pz.idx];
   var ok=0; (it.trous||[]).forEach(function(t,i){ if(AES.pz.placed[i]===t) ok++; });
@@ -8340,17 +8356,22 @@ function rAE_puzzle(){   // MODIFIÉ
   var texteHtml = aeEscTxt(it.texte).replace(/___/g, function(){
     var bi=k++; var val=pz.placed[bi];
     var ok = pz.checked ? (val===it.trous[bi]) : null;
-    var border = pz.checked ? (';border-color:'+(ok?'#22c55e':'#ef4444')) : '';
-    return '<span ondragover="aePzAllowDrop(event)" ondrop="aePzDrop(event,'+bi+')" onclick="aePzUnplace('+bi+')" '+
+    var border = pz.checked ? (';border-color:'+(ok?'#22c55e':'#ef4444')) : (pz.selectedTag&&!val ? ';border-color:#C9991A;border-style:solid' : '');
+    var tapAction = val ? "aePzUnplace("+bi+")" : "aePzPlaceInBlank("+bi+")";   // MODIFIÉ : tap rempli = retirer, tap vide = poser l'étiquette sélectionnée
+    return '<span ondragover="aePzAllowDrop(event)" ondrop="aePzDrop(event,'+bi+')" onclick="'+tapAction+'" '+
       'style="display:inline-block;min-width:90px;padding:4px 10px;margin:0 3px;border-radius:7px;border:2px dashed rgba(110,150,210,.6)'+border+
       ';background:rgba(10,33,62,.5);color:#fff;font-size:13px;text-align:center;cursor:pointer;">'+(val?aeEscTxt(val):'…')+'</span>';
   });
-  var pool = pz.checked ? '' : '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">'+pz.pool.map(function(tag){
+  var pool = pz.checked ? '' : (
+    '<div style="font-size:11px;color:var(--sub);margin-top:10px;">👉 Touche une étiquette puis touche un trou pour la placer :</div>'+   // MODIFIÉ : consigne tap-to-place
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">'+pz.pool.map(function(tag){
     var used = Object.keys(pz.placed).some(function(k2){return pz.placed[k2]===tag;});
+    var sel = (pz.selectedTag===tag);
     return '<span draggable="'+(used?'false':'true')+'" ondragstart="aePzDragStart(event,\''+aeEscTxt(tag).replace(/'/g,"\\'")+'\')" '+
-      'style="padding:5px 12px;border-radius:20px;background:'+(used?'rgba(110,150,210,.15)':'#C9991A')+';color:'+(used?'#8aa3d4':'#0a213e')+
-      ';font-weight:700;font-size:12.5px;cursor:'+(used?'default':'grab')+';">'+aeEscTxt(tag)+'</span>';
-  }).join('')+'</div>';
+      'onclick="aePzSelectTag(\''+aeEscTxt(tag).replace(/'/g,"\\'")+'\')" '+
+      'style="padding:5px 12px;border-radius:20px;background:'+(used?'rgba(110,150,210,.15)':(sel?'#fff':'#C9991A'))+';color:'+(used?'#8aa3d4':'#0a213e')+
+      ';font-weight:700;font-size:12.5px;cursor:'+(used?'default':'pointer')+(sel?';box-shadow:0 0 0 3px #C9991A;':'')+'">'+aeEscTxt(tag)+'</span>';
+  }).join('')+'</div>');
   var corr = pz.checked
     ? '<div class="al al-ok" style="margin-top:8px;font-size:12px;">✓ Réponses : '+it.trous.join(' · ')+
       '<div style="font-size:11px;color:#8aa3d4;margin-top:4px;">📚 '+it.ref+'</div></div>' : '';
