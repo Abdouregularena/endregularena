@@ -2320,13 +2320,13 @@ function qShuffleOpts(q){ // MODIFIÉ : mélange la position des options, remapp
   return c;
 }
 function startQ(qs, pack, cat){ // MODIFIÉ : cat = thème (progression localStorage)
-  var shuffled=(qs||[]).map(qShuffleOpts); // MODIFIÉ : positions aléatoires (le contenu de la bonne réponse reste juste)
+  var shuffled=(qs||[]).filter(function(q){return q && q.choices;}).map(qShuffleOpts); // MODIFIÉ : positions aléatoires + garde anti-null (ignore toute entrée invalide)
   QZ={q:shuffled,idx:0,sc:0,ans:false,hist:[],done:false,pack:pack,cat:cat||null};
   TAB='quiz'; buildNav(); render();
 }
 function startQCat(ds, cat, pack){
   var src=ds==='QR'?QR:ds==='QC'?QC:ds==='QN_U'?QN_U:ds==='QN_C'?QN_C:QB; // MODIFIÉ : QN branché (thèmes)
-  startQ(src.filter(function(q){return q.cat===cat;}), cat+' — '+pack, cat); // MODIFIÉ : passe cat
+  startQ((src||[]).filter(function(q){return q && q.cat===cat;}), cat+' — '+pack, cat); // MODIFIÉ : passe cat + garde anti-null
 }
 
 /* ── MODIFIÉ : icônes thèmes + progression par thème (écran Quiz) ── */
@@ -2389,7 +2389,7 @@ function rQP(){
     '<div class="q-chips">'+QFAMS.map(function(f){return '<button class="q-chip'+(QFILTER.fam===f[0]?' on':'')+'" data-fam="'+f[0]+'" onclick="qSetFam(\''+f[0]+'\')">'+f[1]+'</button>';}).join('')+'</div>'+
   '</div>'+
   zpacks.map(function(p,pi){
-    var cats=[...new Set(p.q.map(function(x){return x.cat;}))];
+    var cats=[...new Set((Array.isArray(p.q)?p.q:[]).filter(function(x){return x && x.cat;}).map(function(x){return x.cat;}))]; // MODIFIÉ : ignore les entrées nulles (anti-crash écran quiz)
     return '<div class="card q-packcard" style="animation-delay:'+(pi*60)+'ms;">'+ // MODIFIÉ : q-packcard (masquable si filtre vide)
     '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;flex-wrap:wrap;gap:8px;">'+
     '<div><div style="font-weight:800;color:white;font-size:15px;margin-bottom:2px;">'+p.t+'</div>'+
@@ -2398,7 +2398,7 @@ function rQP(){
     '<div style="font-size:11px;color:var(--sub);margin-bottom:10px;"><span class="q-packcount">'+cats.length+' thèmes</span> — choisis-en un, ou lance le pack complet :</div>'+ // MODIFIÉ : compteur live
     '<div class="g3">'+
     cats.map(function(c,ci){
-      var n=p.q.filter(function(q){return q.cat===c;}).length;
+      var n=(Array.isArray(p.q)?p.q:[]).filter(function(q){return q && q.cat===c;}).length; // MODIFIÉ : garde anti-null
       var ce=c.replace(/'/g,"\\'");
       var dn=(c||'').toLowerCase().replace(/"/g,'&quot;'); // MODIFIÉ : clé de recherche
       var best=prog[c]; // % (ou undefined)
