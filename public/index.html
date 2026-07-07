@@ -2230,7 +2230,8 @@ function render(){
   if(BA){ c.innerHTML=rBD(); return; }
   if(TAB==='autoeval'&&AEF){ c.innerHTML=rAEF(); if(AEF==='vrai_faux_chrono'){ try{ aeVfcAfterRender(); }catch(e){} } return; } // MODIFIÉ : affiche le format d'auto-éval sélectionné + démarre le chrono
   var pages={dashboard:rDB,quiz:rQP,biblio:rBP,arena:rAR,achievements:rACH,leaderboard:rLB,academy:rAC,settings:rST,autoeval:rAE,admin:rADMIN,about:rABOUT,communaute:rSALON,feedback:rFEEDBACK,debats:rDEBATS,debatsadm:rDEBATSADM,metiers:rMETIERS,org:rOrgCreate,orgdash:rOrgDashboard,orgjoin:rOrgJoin}; // MODIFIÉ : ajout métiers + feedback + espace établissement (org/orgdash/orgjoin)
-  c.innerHTML=(pages[TAB]||rDB)();
+  try{ c.innerHTML=(pages[TAB]||rDB)(); } // MODIFIÉ Phase 2 : capture les erreurs de rendu (évite l'écran figé + affiche la cause)
+  catch(_err){ try{console.error('[render '+TAB+']',_err);}catch(e){} c.innerHTML='<div class="card" style="max-width:640px;margin:24px auto;padding:18px;border:1px solid rgba(239,68,68,.5);"><div style="font-weight:800;color:#f87171;margin-bottom:6px;">⚠️ Erreur d\'affichage ('+TAB+')</div><div style="font-size:12px;color:var(--sub);white-space:pre-wrap;word-break:break-word;">'+String((_err&&_err.message)||_err)+'</div></div>'; }
   if(TAB==='quiz'){ try{ raQuizFx(); }catch(e){} try{ qApplyFilter(); }catch(e){} } // MODIFIÉ : compteur animé + recherche/filtres réappliqués
   if(TAB==='arena'){ try{ arArenaAfterRender(); }catch(e){} } // MODIFIÉ : charge les fils duels/tournois ouverts
   var _rf=ge('ra-flash'); if(_rf){ _rf.style.display=(TAB==='arena')?'none':''; } // MODIFIÉ : masque le bandeau Flash Info sur l'écran Arène (sélection de mode épurée)
@@ -8301,7 +8302,10 @@ function rAE(){   // MODIFIÉ
     }).join('')+'</div>';
   } else {
     grid='<div class="g3">'+AE_FORMATS.map(function(f){
-      var n = (f.id==='examen') ? aeData().examen.questions.length : aeData()[f.id].length;
+      var _fd = aeData()[f.id]; // MODIFIÉ Phase 2 : garde formats sans données (ex: vrai_faux_chrono absent de AE_DATA)
+      var n = (f.id==='examen')
+        ? ((aeData().examen && aeData().examen.questions) ? aeData().examen.questions.length : 0)
+        : (_fd ? _fd.length : ((f.id==='vrai_faux_chrono' && aeData().vrai_faux) ? aeData().vrai_faux.length : 0));
       return '<div class="card ch" onclick="aeOpen(\''+f.id+'\')" style="display:flex;flex-direction:column;gap:6px;">'+
         '<div style="font-size:28px;">'+f.ic+'</div>'+
         '<div style="font-weight:700;color:white;font-size:14px;">'+f.l+'</div>'+
