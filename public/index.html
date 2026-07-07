@@ -8289,9 +8289,11 @@ var AE_PZ_DURATION = 25; // secondes par extrait
 function aeShuffle(arr){ var a=arr.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
 function aePzInit(){   // MODIFIÉ : prépare la session (liste d'extraits + pool de la première question)
   var data = aeData().puzzle_juridique || [];
-  AES.pz = { list:data, idx:0, placed:{}, pool:[], checked:false, score:0, timerId:null, start:0 };
+  var tutoSeen = false; try{ tutoSeen = !!localStorage.getItem('rea_pz_tuto_seen'); }catch(e){}
+  AES.pz = { list:data, idx:0, placed:{}, pool:[], checked:false, score:0, timerId:null, start:0, showTuto:!tutoSeen };   // MODIFIÉ : showTuto
   aePzPreparePool();
 }
+function aePzDismissTuto(){ if(!AES.pz) return; try{ localStorage.setItem('rea_pz_tuto_seen','1'); }catch(e){} AES.pz.showTuto=false; aePzAfterRender(); render(); }   // MODIFIÉ
 function aePzPreparePool(){   // MODIFIÉ : mélange réponses + leurres pour l'extrait courant
   var it = AES.pz.list[AES.pz.idx]; if(!it) return;
   var tags = (it.trous||[]).concat(it.leurres||[]);
@@ -8311,6 +8313,7 @@ function aePzTick(){   // MODIFIÉ
 function aePzStartTimer(){ if(!AES.pz) return; aePzStopTimer(); AES.pz.start=Date.now(); aePzTick(); AES.pz.timerId=setInterval(aePzTick,250); }   // MODIFIÉ
 function aePzAfterRender(){   // MODIFIÉ : (re)lance le chrono si l'extrait courant n'est pas encore validé
   if(!AES.pz){ aePzInit(); }
+  if(AES.pz && AES.pz.showTuto) return;   // MODIFIÉ : pas de chrono tant que le tuto n'est pas fermé
   if(AES.pz && AES.pz.list.length && !AES.pz.checked && !AES.pz.timerId){ aePzStartTimer(); }
 }
 function aePzDragStart(ev,tag){ try{ ev.dataTransfer.setData('text/plain',tag); }catch(e){} }   // MODIFIÉ
@@ -8345,7 +8348,23 @@ function aePzCheck(){ if(!AES.pz) return; aePzStopTimer(); AES.pz.checked=true;
 function aePzNext(){ if(!AES.pz) return; AES.pz.idx++; aePzPreparePool(); render(); }   // MODIFIÉ
 function rAE_puzzle(){   // MODIFIÉ
   if(!AES.pz){ aePzInit(); }
-  var pz = AES.pz, it = pz.list[pz.idx];
+  var pz = AES.pz;
+  if(pz.showTuto){   // MODIFIÉ : écran d'explication au premier lancement (une seule fois, via localStorage)
+    return '<div style="max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:13px;">'+
+      aeHead('puzzle_juridique')+
+      '<div class="card" style="text-align:center;">'+
+      '<div style="font-size:40px;margin-bottom:10px;">🧩</div>'+
+      '<div style="font-size:16px;color:white;font-weight:700;margin-bottom:10px;">Comment jouer</div>'+
+      '<div style="font-size:13px;color:var(--sub);line-height:1.8;text-align:left;">'+
+      '1️⃣ Un extrait réglementaire s\'affiche avec des trous « … »<br>'+
+      '2️⃣ <strong style="color:#C9991A;">Touche une étiquette</strong> en bas (elle s\'illumine)<br>'+
+      '3️⃣ <strong style="color:#C9991A;">Touche un trou</strong> pour y déposer l\'étiquette choisie<br>'+
+      '4️⃣ Touche un trou déjà rempli pour le vider et corriger<br>'+
+      '5️⃣ Valide avant la fin du chrono (25s par extrait) ⏱️'+
+      '</div></div>'+
+      '<button class="btn" style="width:100%;" onclick="aePzDismissTuto()">J\'ai compris, c\'est parti →</button></div>';
+  }
+  var it = pz.list[pz.idx];
   if(!it){
     var totalBlancs = pz.list.reduce(function(s,x){return s+(x.trous||[]).length;},0);
     return '<div style="max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:13px;">'+
