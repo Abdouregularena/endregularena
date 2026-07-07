@@ -8388,6 +8388,7 @@ function rADMIN(){ // MODIFIÉ : coquille de la page (le contenu est chargé en 
     '</div>'+
     '<div id="adm-stats"><div class="al al-info">Chargement des statistiques…</div></div>'+
     '<div id="adm-users"></div>'+
+    '<div id="adm-fraud"></div>'+ // MODIFIÉ : panneau détection de fraude
     '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:6px;">'+ // MODIFIÉ : bloc RH ajouté
       '<h2 style="font-size:18px;color:white;">📋 Tableau RH complet (tous les utilisateurs)</h2>'+
       '<div style="display:flex;gap:8px;">'+
@@ -8412,7 +8413,43 @@ function admLoad(){ // MODIFIÉ : charge stats puis liste des inscrits
       if(ru.status===200 && us){ us.innerHTML = admRenderUsers(ru.data.users||[], ru.data.total||0); }
       else if(us){ us.innerHTML='<div class="al al-warn">Liste des inscrits indisponible ('+ru.status+').</div>'; }
     });
+    admLoadFraud(); // MODIFIÉ : charge le panneau de détection de fraude
   }).catch(function(){ st.innerHTML='<div class="al al-err">Erreur réseau.</div>'; });
+}
+function admLoadFraud(){ // MODIFIÉ : détection & identification des scores frauduleux (route GET /admin/fraud)
+  var fx=ge('adm-fraud'); if(!fx) return;
+  fx.innerHTML='<div class="al al-info">Analyse anti-fraude…</div>';
+  admFetch('/admin/fraud').then(function(r){
+    if(r.status===404){ fx.innerHTML='<div class="al al-warn">⚠️ Module fraude non déployé (mettre à jour index.js côté serveur).</div>'; return; }
+    if(r.status===403){ fx.innerHTML='<div class="al al-warn">⛔ Accès réservé aux administrateurs.</div>'; return; }
+    if(r.status!==200){ fx.innerHTML='<div class="al al-err">Erreur ('+r.status+') analyse fraude.</div>'; return; }
+    fx.innerHTML=admRenderFraud(r.data||{});
+  }).catch(function(){ fx.innerHTML='<div class="al al-err">Erreur réseau (fraude).</div>'; });
+}
+function admRenderFraud(d){ // MODIFIÉ
+  d=d||{}; var liste=d.liste||[];
+  var head='<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">'+
+    '<div style="font-weight:800;color:white;font-size:14px;">🚨 Détection de fraude</div>'+
+    '<div style="font-size:12px;color:var(--sub);">'+(d.suspects||0)+' suspect'+((d.suspects||0)>1?'s':'')+' · '+(d.total_analyses||0)+' joueurs analysés</div>'+
+  '</div>';
+  if(!liste.length) return '<div class="card">'+head+'<div style="font-size:13px;color:#22c55e;font-weight:700;">✅ Aucune fraude détectée.</div></div>';
+  var rows=liste.map(function(f){
+    var s=f.suspicion||0; var col = s>=15?'#ef4444':(s>=6?'#f59e0b':'#9aa7bd');
+    return '<tr>'+
+      '<td style="padding:7px 8px;color:white;">'+admEsc(f.name)+' <span style="color:var(--sub);">'+admEsc(f.country||'')+'</span><br><span style="color:var(--sub);font-size:11px;">'+admEsc(f.email||'')+'</span></td>'+
+      '<td style="padding:7px 8px;text-align:center;"><span style="font-weight:900;color:'+col+';">'+s+'</span></td>'+
+      '<td style="padding:7px 8px;color:var(--sub);font-size:11px;">'+admEsc((f.motifs||[]).join(' · '))+'</td>'+
+      '<td style="padding:7px 8px;text-align:center;color:white;">'+(f.parties||0)+'</td>'+
+      '<td style="padding:7px 8px;text-align:center;color:white;">'+(f.points||0)+'</td>'+
+    '</tr>';
+  }).join('');
+  return '<div class="card" style="overflow-x:auto;border:1px solid rgba(239,68,68,.35);">'+head+
+    '<table style="width:100%;border-collapse:collapse;font-size:12px;color:var(--text);min-width:640px;">'+
+    '<thead><tr style="text-align:left;color:var(--sub);border-bottom:1px solid rgba(110,150,210,.3);">'+
+      '<th style="padding:7px 8px;">Joueur</th><th style="padding:7px 8px;text-align:center;">Risque</th><th style="padding:7px 8px;">Motifs</th><th style="padding:7px 8px;text-align:center;">Parties</th><th style="padding:7px 8px;text-align:center;">Points</th>'+
+    '</tr></thead><tbody>'+rows+'</tbody></table>'+
+    '<div style="font-size:11px;color:var(--sub);margin-top:8px;">Risque = doublons×3 + rafales×2 (+ volume/scores parfaits). 🔴 ≥15 · 🟠 ≥6</div>'+
+  '</div>';
 }
 function admCard(label,val){ return '<div class="card" style="text-align:center;padding:16px;"><div style="font-size:24px;font-weight:900;color:var(--cyan);">'+val+'</div><div style="font-size:11px;color:var(--sub);margin-top:3px;">'+label+'</div></div>'; } // MODIFIÉ
 function admRenderStats(d){ // MODIFIÉ
