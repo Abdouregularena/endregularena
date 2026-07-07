@@ -396,6 +396,55 @@ function signJWT(user) {
   );
 }
 
+/* ── SÉCURITÉ — journal d'événements + alertes email admin (AJOUT 100% additif) ──
+   Trace toute activité anormale (accès admin refusé, flood de scores, jetons
+   invalides…) et envoie un email d'alerte à ADMIN_EMAILS pour la gravité 'high'. */
+db.exec(`CREATE TABLE IF NOT EXISTS security_events (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  type       TEXT NOT NULL,
+  severity   TEXT NOT NULL DEFAULT 'info',
+  user_id    INTEGER,
+  email      TEXT,
+  ip         TEXT,
+  path       TEXT,
+  detail     TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+)`);
+try { db.exec('CREATE INDEX IF NOT EXISTS idx_secevt ON security_events (created_at)'); } catch(_) {}
+
+let _lastAlertAt = 0; // anti-spam : au plus 1 email d'alerte / 5 min
+function sendSecurityAlert(type, email, ip, path, detail) {
+  const now = Date.now();
+  if (now - _lastAlertAt < 5 * 60 * 1000) return;
+  _lastAlertAt = now;
+  const to = (process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim()).filter(Boolean);
+  if (!to.length || !RESEND_KEY) return;
+  resend.emails.send({
+    from: `REGUL ARENA Securite <${FROM_EMAIL}>`,
+    to: to,
+    subject: '🚨 Alerte sécurité REGUL ARENA — ' + type,
+    html: '<h2>🚨 Activité suspecte détectée</h2>' +
+      '<p><b>Type :</b> ' + type + '</p>' +
+      '<p><b>Utilisateur :</b> ' + (email || 'inconnu') + '</p>' +
+      '<p><b>IP :</b> ' + (ip || '?') + '</p>' +
+      '<p><b>Route :</b> ' + (path || '?') + '</p>' +
+      '<p><b>Détail :</b> ' + (detail || '') + '</p>' +
+      '<p style="color:#667">Ouvre le panneau 🛡️ Sécurité dans Administration pour la liste complète.</p>'
+  }).catch(function () {});
+}
+function logSecurity(type, severity, req, detail, extra) {
+  extra = extra || {};
+  try {
+    const ip   = (req && (req.headers && req.headers['x-forwarded-for'] || req.ip)) || '';
+    const path = (req && (req.originalUrl || req.url)) || '';
+    const uid  = extra.user_id || (req && req.user && req.user.id) || null;
+    const email = extra.email || (req && req.user && req.user.email) || null;
+    db.prepare('INSERT INTO security_events (type, severity, user_id, email, ip, path, detail) VALUES (?,?,?,?,?,?,?)')
+      .run(type, severity, uid, email, String(ip).slice(0, 60), String(path).slice(0, 120), String(detail || '').slice(0, 300));
+    if (severity === 'high') sendSecurityAlert(type, email, ip, path, detail);
+  } catch (e) { /* ne jamais casser une requête à cause du journal sécurité */ }
+}
+
 /* Middleware admin — vérifie JWT + rôle EN DIRECT en base (et non plus le seul claim figé
    dans le token). Sans ça, une promotion via /admin/promote restait invisible tant que
    la personne ne se déconnectait pas/reconnectait pas manuellement. */
@@ -405,10 +454,10 @@ function requireAdmin(req, res, next) {
   try {
     const decoded = jwt.verify(auth.slice(7), JWT_SECRET);
     const liveUser = db.prepare('SELECT id, email, role FROM users WHERE id = ?').get(decoded.id);
-    if (!liveUser || !isAdmin(liveUser)) return res.status(403).json({ error: 'Accès refusé' });
+    if (!liveUser || !isAdmin(liveUser)) { logSecurity('admin_denied', 'high', req, 'Tentative d\'accès admin refusée (user id ' + (decoded && decoded.id) + ')', { user_id: decoded && decoded.id, email: liveUser && liveUser.email }); return res.status(403).json({ error: 'Accès refusé' }); } // MODIFIÉ — alerte
     req.user = { ...decoded, role: liveUser.role || 'user' }; // MODIFIÉ — rôle toujours à jour
     next();
-  } catch { res.status(401).json({ error: 'Token invalide' }); }
+  } catch { logSecurity('admin_bad_token', 'medium', req, 'JWT invalide/expiré sur route admin'); res.status(401).json({ error: 'Token invalide' }); } // MODIFIÉ — alerte
 }
 
 function ok(res, data = {}) {
@@ -957,15 +1006,21 @@ app.post('/scores', requireAuth, limiterLoose, (req, res) => { // MODIFIÉ — r
   // MODIFIÉ — AJOUT anti-rejeu 1 : jeton à usage unique si fourni (protection forte)
   if (nonce) {
     const n = db.prepare('SELECT used FROM score_nonces WHERE token = ? AND user_id = ?').get(String(nonce), req.user.id);
-    if (!n)     return err(res, 409, 'jeton invalide');
-    if (n.used) return err(res, 409, 'jeton déjà utilisé');
+    if (!n)     { logSecurity('score_nonce', 'medium', req, 'jeton de score invalide', { user_id: req.user.id }); return err(res, 409, 'jeton invalide'); } // MODIFIÉ
+    if (n.used) { logSecurity('score_nonce', 'medium', req, 'jeton de score déjà utilisé (rejeu)', { user_id: req.user.id }); return err(res, 409, 'jeton déjà utilisé'); } // MODIFIÉ
     db.prepare('UPDATE score_nonces SET used = 1 WHERE token = ?').run(String(nonce));
   }
   // MODIFIÉ — AJOUT anti-rejeu 2 : anti-doublon rapide (même pack/score < 20s), actif même sans jeton
   const dupe = db.prepare(
     "SELECT 1 FROM user_scores WHERE user_id = ? AND pack_id = ? AND score = ? AND total = ? AND played_at >= datetime('now','-20 seconds') LIMIT 1"
   ).get(req.user.id, pack_id, score, total);
-  if (dupe) return err(res, 429, 'soumission déjà enregistrée, patientez');
+  if (dupe) { logSecurity('score_replay', 'medium', req, 'soumission dupliquée (<20s) pack ' + pack_id, { user_id: req.user.id }); return err(res, 429, 'soumission déjà enregistrée, patientez'); } // MODIFIÉ
+
+  // MODIFIÉ — AJOUT sécurité : détection de flood (soumissions scriptées, même avec valeurs différentes)
+  try {
+    const recent = db.prepare("SELECT COUNT(*) AS n FROM user_scores WHERE user_id = ? AND played_at >= datetime('now','-60 seconds')").get(req.user.id).n;
+    if (recent >= 12) { logSecurity('score_flood', 'high', req, recent + ' scores en 60s (attaque probable)', { user_id: req.user.id }); return err(res, 429, 'Trop de soumissions — réessaie plus tard'); }
+  } catch (_) {}
 
   db.prepare('INSERT INTO user_scores (user_id, pack_id, score, total) VALUES (?, ?, ?, ?)')
     .run(req.user.id, pack_id, score, total);
@@ -3266,6 +3321,74 @@ app.get('/admin/fraud', requireAdmin, (req, res) => {
     console.error('[admin/fraud]', e);
     return err(res, 500, 'Erreur analyse fraude');
   }
+});
+
+// MODIFIÉ — AJOUT : POST /admin/fraud/purge — nettoie les doublons d'UN joueur.
+// Conserve le 1er exemplaire de chaque (pack_id, score, total) et supprime les répétitions.
+// Les scores légitimes (packs/résultats différents) ne sont JAMAIS touchés.
+app.post('/admin/fraud/purge', requireAdmin, (req, res) => {
+  try {
+    const uid = parseInt((req.body && req.body.user_id), 10);
+    if (!Number.isInteger(uid) || uid <= 0) return err(res, 400, 'user_id requis');
+    const u = db.prepare('SELECT id, name FROM users WHERE id = ?').get(uid);
+    if (!u) return err(res, 404, 'Utilisateur introuvable');
+    const info = db.prepare(
+      `DELETE FROM user_scores
+       WHERE user_id = ?
+         AND id NOT IN (
+           SELECT MIN(id) FROM user_scores WHERE user_id = ? GROUP BY pack_id, score, total
+         )`
+    ).run(uid, uid);
+    return ok(res, { user_id: uid, name: u.name, deleted: info.changes || 0 });
+  } catch (e) {
+    console.error('[admin/fraud/purge]', e);
+    return err(res, 500, 'Erreur nettoyage doublons');
+  }
+});
+
+// MODIFIÉ — AJOUT : GET /admin/player-audit?q=<nom|email> — inspecte un joueur ciblé.
+// Renvoie ses points, parties et le détail horodaté de ses scores (pour repérer des
+// points ajoutés sans avoir joué : insertions groupées, horaires anormaux, etc.).
+app.get('/admin/player-audit', requireAdmin, (req, res) => {
+  try {
+    const q = String((req.query.q || '')).trim().slice(0, 80);
+    if (!q) return err(res, 400, 'Recherche vide');
+    const like = '%' + q.toLowerCase() + '%';
+    const users = db.prepare(
+      `SELECT id, name, email, country FROM users
+       WHERE lower(name) LIKE ? OR lower(email) LIKE ? ORDER BY id DESC LIMIT 10`
+    ).all(like, like);
+    const results = users.map(function (u) {
+      const agg = db.prepare('SELECT COUNT(*) parties, COALESCE(SUM(score),0) points FROM user_scores WHERE user_id = ?').get(u.id);
+      const scores = db.prepare('SELECT pack_id, score, total, played_at FROM user_scores WHERE user_id = ? ORDER BY played_at DESC LIMIT 50').all(u.id);
+      return { id: u.id, name: u.name, email: u.email, country: u.country,
+               points: agg.points, parties: agg.parties, scores: scores };
+    });
+    return ok(res, { q: q, results: results });
+  } catch (e) { console.error('[admin/player-audit]', e); return err(res, 500, 'Erreur audit joueur'); }
+});
+
+// MODIFIÉ — AJOUT : POST /admin/scores/reset — retire TOUS les points d'un joueur ciblé
+// (le sort du classement). Ne supprime pas son compte, seulement ses scores.
+app.post('/admin/scores/reset', requireAdmin, (req, res) => {
+  try {
+    const uid = parseInt((req.body && req.body.user_id), 10);
+    if (!Number.isInteger(uid) || uid <= 0) return err(res, 400, 'user_id requis');
+    const u = db.prepare('SELECT id, name FROM users WHERE id = ?').get(uid);
+    if (!u) return err(res, 404, 'Utilisateur introuvable');
+    const info = db.prepare('DELETE FROM user_scores WHERE user_id = ?').run(uid);
+    return ok(res, { user_id: uid, name: u.name, deleted: info.changes || 0 });
+  } catch (e) { console.error('[admin/scores/reset]', e); return err(res, 500, 'Erreur réinitialisation'); }
+});
+
+// MODIFIÉ — AJOUT : GET /admin/security — journal des événements de sécurité (100 derniers)
+app.get('/admin/security', requireAdmin, (req, res) => {
+  try {
+    const events = db.prepare("SELECT type, severity, email, ip, path, detail, created_at FROM security_events ORDER BY id DESC LIMIT 100").all();
+    const high24 = db.prepare("SELECT COUNT(*) AS n FROM security_events WHERE severity='high' AND created_at >= datetime('now','-1 day')").get().n;
+    const total24 = db.prepare("SELECT COUNT(*) AS n FROM security_events WHERE created_at >= datetime('now','-1 day')").get().n;
+    return ok(res, { events: events, high_24h: high24, total_24h: total24 });
+  } catch (e) { console.error('[admin/security]', e); return err(res, 500, 'Erreur journal sécurité'); }
 });
 
 app.get('/admin/board', (req, res) => {
