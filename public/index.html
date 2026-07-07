@@ -2228,7 +2228,7 @@ function render(){
   if(QZ.q.length>0){ rQE(); return; }
   if(BF!==null&&BA){ c.innerHTML=rFD(); return; }
   if(BA){ c.innerHTML=rBD(); return; }
-  if(TAB==='autoeval'&&AEF){ c.innerHTML=rAEF(); if(AEF==='vrai_faux_chrono'){ try{ aeVfcAfterRender(); }catch(e){} } return; } // MODIFIÉ : affiche le format d'auto-éval sélectionné + démarre le chrono
+  if(TAB==='autoeval'&&AEF){ c.innerHTML=rAEF(); if(AEF==='vrai_faux_chrono'){ try{ aeVfcAfterRender(); }catch(e){} } if(AEF==='puzzle_juridique'){ try{ aePzAfterRender(); }catch(e){} } return; } // MODIFIÉ : affiche le format d'auto-éval sélectionné + démarre le(s) chrono(s)
   var pages={dashboard:rDB,quiz:rQP,biblio:rBP,arena:rAR,achievements:rACH,leaderboard:rLB,academy:rAC,settings:rST,autoeval:rAE,admin:rADMIN,about:rABOUT,communaute:rSALON,feedback:rFEEDBACK,debats:rDEBATS,debatsadm:rDEBATSADM,metiers:rMETIERS,org:rOrgCreate,orgdash:rOrgDashboard,orgjoin:rOrgJoin}; // MODIFIÉ : ajout métiers + feedback + espace établissement (org/orgdash/orgjoin)
   try{ c.innerHTML=(pages[TAB]||rDB)(); } // MODIFIÉ Phase 2 : capture les erreurs de rendu (évite l'écran figé + affiche la cause)
   catch(_err){ try{console.error('[render '+TAB+']',_err);}catch(e){} c.innerHTML='<div class="card" style="max-width:640px;margin:24px auto;padding:18px;border:1px solid rgba(239,68,68,.5);"><div style="font-weight:800;color:#f87171;margin-bottom:6px;">⚠️ Erreur d\'affichage ('+TAB+')</div><div style="font-size:12px;color:var(--sub);white-space:pre-wrap;word-break:break-word;">'+String((_err&&_err.message)||_err)+'</div></div>'; }
@@ -7696,7 +7696,8 @@ var AE_FORMATS = [             // MODIFIÉ
   {id:'calcul_prudentiel',ic:'🧮', l:'Calcul prudentiel',  d:'Ratios CET1, solvabilité, levier, grands risques'},
   {id:'audit',            ic:'🔍', l:'Audit & conformité',  d:'Repérez les irrégularités dans un rapport'},
   {id:'examen',           ic:'🎓', l:'Examen blanc',        d:'Épreuve mixte notée — seuil de réussite 60%'},
-  {id:'vrai_faux_chrono', ic:'⏱️', l:'Vrai/Faux Chrono',    d:'Contre-la-montre : 8s par affirmation, une à la fois'}   // MODIFIÉ
+  {id:'vrai_faux_chrono', ic:'⏱️', l:'Vrai/Faux Chrono',    d:'Contre-la-montre : 8s par affirmation, une à la fois'},   // MODIFIÉ
+  {id:'puzzle_juridique', ic:'🧩', l:'Puzzle juridique',    d:'Glissez les bons délais, seuils et mots-clés — chrono par extrait'}   // MODIFIÉ : nouveau format
 ];
 
 /* ─── DONNÉES — 5 items par format ─── */            // MODIFIÉ
@@ -8062,8 +8063,8 @@ function aeTextesPanel(){   // MODIFIÉ : rendu du panneau (repliable)
 }
 
 /* Ouvre / quitte un format */
-function aeOpen(fmt){ try{ aeVfcStopTimer(); }catch(e){} AEF=fmt; AES={ans:{},checked:false}; if(AEZONE==='cemac' && fmt==='examen'){ try{ AES.cemacExam=buildCemacExam(); }catch(e){} } TAB='autoeval'; buildNav(); render(); }  // MODIFIÉ : stoppe un chrono en cours avant de changer de format
-function aeBack(){ try{ aeVfcStopTimer(); }catch(e){} AEF=null; AES={}; TAB='autoeval'; buildNav(); render(); }                          // MODIFIÉ : stoppe un chrono en cours en quittant
+function aeOpen(fmt){ try{ aeVfcStopTimer(); }catch(e){} try{ aePzStopTimer(); }catch(e){} AEF=fmt; AES={ans:{},checked:false}; if(AEZONE==='cemac' && fmt==='examen'){ try{ AES.cemacExam=buildCemacExam(); }catch(e){} } TAB='autoeval'; buildNav(); render(); }  // MODIFIÉ : stoppe les chronos en cours avant de changer de format
+function aeBack(){ try{ aeVfcStopTimer(); }catch(e){} try{ aePzStopTimer(); }catch(e){} AEF=null; AES={}; TAB='autoeval'; buildNav(); render(); }                          // MODIFIÉ : stoppe les chronos en cours en quittant
 
 /* En-tête commun d'un format */
 function aeHead(fmt){   // MODIFIÉ
@@ -8083,6 +8084,7 @@ function rAEF(){   // MODIFIÉ
     case 'audit':            return rAE_audit();
     case 'examen':           return rAE_examen();
     case 'vrai_faux_chrono': return rAE_vfChrono();   // MODIFIÉ
+    case 'puzzle_juridique': return rAE_puzzle();     // MODIFIÉ : nouveau format
     default:                 return rAE();
   }
 }
@@ -8273,6 +8275,88 @@ function aeCountTrous(){   // MODIFIÉ
   return n;
 }
 function aeCheckTrous(){ AES.checked=true; render(); }   // MODIFIÉ
+
+/* 3bis) PUZZLE JURIDIQUE — texte à trous chronométré, réponses en glisser-déposer ── MODIFIÉ (nouveau format, 100% additif) */
+var AE_PZ_DURATION = 25; // secondes par extrait
+function aeShuffle(arr){ var a=arr.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+function aePzInit(){   // MODIFIÉ : prépare la session (liste d'extraits + pool de la première question)
+  var data = aeData().puzzle_juridique || [];
+  AES.pz = { list:data, idx:0, placed:{}, pool:[], checked:false, score:0, timerId:null, start:0 };
+  aePzPreparePool();
+}
+function aePzPreparePool(){   // MODIFIÉ : mélange réponses + leurres pour l'extrait courant
+  var it = AES.pz.list[AES.pz.idx]; if(!it) return;
+  var tags = (it.trous||[]).concat(it.leurres||[]);
+  AES.pz.pool = aeShuffle(tags);
+  AES.pz.placed = {};
+  AES.pz.checked = false;
+}
+function aePzStopTimer(){ if(AES.pz && AES.pz.timerId){ clearInterval(AES.pz.timerId); AES.pz.timerId=null; } }   // MODIFIÉ
+function aePzTick(){   // MODIFIÉ
+  if(!AES.pz) return;
+  var elapsed = (Date.now()-AES.pz.start)/1000;
+  var rem = Math.max(0, AE_PZ_DURATION-elapsed);
+  var el = ge('pz-chrono'); if(el) el.textContent = Math.ceil(rem)+'s';
+  if(rem<=0 && !AES.pz.checked){ aePzStopTimer(); aePzCheck(); }
+}
+function aePzStartTimer(){ if(!AES.pz) return; aePzStopTimer(); AES.pz.start=Date.now(); aePzTick(); AES.pz.timerId=setInterval(aePzTick,250); }   // MODIFIÉ
+function aePzAfterRender(){   // MODIFIÉ : (re)lance le chrono si l'extrait courant n'est pas encore validé
+  if(!AES.pz){ aePzInit(); }
+  if(AES.pz && AES.pz.list.length && !AES.pz.checked && !AES.pz.timerId){ aePzStartTimer(); }
+}
+function aePzDragStart(ev,tag){ try{ ev.dataTransfer.setData('text/plain',tag); }catch(e){} }   // MODIFIÉ
+function aePzAllowDrop(ev){ ev.preventDefault(); }   // MODIFIÉ
+function aePzDrop(ev,blankIdx){   // MODIFIÉ
+  ev.preventDefault(); if(AES.pz.checked) return;
+  var tag=''; try{ tag=ev.dataTransfer.getData('text/plain'); }catch(e){}
+  if(!tag) return;
+  AES.pz.placed[blankIdx]=tag; render();
+}
+function aePzUnplace(blankIdx){ if(AES.pz.checked) return; delete AES.pz.placed[blankIdx]; render(); }   // MODIFIÉ : retirer une étiquette posée
+function aePzCheck(){ if(!AES.pz) return; aePzStopTimer(); AES.pz.checked=true;
+  var it=AES.pz.list[AES.pz.idx];
+  var ok=0; (it.trous||[]).forEach(function(t,i){ if(AES.pz.placed[i]===t) ok++; });
+  AES.pz.score += ok; render();
+}   // MODIFIÉ
+function aePzNext(){ if(!AES.pz) return; AES.pz.idx++; aePzPreparePool(); render(); }   // MODIFIÉ
+function rAE_puzzle(){   // MODIFIÉ
+  if(!AES.pz){ aePzInit(); }
+  var pz = AES.pz, it = pz.list[pz.idx];
+  if(!it){
+    var totalBlancs = pz.list.reduce(function(s,x){return s+(x.trous||[]).length;},0);
+    return '<div style="max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:13px;">'+
+      aeHead('puzzle_juridique')+aeResultBar(pz.score,totalBlancs,'Puzzle juridique')+
+      '<button class="btn" style="width:100%;" onclick="AES.pz=null;render();">Recommencer</button></div>';
+  }
+  var k=0;
+  var texteHtml = aeEscTxt(it.texte).replace(/___/g, function(){
+    var bi=k++; var val=pz.placed[bi];
+    var ok = pz.checked ? (val===it.trous[bi]) : null;
+    var border = pz.checked ? (';border-color:'+(ok?'#22c55e':'#ef4444')) : '';
+    return '<span ondragover="aePzAllowDrop(event)" ondrop="aePzDrop(event,'+bi+')" onclick="aePzUnplace('+bi+')" '+
+      'style="display:inline-block;min-width:90px;padding:4px 10px;margin:0 3px;border-radius:7px;border:2px dashed rgba(110,150,210,.6)'+border+
+      ';background:rgba(10,33,62,.5);color:#fff;font-size:13px;text-align:center;cursor:pointer;">'+(val?aeEscTxt(val):'…')+'</span>';
+  });
+  var pool = pz.checked ? '' : '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">'+pz.pool.map(function(tag){
+    var used = Object.keys(pz.placed).some(function(k2){return pz.placed[k2]===tag;});
+    return '<span draggable="'+(used?'false':'true')+'" ondragstart="aePzDragStart(event,\''+aeEscTxt(tag).replace(/'/g,"\\'")+'\')" '+
+      'style="padding:5px 12px;border-radius:20px;background:'+(used?'rgba(110,150,210,.15)':'#C9991A')+';color:'+(used?'#8aa3d4':'#0a213e')+
+      ';font-weight:700;font-size:12.5px;cursor:'+(used?'default':'grab')+';">'+aeEscTxt(tag)+'</span>';
+  }).join('')+'</div>';
+  var corr = pz.checked
+    ? '<div class="al al-ok" style="margin-top:8px;font-size:12px;">✓ Réponses : '+it.trous.join(' · ')+
+      '<div style="font-size:11px;color:#8aa3d4;margin-top:4px;">📚 '+it.ref+'</div></div>' : '';
+  var footer = pz.checked
+    ? '<button class="btn" style="width:100%;" onclick="aePzNext()">'+(pz.idx+1<pz.list.length?'Extrait suivant →':'Voir le score')+'</button>'
+    : '<button class="btn-out" style="width:100%;" onclick="aePzCheck()">Valider maintenant</button>';
+  return '<div style="max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:13px;">'+
+    aeHead('puzzle_juridique')+
+    '<div style="display:flex;justify-content:space-between;align-items:center;">'+
+    '<span class="badge">Extrait '+(pz.idx+1)+'/'+pz.list.length+'</span>'+
+    '<span class="badge" id="pz-chrono" style="background:#ef4444;">'+AE_PZ_DURATION+'s</span></div>'+
+    '<div class="card"><p style="font-size:14px;color:white;line-height:2;">'+texteHtml+'</p>'+pool+corr+'</div>'+
+    '<div>'+footer+'</div></div>';
+}
 
 /* 4) CALCUL PRUDENTIEL */
 function rAE_calc(){   // MODIFIÉ
