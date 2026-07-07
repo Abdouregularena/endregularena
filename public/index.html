@@ -2498,14 +2498,16 @@ function chooseA(i){
     else if(j===i) b.classList.add('wrong');
   }
   var last=QZ.idx+1>=QZ.q.length;
+  var expl = q.expl||q.explication||''; // MODIFIÉ : explication pédagogique (champ optionnel)
+  var exemple = q.exemple||q.exemple_pratique||''; // MODIFIÉ : mise en situation (champ optionnel)
   ge('qfoot').innerHTML=
     '<div class="al '+(ok?'al-ok':'al-err')+'" style="font-size:13px;margin-bottom:10px;">'+(ok?'✅ Bonne réponse !':'❌ Mauvaise réponse — bonne réponse : <strong>'+String.fromCharCode(65+q.answer)+'</strong>. '+q.choices[q.answer])+'</div>'+
     '<div style="background:rgba(201,153,26,.07);border:1px solid rgba(201,153,26,.4);border-radius:9px;padding:11px 13px;font-size:12px;color:#aac4e8;margin-bottom:10px;">'+
     '📚 <strong style="color:var(--cyan);">Référence :</strong> '+q.source+'</div>'+
-    '<div style="font-size:12px;color:var(--sub);text-align:center;">⏭ '+(last?'Résultats':'Question suivante')+' dans 3 s…</div>';
+    (expl?'<div style="background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.35);border-radius:9px;padding:11px 13px;font-size:12px;color:#cfe8d6;margin-bottom:10px;">💡 <strong style="color:#4ade80;">Explication :</strong> '+expl+'</div>':'')+ // MODIFIÉ : affiché seulement si présent (zéro régression)
+    (exemple?'<div style="background:rgba(96,165,250,.06);border:1px solid rgba(96,165,250,.35);border-radius:9px;padding:11px 13px;font-size:12px;color:#d3e2f7;margin-bottom:10px;">🏦 <strong style="color:#60a5fa;">Mise en situation :</strong> '+exemple+'</div>':'')+ // MODIFIÉ : affiché seulement si présent
+    '<button class="btn" style="width:100%;padding:13px;margin-top:2px;" onclick="nextQ()">'+(last?'Voir les résultats →':'Question suivante →')+'</button>'; // MODIFIÉ : tempo libre — la lecture de la correction ne dépend plus du timer (remplace l\'avance auto en 3 s)
   if(ok) fxBravo();
-  var curIdx=QZ.idx;
-  setTimeout(function(){ if(ge('qfoot') && QZ.ans && QZ.idx===curIdx) nextQ(); }, 3000);
 }
 
 function nextQ(){
@@ -3819,6 +3821,8 @@ function rARQEGame(){
       }).join('')+
     '</div>'+
     '<div class="'+(ok?'al al-ok':'al al-warn')+'" style="font-size:12px;">'+(QE.timedOut?'⏱ Temps écoulé. ':(ok?'✔ Correct (+'+QE.lastPts+' pt) ! ':'✘ Incorrect. '))+(item.source||item.ref?'Source : '+(item.source||item.ref):'')+'</div>'+
+    ((item.expl||item.explication)?'<div class="al" style="font-size:12px;background:rgba(74,222,128,.08);border-color:rgba(74,222,128,.4);color:#cfe8d6;">💡 <strong>Explication :</strong> '+(item.expl||item.explication)+'</div>':'')+ // MODIFIÉ : explication (optionnelle)
+    ((item.exemple||item.exemple_pratique)?'<div class="al" style="font-size:12px;background:rgba(96,165,250,.08);border-color:rgba(96,165,250,.4);color:#d3e2f7;">🏦 <strong>Mise en situation :</strong> '+(item.exemple||item.exemple_pratique)+'</div>':'')+ // MODIFIÉ : mise en situation (optionnelle)
     '<button class="btn" style="width:100%;padding:13px;" onclick="qeAdvance()">'+(QE.idx+1>=QE.list.length?'Voir le score final':'Question suivante →')+'</button>';
   }
   h += '<button class="btn-out" style="width:100%;padding:12px;" onclick="qeExit()">← Changer de zone</button>';
