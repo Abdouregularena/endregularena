@@ -3208,6 +3208,66 @@ app.get('/admin/roster', requireAdmin, (req, res) => {
 
 // MODIFIÉ — AJOUT : page HTML admin lisible sur mobile (coquille publique, données via token).
 // Coller le JWT admin une fois ; il est conservé en local et envoyé en en-tête Authorization.
+// MODIFIÉ — AJOUT : GET /admin/fraud — détection & identification des scores suspects.
+// Analyse 100% lecture seule de user_scores. Signaux cumulés :
+//   • doublons : soumissions identiques répétées (pack+score+total) = rejeu probable
+//   • rafales  : plusieurs scores en moins de 10 s = script / automatisation
+//   • parfaits : scores 100 % anormalement nombreux
+//   • volume   : nombre de parties très élevé
+app.get('/admin/fraud', requireAdmin, (req, res) => {
+  try {
+    const HIDDEN = ['abdou ndao', 'kaiser ndao']; // comptes admin / test exclus du diagnostic
+    const base = db.prepare(
+      `SELECT s.user_id AS uid, u.name AS name, u.email AS email, u.country AS country,
+              COUNT(*) AS parties, COALESCE(SUM(s.score),0) AS points,
+              SUM(CASE WHEN s.score = s.total THEN 1 ELSE 0 END) AS parfaits
+       FROM user_scores s JOIN users u ON u.id = s.user_id
+       GROUP BY s.user_id`
+    ).all();
+
+    const dupMap = {};
+    db.prepare(
+      `SELECT user_id AS uid, SUM(c-1) AS doublons
+       FROM (SELECT user_id, pack_id, score, total, COUNT(*) c
+             FROM user_scores GROUP BY user_id, pack_id, score, total HAVING c > 1)
+       GROUP BY user_id`
+    ).all().forEach(function (d) { dupMap[d.uid] = d.doublons; });
+
+    const burstMap = {};
+    db.prepare(
+      `SELECT a.user_id AS uid, COUNT(*) AS rafales
+       FROM user_scores a JOIN user_scores b
+         ON b.user_id = a.user_id AND b.id <> a.id
+        AND b.played_at <= a.played_at
+        AND b.played_at >= datetime(a.played_at, '-10 seconds')
+       GROUP BY a.user_id`
+    ).all().forEach(function (b) { burstMap[b.uid] = b.rafales; });
+
+    const liste = base.map(function (r) {
+      const doublons = dupMap[r.uid] || 0;
+      const rafales  = burstMap[r.uid] || 0;
+      const suspicion = doublons * 3 + rafales * 2 + (r.parties > 200 ? 10 : 0) + (r.parfaits > 15 ? 5 : 0);
+      const motifs = [];
+      if (doublons > 0)    motifs.push(doublons + ' doublon' + (doublons > 1 ? 's' : ''));
+      if (rafales  >= 4)   motifs.push(rafales + ' soumissions en rafale (<10s)');
+      if (r.parties > 200) motifs.push(r.parties + ' parties (volume élevé)');
+      if (r.parfaits > 15) motifs.push(r.parfaits + ' scores parfaits');
+      return { user_id: r.uid, name: r.name, email: r.email, country: r.country,
+               parties: r.parties, points: r.points, doublons: doublons, rafales: rafales,
+               parfaits: r.parfaits, suspicion: suspicion, motifs: motifs,
+               masque: HIDDEN.indexOf(String(r.name || '').trim().toLowerCase()) !== -1 };
+    })
+    .filter(function (r) { return !r.masque && r.suspicion > 0; })
+    .sort(function (a, b) { return b.suspicion - a.suspicion; });
+
+    return ok(res, { genere_le: new Date().toISOString(), total_analyses: base.length,
+                     suspects: liste.length, liste: liste });
+  } catch (e) {
+    console.error('[admin/fraud]', e);
+    return err(res, 500, 'Erreur analyse fraude');
+  }
+});
+
 app.get('/admin/board', (req, res) => {
   res.set('Content-Type', 'text/html; charset=utf-8');
   res.send(`<!doctype html><html lang="fr"><head><meta charset="utf-8">
@@ -3247,6 +3307,8 @@ th,td{padding:9px 8px;text-align:left;border-bottom:1px solid #eee}th{background
     <table id="topt"><thead><tr><th>#</th><th>Joueur</th><th>Points</th><th>Palier</th><th>Cert.</th></tr></thead><tbody></tbody></table>
     <h2>📜 Certificats délivrés</h2>
     <table id="ct"><thead><tr><th>Bénéficiaire</th><th>Thème</th><th>Zone</th><th>Date</th></tr></thead><tbody></tbody></table>
+    <h2>🚨 Fraude détectée <span id="fraudCount" class="muted"></span></h2>
+    <table id="ft"><thead><tr><th>Joueur</th><th>Risque</th><th>Motifs</th><th>Parties</th><th>Points</th></tr></thead><tbody></tbody></table>
     <p class="muted" style="margin-top:18px"><button class="reload" id="reload">↻ Rafraîchir</button></p>
     <h2>⭐ Promouvoir un administrateur</h2>
     <div class="tokbox">
@@ -3295,6 +3357,15 @@ async function load(){
     document.querySelector('#ct tbody').innerHTML=cd.map(function(c){
       return '<tr><td>'+H(c.user_name)+'</td><td>'+H(c.theme)+'</td><td>'+H(c.zone||'')+'</td><td>'+H((c.created_at||'').slice(0,10))+'</td></tr>';
     }).join('')||'<tr><td colspan="4" class="muted">Aucun certificat délivré.</td></tr>';
+    var fr=await api('/admin/fraud');
+    document.getElementById('fraudCount').textContent='('+fr.suspects+' suspect'+(fr.suspects>1?'s':'')+' / '+fr.total_analyses+' joueurs)';
+    document.querySelector('#ft tbody').innerHTML=(fr.liste||[]).map(function(f){
+      var lvl=f.suspicion>=15?'#b91c1c':(f.suspicion>=6?'#C9991A':'#667');
+      return '<tr><td>'+H(f.name)+' <span class="muted">'+H(f.country||'')+'</span><br><span class="muted" style="font-size:11px">'+H(f.email)+'</span></td>'+
+        '<td><b style="color:'+lvl+'">'+f.suspicion+'</b></td>'+
+        '<td class="muted">'+H((f.motifs||[]).join(' · '))+'</td>'+
+        '<td>'+f.parties+'</td><td>'+f.points+'</td></tr>';
+    }).join('')||'<tr><td colspan="5" class="muted">✅ Aucune fraude détectée.</td></tr>';
   }catch(e){
     document.getElementById('msg').style.display='block';
     document.getElementById('msg').className='err';
