@@ -108,7 +108,10 @@ function getData() {
     LOT_FINAL_UEMOA: banks.LOT_FINAL_UEMOA || {},
     LOT_FINAL_CEMAC: banks.LOT_FINAL_CEMAC || {},
     AE_DATA: banks.AE_DATA || {},
-    AE_DATA_CEMAC: banks.AE_DATA_CEMAC || {}
+    AE_DATA_CEMAC: banks.AE_DATA_CEMAC || {},
+    BR: banks.BR || {}, // MODIFIÉ Phase 3 — objets Bibliothèque migrés
+    BB: banks.BB || {}, // MODIFIÉ Phase 3
+    SW: banks.SW || {}  // MODIFIÉ Phase 3
   });
 } // MODIFIÉ — pour la route /packs/bootstrap
 
