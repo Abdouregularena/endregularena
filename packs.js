@@ -113,7 +113,8 @@ function getData() {
     BB: banks.BB || {}, // MODIFIÉ Phase 3
     SW: banks.SW || {}, // MODIFIÉ Phase 3
     BCB: banks.BCB || {}, // MODIFIÉ Phase 3 — pack biblio CB-UMOA
-    BP: banks.BP || {} // MODIFIÉ Phase 3 — pack biblio PI-SPI
+    BP: banks.BP || {}, // MODIFIÉ Phase 3 — pack biblio PI-SPI
+    KC: banks.KC || {} // MODIFIÉ Phase 3 — pack biblio KPI/KRI/KCI
   });
 } // MODIFIÉ — pour la route /packs/bootstrap
 
