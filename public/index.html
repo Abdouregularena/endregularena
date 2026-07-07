@@ -1128,7 +1128,7 @@ h2,h3{animation:raReveal .45s ease both;}
       x.open('GET', '/packs/bootstrap', false);
       x.setRequestHeader('Authorization', 'Bearer ' + tok);
       x.send(null);
-      if (x.status === 200) { var d = JSON.parse(x.responseText); window.__RA_BANKS__ = { QR:d.QR||[], QB:d.QB||[], QC:d.QC||[], QN:d.QN||[], QR_PLUS:d.QR_PLUS||[], QN_SWIFT:d.QN_SWIFT||[], BCB_Q:d.BCB_Q||[], BP_Q:d.BP_Q||[], KC_Q:d.KC_Q||[], CF_Q:d.CF_Q||[], SW_Q:d.SW_Q||[], LOT_FINAL_UEMOA:d.LOT_FINAL_UEMOA||{}, LOT_FINAL_CEMAC:d.LOT_FINAL_CEMAC||{}, AE_DATA:d.AE_DATA||{}, AE_DATA_CEMAC:d.AE_DATA_CEMAC||{}, BR:d.BR||{}, BB:d.BB||{}, SW:d.SW||{}, BCB:d.BCB||{}, BP:d.BP||{} }; } // MODIFIÉ Phase 2
+      if (x.status === 200) { var d = JSON.parse(x.responseText); window.__RA_BANKS__ = { QR:d.QR||[], QB:d.QB||[], QC:d.QC||[], QN:d.QN||[], QR_PLUS:d.QR_PLUS||[], QN_SWIFT:d.QN_SWIFT||[], BCB_Q:d.BCB_Q||[], BP_Q:d.BP_Q||[], KC_Q:d.KC_Q||[], CF_Q:d.CF_Q||[], SW_Q:d.SW_Q||[], LOT_FINAL_UEMOA:d.LOT_FINAL_UEMOA||{}, LOT_FINAL_CEMAC:d.LOT_FINAL_CEMAC||{}, AE_DATA:d.AE_DATA||{}, AE_DATA_CEMAC:d.AE_DATA_CEMAC||{}, BR:d.BR||{}, BB:d.BB||{}, SW:d.SW||{}, BCB:d.BCB||{}, BP:d.BP||{}, KC:d.KC||{} }; } // MODIFIÉ Phase 2
     }
   } catch(e){ /* silencieux : banques vides, écran login non impacté */ }
 })();
@@ -11502,126 +11502,7 @@ window.raOpenNotif=function(){
 (function lotKPIKRIKCI(){ // MODIFIÉ
   try{
     /* 1) PACK BIBLIOTHÈQUE — sources alignées sur Circ. 03-2017/CB/C (contrôle interne) & Circ. 04-2017/CB/C (gestion des risques), en vigueur 02/07/2018 */
-    var KC = { // MODIFIÉ
-      "pack_id":"kpi-kri-kci",
-      "titre":"Pack Pilotage des risques — KPI · KRI · KCI",
-      "sous_titre":"Performance · Risque · Contrôle — Circ. CB-UMOA 03 & 04-2017",
-      "icone":"📊",
-      "couleur":"#1F6F54",
-      "sources":[
-        "Circulaire n°04-2017/CB/C relative à la gestion des risques dans les EC et compagnies financières de l'UMOA (27/09/2017, en vigueur 02/07/2018) — notamment Art. 30",
-        "Circulaire n°03-2017/CB/C relative au contrôle interne des EC et compagnies financières dans l'UMOA (27/09/2017, en vigueur 02/07/2018) — notamment Art. 13",
-        "Circulaire n°01-2017/CB/C relative à la gouvernance des EC et compagnies financières de l'UMOA (comité des risques, comité d'audit)",
-        "Dispositif prudentiel UMOA — Pilier 2 (ICAAP/SREP) et Titre V (risque opérationnel)"
-      ],
-      "fiches_revision":[
-        {"id":"kc01","ordre":1,"titre":"Le triptyque KPI / KRI / KCI","icone":"🧭",
-         "resume_court":"Trois familles d'indicateurs complémentaires : mesurer la performance (KPI), anticiper le risque (KRI), vérifier l'efficacité des contrôles (KCI). L'Art. 30 de la Circ. 04-2017 cite ces trois familles parmi les outils de gestion du risque opérationnel.",
-         "points_cles":[
-           "KPI (Key Performance Indicator) : « Où en est-on ? » — mesure l'atteinte des objectifs (passé/présent).",
-           "KRI (Key Risk Indicator) : « Une menace arrive-t-elle ? » — signal d'alerte précoce, orienté futur.",
-           "KCI (Key Control Indicator) : « Nos défenses tiennent-elles ? » — efficacité réelle des contrôles internes.",
-           "Ancrage : l'Art. 30 (Circ. 04-2017) liste « les indicateurs de risque et de performance » et « les indicateurs d'efficacité du système de contrôle interne »."
-         ],
-         "a_retenir":"KPI = résultat · KRI = alerte · KCI = maîtrise. Aucun des trois ne suffit seul.",
-         "exemple_concret":"Une direction qui ne suit que ses KPI (PNB, ROE) peut afficher d'excellents résultats tout en accumulant des risques (KRI) et en laissant ses contrôles se dégrader (KCI) — jusqu'à l'incident majeur.",
-         "piege_frequent":"Confondre un KRI (oriente vers l'avenir, probabilité de dégradation) et un KPI (constate un résultat déjà réalisé).",
-         "source":"Circ. 04-2017/CB/C — Art. 30 (outils de gestion du risque opérationnel)"},
-        {"id":"kc02","ordre":2,"titre":"KPI — Piloter la performance","icone":"📈",
-         "resume_court":"Le KPI mesure l'efficacité, la productivité et la réussite de l'activité par rapport aux objectifs stratégiques.","points_cles":[
-           "Rôle : piloter l'activité et évaluer les résultats (passés et présents).",
-           "Exemples bancaires : PNB, coefficient d'exploitation (charges/PNB), ROE, ROA, coût du risque.",
-           "Exemples commerciaux : taux de croissance des crédits et des dépôts, taux de transformation, taux d'équipement clients.",
-           "Un bon KPI est mesurable, relié à un objectif et suivi dans le temps."
-         ],
-         "a_retenir":"KPI = thermomètre des résultats. Il répond à : « Atteignons-nous nos objectifs ? »",
-         "exemple_concret":"Une agence suit son coefficient d'exploitation : s'il passe de 60 % à 58 %, l'efficience progresse — c'est un KPI en amélioration.",
-         "piege_frequent":"Empiler trop de KPI : 5 à 10 indicateurs réellement pilotants valent mieux qu'un tableau illisible.",
-         "source":"Circ. 04-2017/CB/C — Art. 30 (indicateurs de performance)"},
-        {"id":"kc03","ordre":3,"titre":"KRI — Anticiper le risque","icone":"⚠️",
-         "resume_court":"Le KRI est un signal d'alerte précoce : il suit l'évolution d'un risque dans le temps et annonce une probabilité de dégradation future. La fonction gestion des risques doit mettre en place ce système d'alerte précoce (Art. 5).","points_cles":[
-           "Rôle : anticiper et éviter les incidents majeurs AVANT qu'ils ne surviennent.",
-           "Exemples risque de crédit : hausse du taux brut de dégradation du portefeuille, montée des impayés > 90 jours, concentration vers la limite des grands risques.",
-           "Exemples prudentiels : repli du ratio de solvabilité vers le minimum, dégradation du LCR, tension sur le ratio de levier.",
-           "Exemples opérationnels : hausse des incidents/fraudes, turnover des équipes clés, augmentation des réclamations clients.",
-           "Chaque KRI est assorti d'un SEUIL d'alerte (vert / orange / rouge) défini dans l'appétence pour le risque (Art. 11)."
-         ],
-         "a_retenir":"KRI = signal d'alerte précoce. Il répond à : « Une menace est-elle en train d'arriver ? »",
-         "exemple_concret":"Le taux d'impayés d'un portefeuille PME grimpe 3 mois de suite : le KRI passe à l'orange et déclenche une revue du risque avant que les créances ne deviennent douteuses.",
-         "piege_frequent":"Définir un KRI sans seuil ni escalade : sans déclencheur d'action, l'indicateur ne sert à rien.",
-         "source":"Circ. 04-2017/CB/C — Art. 5 (alerte précoce), Art. 11 (limites), Art. 30 (indicateurs de risque)"},
-        {"id":"kc04","ordre":4,"titre":"KCI — Garantir le contrôle","icone":"🛡️",
-         "resume_court":"Le KCI mesure l'efficacité et le niveau d'exécution des contrôles internes mis en place pour limiter les risques. L'Art. 30 (Circ. 04-2017) cite explicitement « les indicateurs d'efficacité du système de contrôle interne ».","points_cles":[
-           "Rôle : garantir la conformité et la bonne santé des processus internes.",
-           "Exemples conformité : taux de complétude des dossiers KYC, délai de transmission des déclarations à la CENTIF/ANIF, taux de collaborateurs formés LBC/FT.",
-           "Exemples contrôle permanent : taux de réalisation du plan de contrôle, taux de levée des recommandations d'audit, fréquence des rapprochements (ex. comptes de cantonnement).",
-           "Exemples sécurité : taux de sauvegardes réussies, part des collaborateurs ayant suivi la formation cybersécurité obligatoire."
-         ],
-         "a_retenir":"KCI = test des défenses. Il répond à : « Nos moyens de défense fonctionnent-ils correctement ? »",
-         "exemple_concret":"Si 95 % des dossiers clients sont KYC-complets, le KCI est solide ; s'il tombe à 70 %, le contrôle d'entrée en relation se dégrade — risque LBC/FT accru.",
-         "piege_frequent":"Confondre l'EXISTENCE d'un contrôle et son EFFICACITÉ : un contrôle prévu mais non exécuté donne un KCI rouge.",
-         "source":"Circ. 04-2017/CB/C — Art. 30 ; Circ. 03-2017/CB/C — Art. 8, 11 (activités de contrôle)"},
-        {"id":"kc05","ordre":5,"titre":"Articuler les 3 dans la banque","icone":"🏛️",
-         "resume_court":"KPI, KRI et KCI s'inscrivent dans le modèle des lignes de défense (ou de maîtrise) défini à l'Art. 13 de la Circ. 03-2017, et alimentent la gouvernance des risques.","points_cles":[
-           "1re ligne (unités opérationnelles) : produit la performance (KPI) et exécute le contrôle permanent de 1er niveau (KCI).",
-           "2e ligne (fonctions support : Risques, Conformité, contrôle interne) : fixe les seuils des KRI et réalise le contrôle permanent de 2e niveau (KCI).",
-           "3e ligne (Audit interne) : contrôle périodique, évalue indépendamment l'efficacité de l'ensemble.",
-           "4e ligne complémentaire : commissaires aux comptes + Commission Bancaire (revues indépendantes).",
-           "Contrôle permanent = 1re + 2e ligne (Art. 3-j) ; contrôle périodique = audit interne (Art. 3-k)."
-         ],
-         "a_retenir":"Performance, risque et contrôle = trois lectures d'une même réalité, réparties sur les lignes de défense (Art. 13).",
-         "exemple_concret":"Sur la LBC/FT : KPI = nombre de comptes ouverts ; KRI = nombre d'alertes suspectes ; KCI = délai moyen de traitement des alertes et taux de déclarations transmises dans les délais.",
-         "piege_frequent":"Laisser la 1re ligne piloter uniquement par KPI sans contrepoids Risques/Conformité (KRI/KCI) : racine de nombreux incidents.",
-         "source":"Circ. 03-2017/CB/C — Art. 3 (j,k) & Art. 13 (lignes de défense)"},
-        {"id":"kc06","ordre":6,"titre":"Mise en œuvre : seuils, alertes & reporting","icone":"📋",
-         "resume_court":"Un dispositif d'indicateurs n'a de valeur que s'il est seuillé, suivi et remonté aux organes de gouvernance, selon les obligations de reporting des circulaires.","points_cles":[
-           "Définir pour chaque indicateur : une formule, une fréquence, un propriétaire et un seuil d'alerte ; gérer les dépassements de limites (Art. 11).",
-           "Code couleur d'escalade : vert (normal) · orange (vigilance) · rouge (action immédiate).",
-           "Reporting des risques à l'organe délibérant au moins une fois par semestre, incluant les principaux événements de pertes opérationnelles (Art. 15).",
-           "Rapport annuel sur la gestion des risques transmis à la Commission Bancaire au 30 avril (Art. 16) ; rapport semestriel de contrôle interne au 30 juin et 31 décembre (Circ. 03-2017, Art. 26).",
-           "La cartographie des risques (Art. 9) hiérarchise les risques ; les KRI nourrissent le Pilier 2 (ICAAP)."
-         ],
-         "a_retenir":"Indicateur sans seuil ni destinataire = donnée morte. La valeur naît de l'alerte et de l'action.",
-         "exemple_concret":"Un tableau de bord mensuel présente au Comité des risques 8 KRI seuillés ; deux passent à l'orange, déclenchant un plan d'action tracé jusqu'à retour au vert.",
-         "piege_frequent":"Produire un reporting que personne n'exploite : sans décision associée, le dispositif perd tout son sens.",
-         "source":"Circ. 04-2017/CB/C — Art. 9, 11, 15, 16 ; Circ. 03-2017/CB/C — Art. 26"}
-      ],
-      "flash_cards":[
-        {"categorie":"Définitions","recto":"Que signifie KPI et à quelle question répond-il ?","verso":"Key Performance Indicator — « Atteignons-nous nos objectifs ? » (mesure la performance, passé/présent).","source":"Circ. 04-2017 — Art. 30"},
-        {"categorie":"Définitions","recto":"Que signifie KRI et à quelle question répond-il ?","verso":"Key Risk Indicator — « Une menace est-elle en train d'arriver ? » (signal d'alerte précoce, orienté futur).","source":"Circ. 04-2017 — Art. 5 & 30"},
-        {"categorie":"Définitions","recto":"Que signifie KCI et à quelle question répond-il ?","verso":"Key Control Indicator — « Nos moyens de défense fonctionnent-ils ? » (efficacité des contrôles internes).","source":"Circ. 04-2017 — Art. 30 ; Circ. 03-2017"},
-        {"categorie":"Ancrage","recto":"Quel article cite « les indicateurs de risque et de performance » et « les indicateurs d'efficacité du système de contrôle interne » ?","verso":"L'Article 30 de la Circulaire n°04-2017/CB/C (outils de gestion du risque opérationnel).","source":"Circ. 04-2017 — Art. 30"},
-        {"categorie":"KPI","recto":"Cite 3 KPI bancaires de performance.","verso":"PNB, coefficient d'exploitation (charges/PNB), ROE (ou ROA, coût du risque).","source":"Pilotage de la performance"},
-        {"categorie":"KRI","recto":"Cite 3 KRI de risque de crédit.","verso":"Hausse du taux brut de dégradation du portefeuille, montée des impayés > 90 jours, concentration vers la limite des grands risques.","source":"Circ. 04-2017 — Art. 17 à 27"},
-        {"categorie":"KRI","recto":"Quelle obligation de la fonction gestion des risques correspond directement à la logique des KRI ?","verso":"Mettre en place un système d'alerte précoce détectant les infractions à l'appétence au risque et aux limites.","source":"Circ. 04-2017 — Art. 5"},
-        {"categorie":"KCI","recto":"Cite 3 KCI de conformité / contrôle.","verso":"Taux de complétude KYC, taux de réalisation du plan de contrôle permanent, taux de levée des recommandations d'audit.","source":"Circ. 03-2017 — Art. 8 à 13"},
-        {"categorie":"Distinction","recto":"Quelle est la différence essentielle entre un KPI et un KRI ?","verso":"Le KPI constate un résultat déjà réalisé ; le KRI anticipe une dégradation future (alerte précoce).","source":"Triptyque KPI/KRI/KCI"},
-        {"categorie":"Distinction","recto":"Un contrôle est prévu mais jamais exécuté : que vaut le KCI ?","verso":"Rouge — le KCI mesure l'EFFICACITÉ réelle, pas la simple existence du contrôle.","source":"Circ. 03-2017 — Art. 8, 11"},
-        {"categorie":"Gouvernance","recto":"Comment se répartissent KPI/KRI/KCI sur les lignes de défense ?","verso":"1re ligne : KPI + contrôle permanent 1er niveau ; 2e ligne (Risques/Conformité) : seuils KRI + contrôle 2e niveau ; 3e ligne (Audit) : contrôle périodique.","source":"Circ. 03-2017 — Art. 13"},
-        {"categorie":"Mise en œuvre","recto":"Que faut-il associer à chaque indicateur pour qu'il soit utile ?","verso":"Une formule, une fréquence, un propriétaire et un seuil d'alerte (avec escalade vert/orange/rouge).","source":"Circ. 04-2017 — Art. 11"},
-        {"categorie":"Mise en œuvre","recto":"À quelle fréquence le reporting des risques est-il remonté à l'organe délibérant ?","verso":"Au moins une fois par semestre (incluant les principaux événements de pertes opérationnelles).","source":"Circ. 04-2017 — Art. 15"}
-      ],
-      "mnemotechniques":[
-        {"concept":"Les 3 familles d'indicateurs","moyen":"« P-R-C » : Performance · Risque · Contrôle","explication":"KPI = Performance (résultat), KRI = Risque (alerte), KCI = Contrôle (maîtrise). Les trois sont cités à l'Art. 30 de la Circ. 04-2017.","exemple":"Sur la fraude : pertes (KPI), tentatives détectées (KRI), contrôles exécutés (KCI).","source":"Circ. 04-2017 — Art. 30"},
-        {"concept":"La question de chaque indicateur","moyen":"« OÙ ? · ARRIVE ? · TIENT ? »","explication":"KPI = où en est-on ? · KRI = une menace arrive-t-elle ? · KCI = nos défenses tiennent-elles ?","exemple":"Trois questions, trois angles d'un même dossier.","source":"Triptyque KPI/KRI/KCI"},
-        {"concept":"L'orientation temporelle","moyen":"« KPI regarde DERRIÈRE, KRI regarde DEVANT »","explication":"Le KPI constate (passé/présent), le KRI anticipe (futur). Le KCI vérifie le présent du dispositif.","exemple":"Un bon pilotage combine rétroviseur (KPI) et pare-brise (KRI).","source":"Distinction KPI/KRI"},
-        {"concept":"Le code couleur d'escalade","moyen":"« VERT-ORANGE-ROUGE »","explication":"Vert = normal, Orange = vigilance (revue), Rouge = action immédiate. Chaque seuil déclenche un niveau, conformément à la gestion des dépassements de limites.","exemple":"Un KRI à l'orange impose une revue ; au rouge, un plan d'action tracé.","source":"Circ. 04-2017 — Art. 11"},
-        {"concept":"Les lignes de défense","moyen":"« FAIRE · SURVEILLER · ÉVALUER (+ CONTRÔLER) »","explication":"1re ligne fait (métiers), 2e ligne surveille (Risques/Conformité), 3e ligne évalue (Audit), 4e ligne = CAC + Commission Bancaire.","exemple":"Le KRI est fixé par la 2e ligne et exécuté par la 1re.","source":"Circ. 03-2017 — Art. 13"},
-        {"concept":"Existence vs efficacité (KCI)","moyen":"« PRÉVU ≠ FAIT »","explication":"Un contrôle prévu sur le papier mais non exécuté donne un KCI rouge : seule l'exécution réelle compte.","exemple":"Plan de contrôle réalisé à 60 % = 40 % de contrôles fantômes.","source":"Circ. 03-2017 — Art. 8, 11"}
-      ],
-      "glossaire":[
-        {"terme":"KPI (Key Performance Indicator)","definition":"Indicateur clé de performance mesurant l'efficacité et l'atteinte des objectifs stratégiques (passé/présent).","source":"Circ. 04-2017 — Art. 30"},
-        {"terme":"KRI (Key Risk Indicator)","definition":"Indicateur clé de risque : signal d'alerte précoce suivant l'évolution d'un risque et la probabilité de dégradation future.","source":"Circ. 04-2017 — Art. 5 & 30"},
-        {"terme":"KCI (Key Control Indicator)","definition":"Indicateur clé de contrôle mesurant l'efficacité et le niveau d'exécution réel des contrôles internes.","source":"Circ. 04-2017 — Art. 30 ; Circ. 03-2017 — Art. 8"},
-        {"terme":"Appétence pour le risque","definition":"Niveau et type de risque qu'un établissement est disposé à assumer pour réaliser ses objectifs stratégiques ; elle fixe les seuils des KRI.","source":"Circ. 04-2017 — Art. 3(b) & 11"},
-        {"terme":"Seuil d'alerte / limite","definition":"Valeur déclenchant une escalade (vert/orange/rouge) ; les dépassements de limites font l'objet d'une procédure de communication, régularisation et sanction.","source":"Circ. 04-2017 — Art. 11"},
-        {"terme":"Lignes de défense (ou de maîtrise)","definition":"Modèle de surveillance : 1re ligne (unités opérationnelles), 2e ligne (fonctions support), 3e ligne (audit interne), 4e ligne complémentaire (CAC + Commission Bancaire).","source":"Circ. 03-2017 — Art. 13"},
-        {"terme":"Cartographie des risques","definition":"Outil de pilotage qui recense, évalue et hiérarchise l'ensemble des risques, validé par l'organe délibérant et revu au moins une fois par an.","source":"Circ. 04-2017 — Art. 9"},
-        {"terme":"Taux brut de dégradation du portefeuille","definition":"Part des créances en souffrance dans le total des crédits ; sa hausse est un KRI de risque de crédit suivi via la revue globale du portefeuille.","source":"Circ. 04-2017 — Art. 21"},
-        {"terme":"Contrôle permanent","definition":"Contrôles réalisés par les unités opérationnelles (1re ligne) et les fonctions support indépendantes (2e ligne) ; son taux de réalisation est un KCI clé.","source":"Circ. 03-2017 — Art. 3(j)"},
-        {"terme":"Tableau de bord des risques","definition":"Synthèse seuillée des KPI/KRI/KCI remontée à l'organe délibérant (au moins semestriellement) pour décision.","source":"Circ. 04-2017 — Art. 15"}
-      ]
-    };
+    var KC = (window.__RA_BANKS__ && window.__RA_BANKS__.KC) || {}; // MODIFIÉ Phase 3 — servi par /packs/bootstrap (anti-plagiat)
     window.KC = KC;
 
     /* 2) QUESTIONS (schéma QN standard : cat / q / choices / answer / source) */
