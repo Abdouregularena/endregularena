@@ -4223,10 +4223,16 @@ function publicUser(u) {
 // MODIFIÉ - Audit Flash Digital (RFE)
 const multer = require('multer');
 const pdfParse = require('pdf-parse');
+if (!fs.existsSync('/tmp/audit-uploads/')) fs.mkdirSync('/tmp/audit-uploads/', { recursive: true }); // MODIFIÉ : multer ne crée pas le dossier destination lui-même
 const uploadAudit = multer({ dest: '/tmp/audit-uploads/' });
 const RFE_REFERENCE_TEXT = fs.readFileSync('./data/rfe_reference_2024.txt', 'utf8');
 
-app.post('/audit-flash', requireAuth, uploadAudit.single('procedure'), async (req, res) => {
+app.post('/audit-flash', requireAuth, function(req, res, next){ // MODIFIÉ : wrapper pour capter les erreurs multer et répondre en JSON
+  uploadAudit.single('procedure')(req, res, function(uploadErr){
+    if (uploadErr) { console.error('Erreur audit-flash (upload):', uploadErr); return err(res, 400, 'Erreur upload fichier: ' + uploadErr.message); }
+    next();
+  });
+}, async (req, res) => {
   try {
     if (!req.file) return err(res, 400, 'Fichier procédure manquant');
 
