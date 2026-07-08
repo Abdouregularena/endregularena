@@ -383,6 +383,15 @@ h2,h3{animation:raReveal .45s ease both;}
 .q-empty{text-align:center;color:var(--sub);font-size:13px;padding:26px 14px;background:rgba(17,34,64,.4);border:1px dashed var(--border);border-radius:14px;}
 .q-empty button{margin-left:6px;background:none;border:none;color:var(--cyan);font-weight:700;cursor:pointer;font-size:13px;text-decoration:underline;font-family:inherit;}
 @media(prefers-reduced-motion:reduce){.q-hero,.q-hero::after,.qcard{animation:none!important;}.qcard:hover{transform:none;}}
+/* MODIFIÉ : grille de thèmes dédiée — reste en 2 colonnes même sur petit mobile (indépendante de .g3) */
+.q-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.q-grid .qcard{padding:10px!important;}
+.q-grid .q-ic{width:34px;height:34px;font-size:16px;border-radius:9px;}
+@media(max-width:380px){.q-grid{grid-template-columns:1fr;}}
+/* MODIFIÉ : repli "Voir plus" — n'affiche que 6 thèmes par pack au départ */
+.q-packcard:not(.q-expanded):not(.q-searching) .q-extra{display:none!important;}
+.q-more{width:100%;margin-top:10px;padding:11px;border-radius:10px;border:1px dashed var(--border);background:rgba(17,34,64,.4);color:var(--cyan);font-size:12.5px;font-weight:700;cursor:pointer;font-family:"Space Grotesk",sans-serif;min-height:42px;touch-action:manipulation;}
+.q-more:hover{border-color:rgba(232,181,32,.5);}
 /* FIN écran Quiz & Formation */
 /* ════════ MODIFIÉ — BARRE DE NAVIGATION BASSE (mobile) ════════ */
 .ra-bnav{display:none;}
@@ -2404,7 +2413,7 @@ function rQP(){
     '<div style="font-size:11px;color:var(--sub);">'+p.sub+' · '+p.q.length+' questions</div></div>'+
     '<button class="btn btn-sm q-hero" onclick="startQ('+p.ds+',\''+p.t+'\')">⚡ Pack complet ('+p.q.length+'Q)</button></div>'+
     '<div style="font-size:11px;color:var(--sub);margin-bottom:10px;"><span class="q-packcount">'+cats.length+' thèmes</span> — choisis-en un, ou lance le pack complet :</div>'+ // MODIFIÉ : compteur live
-    '<div class="g3">'+
+    '<div class="q-grid">'+ // MODIFIÉ : grille dédiée 2 colonnes mobile (au lieu de g3 qui passe à 1 colonne)
     cats.map(function(c,ci){
       var n=(Array.isArray(p.q)?p.q:[]).filter(function(q){return q && q.cat===c;}).length; // MODIFIÉ : garde anti-null
       var ce=c.replace(/'/g,"\\'");
@@ -2412,7 +2421,8 @@ function rQP(){
       var best=prog[c]; // % (ou undefined)
       var tag=(best!=null)?'<span class="q-done">✓ '+best+'%</span>':'<span class="q-new">Nouveau</span>';
       var bar=(best!=null)?'<div class="q-mini"><i style="width:'+best+'%"></i></div>':'';
-      return '<div class="card ch qcard" data-name="'+dn+'" data-fam="'+qFam(c)+'" style="padding:13px;animation-delay:'+(120+ci*45)+'ms;" onclick="startQCat(\''+p.ds+'\',\''+ce+'\',\''+p.t+'\')">'+ // MODIFIÉ : carte cliquable + recherche/filtre
+      var extraCls=(ci>=6)?' q-extra':''; // MODIFIÉ : au-delà des 6 premiers thèmes, replié par défaut
+      return '<div class="card ch qcard'+extraCls+'" data-name="'+dn+'" data-fam="'+qFam(c)+'" style="animation-delay:'+(120+ci*45)+'ms;" onclick="startQCat(\''+p.ds+'\',\''+ce+'\',\''+p.t+'\')">'+ // MODIFIÉ : carte cliquable + recherche/filtre
       '<div style="display:flex;align-items:center;gap:11px;">'+
       '<div class="q-ic">'+qIcon(c)+'</div>'+
       '<div style="min-width:0;flex:1;"><div style="display:flex;align-items:center;gap:6px;justify-content:space-between;">'+
@@ -2420,7 +2430,9 @@ function rQP(){
       '<div style="font-size:11px;color:var(--sub);margin-top:2px;">'+n+' questions</div></div>'+
       '<span style="color:var(--cyan);font-size:20px;flex-shrink:0;line-height:1;">&#8594;</span></div>'+
       bar+'</div>';
-    }).join('')+'</div></div>';
+    }).join('')+'</div>'+
+    (cats.length>6?'<button class="q-more" onclick="qToggleMore(this)">Voir les '+(cats.length-6)+' thèmes restants ▾</button>':'')+ // MODIFIÉ : bouton repli/dépli
+    '</div>';
   }).join('')+
   '<div id="qEmpty" class="q-empty" style="display:none;">Aucun thème ne correspond à ta recherche. <button onclick="qReset()">Tout réafficher</button></div>'+ // MODIFIÉ : état vide
   '<p style="font-size:11px;color:var(--sub);text-align:center;opacity:.85;">🎓 '+grand+' questions sourcées d\'après les textes officiels BCEAO, BEAC et COBAC, complétées par 7 parcours métiers.</p>'+
@@ -2450,11 +2462,19 @@ function qSetFam(k){
   qApplyFilter();
 }
 function qReset(){ QFILTER.q=''; QFILTER.fam='all'; render(); }
+function qToggleMore(btn){ // MODIFIÉ : déplie/replie les thèmes au-delà des 6 premiers d'un pack
+  var pk=btn.closest('.q-packcard'); if(!pk) return;
+  var open=pk.classList.toggle('q-expanded');
+  var extraCount=pk.querySelectorAll('.q-extra').length;
+  btn.textContent=open?'Voir moins ▴':('Voir les '+extraCount+' thèmes restants ▾');
+}
 function qApplyFilter(){ // montre/cache les thèmes selon recherche + famille, sans re-render
   var qv=(QFILTER.q||'').trim().toLowerCase(), fam=QFILTER.fam||'all';
+  var searching=!!(qv||fam!=='all'); // MODIFIÉ : force l'affichage des thèmes repliés pendant une recherche/filtre
   var packs=document.querySelectorAll('.q-packcard'), totalShown=0;
   for(var p=0;p<packs.length;p++){
     var pk=packs[p], cards=pk.querySelectorAll('.qcard'), shown=0;
+    pk.classList.toggle('q-searching', searching); // MODIFIÉ
     for(var i=0;i<cards.length;i++){
       var card=cards[i], name=card.getAttribute('data-name')||'', cf=card.getAttribute('data-fam')||'';
       var okFam=(fam==='all'||cf===fam), okQ=(!qv||name.indexOf(qv)>=0);
