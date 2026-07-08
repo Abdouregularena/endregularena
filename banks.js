@@ -1901,5 +1901,4 @@ const CF = {"pack_id":"conformite-lbcft","titre":"Pack Conformité & LBC/FT/FP",
 {"id":"cfmn10","concept":"Ordre des 8 modules de formation LBC/FT/FP","moyen":"« CADRE-DÉTECTE-DÉCLARE-VIGILE-INHABITUEL-ARCHIVE-COOPÈRE-STRATÉGIE ».","explication":"Chaque mot-clé correspond à un des 8 modules obligatoires du programme de formation annuel.","exemple":"Une session de formation couvre dans l'ordre : le cadre juridique, puis la détection des indices, jusqu'à la stratégie LBC/FT/FP de l'institution.","source":"Instruction 001-03-2025 — Art.9"}
 ]};
 
-module.exports = { QR, QB, QC, QN, QR_PLUS, QN_SWIFT, BCB_Q, BP_Q, KC_Q, CF_Q, SW_Q, LOT_FINAL_UEMOA, LOT_FINAL_CEMAC, LOT_LBCFT_RFE_UEMOA, AE_DATA, AE_DATA_CEMAC, BR, BB, SW, BCB, BP, KC, CF }; // MODIFIÉ
-module.exports = { QR, QB, QC, QN, QR_PLUS, QN_SWIFT, BCB_Q, BP_Q, KC_Q, CF_Q, SW_Q, LOT_FINAL_UEMOA, LOT_FINAL_CEMAC, AE_DATA, AE_DATA_CEMAC, BR, BB, SW, BCB, BP, KC, CF }; // MODIFIÉ Phase 3
+module.exports = { QR, QB, QC, QN, QR_PLUS, QN_SWIFT, BCB_Q, BP_Q, KC_Q, CF_Q, SW_Q, LOT_FINAL_UEMOA, LOT_FINAL_CEMAC, LOT_LBCFT_RFE_UEMOA, AE_DATA, AE_DATA_CEMAC, BR, BB, SW, BCB, BP, KC, CF }; // MODIFIÉ Phase 3 — doublon supprimé, LOT_LBCFT_RFE_UEMOA ajouté

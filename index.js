@@ -1041,6 +1041,7 @@ app.get('/packs/bootstrap', requireAuth, limiterLoose, (req, res) => {
     QR_PLUS: d.QR_PLUS || [], QN_SWIFT: d.QN_SWIFT || [], BCB_Q: d.BCB_Q || [],
     BP_Q: d.BP_Q || [], KC_Q: d.KC_Q || [], CF_Q: d.CF_Q || [], SW_Q: d.SW_Q || [],
     LOT_FINAL_UEMOA: d.LOT_FINAL_UEMOA || {}, LOT_FINAL_CEMAC: d.LOT_FINAL_CEMAC || {},
+    LOT_LBCFT_RFE_UEMOA: d.LOT_LBCFT_RFE_UEMOA || {}, // MODIFIÉ — pack LBC/FT (03/2023) + RFE 2024-2026
     AE_DATA: d.AE_DATA || {}, AE_DATA_CEMAC: d.AE_DATA_CEMAC || {},
     BR: d.BR || {}, BB: d.BB || {}, SW: d.SW || {}, BCB: d.BCB || {}, BP: d.BP || {}, KC: d.KC || {}, CF: d.CF || {} // MODIFIÉ Phase 3 — objets Bibliothèque
   });
