@@ -2551,15 +2551,17 @@ app.post('/dm/:userId', requireAuth, (req, res) => {
 /* ================================================================
    ROUTES QUIZ UEMOA OFFICIELS
 ================================================================ */
+// MODIFIÉ : quiz_uemoa.json absent du repo → routes commentées temporairement pour débloquer le déploiement Railway
+/*
 const QUIZ_UEMOA = require('./data/quiz_uemoa.json');
 
-/* GET /api/quiz/uemoa — tous les packs */
+// GET /api/quiz/uemoa — tous les packs
 app.get('/api/quiz/uemoa', (req, res) => {
   return ok(res, { quiz: QUIZ_UEMOA });
 });
 
-/* GET /api/quiz/uemoa/mode/:mode — questions filtrées par mode de jeu
-   Déclaré AVANT /api/quiz/uemoa/:packId pour éviter le conflit de routing */
+// GET /api/quiz/uemoa/mode/:mode — questions filtrées par mode de jeu
+// Déclaré AVANT /api/quiz/uemoa/:packId pour éviter le conflit de routing
 app.get('/api/quiz/uemoa/mode/:mode', (req, res) => {
   const mode = req.params.mode.toLowerCase();
   if (!['solo', 'duel', 'tournoi'].includes(mode)) return err(res, 400, 'Mode invalide — valeurs : solo, duel, tournoi');
@@ -2572,12 +2574,13 @@ app.get('/api/quiz/uemoa/mode/:mode', (req, res) => {
   return ok(res, { mode, questions, total: questions.length });
 });
 
-/* GET /api/quiz/uemoa/:packId — un pack spécifique (P1 à P5) */
+// GET /api/quiz/uemoa/:packId — un pack spécifique (P1 à P5)
 app.get('/api/quiz/uemoa/:packId', (req, res) => {
   const pack = QUIZ_UEMOA.packs.find(p => p.id === req.params.packId.toUpperCase());
   if (!pack) return err(res, 404, 'Pack introuvable — valeurs : P1, P2, P3, P4, P5');
   return ok(res, { pack });
 });
+*/
 
 /* GET /revision/uemoa — page de révision officielle BCEAO */
 app.get('/revision/uemoa', (req, res) => {
