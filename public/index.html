@@ -392,6 +392,14 @@ h2,h3{animation:raReveal .45s ease both;}
 .q-packcard:not(.q-expanded):not(.q-searching) .q-extra{display:none!important;}
 .q-more{width:100%;margin-top:10px;padding:11px;border-radius:10px;border:1px dashed var(--border);background:rgba(17,34,64,.4);color:var(--cyan);font-size:12.5px;font-weight:700;cursor:pointer;font-family:"Space Grotesk",sans-serif;min-height:42px;touch-action:manipulation;}
 .q-more:hover{border-color:rgba(232,181,32,.5);}
+/* MODIFIÉ : tableau de bord — compression verticale mobile */
+.dash-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.dash-act{cursor:pointer;border-radius:12px;padding:12px;text-align:center;transition:transform .15s;}
+.dash-act:active{transform:scale(.97);}
+.dash-act .dai{font-size:22px;line-height:1;}
+.dash-act .dat{font-weight:800;color:white;font-size:12.5px;margin:6px 0 2px;}
+.dash-act .das{font-size:10.5px;color:var(--sub);line-height:1.25;}
+@media(min-width:521px){.dash-actions{grid-template-columns:repeat(3,1fr);}}
 /* FIN écran Quiz & Formation */
 /* ════════ MODIFIÉ — BARRE DE NAVIGATION BASSE (mobile) ════════ */
 .ra-bnav{display:none;}
@@ -2269,19 +2277,13 @@ function rDB(){
   '<div class="card" style="padding:16px;">'+
   '<div style="font-weight:800;color:white;font-size:15px;margin-bottom:2px;">Que voulez-vous faire ?</div>'+
   '<div style="font-size:11px;color:var(--sub);margin-bottom:14px;">Choisissez votre point de départ.</div>'+<!-- MODIFIÉ : vouvoiement -->
-  '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;">'+
-  '<div class="ch" onclick="ST(\'quiz\')" style="cursor:pointer;background:linear-gradient(135deg,rgba(201,153,26,.20),rgba(201,153,26,.04));border:1px solid rgba(201,153,26,.55);border-radius:14px;padding:18px;text-align:center;">'+
-  '<div style="font-size:30px;line-height:1;">▶️</div>'+
-  '<div style="font-weight:800;color:white;font-size:14px;margin:9px 0 3px;">Jouer en solo</div>'+
-  '<div style="font-size:11px;color:var(--sub);">Choisis un pack, progresse</div></div>'+
-  '<div class="ch" onclick="ST(\'metiers\')" style="cursor:pointer;background:rgba(255,255,255,.04);border:1px solid rgba(201,153,26,.35);border-radius:14px;padding:18px;text-align:center;">'+  // MODIFIÉ : CFG_METIERS inexistant → page metiers (rMETIERS)
-  '<div style="font-size:30px;line-height:1;">🧭</div>'+
-  '<div style="font-weight:800;color:white;font-size:14px;margin:9px 0 3px;">Par métier</div>'+
-  '<div style="font-size:11px;color:var(--sub);">Conformité, Trade, Risques, CEMAC</div></div>'+
-  '<div class="ch" onclick="ST(\'arena\')" style="cursor:pointer;background:linear-gradient(135deg,rgba(96,165,250,.16),rgba(96,165,250,.03));border:1px solid rgba(96,165,250,.45);border-radius:14px;padding:18px;text-align:center;">'+
-  '<div style="font-size:30px;line-height:1;">⚔️</div>'+
-  '<div style="font-weight:800;color:white;font-size:14px;margin:9px 0 3px;">Défier un collègue</div>'+
-  '<div style="font-size:11px;color:var(--sub);">Duel en temps réel</div></div>'+
+  '<div class="dash-actions">'+ // MODIFIÉ : grille compacte 2-3 colonnes (au lieu de 3 cartes empilées pleine largeur)
+  '<div class="ch dash-act" onclick="ST(\'quiz\')" style="background:linear-gradient(135deg,rgba(201,153,26,.20),rgba(201,153,26,.04));border:1px solid rgba(201,153,26,.55);">'+
+  '<div class="dai">▶️</div><div class="dat">Jouer en solo</div><div class="das">Choisis un pack, progresse</div></div>'+
+  '<div class="ch dash-act" onclick="ST(\'metiers\')" style="background:rgba(255,255,255,.04);border:1px solid rgba(201,153,26,.35);">'+  // MODIFIÉ : CFG_METIERS inexistant → page metiers (rMETIERS)
+  '<div class="dai">🧭</div><div class="dat">Par métier</div><div class="das">Conformité, Trade, Risques, CEMAC</div></div>'+
+  '<div class="ch dash-act" onclick="ST(\'arena\')" style="background:linear-gradient(135deg,rgba(96,165,250,.16),rgba(96,165,250,.03));border:1px solid rgba(96,165,250,.45);">'+
+  '<div class="dai">⚔️</div><div class="dat">Défier un collègue</div><div class="das">Duel en temps réel</div></div>'+
   '</div></div>'+
   rDefiJourCard()+
   '<div class="g4">'+
@@ -2304,13 +2306,13 @@ function rDB(){
     '<span style="font-size:12px;color:'+(o[1]?'#8aa3d4':'var(--text)')+';text-decoration:'+(o[1]?'line-through':'none')+';">'+o[0]+(act?' <span style="color:var(--cyan);">→</span>':'')+'</span></div>';
   }).join('')+'</div></div>'+
   '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><span style="font-weight:700;color:white;font-size:13px;">Démarrer un quiz</span><button class="btn btn-sm" onclick="ST(\'quiz\')">Voir tous →</button></div>'+
-  '<div class="g2">'+
+  '<div class="q-grid">'+ // MODIFIÉ : réutilise la grille compacte 2 colonnes (au lieu de g2 qui repasse à 1 colonne en mobile)
   [['RFE UEMOA',QR.length,'#C9991A','QR'],['Bâle II/III',QB.length,'#a78bfa','QB']].map(function(p){
-    return '<div class="card ch" style="padding:14px;" onclick="startQ('+p[3]+',\''+p[0]+'\')">'+
-    '<div style="font-weight:700;color:white;font-size:13px;">'+p[0]+'</div>'+
-    '<div style="font-size:11px;color:var(--sub);margin-top:2px;">'+p[1]+' questions</div>'+
-    '<div style="margin-top:8px;"><button class="btn btn-sm" onclick="event.stopPropagation();startQ('+p[3]+',\''+p[0]+'\')">Jouer →</button></div>'+
-    '<div style="margin-top:8px;width:28px;height:3px;border-radius:2px;background:'+p[2]+';"></div></div>';
+    return '<div class="card ch" style="padding:12px;" onclick="startQ('+p[3]+',\''+p[0]+'\')">'+
+    '<div style="font-weight:700;color:white;font-size:12.5px;">'+p[0]+'</div>'+
+    '<div style="font-size:10.5px;color:var(--sub);margin-top:2px;">'+p[1]+' questions</div>'+
+    '<div style="margin-top:7px;"><button class="btn btn-sm" onclick="event.stopPropagation();startQ('+p[3]+',\''+p[0]+'\')">Jouer →</button></div>'+
+    '<div style="margin-top:7px;width:24px;height:3px;border-radius:2px;background:'+p[2]+';"></div></div>';
   }).join('')+'</div></div></div>';
 }
 
