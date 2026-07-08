@@ -4275,6 +4275,10 @@ Tu dois UNIQUEMENT générer un objet JSON valide suivant cette structure, sans 
     });
 
     const claudeData = await claudeRes.json();
+    if (!claudeRes.ok || !claudeData || !Array.isArray(claudeData.content)) {
+      console.error('Erreur audit-flash: réponse API Anthropic invalide ->', JSON.stringify(claudeData));
+      return err(res, 502, 'Réponse IA invalide (clé API manquante ou erreur Anthropic) — voir logs serveur');
+    }
     const rawText = claudeData.content.map(b => b.text || '').join('').trim()
       .replace(/^```json/, '').replace(/```$/, '').trim();
 
