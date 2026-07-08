@@ -17,6 +17,7 @@ const { Resend }   = require('resend');
 const crypto       = require('crypto');
 const path         = require('path');
 const { pickQuestions, getData } = require('./packs'); // MODIFIÉ : getData pour /packs/bootstrap (anti-plagiat)
+const fs            = require('fs'); // MODIFIÉ — audit flash
 // PUSH — module web-push chargé en mode garde : si non installé, le serveur démarre quand même (push simplement désactivées)
 let webpush = null;
 try { webpush = require('web-push'); } catch (_) { console.warn('[PUSH] module "web-push" non installé — npm install web-push pour activer les notifications push.'); }
@@ -4215,6 +4216,84 @@ function publicUser(u) {
   return { id: u.id, name: u.name, email: u.email, profile: u.profile, country: u.country, etablissement: u.etablissement, role: isAdmin(u) ? 'admin' : (u.role || 'user') };
 }
 
+
+// MODIFIÉ - Audit Flash Digital (RFE)
+const multer = require('multer');
+const pdfParse = require('pdf-parse');
+const uploadAudit = multer({ dest: '/tmp/audit-uploads/' });
+const RFE_REFERENCE_TEXT = fs.readFileSync('./data/rfe_reference_2024.txt', 'utf8');
+
+app.post('/audit-flash', requireAuth, uploadAudit.single('procedure'), async (req, res) => {
+  try {
+    if (!req.file) return err(res, 400, 'Fichier procédure manquant');
+
+    const dataBuffer = fs.readFileSync(req.file.path);
+    const pdfData = await pdfParse(dataBuffer);
+    const procedureText = pdfData.text;
+    fs.unlinkSync(req.file.path);
+
+    const orgId = req.body && req.body.org_id ? Number(req.body.org_id) : null;
+
+    const prompt = `Tu es un auditeur expert en réglementation bancaire de la zone UEMOA.
+Ta mission est d'effectuer une analyse d'écarts (Gap Analysis) stricte entre un texte réglementaire de référence et la procédure interne d'un établissement financier.
+
+RÈGLES ABSOLUES :
+1. Tu ne dois JAMAIS inventer d'obligations qui ne figurent pas dans le texte de référence fourni.
+2. Si un point du texte de référence n'est pas abordé dans la procédure interne, tu dois le signaler comme "ABSENT".
+3. Concentre-toi sur les seuils, les délais, les pourcentages et les obligations déclaratives.
+
+Texte de référence (RFE 06/2024) :
+${RFE_REFERENCE_TEXT}
+
+Procédure interne analysée :
+${procedureText}
+
+Format de sortie attendu :
+Tu dois UNIQUEMENT générer un objet JSON valide suivant cette structure, sans aucun texte avant ou après :
+{
+  "score_global": "Pourcentage estimé de couverture",
+  "points_conformes": [{"sujet": "...", "extrait_procedure": "...", "article_reference": "..."}],
+  "ecarts_detectes": [{"sujet": "...", "observation": "...", "niveau_risque": "Moyen/Haut", "article_reference": "..."}],
+  "points_absents": [{"sujet": "...", "obligation_rfe": "...", "article_reference": "..."}]
+}`;
+
+    const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 4000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const claudeData = await claudeRes.json();
+    const rawText = claudeData.content.map(b => b.text || '').join('').trim()
+      .replace(/^```json/, '').replace(/```$/, '').trim();
+
+    let report;
+    try {
+      report = JSON.parse(rawText);
+    } catch (e) {
+      return err(res, 502, 'Réponse IA non parsable, réessayer');
+    }
+
+    db.prepare(`INSERT INTO audit_flash_reports (org_id, user_id, texte_ref, rapport_json, created_at)
+      VALUES (?, ?, ?, ?, ?)`).run(
+      orgId, req.user.id, 'RFE_06_2024', JSON.stringify(report), Date.now()
+    );
+
+    ok(res, { disclaimer: "Ce rapport est un pré-diagnostic automatisé. Il ne constitue pas un audit de conformité certifié et doit être validé par un expert avant toute décision.", report });
+
+  } catch (e) {
+    console.error('Erreur audit-flash:', e);
+    err(res, 500, 'Erreur serveur audit flash');
+  }
+});
 
 /* â”€â”€ START â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 app.listen(PORT, () => {
