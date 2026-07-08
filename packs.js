@@ -96,10 +96,6 @@ function pickQuestions(packId, n = 10) {
 loadPacks();
 
 function getData() {
-   LOT_FINAL_UEMOA: banks.LOT_FINAL_UEMOA || {},
-    LOT_FINAL_CEMAC: banks.LOT_FINAL_CEMAC || {},
-    LOT_LBCFT_RFE_UEMOA: banks.LOT_LBCFT_RFE_UEMOA || {}, // MODIFIÉ — pack LBC/FT (03/2023) + RFE 2024-2026
-    AE_DATA: banks.AE_DATA || {},
   // MODIFIÉ Phase 2 — ajoute les packs additionnels (QR_PLUS, QN_SWIFT, BCB_Q, BP_Q, KC_Q, CF_Q, SW_Q, LOT_FINAL_*)
   return Object.assign({}, DATA, {
     QR_PLUS: banks.QR_PLUS || [],
@@ -111,6 +107,7 @@ function getData() {
     SW_Q: banks.SW_Q || [],
     LOT_FINAL_UEMOA: banks.LOT_FINAL_UEMOA || {},
     LOT_FINAL_CEMAC: banks.LOT_FINAL_CEMAC || {},
+    LOT_LBCFT_RFE_UEMOA: banks.LOT_LBCFT_RFE_UEMOA || {}, // MODIFIÉ — pack LBC/FT (03/2023) + RFE 2024-2026
     AE_DATA: banks.AE_DATA || {},
     AE_DATA_CEMAC: banks.AE_DATA_CEMAC || {},
     BR: banks.BR || {}, // MODIFIÉ Phase 3 — objets Bibliothèque migrés
