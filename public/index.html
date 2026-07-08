@@ -1734,6 +1734,8 @@ var NAV=[
   {id:'metiers',ic:"<svg viewBox='0 0 24 24' width='16' height='16' fill='none' stroke='currentColor' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'><path d='M3 10l9-5 9 5'/><path d='M5 10v8M9 10v8M15 10v8M19 10v8'/><path d='M3 20h18'/></svg>",l:'Parcours Métiers',sec:'PÔLE CARRIÈRE'},
   {id:'dashboard',ic:"<svg viewBox='0 0 24 24' width='16' height='16' fill='none' stroke='currentColor' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'><path d='M4 20V13'/><path d='M10 20V7'/><path d='M16 20v-4'/><path d='M3 20h18'/></svg>",l:'Tableau de Bord',sec:'PÔLE CARRIÈRE'},
   {id:'achievements',ic:"<svg viewBox='0 0 24 24' width='16' height='16' fill='none' stroke='currentColor' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'><path d='M7 4h10v4a5 5 0 0 1-5 5 5 5 0 0 1-5-5V4Z'/><path d='M7 5H4v2a3 3 0 0 0 3 3'/><path d='M17 5h3v2a3 3 0 0 1-3 3'/><path d='M12 13v3'/><path d='M9 20h6'/><path d='M10 17h4v3h-4z'/></svg>",l:'Réalisations',sec:'PÔLE CARRIÈRE'},
+  /* MODIFIÉ : Audit Flash Digital — nouvelle section OUTILS PRO */
+  {id:'auditflash',ic:"<svg viewBox='0 0 24 24' width='16' height='16' fill='none' stroke='currentColor' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'><path d='M9 12l2 2 4-4'/><circle cx='12' cy='12' r='9'/></svg>",l:'Audit Flash',sec:'OUTILS PRO'},
   /* COMPTE */
   {id:'feedback',ic:"<svg viewBox='0 0 24 24' width='16' height='16' fill='none' stroke='currentColor' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'><path d='M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v7A2.5 2.5 0 0 1 17.5 15H10l-4.5 4v-4H6.5A2.5 2.5 0 0 1 4 12.5v-7Z'/></svg>",l:'Avis & Suggestions',sec:'COMPTE'},
   {id:'about',ic:"<svg viewBox='0 0 24 24' width='16' height='16' fill='none' stroke='currentColor' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><path d='M12 8h.01'/><path d='M11 12h1v5h1'/></svg>",l:'À propos',sec:'COMPTE'},
@@ -2248,13 +2250,115 @@ function arSetJoinAgence(orgId){
    .catch(function(){});
 }
 
+/* ════════════════════════════════════════════════
+   AUDIT FLASH DIGITAL — pré-diagnostic conformité RFE
+   MODIFIÉ : nouveau module (upload PDF → analyse IA → rapport d'écarts)
+════════════════════════════════════════════════ */
+var AUDITF = { file:null, loading:false, report:null, disclaimer:'', error:'' };
+
+function rAUDITFLASH(){
+  if(AUDITF.loading) return rAUDITFLASH_loading();
+  if(AUDITF.report)  return rAUDITFLASH_report();
+  return '<div style="max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:16px;">'+
+    '<div class="card" style="background:linear-gradient(to right,rgba(10,33,62,.7),rgba(30,58,138,.25));">'+
+      '<h2 style="font-size:21px;color:white;margin-bottom:4px;">🔍 Audit Flash Digital</h2>'+
+      '<p style="color:var(--sub);font-size:13px;">Déposez votre procédure interne (PDF). L\'IA la compare au texte réglementaire RFE 06/2024/CM/UEMOA et détecte les écarts de conformité en quelques secondes.</p>'+
+    '</div>'+
+    '<div class="card" style="display:flex;flex-direction:column;gap:14px;">'+
+      '<div>'+
+        '<label style="display:block;font-size:12px;font-weight:700;color:var(--sub);margin-bottom:8px;">Procédure interne (PDF)</label>'+
+        '<input type="file" id="af-file" accept="application/pdf" onchange="afOnFile(this)" style="display:none;">'+
+        '<button class="btn-out" style="width:100%;padding:13px;" onclick="ge(\'af-file\').click()">'+
+          '<span id="af-file-label">📎 Choisir un fichier PDF</span>'+
+        '</button>'+
+      '</div>'+
+      (AUDITF.error?'<div style="color:#f87171;font-size:12px;font-weight:600;">⚠️ '+afEsc(AUDITF.error)+'</div>':'')+
+      '<button class="btn" style="width:100%;padding:13px;background:linear-gradient(135deg,var(--cyan),#D4AF37);color:#0A192F;font-weight:800;" onclick="afLaunch()" '+(AUDITF.file?'':'disabled')+'>🚀 Lancer l\'audit</button>'+
+      '<div style="font-size:11px;color:var(--sub);text-align:center;">Ce pré-diagnostic automatisé ne remplace pas un audit de conformité certifié.</div>'+
+    '</div>'+
+  '</div>';
+}
+
+function rAUDITFLASH_loading(){
+  return '<div style="max-width:640px;margin:0 auto;">'+
+    '<div class="card" style="text-align:center;padding:40px 20px;">'+
+      '<div class="spin" style="font-size:32px;">⏳</div>'+
+      '<div style="color:white;font-weight:700;margin-top:14px;">Analyse en cours…</div>'+
+      '<div style="color:var(--sub);font-size:12px;margin-top:6px;">Comparaison avec le texte réglementaire RFE 06/2024</div>'+
+    '</div>'+
+  '</div>';
+}
+
+function rAUDITFLASH_report(){
+  var r=AUDITF.report;
+  var sec=function(title,items,color,render){
+    if(!items||!items.length) return '';
+    return '<div class="card" style="border-color:'+color+';">'+
+      '<div style="font-weight:800;color:white;font-size:14px;margin-bottom:10px;">'+title+' ('+items.length+')</div>'+
+      items.map(render).join('')+
+    '</div>';
+  };
+  return '<div style="max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:14px;">'+
+    '<div class="card" style="background:linear-gradient(135deg,rgba(201,153,26,.20),rgba(201,153,26,.04));border-color:rgba(201,153,26,.55);text-align:center;">'+
+      '<div style="font-size:11px;color:var(--sub);font-weight:700;letter-spacing:1px;">SCORE DE COUVERTURE ESTIMÉ</div>'+
+      '<div style="font-size:32px;font-weight:800;color:var(--cyan);margin-top:4px;">'+afEsc(String(r.score_global||'—'))+'</div>'+
+    '</div>'+
+    sec('✅ Points conformes', r.points_conformes, 'rgba(34,197,94,.4)', function(p){
+      return '<div style="padding:8px 0;border-top:1px solid var(--border);"><div style="font-weight:700;color:white;font-size:13px;">'+afEsc(p.sujet)+'</div>'+
+        (p.extrait_procedure?'<div style="color:var(--sub);font-size:12px;margin-top:2px;">'+afEsc(p.extrait_procedure)+'</div>':'')+
+        (p.article_reference?'<div style="color:var(--cyan);font-size:11px;margin-top:3px;">Réf. '+afEsc(p.article_reference)+'</div>':'')+'</div>';
+    })+
+    sec('⚠️ Écarts détectés', r.ecarts_detectes, 'rgba(239,68,68,.4)', function(p){
+      return '<div style="padding:8px 0;border-top:1px solid var(--border);"><div style="font-weight:700;color:white;font-size:13px;">'+afEsc(p.sujet)+' '+(p.niveau_risque?'<span class="badge" style="background:rgba(239,68,68,.15);color:#f87171;border-color:rgba(239,68,68,.4);">'+afEsc(p.niveau_risque)+'</span>':'')+'</div>'+
+        (p.observation?'<div style="color:var(--sub);font-size:12px;margin-top:2px;">'+afEsc(p.observation)+'</div>':'')+
+        (p.article_reference?'<div style="color:var(--cyan);font-size:11px;margin-top:3px;">Réf. '+afEsc(p.article_reference)+'</div>':'')+'</div>';
+    })+
+    sec('🚫 Points absents', r.points_absents, 'rgba(239,68,68,.6)', function(p){
+      return '<div style="padding:8px 0;border-top:1px solid var(--border);"><div style="font-weight:700;color:white;font-size:13px;">'+afEsc(p.sujet)+'</div>'+
+        (p.obligation_rfe?'<div style="color:var(--sub);font-size:12px;margin-top:2px;">'+afEsc(p.obligation_rfe)+'</div>':'')+
+        (p.article_reference?'<div style="color:var(--cyan);font-size:11px;margin-top:3px;">Réf. '+afEsc(p.article_reference)+'</div>':'')+'</div>';
+    })+
+    '<div class="card" style="font-size:11px;color:var(--sub);">'+afEsc(AUDITF.disclaimer)+'</div>'+
+    '<button class="btn-out" style="width:100%;padding:12px;" onclick="afReset()">↺ Nouvel audit</button>'+
+  '</div>';
+}
+
+function afEsc(s){ s=String(s==null?'':s); return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function afOnFile(inp){
+  AUDITF.file=(inp.files&&inp.files[0])?inp.files[0]:null;
+  AUDITF.error='';
+  var lbl=ge('af-file-label'); if(lbl) lbl.textContent = AUDITF.file ? ('📄 '+AUDITF.file.name) : '📎 Choisir un fichier PDF';
+  var btns=document.querySelectorAll('#ct .btn'); // MODIFIÉ : réactive le bouton Lancer sans re-render complet
+  render();
+}
+
+function afLaunch(){
+  if(!AUDITF.file) return;
+  AUDITF.loading=true; AUDITF.error=''; render();
+  var fd=new FormData();
+  fd.append('procedure', AUDITF.file);
+  if(typeof ORG!=='undefined' && ORG && ORG.id) fd.append('org_id', ORG.id);
+  fetch('/audit-flash', { method:'POST', headers:{'Authorization':'Bearer '+U.token}, body:fd })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      AUDITF.loading=false;
+      if(d && d.success!==false && d.report){ AUDITF.report=d.report; AUDITF.disclaimer=d.disclaimer||''; }
+      else { AUDITF.error=(d&&d.error)||'Erreur lors de l\'analyse. Réessayez.'; }
+      render();
+    })
+    .catch(function(){ AUDITF.loading=false; AUDITF.error='Erreur réseau. Réessayez.'; render(); });
+}
+
+function afReset(){ AUDITF={ file:null, loading:false, report:null, disclaimer:'', error:'' }; render(); }
+
 function render(){
   var c=ge('ct'); c.className='fi'; void c.offsetWidth;
   if(QZ.q.length>0){ rQE(); return; }
   if(BF!==null&&BA){ c.innerHTML=rFD(); return; }
   if(BA){ c.innerHTML=rBD(); return; }
   if(TAB==='autoeval'&&AEF){ c.innerHTML=rAEF(); if(AEF==='vrai_faux_chrono'){ try{ aeVfcAfterRender(); }catch(e){} } if(AEF==='puzzle_juridique'){ try{ aePzAfterRender(); }catch(e){} } return; } // MODIFIÉ : affiche le format d'auto-éval sélectionné + démarre le(s) chrono(s)
-  var pages={dashboard:rDB,quiz:rQP,biblio:rBP,arena:rAR,achievements:rACH,leaderboard:rLB,academy:rAC,settings:rST,autoeval:rAE,admin:rADMIN,about:rABOUT,communaute:rSALON,feedback:rFEEDBACK,debats:rDEBATS,debatsadm:rDEBATSADM,metiers:rMETIERS,org:rOrgCreate,orgdash:rOrgDashboard,orgjoin:rOrgJoin}; // MODIFIÉ : ajout métiers + feedback + espace établissement (org/orgdash/orgjoin)
+  var pages={dashboard:rDB,quiz:rQP,biblio:rBP,arena:rAR,achievements:rACH,leaderboard:rLB,academy:rAC,settings:rST,autoeval:rAE,admin:rADMIN,about:rABOUT,communaute:rSALON,feedback:rFEEDBACK,debats:rDEBATS,debatsadm:rDEBATSADM,metiers:rMETIERS,org:rOrgCreate,orgdash:rOrgDashboard,orgjoin:rOrgJoin,auditflash:rAUDITFLASH}; // MODIFIÉ : ajout Audit Flash Digital
   try{ c.innerHTML=(pages[TAB]||rDB)(); } // MODIFIÉ Phase 2 : capture les erreurs de rendu (évite l'écran figé + affiche la cause)
   catch(_err){ try{console.error('[render '+TAB+']',_err);}catch(e){} c.innerHTML='<div class="card" style="max-width:640px;margin:24px auto;padding:18px;border:1px solid rgba(239,68,68,.5);"><div style="font-weight:800;color:#f87171;margin-bottom:6px;">⚠️ Erreur d\'affichage ('+TAB+')</div><div style="font-size:12px;color:var(--sub);white-space:pre-wrap;word-break:break-word;">'+String((_err&&_err.message)||_err)+'</div></div>'; }
   if(TAB==='quiz'){ try{ raQuizFx(); }catch(e){} try{ qApplyFilter(); }catch(e){} } // MODIFIÉ : compteur animé + recherche/filtres réappliqués
