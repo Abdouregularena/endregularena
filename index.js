@@ -4237,6 +4237,7 @@ app.post('/audit-flash', requireAuth, function(req, res, next){ // MODIFIÉ : wr
     if (!req.file) return err(res, 400, 'Fichier procédure manquant');
 
     const dataBuffer = fs.readFileSync(req.file.path);
+    console.error('Audit-flash DEBUG fichier: size=' + req.file.size + ' mimetype=' + req.file.mimetype + ' originalname=' + req.file.originalname + ' bufferLen=' + dataBuffer.length + ' first8bytes=' + dataBuffer.slice(0,8).toString('utf8').replace(/[^\x20-\x7E]/g,'?')); // MODIFIÉ : diagnostic "Invalid PDF structure"
     const pdfData = await pdfParse(dataBuffer);
     const procedureText = pdfData.text;
     fs.unlinkSync(req.file.path);
