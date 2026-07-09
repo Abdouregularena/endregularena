@@ -576,6 +576,53 @@ h2,h3{animation:raReveal .45s ease both;}
   #mbox{animation:none!important;}
 }
 </style>
+<style id="ra-arena-fire">
+/* ══════════════════════════════════════════════════════════════
+   REGUL ARENA — FEU VIRTUEL ÉCRAN ARÈNE (calque additif, zéro régression)
+   Nouvelles classes uniquement : ar-hero-fire / ar-ember / ar-pack-premium-glow
+   N'altère aucune classe existante (.ar-tile, .ar-pack, etc. intactes).
+   ══════════════════════════════════════════════════════════════ */
+.ar-hero-fire{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:22px 10px 16px;margin-bottom:2px;border-radius:16px;overflow:hidden;isolation:isolate;
+  background:radial-gradient(ellipse at 50% 120%,rgba(232,181,32,.16),rgba(10,25,47,0) 70%);}
+.ar-hero-fire::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(circle at 50% 100%,rgba(245,196,83,.20) 0%,rgba(245,196,83,0) 62%);
+  animation:arFireBreathe 3.4s ease-in-out infinite;}
+@keyframes arFireBreathe{0%,100%{opacity:.65;transform:scale(1)}50%{opacity:1;transform:scale(1.06)}}
+.ar-hero-ring{position:relative;z-index:1;width:112px;height:112px;display:flex;align-items:center;justify-content:center;
+  margin-bottom:6px;}
+.ar-hero-ring-ic{font-size:40px;filter:drop-shadow(0 0 10px rgba(245,196,83,.55));position:relative;z-index:2;}
+.ar-ember{position:absolute;left:50%;bottom:6px;width:5px;height:5px;border-radius:50%;z-index:1;
+  background:radial-gradient(circle,#FFE8A3 0%,#E8B520 55%,rgba(232,181,32,0) 75%);
+  box-shadow:0 0 6px 1px rgba(245,196,83,.6);
+  animation:arEmberRise 2.6s ease-in infinite;}
+.ar-ember:nth-child(1){animation-delay:0s;   transform:translateX(-46px);}
+.ar-ember:nth-child(2){animation-delay:.35s; transform:translateX(-24px);}
+.ar-ember:nth-child(3){animation-delay:.7s;  transform:translateX(0px);   width:4px;height:4px;}
+.ar-ember:nth-child(4){animation-delay:1.05s;transform:translateX(22px);}
+.ar-ember:nth-child(5){animation-delay:1.4s; transform:translateX(44px);}
+.ar-ember:nth-child(6){animation-delay:1.9s; transform:translateX(-10px);width:3px;height:3px;}
+@keyframes arEmberRise{
+  0%{opacity:0;transform:translate(var(--tx,0),0) scale(.6);}
+  12%{opacity:1;}
+  75%{opacity:.55;}
+  100%{opacity:0;transform:translate(calc(var(--tx,0) + 8px),-92px) scale(1.15);}
+}
+.ar-hero-title{position:relative;z-index:2;font-size:21px;font-weight:900;color:#fff;letter-spacing:.2px;margin:0;}
+.ar-hero-sub{position:relative;z-index:2;font-size:12px;color:var(--sub);margin-top:2px;}
+/* Halo pulsé sur l'en-tête du pack Premium, purement additif via classe séparée */
+.ar-pack-premium-glow{position:relative;}
+.ar-pack-premium-glow::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  box-shadow:0 0 0 0 rgba(232,181,32,.55);animation:arPremiumPulse 2.8s ease-out infinite;}
+@keyframes arPremiumPulse{
+  0%{box-shadow:0 0 0 0 rgba(232,181,32,.45);}
+  70%{box-shadow:0 0 0 7px rgba(232,181,32,0);}
+  100%{box-shadow:0 0 0 0 rgba(232,181,32,0);}
+}
+@media(prefers-reduced-motion:reduce){
+  .ar-hero-fire::before,.ar-ember,.ar-pack-premium-glow::after{animation:none!important;}
+}
+</style>
 <style id="ra-anim2">/* ====== MODIFIÉ : couche d'animation renforcée (additive, GPU-friendly) ====== */
 @keyframes raUp2{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:none}}
 @keyframes raPour{0%{background-position:-220% 0}100%{background-position:220% 0}}
@@ -3027,13 +3074,22 @@ function rAR(){
       '<div class="ar-pack-grid">'+freeTiles+'</div>'+
     '</div>'+
     '<div class="ar-pack">'+
-      '<div class="ar-pack-hd ar-pack-premium">PACK PREMIUM <span class="ar-diamond">💎</span></div>'+
+      '<div class="ar-pack-hd ar-pack-premium ar-pack-premium-glow">PACK PREMIUM <span class="ar-diamond">💎</span></div>'+ // MODIFIÉ : ajout classe glow additive
       '<div class="ar-pack-grid">'+premiumTiles+'</div>'+
     '</div>'+
   '</div>';
+  // MODIFIÉ : bloc feu virtuel additif (remplace le simple h2, purement visuel, aucune logique touchée)
+  var arHero = '<div class="ar-hero-fire">'+
+      '<div class="ar-hero-ring">'+
+        '<span class="ar-ember"></span><span class="ar-ember"></span><span class="ar-ember"></span>'+
+        '<span class="ar-ember"></span><span class="ar-ember"></span><span class="ar-ember"></span>'+
+        '<span class="ar-hero-ring-ic">⚔️</span>'+
+      '</div>'+
+      '<h2 class="ar-hero-title">L\'Arène</h2>'+
+      '<div class="ar-hero-sub">Choisissez votre mode</div>'+
+    '</div>';
   return '<div style="display:flex;flex-direction:column;gap:14px;">'+
-    '<h2 style="font-size:20px;color:white;margin-bottom:2px;">L\'Arène</h2>'+
-    '<div style="font-size:12px;color:var(--sub);margin-bottom:4px;">Choisissez votre mode</div>'+
+    arHero +
     tabs +
     (AR.tab==='duels' ? rARDuelsHome() : AR.tab==='kotm' ? rARKotmHome() : AR.tab==='direct' ? rLiveHub() : AR.tab==='crossword' ? rARCrosswordHome() : AR.tab==='wordsearch' ? rARWordsearchHome() : AR.tab==='charade' ? rARCharadeHome() : AR.tab==='chiffreslettres' ? rARCLHome() : AR.tab==='vraifaux' ? rARVraiFauxHome() : AR.tab==='qcmeclair' ? rARQEHome() : AR.tab==='matchdef' ? rARMDHome() : AR.tab==='classement' ? rARCHHome() : rARTournoisHome()) + // MODIFIÉ : + trio rapide (qcmeclair/matchdef/classement)
   '</div>';
