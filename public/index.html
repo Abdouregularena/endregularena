@@ -2256,7 +2256,9 @@ function arSetJoinAgence(orgId){
 ════════════════════════════════════════════════ */
 var AUDITF = { file:null, loading:false, report:null, disclaimer:'', error:'' };
 
+var AUDITF_LOCKED = true; // MODIFIÉ : verrou paywall — passer à false quand prêt à ouvrir (protège les crédits API en attendant)
 function rAUDITFLASH(){
+  if(AUDITF_LOCKED) return rAUDITFLASH_locked();
   if(AUDITF.loading) return rAUDITFLASH_loading();
   if(AUDITF.report)  return rAUDITFLASH_report();
   return '<div style="max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:16px;">'+
@@ -2275,6 +2277,18 @@ function rAUDITFLASH(){
       (AUDITF.error?'<div style="color:#f87171;font-size:12px;font-weight:600;">⚠️ '+afEsc(AUDITF.error)+'</div>':'')+
       '<button class="btn" style="width:100%;padding:13px;background:linear-gradient(135deg,var(--cyan),#D4AF37);color:#0A192F;font-weight:800;" onclick="afLaunch()" '+(AUDITF.file?'':'disabled')+'>🚀 Lancer l\'audit</button>'+
       '<div style="font-size:11px;color:var(--sub);text-align:center;">Ce pré-diagnostic automatisé ne remplace pas un audit de conformité certifié.</div>'+
+    '</div>'+
+  '</div>';
+}
+
+function rAUDITFLASH_locked(){
+  return '<div style="max-width:560px;margin:0 auto;">'+
+    '<div class="card" style="text-align:center;padding:36px 24px;background:linear-gradient(135deg,rgba(201,153,26,.16),rgba(201,153,26,.03));border-color:rgba(201,153,26,.5);">'+
+      '<div style="font-size:38px;">🔒</div>'+
+      '<h2 style="color:white;font-size:20px;margin:12px 0 6px;">Audit Flash Digital</h2>'+
+      '<div class="badge" style="margin-bottom:14px;">MODULE PREMIUM</div>'+
+      '<p style="color:var(--sub);font-size:13px;line-height:1.6;">Le pré-diagnostic automatisé de conformité RFE est en cours de finalisation. Il sera bientôt disponible en accès payant.</p>'+
+      '<button class="btn" style="margin-top:16px;padding:12px 20px;background:linear-gradient(135deg,#25D366,#128C7E);color:white;font-weight:800;" onclick="window.open(\'https://wa.me/221775156158?text=Bonjour,%20je%20suis%20intéressé%20par%20Audit%20Flash%20Digital\',\'_blank\')">💬 Être informé sur WhatsApp</button>'+
     '</div>'+
   '</div>';
 }
