@@ -4229,7 +4229,7 @@ const RFE_REFERENCE_TEXT = fs.readFileSync('./data/rfe_reference_2024.txt', 'utf
 
 app.post('/audit-flash', requireAuth, function(req, res, next){ // MODIFIÉ : wrapper pour capter les erreurs multer et répondre en JSON
   uploadAudit.single('procedure')(req, res, function(uploadErr){
-    if (uploadErr) { console.error('Erreur audit-flash (upload):', uploadErr); return err(res, 400, 'Erreur upload fichier: ' + uploadErr.message); }
+    if (uploadErr) { console.error('Erreur audit-flash (upload): ' + (uploadErr && uploadErr.message ? uploadErr.message : String(uploadErr))); return err(res, 400, 'Erreur upload fichier: ' + uploadErr.message); }
     next();
   });
 }, async (req, res) => {
@@ -4303,8 +4303,8 @@ Tu dois UNIQUEMENT générer un objet JSON valide suivant cette structure, sans 
     ok(res, { disclaimer: "Ce rapport est un pré-diagnostic automatisé. Il ne constitue pas un audit de conformité certifié et doit être validé par un expert avant toute décision.", report });
 
   } catch (e) {
-    console.error('Erreur audit-flash:', e);
-    err(res, 500, 'Erreur serveur audit flash');
+    console.error('Erreur audit-flash: ' + (e && e.message ? e.message : String(e)) + ' | stack: ' + (e && e.stack ? e.stack : 'n/a'));
+    return err(res, 500, 'Erreur serveur audit flash: ' + (e && e.message ? e.message : String(e)));
   }
 });
 
