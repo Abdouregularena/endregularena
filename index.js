@@ -4238,6 +4238,10 @@ app.post('/audit-flash', requireAuth, function(req, res, next){ // MODIFIÉ : wr
 
     const dataBuffer = fs.readFileSync(req.file.path);
     console.error('Audit-flash DEBUG fichier: size=' + req.file.size + ' mimetype=' + req.file.mimetype + ' originalname=' + req.file.originalname + ' bufferLen=' + dataBuffer.length + ' first8bytes=' + dataBuffer.slice(0,8).toString('utf8').replace(/[^\x20-\x7E]/g,'?')); // MODIFIÉ : diagnostic "Invalid PDF structure"
+    if (dataBuffer.slice(0,5).toString('latin1') !== '%PDF-') { // MODIFIÉ : détecte les faux PDF (ex: .docx renommé en .pdf, signature ZIP "PK")
+      fs.unlinkSync(req.file.path);
+      return err(res, 400, "Le fichier envoyé n'est pas un PDF valide (il a peut-être été renommé depuis un autre format). Réexportez-le en PDF réel (Enregistrer sous / Imprimer → PDF) puis réessayez.");
+    }
     const pdfData = await pdfParse(dataBuffer);
     const procedureText = pdfData.text;
     fs.unlinkSync(req.file.path);
