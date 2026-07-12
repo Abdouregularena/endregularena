@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1200" width="900" height="1200">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#001A3D"/>
+      <stop offset="55%" stop-color="#002B5C"/>
+      <stop offset="100%" stop-color="#001428"/>
+    </linearGradient>
+    <linearGradient id="sword" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F5F3EE"/>
+      <stop offset="55%" stop-color="#C9991A"/>
+      <stop offset="100%" stop-color="#8a6b12"/>
+    </linearGradient>
+    <linearGradient id="swordDark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#C9991A"/>
+      <stop offset="100%" stop-color="#5c4509"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="30%" r="55%">
+      <stop offset="0%" stop-color="#C9991A" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#C9991A" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="flame" cx="50%" cy="70%" r="60%">
+      <stop offset="0%" stop-color="#FFE9B0"/>
+      <stop offset="45%" stop-color="#C9991A"/>
+      <stop offset="100%" stop-color="#7a3d0a"/>
+    </radialGradient>
+  </defs>
+
+  <!-- fond -->
+  <rect x="0" y="0" width="900" height="1200" fill="url(#bg)"/>
+
+  <!-- arche de pierre stylisée en fond -->
+  <g opacity="0.18" stroke="#F5F3EE" stroke-width="3" fill="none">
+    <circle cx="450" cy="230" r="150"/>
+    <line x1="300" y1="230" x2="600" y2="230"/>
+    <line x1="450" y1="80" x2="450" y2="380"/>
+    <line x1="345" y1="125" x2="555" y2="335"/>
+    <line x1="555" y1="125" x2="345" y2="335"/>
+  </g>
+
+  <ellipse cx="450" cy="620" rx="380" ry="260" fill="url(#glow)"/>
+
+  <!-- torches -->
+  <g id="torche-gauche">
+    <rect x="95" y="620" width="14" height="240" rx="6" fill="#3a2a12"/>
+    <rect x="80" y="590" width="44" height="46" rx="10" fill="#2a1d0c"/>
+    <path d="M102 470 C70 520 80 560 102 590 C124 560 134 520 102 470 Z" fill="url(#flame)"/>
+    <path d="M102 500 C88 530 92 555 102 572 C112 555 116 530 102 500 Z" fill="#FFE9B0" opacity="0.8"/>
+  </g>
+  <g id="torche-droite" transform="translate(700,0)">
+    <rect x="95" y="620" width="14" height="240" rx="6" fill="#3a2a12"/>
+    <rect x="80" y="590" width="44" height="46" rx="10" fill="#2a1d0c"/>
+    <path d="M102 470 C70 520 80 560 102 590 C124 560 134 520 102 470 Z" fill="url(#flame)"/>
+    <path d="M102 500 C88 530 92 555 102 572 C112 555 116 530 102 500 Z" fill="#FFE9B0" opacity="0.8"/>
+  </g>
+
+  <!-- épées en éventail (trône) -->
+  <g id="epees-fond">
+    <!-- 15 lames réparties en éventail -->
+    <g fill="url(#sword)" stroke="#5c4509" stroke-width="2">
+      <polygon points="450,300 462,700 438,700" />
+      <polygon points="410,320 428,700 400,700" transform="rotate(-6 450 700)"/>
+      <polygon points="490,320 472,700 500,700" transform="rotate(6 450 700)"/>
+      <polygon points="370,340 400,700 368,700" transform="rotate(-12 450 700)"/>
+      <polygon points="530,340 500,700 532,700" transform="rotate(12 450 700)"/>
+      <polygon points="335,370 375,700 342,700" transform="rotate(-18 450 700)"/>
+      <polygon points="565,370 525,700 558,700" transform="rotate(18 450 700)"/>
+      <polygon points="300,410 350,700 315,700" transform="rotate(-25 450 700)"/>
+      <polygon points="600,410 550,700 585,700" transform="rotate(25 450 700)"/>
+      <polygon points="265,460 325,700 288,700" transform="rotate(-32 450 700)"/>
+      <polygon points="635,460 575,700 612,700" transform="rotate(32 450 700)"/>
+      <polygon points="235,510 300,700 262,700" transform="rotate(-39 450 700)"/>
+      <polygon points="665,510 600,700 638,700" transform="rotate(39 450 700)"/>
+    </g>
+  </g>
+
+  <!-- socle du trône (bloc de pierre) -->
+  <rect x="330" y="700" width="240" height="220" rx="10" fill="#101d33" stroke="#C9991A" stroke-width="3"/>
+  <rect x="350" y="720" width="200" height="60" rx="6" fill="#0b1626"/>
+  <rect x="350" y="800" width="200" height="60" rx="6" fill="#0b1626"/>
+
+  <!-- couronne au sommet -->
+  <g transform="translate(450,255)">
+    <polygon points="-45,20 -30,-25 -15,10 0,-35 15,10 30,-25 45,20" fill="url(#swordDark)" stroke="#F5F3EE" stroke-width="2"/>
+    <circle cx="0" cy="-35" r="7" fill="#F5F3EE"/>
+    <circle cx="-30" cy="-25" r="5" fill="#F5F3EE"/>
+    <circle cx="30" cy="-25" r="5" fill="#F5F3EE"/>
+    <rect x="-45" y="18" width="90" height="14" rx="4" fill="url(#sword)"/>
+  </g>
+
+  <!-- bandeau titre -->
+  <rect x="80" y="990" width="740" height="150" rx="14" fill="#00193a" stroke="#C9991A" stroke-width="2" opacity="0.95"/>
+  <text x="450" y="1045" text-anchor="middle" font-family="Georgia, 'Playfair Display', serif" font-size="46" font-weight="700" fill="#F5F3EE">Tournoi du Royaume</text>
+  <text x="450" y="1090" text-anchor="middle" font-family="Arial, 'IBM Plex Sans', sans-serif" font-size="22" fill="#C9991A">Maîtrisez les textes, régnez sur le classement</text>
+  <text x="450" y="1122" text-anchor="middle" font-family="Arial, 'IBM Plex Sans', sans-serif" font-size="16" fill="#9fb3cc">🏰 REGUL ARENA</text>
+</svg>
