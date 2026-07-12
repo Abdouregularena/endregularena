@@ -3073,7 +3073,8 @@ function rAR(){
     arTile(AR.tab==='duels', '⚔️', 'Duels 1v1', "AR.tab='duels';render()") +
     arTile(AR.tab==='tournois', '🏆', 'Tournois', "AR.tab='tournois';render()") +
     arTile(AR.tab==='direct', '📺', 'Direct', "arOpenLive()") +
-    arTile(AR.tab==='kotm', '👑', 'Roi de la Manche', "AR.tab='kotm';render()");
+    arTile(AR.tab==='kotm', '👑', 'Roi de la Manche', "AR.tab='kotm';render()") +
+    arTile(false, '🏰', 'Tournoi du Royaume', "arOpenRoyaumeTournament()"); // MODIFIÉ — tuile dédiée pack Royaume
   var premiumTiles =
     arTile(AR.tab==='crossword', '🧩', 'Mots croisés', "AR.tab='crossword';render()") +
     arTile(AR.tab==='wordsearch', '🔎', 'Mots mêlés', "AR.tab='wordsearch';render()") +
@@ -5511,6 +5512,16 @@ function arModalCreate(){
     var b = ge('ar-royaume-banner');
     if (b) b.style.display = (this.value === 'cat:Royaume') ? 'block' : 'none';
   });
+}
+
+function arOpenRoyaumeTournament(){ // MODIFIÉ — bouton dédié Tournoi du Royaume
+  arModalCreateTour('classic');
+  var sel = ge('ar-tpack');
+  if (sel){ sel.value = 'cat:Royaume'; }
+  var nameEl = ge('ar-tname');
+  if (nameEl && !nameEl.value) nameEl.value = 'Tournoi du Royaume';
+  var b = ge('ar-royaume-banner');
+  if (b) b.style.display = 'block';
 }
 
 function arModalJoin(type){
