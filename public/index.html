@@ -5213,7 +5213,7 @@ function arEscAttr(x){ return String(x==null?'':x).replace(/&/g,'&amp;').replace
 function arCatOptions(){
   var all=[].concat(QR,QB,QC,QN), cats=[], seen={}; // MODIFIÉ : QN inclus dans les thèmes de duel
   all.forEach(function(q){ if(q && q.cat && !seen[q.cat]){ seen[q.cat]=1; cats.push(q.cat); } }); // MODIFIÉ Phase 2 : garde q
-  return cats.map(function(c){ var n=all.filter(function(q){return q&&q.cat===c;}).length; var e=arEscAttr(c); return '<option value="cat:'+e+'">\uD83D\uDCC2 '+e+' ('+n+')</option>'; }).join('');
+  return cats.map(function(c){ var n=all.filter(function(q){return q&&q.cat===c;}).length; var e=arEscAttr(c); var icon=(c==='Royaume')?'\uD83C\uDFF0':'\uD83D\uDCC2'; return '<option value="cat:'+e+'">'+icon+' '+e+' ('+n+')</option>'; }).join(''); // MODIFIÉ — icône 🏰 pack Royaume
 }
 function arPackQ(packId, n, code){
   var src;
@@ -5506,6 +5506,11 @@ function arModalCreate(){
     '<button class="btn-out btn-sm" style="width:100%;" onclick="closeModal()">Annuler</button>'+
     '</div>'
   );
+  var arTpackEl = ge('ar-tpack'); // MODIFIÉ — bannière pack Royaume
+  if (arTpackEl) arTpackEl.addEventListener('change', function(){
+    var b = ge('ar-royaume-banner');
+    if (b) b.style.display = (this.value === 'cat:Royaume') ? 'block' : 'none';
+  });
 }
 
 function arModalJoin(type){
@@ -5541,6 +5546,7 @@ function arModalCreateTour(format){ // MODIFIÉ : format 'classic' | 'intra' | '
     '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Zone géographique</label>'+
     '<select id="ar-tzone" class="inp"><option value="uemoa">🌍 UEMOA</option><option value="cemac">🌍 CEMAC</option><option value="inter">🌐 Inter (UEMOA + CEMAC)</option></select></div>'+
     '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Pack de questions</label>'+
+    '<div id="ar-royaume-banner" style="display:none;margin-bottom:10px;text-align:center;"><img src="/banniere-royaume.svg" alt="Tournoi du Royaume" style="max-width:100%;border-radius:12px;"/></div>'+ // MODIFIÉ — bannière pack Royaume
     '<select id="ar-tpack" class="inp"><optgroup label="Packs généraux"><option value="rfe-uemoa">🏛️ RFE UEMOA</option><option value="bale-umoa">⚖️ Bâle II/III</option><option value="mix">🔀 Mix</option><option value="cemac">🌍 CEMAC (BEAC/COBAC)</option><option value="qn">📚 Thématiques approfondies</option></optgroup><optgroup label="🎯 Thèmes Atelier (défis ciblés)">'+arSafeOpts(arThemeOptions)+'</optgroup><optgroup label="Thèmes précis">'+arSafeOpts(arCatOptions)+'</optgroup></select></div>'+
     (format!=='classic' ? '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Mode de classement des '+(format==='inter'?'pays':'institutions')+'</label>'+
     '<select id="ar-tscoring" class="inp"><option value="total">Score total cumulé</option><option value="avg">Moyenne par participant (équitable)</option><option value="top3">Somme des 3 meilleurs</option></select></div>' : '')+
