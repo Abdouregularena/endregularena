@@ -4262,9 +4262,9 @@ function rARDuelsHome(){
     '</div>' : '')+
   /* Actions principales */
   '<div class="g2">'+
-    '<button class="card ch" style="padding:20px;text-align:center;cursor:pointer;border:1px solid rgba(201,153,26,.25);background:rgba(201,153,26,.06);" onclick="arModalCreate()">'+
-      '<div style="font-size:32px;margin-bottom:8px;">⚔️</div>'+
-      '<div style="font-weight:800;color:#4ade80;font-size:14px;margin-bottom:3px;">Créer un Duel</div>'+
+    '<button class="card ch carte-duel-active" style="padding:20px;text-align:center;cursor:pointer;" onclick="arModalCreate()">'+
+      '<div class="icone-epees" style="margin-bottom:8px;">⚔️</div>'+
+      '<div class="titre-or">Créer un Duel</div>'+
       '<div style="font-size:11px;color:var(--sub);">Choisissez le pack & invitez</div>'+
     '</button>'+
     '<button class="card ch" style="padding:20px;text-align:center;cursor:pointer;border:1px solid rgba(201,153,26,.45);background:rgba(201,153,26,.06);" onclick="arModalJoin(\'duel\')">'+
@@ -11878,6 +11878,15 @@ window.raOpenNotif=function(){
 .ra-coin{position:absolute;font-size:15px;opacity:.8;z-index:1;animation:raCoinFloat 4s ease-in-out infinite;}
 @keyframes raCoinFloat{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-8px) rotate(18deg);}}
 @media(prefers-reduced-motion:reduce){.ra-flame,.ra-coin{animation:none!important;}}
+</style>
+
+<style id="ra-duel-card-fx">/* MODIFIÉ (GoT) : carte "Créer un Duel" — lueur or pulsante + épées flottantes */
+@keyframes raDuelFloat{0%{transform:translateY(0px);}50%{transform:translateY(-8px);}100%{transform:translateY(0px);}}
+@keyframes raDuelGlow{0%{box-shadow:0 0 5px rgba(255,215,0,.2);}50%{box-shadow:0 0 20px rgba(255,215,0,.6);}100%{box-shadow:0 0 5px rgba(255,215,0,.2);}}
+.carte-duel-active{background:linear-gradient(145deg,#0d1b2a,#1b263b)!important;border:2px solid #FFD700!important;border-radius:15px!important;animation:raDuelGlow 3s infinite alternate;position:relative;overflow:hidden;}
+.icone-epees{font-size:32px;display:inline-block;animation:raDuelFloat 3s ease-in-out infinite;}
+.titre-or{color:#4ade80;font-weight:800;font-size:14px;margin-top:0;margin-bottom:3px;}
+@media(prefers-reduced-motion:reduce){.carte-duel-active,.icone-epees{animation:none!important;}}
 </style>
 
 
