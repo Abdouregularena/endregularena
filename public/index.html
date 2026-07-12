@@ -11849,8 +11849,27 @@ window.raOpenNotif=function(){
 }
 </style>
 
-<style id="ra-got-throne-fx">/* MODIFIÉ (GoT) : décor Trône de Fer derrière le Champion — halo, épées SVG, torches, pièces */
-.ra-podium-wrap.ra-got-wrap{background:radial-gradient(ellipse 230px 170px at 50% 8%,rgba(139,101,42,.28),transparent 72%);}
+<style id="ra-got-throne-fx">/* MODIFIÉ (GoT) : décor Trône de Fer derrière le Champion — parchemin, carte du monde, épées SVG, torches, pièces */
+.ra-podium-wrap.ra-got-wrap{
+  background:
+    radial-gradient(ellipse 230px 170px at 50% 8%,rgba(201,160,90,.35),transparent 72%),
+    radial-gradient(circle 60px at 14% 22%,rgba(120,90,50,.30),transparent 100%),
+    radial-gradient(circle 90px at 82% 18%,rgba(120,90,50,.26),transparent 100%),
+    radial-gradient(circle 70px at 20% 78%,rgba(120,90,50,.24),transparent 100%),
+    radial-gradient(circle 100px at 86% 74%,rgba(120,90,50,.28),transparent 100%),
+    radial-gradient(ellipse 500px 320px at 50% 45%,rgba(139,110,66,.16),transparent 75%),
+    linear-gradient(180deg,rgba(43,32,18,.35),rgba(10,25,47,.05) 30%,rgba(10,25,47,.05) 70%,rgba(43,32,18,.35));
+}
+.ra-podium-wrap.ra-got-wrap::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.55;mix-blend-mode:overlay;
+  background-image:
+    radial-gradient(circle at 18% 30%,transparent 0 9px,rgba(90,70,40,.5) 10px,transparent 11px),
+    radial-gradient(circle at 34% 20%,transparent 0 6px,rgba(90,70,40,.4) 7px,transparent 8px),
+    radial-gradient(circle at 66% 24%,transparent 0 8px,rgba(90,70,40,.45) 9px,transparent 10px),
+    radial-gradient(circle at 80% 34%,transparent 0 5px,rgba(90,70,40,.4) 6px,transparent 7px),
+    radial-gradient(circle at 26% 66%,transparent 0 7px,rgba(90,70,40,.4) 8px,transparent 9px),
+    radial-gradient(circle at 72% 68%,transparent 0 9px,rgba(90,70,40,.45) 10px,transparent 11px);
+  background-size:70px 70px,50px 50px,60px 60px,44px 44px,56px 56px,64px 64px;
+}
 .ra-throne-bg{position:absolute;left:50%;top:-4px;transform:translateX(-50%);width:168px;height:auto;z-index:0;pointer-events:none;opacity:.92;filter:drop-shadow(0 6px 14px rgba(0,0,0,.55));}
 .lb-podium-item.ra-king{position:relative;z-index:2;}
 .ra-flame{position:absolute;top:36%;font-size:26px;z-index:1;animation:raFlameFlicker 1.6s ease-in-out infinite;filter:drop-shadow(0 0 8px rgba(255,140,20,.7));}
