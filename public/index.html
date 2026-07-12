@@ -4916,7 +4916,7 @@ function lbLoad(zone){
       }
       goalBox.innerHTML=gh;
     }
-    // MODIFIÉ : 🏆 podium top 3 — animations (couronne, ceinture, flottement, pétards)
+    // MODIFIÉ : 🏆 podium top 3 — animations (couronne, ceinture, flottement, pétards) + Trône de Fer (GoT)
     var pod=list.slice(0,3), podHTML='';
     if(pod.length>=3){
       var order=[1,0,2], hh=[84,64,52]; // MODIFIÉ : #1 (centre) = socle le plus haut
@@ -4933,9 +4933,27 @@ function lbLoad(zone){
             _h=(8+Math.round(Math.random()*7));
         _conf+='<i style="left:'+_l+'%;width:'+_w+'px;height:'+_h+'px;background:'+_col+';animation-delay:'+_dl+'s;animation-duration:'+_du+'s;transform:rotate('+_rot+'deg);"></i>';
       }
+      // MODIFIÉ (GoT) : torches + pièces d'or flottantes, ajoutées dans la même couche décorative
+      _conf+='<span class="ra-flame left" aria-hidden="true">🔥</span><span class="ra-flame right" aria-hidden="true">🔥</span>';
+      var _coinPos=[[6,20],[14,62],[88,26],[93,58],[8,85],[91,88]];
+      for(var _coi=0;_coi<_coinPos.length;_coi++){
+        _conf+='<span class="ra-coin" style="left:'+_coinPos[_coi][0]+'%;top:'+_coinPos[_coi][1]+'%;animation-delay:'+(_coi*0.35)+'s;" aria-hidden="true">🪙</span>';
+      }
       _conf+='</div>';
-      podHTML='<div class="ra-podium-wrap">'+_conf+
+      // MODIFIÉ (GoT) : Trône de Fer généré en SVG (éventail d'épées) derrière le Champion
+      var _bladeN=15, _blades='';
+      for(var _bi=0;_bi<_bladeN;_bi++){
+        var _ang=-72+(_bi*(144/(_bladeN-1)));
+        var _mid=(_bladeN-1)/2;
+        var _len=54+(_bi<=_mid?_bi:(_bladeN-1-_bi))*3.6;
+        _blades+='<rect x="-2.1" y="-'+_len+'" width="4.2" height="'+_len+'" rx="1.3" fill="url(#rtBlade)" stroke="#2b2f36" stroke-width="0.5" transform="rotate('+_ang.toFixed(1)+')"/>';
+      }
+      var throneSVG='<svg class="ra-throne-bg" viewBox="-78 -98 156 104" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'+
+        '<defs><linearGradient id="rtBlade" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#eef1f4"/><stop offset="55%" stop-color="#9aa3ad"/><stop offset="100%" stop-color="#4b525c"/></linearGradient></defs>'+
+        '<g>'+_blades+'</g><circle cx="0" cy="0" r="8.5" fill="#C9991A" stroke="#7a5d10" stroke-width="1.5"/></svg>';
+      podHTML='<div class="ra-podium-wrap ra-got-wrap">'+_conf+
         '<div class="ra-podium-row" style="display:flex;align-items:flex-end;justify-content:center;gap:8px;padding:30px 6px 4px;position:relative;z-index:1;">'+
+        throneSVG+
         order.map(function(idx){ var p=pod[idx]; if(!p) return ''; var rr=idx+1; var meP=(myRank&&rr===myRank); var isKing=(idx===0);
           return '<div class="lb-podium-item'+(isKing?' ra-king':'')+'" style="flex:1;max-width:108px;text-align:center;animation-delay:'+(idx*0.1)+'s;">'+
             (isKing?'<div class="ra-crown" aria-hidden="true">👑</div>':'')+
@@ -11829,6 +11847,18 @@ window.raOpenNotif=function(){
   .ra-podium-wrap .lb-podium-item,.ra-podium-wrap .lb-podium-item.ra-king,.ra-crown,.ra-king-av,.ra-belt,.ra-conf-layer i{animation:none!important;}
   .ra-conf-layer{display:none;}
 }
+</style>
+
+<style id="ra-got-throne-fx">/* MODIFIÉ (GoT) : décor Trône de Fer derrière le Champion — halo, épées SVG, torches, pièces */
+.ra-podium-wrap.ra-got-wrap{background:radial-gradient(ellipse 230px 170px at 50% 8%,rgba(139,101,42,.28),transparent 72%);}
+.ra-throne-bg{position:absolute;left:50%;top:-4px;transform:translateX(-50%);width:168px;height:auto;z-index:0;pointer-events:none;opacity:.92;filter:drop-shadow(0 6px 14px rgba(0,0,0,.55));}
+.lb-podium-item.ra-king{position:relative;z-index:2;}
+.ra-flame{position:absolute;top:36%;font-size:26px;z-index:1;animation:raFlameFlicker 1.6s ease-in-out infinite;filter:drop-shadow(0 0 8px rgba(255,140,20,.7));}
+.ra-flame.left{left:3%;} .ra-flame.right{right:3%;}
+@keyframes raFlameFlicker{0%,100%{transform:scale(1) rotate(-3deg);opacity:1;}50%{transform:scale(1.12) rotate(3deg);opacity:.85;}}
+.ra-coin{position:absolute;font-size:15px;opacity:.8;z-index:1;animation:raCoinFloat 4s ease-in-out infinite;}
+@keyframes raCoinFloat{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-8px) rotate(18deg);}}
+@media(prefers-reduced-motion:reduce){.ra-flame,.ra-coin{animation:none!important;}}
 </style>
 
 
