@@ -107,6 +107,7 @@ function getData() {
     SW_Q: banks.SW_Q || [],
     LOT_FINAL_UEMOA: banks.LOT_FINAL_UEMOA || {},
     LOT_FINAL_CEMAC: banks.LOT_FINAL_CEMAC || {},
+    LOT_LBCFT_RFE_UEMOA: banks.LOT_LBCFT_RFE_UEMOA || {}, // MODIFIÉ — pack LBC/FT (03/2023) + RFE 2024-2026
     AE_DATA: banks.AE_DATA || {},
     AE_DATA_CEMAC: banks.AE_DATA_CEMAC || {},
     BR: banks.BR || {}, // MODIFIÉ Phase 3 — objets Bibliothèque migrés

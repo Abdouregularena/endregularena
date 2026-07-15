@@ -632,7 +632,18 @@ const QR_PLUS = [
   /* ── Note BCEAO n°013-04-2026 (angles complémentaires) ── */
   {"cat":"Ressortissants étrangers résidents","q":"Quel est l'objet précis de la Note BCEAO n°013-04-2026 ?","choices":["La supervision consolidée des banques","Le traitement des paiements extérieurs des non-résidents, de nationalité étrangère, ayant acquis le statut de résident de l'UEMOA","Les ratios prudentiels Bâle III","Le plan comptable bancaire"],"answer":1,"source":"Note BCEAO n°013-04-2026 — Objet"},
   {"cat":"Ressortissants étrangers résidents","q":"De quand date la Note BCEAO n°013-04-2026 ?","choices":["20 décembre 2024","16 juin 2023","21 avril 2026","1er janvier 2018"],"answer":2,"source":"Note BCEAO n°013-04-2026 — datée du 21 avril 2026"},
-  {"cat":"Ressortissants étrangers résidents","q":"Combien de critères cumulatifs d'éligibilité la Note 013-04-2026 fixe-t-elle pour les transferts d'un résident étranger ?","choices":["Un seul critère","Deux critères","Trois critères cumulatifs (nationalité étrangère, revenus justifiés dans l'Union, lien avec le pays de destination)","Aucun critère"],"answer":2,"source":"Note BCEAO n°013-04-2026 — § 5 (critères d'éligibilité cumulatifs)"}
+  {"cat":"Ressortissants étrangers résidents","q":"Combien de critères cumulatifs d'éligibilité la Note 013-04-2026 fixe-t-elle pour les transferts d'un résident étranger ?","choices":["Un seul critère","Deux critères","Trois critères cumulatifs (nationalité étrangère, revenus justifiés dans l'Union, lien avec le pays de destination)","Aucun critère"],"answer":2,"source":"Note BCEAO n°013-04-2026 — § 5 (critères d'éligibilité cumulatifs)"},
+
+  /* ── Pack "Tournoi du Royaume" (thème fantasy original, MODIFIÉ) ── */
+  {"cat":"Royaume","q":"Le Grand Régent du royaume peut prononcer seul le retrait d'agrément d'une Maison bancaire, sans consulter le Conseil des Sages.","choices":["Vrai","Faux"],"answer":1,"source":"Convention régissant la Commission Bancaire de l'UMOA"},
+  {"cat":"Royaume","q":"Les Maisons de microfinance du royaume sont exemptées des règles de lutte contre le blanchiment car elles servent les petites gens.","choices":["Vrai","Faux"],"answer":1,"source":"Loi uniforme LBC/FT/FP 2023"},
+  {"cat":"Royaume","q":"Une Maison ne peut accorder à un seul seigneur un prêt dépassant 25 % de ses fonds propres effectifs.","choices":["Vrai","Faux"],"answer":0,"source":"Dispositif prudentiel BCEAO"},
+  {"cat":"Royaume","q":"Pour fonder une nouvelle Maison bancaire dans le royaume, le ______ minimum exigé est fixé à 20 milliards de FCFA.","choices":["capital social","fonds de réserve","trésor de guerre","impôt royal"],"answer":0,"source":"Dispositif capital minimum BCEAO"},
+  {"cat":"Royaume","q":"Chaque Maison doit nommer un correspondant ______ pour lutter contre le blanchiment et le financement du terrorisme.","choices":["LBC/FT","diplomatique","fiscal","notarial"],"answer":0,"source":"Loi uniforme LBC/FT/FP 2023"},
+  {"cat":"Royaume","q":"Le coût du crédit dans le royaume est plafonné par le taux d'______, au-delà duquel la Maison commet un crime financier.","choices":["usure","escompte","change","épargne"],"answer":0,"source":"Réglementation sur l'usure UMOA"},
+  {"cat":"Royaume","q":"Le seigneur d'une Maison en crise de liquidité utilise secrètement les dépôts à vue des paysans pour acheter des terres à très long terme, et refuse depuis 6 mois de recapitaliser malgré des fonds propres sous le minimum requis. Quelles infractions prudentielles majeures commet-il ?","choices":["Rupture de la transformation (liquidité) et sous-capitalisation / défaut de gouvernance","Simple erreur comptable sans gravité réglementaire","Infraction fiscale uniquement","Aucune infraction, décision de gestion discrétionnaire"],"answer":0,"source":"Dispositif prudentiel BCEAO — ratios de liquidité et fonds propres"},
+  {"cat":"Royaume","q":"Charade : mon premier est la 3e lettre de l'alphabet ; mon deuxième est une onomatopée pour demander le silence ; mon troisième est le contraire de la mort ; mon quatrième est la 1re lettre de l'alphabet. Mon tout est une institution ouest-africaine qui veille sur l'épargne.","choices":["CREPMF","BCEAO","COBAC","UMOA"],"answer":0,"source":"Institutions régionales UEMOA"},
+  {"cat":"Royaume","q":"Avec les nombres 50, 10, 5, 2 et 1, obtenez le chiffre correspondant au ratio minimum de capital de base (Tier 1) exigé dans l'UMOA (Bâle II/III).","choices":["8 → (50/10)+(5-2)","8 → (50-10)/5","8 → (10+5)-(2+1)","8 → 50/(10-2-1)"],"answer":0,"source":"Bâle II/III — ratio de solvabilité UMOA"}
 ];
 const QN_SWIFT = [
       {cat:"SWIFT & ISO 20022",q:"Quel type de message SWIFT MT correspond à un virement client transfrontalier ?",
@@ -995,6 +1006,108 @@ const LOT_FINAL_CEMAC = {
      reponses:["150","5","5"],ref:"Règlement n°02/18/CEMAC/UMAC/CM, Titre III et art. 175"},
     {texte:"En CEMAC, le comité d'audit est obligatoire dès que le bilan excède ___ milliards FCFA. Il exclut les membres de l'organe ___ , le responsable de l'audit ___ et les commissaires aux ___ .",
      reponses:["50","exécutif","interne","comptes"],ref:"Règlement COBAC R-2016/04, art. 30 ; R-2001/07"}
+  ]
+};/* ===== MODIFIÉ — Pack LBC/FT/FP (loi uniforme UMOA 03/2023) + Pack RFE 2024-2026, zone UEMOA ===== */
+const LOT_LBCFT_RFE_UEMOA = {
+  vrai_faux: [
+    {affirmation:"La notion de « sans délai » au sens de la loi uniforme LBC/FT/FP correspond à un délai maximal de 24 heures.",reponse:true,
+     justification:"Exact : 24 heures.",ref:"Loi uniforme LBC/FT/FP UMOA (03/2023) — Art. 2, point 58"},
+    {affirmation:"Un bénéficiaire effectif est une personne physique détenant au moins 20 % du capital ou des droits de vote d'une société.",reponse:false,
+     justification:"Faux : le seuil est de 25 %.",ref:"Loi uniforme LBC/FT/FP UMOA — Art. 2, point 12.a"},
+    {affirmation:"Les institutions financières conservent les pièces relatives à l'identité de leurs clients pendant 10 ans.",reponse:true,
+     justification:"Exact : 10 ans.",ref:"Loi uniforme LBC/FT/FP UMOA — Art. 23"},
+    {affirmation:"Le profil des clients identifiés comme PPE est réévalué tous les 5 ans.",reponse:false,
+     justification:"Faux : la réévaluation est triennale (tous les 3 ans).",ref:"Loi uniforme LBC/FT/FP UMOA — Art. 29"},
+    {affirmation:"La CENTIF est composée de 6 à 8 membres nommés par décret.",reponse:true,
+     justification:"Exact : 6 à 8 membres.",ref:"Loi uniforme LBC/FT/FP UMOA — Art. 97"},
+    {affirmation:"Le mandat du Président de la CENTIF est de 5 ans, renouvelable une fois.",reponse:false,
+     justification:"Faux : 5 ans, non renouvelable.",ref:"Loi uniforme LBC/FT/FP UMOA — Art. 97"},
+    {affirmation:"L'opposition de la CENTIF à l'exécution d'une opération suspecte ne peut excéder 4 jours.",reponse:true,
+     justification:"Exact : 4 jours maximum.",ref:"Loi uniforme LBC/FT/FP UMOA — Art. 65"},
+    {affirmation:"Une banque fictive est affiliée à un groupe financier réglementé soumis à surveillance consolidée.",reponse:false,
+     justification:"Faux : c'est l'inverse, une banque fictive n'est PAS affiliée à un tel groupe.",ref:"Loi uniforme LBC/FT/FP UMOA — Art. 2, point 11"},
+    {affirmation:"Les avocats sont exemptés des obligations LBC/FT/FP même lorsque leurs consultations juridiques visent à faciliter le BC/FT/FP.",reponse:false,
+     justification:"Faux : l'exemption ne s'applique pas dans ce cas.",ref:"Loi uniforme LBC/FT/FP UMOA — Art. 5"},
+    {affirmation:"Le blanchiment de capitaux est puni de 3 à 7 ans d'emprisonnement et d'une amende égale au triple des sommes blanchies.",reponse:true,
+     justification:"Exact.",ref:"Loi uniforme LBC/FT/FP UMOA — Art. 184"},
+    {affirmation:"Le financement du terrorisme est puni des mêmes peines que le blanchiment de capitaux.",reponse:false,
+     justification:"Faux : peines plus lourdes (5 à 10 ans, amende quintuple).",ref:"Loi uniforme LBC/FT/FP UMOA — Art. 188"},
+    {affirmation:"Aucune sanction pénale pour blanchiment de capitaux ne peut être assortie du sursis.",reponse:true,
+     justification:"Exact.",ref:"Loi uniforme LBC/FT/FP UMOA — Art. 187"},
+    {affirmation:"Le seuil de domiciliation des importations de biens et services est de 20 millions FCFA.",reponse:true,
+     justification:"Exact.",ref:"Instr. 02/07/2025/RFE — Art. 3"},
+    {affirmation:"L'allocation en devises sous forme de billets peut atteindre 5 millions FCFA par voyage.",reponse:false,
+     justification:"Faux : le plafond est de 3,5 millions FCFA.",ref:"Instr. 06/07/2025/RFE — Art. 2"},
+    {affirmation:"Le taux de l'usure des banques est de 14 % l'an à compter du 1er juin 2026.",reponse:true,
+     justification:"Exact.",ref:"Décision N°19 du 29/12/2025/CM/UMOA"},
+    {affirmation:"Le seuil de déclaration du transport physique international d'espèces (État tiers ↔ UMOA) est de 10 millions FCFA.",reponse:false,
+     justification:"Faux : 5 M FCFA à l'international ; 10 M FCFA en intracommunautaire.",ref:"Instr. 231/07/2024"},
+    {affirmation:"Le paiement d'une dette en espèces est interdit au-delà de 5 millions FCFA.",reponse:true,
+     justification:"Exact.",ref:"Instr. 233/07/2024 — Art. 1"},
+    {affirmation:"Les sous-délégataires peuvent céder des devises à la clientèle.",reponse:false,
+     justification:"Faux : c'est formellement interdit.",ref:"Instr. 08/07/2025/RFE — Art. 3"},
+    {affirmation:"Depuis le 1er septembre 2025, seules les structures agréées offrent des services de paiement dans l'UMOA.",reponse:true,
+     justification:"Exact.",ref:"Avis N°006-05-2025"},
+    {affirmation:"Les dossiers de domiciliation d'importation sont conservés 5 ans.",reponse:false,
+     justification:"Faux : 10 ans.",ref:"Instr. 02/07/2025/RFE — Art. 7"}
+  ],
+  texte_trous: [
+    {texte:"Le seuil de détention pour être considéré comme bénéficiaire effectif d'une société est de ___ %.",reponses:["25"],
+     ref:"Loi uniforme LBC/FT/FP UMOA — Art. 2.12.a"},
+    {texte:"Les pièces relatives à l'identification des clients sont conservées pendant ___ ans.",reponses:["10"],
+     ref:"Loi uniforme LBC/FT/FP UMOA — Art. 23"},
+    {texte:"Le mandat du Président de la CENTIF est de ___ ans, non renouvelable.",reponses:["5"],
+     ref:"Loi uniforme LBC/FT/FP UMOA — Art. 97"},
+    {texte:"La CENTIF est composée de ___ à ___ membres.",reponses:["6","8"],
+     ref:"Loi uniforme LBC/FT/FP UMOA — Art. 97"},
+    {texte:"Le blanchiment de capitaux est puni de ___ à ___ ans d'emprisonnement.",reponses:["3","7"],
+     ref:"Loi uniforme LBC/FT/FP UMOA — Art. 184"},
+    {texte:"Le financement du terrorisme est puni de ___ à ___ ans d'emprisonnement.",reponses:["5","10"],
+     ref:"Loi uniforme LBC/FT/FP UMOA — Art. 188"},
+    {texte:"La Douane peut retenir des espèces suspectes pendant un maximum de ___ heures.",reponses:["72"],
+     ref:"Loi uniforme LBC/FT/FP UMOA — Art. 70"},
+    {texte:"Le seuil de domiciliation des importations de biens et services est de ___ FCFA.",reponses:["20 000 000"],
+     ref:"Instr. 02/07/2025/RFE — Art. 3"},
+    {texte:"L'allocation en devises sous forme de billets peut atteindre ___ FCFA par voyage.",reponses:["3 500 000"],
+     ref:"Instr. 06/07/2025/RFE — Art. 2"},
+    {texte:"Le taux de l'usure des banques est fixé à ___ % l'an à compter du 1er juin 2026.",reponses:["14"],
+     ref:"Décision N°19 du 29/12/2025/CM/UMOA"},
+    {texte:"Le taux de l'usure pour la microfinance est fixé à ___ % l'an.",reponses:["24"],
+     ref:"Décision N°19 du 29/12/2025/CM/UMOA"},
+    {texte:"Le paiement d'une dette en espèces est interdit au-delà de ___ FCFA.",reponses:["5 000 000"],
+     ref:"Instr. 233/07/2024 — Art. 1"},
+    {texte:"Les dossiers de domiciliation d'importation sont conservés ___ ans.",reponses:["10"],
+     ref:"Instr. 02/07/2025/RFE — Art. 7"},
+    {texte:"La commission d'un sous-délégataire sur une opération de change ne peut excéder ___ %.",reponses:["2"],
+     ref:"Instr. 08/07/2025/RFE — Art. 5"},
+    {texte:"Un intermédiaire en opérations de banque déclare un nouveau mandat au moins ___ jours ouvrés avant sa conclusion.",reponses:["30"],
+     ref:"Avis N°003-12-2023"}
+  ],
+  examen: [
+    {q:"Quel est le seuil de détention pour être bénéficiaire effectif d'une société ?",choices:["10 %","20 %","25 %","33 %"],answer:2,
+     ref:"Loi uniforme LBC/FT/FP UMOA — Art. 2.12.a"},
+    {q:"Quelle est la durée du mandat du Président de la CENTIF ?",choices:["3 ans","5 ans","7 ans","10 ans"],answer:1,
+     ref:"Loi uniforme LBC/FT/FP UMOA — Art. 97"},
+    {q:"Combien de membres compte la CENTIF ?",choices:["4 à 6","6 à 8","8 à 10","5 à 7"],answer:1,
+     ref:"Loi uniforme LBC/FT/FP UMOA — Art. 97"},
+    {q:"Quelle est la durée de conservation des pièces d'identification client ?",choices:["5 ans","10 ans","15 ans","20 ans"],answer:1,
+     ref:"Loi uniforme LBC/FT/FP UMOA — Art. 23"},
+    {q:"Que signifie « sans délai » au sens de la loi ?",choices:["12 h","24 h","48 h","72 h"],answer:1,
+     ref:"Loi uniforme LBC/FT/FP UMOA — Art. 2.58"},
+    {q:"Quelle peine encourt une personne physique pour blanchiment de capitaux ?",choices:["1 à 3 ans","3 à 7 ans","5 à 10 ans","7 à 15 ans"],answer:1,
+     ref:"Loi uniforme LBC/FT/FP UMOA — Art. 184"},
+    {q:"Quelle peine encourt le financement du terrorisme ?",choices:["3 à 7 ans","5 à 10 ans","10 à 15 ans","2 à 5 ans"],answer:1,
+     ref:"Loi uniforme LBC/FT/FP UMOA — Art. 188"},
+    {q:"Quelle est la fréquence de réévaluation du profil des clients PPE ?",choices:["Chaque année","Tous les 3 ans","Tous les 5 ans","Tous les 10 ans"],answer:1,
+     ref:"Loi uniforme LBC/FT/FP UMOA — Art. 29"},
+    {q:"Quel est le seuil de domiciliation des importations ?",choices:["5 M","10 M","20 M","50 M FCFA"],answer:2,
+     ref:"Instr. 02/07/2025/RFE — Art. 3"},
+    {q:"Quel est le plafond de l'allocation en devises (billets) par voyage ?",choices:["1 M","3,5 M","5 M","10 M FCFA"],answer:1,
+     ref:"Instr. 06/07/2025/RFE — Art. 2"},
+    {q:"Quel est le taux de l'usure des banques (à compter du 01/06/2026) ?",choices:["12 %","14 %","15 %","24 %"],answer:1,
+     ref:"Décision N°19 du 29/12/2025/CM/UMOA"},
+    {q:"Au-delà de quel montant le paiement d'une dette en espèces est-il interdit ?",choices:["1 M","5 M","9 M","20 M FCFA"],answer:1,
+     ref:"Instr. 233/07/2024 — Art. 1"}
   ]
 };
 
@@ -1799,4 +1912,4 @@ const CF = {"pack_id":"conformite-lbcft","titre":"Pack Conformité & LBC/FT/FP",
 {"id":"cfmn10","concept":"Ordre des 8 modules de formation LBC/FT/FP","moyen":"« CADRE-DÉTECTE-DÉCLARE-VIGILE-INHABITUEL-ARCHIVE-COOPÈRE-STRATÉGIE ».","explication":"Chaque mot-clé correspond à un des 8 modules obligatoires du programme de formation annuel.","exemple":"Une session de formation couvre dans l'ordre : le cadre juridique, puis la détection des indices, jusqu'à la stratégie LBC/FT/FP de l'institution.","source":"Instruction 001-03-2025 — Art.9"}
 ]};
 
-module.exports = { QR, QB, QC, QN, QR_PLUS, QN_SWIFT, BCB_Q, BP_Q, KC_Q, CF_Q, SW_Q, LOT_FINAL_UEMOA, LOT_FINAL_CEMAC, AE_DATA, AE_DATA_CEMAC, BR, BB, SW, BCB, BP, KC, CF }; // MODIFIÉ Phase 3
+module.exports = { QR, QB, QC, QN, QR_PLUS, QN_SWIFT, BCB_Q, BP_Q, KC_Q, CF_Q, SW_Q, LOT_FINAL_UEMOA, LOT_FINAL_CEMAC, LOT_LBCFT_RFE_UEMOA, AE_DATA, AE_DATA_CEMAC, BR, BB, SW, BCB, BP, KC, CF }; // MODIFIÉ Phase 3 — doublon supprimé, LOT_LBCFT_RFE_UEMOA ajouté

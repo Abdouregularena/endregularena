@@ -4,12 +4,12 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>REGULARENA PRO</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Syne:wght@700;900&family=Playfair+Display:wght@600;700;900&display=swap" rel="stylesheet"/><!-- MODIFIÉ : +Playfair Display (utilisée Métiers/VF/Débats, manquait à l'import) -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;600;700&family=Syne:wght@700;900&family=Playfair+Display:wght@600;700;900&display=swap" rel="stylesheet"/><!-- REFONTE : +Inter (interface, brief premium) ; Playfair Display promu en police des grands titres -->
 <style>
 :root{--bg:#0A192F;--bg2:#112240;--card:rgba(17,34,64,0.70);--border:rgba(35,53,84,0.45);--cyan:#F5C453;--green:#00B4D8;--text:#F8F9FA;--sub:#8892B0;}
-*{margin:0;padding:0;box-sizing:border-box;font-family:"Space Grotesk",sans-serif;-webkit-tap-highlight-color:transparent;}
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Inter","Space Grotesk",sans-serif;-webkit-tap-highlight-color:transparent;}
 body{background:radial-gradient(950px 540px at 12% -8%,rgba(245,196,83,0.08),transparent 60%),radial-gradient(860px 640px at 112% 4%,rgba(0,180,216,0.12),transparent 55%),radial-gradient(780px 780px at 50% 122%,rgba(11,34,64,0.40),transparent 60%),linear-gradient(160deg,#112240,#0A192F 50%,#040D1A);background-attachment:fixed;color:var(--text);min-height:100vh;overflow-x:hidden;}
-h1,h2,h3{font-family:"Syne",sans-serif;}
+h1,h2,h3{font-family:"Playfair Display","Syne",serif;letter-spacing:.2px;}
 @keyframes fi{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}.fi{animation:fi .3s ease-out;}
 @keyframes spin{to{transform:rotate(360deg)}}.spin{animation:spin .8s linear infinite;display:inline-block;}
 @keyframes pls{0%,100%{opacity:1}50%{opacity:.2}}.pls{animation:pls 2s infinite;}
@@ -383,6 +383,23 @@ h2,h3{animation:raReveal .45s ease both;}
 .q-empty{text-align:center;color:var(--sub);font-size:13px;padding:26px 14px;background:rgba(17,34,64,.4);border:1px dashed var(--border);border-radius:14px;}
 .q-empty button{margin-left:6px;background:none;border:none;color:var(--cyan);font-weight:700;cursor:pointer;font-size:13px;text-decoration:underline;font-family:inherit;}
 @media(prefers-reduced-motion:reduce){.q-hero,.q-hero::after,.qcard{animation:none!important;}.qcard:hover{transform:none;}}
+/* MODIFIÉ : grille de thèmes dédiée — reste en 2 colonnes même sur petit mobile (indépendante de .g3) */
+.q-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.q-grid .qcard{padding:10px!important;}
+.q-grid .q-ic{width:34px;height:34px;font-size:16px;border-radius:9px;}
+@media(max-width:380px){.q-grid{grid-template-columns:1fr;}}
+/* MODIFIÉ : repli "Voir plus" — n'affiche que 6 thèmes par pack au départ */
+.q-packcard:not(.q-expanded):not(.q-searching) .q-extra{display:none!important;}
+.q-more{width:100%;margin-top:10px;padding:11px;border-radius:10px;border:1px dashed var(--border);background:rgba(17,34,64,.4);color:var(--cyan);font-size:12.5px;font-weight:700;cursor:pointer;font-family:"Space Grotesk",sans-serif;min-height:42px;touch-action:manipulation;}
+.q-more:hover{border-color:rgba(232,181,32,.5);}
+/* MODIFIÉ : tableau de bord — compression verticale mobile */
+.dash-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.dash-act{cursor:pointer;border-radius:12px;padding:12px;text-align:center;transition:transform .15s;}
+.dash-act:active{transform:scale(.97);}
+.dash-act .dai{font-size:22px;line-height:1;}
+.dash-act .dat{font-weight:800;color:white;font-size:12.5px;margin:6px 0 2px;}
+.dash-act .das{font-size:10.5px;color:var(--sub);line-height:1.25;}
+@media(min-width:521px){.dash-actions{grid-template-columns:repeat(3,1fr);}}
 /* FIN écran Quiz & Formation */
 /* ════════ MODIFIÉ — BARRE DE NAVIGATION BASSE (mobile) ════════ */
 .ra-bnav{display:none;}
@@ -557,6 +574,68 @@ h2,h3{animation:raReveal .45s ease both;}
   .btn:hover,.btn-out:hover,.btn-red:hover,.ch:hover,.ni:hover,
   .metier-texte-btn:hover,.quiz-vf-next:hover,.ra-deb-tab:hover{transform:none!important;}
   #mbox{animation:none!important;}
+}
+</style>
+<style id="ra-arena-fire">
+/* ══════════════════════════════════════════════════════════════
+   REGUL ARENA — FEU VIRTUEL ÉCRAN ARÈNE (calque additif, zéro régression)
+   Nouvelles classes uniquement : ar-hero-fire / ar-ember / ar-pack-premium-glow
+   N'altère aucune classe existante (.ar-tile, .ar-pack, etc. intactes).
+   ══════════════════════════════════════════════════════════════ */
+.ar-hero-fire{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:22px 10px 16px;margin-bottom:2px;border-radius:16px;overflow:hidden;isolation:isolate;
+  background:radial-gradient(ellipse at 50% 120%,rgba(232,181,32,.16),rgba(10,25,47,0) 70%);}
+.ar-hero-fire::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(circle at 50% 100%,rgba(245,196,83,.20) 0%,rgba(245,196,83,0) 62%);
+  animation:arFireBreathe 3.4s ease-in-out infinite;}
+@keyframes arFireBreathe{0%,100%{opacity:.65;transform:scale(1)}50%{opacity:1;transform:scale(1.06)}}
+.ar-hero-ring{position:relative;z-index:1;width:112px;height:112px;display:flex;align-items:center;justify-content:center;
+  margin-bottom:6px;}
+.ar-hero-ring-ic{font-size:40px;filter:drop-shadow(0 0 10px rgba(245,196,83,.55));position:relative;z-index:2;}
+.ar-ember{position:absolute;left:50%;bottom:6px;width:5px;height:5px;border-radius:50%;z-index:1;
+  background:radial-gradient(circle,#FFE8A3 0%,#E8B520 55%,rgba(232,181,32,0) 75%);
+  box-shadow:0 0 6px 1px rgba(245,196,83,.6);
+  animation:arEmberRise 2.6s ease-in infinite;}
+.ar-ember:nth-child(1){animation-delay:0s;   transform:translateX(-46px);}
+.ar-ember:nth-child(2){animation-delay:.35s; transform:translateX(-24px);}
+.ar-ember:nth-child(3){animation-delay:.7s;  transform:translateX(0px);   width:4px;height:4px;}
+.ar-ember:nth-child(4){animation-delay:1.05s;transform:translateX(22px);}
+.ar-ember:nth-child(5){animation-delay:1.4s; transform:translateX(44px);}
+.ar-ember:nth-child(6){animation-delay:1.9s; transform:translateX(-10px);width:3px;height:3px;}
+@keyframes arEmberRise{
+  0%{opacity:0;transform:translate(var(--tx,0),0) scale(.6);}
+  12%{opacity:1;}
+  75%{opacity:.55;}
+  100%{opacity:0;transform:translate(calc(var(--tx,0) + 8px),-92px) scale(1.15);}
+}
+.ar-hero-title{position:relative;z-index:2;font-size:21px;font-weight:900;color:#fff;letter-spacing:.2px;margin:0;}
+.ar-hero-sub{position:relative;z-index:2;font-size:12px;color:var(--sub);margin-top:2px;}
+/* Halo pulsé sur l'en-tête du pack Premium, purement additif via classe séparée */
+.ar-pack-premium-glow{position:relative;}
+.ar-pack-premium-glow::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  box-shadow:0 0 0 0 rgba(232,181,32,.55);animation:arPremiumPulse 2.8s ease-out infinite;}
+@keyframes arPremiumPulse{
+  0%{box-shadow:0 0 0 0 rgba(232,181,32,.45);}
+  70%{box-shadow:0 0 0 7px rgba(232,181,32,0);}
+  100%{box-shadow:0 0 0 0 rgba(232,181,32,0);}
+}
+@media(prefers-reduced-motion:reduce){
+  .ar-hero-fire::before,.ar-ember,.ar-pack-premium-glow::after{animation:none!important;}
+}
+/* — Réutilisables sur d'autres écrans (Établissement, Classement, Premium) — additif, aucune classe existante touchée — */
+.ra-h2-glow{text-shadow:0 0 14px rgba(245,196,83,.35);}
+.ra-icon-fire{display:inline-block;filter:drop-shadow(0 0 8px rgba(245,196,83,.55));animation:arIconFlicker 2.6s ease-in-out infinite;}
+@keyframes arIconFlicker{0%,100%{filter:drop-shadow(0 0 6px rgba(245,196,83,.4));}50%{filter:drop-shadow(0 0 12px rgba(245,196,83,.7));}}
+.ra-lock-ring{position:relative;display:inline-flex;align-items:center;justify-content:center;width:78px;height:78px;margin:0 auto;}
+.ra-lock-ring::before{content:'';position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(circle,rgba(245,196,83,.30) 0%,rgba(245,196,83,0) 70%);
+  animation:arFireBreathe 3.4s ease-in-out infinite;}
+.ra-lock-ring-ic{position:relative;z-index:1;font-size:34px;filter:drop-shadow(0 0 10px rgba(245,196,83,.6));}
+.ra-card-glow{position:relative;}
+.ra-card-glow::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  box-shadow:0 0 0 0 rgba(232,181,32,.45);animation:arPremiumPulse 2.8s ease-out infinite;}
+@media(prefers-reduced-motion:reduce){
+  .ra-icon-fire,.ra-lock-ring::before,.ra-card-glow::after{animation:none!important;}
 }
 </style>
 <style id="ra-anim2">/* ====== MODIFIÉ : couche d'animation renforcée (additive, GPU-friendly) ====== */
@@ -1121,6 +1200,7 @@ h2,h3{animation:raReveal .45s ease both;}
   </div>
 </div>
 
+<script src="quiz-data.js"></script>
 <script>
 
 /* MODIFIÉ — BOOTSTRAP ANTI-PLAGIAT : banques chargées (authentifié) AVANT le moteur.
@@ -1263,28 +1343,7 @@ var CW = {zone:null, layout:null, inputs:{}, checked:false, score:0};
 var WS = {zone:null, layout:null, sel:null, foundWords:{}, foundCells:{}, allFound:false, msg:''};
 // MODIFIÉ — État Charade réglementaire (indices progressifs + chrono, réutilise CW_BANK)
 var CZ = {zone:null, list:[], idx:0, timerMax:30, timerVal:30, timerId:null, qStart:0, score:0, revealed:0, answered:false, timedOut:false, input:'', lastPts:0};
-var CW_BANK = {
-  U:[
-    {word:'BCEAO', clue:"Banque centrale de l'UMOA"},
-    {word:'AGREMENT', clue:"Autorisation préalable requise pour exercer une activité bancaire"},
-    {word:'CONFORMITE', clue:"Fonction chargée de veiller au respect des règles internes et externes"},
-    {word:'GOUVERNANCE', clue:"Ensemble des règles d'organisation et de contrôle interne d'une banque"},
-    {word:'DEONTOLOGIE', clue:"Ensemble des règles éthiques encadrant la profession bancaire"},
-    {word:'PLAFOND', clue:"Limite maximale fixée pour une opération ou un poste"},
-    {word:'CAPITAL', clue:"Ressources propres minimales exigées pour obtenir l'agrément"},
-    {word:'BLANCHIMENT', clue:"Opération visant à dissimuler l'origine illicite de fonds"}
-  ],
-  C:[
-    {word:'COBAC', clue:"Organe de supervision bancaire de la zone CEMAC"},
-    {word:'BEAC', clue:"Banque centrale des États de l'Afrique Centrale"},
-    {word:'GABAC', clue:"Groupe d'action contre le blanchiment en Afrique Centrale"},
-    {word:'ANIF', clue:"Agence Nationale d'Investigation Financière"},
-    {word:'TIAO', clue:"Taux d'Intérêt des Appels d'Offres, fixé par le Comité de Politique Monétaire"},
-    {word:'COSUMAF', clue:"Régulateur du marché financier de l'Afrique Centrale"},
-    {word:'SANCTION', clue:"Mesure disciplinaire prononcée par l'autorité de supervision"},
-    {word:'MICROFINANCE', clue:"Établissement de petite taille finançant particuliers et TPE"}
-  ]
-};
+/* CW_BANK : externalisé -> voir /quiz-data.js (chargé en <script src> juste avant ce bloc) */
 /* ─── État Arena ─── */
 var AR = {
   tab:'duels',        // sous-onglet actif : 'duels' | 'tournois'
@@ -1717,6 +1776,8 @@ var NAV=[
   {id:'metiers',ic:"<svg viewBox='0 0 24 24' width='16' height='16' fill='none' stroke='currentColor' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'><path d='M3 10l9-5 9 5'/><path d='M5 10v8M9 10v8M15 10v8M19 10v8'/><path d='M3 20h18'/></svg>",l:'Parcours Métiers',sec:'PÔLE CARRIÈRE'},
   {id:'dashboard',ic:"<svg viewBox='0 0 24 24' width='16' height='16' fill='none' stroke='currentColor' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'><path d='M4 20V13'/><path d='M10 20V7'/><path d='M16 20v-4'/><path d='M3 20h18'/></svg>",l:'Tableau de Bord',sec:'PÔLE CARRIÈRE'},
   {id:'achievements',ic:"<svg viewBox='0 0 24 24' width='16' height='16' fill='none' stroke='currentColor' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'><path d='M7 4h10v4a5 5 0 0 1-5 5 5 5 0 0 1-5-5V4Z'/><path d='M7 5H4v2a3 3 0 0 0 3 3'/><path d='M17 5h3v2a3 3 0 0 1-3 3'/><path d='M12 13v3'/><path d='M9 20h6'/><path d='M10 17h4v3h-4z'/></svg>",l:'Réalisations',sec:'PÔLE CARRIÈRE'},
+  /* MODIFIÉ : Audit Flash Digital — nouvelle section OUTILS PRO */
+  {id:'auditflash',ic:"<svg viewBox='0 0 24 24' width='16' height='16' fill='none' stroke='currentColor' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'><path d='M9 12l2 2 4-4'/><circle cx='12' cy='12' r='9'/></svg>",l:'Audit Flash',sec:'OUTILS PRO'},
   /* COMPTE */
   {id:'feedback',ic:"<svg viewBox='0 0 24 24' width='16' height='16' fill='none' stroke='currentColor' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'><path d='M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v7A2.5 2.5 0 0 1 17.5 15H10l-4.5 4v-4H6.5A2.5 2.5 0 0 1 4 12.5v-7Z'/></svg>",l:'Avis & Suggestions',sec:'COMPTE'},
   {id:'about',ic:"<svg viewBox='0 0 24 24' width='16' height='16' fill='none' stroke='currentColor' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><path d='M12 8h.01'/><path d='M11 12h1v5h1'/></svg>",l:'À propos',sec:'COMPTE'},
@@ -1812,7 +1873,7 @@ function arGoOrgSpace(){
 function rOrgCreate(){
   return '<div style="max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:14px;">'+
     '<button class="btn-out btn-sm" style="align-self:flex-start;" onclick="ST(\'leaderboard\')">← Retour au classement</button>'+ // MODIFIÉ : bouton retour
-    '<h2 style="font-size:22px;color:white;">🏛️ Espace établissement</h2>'+
+    '<h2 class="ra-h2-glow" style="font-size:22px;color:white;"><span class="ra-icon-fire">🏛️</span> Espace établissement</h2>'+
     '<div class="card">'+
       '<div style="font-weight:800;color:white;font-size:15px;margin-bottom:4px;">Créer mon établissement</div>'+
       '<div style="font-size:12px;color:var(--sub);margin-bottom:14px;">Banque ou institution financière — et aussi université, centre de formation (COFEB, CESAG, ISM). Accompagnez la montée en compétence de vos équipes : <strong>forces &amp; faiblesses par thème</strong> pour cibler vos formations et valoriser vos talents. Seuls les collaborateurs qui rejoignent via votre code y figurent.</div>'+ // MODIFIÉ : bénéfice + consentement
@@ -2016,7 +2077,7 @@ function rOrgDashboard(){
   var d = ORG.data, t = d.totals;
   var h = '<div style="max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:14px;">';
   h += '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">'+
-       '<h2 style="font-size:22px;color:white;">🏛️ '+arChatEsc(d.org.name)+'</h2>'+
+       '<h2 class="ra-h2-glow" style="font-size:22px;color:white;"><span class="ra-icon-fire">🏛️</span> '+arChatEsc(d.org.name)+'</h2>'+
        '<div style="display:flex;gap:8px;"><button class="btn btn-sm" style="background:rgba(251,191,36,.15);border-color:#fbbf24;color:#fbbf24;" onclick="arModalCreateOrgTour()">🏢 Tournoi établissement</button>'+
        '<button class="btn btn-sm" onclick="arOrgExportPDF()">📄 Exporter le rapport</button>'+ /* MODIFIÉ — export PDF/print du dashboard établissement */
        '<button class="btn btn-sm" onclick="arLoadOrgDash()">↻ Actualiser</button></div></div>';
@@ -2189,7 +2250,7 @@ function arOrgShareCode(code){
 
 function rOrgJoin(){
   return '<div style="max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:14px;">'+
-    '<h2 style="font-size:22px;color:white;">🤝 Rejoindre un établissement</h2>'+
+    '<h2 class="ra-h2-glow" style="font-size:22px;color:white;"><span class="ra-icon-fire">🤝</span> Rejoindre un établissement</h2>'+
     '<div class="card">'+
       '<div style="font-size:12px;color:var(--sub);margin-bottom:14px;">Saisissez le code d\'invitation fourni par votre école ou votre institution (ex. UCAO-7F3A).</div>'+
       '<input id="org-join-code" placeholder="CODE-XXXX" style="width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(201,153,26,.3);background:rgba(0,0,0,.25);color:white;font-family:monospace;font-size:15px;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;box-sizing:border-box;">'+
@@ -2231,13 +2292,129 @@ function arSetJoinAgence(orgId){
    .catch(function(){});
 }
 
+/* ════════════════════════════════════════════════
+   AUDIT FLASH DIGITAL — pré-diagnostic conformité RFE
+   MODIFIÉ : nouveau module (upload PDF → analyse IA → rapport d'écarts)
+════════════════════════════════════════════════ */
+var AUDITF = { file:null, loading:false, report:null, disclaimer:'', error:'' };
+
+var AUDITF_LOCKED = true; // MODIFIÉ : verrou paywall — passer à false quand prêt à ouvrir (protège les crédits API en attendant)
+function rAUDITFLASH(){
+  if(AUDITF_LOCKED) return rAUDITFLASH_locked();
+  if(AUDITF.loading) return rAUDITFLASH_loading();
+  if(AUDITF.report)  return rAUDITFLASH_report();
+  return '<div style="max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:16px;">'+
+    '<div class="card" style="background:linear-gradient(to right,rgba(10,33,62,.7),rgba(30,58,138,.25));">'+
+      '<h2 style="font-size:21px;color:white;margin-bottom:4px;">🔍 Audit Flash Digital</h2>'+
+      '<p style="color:var(--sub);font-size:13px;">Déposez votre procédure interne (PDF). L\'IA la compare au texte réglementaire RFE 06/2024/CM/UEMOA et détecte les écarts de conformité en quelques secondes.</p>'+
+    '</div>'+
+    '<div class="card" style="display:flex;flex-direction:column;gap:14px;">'+
+      '<div>'+
+        '<label style="display:block;font-size:12px;font-weight:700;color:var(--sub);margin-bottom:8px;">Procédure interne (PDF)</label>'+
+        '<input type="file" id="af-file" accept="application/pdf" onchange="afOnFile(this)" style="display:none;">'+
+        '<button class="btn-out" style="width:100%;padding:13px;" onclick="ge(\'af-file\').click()">'+
+          '<span id="af-file-label">📎 Choisir un fichier PDF</span>'+
+        '</button>'+
+      '</div>'+
+      (AUDITF.error?'<div style="color:#f87171;font-size:12px;font-weight:600;">⚠️ '+afEsc(AUDITF.error)+'</div>':'')+
+      '<button class="btn" style="width:100%;padding:13px;background:linear-gradient(135deg,var(--cyan),#D4AF37);color:#0A192F;font-weight:800;" onclick="afLaunch()" '+(AUDITF.file?'':'disabled')+'>🚀 Lancer l\'audit</button>'+
+      '<div style="font-size:11px;color:var(--sub);text-align:center;">Ce pré-diagnostic automatisé ne remplace pas un audit de conformité certifié.</div>'+
+    '</div>'+
+  '</div>';
+}
+
+function rAUDITFLASH_locked(){
+  return '<div style="max-width:560px;margin:0 auto;">'+
+    '<div class="card ra-card-glow" style="text-align:center;padding:36px 24px;background:linear-gradient(135deg,rgba(201,153,26,.16),rgba(201,153,26,.03));border-color:rgba(201,153,26,.5);">'+
+      '<div class="ra-lock-ring"><span class="ra-lock-ring-ic">🔒</span></div>'+
+      '<h2 class="ra-h2-glow" style="color:white;font-size:20px;margin:12px 0 6px;">Audit Flash Digital</h2>'+
+      '<div class="badge" style="margin-bottom:14px;">MODULE PREMIUM</div>'+
+      '<p style="color:var(--sub);font-size:13px;line-height:1.6;">Le pré-diagnostic automatisé de conformité RFE est en cours de finalisation. Il sera bientôt disponible en accès payant.</p>'+
+      '<button class="btn" style="margin-top:16px;padding:12px 20px;background:linear-gradient(135deg,#25D366,#128C7E);color:white;font-weight:800;" onclick="window.open(\'https://wa.me/221775156158?text=Bonjour,%20je%20suis%20intéressé%20par%20Audit%20Flash%20Digital\',\'_blank\')">💬 Être informé sur WhatsApp</button>'+
+    '</div>'+
+  '</div>';
+}
+
+function rAUDITFLASH_loading(){
+  return '<div style="max-width:640px;margin:0 auto;">'+
+    '<div class="card" style="text-align:center;padding:40px 20px;">'+
+      '<div class="spin" style="font-size:32px;">⏳</div>'+
+      '<div style="color:white;font-weight:700;margin-top:14px;">Analyse en cours…</div>'+
+      '<div style="color:var(--sub);font-size:12px;margin-top:6px;">Comparaison avec le texte réglementaire RFE 06/2024</div>'+
+    '</div>'+
+  '</div>';
+}
+
+function rAUDITFLASH_report(){
+  var r=AUDITF.report;
+  var sec=function(title,items,color,render){
+    if(!items||!items.length) return '';
+    return '<div class="card" style="border-color:'+color+';">'+
+      '<div style="font-weight:800;color:white;font-size:14px;margin-bottom:10px;">'+title+' ('+items.length+')</div>'+
+      items.map(render).join('')+
+    '</div>';
+  };
+  return '<div style="max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:14px;">'+
+    '<div class="card" style="background:linear-gradient(135deg,rgba(201,153,26,.20),rgba(201,153,26,.04));border-color:rgba(201,153,26,.55);text-align:center;">'+
+      '<div style="font-size:11px;color:var(--sub);font-weight:700;letter-spacing:1px;">SCORE DE COUVERTURE ESTIMÉ</div>'+
+      '<div style="font-size:32px;font-weight:800;color:var(--cyan);margin-top:4px;">'+afEsc(String(r.score_global||'—'))+'</div>'+
+    '</div>'+
+    sec('✅ Points conformes', r.points_conformes, 'rgba(34,197,94,.4)', function(p){
+      return '<div style="padding:8px 0;border-top:1px solid var(--border);"><div style="font-weight:700;color:white;font-size:13px;">'+afEsc(p.sujet)+'</div>'+
+        (p.extrait_procedure?'<div style="color:var(--sub);font-size:12px;margin-top:2px;">'+afEsc(p.extrait_procedure)+'</div>':'')+
+        (p.article_reference?'<div style="color:var(--cyan);font-size:11px;margin-top:3px;">Réf. '+afEsc(p.article_reference)+'</div>':'')+'</div>';
+    })+
+    sec('⚠️ Écarts détectés', r.ecarts_detectes, 'rgba(239,68,68,.4)', function(p){
+      return '<div style="padding:8px 0;border-top:1px solid var(--border);"><div style="font-weight:700;color:white;font-size:13px;">'+afEsc(p.sujet)+' '+(p.niveau_risque?'<span class="badge" style="background:rgba(239,68,68,.15);color:#f87171;border-color:rgba(239,68,68,.4);">'+afEsc(p.niveau_risque)+'</span>':'')+'</div>'+
+        (p.observation?'<div style="color:var(--sub);font-size:12px;margin-top:2px;">'+afEsc(p.observation)+'</div>':'')+
+        (p.article_reference?'<div style="color:var(--cyan);font-size:11px;margin-top:3px;">Réf. '+afEsc(p.article_reference)+'</div>':'')+'</div>';
+    })+
+    sec('🚫 Points absents', r.points_absents, 'rgba(239,68,68,.6)', function(p){
+      return '<div style="padding:8px 0;border-top:1px solid var(--border);"><div style="font-weight:700;color:white;font-size:13px;">'+afEsc(p.sujet)+'</div>'+
+        (p.obligation_rfe?'<div style="color:var(--sub);font-size:12px;margin-top:2px;">'+afEsc(p.obligation_rfe)+'</div>':'')+
+        (p.article_reference?'<div style="color:var(--cyan);font-size:11px;margin-top:3px;">Réf. '+afEsc(p.article_reference)+'</div>':'')+'</div>';
+    })+
+    '<div class="card" style="font-size:11px;color:var(--sub);">'+afEsc(AUDITF.disclaimer)+'</div>'+
+    '<button class="btn-out" style="width:100%;padding:12px;" onclick="afReset()">↺ Nouvel audit</button>'+
+  '</div>';
+}
+
+function afEsc(s){ s=String(s==null?'':s); return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function afOnFile(inp){
+  AUDITF.file=(inp.files&&inp.files[0])?inp.files[0]:null;
+  AUDITF.error='';
+  var lbl=ge('af-file-label'); if(lbl) lbl.textContent = AUDITF.file ? ('📄 '+AUDITF.file.name) : '📎 Choisir un fichier PDF';
+  var btns=document.querySelectorAll('#ct .btn'); // MODIFIÉ : réactive le bouton Lancer sans re-render complet
+  render();
+}
+
+function afLaunch(){
+  if(!AUDITF.file) return;
+  AUDITF.loading=true; AUDITF.error=''; render();
+  var fd=new FormData();
+  fd.append('procedure', AUDITF.file);
+  if(typeof ORG!=='undefined' && ORG && ORG.id) fd.append('org_id', ORG.id);
+  fetch('/audit-flash', { method:'POST', headers:{'Authorization':'Bearer '+U.token}, body:fd })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      AUDITF.loading=false;
+      if(d && d.success!==false && d.report){ AUDITF.report=d.report; AUDITF.disclaimer=d.disclaimer||''; }
+      else { AUDITF.error=(d&&d.error)||'Erreur lors de l\'analyse. Réessayez.'; }
+      render();
+    })
+    .catch(function(){ AUDITF.loading=false; AUDITF.error='Erreur réseau. Réessayez.'; render(); });
+}
+
+function afReset(){ AUDITF={ file:null, loading:false, report:null, disclaimer:'', error:'' }; render(); }
+
 function render(){
   var c=ge('ct'); c.className='fi'; void c.offsetWidth;
   if(QZ.q.length>0){ rQE(); return; }
   if(BF!==null&&BA){ c.innerHTML=rFD(); return; }
   if(BA){ c.innerHTML=rBD(); return; }
   if(TAB==='autoeval'&&AEF){ c.innerHTML=rAEF(); if(AEF==='vrai_faux_chrono'){ try{ aeVfcAfterRender(); }catch(e){} } if(AEF==='puzzle_juridique'){ try{ aePzAfterRender(); }catch(e){} } return; } // MODIFIÉ : affiche le format d'auto-éval sélectionné + démarre le(s) chrono(s)
-  var pages={dashboard:rDB,quiz:rQP,biblio:rBP,arena:rAR,achievements:rACH,leaderboard:rLB,academy:rAC,settings:rST,autoeval:rAE,admin:rADMIN,about:rABOUT,communaute:rSALON,feedback:rFEEDBACK,debats:rDEBATS,debatsadm:rDEBATSADM,metiers:rMETIERS,org:rOrgCreate,orgdash:rOrgDashboard,orgjoin:rOrgJoin}; // MODIFIÉ : ajout métiers + feedback + espace établissement (org/orgdash/orgjoin)
+  var pages={dashboard:rDB,quiz:rQP,biblio:rBP,arena:rAR,achievements:rACH,leaderboard:rLB,academy:rAC,settings:rST,autoeval:rAE,admin:rADMIN,about:rABOUT,communaute:rSALON,feedback:rFEEDBACK,debats:rDEBATS,debatsadm:rDEBATSADM,metiers:rMETIERS,org:rOrgCreate,orgdash:rOrgDashboard,orgjoin:rOrgJoin,auditflash:rAUDITFLASH}; // MODIFIÉ : ajout Audit Flash Digital
   try{ c.innerHTML=(pages[TAB]||rDB)(); } // MODIFIÉ Phase 2 : capture les erreurs de rendu (évite l'écran figé + affiche la cause)
   catch(_err){ try{console.error('[render '+TAB+']',_err);}catch(e){} c.innerHTML='<div class="card" style="max-width:640px;margin:24px auto;padding:18px;border:1px solid rgba(239,68,68,.5);"><div style="font-weight:800;color:#f87171;margin-bottom:6px;">⚠️ Erreur d\'affichage ('+TAB+')</div><div style="font-size:12px;color:var(--sub);white-space:pre-wrap;word-break:break-word;">'+String((_err&&_err.message)||_err)+'</div></div>'; }
   if(TAB==='quiz'){ try{ raQuizFx(); }catch(e){} try{ qApplyFilter(); }catch(e){} } // MODIFIÉ : compteur animé + recherche/filtres réappliqués
@@ -2260,19 +2437,13 @@ function rDB(){
   '<div class="card" style="padding:16px;">'+
   '<div style="font-weight:800;color:white;font-size:15px;margin-bottom:2px;">Que voulez-vous faire ?</div>'+
   '<div style="font-size:11px;color:var(--sub);margin-bottom:14px;">Choisissez votre point de départ.</div>'+<!-- MODIFIÉ : vouvoiement -->
-  '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;">'+
-  '<div class="ch" onclick="ST(\'quiz\')" style="cursor:pointer;background:linear-gradient(135deg,rgba(201,153,26,.20),rgba(201,153,26,.04));border:1px solid rgba(201,153,26,.55);border-radius:14px;padding:18px;text-align:center;">'+
-  '<div style="font-size:30px;line-height:1;">▶️</div>'+
-  '<div style="font-weight:800;color:white;font-size:14px;margin:9px 0 3px;">Jouer en solo</div>'+
-  '<div style="font-size:11px;color:var(--sub);">Choisis un pack, progresse</div></div>'+
-  '<div class="ch" onclick="ST(\'metiers\')" style="cursor:pointer;background:rgba(255,255,255,.04);border:1px solid rgba(201,153,26,.35);border-radius:14px;padding:18px;text-align:center;">'+  // MODIFIÉ : CFG_METIERS inexistant → page metiers (rMETIERS)
-  '<div style="font-size:30px;line-height:1;">🧭</div>'+
-  '<div style="font-weight:800;color:white;font-size:14px;margin:9px 0 3px;">Par métier</div>'+
-  '<div style="font-size:11px;color:var(--sub);">Conformité, Trade, Risques, CEMAC</div></div>'+
-  '<div class="ch" onclick="ST(\'arena\')" style="cursor:pointer;background:linear-gradient(135deg,rgba(96,165,250,.16),rgba(96,165,250,.03));border:1px solid rgba(96,165,250,.45);border-radius:14px;padding:18px;text-align:center;">'+
-  '<div style="font-size:30px;line-height:1;">⚔️</div>'+
-  '<div style="font-weight:800;color:white;font-size:14px;margin:9px 0 3px;">Défier un collègue</div>'+
-  '<div style="font-size:11px;color:var(--sub);">Duel en temps réel</div></div>'+
+  '<div class="dash-actions">'+ // MODIFIÉ : grille compacte 2-3 colonnes (au lieu de 3 cartes empilées pleine largeur)
+  '<div class="ch dash-act" onclick="ST(\'quiz\')" style="background:linear-gradient(135deg,rgba(201,153,26,.20),rgba(201,153,26,.04));border:1px solid rgba(201,153,26,.55);">'+
+  '<div class="dai">▶️</div><div class="dat">Jouer en solo</div><div class="das">Choisis un pack, progresse</div></div>'+
+  '<div class="ch dash-act" onclick="ST(\'metiers\')" style="background:rgba(255,255,255,.04);border:1px solid rgba(201,153,26,.35);">'+  // MODIFIÉ : CFG_METIERS inexistant → page metiers (rMETIERS)
+  '<div class="dai">🧭</div><div class="dat">Par métier</div><div class="das">Conformité, Trade, Risques, CEMAC</div></div>'+
+  '<div class="ch dash-act" onclick="ST(\'arena\')" style="background:linear-gradient(135deg,rgba(96,165,250,.16),rgba(96,165,250,.03));border:1px solid rgba(96,165,250,.45);">'+
+  '<div class="dai">⚔️</div><div class="dat">Défier un collègue</div><div class="das">Duel en temps réel</div></div>'+
   '</div></div>'+
   rDefiJourCard()+
   '<div class="g4">'+
@@ -2295,13 +2466,13 @@ function rDB(){
     '<span style="font-size:12px;color:'+(o[1]?'#8aa3d4':'var(--text)')+';text-decoration:'+(o[1]?'line-through':'none')+';">'+o[0]+(act?' <span style="color:var(--cyan);">→</span>':'')+'</span></div>';
   }).join('')+'</div></div>'+
   '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><span style="font-weight:700;color:white;font-size:13px;">Démarrer un quiz</span><button class="btn btn-sm" onclick="ST(\'quiz\')">Voir tous →</button></div>'+
-  '<div class="g2">'+
+  '<div class="q-grid">'+ // MODIFIÉ : réutilise la grille compacte 2 colonnes (au lieu de g2 qui repasse à 1 colonne en mobile)
   [['RFE UEMOA',QR.length,'#C9991A','QR'],['Bâle II/III',QB.length,'#a78bfa','QB']].map(function(p){
-    return '<div class="card ch" style="padding:14px;" onclick="startQ('+p[3]+',\''+p[0]+'\')">'+
-    '<div style="font-weight:700;color:white;font-size:13px;">'+p[0]+'</div>'+
-    '<div style="font-size:11px;color:var(--sub);margin-top:2px;">'+p[1]+' questions</div>'+
-    '<div style="margin-top:8px;"><button class="btn btn-sm" onclick="event.stopPropagation();startQ('+p[3]+',\''+p[0]+'\')">Jouer →</button></div>'+
-    '<div style="margin-top:8px;width:28px;height:3px;border-radius:2px;background:'+p[2]+';"></div></div>';
+    return '<div class="card ch" style="padding:12px;" onclick="startQ('+p[3]+',\''+p[0]+'\')">'+
+    '<div style="font-weight:700;color:white;font-size:12.5px;">'+p[0]+'</div>'+
+    '<div style="font-size:10.5px;color:var(--sub);margin-top:2px;">'+p[1]+' questions</div>'+
+    '<div style="margin-top:7px;"><button class="btn btn-sm" onclick="event.stopPropagation();startQ('+p[3]+',\''+p[0]+'\')">Jouer →</button></div>'+
+    '<div style="margin-top:7px;width:24px;height:3px;border-radius:2px;background:'+p[2]+';"></div></div>';
   }).join('')+'</div></div></div>';
 }
 
@@ -2404,7 +2575,7 @@ function rQP(){
     '<div style="font-size:11px;color:var(--sub);">'+p.sub+' · '+p.q.length+' questions</div></div>'+
     '<button class="btn btn-sm q-hero" onclick="startQ('+p.ds+',\''+p.t+'\')">⚡ Pack complet ('+p.q.length+'Q)</button></div>'+
     '<div style="font-size:11px;color:var(--sub);margin-bottom:10px;"><span class="q-packcount">'+cats.length+' thèmes</span> — choisis-en un, ou lance le pack complet :</div>'+ // MODIFIÉ : compteur live
-    '<div class="g3">'+
+    '<div class="q-grid">'+ // MODIFIÉ : grille dédiée 2 colonnes mobile (au lieu de g3 qui passe à 1 colonne)
     cats.map(function(c,ci){
       var n=(Array.isArray(p.q)?p.q:[]).filter(function(q){return q && q.cat===c;}).length; // MODIFIÉ : garde anti-null
       var ce=c.replace(/'/g,"\\'");
@@ -2412,7 +2583,8 @@ function rQP(){
       var best=prog[c]; // % (ou undefined)
       var tag=(best!=null)?'<span class="q-done">✓ '+best+'%</span>':'<span class="q-new">Nouveau</span>';
       var bar=(best!=null)?'<div class="q-mini"><i style="width:'+best+'%"></i></div>':'';
-      return '<div class="card ch qcard" data-name="'+dn+'" data-fam="'+qFam(c)+'" style="padding:13px;animation-delay:'+(120+ci*45)+'ms;" onclick="startQCat(\''+p.ds+'\',\''+ce+'\',\''+p.t+'\')">'+ // MODIFIÉ : carte cliquable + recherche/filtre
+      var extraCls=(ci>=6)?' q-extra':''; // MODIFIÉ : au-delà des 6 premiers thèmes, replié par défaut
+      return '<div class="card ch qcard'+extraCls+'" data-name="'+dn+'" data-fam="'+qFam(c)+'" style="animation-delay:'+(120+ci*45)+'ms;" onclick="startQCat(\''+p.ds+'\',\''+ce+'\',\''+p.t+'\')">'+ // MODIFIÉ : carte cliquable + recherche/filtre
       '<div style="display:flex;align-items:center;gap:11px;">'+
       '<div class="q-ic">'+qIcon(c)+'</div>'+
       '<div style="min-width:0;flex:1;"><div style="display:flex;align-items:center;gap:6px;justify-content:space-between;">'+
@@ -2420,7 +2592,9 @@ function rQP(){
       '<div style="font-size:11px;color:var(--sub);margin-top:2px;">'+n+' questions</div></div>'+
       '<span style="color:var(--cyan);font-size:20px;flex-shrink:0;line-height:1;">&#8594;</span></div>'+
       bar+'</div>';
-    }).join('')+'</div></div>';
+    }).join('')+'</div>'+
+    (cats.length>6?'<button class="q-more" onclick="qToggleMore(this)">Voir les '+(cats.length-6)+' thèmes restants ▾</button>':'')+ // MODIFIÉ : bouton repli/dépli
+    '</div>';
   }).join('')+
   '<div id="qEmpty" class="q-empty" style="display:none;">Aucun thème ne correspond à ta recherche. <button onclick="qReset()">Tout réafficher</button></div>'+ // MODIFIÉ : état vide
   '<p style="font-size:11px;color:var(--sub);text-align:center;opacity:.85;">🎓 '+grand+' questions sourcées d\'après les textes officiels BCEAO, BEAC et COBAC, complétées par 7 parcours métiers.</p>'+
@@ -2450,11 +2624,19 @@ function qSetFam(k){
   qApplyFilter();
 }
 function qReset(){ QFILTER.q=''; QFILTER.fam='all'; render(); }
+function qToggleMore(btn){ // MODIFIÉ : déplie/replie les thèmes au-delà des 6 premiers d'un pack
+  var pk=btn.closest('.q-packcard'); if(!pk) return;
+  var open=pk.classList.toggle('q-expanded');
+  var extraCount=pk.querySelectorAll('.q-extra').length;
+  btn.textContent=open?'Voir moins ▴':('Voir les '+extraCount+' thèmes restants ▾');
+}
 function qApplyFilter(){ // montre/cache les thèmes selon recherche + famille, sans re-render
   var qv=(QFILTER.q||'').trim().toLowerCase(), fam=QFILTER.fam||'all';
+  var searching=!!(qv||fam!=='all'); // MODIFIÉ : force l'affichage des thèmes repliés pendant une recherche/filtre
   var packs=document.querySelectorAll('.q-packcard'), totalShown=0;
   for(var p=0;p<packs.length;p++){
     var pk=packs[p], cards=pk.querySelectorAll('.qcard'), shown=0;
+    pk.classList.toggle('q-searching', searching); // MODIFIÉ
     for(var i=0;i<cards.length;i++){
       var card=cards[i], name=card.getAttribute('data-name')||'', cf=card.getAttribute('data-fam')||'';
       var okFam=(fam==='all'||cf===fam), okQ=(!qv||name.indexOf(qv)>=0);
@@ -2871,7 +3053,8 @@ function rAR(){
     arTile(AR.tab==='duels', '⚔️', 'Duels 1v1', "AR.tab='duels';render()") +
     arTile(AR.tab==='tournois', '🏆', 'Tournois', "AR.tab='tournois';render()") +
     arTile(AR.tab==='direct', '📺', 'Direct', "arOpenLive()") +
-    arTile(AR.tab==='kotm', '👑', 'Roi de la Manche', "AR.tab='kotm';render()");
+    arTile(AR.tab==='kotm', '👑', 'Roi de la Manche', "AR.tab='kotm';render()") +
+    arTile(false, '🏰', 'Tournoi du Royaume', "arOpenRoyaumeTournament()"); // MODIFIÉ — tuile dédiée pack Royaume
   var premiumTiles =
     arTile(AR.tab==='crossword', '🧩', 'Mots croisés', "AR.tab='crossword';render()") +
     arTile(AR.tab==='wordsearch', '🔎', 'Mots mêlés', "AR.tab='wordsearch';render()") +
@@ -2887,13 +3070,22 @@ function rAR(){
       '<div class="ar-pack-grid">'+freeTiles+'</div>'+
     '</div>'+
     '<div class="ar-pack">'+
-      '<div class="ar-pack-hd ar-pack-premium">PACK PREMIUM <span class="ar-diamond">💎</span></div>'+
+      '<div class="ar-pack-hd ar-pack-premium ar-pack-premium-glow">PACK PREMIUM <span class="ar-diamond">💎</span></div>'+ // MODIFIÉ : ajout classe glow additive
       '<div class="ar-pack-grid">'+premiumTiles+'</div>'+
     '</div>'+
   '</div>';
+  // MODIFIÉ : bloc feu virtuel additif (remplace le simple h2, purement visuel, aucune logique touchée)
+  var arHero = '<div class="ar-hero-fire">'+
+      '<div class="ar-hero-ring">'+
+        '<span class="ar-ember"></span><span class="ar-ember"></span><span class="ar-ember"></span>'+
+        '<span class="ar-ember"></span><span class="ar-ember"></span><span class="ar-ember"></span>'+
+        '<span class="ar-hero-ring-ic">⚔️</span>'+
+      '</div>'+
+      '<h2 class="ar-hero-title">L\'Arène</h2>'+
+      '<div class="ar-hero-sub">Choisissez votre mode</div>'+
+    '</div>';
   return '<div style="display:flex;flex-direction:column;gap:14px;">'+
-    '<h2 style="font-size:20px;color:white;margin-bottom:2px;">L\'Arène</h2>'+
-    '<div style="font-size:12px;color:var(--sub);margin-bottom:4px;">Choisissez votre mode</div>'+
+    arHero +
     tabs +
     (AR.tab==='duels' ? rARDuelsHome() : AR.tab==='kotm' ? rARKotmHome() : AR.tab==='direct' ? rLiveHub() : AR.tab==='crossword' ? rARCrosswordHome() : AR.tab==='wordsearch' ? rARWordsearchHome() : AR.tab==='charade' ? rARCharadeHome() : AR.tab==='chiffreslettres' ? rARCLHome() : AR.tab==='vraifaux' ? rARVraiFauxHome() : AR.tab==='qcmeclair' ? rARQEHome() : AR.tab==='matchdef' ? rARMDHome() : AR.tab==='classement' ? rARCHHome() : rARTournoisHome()) + // MODIFIÉ : + trio rapide (qcmeclair/matchdef/classement)
   '</div>';
@@ -3420,29 +3612,7 @@ var CLC = {zone:null, list:[], idx:0, timerMax:30, timerVal:30, timerId:null, qS
 var CLL = {zone:null, letters:[], target:null, targetClue:'', timerMax:45, timerVal:45, timerId:null, qStart:0, input:'', msg:'', answered:false, timedOut:false, foundExact:false, lastPts:0, score:0};
 
 /* ── Chiffres réglementaires : extraction depuis QN_U/QN_C ── */
-var CLL_BANK = {
-  U:[
-    {word:'BCEAO', clue:"Banque centrale de l'UMOA"},
-    {word:'PARMEC', clue:"Loi-cadre régissant les systèmes financiers décentralisés (SFD) de l'UEMOA"},
-    {word:'CENTIF', clue:"Cellule nationale de traitement des informations financières (déclarations LBC/FT)"},
-    {word:'CRAEF', clue:"Plateforme BCEAO de collecte automatisée des états financiers des établissements de crédit"},
-    {word:'AGREMENT', clue:"Autorisation préalable requise pour exercer une activité bancaire"},
-    {word:'CONFORMITE', clue:"Fonction chargée de veiller au respect des règles internes et externes"},
-    {word:'GOUVERNANCE', clue:"Ensemble des règles d'organisation et de contrôle interne d'une banque"},
-    {word:'BLANCHIMENT', clue:"Opération visant à dissimuler l'origine illicite de fonds"},
-    {word:'PLAFOND', clue:"Limite maximale fixée pour une opération ou un poste"}
-  ],
-  C:[
-    {word:'COBAC', clue:"Organe de supervision bancaire de la zone CEMAC"},
-    {word:'BEAC', clue:"Banque centrale des États de l'Afrique Centrale"},
-    {word:'GABAC', clue:"Groupe d'action contre le blanchiment en Afrique Centrale"},
-    {word:'ANIF', clue:"Agence Nationale d'Investigation Financière"},
-    {word:'TIAO', clue:"Taux d'Intérêt des Appels d'Offres, fixé par le Comité de Politique Monétaire"},
-    {word:'COSUMAF', clue:"Régulateur du marché financier de l'Afrique Centrale"},
-    {word:'MICROFINANCE', clue:"Établissement de petite taille finançant particuliers et TPE"},
-    {word:'SANCTION', clue:"Mesure disciplinaire prononcée par l'autorité de supervision"}
-  ]
-};
+/* CLL_BANK : externalisé -> voir /quiz-data.js (chargé en <script src> juste avant ce bloc) */
 var CLC_UNIT_RE = /^\s*([\d][\d\s.,]*)\s*(M\s*FCFA|FCFA|%|millions?(?:\s*FCFA)?|milliards?(?:\s*FCFA)?|jours?(?:\s*(?:ouvrés|calendaires))?|mois|ans?)\b/i;
 function clcParseNumber(str){
   if(!str) return null;
@@ -3665,22 +3835,7 @@ function rARCLHome(){
 
 /* MODIFIÉ : nouveau format Vrai/Faux réglementaire (Premium) — accès gratuit Top 3 zone / 10+ certificats */
 var VF = {zone:null, questions:[], idx:0, score:0, answered:false, userAnswer:null};
-var VF_BANK = { // À VALIDER PAR AMADOU SALL avant prod
-  U:[
-    {q:"Le capital social minimum d'une banque dans l'UEMOA est fixé par la Commission Bancaire.", a:false, source:"BCEAO fixe le capital minimum, pas la Commission Bancaire"},
-    {q:"Un établissement de microfinance doit obtenir un agrément avant tout démarrage d'activité.", a:true, source:"Loi portant réglementation des SFD"},
-    {q:"La déclaration de soupçon LBC/FT doit être adressée à la CENTIF.", a:true, source:"Loi uniforme LBC/FT UMOA 2023"},
-    {q:"Le ratio de solvabilité minimum exigé dans l'UEMOA est de 5%.", a:false, source:"Le ratio minimum est de 8% (dispositif Bâle)"},
-    {q:"Un virement transfrontalier au sein de l'UEMOA est dispensé de tout formulaire de change.", a:false, source:"Instruction RFE — formulaire de change requis"}
-  ],
-  C:[
-    {q:"La COBAC est l'organe de supervision bancaire de la zone CEMAC.", a:true, source:"Convention régissant la COBAC"},
-    {q:"Un commissaire aux comptes peut cumuler ce mandat avec la tenue des livres comptables de l'établissement.", a:false, source:"Instruction COBAC I-2004/01, art. 3"},
-    {q:"La désignation d'un administrateur nécessite un extrait de casier judiciaire de moins de 3 mois.", a:true, source:"Instruction COBAC I-2009/02, art. 1er"},
-    {q:"Le BEAC est la banque centrale commune des six États de la CEMAC.", a:true, source:"Statuts de la BEAC"},
-    {q:"Les établissements de la CEMAC ne sont pas soumis à des obligations LBC/FT spécifiques.", a:false, source:"Règlement COBAC LBC/FT 2024 / GABAC"}
-  ]
-};
+/* VF_BANK : externalisé -> voir /quiz-data.js (chargé en <script src> juste avant ce bloc) */
 function vfStart(zone){
   apiCall('POST','/wg/play',{format:'vraifaux'}).then(function(resp){
     if(!resp || !resp._raw || !resp._raw.allowed){ wgPaywallModal(resp&&resp.error, resp&&resp._raw&&resp._raw.meritProgress); return; }
@@ -3932,39 +4087,7 @@ function rARMDGame(){
 /* ── Classement hiérarchique ──
    Processus reconstruits à partir des fiches de révision déjà validées (BR/BB) — à faire
    reconfirmer par Amadou Sall par simple relecture avant mise en avant commerciale. */
-var CH_BANK = [
-  {id:'cession', titre:'Cession de devises à l\'export (RFE UEMOA)', steps:[
-    'Expédition des marchandises par l\'exportateur',
-    'Exigibilité du paiement (max 120 jours après expédition)',
-    'Encaissement des devises par le résident',
-    'Cession des devises à un intermédiaire agréé (max 1 mois après exigibilité)',
-    'Compte rendu à la Direction des Finances Extérieures et à la BCEAO'
-  ]},
-  {id:'investEtranger', titre:'Investissement à l\'étranger par un résident UEMOA', steps:[
-    'Constitution du dossier (lettre selon modèle Annexe VII)',
-    'Autorisation préalable du Ministre chargé des Finances',
-    'Financement à 75% minimum par emprunts étrangers',
-    'Réalisation de l\'investissement',
-    'Déclaration de liquidation et rapatriement sous 1 mois si non réinvesti'
-  ]},
-  {id:'depart', titre:'Départ définitif d\'un étranger résident (Note BCEAO 2026)', steps:[
-    'Constitution du dossier d\'avoirs justifiés',
-    'Demande d\'autorisation à la Structure Finances Extérieures',
-    'Instruction de la demande par la Structure',
-    'Transfert intégral du solde des comptes FCFA'
-  ]},
-  {id:'fodep', titre:'Déclaration prudentielle FODEP (UMOA)', steps:[
-    'Arrêté des comptes (31/12 ou 30/06)',
-    'Élaboration du FODEP sur la plate-forme dédiée',
-    'Transmission à la BCEAO (30 avril ou 31 octobre)'
-  ]},
-  {id:'pilier', titre:'Cycle de surveillance prudentielle (Piliers Bâle UMOA)', steps:[
-    'Calcul des ratios minimums de fonds propres (Pilier 1)',
-    'Auto-évaluation ICAAP par l\'établissement (Pilier 2)',
-    'Évaluation SREP par la Commission Bancaire (Pilier 2)',
-    'Publication des informations — discipline de marché (Pilier 3)'
-  ]}
-];
+/* CH_BANK : externalisé -> voir /quiz-data.js (chargé en <script src> juste avant ce bloc) */
 var CH = {procId:null, order:[], checked:false};
 function chShuffledOrder(n){
   var o=[]; for(var i=0;i<n;i++) o.push(i);
@@ -4051,9 +4174,9 @@ function rARDuelsHome(){
     '</div>' : '')+
   /* Actions principales */
   '<div class="g2">'+
-    '<button class="card ch" style="padding:20px;text-align:center;cursor:pointer;border:1px solid rgba(201,153,26,.25);background:rgba(201,153,26,.06);" onclick="arModalCreate()">'+
-      '<div style="font-size:32px;margin-bottom:8px;">⚔️</div>'+
-      '<div style="font-weight:800;color:#4ade80;font-size:14px;margin-bottom:3px;">Créer un Duel</div>'+
+    '<button class="card ch carte-duel-active" style="padding:20px;text-align:center;cursor:pointer;" onclick="arModalCreate()">'+
+      '<div class="icone-epees" style="margin-bottom:8px;">⚔️</div>'+
+      '<div class="titre-or">Créer un Duel</div>'+
       '<div style="font-size:11px;color:var(--sub);">Choisissez le pack & invitez</div>'+
     '</button>'+
     '<button class="card ch" style="padding:20px;text-align:center;cursor:pointer;border:1px solid rgba(201,153,26,.45);background:rgba(201,153,26,.06);" onclick="arModalJoin(\'duel\')">'+
@@ -4489,7 +4612,7 @@ function rLB(){
   // MODIFIÉ : classement réel chargé depuis le backend /leaderboard
   setTimeout(function(){ lbGo('all'); }, 40);
   return '<div style="display:flex;flex-direction:column;gap:14px;">'+
-  '<h2 style="font-size:22px;color:white;">Classement</h2>'+
+  '<h2 class="ra-h2-glow" style="font-size:22px;color:white;"><span class="ra-icon-fire">👑</span> Classement</h2>'+
   /* AJOUT : bascule type de classement — Joueurs / Banques */
   '<div style="display:flex;gap:6px;flex-wrap:wrap;">'+
     '<button class="vtab ac" id="lb-m-players" onclick="lbSetMode(\'players\')">👤 Joueurs</button>'+
@@ -4705,7 +4828,7 @@ function lbLoad(zone){
       }
       goalBox.innerHTML=gh;
     }
-    // MODIFIÉ : 🏆 podium top 3 — animations (couronne, ceinture, flottement, pétards)
+    // MODIFIÉ : 🏆 podium top 3 — animations (couronne, ceinture, flottement, pétards) + Trône de Fer (GoT)
     var pod=list.slice(0,3), podHTML='';
     if(pod.length>=3){
       var order=[1,0,2], hh=[84,64,52]; // MODIFIÉ : #1 (centre) = socle le plus haut
@@ -4722,9 +4845,27 @@ function lbLoad(zone){
             _h=(8+Math.round(Math.random()*7));
         _conf+='<i style="left:'+_l+'%;width:'+_w+'px;height:'+_h+'px;background:'+_col+';animation-delay:'+_dl+'s;animation-duration:'+_du+'s;transform:rotate('+_rot+'deg);"></i>';
       }
+      // MODIFIÉ (GoT) : torches + pièces d'or flottantes, ajoutées dans la même couche décorative
+      _conf+='<span class="ra-flame left" aria-hidden="true">🔥</span><span class="ra-flame right" aria-hidden="true">🔥</span>';
+      var _coinPos=[[6,20],[14,62],[88,26],[93,58],[8,85],[91,88]];
+      for(var _coi=0;_coi<_coinPos.length;_coi++){
+        _conf+='<span class="ra-coin" style="left:'+_coinPos[_coi][0]+'%;top:'+_coinPos[_coi][1]+'%;animation-delay:'+(_coi*0.35)+'s;" aria-hidden="true">🪙</span>';
+      }
       _conf+='</div>';
-      podHTML='<div class="ra-podium-wrap">'+_conf+
+      // MODIFIÉ (GoT) : Trône de Fer généré en SVG (éventail d'épées) derrière le Champion
+      var _bladeN=15, _blades='';
+      for(var _bi=0;_bi<_bladeN;_bi++){
+        var _ang=-72+(_bi*(144/(_bladeN-1)));
+        var _mid=(_bladeN-1)/2;
+        var _len=54+(_bi<=_mid?_bi:(_bladeN-1-_bi))*3.6;
+        _blades+='<rect x="-2.1" y="-'+_len+'" width="4.2" height="'+_len+'" rx="1.3" fill="url(#rtBlade)" stroke="#2b2f36" stroke-width="0.5" transform="rotate('+_ang.toFixed(1)+')"/>';
+      }
+      var throneSVG='<svg class="ra-throne-bg" viewBox="-78 -98 156 104" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'+
+        '<defs><linearGradient id="rtBlade" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#eef1f4"/><stop offset="55%" stop-color="#9aa3ad"/><stop offset="100%" stop-color="#4b525c"/></linearGradient></defs>'+
+        '<g>'+_blades+'</g><circle cx="0" cy="0" r="8.5" fill="#C9991A" stroke="#7a5d10" stroke-width="1.5"/></svg>';
+      podHTML='<div class="ra-podium-wrap ra-got-wrap">'+_conf+
         '<div class="ra-podium-row" style="display:flex;align-items:flex-end;justify-content:center;gap:8px;padding:30px 6px 4px;position:relative;z-index:1;">'+
+        throneSVG+
         order.map(function(idx){ var p=pod[idx]; if(!p) return ''; var rr=idx+1; var meP=(myRank&&rr===myRank); var isKing=(idx===0);
           return '<div class="lb-podium-item'+(isKing?' ra-king':'')+'" style="flex:1;max-width:108px;text-align:center;animation-delay:'+(idx*0.1)+'s;">'+
             (isKing?'<div class="ra-crown" aria-hidden="true">👑</div>':'')+
@@ -4984,7 +5125,7 @@ function arEscAttr(x){ return String(x==null?'':x).replace(/&/g,'&amp;').replace
 function arCatOptions(){
   var all=[].concat(QR,QB,QC,QN), cats=[], seen={}; // MODIFIÉ : QN inclus dans les thèmes de duel
   all.forEach(function(q){ if(q && q.cat && !seen[q.cat]){ seen[q.cat]=1; cats.push(q.cat); } }); // MODIFIÉ Phase 2 : garde q
-  return cats.map(function(c){ var n=all.filter(function(q){return q&&q.cat===c;}).length; var e=arEscAttr(c); return '<option value="cat:'+e+'">\uD83D\uDCC2 '+e+' ('+n+')</option>'; }).join('');
+  return cats.map(function(c){ var n=all.filter(function(q){return q&&q.cat===c;}).length; var e=arEscAttr(c); var icon=(c==='Royaume')?'\uD83C\uDFF0':'\uD83D\uDCC2'; return '<option value="cat:'+e+'">'+icon+' '+e+' ('+n+')</option>'; }).join(''); // MODIFIÉ — icône 🏰 pack Royaume
 }
 function arPackQ(packId, n, code){
   var src;
@@ -5277,6 +5418,21 @@ function arModalCreate(){
     '<button class="btn-out btn-sm" style="width:100%;" onclick="closeModal()">Annuler</button>'+
     '</div>'
   );
+  var arTpackEl = ge('ar-tpack'); // MODIFIÉ — bannière pack Royaume
+  if (arTpackEl) arTpackEl.addEventListener('change', function(){
+    var b = ge('ar-royaume-banner');
+    if (b) b.style.display = (this.value === 'cat:Royaume') ? 'block' : 'none';
+  });
+}
+
+function arOpenRoyaumeTournament(){ // MODIFIÉ — bouton dédié Tournoi du Royaume
+  arModalCreateTour('classic');
+  var sel = ge('ar-tpack');
+  if (sel){ sel.value = 'cat:Royaume'; }
+  var nameEl = ge('ar-tname');
+  if (nameEl && !nameEl.value) nameEl.value = 'Tournoi du Royaume';
+  var b = ge('ar-royaume-banner');
+  if (b) b.style.display = 'block';
 }
 
 function arModalJoin(type){
@@ -5312,6 +5468,7 @@ function arModalCreateTour(format){ // MODIFIÉ : format 'classic' | 'intra' | '
     '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Zone géographique</label>'+
     '<select id="ar-tzone" class="inp"><option value="uemoa">🌍 UEMOA</option><option value="cemac">🌍 CEMAC</option><option value="inter">🌐 Inter (UEMOA + CEMAC)</option></select></div>'+
     '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Pack de questions</label>'+
+    '<div id="ar-royaume-banner" style="display:none;margin-bottom:10px;text-align:center;"><img src="/banniere-royaume.svg" alt="Tournoi du Royaume" style="max-width:100%;border-radius:12px;"/></div>'+ // MODIFIÉ — bannière pack Royaume
     '<select id="ar-tpack" class="inp"><optgroup label="Packs généraux"><option value="rfe-uemoa">🏛️ RFE UEMOA</option><option value="bale-umoa">⚖️ Bâle II/III</option><option value="mix">🔀 Mix</option><option value="cemac">🌍 CEMAC (BEAC/COBAC)</option><option value="qn">📚 Thématiques approfondies</option></optgroup><optgroup label="🎯 Thèmes Atelier (défis ciblés)">'+arSafeOpts(arThemeOptions)+'</optgroup><optgroup label="Thèmes précis">'+arSafeOpts(arCatOptions)+'</optgroup></select></div>'+
     (format!=='classic' ? '<div><label style="display:block;font-size:11px;font-weight:600;color:#aac4e8;margin-bottom:5px;">Mode de classement des '+(format==='inter'?'pays':'institutions')+'</label>'+
     '<select id="ar-tscoring" class="inp"><option value="total">Score total cumulé</option><option value="avg">Moyenne par participant (équitable)</option><option value="top3">Somme des 3 meilleurs</option></select></div>' : '')+
@@ -7722,63 +7879,7 @@ function aeData(){ return AEZONE==='cemac' ? AE_DATA_CEMAC : AE_DATA; }   // MOD
 var AE_DATA_CEMAC = (window.__RA_BANKS__ && window.__RA_BANKS__.AE_DATA_CEMAC) || {}; // MODIFIÉ Phase 2 — servi par /packs/bootstrap (anti-plagiat auto-éval)
 
 /* ── ENRICHISSEMENT ZONE UEMOA (items additionnels fusionnés dans AE_DATA) ── */   // MODIFIÉ
-var AE_EXTRA_UEMOA = {
-  cas_pratique:[
-    {scenario:"Une banque de l'UMOA dégage un bénéfice net de 8 milliards FCFA. Son capital social est de 50 milliards FCFA et sa réserve spéciale s'élève déjà à 6 milliards FCFA.",
-     questions:["Quel prélèvement doit-elle opérer au titre de la réserve spéciale ?","Jusqu'à quel niveau cette dotation se poursuit-elle ?"],
-     correction:[
-       {a:"Un prélèvement obligatoire de 15 % du bénéfice net, soit 1,2 milliard FCFA.",ref:"Annexe Décision N°013/2016/CM/UMOA — §16 (prélèvement 15 %)"},
-       {a:"Jusqu'à ce que la réserve atteigne 20 % (1/5) du capital social — ici 10 Mds — et que les ratios cibles soient respectés.",ref:"Annexe Décision N°013/2016 — §16 (plafond 20 % du capital)"}
-     ]}
-  ],
-  vrai_faux:[
-    {affirmation:"Le ratio de levier minimum dans l'UMOA est de 3 % (Tier 1 rapporté à l'exposition totale non pondérée).",reponse:true,
-     justification:"Exact : le ratio de levier minimum est de 3 %.",ref:"Annexe Décision N°013/2016 — Titre VIII"},
-    {affirmation:"La périodicité minimale de publication des informations au titre du Pilier 3 est annuelle.",reponse:false,
-     justification:"Faux : la périodicité minimale est semestrielle.",ref:"Annexe Décision N°013/2016 — Titre XII"},
-    {affirmation:"Pour le calcul du risque opérationnel, les années où le Produit Net Bancaire est négatif ou nul sont exclues de la moyenne.",reponse:true,
-     justification:"Exact : seules les années à PNB positif entrent dans la moyenne sur 3 ans.",ref:"Annexe Décision N°013/2016 — Titre V"}
-  ],
-  texte_trous:[
-    {texte:"Le FODEP est transmis à la BCEAO de manière semestrielle, au plus tard le ___ avril et le ___ octobre.",
-     reponses:["30","31"],
-     ref:"Instruction N°005-08-2017 BCEAO — Art. 4"},
-    {texte:"Au titre de la division des risques, le seuil de déclaration d'un grand risque est de ___ % des FPE et la limite individuelle sur un même bénéficiaire de ___ %.",
-     reponses:["10","25"],
-     ref:"Annexe Décision N°013/2016 — Titre VII"}
-  ],
-  calcul_prudentiel:[
-    {enonce:"Le ratio de liquidité à court terme (LCR) de la banque est-il respecté ?",
-     donnees:{"Actifs liquides de haute qualité (HQLA)":"100 Mds FCFA","Sorties nettes 30 jours (stress)":"80 Mds FCFA","Minimum LCR":"100 %"},
-     etapes:["LCR = HQLA / sorties nettes 30j","= 100 / 80 = 125 %","Comparer à 100 %"],
-     resultat:"125 % ≥ 100 % → conforme.",conforme:true,
-     ref:"Instruction n°009-09-2017 BCEAO ; Annexe Décision N°013/2016 — Titre XIII"},
-    {enonce:"Le ratio de liquidité à long terme (NSFR) de la banque est-il respecté ?",
-     donnees:{"Financement stable disponible (ASF)":"600 Mds FCFA","Financement stable exigé (RSF)":"550 Mds FCFA","Minimum NSFR":"100 %"},
-     etapes:["NSFR = ASF / RSF","= 600 / 550 = 109 %","Comparer à 100 %"],
-     resultat:"109 % ≥ 100 % → conforme.",conforme:true,
-     ref:"Annexe Décision N°013/2016 — Titre XIII"}
-  ],
-  audit:[
-    {rapport:"Rapport — Banque V : le risque opérationnel a été calculé en incluant une année à PNB négatif ; le FODEP n'a été transmis qu'une seule fois dans l'année ; les états du Pilier 3 ne mentionnent pas les APR par catégorie.",
-     irregularites:[
-       {t:"Inclusion d'une année à PNB négatif dans le calcul du risque opérationnel : ces années doivent être exclues.",ref:"Annexe Décision N°013/2016 — Titre V"},
-       {t:"FODEP transmis une seule fois : deux transmissions par an sont requises (30 avril et 31 octobre).",ref:"Instruction N°005-08-2017 BCEAO — Art. 4"},
-       {t:"Absence des APR par catégorie dans le Pilier 3 : information obligatoire.",ref:"Annexe Décision N°013/2016 — Titre XII"}
-     ]}
-  ],
-  examen:[
-    {q:"Quelle est la périodicité de transmission du FODEP à la BCEAO ?",
-     choices:["Trimestrielle","Semestrielle (30 avril et 31 octobre)","Annuelle","Mensuelle"],answer:1,
-     ref:"Instruction N°005-08-2017 BCEAO — Art. 4"},
-    {q:"Quel est le ratio de levier minimum exigé dans l'UMOA ?",
-     choices:["2 %","3 %","5 %","8 %"],answer:1,
-     ref:"Annexe Décision N°013/2016 — Titre VIII"},
-    {q:"Quel coefficient est appliqué au PNB moyen pour le risque opérationnel ?",
-     choices:["8 %","12 %","15 %","20 %"],answer:2,
-     ref:"Annexe Décision N°013/2016 — Titre V"}
-  ]
-};
+/* AE_EXTRA_UEMOA : externalisé -> voir /quiz-data.js (chargé en <script src> juste avant ce bloc) */
 (function aeMergeUEMOA(){   // MODIFIÉ : fusion additive des items UEMOA supplémentaires
   try{
     ['cas_pratique','vrai_faux','texte_trous','calcul_prudentiel','audit'].forEach(function(k){
@@ -7792,101 +7893,7 @@ var AE_EXTRA_UEMOA = {
 
 /* ── ENRICHISSEMENT ZONE CEMAC (items additionnels fusionnés dans AE_DATA_CEMAC) ── */   // MODIFIÉ
 /* Objectif : ≥ 8 items jouables par module. Faits sourcés BEAC / COBAC / textes CEMAC. */
-var AE_EXTRA_CEMAC = {   // MODIFIÉ
-  cas_pratique:[
-    {scenario:"Une banque agréée au Gabon souhaite ouvrir des succursales au Cameroun et au Congo sans repasser par une procédure d'agrément complète dans chaque pays.",
-     questions:["Un dispositif facilite-t-il cette expansion régionale ?","Quel texte le prévoit ?"],
-     correction:[
-       {a:"Oui. L'agrément unique permet à une banque déjà agréée dans un État CEMAC d'ouvrir des succursales dans les autres États de la zone, sans nouvel agrément complet.",ref:"Règlement n°01/24/CEMAC/UMAC/COBAC (session du 20 décembre 2024)"},
-       {a:"La banque reste soumise à la supervision de la COBAC et doit notifier l'ouverture selon la procédure prévue par le texte.",ref:"Règlement n°01/24/CEMAC/UMAC/COBAC — agrément unique"}
-     ]},
-    {scenario:"Une holding qui détient le contrôle de deux banques de la CEMAC estime ne pas être soumise au contrôle de la COBAC car elle n'exerce pas elle-même d'activité bancaire.",
-     questions:["Cette holding échappe-t-elle à la supervision ?","Depuis quand ?"],
-     correction:[
-       {a:"Non. Les compagnies financières (holdings financières) sont assujetties à la supervision de la COBAC.",ref:"Règlement n°01/15/CEMAC/UMAC/COBAC/CM du 27 mars 2015"},
-       {a:"Cet assujettissement des holdings financières est en vigueur depuis 2015.",ref:"Règlement n°01/15/CEMAC/UMAC/COBAC/CM (2015)"}
-     ]},
-    {scenario:"Une banque CEMAC détient au bilan des comptes clients sans aucun mouvement depuis plusieurs années et ne sait pas comment traiter ces avoirs en déshérence.",
-     questions:["Un cadre récent encadre-t-il ces comptes ?","Quelle en est la nature ?"],
-     correction:[
-       {a:"Oui. Le traitement des comptes inactifs et des avoirs en déshérence est désormais encadré par un règlement communautaire dédié.",ref:"Règlement n°02/25/CEMAC/UMAC/CM/COBAC du 12 juillet 2025"},
-       {a:"Ce règlement impose des diligences spécifiques de recensement, d'information et de traitement de ces avoirs.",ref:"Règlement n°02/25/CEMAC/UMAC/CM/COBAC (2025)"}
-     ]}
-  ],
-  vrai_faux:[
-    {affirmation:"La BEAC a été créée en 1972 et son siège est situé à Yaoundé.",reponse:true,
-     justification:"Exact : la BEAC date de 1972 et son siège est à Yaoundé (la COBAC, elle, siège à Libreville).",ref:"Statuts BEAC — historique institutionnel"},
-    {affirmation:"Le système monétique interbancaire GIMACPAY est administré par la COBAC.",reponse:false,
-     justification:"Faux : GIMACPAY est administré par le GIMAC (Groupement Interbancaire Monétique de l'Afrique Centrale), non par la COBAC.",ref:"BEAC — GIMAC / GIMACPAY"},
-    {affirmation:"Le capital social minimum d'un établissement financier dans la CEMAC est de 4 milliards FCFA depuis janvier 2026.",reponse:true,
-     justification:"Exact : 4 milliards FCFA pour les établissements financiers (contre 25 milliards pour les banques).",ref:"Règlement COBAC R-2025/02 du 10 décembre 2025"}
-  ],
-  texte_trous:[
-    {texte:"L'agrément unique permettant à une banque CEMAC d'ouvrir des succursales dans tous les pays de la zone résulte du Règlement n°___/CEMAC/UMAC/COBAC, adopté le ___ décembre 2024.",
-     reponses:["01/24","20"],
-     ref:"Règlement n°01/24/CEMAC/UMAC/COBAC du 20 décembre 2024"},
-    {texte:"Le système monétique interbancaire de la CEMAC s'appelle ___ et est administré par le ___.",
-     reponses:["GIMACPAY","GIMAC"],
-     ref:"BEAC — Groupement Interbancaire Monétique de l'Afrique Centrale"},
-    {texte:"Le capital minimum d'un établissement financier dans la CEMAC est de ___ milliards FCFA, et la lutte anti-blanchiment régionale est coordonnée par le ___.",
-     reponses:["4","GABAC"],
-     ref:"Règlement COBAC R-2025/02 ; GABAC (Afrique Centrale)"}
-  ],
-  calcul_prudentiel:[
-    {enonce:"Cet établissement financier (non bancaire) atteint-il le capital social minimum en vigueur ?",
-     donnees:{"Capital social libéré":"3 Mds FCFA","Capital minimum requis (établissement financier, ≥ 01/01/2026)":"4 Mds FCFA"},
-     etapes:["Comparer 3 Mds au minimum de 4 Mds","Déficit = 4 − 3 = 1 Md"],
-     resultat:"3 < 4 Mds → NON conforme (déficit de 1 Md à combler).",conforme:false,
-     ref:"Règlement COBAC R-2025/02 du 10 décembre 2025 (établissements financiers : 4 Mds)"},
-    {enonce:"Le ratio de couverture des risques de cette banque atteint-il tout juste l'exigence COBAC ?",
-     donnees:{"Fonds propres effectifs":"42 Mds FCFA","APR":"400 Mds FCFA","Minimum COBAC requis":"10,5 %"},
-     etapes:["Ratio = 42 / 400 = 10,5 %","Comparer à 10,5 %"],
-     resultat:"10,5 % = 10,5 % → conforme (au seuil exact).",conforme:true,
-     ref:"Normes prudentielles COBAC — Rapport annuel COBAC 2024 (10,5 %)"},
-    {enonce:"Cet EMF de 3ème catégorie atteint-il le capital social minimum exigé ?",
-     donnees:{"Capital social de l'EMF":"120 M FCFA","Capital minimum 3ème catégorie":"150 M FCFA"},
-     etapes:["Comparer 120 M au minimum de 150 M","Déficit = 150 − 120 = 30 M"],
-     resultat:"120 < 150 M → NON conforme.",conforme:false,
-     ref:"COBAC — relèvement progressif du capital EMF 3ème catégorie (2018-2021)"}
-  ],
-  audit:[
-    {rapport:"Rapport — Banque E (CEMAC) : holding de contrôle non déclarée à la COBAC ; détention de crypto-actifs pour compte propre ; aucun plan de relèvement du capital transmis au 30 juin 2026.",
-     irregularites:[
-       {t:"Holding financière de contrôle non assujettie/non déclarée à la COBAC alors qu'elle est supervisée depuis 2015.",ref:"Règlement n°01/15/CEMAC/UMAC/COBAC/CM (2015)"},
-       {t:"Détention de crypto-actifs : interdite dans la CEMAC.",ref:"Lettre circulaire COBAC — crypto-actifs"},
-       {t:"Absence de plan de relèvement du capital au 30/06/2026 : échéance transitoire non respectée.",ref:"Règlement COBAC R-2025/02 — dispositions transitoires"}
-     ]},
-    {rapport:"Rapport — EMF F : agréé en 3ème catégorie avec un capital de 100 M FCFA ; emploie le terme « banque » sur sa devanture.",
-     irregularites:[
-       {t:"Capital de 100 M : inférieur au minimum de 150 M pour la 3ème catégorie.",ref:"COBAC — capital EMF 3ème catégorie (150 M)"},
-       {t:"Usage du mot « banque » par un EMF : interdit.",ref:"Règlement microfinance CEMAC — Art. 5"}
-     ]},
-    {rapport:"Rapport — Établissement G : n'applique aucune diligence LBC/FT aux Organismes à But Non Lucratif (OBNL) clients ; conserve les pièces de vigilance 4 ans.",
-     irregularites:[
-       {t:"Absence de diligences LBC/FT sur les OBNL, désormais intégrés au périmètre d'assujettissement.",ref:"Règlement COBAC R-2023/01 du 19/12/2023 — périmètre OBNL"},
-       {t:"Conservation des pièces de vigilance 4 ans : inférieure au minimum de 10 ans.",ref:"Règlement COBAC R-2023/01 — Art. 38"}
-     ]},
-    {rapport:"Rapport — Intermédiaire agréé H : a importé pour 60 M FCFA de devises sans autorisation préalable ; n'a pas vérifié la conformité d'une transaction avec l'extérieur avant exécution.",
-     irregularites:[
-       {t:"Importation de devises de 60 M FCFA sans autorisation UMAC (seuil de 40 M dépassé).",ref:"Règlement n°02/18/CEMAC/UMAC/CM — Art. 15"},
-       {t:"Défaut de vérification de la conformité de l'opération à la réglementation des changes avant exécution.",ref:"Règlement n°02/18/CEMAC/UMAC/CM — Art. 25"}
-     ]}
-  ],
-  examen:[
-    {q:"Qui est le Gouverneur de la BEAC en exercice (2025-2026) ?",
-     choices:["Abbas Mahamat Tolli","Lucas Abaga Nchama","Yvon Sana Bangui","Jean-Claude Masangu"],answer:2,
-     ref:"BEAC — communiqués officiels 2025-2026"},
-    {q:"Quel règlement a instauré l'agrément unique pour les succursales bancaires dans la CEMAC ?",
-     choices:["R-2023/01","R-2025/02","Règlement n°01/24/CEMAC/UMAC/COBAC","Règlement n°02/18/CEMAC/UMAC/CM"],answer:2,
-     ref:"Règlement n°01/24/CEMAC/UMAC/COBAC (20 décembre 2024)"},
-    {q:"Quel organisme administre le système monétique interbancaire GIMACPAY ?",
-     choices:["La BEAC","La COBAC","Le GIMAC","La COSUMAF"],answer:2,
-     ref:"BEAC — GIMAC / GIMACPAY"},
-    {q:"Quel est le capital social minimum d'un établissement financier (non bancaire) dans la CEMAC depuis janvier 2026 ?",
-     choices:["1 milliard FCFA","2 milliards FCFA","4 milliards FCFA","10 milliards FCFA"],answer:2,
-     ref:"Règlement COBAC R-2025/02 du 10 décembre 2025"}
-  ]
-};
+/* AE_EXTRA_CEMAC : externalisé -> voir /quiz-data.js (chargé en <script src> juste avant ce bloc) */
 (function aeMergeCEMAC(){   // MODIFIÉ : fusion additive des items CEMAC supplémentaires (≥ 8 items/module)
   try{
     ['cas_pratique','vrai_faux','texte_trous','calcul_prudentiel','audit'].forEach(function(k){
@@ -11618,6 +11625,46 @@ window.raOpenNotif=function(){
   .ra-podium-wrap .lb-podium-item,.ra-podium-wrap .lb-podium-item.ra-king,.ra-crown,.ra-king-av,.ra-belt,.ra-conf-layer i{animation:none!important;}
   .ra-conf-layer{display:none;}
 }
+</style>
+
+<style id="ra-got-throne-fx">/* MODIFIÉ (GoT) : décor Trône de Fer derrière le Champion — parchemin, carte du monde, épées SVG, torches, pièces */
+.ra-podium-wrap.ra-got-wrap{
+  background:
+    radial-gradient(ellipse 230px 170px at 50% 8%,rgba(201,160,90,.35),transparent 72%),
+    radial-gradient(circle 60px at 14% 22%,rgba(120,90,50,.30),transparent 100%),
+    radial-gradient(circle 90px at 82% 18%,rgba(120,90,50,.26),transparent 100%),
+    radial-gradient(circle 70px at 20% 78%,rgba(120,90,50,.24),transparent 100%),
+    radial-gradient(circle 100px at 86% 74%,rgba(120,90,50,.28),transparent 100%),
+    radial-gradient(ellipse 500px 320px at 50% 45%,rgba(139,110,66,.16),transparent 75%),
+    linear-gradient(180deg,rgba(43,32,18,.35),rgba(10,25,47,.05) 30%,rgba(10,25,47,.05) 70%,rgba(43,32,18,.35));
+}
+.ra-podium-wrap.ra-got-wrap::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.55;mix-blend-mode:overlay;
+  background-image:
+    radial-gradient(circle at 18% 30%,transparent 0 9px,rgba(90,70,40,.5) 10px,transparent 11px),
+    radial-gradient(circle at 34% 20%,transparent 0 6px,rgba(90,70,40,.4) 7px,transparent 8px),
+    radial-gradient(circle at 66% 24%,transparent 0 8px,rgba(90,70,40,.45) 9px,transparent 10px),
+    radial-gradient(circle at 80% 34%,transparent 0 5px,rgba(90,70,40,.4) 6px,transparent 7px),
+    radial-gradient(circle at 26% 66%,transparent 0 7px,rgba(90,70,40,.4) 8px,transparent 9px),
+    radial-gradient(circle at 72% 68%,transparent 0 9px,rgba(90,70,40,.45) 10px,transparent 11px);
+  background-size:70px 70px,50px 50px,60px 60px,44px 44px,56px 56px,64px 64px;
+}
+.ra-throne-bg{position:absolute;left:50%;top:-4px;transform:translateX(-50%);width:168px;height:auto;z-index:0;pointer-events:none;opacity:.92;filter:drop-shadow(0 6px 14px rgba(0,0,0,.55));}
+.lb-podium-item.ra-king{position:relative;z-index:2;}
+.ra-flame{position:absolute;top:36%;font-size:26px;z-index:1;animation:raFlameFlicker 1.6s ease-in-out infinite;filter:drop-shadow(0 0 8px rgba(255,140,20,.7));}
+.ra-flame.left{left:3%;} .ra-flame.right{right:3%;}
+@keyframes raFlameFlicker{0%,100%{transform:scale(1) rotate(-3deg);opacity:1;}50%{transform:scale(1.12) rotate(3deg);opacity:.85;}}
+.ra-coin{position:absolute;font-size:15px;opacity:.8;z-index:1;animation:raCoinFloat 4s ease-in-out infinite;}
+@keyframes raCoinFloat{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-8px) rotate(18deg);}}
+@media(prefers-reduced-motion:reduce){.ra-flame,.ra-coin{animation:none!important;}}
+</style>
+
+<style id="ra-duel-card-fx">/* MODIFIÉ (GoT) : carte "Créer un Duel" — lueur or pulsante + épées flottantes */
+@keyframes raDuelFloat{0%{transform:translateY(0px);}50%{transform:translateY(-8px);}100%{transform:translateY(0px);}}
+@keyframes raDuelGlow{0%{box-shadow:0 0 5px rgba(255,215,0,.2);}50%{box-shadow:0 0 20px rgba(255,215,0,.6);}100%{box-shadow:0 0 5px rgba(255,215,0,.2);}}
+.carte-duel-active{background:linear-gradient(145deg,#0d1b2a,#1b263b)!important;border:2px solid #FFD700!important;border-radius:15px!important;animation:raDuelGlow 3s infinite alternate;position:relative;overflow:hidden;}
+.icone-epees{font-size:32px;display:inline-block;animation:raDuelFloat 3s ease-in-out infinite;}
+.titre-or{color:#4ade80;font-weight:800;font-size:14px;margin-top:0;margin-bottom:3px;}
+@media(prefers-reduced-motion:reduce){.carte-duel-active,.icone-epees{animation:none!important;}}
 </style>
 
 

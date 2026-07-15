@@ -17,6 +17,7 @@ const { Resend }   = require('resend');
 const crypto       = require('crypto');
 const path         = require('path');
 const { pickQuestions, getData } = require('./packs'); // MODIFIÉ : getData pour /packs/bootstrap (anti-plagiat)
+const fs            = require('fs'); // MODIFIÉ — audit flash
 // PUSH — module web-push chargé en mode garde : si non installé, le serveur démarre quand même (push simplement désactivées)
 let webpush = null;
 try { webpush = require('web-push'); } catch (_) { console.warn('[PUSH] module "web-push" non installé — npm install web-push pour activer les notifications push.'); }
@@ -1041,6 +1042,7 @@ app.get('/packs/bootstrap', requireAuth, limiterLoose, (req, res) => {
     QR_PLUS: d.QR_PLUS || [], QN_SWIFT: d.QN_SWIFT || [], BCB_Q: d.BCB_Q || [],
     BP_Q: d.BP_Q || [], KC_Q: d.KC_Q || [], CF_Q: d.CF_Q || [], SW_Q: d.SW_Q || [],
     LOT_FINAL_UEMOA: d.LOT_FINAL_UEMOA || {}, LOT_FINAL_CEMAC: d.LOT_FINAL_CEMAC || {},
+    LOT_LBCFT_RFE_UEMOA: d.LOT_LBCFT_RFE_UEMOA || {}, // MODIFIÉ — pack LBC/FT (03/2023) + RFE 2024-2026
     AE_DATA: d.AE_DATA || {}, AE_DATA_CEMAC: d.AE_DATA_CEMAC || {},
     BR: d.BR || {}, BB: d.BB || {}, SW: d.SW || {}, BCB: d.BCB || {}, BP: d.BP || {}, KC: d.KC || {}, CF: d.CF || {} // MODIFIÉ Phase 3 — objets Bibliothèque
   });
@@ -2549,15 +2551,17 @@ app.post('/dm/:userId', requireAuth, (req, res) => {
 /* ================================================================
    ROUTES QUIZ UEMOA OFFICIELS
 ================================================================ */
+// MODIFIÉ : quiz_uemoa.json absent du repo → routes commentées temporairement pour débloquer le déploiement Railway
+/*
 const QUIZ_UEMOA = require('./data/quiz_uemoa.json');
 
-/* GET /api/quiz/uemoa — tous les packs */
+// GET /api/quiz/uemoa — tous les packs
 app.get('/api/quiz/uemoa', (req, res) => {
   return ok(res, { quiz: QUIZ_UEMOA });
 });
 
-/* GET /api/quiz/uemoa/mode/:mode — questions filtrées par mode de jeu
-   Déclaré AVANT /api/quiz/uemoa/:packId pour éviter le conflit de routing */
+// GET /api/quiz/uemoa/mode/:mode — questions filtrées par mode de jeu
+// Déclaré AVANT /api/quiz/uemoa/:packId pour éviter le conflit de routing
 app.get('/api/quiz/uemoa/mode/:mode', (req, res) => {
   const mode = req.params.mode.toLowerCase();
   if (!['solo', 'duel', 'tournoi'].includes(mode)) return err(res, 400, 'Mode invalide — valeurs : solo, duel, tournoi');
@@ -2570,12 +2574,13 @@ app.get('/api/quiz/uemoa/mode/:mode', (req, res) => {
   return ok(res, { mode, questions, total: questions.length });
 });
 
-/* GET /api/quiz/uemoa/:packId — un pack spécifique (P1 à P5) */
+// GET /api/quiz/uemoa/:packId — un pack spécifique (P1 à P5)
 app.get('/api/quiz/uemoa/:packId', (req, res) => {
   const pack = QUIZ_UEMOA.packs.find(p => p.id === req.params.packId.toUpperCase());
   if (!pack) return err(res, 404, 'Pack introuvable — valeurs : P1, P2, P3, P4, P5');
   return ok(res, { pack });
 });
+*/
 
 /* GET /revision/uemoa — page de révision officielle BCEAO */
 app.get('/revision/uemoa', (req, res) => {
@@ -4214,6 +4219,99 @@ function publicUser(u) {
   return { id: u.id, name: u.name, email: u.email, profile: u.profile, country: u.country, etablissement: u.etablissement, role: isAdmin(u) ? 'admin' : (u.role || 'user') };
 }
 
+
+// MODIFIÉ - Audit Flash Digital (RFE)
+const multer = require('multer');
+const pdfParse = require('pdf-parse');
+if (!fs.existsSync('/tmp/audit-uploads/')) fs.mkdirSync('/tmp/audit-uploads/', { recursive: true }); // MODIFIÉ : multer ne crée pas le dossier destination lui-même
+const uploadAudit = multer({ dest: '/tmp/audit-uploads/' });
+const RFE_REFERENCE_TEXT = fs.readFileSync('./data/rfe_reference_2024.txt', 'utf8');
+
+app.post('/audit-flash', requireAuth, function(req, res, next){ // MODIFIÉ : wrapper pour capter les erreurs multer et répondre en JSON
+  uploadAudit.single('procedure')(req, res, function(uploadErr){
+    if (uploadErr) { console.error('Erreur audit-flash (upload): ' + (uploadErr && uploadErr.message ? uploadErr.message : String(uploadErr))); return err(res, 400, 'Erreur upload fichier: ' + uploadErr.message); }
+    next();
+  });
+}, async (req, res) => {
+  try {
+    if (!req.file) return err(res, 400, 'Fichier procédure manquant');
+
+    const dataBuffer = fs.readFileSync(req.file.path);
+    console.error('Audit-flash DEBUG fichier: size=' + req.file.size + ' mimetype=' + req.file.mimetype + ' originalname=' + req.file.originalname + ' bufferLen=' + dataBuffer.length + ' first8bytes=' + dataBuffer.slice(0,8).toString('utf8').replace(/[^\x20-\x7E]/g,'?')); // MODIFIÉ : diagnostic "Invalid PDF structure"
+    if (dataBuffer.slice(0,5).toString('latin1') !== '%PDF-') { // MODIFIÉ : détecte les faux PDF (ex: .docx renommé en .pdf, signature ZIP "PK")
+      fs.unlinkSync(req.file.path);
+      return err(res, 400, "Le fichier envoyé n'est pas un PDF valide (il a peut-être été renommé depuis un autre format). Réexportez-le en PDF réel (Enregistrer sous / Imprimer → PDF) puis réessayez.");
+    }
+    const pdfData = await pdfParse(dataBuffer);
+    const procedureText = pdfData.text;
+    fs.unlinkSync(req.file.path);
+
+    const orgId = req.body && req.body.org_id ? Number(req.body.org_id) : null;
+
+    const prompt = `Tu es un auditeur expert en réglementation bancaire de la zone UEMOA.
+Ta mission est d'effectuer une analyse d'écarts (Gap Analysis) stricte entre un texte réglementaire de référence et la procédure interne d'un établissement financier.
+
+RÈGLES ABSOLUES :
+1. Tu ne dois JAMAIS inventer d'obligations qui ne figurent pas dans le texte de référence fourni.
+2. Si un point du texte de référence n'est pas abordé dans la procédure interne, tu dois le signaler comme "ABSENT".
+3. Concentre-toi sur les seuils, les délais, les pourcentages et les obligations déclaratives.
+
+Texte de référence (RFE 06/2024) :
+${RFE_REFERENCE_TEXT}
+
+Procédure interne analysée :
+${procedureText}
+
+Format de sortie attendu :
+Tu dois UNIQUEMENT générer un objet JSON valide suivant cette structure, sans aucun texte avant ou après :
+{
+  "score_global": "Pourcentage estimé de couverture",
+  "points_conformes": [{"sujet": "...", "extrait_procedure": "...", "article_reference": "..."}],
+  "ecarts_detectes": [{"sujet": "...", "observation": "...", "niveau_risque": "Moyen/Haut", "article_reference": "..."}],
+  "points_absents": [{"sujet": "...", "obligation_rfe": "...", "article_reference": "..."}]
+}`;
+
+    const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 4000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const claudeData = await claudeRes.json();
+    if (!claudeRes.ok || !claudeData || !Array.isArray(claudeData.content)) {
+      console.error('Erreur audit-flash: réponse API Anthropic invalide ->', JSON.stringify(claudeData));
+      return err(res, 502, 'Réponse IA invalide (clé API manquante ou erreur Anthropic) — voir logs serveur');
+    }
+    const rawText = claudeData.content.map(b => b.text || '').join('').trim()
+      .replace(/^```json/, '').replace(/```$/, '').trim();
+
+    let report;
+    try {
+      report = JSON.parse(rawText);
+    } catch (e) {
+      return err(res, 502, 'Réponse IA non parsable, réessayer');
+    }
+
+    db.prepare(`INSERT INTO audit_flash_reports (org_id, user_id, texte_ref, rapport_json, created_at)
+      VALUES (?, ?, ?, ?, ?)`).run(
+      orgId, req.user.id, 'RFE_06_2024', JSON.stringify(report), Date.now()
+    );
+
+    ok(res, { disclaimer: "Ce rapport est un pré-diagnostic automatisé. Il ne constitue pas un audit de conformité certifié et doit être validé par un expert avant toute décision.", report });
+
+  } catch (e) {
+    console.error('Erreur audit-flash: ' + (e && e.message ? e.message : String(e)) + ' | stack: ' + (e && e.stack ? e.stack : 'n/a'));
+    return err(res, 500, 'Erreur serveur audit flash: ' + (e && e.message ? e.message : String(e)));
+  }
+});
 
 /* â”€â”€ START â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 app.listen(PORT, () => {
